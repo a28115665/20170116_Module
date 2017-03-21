@@ -1,0 +1,109 @@
+<!-- MAIN CONTENT -->
+<div id="content">
+
+	<div class="row">
+		<big-breadcrumbs items="['Concerns', 'DailyAlert']" icon="bell-o" class="col-xs-12 col-sm-7 col-md-7 col-lg-4"></big-breadcrumbs>
+	</div>
+
+	<!-- widget grid -->
+	<section id="widget-grid" data-widget-grid>
+	    <!-- row -->
+	    <div class="row">
+
+	        <!-- NEW WIDGET START -->
+	        <article class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+	        	<!-- Widget ID (each widget will need unique ID)-->
+				<div id="billboard" data-widget-sortable="false" data-widget-colorbutton="false" data-widget-togglebutton="false" data-widget-editbutton="false" data-widget-fullscreenbutton="false" data-widget-deletebutton="false" data-widget-color="blue" data-jarvis-widget ng-init="ShowTabs = true">
+				    <!-- widget options:
+				        usage: <div data-jarvis-widget id="wid-id-0" data-widget-editbutton="false">
+				        data-widget-colorbutton="false"
+				        data-widget-editbutton="false"
+				        data-widget-togglebutton="false"
+				        data-widget-deletebutton="false"
+				        data-widget-fullscreenbutton="false"
+				        data-widget-custombutton="false"
+				        data-widget-collapsed="true"
+				        data-widget-sortable="false"
+				    -->
+				    <header>
+				        <h2>通報列表 </h2>
+				        <ul id="widget-tab-1" class="nav pull-right" ng-class="{'nav-tabs' : !!ShowTabs, 'nav-pills': !ShowTabs }">
+				            <li class="active" ng-click="$vm.GridResize($vm.dailyAlertPersonGridApi)">
+				                <a data-toggle="tab" href="#hr1"> <i class="fa fa-lg fa-user-circle"></i> <span class="hidden-mobile hidden-tablet"> 人名 </span> </a>
+				            </li>
+				            <li ng-click="$vm.GridResize($vm.dailyAlertAddressGridApi)">
+				                <a data-toggle="tab" href="#hr2"> <i class="fa fa-lg fa-address-card"></i> <span class="hidden-mobile hidden-tablet"> 地址 </span></a>
+				            </li>
+				            <li ng-click="$vm.GridResize($vm.dailyAlertPAndAGridApi)">
+				                <a data-toggle="tab" href="#hr3"> <i class="fa fa-lg fa-cubes"></i> <span class="hidden-mobile hidden-tablet"> 人名.地址 </span></a>
+				            </li>
+				        </ul>
+
+				    </header>
+				    <!-- widget div-->
+				    <div>
+				        <!-- widget content -->
+						<div class="widget-body no-padding">
+
+				            <!-- widget body text-->
+				            <div class="tab-content no-padding">
+				                <div class="tab-pane fade in active" id="hr1">
+
+									<div class="widget-body-toolbar">
+									    <div class="row">
+									        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 text-right">
+									            <button class="btn btn-success">
+									                {{getWord('Export Excel')}}
+									            </button>
+									        </div>
+									    </div>
+									</div>
+
+									<div id="grid1" ui-grid="$vm.dailyAlertPersonOptions" class="my-ui-grid" ui-grid-pagination ui-grid-resize-columns></div>
+
+				                </div>
+				                <div class="tab-pane fade" id="hr2">
+
+									<div class="widget-body-toolbar">
+									    <div class="row">
+									        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 text-right">
+									            <button class="btn btn-success">
+									                {{getWord('Export Excel')}}
+									            </button>
+									        </div>
+									    </div>
+									</div>
+
+									<div id="grid1" ui-grid="$vm.dailyAlertAddressOptions" class="my-ui-grid" ui-grid-pagination ui-grid-resize-columns></div>
+
+				                </div>
+				                <div class="tab-pane fade" id="hr3">
+
+									<div class="widget-body-toolbar">
+									    <div class="row">
+									        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 text-right">
+									            <button class="btn btn-success">
+									                {{getWord('Export Excel')}}
+									            </button>
+									        </div>
+									    </div>
+									</div>
+
+									<div id="grid1" ui-grid="$vm.dailyAlertPAndAOptions" class="my-ui-grid" ui-grid-pagination ui-grid-resize-columns></div>
+
+				                </div>
+				            </div>
+
+						</div>
+						<!-- end widget content -->
+				    </div>
+				    <!-- end widget div -->
+				</div>
+				<!-- end widget -->
+	        </article>
+	        <!-- End WIDGET START -->
+
+	    </div>
+	</section>
+
+</div>

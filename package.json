@@ -1,0 +1,30 @@
+{
+  "name": "smartadmin-angularjs-app",
+  "version": "1.8.1",
+  "description": "Demo Application for AngularJS version of SmartAdmin application template",
+  "main": "index.html",
+  "private": true,
+  "scripts": {
+    "dev": "gulp dev",
+    "prod": "gulp prod"
+  },
+  "author": "Sunny",
+  "license": "MyOrange Inc.",
+  "devDependencies": {
+    "del": "^2.2.2",
+    "event-stream": "~3.3.1",
+    "gulp": "^3.9.0",
+    "gulp-angular-templatecache": "^1.7.0",
+    "gulp-concat": "^2.6.0",
+    "gulp-connect": "^2.2.0",
+    "gulp-livereload": "^3.8.1",
+    "gulp-ng-annotate": "^1.0.0",
+    "gulp-uglify": "^1.2.0",
+    "lodash": "^4.0.0"
+  },
+  "dependencies": {
+    "connect-redis": "^3.2.0",
+    "express": "^4.14.0",
+    "mssql": "^3.3.0"
+  }
+}
