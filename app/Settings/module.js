@@ -61,4 +61,4 @@ angular.module('app.settings').config(function ($stateProvider){
             }
         }
     })
-})
+});
