@@ -268,7 +268,7 @@ if (appConfig.voice_command) {
 /**
  * 畫面的語言
  */
-appConfig.view_lang = 'tw';
+appConfig.view_lang = 'en';
 
 appConfig.apiRootUrl = 'api';
 

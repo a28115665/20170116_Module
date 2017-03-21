@@ -127,3 +127,29 @@ angular.module('app')
 	    Resource.LOGOUT.get();
 	}
 })
+.service('ToolboxApi', function ($http, $q, Resource){
+
+	this.ExportExcelByVar = function (dataSrc) {
+	    // console.log(dataSrc);
+	    var deferred = $q.defer();
+
+	    Resource.EXPORTEXCELBYVAR.get(dataSrc,
+	    	function (data, status, headers, config){
+	    		deferred.resolve({
+	    			data : data,
+	    			status : status,
+	    			headers : headers,
+	    			config : config
+	    		});
+	    	},
+	    	function (data, status, headers, config){
+	    		deferred.reject({
+	    			data : data,
+	    			status : status,
+	    			headers : headers,
+	    			config : config
+	    		});
+	    	})
+	    return deferred.promise
+	}
+});

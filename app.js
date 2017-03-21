@@ -13,6 +13,7 @@ var redis_cli  = redis.createClient();
 var routes = require('./routes/index');
 var auth = require('./routes/auth');
 var restful = require('./routes/restful');
+var toolbox = require('./routes/toolbox');
 var middleware = require('./routes/middleware');
 
 var setting = require('./app.setting.json');
@@ -48,6 +49,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', routes);
 app.use('/auth', auth);
 app.use('/restful', restful);
+app.use('/toolbox', toolbox);
 app.get('/favicon.ico', function(req, res) {
     res.send(204);
 });

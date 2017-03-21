@@ -149,4 +149,32 @@ angular.module('app.restful').config(function ($stateProvider){
 				}
 			}
 		})
+
+        .state('app.restful.exceltest', {
+            url: '/exceltest',
+            data: {
+                title: 'ExcelTest'
+            },
+            views: {
+                "content@app" : {
+                    templateUrl: 'app/Restful/views/excel.html',
+                    controller: 'ExcelTestCtrl',
+                    controllerAs: '$vm',
+                    resolve: {
+                        config: function (RestfulApi) {
+                            /**
+                             * Select Sample
+                             */
+                            // return RestfulApi.SearchMSSQLData({
+                            //     queryname: 'SelectAllUserInfo',
+                            //     params: {
+                            //         U_ID : "Admin",
+                            //         U_Name : "系統管理員"
+                            //     }
+                            // });
+                        }
+                    }
+                }
+            }
+        })
 })

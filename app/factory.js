@@ -26,7 +26,8 @@ angular.module('app')
             }
         ),
         LOGIN : $resource('/auth/login'),
-        LOGOUT : $resource('/auth/logout')
+        LOGOUT : $resource('/auth/logout'),
+        EXPORTEXCELBYVAR : $resource('/toolbox/exportExcelByVar')
     };
 })
 .factory('Account', AccountResolve)
