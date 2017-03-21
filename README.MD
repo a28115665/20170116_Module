@@ -1,4 +1,4 @@
-SmartAdmin AngularJs Version 2
+20170116_Module
 ==============================
 
 development
@@ -12,7 +12,7 @@ To run the code in your development environment:
 Now with all dependencies installed
 
 4. Start the development server for demo project with `npm run dev`
-5. Point your browser to [http://localhost:8888](http://localhost:8888)
+5. Point your browser to [http://localhost:3000](http://localhost:3000)
 
 -----------------------------------------------
 
@@ -21,13 +21,3 @@ production
 To build minified version:
 
 - Run `npm run prod`
-
-***********************************************
-
-resources
----------
-
-- [complete project demo](http://sang-shockwave.rhcloud.com)
-
-
-******************************************************************
