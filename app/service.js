@@ -6,22 +6,13 @@ angular.module('app')
 	    var deferred = $q.defer();
 
 	    Resource.CRUD.get(dataSrc, 
-	    	function (data, status, headers, config){
-	    		deferred.resolve({
-	    			data : data,
-	    			status : status,
-	    			headers : headers,
-	    			config : config
-	    		});
-	    	},
-	    	function (data, status, headers, config){
-	    		deferred.reject({
-	    			data : data,
-	    			status : status,
-	    			headers : headers,
-	    			config : config
-	    		});
-	    	})
+	    	function (pSResponse){
+				deferred.resolve(pSResponse);
+			},
+	    	function (pFResponse){
+	    		deferred.reject(pFResponse.data);
+	    	});
+
 	    return deferred.promise
 	},
 
@@ -30,22 +21,13 @@ angular.module('app')
 	    var deferred = $q.defer();
 
 	    Resource.CRUD.insert(dataSrc, {}, 
-	    	function (data, status, headers, config){
-	    		deferred.resolve({
-	    			data : data,
-	    			status : status,
-	    			headers : headers,
-	    			config : config
-	    		});
-	    	},
-	    	function (data, status, headers, config){
-	    		deferred.reject({
-	    			data : data,
-	    			status : status,
-	    			headers : headers,
-	    			config : config
-	    		});
-	    	})
+	    	function (pSResponse){
+				deferred.resolve(pSResponse);
+			},
+	    	function (pFResponse){
+	    		deferred.reject(pFResponse.data);
+	    	});
+
 	    return deferred.promise
 	},
 
@@ -54,22 +36,13 @@ angular.module('app')
 	    var deferred = $q.defer();
 
 	    Resource.CRUD.update(dataSrc, {}, 
-	    	function (data, status, headers, config){
-	    		deferred.resolve({
-	    			data : data,
-	    			status : status,
-	    			headers : headers,
-	    			config : config
-	    		});
-	    	},
-	    	function (data, status, headers, config){
-	    		deferred.reject({
-	    			data : data,
-	    			status : status,
-	    			headers : headers,
-	    			config : config
-	    		});
-	    	})
+	    	function (pSResponse){
+				deferred.resolve(pSResponse);
+			},
+	    	function (pFResponse){
+	    		deferred.reject(pFResponse.data);
+	    	});
+
 	    return deferred.promise
 	},
 
@@ -78,22 +51,13 @@ angular.module('app')
 	    var deferred = $q.defer();
 
 	    Resource.CRUD.remove(dataSrc, {}, 
-	    	function (data, status, headers, config){
-	    		deferred.resolve({
-	    			data : data,
-	    			status : status,
-	    			headers : headers,
-	    			config : config
-	    		});
-	    	},
-	    	function (data, status, headers, config){
-	    		deferred.reject({
-	    			data : data,
-	    			status : status,
-	    			headers : headers,
-	    			config : config
-	    		});
-	    	})
+	    	function (pSResponse){
+				deferred.resolve(pSResponse);
+			},
+	    	function (pFResponse){
+	    		deferred.reject(pFResponse.data);
+	    	});
+
 	    return deferred.promise
 	};
 })
@@ -104,22 +68,13 @@ angular.module('app')
 	    var deferred = $q.defer();
 
 	    Resource.LOGIN.get(dataSrc,
-	    	function (data, status, headers, config){
-	    		deferred.resolve({
-	    			data : data,
-	    			status : status,
-	    			headers : headers,
-	    			config : config
-	    		});
-	    	},
-	    	function (data, status, headers, config){
-	    		deferred.reject({
-	    			data : data,
-	    			status : status,
-	    			headers : headers,
-	    			config : config
-	    		});
-	    	})
+	    	function (pSResponse){
+				deferred.resolve(pSResponse);
+			},
+	    	function (pFResponse){
+	    		deferred.reject(pFResponse.data);
+	    	});
+
 	    return deferred.promise
 	},
 
@@ -127,3 +82,20 @@ angular.module('app')
 	    Resource.LOGOUT.get();
 	}
 })
+.service('ToolboxApi', function ($http, $q, Resource){
+
+	this.ExportExcelByVar = function (dataSrc) {
+	    // console.log(dataSrc);
+	    var deferred = $q.defer();
+
+	    Resource.EXPORTEXCELBYVAR.get(dataSrc,
+	    	function (pSResponse){
+				deferred.resolve(pSResponse);
+			},
+	    	function (pFResponse){
+	    		deferred.reject(pFResponse.data);
+	    	});
+
+	    return deferred.promise
+	}
+});

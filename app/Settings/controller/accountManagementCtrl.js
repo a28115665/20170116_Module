@@ -63,7 +63,7 @@ angular.module('app.settings').controller('AccountManagementCtrl', function ($sc
                                 SC_Type : "Depart"
                             }
                         }).then(function (res){
-                            var data = res.data["returnData"] || [],
+                            var data = res["returnData"] || [],
                                 finalData = {};
 
                             for(var i in data){
@@ -100,7 +100,7 @@ angular.module('app.settings').controller('AccountManagementCtrl', function ($sc
                 }).then(function(res) {
                     console.log(res);
 
-                    if(res.data["returnData"] == 1){
+                    if(res["returnData"] == 1){
                     	LoadAccount();
                     }
 

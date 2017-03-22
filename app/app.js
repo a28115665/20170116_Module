@@ -59,11 +59,11 @@ angular.module('app', [
 
 
     // Intercept http calls.
-    $provide.factory('ErrorHttpInterceptor', function ($q, toaster) {
+    $provide.factory('HttpInterceptor', function ($q, toaster) {
         var errorCounter = 0;
 
         function notifyError(rejection) {
-            console.log(rejection);
+            // console.log(rejection);
             // $.bigBox({
             //     title: rejection.status + ' ' + rejection.statusText,
             //     content: rejection.data,
@@ -76,6 +76,18 @@ angular.module('app', [
         }
 
         return {
+            // On request success
+            request: function(config) {
+                // Return config.
+                return config;
+            },
+
+            // On response success
+            response: function(response) {
+                // Return response.
+                return response;
+            },
+
             // On request failure
             requestError: function(rejection) {
                 // show notification
@@ -96,7 +108,7 @@ angular.module('app', [
     });
 
     // Add the interceptor to the $httpProvider.
-    $httpProvider.interceptors.push('ErrorHttpInterceptor');
+    $httpProvider.interceptors.push('HttpInterceptor');
 
     RestangularProvider.setBaseUrl(location.pathname.replace(/[^\/]+?$/, ''));
 
