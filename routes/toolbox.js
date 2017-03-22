@@ -21,7 +21,7 @@ router.get('/exportExcelByVar', function(req, res) {
     //     }
     // })
     
-    res.status(200).send('查詢成功');
+    res.status(200).send({"returnData":"查詢成功"});
 });
 
 module.exports = router;

@@ -4,7 +4,7 @@ function AccountResolve (RestfulApi, $q) {
     RestfulApi.SearchMSSQLData({
         queryname: 'SelectAllUserInfoNotWithAdmin'
     }).then(function (res){
-        var data = res.data["returnData"] || [],
+        var data = res["returnData"] || [],
             finalData = [];
 
         for(var i in data){
@@ -33,7 +33,7 @@ function RoleResolve (RestfulApi, $q) {
             SC_Type : "Role"
         }
     }).then(function (res){
-        var data = res.data["returnData"] || [],
+        var data = res["returnData"] || [],
             finalData = {};
 
         for(var i in data){
@@ -56,7 +56,7 @@ function DepartResolve (RestfulApi, $q) {
             SC_Type : "Depart"
         }
     }).then(function (res){
-        var data = res.data["returnData"] || [],
+        var data = res["returnData"] || [],
             finalData = {};
 
         for(var i in data){

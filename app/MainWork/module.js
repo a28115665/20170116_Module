@@ -29,7 +29,7 @@ angular.module('app.mainwork').config(function ($stateProvider){
                         RestfulApi.SearchMSSQLData({
                             queryname: 'SelectAllBillboard'
                         }).then(function (res){
-                            var data = res.data["returnData"] || [],
+                            var data = res["returnData"] || [],
                                 finalData = [];
 
                             for(var i in data){

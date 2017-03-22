@@ -21,8 +21,9 @@ angular.module('app.restful').config(function ($stateProvider){
 				"content@app" : {
 					templateUrl: 'app/Restful/views/test.html',
                     controller: function ($scope, config, RestfulApi) {
+                        
                     	// var self = {};
-                    	this.data = config.data["returnData"];
+                    	this.data = config["returnData"];
                     	console.log(config);
 
                         /**

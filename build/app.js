@@ -353,11 +353,11 @@ angular.module('app', [
 
 
     // Intercept http calls.
-    $provide.factory('ErrorHttpInterceptor', function ($q, toaster) {
+    $provide.factory('HttpInterceptor', function ($q, toaster) {
         var errorCounter = 0;
 
         function notifyError(rejection) {
-            console.log(rejection);
+            // console.log(rejection);
             // $.bigBox({
             //     title: rejection.status + ' ' + rejection.statusText,
             //     content: rejection.data,
@@ -370,6 +370,18 @@ angular.module('app', [
         }
 
         return {
+            // On request success
+            request: function(config) {
+                // Return config.
+                return config;
+            },
+
+            // On response success
+            response: function(response) {
+                // Return response.
+                return response;
+            },
+
             // On request failure
             requestError: function(rejection) {
                 // show notification
@@ -390,7 +402,7 @@ angular.module('app', [
     });
 
     // Add the interceptor to the $httpProvider.
-    $httpProvider.interceptors.push('ErrorHttpInterceptor');
+    $httpProvider.interceptors.push('HttpInterceptor');
 
     RestangularProvider.setBaseUrl(location.pathname.replace(/[^\/]+?$/, ''));
 
@@ -1349,7 +1361,7 @@ angular.module('app.mainwork').config(function ($stateProvider){
                         RestfulApi.SearchMSSQLData({
                             queryname: 'SelectAllBillboard'
                         }).then(function (res){
-                            var data = res.data["returnData"] || [],
+                            var data = res["returnData"] || [],
                                 finalData = [];
 
                             for(var i in data){
@@ -1554,8 +1566,9 @@ angular.module('app.restful').config(function ($stateProvider){
 				"content@app" : {
 					templateUrl: 'app/Restful/views/test.html',
                     controller: function ($scope, config, RestfulApi) {
+                        
                     	// var self = {};
-                    	this.data = config.data["returnData"];
+                    	this.data = config["returnData"];
                     	console.log(config);
 
                         /**
@@ -2491,7 +2504,7 @@ function AccountResolve (RestfulApi, $q) {
     RestfulApi.SearchMSSQLData({
         queryname: 'SelectAllUserInfoNotWithAdmin'
     }).then(function (res){
-        var data = res.data["returnData"] || [],
+        var data = res["returnData"] || [],
             finalData = [];
 
         for(var i in data){
@@ -2520,7 +2533,7 @@ function RoleResolve (RestfulApi, $q) {
             SC_Type : "Role"
         }
     }).then(function (res){
-        var data = res.data["returnData"] || [],
+        var data = res["returnData"] || [],
             finalData = {};
 
         for(var i in data){
@@ -2543,7 +2556,7 @@ function DepartResolve (RestfulApi, $q) {
             SC_Type : "Depart"
         }
     }).then(function (res){
-        var data = res.data["returnData"] || [],
+        var data = res["returnData"] || [],
             finalData = {};
 
         for(var i in data){
@@ -2574,22 +2587,13 @@ angular.module('app')
 	    var deferred = $q.defer();
 
 	    Resource.CRUD.get(dataSrc, 
-	    	function (data, status, headers, config){
-	    		deferred.resolve({
-	    			data : data,
-	    			status : status,
-	    			headers : headers,
-	    			config : config
-	    		});
-	    	},
-	    	function (data, status, headers, config){
-	    		deferred.reject({
-	    			data : data,
-	    			status : status,
-	    			headers : headers,
-	    			config : config
-	    		});
-	    	})
+	    	function (pSResponse){
+				deferred.resolve(pSResponse);
+			},
+	    	function (pFResponse){
+	    		deferred.reject(pFResponse.data);
+	    	});
+
 	    return deferred.promise
 	},
 
@@ -2598,22 +2602,13 @@ angular.module('app')
 	    var deferred = $q.defer();
 
 	    Resource.CRUD.insert(dataSrc, {}, 
-	    	function (data, status, headers, config){
-	    		deferred.resolve({
-	    			data : data,
-	    			status : status,
-	    			headers : headers,
-	    			config : config
-	    		});
-	    	},
-	    	function (data, status, headers, config){
-	    		deferred.reject({
-	    			data : data,
-	    			status : status,
-	    			headers : headers,
-	    			config : config
-	    		});
-	    	})
+	    	function (pSResponse){
+				deferred.resolve(pSResponse);
+			},
+	    	function (pFResponse){
+	    		deferred.reject(pFResponse.data);
+	    	});
+
 	    return deferred.promise
 	},
 
@@ -2622,22 +2617,13 @@ angular.module('app')
 	    var deferred = $q.defer();
 
 	    Resource.CRUD.update(dataSrc, {}, 
-	    	function (data, status, headers, config){
-	    		deferred.resolve({
-	    			data : data,
-	    			status : status,
-	    			headers : headers,
-	    			config : config
-	    		});
-	    	},
-	    	function (data, status, headers, config){
-	    		deferred.reject({
-	    			data : data,
-	    			status : status,
-	    			headers : headers,
-	    			config : config
-	    		});
-	    	})
+	    	function (pSResponse){
+				deferred.resolve(pSResponse);
+			},
+	    	function (pFResponse){
+	    		deferred.reject(pFResponse.data);
+	    	});
+
 	    return deferred.promise
 	},
 
@@ -2646,22 +2632,13 @@ angular.module('app')
 	    var deferred = $q.defer();
 
 	    Resource.CRUD.remove(dataSrc, {}, 
-	    	function (data, status, headers, config){
-	    		deferred.resolve({
-	    			data : data,
-	    			status : status,
-	    			headers : headers,
-	    			config : config
-	    		});
-	    	},
-	    	function (data, status, headers, config){
-	    		deferred.reject({
-	    			data : data,
-	    			status : status,
-	    			headers : headers,
-	    			config : config
-	    		});
-	    	})
+	    	function (pSResponse){
+				deferred.resolve(pSResponse);
+			},
+	    	function (pFResponse){
+	    		deferred.reject(pFResponse.data);
+	    	});
+
 	    return deferred.promise
 	};
 })
@@ -2672,22 +2649,13 @@ angular.module('app')
 	    var deferred = $q.defer();
 
 	    Resource.LOGIN.get(dataSrc,
-	    	function (data, status, headers, config){
-	    		deferred.resolve({
-	    			data : data,
-	    			status : status,
-	    			headers : headers,
-	    			config : config
-	    		});
-	    	},
-	    	function (data, status, headers, config){
-	    		deferred.reject({
-	    			data : data,
-	    			status : status,
-	    			headers : headers,
-	    			config : config
-	    		});
-	    	})
+	    	function (pSResponse){
+				deferred.resolve(pSResponse);
+			},
+	    	function (pFResponse){
+	    		deferred.reject(pFResponse.data);
+	    	});
+
 	    return deferred.promise
 	},
 
@@ -2702,22 +2670,13 @@ angular.module('app')
 	    var deferred = $q.defer();
 
 	    Resource.EXPORTEXCELBYVAR.get(dataSrc,
-	    	function (data, status, headers, config){
-	    		deferred.resolve({
-	    			data : data,
-	    			status : status,
-	    			headers : headers,
-	    			config : config
-	    		});
-	    	},
-	    	function (data, status, headers, config){
-	    		deferred.reject({
-	    			data : data,
-	    			status : status,
-	    			headers : headers,
-	    			config : config
-	    		});
-	    	})
+	    	function (pSResponse){
+				deferred.resolve(pSResponse);
+			},
+	    	function (pFResponse){
+	    		deferred.reject(pFResponse.data);
+	    	});
+
 	    return deferred.promise
 	}
 });
@@ -5234,8 +5193,12 @@ angular.module('app.restful').controller('ExcelTestCtrl', function ($scope, $sta
 
     var $vm = this;
 
-    ToolboxApi.ExportExcelByVar({}).then(function(res) {
-        console.log(res);
+    ToolboxApi.ExportExcelByVar({
+    	
+    }).then(function (res) {
+        console.log("s", res);
+    }, function (err) {
+        console.log("f", res);
     });
 });
 
@@ -5591,7 +5554,7 @@ angular.module('app.settings').controller('AccountManagementCtrl', function ($sc
                                 SC_Type : "Depart"
                             }
                         }).then(function (res){
-                            var data = res.data["returnData"] || [],
+                            var data = res["returnData"] || [],
                                 finalData = {};
 
                             for(var i in data){
@@ -5628,7 +5591,7 @@ angular.module('app.settings').controller('AccountManagementCtrl', function ($sc
                 }).then(function(res) {
                     console.log(res);
 
-                    if(res.data["returnData"] == 1){
+                    if(res["returnData"] == 1){
                     	LoadAccount();
                     }
 

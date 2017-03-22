@@ -4,7 +4,11 @@ angular.module('app.restful').controller('ExcelTestCtrl', function ($scope, $sta
 
     var $vm = this;
 
-    ToolboxApi.ExportExcelByVar({}).then(function(res) {
-        console.log(res);
+    ToolboxApi.ExportExcelByVar({
+    	
+    }).then(function (res) {
+        console.log("s", res);
+    }, function (err) {
+        console.log("f", res);
     });
 });
