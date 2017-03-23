@@ -27,7 +27,19 @@ angular.module('app')
         ),
         LOGIN : $resource('/auth/login'),
         LOGOUT : $resource('/auth/logout'),
-        EXPORTEXCELBYVAR : $resource('/toolbox/exportExcelByVar')
+        EXPORTEXCELBYVAR : $resource('/toolbox/exportExcelByVar', null, 
+            {
+                'postByArraybuffer': { 
+                    method: 'POST',
+                    responseType : 'arraybuffer',
+                    transformResponse: function(data) {
+                        return {
+                            response: new Blob([data], { type: 'application/vnd.ms-excel' })
+                        };
+                    }
+                }
+            }
+        )
     };
 })
 .factory('Account', AccountResolve)

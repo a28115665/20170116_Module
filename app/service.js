@@ -88,7 +88,7 @@ angular.module('app')
 	    // console.log(dataSrc);
 	    var deferred = $q.defer();
 
-	    Resource.EXPORTEXCELBYVAR.get(dataSrc,
+	    Resource.EXPORTEXCELBYVAR.postByArraybuffer(dataSrc,
 	    	function (pSResponse){
 				deferred.resolve(pSResponse);
 			},

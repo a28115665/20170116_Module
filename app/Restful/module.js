@@ -20,7 +20,7 @@ angular.module('app.restful').config(function ($stateProvider){
 			views: {
 				"content@app" : {
 					templateUrl: 'app/Restful/views/test.html',
-                    controller: function ($scope, config, RestfulApi, Session, $filter) {
+                    controller: function ($scope, config, RestfulApi, ToolboxApi, Session, $filter) {
                         
                         var $vm = this;
 
@@ -44,6 +44,10 @@ angular.module('app.restful').config(function ($stateProvider){
                                     result : ""
                                 },
                                 deleteTest : {
+                                    status : "",
+                                    result : ""
+                                },
+                                exportExcelByVarTest : {
                                     status : "",
                                     result : ""
                                 }
@@ -135,6 +139,38 @@ angular.module('app.restful').config(function ($stateProvider){
                             }, function (err) {
                                 $vm.restful.deleteTest.status = "失敗";
                                 $vm.restful.deleteTest.result = err;
+                            });
+                        };
+
+                        /**
+                         * ExportExcelByVar Sample
+                         */
+                        $vm.ExportExcelByVarTest = function(){
+                            ToolboxApi.ExportExcelByVar({
+
+                            }).then(function (res) {
+                                $vm.restful.exportExcelByVarTest.status = "成功";
+                                $vm.restful.exportExcelByVarTest.result = "匯出成功";
+                                console.log(res);
+
+                                // var blob = new Blob([res], {type: "application/vnd.ms-excel"});
+                                var objectUrl = URL.createObjectURL(res["response"]);
+                                var link = document.createElement('a');
+                                if (typeof link.download === 'string') {
+                                    // Firefox requires the link to be in the body
+                                    document.body.appendChild(link); 
+                                    // link.download = dataSrc.filename;
+                                    link.download = 'test.xlsx';
+                                    link.href = objectUrl;
+                                    link.click();
+                                    // remove the link when done
+                                    document.body.removeChild(link); 
+                                } else {
+                                    location.replace(objectUrl);
+                                }
+                            }, function (err) {
+                                $vm.restful.exportExcelByVarTest.status = "失敗";
+                                $vm.restful.exportExcelByVarTest.result = "匯出失敗";
                             });
                         };
 
