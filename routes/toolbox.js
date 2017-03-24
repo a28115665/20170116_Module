@@ -58,7 +58,7 @@ router.get('/exportExcelByVar', function(req, res) {
             // Do something with your error...
             res.status(500).send("匯出失敗");
         } else {
-            
+
             res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
             res.setHeader('Content-Length', result.length);
             res.setHeader('Expires', '0');

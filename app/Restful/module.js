@@ -66,10 +66,12 @@ angular.module('app.restful').config(function ($stateProvider){
                                 }
                             }).then(function (res){
                                 $vm.restful.queryTest.status = "成功";
-                                $vm.restful.queryTest.result = {
-                                    ID : res["returnData"][0]["U_ID"],
-                                    Name : res["returnData"][0]["U_Name"]
-                                };
+                                if(res["returnData"].length > 0){
+                                    $vm.restful.queryTest.result = {
+                                        ID : res["returnData"][0]["U_ID"],
+                                        Name : res["returnData"][0]["U_Name"]
+                                    };
+                                }
                             }, function (err){
                                 $vm.restful.queryTest.status = "失敗";
                                 $vm.restful.queryTest.result = err;

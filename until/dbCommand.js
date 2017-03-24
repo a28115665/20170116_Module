@@ -1,7 +1,7 @@
 var sql = require('mssql');
 var setting = require('../app.setting.json');
 var tables = require('./table.json');
-var schematype = require('./schemaType.js');
+var schemaType = require('./schemaType.js');
 
 /**
  * [SelectMethod 單筆資料Select]
@@ -69,7 +69,7 @@ var SelectMethod = function (queryname, params, callback){
 					break;
 			}	    
 
-			schematype.SchemaType(_params, ps, sql);
+			schemaType.SchemaType(_params, ps, sql);
 
 			// 執行SQL，並且回傳值
 		    ps.prepare(SQLCommand, function(err) {
@@ -160,7 +160,7 @@ var InsertMethod = function (insertname, table, params, callback){
 					callback(null, {});
 					break;
 			}	    
-			schematype.SchemaType(_params, ps, sql);
+			schemaType.SchemaType(_params, ps, sql);
 
 			// 執行SQL，並且回傳值
 		    ps.prepare(SQLCommand, function(err) {
@@ -232,7 +232,7 @@ var UpdateMethod = function (updatetname, table, params, condition, callback){
 					callback(null, {});
 					break;
 			}	    
-			schematype.SchemaType(_psParams, ps, sql);
+			schemaType.SchemaType(_psParams, ps, sql);
 
 			// 執行SQL，並且回傳值
 		    ps.prepare(SQLCommand, function(err) {
@@ -297,7 +297,7 @@ var DeleteMethod = function (deletename, table, params, callback){
 					callback(null, {});
 					break;
 			}	    
-			schematype.SchemaType(_params, ps, sql);
+			schemaType.SchemaType(_params, ps, sql);
 
 			// 執行SQL，並且回傳值
 		    ps.prepare(SQLCommand, function(err) {

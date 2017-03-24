@@ -1,3 +1,19 @@
+var sql = require('mssql');
+var setting = require('../app.setting.json');
+
+var DatabaseSchema = [];
+
+// 初始化 DatabaseSchema
+sql.connect(setting.MSSQL).then(function() {
+	new sql.Request().query('SELECT * FROM Information_Schema.COLUMNS', (err, result) => {
+        // ... error checks
+        if(err) return;
+
+        DatabaseSchema = result;
+    });
+
+});
+
 /**
  * [SchemaType description] SQL Schema類型
  * @param {[type]} params [description]
@@ -5,6 +21,7 @@
  * @param {[type]} sql    [description]
  */
 var SchemaType = function (params, ps, sql){
+	console.log(DatabaseSchema[0]);
 	for(var key in params){
 		if(params[key] !== undefined){
 			switch(key){
