@@ -11,7 +11,9 @@ const fs = require('fs');
 /**
  * ExportExcelByVar 經由前端參數匯出Excel
  */
-router.post('/exportExcelByVar', function(req, res) {
+router.get('/exportExcelByVar', function(req, res) {
+
+    var _params = typeof req.query["params"] == "string" ? JSON.parse(req.query["params"]) : req.query["params"]
 
     var testObj = {
         firstTitle: '人員檔案',
@@ -19,7 +21,7 @@ router.post('/exportExcelByVar', function(req, res) {
         thirdTitle: '工作基本信息',
         
         col: [
-            {name: "登入名", value: "Alan"},
+            {name: "登入名", value: _params["ID"]},
             {name: "部門", value: "門診部"},
             {name: "姓名", value: "王大明"},
             {name: "民族", value: "維吾爾族"},
@@ -48,22 +50,22 @@ router.post('/exportExcelByVar', function(req, res) {
     tmpXlsObj.GetXls({
         JsonXlsStr : testStr,
         TmpXlsFilePath : path.join(path.dirname(module.parent.filename), 'templates', 'aa.xlsx'), //template xls 路徑(含檔名)
-        OutputXlsPath : path.join(path.dirname(module.parent.filename), 'templates', 'test2.xlsx'),
+        // OutputXlsPath : path.join(path.dirname(module.parent.filename), 'templates', 'test2.xlsx'),
         SheetNumber : 1
     }, function (err, result){
         if (err) {
             console.log(err);
             // Do something with your error...
-            res.status(500).send({"returnData":"匯出失敗"});
+            res.status(500).send("匯出失敗");
         } else {
-
-            res.setHeader('Content-Type', 'application/vnd.ms-excel');
-            res.setHeader('Content-Length', result.length);
-            res.setHeader('Expires', "0");
-            res.setHeader('Content-Disposition', "attachment; filename=testxls.xls");
-            res.setHeader('Content-Encoding', "UTF-8");
-            res.status(200);
             
+            res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+            res.setHeader('Content-Length', result.length);
+            res.setHeader('Expires', '0');
+            // res.setHeader('Content-Disposition', 'attachment; filename=test.xls');
+            res.setHeader('Content-Encoding', 'UTF-8');
+            res.status(200);
+
             var buffer = new Buffer(result, "binary");
 
             res.end(toArrayBuffer(buffer));

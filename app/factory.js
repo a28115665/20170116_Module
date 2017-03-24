@@ -30,11 +30,11 @@ angular.module('app')
         EXPORTEXCELBYVAR : $resource('/toolbox/exportExcelByVar', null, 
             {
                 'postByArraybuffer': { 
-                    method: 'POST',
+                    method: 'GET',
                     responseType : 'arraybuffer',
                     transformResponse: function(data) {
                         return {
-                            response: new Blob([data], { type: 'application/vnd.ms-excel' })
+                            response: new Blob([data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
                         };
                     }
                 }

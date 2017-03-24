@@ -94,8 +94,8 @@ function CheckXlsObj(pXlsObj){
             rErr += '請傳入 JsonXlsStr。\n'; //需匯入至excel的json格式字串
         if(!HasValue(pXlsObj.TmpXlsFilePath))
             rErr += '請傳入 TmpXlsFilePath。\n';//讀取template excel的路徑
-        if(!HasValue(pXlsObj.OutputXlsPath))
-            rErr += '請傳入 OutputXlsPath。\n';//匯出之excel檔案路徑
+        // if(!HasValue(pXlsObj.OutputXlsPath))
+        //     rErr += '請傳入 OutputXlsPath。\n';//匯出之excel檔案路徑
         if(!HasValue(pXlsObj.SheetNumber))
             rErr += '請傳入 SheetNumber。';//指定excel的分頁
     }
