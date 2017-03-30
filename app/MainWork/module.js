@@ -27,6 +27,7 @@ angular.module('app.mainwork').config(function ($stateProvider){
                         var deferred = $q.defer();
 
                         RestfulApi.SearchMSSQLData({
+                            querymain: 'main',
                             queryname: 'SelectAllBillboard'
                         }).then(function (res){
                             var data = res["returnData"] || [],

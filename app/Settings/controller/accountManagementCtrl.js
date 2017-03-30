@@ -58,6 +58,7 @@ angular.module('app.settings').controller('AccountManagementCtrl', function ($sc
                         var deferred = $q.defer();
 
                         RestfulApi.SearchMSSQLData({
+                            querymain: 'accountManagement',
                             queryname: 'SelectAllSysCode',
                             params: {
                                 SC_Type : "Depart"
@@ -114,6 +115,7 @@ angular.module('app.settings').controller('AccountManagementCtrl', function ($sc
 
 	function LoadAccount(){
     	RestfulApi.SearchMSSQLData({
+            querymain: 'accountManagement',
 	        queryname: 'SelectAllUserInfoNotWithAdmin'
 	    }).then(function (res){
         	// console.log(res);
