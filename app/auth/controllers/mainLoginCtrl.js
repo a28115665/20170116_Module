@@ -5,6 +5,7 @@ angular.module('app.auth').controller('MainLoginCtrl', function ($scope, $stateP
     $scope.Login = function(mlVM){
         console.log(mlVM);
         AuthApi.Login({
+            querymain: 'accountManagement',
             queryname: 'SelectAllUserInfo',
             params: {
                 U_ID : mlVM.userid,

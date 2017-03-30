@@ -2,6 +2,7 @@ function AccountResolve (RestfulApi, $q) {
     var deferred = $q.defer();
 
     RestfulApi.SearchMSSQLData({
+        querymain: 'accountManagement',
         queryname: 'SelectAllUserInfoNotWithAdmin'
     }).then(function (res){
         var data = res["returnData"] || [],
@@ -28,6 +29,7 @@ function RoleResolve (RestfulApi, $q) {
     var deferred = $q.defer();
 
     RestfulApi.SearchMSSQLData({
+        querymain: 'accountManagement',
         queryname: 'SelectAllSysCode',
         params: {
             SC_Type : "Role"
@@ -51,6 +53,7 @@ function DepartResolve (RestfulApi, $q) {
     var deferred = $q.defer();
 
     RestfulApi.SearchMSSQLData({
+        querymain: 'accountManagement',
         queryname: 'SelectAllSysCode',
         params: {
             SC_Type : "Depart"

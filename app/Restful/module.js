@@ -60,6 +60,7 @@ angular.module('app.restful').config(function ($stateProvider){
                          */
                         $vm.QueryTest = function(){
                             RestfulApi.SearchMSSQLData({
+                                querymain: 'accountManagement',
                                 queryname: 'SelectAllUserInfo',
                                 params: {
                                     U_ID : $vm.testData.ID

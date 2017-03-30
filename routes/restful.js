@@ -6,8 +6,8 @@ var dbCommand = require('../until/dbCommand.js');
  * Restful 查詢
  */
 router.get('/crud', function(req, res) {
-
-    dbCommand.SelectMethod(req.query["queryname"], req.query["params"], function(err, recordset) {
+    
+    dbCommand.SelectMethod(req.query["querymain"], req.query["queryname"], req.query["params"], function(err, recordset) {
         if (err) {
             console.log(err);
             // Do something with your error...
