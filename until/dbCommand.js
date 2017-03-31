@@ -1,75 +1,41 @@
 var sql = require('mssql');
 var setting = require('../app.setting.json');
 var tables = require('./table.json');
-var schematype = require('./schemaType.js');
+var schemaType = require('./schemaType.js');
+
+/**
+ * [將query_files底下所有的statement集中到queryMethods裡]
+ * @param {[type]} queryMethods [依照檔名對應Methods]
+ */
+var queryMethods = {},
+	queryFilesPath = require("path").join(__dirname, "query_files");
+require("fs").readdirSync(queryFilesPath).forEach(function(file) {
+	var _target = file.split(".")[0],
+		_method = require("./query_files/" + file);
+
+	queryMethods[_target] = _method;
+});
 
 /**
  * [SelectMethod 單筆資料Select]
+ * @param {[type]}   querymain [查詢序目標檔名]
  * @param {[type]}   queryname [查詢序名稱]
  * @param {[type]}   params    [查詢參數]
  * @param {Function} callback  [回拋]
  */
-var SelectMethod = function (queryname, params, callback){
+var SelectMethod = function (querymain, queryname, params, callback){
 
 	try {
 		var connection = sql.connect(setting.MSSQL).then(function(cp) {
 			var ps = new sql.PreparedStatement(cp),
 				_params = typeof params == "string" ? JSON.parse(params) : params,
 				SQLCommand = "";
-			var flag = false;
 
-		    switch(queryname){
-				case "SelectAllUserInfo":
-					SQLCommand += "SELECT * \
-								   FROM UserInfo \
-								   WHERE 1=1"
-					if(_params["U_ID"] !== undefined){
-						SQLCommand += " AND U_ID = @U_ID";
-					}
-					if(_params["U_Name"] !== undefined){
-						SQLCommand += " AND U_Name = @U_Name";
-					}
-					if(_params["U_PW"] !== undefined){
-						SQLCommand += " AND U_PW = @U_PW";
-					}
-					break;
-				case "SelectAllUserInfoNotWithAdmin":
-					SQLCommand += "SELECT * \
-								   FROM UserInfo \
-								   WHERE U_ID != 'Administrator' \
-								   ORDER BY U_CR_DateTime Desc";
-					flag = true;
-					break;
-				case "SelectAllSysCode":
-					SQLCommand += "SELECT * \
-								   FROM SYS_CODE \
-								   WHERE 1=1";
-					if(_params["SC_Type"] !== undefined){
-						SQLCommand += " AND SC_Type = @SC_Type";
-					}
-					if(_params["SC_Code"] !== undefined){
-						SQLCommand += " AND SC_Code = @SC_Code";
-					}
-					if(_params["SC_ParentCode"] !== undefined){
-						SQLCommand += " AND SC_ParentCode = @SC_ParentCode";
-					}
-					if(_params["SC_Desc"] !== undefined){
-						SQLCommand += " AND SC_Desc = @SC_Desc";
-					}
-					break;
-				case "SelectAllBillboard":
-					SQLCommand += "SELECT BB_Title, BB_Content, BB_PostTime, BB_IsTop, U_Name AS 'BB_CR_Name' \
-								   FROM Billboard \
-								   LEFT JOIN UserInfo ON UserInfo.U_ID = Billboard.BB_CR_User \
-								   WHERE 1=1 \
-								   ORDER BY BB_IsTop DESC, BB_PostTime DESC"
-					break;
-				default:
-					callback(null, {});
-					break;
-			}	    
+			// 依querymain至各檔案下查詢method
+			SQLCommand = queryMethods[querymain](queryname, _params)
 
-			schematype.SchemaType(_params, ps, sql);
+			// schema所需的orm
+			schemaType.SchemaType(_params, ps, sql);
 
 			// 執行SQL，並且回傳值
 		    ps.prepare(SQLCommand, function(err) {
@@ -160,7 +126,7 @@ var InsertMethod = function (insertname, table, params, callback){
 					callback(null, {});
 					break;
 			}	    
-			schematype.SchemaType(_params, ps, sql);
+			schemaType.SchemaType(_params, ps, sql);
 
 			// 執行SQL，並且回傳值
 		    ps.prepare(SQLCommand, function(err) {
@@ -232,7 +198,7 @@ var UpdateMethod = function (updatetname, table, params, condition, callback){
 					callback(null, {});
 					break;
 			}	    
-			schematype.SchemaType(_psParams, ps, sql);
+			schemaType.SchemaType(_psParams, ps, sql);
 
 			// 執行SQL，並且回傳值
 		    ps.prepare(SQLCommand, function(err) {
@@ -297,7 +263,7 @@ var DeleteMethod = function (deletename, table, params, callback){
 					callback(null, {});
 					break;
 			}	    
-			schematype.SchemaType(_params, ps, sql);
+			schemaType.SchemaType(_params, ps, sql);
 
 			// 執行SQL，並且回傳值
 		    ps.prepare(SQLCommand, function(err) {

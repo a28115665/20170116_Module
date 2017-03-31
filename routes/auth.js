@@ -54,7 +54,7 @@ router.get('/login', function(req, res) {
     //     }
     // }
 
-    dbcommand.SelectMethod(req.query["queryname"], req.query["params"], function(err, recordset) {
+    dbcommand.SelectMethod(req.query["querymain"], req.query["queryname"], req.query["params"], function(err, recordset) {
         if (err) {
             console.log(err);
             // Do something with your error...

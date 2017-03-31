@@ -20,7 +20,7 @@ angular.module('app.restful').config(function ($stateProvider){
 			views: {
 				"content@app" : {
 					templateUrl: 'app/Restful/views/test.html',
-                    controller: function ($scope, config, RestfulApi, Session, $filter) {
+                    controller: function ($scope, config, RestfulApi, ToolboxApi, Session, $filter) {
                         
                         var $vm = this;
 
@@ -28,7 +28,8 @@ angular.module('app.restful').config(function ($stateProvider){
                             // data : config["returnData"],
                             testData : {
                                 ID : "",
-                                Name : ""
+                                Name : "",
+                                Filename : ""
                             },
                             restful : {
                                 queryTest : {
@@ -46,6 +47,10 @@ angular.module('app.restful').config(function ($stateProvider){
                                 deleteTest : {
                                     status : "",
                                     result : ""
+                                },
+                                exportExcelByVarTest : {
+                                    status : "",
+                                    result : ""
                                 }
                             }
                         });
@@ -55,16 +60,19 @@ angular.module('app.restful').config(function ($stateProvider){
                          */
                         $vm.QueryTest = function(){
                             RestfulApi.SearchMSSQLData({
+                                querymain: 'accountManagement',
                                 queryname: 'SelectAllUserInfo',
                                 params: {
                                     U_ID : $vm.testData.ID
                                 }
                             }).then(function (res){
                                 $vm.restful.queryTest.status = "成功";
-                                $vm.restful.queryTest.result = {
-                                    ID : res["returnData"][0]["U_ID"],
-                                    Name : res["returnData"][0]["U_Name"]
-                                };
+                                if(res["returnData"].length > 0){
+                                    $vm.restful.queryTest.result = {
+                                        ID : res["returnData"][0]["U_ID"],
+                                        Name : res["returnData"][0]["U_Name"]
+                                    };
+                                }
                             }, function (err){
                                 $vm.restful.queryTest.status = "失敗";
                                 $vm.restful.queryTest.result = err;
@@ -135,6 +143,24 @@ angular.module('app.restful').config(function ($stateProvider){
                             }, function (err) {
                                 $vm.restful.deleteTest.status = "失敗";
                                 $vm.restful.deleteTest.result = err;
+                            });
+                        };
+
+                        /**
+                         * ExportExcelByVar Sample
+                         */
+                        $vm.ExportExcelByVarTest = function(){
+                            ToolboxApi.ExportExcelByVar({
+                                filename : $vm.testData.Filename,
+                                params: {
+                                    ID : $vm.testData.ID
+                                }
+                            }).then(function (res) {
+                                $vm.restful.exportExcelByVarTest.status = "成功";
+                                $vm.restful.exportExcelByVarTest.result = "匯出成功";
+                            }, function (err) {
+                                $vm.restful.exportExcelByVarTest.status = "失敗";
+                                $vm.restful.exportExcelByVarTest.result = "匯出失敗";
                             });
                         };
 

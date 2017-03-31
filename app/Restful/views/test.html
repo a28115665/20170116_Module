@@ -140,6 +140,32 @@
                                             	<p>{{$vm.restful.deleteTest.result}}</p>
                                             </td>
                                         </tr>
+                                        <tr>
+                                            <td><a class="btn btn-default" href-void ng-click="$vm.ExportExcelByVarTest()">匯出</a></td>
+                                            <td>
+												<form class="form-horizontal">
+													<fieldset>
+													    <legend>Export Excel By Var Test</legend>
+                                                        <div class="form-group">
+                                                            <label class="col-md-2 control-label">Filename</label>
+                                                            <div class="col-md-10">
+                                                                <input type="text" class="form-control" placeholder="Enter Filename" ng-model="$vm.testData.Filename">
+                                                            </div>
+                                                        </div>
+									                    <div class="form-group">
+														    <label class="col-md-2 control-label">ID</label>
+														    <div class="col-md-10">
+									                        	<input type="text" class="form-control" placeholder="Enter Identity" ng-model="$vm.testData.ID">
+														    </div>
+														</div>
+													</fieldset>
+												</form>
+											</td>
+                                            <td>
+                                            	<h6>{{$vm.restful.exportExcelByVarTest.status}}</h6>
+                                            	<p>{{$vm.restful.exportExcelByVarTest.result}}</p>
+                                            </td>
+                                        </tr>
                                     </tbody>
                                 </table>
                             </div>

@@ -1,13 +1,13 @@
 var express = require('express');
 var router = express.Router();
-var dbcommand = require('../until/dbCommand.js');
+var dbCommand = require('../until/dbCommand.js');
 
 /**
  * Restful 查詢
  */
 router.get('/crud', function(req, res) {
-
-    dbcommand.SelectMethod(req.query["queryname"], req.query["params"], function(err, recordset) {
+    
+    dbCommand.SelectMethod(req.query["querymain"], req.query["queryname"], req.query["params"], function(err, recordset) {
         if (err) {
             console.log(err);
             // Do something with your error...
@@ -40,7 +40,7 @@ router.get('/crud', function(req, res) {
 router.post('/crud', function(req, res) {
 
     // console.log("POST: ", req.query);
-    dbcommand.InsertMethod(req.query["insertname"], req.query["table"], req.query["params"], function(err, affected) {
+    dbCommand.InsertMethod(req.query["insertname"], req.query["table"], req.query["params"], function(err, affected) {
         if (err) {
             console.log(err);
             // Do something with your error...
@@ -69,7 +69,7 @@ router.post('/crud', function(req, res) {
 router.put('/crud', function(req, res) {
 
     // console.log("PUT: ", req.query);
-    dbcommand.UpdateMethod(req.query["updatename"], req.query["table"], req.query["params"], req.query["condition"], function(err, affected) {
+    dbCommand.UpdateMethod(req.query["updatename"], req.query["table"], req.query["params"], req.query["condition"], function(err, affected) {
         if (err) {
             console.log(err);
             // Do something with your error...
@@ -98,7 +98,7 @@ router.put('/crud', function(req, res) {
 router.delete('/crud', function(req, res) {
 
     // console.log("DELETE: ", req.query);
-    dbcommand.DeleteMethod(req.query["deletename"], req.query["table"], req.query["params"], function(err, affected) {
+    dbCommand.DeleteMethod(req.query["deletename"], req.query["table"], req.query["params"], function(err, affected) {
         if (err) {
             console.log(err);
             // Do something with your error...

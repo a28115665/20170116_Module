@@ -1,3 +1,24 @@
+var sql = require('mssql');
+var setting = require('../app.setting.json');
+
+var DatabaseSchema = {};
+
+// 初始化 DatabaseSchema
+sql.connect(setting.MSSQL).then(function() {
+	new sql.Request().query('SELECT * FROM Information_Schema.COLUMNS', (err, result) => {
+        // ... error checks
+        if(err) return;
+
+        for(var i in result){
+        	DatabaseSchema[result[i]["COLUMN_NAME"]] = {
+        		DATA_TYPE : result[i]["DATA_TYPE"], 
+        		CHARACTER_MAXIMUM_LENGTH : result[i]["CHARACTER_MAXIMUM_LENGTH"]
+        	};
+        }
+    });
+
+});
+
 /**
  * [SchemaType description] SQL Schema類型
  * @param {[type]} params [description]
@@ -7,63 +28,26 @@
 var SchemaType = function (params, ps, sql){
 	for(var key in params){
 		if(params[key] !== undefined){
-			switch(key){
-				/*
-					UserInfo
-				 */
-				case "U_ID":
-					ps.input('U_ID', sql.VarChar(15));
+			var type = null;
+			// 判斷Schema是哪種類型
+			switch(DatabaseSchema[key]["DATA_TYPE"]){
+				case "int":
+					type = sql.Int;
 					break;
-				case "U_Name":
-					ps.input('U_Name', sql.NVarChar(15));
+				case "bit":
+					type = sql.Bit;
 					break;
-				case "U_PW":
-					ps.input('U_PW', sql.VarChar(15));
+				case "varchar":
+					type = sql.VarChar(DatabaseSchema[key]["CHARACTER_MAXIMUM_LENGTH"]);
 					break;
-				case "U_Email":
-					ps.input('U_Email', sql.NVarChar(50));
+				case "nvarchar":
+					type = sql.NVarChar(DatabaseSchema[key]["CHARACTER_MAXIMUM_LENGTH"]);
 					break;
-				case "U_Role":
-					ps.input('U_Role', sql.VarChar(10));
+				case "datetime":
+					type = sql.VarChar(30);
 					break;
-				case "U_Depart":
-					ps.input('U_Depart', sql.VarChar(10));
-					break;
-				case "U_Check":
-					ps.input('U_Check', sql.Bit);
-					break;
-				case "U_CK_DateTime":
-					ps.input('U_CK_DateTime', sql.VarChar(30));
-					break;
-				case "U_CR_User":
-					ps.input('U_CR_User', sql.NVarChar(15));
-					break;
-				case "U_CR_DateTime":
-					ps.input('U_CR_DateTime', sql.VarChar(30));
-					break;
-				case "U_UP_User":
-					ps.input('U_UP_User', sql.NVarChar(15));
-					break;
-				case "U_UP_DateTime":
-					ps.input('U_UP_DateTime', sql.VarChar(30));
-					break;
-				/*
-					SYS_CODE
-				 */
-				case "SC_Type":
-					ps.input('SC_Type', sql.VarChar(50));
-					break;
-				case "SC_Code":
-					ps.input('SC_Code', sql.VarChar(10));
-					break;
-				case "SC_ParentCode":
-					ps.input('SC_ParentCode', sql.VarChar(10));
-					break;
-				case "SC_Desc":
-					ps.input('SC_Desc', sql.NVarChar(300));
-					break;
-
 			}
+			ps.input(key, type);
 		}
 	}
 };
