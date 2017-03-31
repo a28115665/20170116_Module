@@ -12,7 +12,7 @@
 		"user": "sa",
 		"password": "p@ssw0rd",
 		"server": "10.1.21.15",
-		"database": "DFL",
+		"database": "EWS",
 		"pool": {
 	        "max": 10,
 	        "min": 0,

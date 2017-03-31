@@ -1,0 +1,99 @@
+<div id="content">
+
+	<div class="row">
+		<big-breadcrumbs items="['Settings', 'Billboard Editor', 'News']" icon="newspaper-o" class="col-xs-12 col-sm-7 col-md-7 col-lg-4"></big-breadcrumbs>
+	</div>
+
+	<!-- widget grid -->
+	<section id="widget-grid" data-widget-grid>
+	    <!-- row -->
+	    <div class="row">
+
+	        <!-- NEW WIDGET START -->
+	        <article class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+	        	<!-- Widget ID (each widget will need unique ID)-->
+				<div id="managementSettings" data-widget-sortable="false" data-widget-colorbutton="false" data-widget-togglebutton="false" data-widget-editbutton="false" data-widget-fullscreenbutton="false" data-widget-deletebutton="false" data-widget-color="blue" data-jarvis-widget ng-init="ShowTabs = true">
+				    <!-- widget options:
+				        usage: <div data-jarvis-widget id="wid-id-0" data-widget-editbutton="false">
+				        data-widget-colorbutton="false"
+				        data-widget-editbutton="false"
+				        data-widget-togglebutton="false"
+				        data-widget-deletebutton="false"
+				        data-widget-fullscreenbutton="false"
+				        data-widget-custombutton="false"
+				        data-widget-collapsed="true"
+				        data-widget-sortable="false"
+				    -->
+				    <header>
+				        <h2>文章</h2>
+				    </header>
+				    <!-- widget div-->
+				    <div>
+				        <!-- widget content -->
+						<div class="widget-body">
+
+							<form class="form-horizontal">
+								<fieldset>
+									<div class="form-group">
+								        <label class="col-md-2 control-label">標題</label>
+								        <div class="col-md-10">
+								            <input class="form-control" placeholder="請輸入標題" type="text">
+								        </div>
+								    </div>
+									<div class="form-group">
+								        <label class="col-md-2 control-label">公佈日期</label>
+								        <div class="col-md-10">
+								            <input class="form-control" placeholder="請輸入標題" type="text">
+								        </div>
+								    </div>
+									<div class="form-group">
+								        <label class="col-md-2 control-label">置頂</label>
+								        <div class="col-md-2">
+								            <input class="form-control" placeholder="請輸入標題" type="text">
+								        </div>
+								        <label class="col-md-2 control-label">公佈類型</label>
+								        <div class="col-md-2">
+								            <input class="form-control" placeholder="請輸入標題" type="text">
+								        </div>
+								        <label class="col-md-2 control-label">公佈對象</label>
+								        <div class="col-md-2">
+								            <button class="btn btn-default" type="submit" ng-click="$vm.Cancel()">
+								                {{getWord('Cancel')}}
+								            </button>
+								        </div>
+								    </div>
+									<div class="form-group">
+								        <label class="col-md-2 control-label">預計公佈時間</label>
+								        <div class="col-md-10">
+								            <input class="form-control" placeholder="請輸入標題" type="text">
+								        </div>
+								    </div>
+								</fieldset>
+								<div class="form-actions">
+								    <div class="row">
+								        <div class="col-md-12">
+								            <button class="btn btn-default" type="submit" ng-click="$vm.Cancel()">
+								                {{getWord('Cancel')}}
+								            </button>
+								            <button class="btn btn-primary" type="submit" ng-click="$vm.Add()">
+								                <i class="fa fa-save"></i>
+								                {{getWord('Add')}}
+								            </button>
+								        </div>
+								    </div>
+								</div>
+							</form>
+
+						</div>
+						<!-- end widget content -->
+				    </div>
+				    <!-- end widget div -->
+				</div>
+				<!-- end widget -->
+	        </article>
+	        <!-- End WIDGET START -->
+
+	    </div>
+	</section>
+
+</div>
