@@ -39,7 +39,8 @@
       "angular-ui-mask",
       "tinymce",
       "tinymce-themes",
-      "angular-ui-tinymce"
+      "angular-ui-tinymce",
+      "angular-file-upload"
 
     ],
     "vendor.ui": [
@@ -170,6 +171,7 @@
     "angular-ui-mask": "bower_components/angular-ui-mask/dist/mask.min.js",
     "tinymce": "bower_components/tinymce/tinymce.min.js",
     "tinymce-themes": "bower_components/tinymce/themes/modern/theme.js",
-    "angular-ui-tinymce": "bower_components/angular-ui-tinymce/dist/tinymce.min.js"
+    "angular-ui-tinymce": "bower_components/angular-ui-tinymce/dist/tinymce.min.js",
+    "angular-file-upload": "bower_components/angular-file-upload/dist/angular-file-upload.min.js"
   }
 }

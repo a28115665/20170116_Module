@@ -28,6 +28,7 @@ angular.module('app', [
     'ui.grid.pinning',
     'ui.mask',
     'ui.tinymce',
+    'angularFileUpload',
 
     // Smartadmin Angular Common Module
     'SmartAdmin',

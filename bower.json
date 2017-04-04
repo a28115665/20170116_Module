@@ -62,6 +62,7 @@
     "AngularJS-Toaster": "angularjs-toaster#^2.1.0",
     "angular-ui-grid": "4.0.2",
     "angular-ui-mask": "^1.8.7",
-    "angular-ui-tinymce": "^0.0.18"
+    "angular-ui-tinymce": "^0.0.18",
+    "angular-file-upload": "^2.5.0"
   }
 }

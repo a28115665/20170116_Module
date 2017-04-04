@@ -30,7 +30,7 @@
 				    <!-- widget div-->
 				    <div>
 				        <!-- widget content -->
-						<div class="widget-body">
+						<div class="widget-body" nv-file-drop="" uploader="$vm.uploader" filters="queueLimit, queueFilter, sizeFilter">
 
 							<form class="form-horizontal">
 								<fieldset>
@@ -74,7 +74,53 @@
 									<div class="form-group">
 								        <label class="col-md-2 control-label">上傳附件</label>
 								        <div class="col-md-10">
-								            <input class="form-control" placeholder="請輸入標題" type="text">
+								            <div class="fileUpload btn btn-primary" ng-click="DuplicateFile(caseChoice)">
+											    <span>選擇檔案</span>
+											    <input type="file" class="upload" nv-file-select=""  uploader="$vm.uploader" multiple/>
+											</div>
+								        </div>
+								    </div>
+									<div class="form-group">
+								        <label class="col-md-2 control-label"></label>
+								        <div class="col-md-10">
+								            <table class="table" ng-show="$vm.uploader.queue.length > 0">
+											    <thead>
+											        <tr>
+											            <th width="50%">名稱</th>
+											            <th ng-show="$vm.uploader.isHTML5">檔案大小</th>
+											            <th ng-show="$vm.uploader.isHTML5">進度</th>
+											            <th>狀態</th>
+											            <th>操作</th>
+											        </tr>
+											    </thead>
+											    <tbody>
+											        <tr ng-repeat="item in $vm.uploader.queue">
+											            <td><strong>{{ item.file.name }}</strong></td>
+											            <td ng-show="$vm.uploader.isHTML5" nowrap>{{ item.file.size/1024/1024|number:2 }} MB</td>
+											            <td ng-show="$vm.uploader.isHTML5">
+											                <div class="progress" style="margin-bottom: 0;">
+											                    <div class="progress-bar" role="progressbar" ng-style="{ 'width': item.progress + '%' }"></div>
+											                </div>
+											            </td>
+											            <td class="text-center">
+											                <span ng-show="item.isSuccess"><i class="glyphicon glyphicon-ok"></i></span>
+											                <span ng-show="item.isCancel"><i class="glyphicon glyphicon-ban-circle"></i></span>
+											                <span ng-show="item.isError"><i class="glyphicon glyphicon-remove"></i></span>
+											            </td>
+											            <td nowrap>
+											                <button type="button" class="btn btn-success btn-xs" ng-click="item.upload()" ng-disabled="item.isReady || item.isUploading || item.isSuccess">
+											                    <span class="glyphicon glyphicon-upload"></span> 上傳
+											                </button>
+											                <button type="button" class="btn btn-warning btn-xs" ng-click="item.cancel()" ng-disabled="!item.isUploading">
+											                    <span class="glyphicon glyphicon-ban-circle"></span> 取消
+											                </button>
+											                <button type="button" class="btn btn-danger btn-xs" ng-click="item.remove()">
+											                    <span class="glyphicon glyphicon-trash"></span> 移除
+											                </button>
+											            </td>
+											        </tr>
+											    </tbody>
+											</table>
 								        </div>
 								    </div>
 									<div class="form-group">
