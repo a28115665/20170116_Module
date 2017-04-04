@@ -26,17 +26,20 @@ module.exports = function(pQueryname, pParams){
 			_SQLCommand += "SELECT * \
 						   FROM SYS_CODE \
 						   WHERE 1=1";
-			if(pParams["SC_Type"] !== undefined){
-				_SQLCommand += " AND SC_Type = @SC_Type";
+			if(pParams["SC_TYPE"] !== undefined){
+				_SQLCommand += " AND SC_TYPE = @SC_TYPE";
 			}
-			if(pParams["SC_Code"] !== undefined){
-				_SQLCommand += " AND SC_Code = @SC_Code";
+			if(pParams["SC_CODE"] !== undefined){
+				_SQLCommand += " AND SC_CODE = @SC_CODE";
 			}
-			if(pParams["SC_ParentCode"] !== undefined){
-				_SQLCommand += " AND SC_ParentCode = @SC_ParentCode";
+			if(pParams["SC_PARENT_CODE"] !== undefined){
+				_SQLCommand += " AND SC_PARENT_CODE = @SC_PARENT_CODE";
 			}
-			if(pParams["SC_Desc"] !== undefined){
-				_SQLCommand += " AND SC_Desc = @SC_Desc";
+			if(pParams["SC_DESC"] !== undefined){
+				_SQLCommand += " AND SC_DESC = @SC_DESC";
+			}
+			if(pParams["SC_STS"] !== undefined){
+				_SQLCommand += " AND SC_STS = @SC_STS";
 			}
 			break;
 	}

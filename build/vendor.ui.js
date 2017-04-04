@@ -4266,7 +4266,7 @@ remove:function(){return this.each(function(){this.removeSlider()})}};c.fn.ionRa
  */
 !function(){function t(t){return document.createElementNS(a,t)}function i(t){return(10>t?"0":"")+t}function e(t){var i=++v+"";return t?t+i:i}function s(s,n){function a(t,i){var e=h.offset(),s=/^touch/.test(t.type),c=e.left+m,a=e.top+m,l=(s?t.originalEvent.touches[0]:t).pageX-c,u=(s?t.originalEvent.touches[0]:t).pageY-a,f=Math.sqrt(l*l+u*u),v=!1;if(!i||!(g-w>f||f>g+w)){t.preventDefault();var b=setTimeout(function(){o.addClass("clockpicker-moving")},200);p&&h.append(H.canvas),H.setHand(l,u,!i,!0),r.off(k).on(k,function(t){t.preventDefault();var i=/^touch/.test(t.type),e=(i?t.originalEvent.touches[0]:t).pageX-c,s=(i?t.originalEvent.touches[0]:t).pageY-a;(v||e!==l||s!==u)&&(v=!0,H.setHand(e,s,!1,!0))}),r.off(d).on(d,function(t){r.off(d),t.preventDefault();var e=/^touch/.test(t.type),s=(e?t.originalEvent.changedTouches[0]:t).pageX-c,p=(e?t.originalEvent.changedTouches[0]:t).pageY-a;(i||v)&&s===l&&p===u&&H.setHand(s,p),"hours"===H.currentView?H.toggleView("minutes",M/2):n.autoclose&&(H.minutesView.addClass("clockpicker-dial-out"),setTimeout(function(){H.done()},M/2)),h.prepend(O),clearTimeout(b),o.removeClass("clockpicker-moving"),r.off(k)})}}var l=c(A),h=l.find(".clockpicker-plate"),f=l.find(".clockpicker-hours"),v=l.find(".clockpicker-minutes"),T=l.find(".clockpicker-am-pm-block"),V="INPUT"===s.prop("tagName"),C=V?s:s.find("input"),P=s.find(".input-group-addon"),H=this;if(this.id=e("cp"),this.element=s,this.options=n,this.isAppended=!1,this.isShown=!1,this.currentView="hours",this.isInput=V,this.input=C,this.addon=P,this.popover=l,this.plate=h,this.hoursView=f,this.minutesView=v,this.amPmBlock=T,this.spanHours=l.find(".clockpicker-span-hours"),this.spanMinutes=l.find(".clockpicker-span-minutes"),this.spanAmPm=l.find(".clockpicker-span-am-pm"),this.amOrPm="PM",n.twelvehour){{var x=['<div class="clockpicker-am-pm-block">','<button type="button" class="btn btn-sm btn-default clockpicker-button clockpicker-am-button">',"AM</button>",'<button type="button" class="btn btn-sm btn-default clockpicker-button clockpicker-pm-button">',"PM</button>","</div>"].join("");c(x)}c('<button type="button" class="btn btn-sm btn-default clockpicker-button am-button">AM</button>').on("click",function(){H.amOrPm="AM",c(".clockpicker-span-am-pm").empty().append("AM")}).appendTo(this.amPmBlock),c('<button type="button" class="btn btn-sm btn-default clockpicker-button pm-button">PM</button>').on("click",function(){H.amOrPm="PM",c(".clockpicker-span-am-pm").empty().append("PM")}).appendTo(this.amPmBlock)}n.autoclose||c('<button type="button" class="btn btn-sm btn-default btn-block clockpicker-button">'+n.donetext+"</button>").click(c.proxy(this.done,this)).appendTo(l),"top"!==n.placement&&"bottom"!==n.placement||"top"!==n.align&&"bottom"!==n.align||(n.align="left"),"left"!==n.placement&&"right"!==n.placement||"left"!==n.align&&"right"!==n.align||(n.align="top"),l.addClass(n.placement),l.addClass("clockpicker-align-"+n.align),this.spanHours.click(c.proxy(this.toggleView,this,"hours")),this.spanMinutes.click(c.proxy(this.toggleView,this,"minutes")),C.on("focus.clockpicker click.clockpicker",c.proxy(this.show,this)),P.on("click.clockpicker",c.proxy(this.toggle,this));var E,S,I,D=c('<div class="clockpicker-tick"></div>');if(n.twelvehour)for(E=1;13>E;E+=1){S=D.clone(),I=E/6*Math.PI;var B=g;S.css("font-size","120%"),S.css({left:m+Math.sin(I)*B-w,top:m-Math.cos(I)*B-w}),S.html(0===E?"00":E),f.append(S),S.on(u,a)}else for(E=0;24>E;E+=1){S=D.clone(),I=E/6*Math.PI;var z=E>0&&13>E,B=z?b:g;S.css({left:m+Math.sin(I)*B-w,top:m-Math.cos(I)*B-w}),z&&S.css("font-size","120%"),S.html(0===E?"00":E),f.append(S),S.on(u,a)}for(E=0;60>E;E+=5)S=D.clone(),I=E/30*Math.PI,S.css({left:m+Math.sin(I)*g-w,top:m-Math.cos(I)*g-w}),S.css("font-size","120%"),S.html(i(E)),v.append(S),S.on(u,a);if(h.on(u,function(t){0===c(t.target).closest(".clockpicker-tick").length&&a(t,!0)}),p){var O=l.find(".clockpicker-canvas"),j=t("svg");j.setAttribute("class","clockpicker-svg"),j.setAttribute("width",y),j.setAttribute("height",y);var L=t("g");L.setAttribute("transform","translate("+m+","+m+")");var U=t("circle");U.setAttribute("class","clockpicker-canvas-bearing"),U.setAttribute("cx",0),U.setAttribute("cy",0),U.setAttribute("r",2);var W=t("line");W.setAttribute("x1",0),W.setAttribute("y1",0);var N=t("circle");N.setAttribute("class","clockpicker-canvas-bg"),N.setAttribute("r",w);var X=t("circle");X.setAttribute("class","clockpicker-canvas-fg"),X.setAttribute("r",3.5),L.appendChild(W),L.appendChild(N),L.appendChild(X),L.appendChild(U),j.appendChild(L),O.append(j),this.hand=W,this.bg=N,this.fg=X,this.bearing=U,this.g=L,this.canvas=O}}var o,c=window.jQuery,n=c(window),r=c(document),a="http://www.w3.org/2000/svg",p="SVGAngle"in window&&function(){var t,i=document.createElement("div");return i.innerHTML="<svg/>",t=(i.firstChild&&i.firstChild.namespaceURI)==a,i.innerHTML="",t}(),l=function(){var t=document.createElement("div").style;return"transition"in t||"WebkitTransition"in t||"MozTransition"in t||"msTransition"in t||"OTransition"in t}(),h="ontouchstart"in window,u="mousedown"+(h?" touchstart":""),k="mousemove.clockpicker"+(h?" touchmove.clockpicker":""),d="mouseup.clockpicker"+(h?" touchend.clockpicker":""),f=navigator.vibrate?"vibrate":navigator.webkitVibrate?"webkitVibrate":null,v=0,m=100,g=80,b=54,w=13,y=2*m,M=l?350:1,A=['<div class="popover clockpicker-popover">','<div class="arrow"></div>','<div class="popover-title">','<span class="clockpicker-span-hours text-primary"></span>'," : ",'<span class="clockpicker-span-minutes"></span>','<span class="clockpicker-span-am-pm"></span>',"</div>",'<div class="popover-content">','<div class="clockpicker-plate">','<div class="clockpicker-canvas"></div>','<div class="clockpicker-dial clockpicker-hours"></div>','<div class="clockpicker-dial clockpicker-minutes clockpicker-dial-out"></div>',"</div>",'<span class="clockpicker-am-pm-block">',"</span>","</div>","</div>"].join("");s.DEFAULTS={"default":"",fromnow:0,placement:"bottom",align:"left",donetext:"完成",autoclose:!1,twelvehour:!1,vibrate:!0},s.prototype.toggle=function(){this[this.isShown?"hide":"show"]()},s.prototype.locate=function(){var t=this.element,i=this.popover,e=t.offset(),s=t.outerWidth(),o=t.outerHeight(),c=this.options.placement,n=this.options.align,r={};switch(i.show(),c){case"bottom":r.top=e.top+o;break;case"right":r.left=e.left+s;break;case"top":r.top=e.top-i.outerHeight();break;case"left":r.left=e.left-i.outerWidth()}switch(n){case"left":r.left=e.left;break;case"right":r.left=e.left+s-i.outerWidth();break;case"top":r.top=e.top;break;case"bottom":r.top=e.top+o-i.outerHeight()}i.css(r)},s.prototype.show=function(){if(!this.isShown){var t=this;this.isAppended||(o=c(document.body).append(this.popover),n.on("resize.clockpicker"+this.id,function(){t.isShown&&t.locate()}),this.isAppended=!0);var e=((this.input.prop("value")||this.options["default"]||"")+"").split(":");if("now"===e[0]){var s=new Date(+new Date+this.options.fromnow);e=[s.getHours(),s.getMinutes()]}this.hours=+e[0]||0,this.minutes=+e[1]||0,this.spanHours.html(i(this.hours)),this.spanMinutes.html(i(this.minutes)),this.toggleView("hours"),this.locate(),this.isShown=!0,r.on("click.clockpicker."+this.id+" focusin.clockpicker."+this.id,function(i){var e=c(i.target);0===e.closest(t.popover).length&&0===e.closest(t.addon).length&&0===e.closest(t.input).length&&t.hide()}),r.on("keyup.clockpicker."+this.id,function(i){27===i.keyCode&&t.hide()})}},s.prototype.hide=function(){this.isShown=!1,r.off("click.clockpicker."+this.id+" focusin.clockpicker."+this.id),r.off("keyup.clockpicker."+this.id),this.popover.hide()},s.prototype.toggleView=function(t,i){var e="hours"===t,s=e?this.hoursView:this.minutesView,o=e?this.minutesView:this.hoursView;this.currentView=t,this.spanHours.toggleClass("text-primary",e),this.spanMinutes.toggleClass("text-primary",!e),o.addClass("clockpicker-dial-out"),s.css("visibility","visible").removeClass("clockpicker-dial-out"),this.resetClock(i),clearTimeout(this.toggleViewTimer),this.toggleViewTimer=setTimeout(function(){o.css("visibility","hidden")},M)},s.prototype.resetClock=function(t){var i=this.currentView,e=this[i],s="hours"===i,o=Math.PI/(s?6:30),c=e*o,n=s&&e>0&&13>e?b:g,r=Math.sin(c)*n,a=-Math.cos(c)*n,l=this;p&&t?(l.canvas.addClass("clockpicker-canvas-out"),setTimeout(function(){l.canvas.removeClass("clockpicker-canvas-out"),l.setHand(r,a)},t)):this.setHand(r,a)},s.prototype.setHand=function(t,e,s,o){var n,r=Math.atan2(t,-e),a="hours"===this.currentView,l=Math.PI/(a||s?6:30),h=Math.sqrt(t*t+e*e),u=this.options,k=a&&(g+b)/2>h,d=k?b:g;if(u.twelvehour&&(d=g),0>r&&(r=2*Math.PI+r),n=Math.round(r/l),r=n*l,u.twelvehour?a?0===n&&(n=12):(s&&(n*=5),60===n&&(n=0)):a?(12===n&&(n=0),n=k?0===n?12:n:0===n?0:n+12):(s&&(n*=5),60===n&&(n=0)),this[this.currentView]!==n&&f&&this.options.vibrate&&(this.vibrateTimer||(navigator[f](10),this.vibrateTimer=setTimeout(c.proxy(function(){this.vibrateTimer=null},this),100))),this[this.currentView]=n,this[a?"spanHours":"spanMinutes"].html(i(n)),!p)return void this[a?"hoursView":"minutesView"].find(".clockpicker-tick").each(function(){var t=c(this);t.toggleClass("active",n===+t.html())});o||!a&&n%5?(this.g.insertBefore(this.hand,this.bearing),this.g.insertBefore(this.bg,this.fg),this.bg.setAttribute("class","clockpicker-canvas-bg clockpicker-canvas-bg-trans")):(this.g.insertBefore(this.hand,this.bg),this.g.insertBefore(this.fg,this.bg),this.bg.setAttribute("class","clockpicker-canvas-bg"));var v=Math.sin(r)*d,m=-Math.cos(r)*d;this.hand.setAttribute("x2",v),this.hand.setAttribute("y2",m),this.bg.setAttribute("cx",v),this.bg.setAttribute("cy",m),this.fg.setAttribute("cx",v),this.fg.setAttribute("cy",m)},s.prototype.done=function(){this.hide();var t=this.input.prop("value"),e=i(this.hours)+":"+i(this.minutes);this.options.twelvehour&&(e+=this.amOrPm),this.input.prop("value",e),e!==t&&(this.input.triggerHandler("change"),this.isInput||this.element.trigger("change")),this.options.autoclose&&this.input.trigger("blur")},s.prototype.remove=function(){this.element.removeData("clockpicker"),this.input.off("focus.clockpicker click.clockpicker"),this.addon.off("click.clockpicker"),this.isShown&&this.hide(),this.isAppended&&(n.off("resize.clockpicker"+this.id),this.popover.remove())},c.fn.clockpicker=function(t){var i=Array.prototype.slice.call(arguments,1);return this.each(function(){var e=c(this),o=e.data("clockpicker");if(o)"function"==typeof o[t]&&o[t].apply(o,i);else{var n=c.extend({},s.DEFAULTS,e.data(),"object"==typeof t&&t);e.data("clockpicker",new s(e,n))}})}}();
 /*!
- * Bootstrap Colorpicker v2.4.0
+ * Bootstrap Colorpicker v2.5.1
  * https://itsjavi.com/bootstrap-colorpicker/
  *
  * Originally written by (c) 2012 Stefan Petre
@@ -4275,23 +4275,22 @@ remove:function(){return this.each(function(){this.removeSlider()})}};c.fn.ionRa
  *
  */
 
-(function(factory) {
-  var global = (typeof window === 'undefined') ? this : window;
-
-  if (typeof exports === 'object') {
-    module.exports = factory(global.jQuery, global);
-  } else if (typeof define === 'function' && define.amd) {
-    define(['jquery'], function(jq) {
-      return factory(jq, global);
+(function(root, factory) {
+  if (typeof define === 'function' && define.amd) {
+    // AMD. Register as an anonymous module unless amdModuleId is set
+    define(["jquery"], function(jq) {
+      return (factory(jq));
     });
-  } else if (global.jQuery && !global.jQuery.fn.colorpicker) {
-    factory(global.jQuery, global);
+  } else if (typeof exports === 'object') {
+    // Node. Does not work with strict CommonJS, but
+    // only CommonJS-like environments that support module.exports,
+    // like Node.
+    module.exports = factory(require("jquery"));
+  } else if (jQuery && !jQuery.fn.colorpicker) {
+    factory(jQuery);
   }
-}(function(jQuery, window) {
+}(this, function($) {
   'use strict';
-
-  var $ = jQuery;
-
   /**
    * Color manipulation helper class
    *
@@ -4299,9 +4298,11 @@ remove:function(){return this.each(function(){this.removeSlider()})}};c.fn.ionRa
    * @param {Object} [predefinedColors]
    * @param {String|null} [fallbackColor]
    * @param {String|null} [fallbackFormat]
+   * @param {Boolean} [hexNumberSignPrefix]
    * @constructor
    */
-  var Color = function(val, predefinedColors, fallbackColor, fallbackFormat) {
+  var Color = function(
+    val, predefinedColors, fallbackColor, fallbackFormat, hexNumberSignPrefix) {
     this.fallbackValue = fallbackColor ?
       (
         fallbackColor && (typeof fallbackColor.h !== 'undefined') ?
@@ -4316,6 +4317,8 @@ remove:function(){return this.each(function(){this.removeSlider()})}};c.fn.ionRa
       null;
 
     this.fallbackFormat = fallbackFormat ? fallbackFormat : 'rgba';
+
+    this.hexNumberSignPrefix = hexNumberSignPrefix === true;
 
     this.value = this.fallbackValue;
 
@@ -4346,146 +4349,146 @@ remove:function(){return this.each(function(){this.removeSlider()})}};c.fn.ionRa
   };
 
   Color.webColors = { // 140 predefined colors from the HTML Colors spec
-    "aliceblue": "#f0f8ff",
-    "antiquewhite": "#faebd7",
-    "aqua": "#00ffff",
-    "aquamarine": "#7fffd4",
-    "azure": "#f0ffff",
-    "beige": "#f5f5dc",
-    "bisque": "#ffe4c4",
-    "black": "#000000",
-    "blanchedalmond": "#ffebcd",
-    "blue": "#0000ff",
-    "blueviolet": "#8a2be2",
-    "brown": "#a52a2a",
-    "burlywood": "#deb887",
-    "cadetblue": "#5f9ea0",
-    "chartreuse": "#7fff00",
-    "chocolate": "#d2691e",
-    "coral": "#ff7f50",
-    "cornflowerblue": "#6495ed",
-    "cornsilk": "#fff8dc",
-    "crimson": "#dc143c",
-    "cyan": "#00ffff",
-    "darkblue": "#00008b",
-    "darkcyan": "#008b8b",
-    "darkgoldenrod": "#b8860b",
-    "darkgray": "#a9a9a9",
-    "darkgreen": "#006400",
-    "darkkhaki": "#bdb76b",
-    "darkmagenta": "#8b008b",
-    "darkolivegreen": "#556b2f",
-    "darkorange": "#ff8c00",
-    "darkorchid": "#9932cc",
-    "darkred": "#8b0000",
-    "darksalmon": "#e9967a",
-    "darkseagreen": "#8fbc8f",
-    "darkslateblue": "#483d8b",
-    "darkslategray": "#2f4f4f",
-    "darkturquoise": "#00ced1",
-    "darkviolet": "#9400d3",
-    "deeppink": "#ff1493",
-    "deepskyblue": "#00bfff",
-    "dimgray": "#696969",
-    "dodgerblue": "#1e90ff",
-    "firebrick": "#b22222",
-    "floralwhite": "#fffaf0",
-    "forestgreen": "#228b22",
-    "fuchsia": "#ff00ff",
-    "gainsboro": "#dcdcdc",
-    "ghostwhite": "#f8f8ff",
-    "gold": "#ffd700",
-    "goldenrod": "#daa520",
-    "gray": "#808080",
-    "green": "#008000",
-    "greenyellow": "#adff2f",
-    "honeydew": "#f0fff0",
-    "hotpink": "#ff69b4",
-    "indianred": "#cd5c5c",
-    "indigo": "#4b0082",
-    "ivory": "#fffff0",
-    "khaki": "#f0e68c",
-    "lavender": "#e6e6fa",
-    "lavenderblush": "#fff0f5",
-    "lawngreen": "#7cfc00",
-    "lemonchiffon": "#fffacd",
-    "lightblue": "#add8e6",
-    "lightcoral": "#f08080",
-    "lightcyan": "#e0ffff",
-    "lightgoldenrodyellow": "#fafad2",
-    "lightgrey": "#d3d3d3",
-    "lightgreen": "#90ee90",
-    "lightpink": "#ffb6c1",
-    "lightsalmon": "#ffa07a",
-    "lightseagreen": "#20b2aa",
-    "lightskyblue": "#87cefa",
-    "lightslategray": "#778899",
-    "lightsteelblue": "#b0c4de",
-    "lightyellow": "#ffffe0",
-    "lime": "#00ff00",
-    "limegreen": "#32cd32",
-    "linen": "#faf0e6",
-    "magenta": "#ff00ff",
-    "maroon": "#800000",
-    "mediumaquamarine": "#66cdaa",
-    "mediumblue": "#0000cd",
-    "mediumorchid": "#ba55d3",
-    "mediumpurple": "#9370d8",
-    "mediumseagreen": "#3cb371",
-    "mediumslateblue": "#7b68ee",
-    "mediumspringgreen": "#00fa9a",
-    "mediumturquoise": "#48d1cc",
-    "mediumvioletred": "#c71585",
-    "midnightblue": "#191970",
-    "mintcream": "#f5fffa",
-    "mistyrose": "#ffe4e1",
-    "moccasin": "#ffe4b5",
-    "navajowhite": "#ffdead",
-    "navy": "#000080",
-    "oldlace": "#fdf5e6",
-    "olive": "#808000",
-    "olivedrab": "#6b8e23",
-    "orange": "#ffa500",
-    "orangered": "#ff4500",
-    "orchid": "#da70d6",
-    "palegoldenrod": "#eee8aa",
-    "palegreen": "#98fb98",
-    "paleturquoise": "#afeeee",
-    "palevioletred": "#d87093",
-    "papayawhip": "#ffefd5",
-    "peachpuff": "#ffdab9",
-    "peru": "#cd853f",
-    "pink": "#ffc0cb",
-    "plum": "#dda0dd",
-    "powderblue": "#b0e0e6",
-    "purple": "#800080",
-    "red": "#ff0000",
-    "rosybrown": "#bc8f8f",
-    "royalblue": "#4169e1",
-    "saddlebrown": "#8b4513",
-    "salmon": "#fa8072",
-    "sandybrown": "#f4a460",
-    "seagreen": "#2e8b57",
-    "seashell": "#fff5ee",
-    "sienna": "#a0522d",
-    "silver": "#c0c0c0",
-    "skyblue": "#87ceeb",
-    "slateblue": "#6a5acd",
-    "slategray": "#708090",
-    "snow": "#fffafa",
-    "springgreen": "#00ff7f",
-    "steelblue": "#4682b4",
-    "tan": "#d2b48c",
-    "teal": "#008080",
-    "thistle": "#d8bfd8",
-    "tomato": "#ff6347",
-    "turquoise": "#40e0d0",
-    "violet": "#ee82ee",
-    "wheat": "#f5deb3",
-    "white": "#ffffff",
-    "whitesmoke": "#f5f5f5",
-    "yellow": "#ffff00",
-    "yellowgreen": "#9acd32",
+    "aliceblue": "f0f8ff",
+    "antiquewhite": "faebd7",
+    "aqua": "00ffff",
+    "aquamarine": "7fffd4",
+    "azure": "f0ffff",
+    "beige": "f5f5dc",
+    "bisque": "ffe4c4",
+    "black": "000000",
+    "blanchedalmond": "ffebcd",
+    "blue": "0000ff",
+    "blueviolet": "8a2be2",
+    "brown": "a52a2a",
+    "burlywood": "deb887",
+    "cadetblue": "5f9ea0",
+    "chartreuse": "7fff00",
+    "chocolate": "d2691e",
+    "coral": "ff7f50",
+    "cornflowerblue": "6495ed",
+    "cornsilk": "fff8dc",
+    "crimson": "dc143c",
+    "cyan": "00ffff",
+    "darkblue": "00008b",
+    "darkcyan": "008b8b",
+    "darkgoldenrod": "b8860b",
+    "darkgray": "a9a9a9",
+    "darkgreen": "006400",
+    "darkkhaki": "bdb76b",
+    "darkmagenta": "8b008b",
+    "darkolivegreen": "556b2f",
+    "darkorange": "ff8c00",
+    "darkorchid": "9932cc",
+    "darkred": "8b0000",
+    "darksalmon": "e9967a",
+    "darkseagreen": "8fbc8f",
+    "darkslateblue": "483d8b",
+    "darkslategray": "2f4f4f",
+    "darkturquoise": "00ced1",
+    "darkviolet": "9400d3",
+    "deeppink": "ff1493",
+    "deepskyblue": "00bfff",
+    "dimgray": "696969",
+    "dodgerblue": "1e90ff",
+    "firebrick": "b22222",
+    "floralwhite": "fffaf0",
+    "forestgreen": "228b22",
+    "fuchsia": "ff00ff",
+    "gainsboro": "dcdcdc",
+    "ghostwhite": "f8f8ff",
+    "gold": "ffd700",
+    "goldenrod": "daa520",
+    "gray": "808080",
+    "green": "008000",
+    "greenyellow": "adff2f",
+    "honeydew": "f0fff0",
+    "hotpink": "ff69b4",
+    "indianred": "cd5c5c",
+    "indigo": "4b0082",
+    "ivory": "fffff0",
+    "khaki": "f0e68c",
+    "lavender": "e6e6fa",
+    "lavenderblush": "fff0f5",
+    "lawngreen": "7cfc00",
+    "lemonchiffon": "fffacd",
+    "lightblue": "add8e6",
+    "lightcoral": "f08080",
+    "lightcyan": "e0ffff",
+    "lightgoldenrodyellow": "fafad2",
+    "lightgrey": "d3d3d3",
+    "lightgreen": "90ee90",
+    "lightpink": "ffb6c1",
+    "lightsalmon": "ffa07a",
+    "lightseagreen": "20b2aa",
+    "lightskyblue": "87cefa",
+    "lightslategray": "778899",
+    "lightsteelblue": "b0c4de",
+    "lightyellow": "ffffe0",
+    "lime": "00ff00",
+    "limegreen": "32cd32",
+    "linen": "faf0e6",
+    "magenta": "ff00ff",
+    "maroon": "800000",
+    "mediumaquamarine": "66cdaa",
+    "mediumblue": "0000cd",
+    "mediumorchid": "ba55d3",
+    "mediumpurple": "9370d8",
+    "mediumseagreen": "3cb371",
+    "mediumslateblue": "7b68ee",
+    "mediumspringgreen": "00fa9a",
+    "mediumturquoise": "48d1cc",
+    "mediumvioletred": "c71585",
+    "midnightblue": "191970",
+    "mintcream": "f5fffa",
+    "mistyrose": "ffe4e1",
+    "moccasin": "ffe4b5",
+    "navajowhite": "ffdead",
+    "navy": "000080",
+    "oldlace": "fdf5e6",
+    "olive": "808000",
+    "olivedrab": "6b8e23",
+    "orange": "ffa500",
+    "orangered": "ff4500",
+    "orchid": "da70d6",
+    "palegoldenrod": "eee8aa",
+    "palegreen": "98fb98",
+    "paleturquoise": "afeeee",
+    "palevioletred": "d87093",
+    "papayawhip": "ffefd5",
+    "peachpuff": "ffdab9",
+    "peru": "cd853f",
+    "pink": "ffc0cb",
+    "plum": "dda0dd",
+    "powderblue": "b0e0e6",
+    "purple": "800080",
+    "red": "ff0000",
+    "rosybrown": "bc8f8f",
+    "royalblue": "4169e1",
+    "saddlebrown": "8b4513",
+    "salmon": "fa8072",
+    "sandybrown": "f4a460",
+    "seagreen": "2e8b57",
+    "seashell": "fff5ee",
+    "sienna": "a0522d",
+    "silver": "c0c0c0",
+    "skyblue": "87ceeb",
+    "slateblue": "6a5acd",
+    "slategray": "708090",
+    "snow": "fffafa",
+    "springgreen": "00ff7f",
+    "steelblue": "4682b4",
+    "tan": "d2b48c",
+    "teal": "008080",
+    "thistle": "d8bfd8",
+    "tomato": "ff6347",
+    "turquoise": "40e0d0",
+    "violet": "ee82ee",
+    "wheat": "f5deb3",
+    "white": "ffffff",
+    "whitesmoke": "f5f5f5",
+    "yellow": "ffff00",
+    "yellowgreen": "9acd32",
     "transparent": "transparent"
   };
 
@@ -4623,7 +4626,15 @@ remove:function(){return this.each(function(){this.removeSlider()})}};c.fn.ionRa
         return 'transparent';
       }
 
-      return "#" + ((1 << 24) + (parseInt(rgb.r) << 16) + (parseInt(rgb.g) << 8) + parseInt(rgb.b)).toString(16).slice(1);
+      var hexStr = (this.hexNumberSignPrefix ? '#' : '') + (
+          (1 << 24) +
+          (parseInt(rgb.r) << 16) +
+          (parseInt(rgb.g) << 8) +
+          parseInt(rgb.b))
+        .toString(16)
+        .slice(1);
+
+      return hexStr;
     },
     toHSL: function(h, s, b, a) {
       if (arguments.length === 0) {
@@ -4956,6 +4967,7 @@ remove:function(){return this.each(function(){this.removeSlider()})}};c.fn.ionRa
     component: '.add-on, .input-group-addon', // children component selector
     fallbackColor: false, // fallback color value. null = keeps current color.
     fallbackFormat: 'hex', // fallback color format
+    hexNumberSignPrefix: true, // put a '#' (number sign) before hex strings
     sliders: {
       saturation: {
         maxLeft: 100,
@@ -5079,7 +5091,8 @@ remove:function(){return this.each(function(){this.removeSlider()})}};c.fn.ionRa
             .css('background-color', color)
             .data('class', name).data('alias', name);
 
-          $btn.on('click.colorpicker touchend.colorpicker', function() {
+          $btn.on('mousedown.colorpicker touchstart.colorpicker', function(event) {
+            event.preventDefault();
             colorpicker.setValue(
               colorpicker.format === 'alias' ? $(this).data('alias') : $(this).css('background-color')
             );
@@ -5237,6 +5250,7 @@ remove:function(){return this.each(function(){this.removeSlider()})}};c.fn.ionRa
       val = val || this.color.toString(this.format, false);
       if (this.input !== false) {
         this.input.prop('value', val);
+        this.input.trigger('change');
       }
       return val;
     },
@@ -5264,10 +5278,10 @@ remove:function(){return this.each(function(){this.removeSlider()})}};c.fn.ionRa
       });
 
       this.picker.find('.colorpicker-saturation')
-        .css('backgroundColor', this.color.toHex(this.color.value.h, 1, 1, 1));
+        .css('backgroundColor', (this.options.hexNumberSignPrefix ? '' : '#') + this.color.toHex(this.color.value.h, 1, 1, 1));
 
       this.picker.find('.colorpicker-alpha')
-        .css('backgroundColor', this.color.toHex());
+        .css('backgroundColor', (this.options.hexNumberSignPrefix ? '' : '#') + this.color.toHex());
 
       this.picker.find('.colorpicker-color, .colorpicker-color div')
         .css('backgroundColor', this.color.toString(this.format, true));
@@ -5330,7 +5344,8 @@ remove:function(){return this.each(function(){this.removeSlider()})}};c.fn.ionRa
         val ? val : null,
         this.options.colorSelectors,
         this.options.fallbackColor ? this.options.fallbackColor : this.color,
-        this.options.fallbackFormat
+        this.options.fallbackFormat,
+        this.options.hexNumberSignPrefix
       );
     },
     getValue: function(defaultValue) {

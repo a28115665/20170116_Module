@@ -1,6 +1,6 @@
 "use strict";
 
-angular.module('app.settings').controller('AccountManagementCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, $filter, account, role, RestfulApi, Account) {
+angular.module('app.settings').controller('AccountManagementCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, $filter, account, role, RestfulApi) {
 
 	var $vm = this;
 
@@ -19,7 +19,7 @@ angular.module('app.settings').controller('AccountManagementCtrl', function ($sc
             }
         },
         accountManagementOptions : {
-            data:  '$vm.accountData',
+            data: '$vm.accountData',
             columnDefs: [
                 { name: 'U_ID'     ,  displayName: '帳號' },
                 { name: 'U_PW'     ,  displayName: '密碼' },
@@ -61,14 +61,14 @@ angular.module('app.settings').controller('AccountManagementCtrl', function ($sc
                             querymain: 'accountManagement',
                             queryname: 'SelectAllSysCode',
                             params: {
-                                SC_Type : "Depart"
+                                SC_TYPE : "Depart"
                             }
                         }).then(function (res){
                             var data = res["returnData"] || [],
                                 finalData = {};
 
                             for(var i in data){
-                                finalData[data[i].SC_Code] = data[i].SC_Desc
+                                finalData[data[i].SC_CODE] = data[i].SC_DESC
                             }
                             
                             deferred.resolve(finalData);
@@ -118,8 +118,8 @@ angular.module('app.settings').controller('AccountManagementCtrl', function ($sc
             querymain: 'accountManagement',
 	        queryname: 'SelectAllUserInfoNotWithAdmin'
 	    }).then(function (res){
-        	// console.log(res);
-        	$vm.accountData = res.data.returnData
+        	console.log(res);
+        	$vm.accountData = res["returnData"]
 	    });
 	}
 

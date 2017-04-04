@@ -93,7 +93,12 @@ angular.module('app.settings').config(function ($stateProvider){
                 controller: 'NewsCtrl',
                 controllerAs: '$vm',
                 resolve: {
-                    
+                    bool: function (Bool){
+                        return Bool;
+                    },
+                    ioType: function (IOType){
+                        return IOType;
+                    }
                 }
             }
         }
