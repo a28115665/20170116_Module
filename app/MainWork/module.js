@@ -35,10 +35,10 @@ angular.module('app.mainwork').config(function ($stateProvider){
 
                             for(var i in data){
                                 finalData.push({
-                                    BB_IsTop    : data[i]['BB_IsTop'],
-                                    BB_PostTime    : data[i]['BB_PostTime'],
-                                    BB_Title  : data[i]['BB_Title'],
-                                    BB_Content : data[i]['BB_Content'],
+                                    BB_STICK_TOP    : data[i]['BB_STICK_TOP'],
+                                    BB_EXPECTED_POST    : data[i]['BB_EXPECTED_POST'],
+                                    BB_TITLE  : data[i]['BB_TITLE'],
+                                    BB_CONTENT : data[i]['BB_CONTENT'],
                                     BB_CR_Name  : data[i]['BB_CR_Name']
                                 });
                             }

@@ -15,10 +15,10 @@ angular.module('app.mainwork').controller('MainWorkCtrl', function ($scope, $sta
         billboardOptions : {
             data:  billboardData,
             columnDefs: [
-                { name: 'BB_IsTop',    displayName: '置頂', cellClass: cellClass, cellTemplate: $templateCache.get('accessibilityIsTop'), width: '5%' },
-                { name: 'BB_PostTime', displayName: '公佈時間', cellClass: cellClass },
-                { name: 'BB_Title',    displayName: '標題', cellClass: cellClass },
-                { name: 'BB_Content',  displayName: '內容', cellClass: cellClass },
+                { name: 'BB_STICK_TOP',    displayName: '置頂', cellClass: cellClass, cellTemplate: $templateCache.get('accessibilityIsTop'), width: '5%' },
+                { name: 'BB_EXPECTED_POST', displayName: '公佈時間', cellClass: cellClass },
+                { name: 'BB_TITLE',    displayName: '標題', cellClass: cellClass },
+                { name: 'BB_CONTENT',  displayName: '內容', cellClass: cellClass },
                 { name: 'BB_CR_Name',  displayName: '公佈人員名稱', cellClass: cellClass }
             ],
             enableFiltering: false,

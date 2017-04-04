@@ -7,6 +7,8 @@ var dateFormat = require('dateformat');
 
 const path = require('path');
 const fs = require('fs');
+var fsExtra = require('fs-extra');
+var busboy = require('connect-busboy');
 
 /**
  * ExportExcelByVar 經由前端參數匯出Excel
@@ -71,6 +73,26 @@ router.get('/exportExcelByVar', function(req, res) {
             res.end(toArrayBuffer(buffer));
         }
     });
+});
+
+/**
+ * Upload 檔案上傳
+ */
+router.post('/upload', function(req, res) {
+    req.pipe(req.busboy);
+    req.busboy.on('file', function(fieldname, file, filename) {
+        console.log(fieldname, file, filename);
+        var stream = fsExtra.createWriteStream(path.dirname(module.parent.filename) + '/upload/' + filename);
+        console.log(__dirname + '/upload/' + filename);
+        file.pipe(stream);
+        stream.on('close', function() {
+            console.log('File ' + filename + ' is uploaded');
+            res.json({
+                filename: filename
+            });
+        });
+    });
+
 });
 
 function toArrayBuffer(buf) {

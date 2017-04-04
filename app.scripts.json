@@ -35,7 +35,12 @@
       "angular-datatables",
       "angular-datatables.bootstrap",
       "AngularJS-Toaster",
-      "angular-ui-grid"
+      "angular-ui-grid",
+      "angular-ui-mask",
+      "tinymce",
+      "tinymce-themes",
+      "angular-ui-tinymce",
+      "angular-file-upload"
 
     ],
     "vendor.ui": [
@@ -162,6 +167,11 @@
     "smartwidgets": "smartadmin-plugin/smartwidgets/jarvis.widget.min.js",
     "notification": "smartadmin-plugin/notification/SmartNotification.min.js",
     "AngularJS-Toaster": "bower_components/AngularJS-Toaster/toaster.min.js",
-    "angular-ui-grid": "bower_components/angular-ui-grid/ui-grid.js"
+    "angular-ui-grid": "bower_components/angular-ui-grid/ui-grid.js",
+    "angular-ui-mask": "bower_components/angular-ui-mask/dist/mask.min.js",
+    "tinymce": "bower_components/tinymce/tinymce.min.js",
+    "tinymce-themes": "bower_components/tinymce/themes/modern/theme.js",
+    "angular-ui-tinymce": "bower_components/angular-ui-tinymce/dist/tinymce.min.js",
+    "angular-file-upload": "bower_components/angular-file-upload/dist/angular-file-upload.min.js"
   }
 }
