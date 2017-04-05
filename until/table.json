@@ -1,4 +1,6 @@
 {
 	"0" : "UserInfo",
-	"1" : "Billboard"
+	"1" : "BILLBOARD",
+	"2" : "BILLBOARD_ATTACHED_FILE",
+	"3" : "BILLBOARD_POST_GOAL"
 }

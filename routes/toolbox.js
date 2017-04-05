@@ -78,20 +78,29 @@ router.get('/exportExcelByVar', function(req, res) {
 /**
  * Upload 檔案上傳
  */
-router.post('/upload', function(req, res) {
-    req.pipe(req.busboy);
-    req.busboy.on('file', function(fieldname, file, filename) {
-        console.log(fieldname, file, filename);
-        var stream = fsExtra.createWriteStream(path.dirname(module.parent.filename) + '/upload/' + filename);
-        console.log(__dirname + '/upload/' + filename);
-        file.pipe(stream);
-        stream.on('close', function() {
-            console.log('File ' + filename + ' is uploaded');
-            res.json({
-                filename: filename
+router.post('/uploadFile', function(req, res) {
+
+    try{
+        req.pipe(req.busboy);
+        req.busboy.on('file', function(fieldname, file, filename) {
+            var _dir = path.dirname(module.parent.filename) + '/upload/file/' + req.query["filePath"];
+
+            if (!fs.existsSync(_dir)){
+                fs.mkdirSync(_dir);
+            }
+
+            var stream = fsExtra.createWriteStream(_dir + filename);
+            file.pipe(stream);
+            stream.on('close', function() {
+                console.log('File ' + filename + ' is uploaded');
+                res.json({
+                    filename: filename
+                });
             });
         });
-    });
+    } catch(err) {
+        res.status(500).send('上傳失敗');
+    }
 
 });
 

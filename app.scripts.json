@@ -40,7 +40,8 @@
       "tinymce",
       "tinymce-themes",
       "angular-ui-tinymce",
-      "angular-file-upload"
+      "angular-file-upload",
+      "cryptojslib"
 
     ],
     "vendor.ui": [
@@ -172,6 +173,7 @@
     "tinymce": "bower_components/tinymce/tinymce.min.js",
     "tinymce-themes": "bower_components/tinymce/themes/modern/theme.js",
     "angular-ui-tinymce": "bower_components/angular-ui-tinymce/dist/tinymce.min.js",
-    "angular-file-upload": "bower_components/angular-file-upload/dist/angular-file-upload.min.js"
+    "angular-file-upload": "bower_components/angular-file-upload/dist/angular-file-upload.min.js",
+    "cryptojslib": "bower_components/cryptojslib/rollups/md5.js"
   }
 }

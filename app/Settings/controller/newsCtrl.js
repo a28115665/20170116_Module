@@ -1,6 +1,6 @@
 "use strict";
 
-angular.module('app.settings').controller('NewsCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $filter, bool, ioType, FileUploader) {
+angular.module('app.settings').controller('NewsCtrl', function ($scope, $stateParams, $state, RestfulApi, Session, toaster, $uibModal, $filter, bool, ioType, FileUploader) {
     console.log($stateParams);
 
     // $scope.getContent = function() {
@@ -12,11 +12,13 @@ angular.module('app.settings').controller('NewsCtrl', function ($scope, $statePa
     // };
 
     var $vm = this,
-        _d = new Date();
+        _d = new Date(),
+        _filePath = _d.getFullYear() + '/' + ("0" + (_d.getMonth()+1)).slice(-2) + '/' + ("0" + _d.getDate()).slice(-2) + '/';
 
     // 初始化設定
     if($stateParams.data == null){
-        $vm.EXPECTED_POST = $filter('date')(_d, 'yyyyMMdd');
+        // $vm.POST_FROM = $filter('date')(_d, 'yyyyMMdd');
+        // $vm.POST_TOXX = $filter('date')(_d, 'yyyyMMdd');
         $vm.STICK_TOP = "false";
         $vm.IO_TYPE = "All";
         $vm.CONTENT = "";
@@ -27,7 +29,7 @@ angular.module('app.settings').controller('NewsCtrl', function ($scope, $statePa
         boolData : bool,
         ioTypeData : ioType,
         uploader : new FileUploader({
-            url: '/toolbox/upload'
+            url: '/toolbox/uploadFile?filePath='+_filePath
         }),
         tinymceOptions : {
             skin_url: 'styles/skins/lightgray',
@@ -35,8 +37,9 @@ angular.module('app.settings').controller('NewsCtrl', function ($scope, $statePa
             force_br_newlines : false,
             force_p_newlines : false,
             forced_root_block : '',
-            // toolbar1: "insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image",
-            // toolbar2: "print preview media | forecolor backcolor emoticons",
+            toolbar: '',
+            // toolbar: 'undo redo | insert | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image',
+            // selector: 'textarea',
             image_advtab: true,
             height: "200px",
             // toolbar: 'undo redo | bold italic | alignleft aligncenter alignright | code'
@@ -46,14 +49,14 @@ angular.module('app.settings').controller('NewsCtrl', function ($scope, $statePa
                 animation: true,
                 ariaLabelledBy: 'modal-title',
                 ariaDescribedBy: 'modal-body',
-                templateUrl: 'myModalContent.html',
-                controller: 'ModalInstanceCtrl',
+                templateUrl: 'addPostGoalModalContent.html',
+                controller: 'AddPostGoalModalInstanceCtrl',
                 controllerAs: '$ctrl',
                 size: 'lg',
                 // appendTo: parentElem,
                 resolve: {
                     items: function() {
-                        return pProfile;
+                        return $vm.profile;
                     }
                 }
             });
@@ -67,6 +70,26 @@ angular.module('app.settings').controller('NewsCtrl', function ($scope, $statePa
         },
         Return : function(){
             ReturnToBillboardEditorPage();
+        },
+        Add : function(){
+            console.log($vm);
+            RestfulApi.InsertMSSQLData({
+                insertname: 'Insert',
+                table: 1,
+                params: {
+                    BB_TITLE : $vm.TITLE,
+                    BB_CONTENT : $vm.TITLE,
+                    BB_POST_FROM : $vm.POST_FROM,
+                    BB_POST_TOXX : $vm.POST_TOXX,
+                    BB_IO_TYPE : $vm.IO_TYPE,
+                    BB_CR_USER : $vm.profile.U_ID,
+                    BB_CR_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss')
+                }
+            }).then(function (res) {
+                console.log(res["returnData"]);
+            }, function (err) {
+                console.log(err);
+            });
         }
     });
 
@@ -120,29 +143,29 @@ angular.module('app.settings').controller('NewsCtrl', function ($scope, $statePa
     };
     $vm.uploader.onAfterAddingFile = function(fileItem) {
         console.info('onAfterAddingFile', fileItem);
-        // var reader = new FileReader();
+        var reader = new FileReader();
 
-        // reader.onload = function(readerEvt) {
-        //     var data = readerEvt.target.result;
-        //     var fileNameArray = fileItem.file.name.split(".");
-        //     var queueIndex = $vm.uploader.queue.indexOf(fileItem);
-        //     var rename = angular.copy(CryptoJS.MD5(data).toString() + "." + fileNameArray[fileNameArray.length-1]);
+        reader.onload = function(readerEvt) {
+            var data = readerEvt.target.result;
+            var fileNameArray = fileItem.file.name.split(".");
+            var queueIndex = $vm.uploader.queue.indexOf(fileItem);
+            var rename = angular.copy(CryptoJS.MD5(data).toString() + "." + fileNameArray[fileNameArray.length-1]);
             
-        //     // Duplicate File
-        //     if($filter('filter')($scope.duplicateFile, rename).length > 0){
-        //         $vm.uploader.queue[queueIndex].remove();
-        //         toaster.pop('info', '上傳檔案重複', fileItem.file["name"], 3000);
-        //     }else{
-        //         $scope.duplicateFile.push(rename);
-        //         $scope.queueFile.push(rename);
-        //         fileItem.file["rename"] = rename;
-        //         fileItem.url += '&rename='+rename+'&oname='+fileItem.file.name;
-        //     }
-        //     // var dataFile = forumService.b64toBlob(btoa(data), fileItem.file.type);
-        //     // fileItem.file = dataFile;
-        // };
+            // Duplicate File
+            // if($filter('filter')($scope.duplicateFile, rename).length > 0){
+            //     $vm.uploader.queue[queueIndex].remove();
+            //     toaster.pop('info', '上傳檔案重複', fileItem.file["name"], 3000);
+            // }else{
+                // $scope.duplicateFile.push(rename);
+                // $scope.queueFile.push(rename);
+                fileItem.file["rename"] = rename;
+                fileItem.url += '&rename='+rename+'&oname='+fileItem.file.name;
+            // }
+            // var dataFile = forumService.b64toBlob(btoa(data), fileItem.file.type);
+            // fileItem.file = dataFile;
+        };
 
-        // reader.readAsBinaryString(fileItem._file);
+        reader.readAsBinaryString(fileItem._file);
     };
     $vm.uploader.onAfterAddingAll = function(addedFileItems) {
         console.info('onAfterAddingAll', addedFileItems);
@@ -234,3 +257,18 @@ angular.module('app.settings').controller('NewsCtrl', function ($scope, $statePa
         $state.transitionTo("app.settings.billboardeditor");
     };
 })
+.controller('AddPostGoalModalInstanceCtrl', function ($uibModalInstance, items) {
+    var $ctrl = this;
+    $ctrl.items = items;
+    $ctrl.selected = {
+        item: $ctrl.items[0]
+    };
+
+    $ctrl.ok = function() {
+        $uibModalInstance.close($ctrl.selected.item);
+    };
+
+    $ctrl.cancel = function() {
+        $uibModalInstance.dismiss('cancel');
+    };
+});
