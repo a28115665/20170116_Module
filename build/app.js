@@ -1371,7 +1371,7 @@ angular.module('app.mainwork').config(function ($stateProvider){
                             for(var i in data){
                                 finalData.push({
                                     BB_STICK_TOP    : data[i]['BB_STICK_TOP'],
-                                    BB_EXPECTED_POST    : data[i]['BB_EXPECTED_POST'],
+                                    BB_POST_FROM    : data[i]['BB_POST_FROM'],
                                     BB_TITLE  : data[i]['BB_TITLE'],
                                     BB_CONTENT : data[i]['BB_CONTENT'],
                                     BB_CR_Name  : data[i]['BB_CR_Name']
@@ -1600,6 +1600,10 @@ angular.module('app.restful').config(function ($stateProvider){
                                 exportExcelByVarTest : {
                                     status : "",
                                     result : ""
+                                },
+                                queryTestByTask : {
+                                    status : "",
+                                    result : ""
                                 }
                             }
                         });
@@ -1710,6 +1714,46 @@ angular.module('app.restful').config(function ($stateProvider){
                             }, function (err) {
                                 $vm.restful.exportExcelByVarTest.status = "失敗";
                                 $vm.restful.exportExcelByVarTest.result = "匯出失敗";
+                            });
+                        };
+
+                        /**
+                         * Query By Task Sample
+                         */
+                        $vm.QueryTestByTask = function(){
+                            RestfulApi.CRUDMSSQLDataByTask([
+                                {
+                                    crudType: 'Select',
+                                    querymain: 'accountManagement',
+                                    queryname: 'SelectAllUserInfo',
+                                    params: {
+                                        U_ID : $vm.testTask.ID1
+                                    }
+                                },
+                                {  
+                                    crudType: 'Select',
+                                    querymain: 'accountManagement',
+                                    queryname: 'SelectAllUserInfo',
+                                    params: {
+                                        U_ID : $vm.testTask.ID2
+                                    }
+                                }
+                            ]).then(function (res){
+                                $vm.restful.queryTestByTask.status = "成功";
+                                if(res["returnData"].length > 0){
+                                    console.log(res["returnData"]);
+                                    $vm.restful.queryTestByTask.result = [
+                                        {
+                                            data : res["returnData"][0]
+                                        },
+                                        {
+                                            data : res["returnData"][1]
+                                        }
+                                    ];
+                                }
+                            }, function (err){
+                                $vm.restful.queryTestByTask.status = "失敗";
+                                $vm.restful.queryTestByTask.result = err;
                             });
                         };
 
@@ -2587,6 +2631,7 @@ angular.module('app')
                 'insert': { method: 'POST'}
             }
         ),
+        CRUDBYTASK : $resource('/restful/crudByTask'),
         LOGIN : $resource('/auth/login'),
         LOGOUT : $resource('/auth/logout'),
         EXPORTEXCELBYVAR : $resource('/toolbox/exportExcelByVar', null, 
@@ -2861,6 +2906,21 @@ angular.module('app')
 	    var deferred = $q.defer();
 
 	    Resource.CRUD.remove(dataSrc, {}, 
+	    	function (pSResponse){
+				deferred.resolve(pSResponse);
+			},
+	    	function (pFResponse){
+	    		deferred.reject(pFResponse.data);
+	    	});
+
+	    return deferred.promise
+	},
+
+	this.CRUDMSSQLDataByTask = function (dataSrc) {
+	    // console.log(dataSrc);
+	    var deferred = $q.defer();
+
+	    Resource.CRUDBYTASK.get(dataSrc, {}, 
 	    	function (pSResponse){
 				deferred.resolve(pSResponse);
 			},
@@ -5943,7 +6003,7 @@ angular.module('app.settings').controller('NewsCtrl', function ($scope, $statePa
 
     var $vm = this,
         _d = new Date(),
-        _filePath = _d.getFullYear() + '/' + ("0" + (_d.getMonth()+1)).slice(-2) + '/' + ("0" + _d.getDate()).slice(-2) + '/';
+        _filepath = _d.getFullYear() + '/' + ("0" + (_d.getMonth()+1)).slice(-2) + '/' + ("0" + _d.getDate()).slice(-2) + '/';
 
     // 初始化設定
     if($stateParams.data == null){
@@ -5959,7 +6019,7 @@ angular.module('app.settings').controller('NewsCtrl', function ($scope, $statePa
         boolData : bool,
         ioTypeData : ioType,
         uploader : new FileUploader({
-            url: '/toolbox/uploadFile?filePath='+_filePath
+            url: '/toolbox/uploadFile?filePath='+_filepath
         }),
         tinymceOptions : {
             skin_url: 'styles/skins/lightgray',
@@ -6003,20 +6063,62 @@ angular.module('app.settings').controller('NewsCtrl', function ($scope, $statePa
         },
         Add : function(){
             console.log($vm);
-            RestfulApi.InsertMSSQLData({
-                insertname: 'Insert',
-                table: 1,
-                params: {
-                    BB_TITLE : $vm.TITLE,
-                    BB_CONTENT : $vm.TITLE,
-                    BB_POST_FROM : $vm.POST_FROM,
-                    BB_POST_TOXX : $vm.POST_TOXX,
-                    BB_IO_TYPE : $vm.IO_TYPE,
-                    BB_CR_USER : $vm.profile.U_ID,
-                    BB_CR_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss')
-                }
-            }).then(function (res) {
-                console.log(res["returnData"]);
+            var ioTypePromise = null;
+            switch($vm.IO_TYPE){
+                case "In":
+                case "Out": 
+                    ioTypePromise = RestfulApi.InsertMSSQLData({
+                        insertname: 'Insert',
+                        table: 1,
+                        params: {
+                            BB_TITLE : $vm.TITLE,
+                            BB_CONTENT : $vm.CONTENT,
+                            BB_POST_FROM : $vm.POST_FROM,
+                            BB_POST_TOXX : $vm.POST_TOXX,
+                            BB_IO_TYPE : $vm.IO_TYPE,
+                            BB_CR_USER : $vm.profile.U_ID,
+                            BB_CR_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss')
+                        }
+                    });
+                    break;
+                case "All":
+                    ioTypePromise = RestfulApi.CRUDMSSQLDataByTask([
+                        {
+                            crudType: 'Insert',
+                            table: 1,
+                            params: {
+                                BB_TITLE : $vm.TITLE,
+                                BB_CONTENT : $vm.CONTENT,
+                                BB_POST_FROM : $vm.POST_FROM,
+                                BB_POST_TOXX : $vm.POST_TOXX,
+                                BB_IO_TYPE : "In",
+                                BB_CR_USER : $vm.profile.U_ID,
+                                BB_CR_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss')
+                            }
+                        },
+                        {
+                            crudType: 'Insert',
+                            table: 1,
+                            params: {
+                                BB_TITLE : $vm.TITLE,
+                                BB_CONTENT : $vm.CONTENT,
+                                BB_POST_FROM : $vm.POST_FROM,
+                                BB_POST_TOXX : $vm.POST_TOXX,
+                                BB_IO_TYPE : "Out",
+                                BB_CR_USER : $vm.profile.U_ID,
+                                BB_CR_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss')
+                            }
+                        }
+                    ]);
+                    break;
+            }
+
+            ioTypePromise.then(function (res) {
+                console.log(res);
+                // 上傳所有檔案
+                // if($vm.uploader.getNotUploadedItems().length > 0){
+                //     $vm.uploader.uploadAll();
+                // }
             }, function (err) {
                 console.log(err);
             });
@@ -6088,8 +6190,7 @@ angular.module('app.settings').controller('NewsCtrl', function ($scope, $statePa
             // }else{
                 // $scope.duplicateFile.push(rename);
                 // $scope.queueFile.push(rename);
-                fileItem.file["rename"] = rename;
-                fileItem.url += '&rename='+rename+'&oname='+fileItem.file.name;
+                fileItem.url += '&rFilename='+rename;
             // }
             // var dataFile = forumService.b64toBlob(btoa(data), fileItem.file.type);
             // fileItem.file = dataFile;
@@ -6120,64 +6221,26 @@ angular.module('app.settings').controller('NewsCtrl', function ($scope, $statePa
     };
     $vm.uploader.onCompleteItem = function(fileItem, response, status, headers) {
         console.info('onCompleteItem', fileItem, response, status, headers);
-        // if(status == 200){
-        //     var _d = new Date();
-        //     var insertUploadMessage = {
-        //         active: true,
-        //         title: "insertUploadMessage",
-        //         jspUrl: "jsp/",
-        //         handler: "DBInsertReturnID.jsp",
-        //         addr: $rootScope._URL,
-        //         table: 5,
-        //         returnidentity: true,
-        //         insertname: 'Insert',
-        //         insert: {
-        //             C_ID              : $scope.caseChoice,
-        //             CJ_UploadDateTime : $filter('date')(_d, 'yyyy/MM/dd HH:mm:ss'),
-        //             CJ_OName          : fileItem.file.name,
-        //             CJ_RName          : fileItem.file.rename,
-        //             CJ_FilePath       : f_filepath,
-        //             CJ_TranState      : 0,
-        //             CJ_SoftDelete     : 0,
-        //             C_CR_USER         : $rootScope.UserInfo.U_ID,
-        //             C_CR_DateTime     : $filter('date')(_d, 'yyyy/MM/dd HH:mm:ss')
-        //         }
-        //     };
-        //     var promise = forumService.insertMSSQLData(insertUploadMessage);
-        //     promise.then(function(res) {
-        //         if(res.trim() != "Fail"){
-        //             // console.log("更新成功");
-        //             var doexe = {
-        //                 active: true,
-        //                 title: "DoExe",
-        //                 jspUrl: "jsp/",
-        //                 handler: "DoExeForCC.jsp",
-        //                 filepath: f_filepath,
-        //                 filename: fileItem.file.rename,
-        //                 fileid: res.trim(),
-        //                 filecaseid: $scope.caseChoice
-        //             };
-        //             var promise = forumService.doCJExe(doexe);
-        //             promise.then(function(res) {
-        //                 console.log(res.trim())
-        //                 if(res.trim() != "Fail"){
-                            
-        //                 }else{
-
-        //                 }
-        //             }, function(data) {
-        //                 return 'fail';
-        //             });
-
-        //         }else{
-        //             // console.log("更新失敗");
-        //         }
-        //     }, function(data) {
-        //         // console.log("更新失敗");
-        //     });
-        // }else{
-        //     toaster.pop('error', "", "檔案上傳失敗", 3000);
-        // }
+        if(status == 200){
+            // 儲存每個上傳檔案的資訊
+            RestfulApi.InsertMSSQLData({
+                insertname: 'Insert',
+                table: 2,
+                params: {
+                    BBAF_O_FILENAME : response.oFilename,
+                    BBAF_R_FILENAME : response.rFilename,
+                    BBAF_FILEPATH : response.Filepath,
+                    BBAF_CR_USER : $vm.profile.U_ID,
+                    BBAF_CR_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss')
+                }
+            }).then(function (res) {
+                console.log(res["returnData"]);
+            }, function (err) {
+                toaster.pop('error', "訊息", err, 3000);
+            });
+        }else{
+            toaster.pop('error', "檔案上傳失敗", response.oFilename, 3000);
+        }
     };
     $vm.uploader.onCompleteAll = function() {
         console.info('onCompleteAll');
@@ -12116,6 +12179,97 @@ angular.module('SmartAdmin.UI').directive('smartTooltipHtml', function () {
     }
 );
 
+'use strict';
+
+angular.module('SmartAdmin.Forms').directive('smartCkEditor', function () {
+    return {
+        restrict: 'A',
+        compile: function ( tElement) {
+            tElement.removeAttr('smart-ck-editor data-smart-ck-editor');
+            //CKEDITOR.basePath = 'bower_components/ckeditor/';
+
+            CKEDITOR.replace( tElement.attr('name'), { height: '380px', startupFocus : true} );
+        }
+    }
+});
+'use strict';
+
+angular.module('SmartAdmin.Forms').directive('smartDestroySummernote', function () {
+    return {
+        restrict: 'A',
+        compile: function (tElement, tAttributes) {
+            tElement.removeAttr('smart-destroy-summernote data-smart-destroy-summernote')
+            tElement.on('click', function() {
+                angular.element(tAttributes.smartDestroySummernote).destroy();
+            })
+        }
+    }
+});
+
+'use strict';
+
+angular.module('SmartAdmin.Forms').directive('smartEditSummernote', function () {
+    return {
+        restrict: 'A',
+        compile: function (tElement, tAttributes) {
+            tElement.removeAttr('smart-edit-summernote data-smart-edit-summernote');
+            tElement.on('click', function(){
+                angular.element(tAttributes.smartEditSummernote).summernote({
+                    focus : true
+                });  
+            });
+        }
+    }
+});
+
+'use strict';
+
+angular.module('SmartAdmin.Forms').directive('smartMarkdownEditor', function () {
+    return {
+        restrict: 'A',
+        compile: function (element, attributes) {
+            element.removeAttr('smart-markdown-editor data-smart-markdown-editor')
+
+            var options = {
+                autofocus:false,
+                savable:true,
+                fullscreen: {
+                    enable: false
+                }
+            };
+
+            if(attributes.height){
+                options.height = parseInt(attributes.height);
+            }
+
+            element.markdown(options);
+        }
+    }
+});
+
+'use strict';
+
+angular.module('SmartAdmin.Forms').directive('smartSummernoteEditor', function (lazyScript) {
+    return {
+        restrict: 'A',
+        compile: function (tElement, tAttributes) {
+            tElement.removeAttr('smart-summernote-editor data-smart-summernote-editor');
+
+            var options = {
+                focus : true,
+                tabsize : 2
+            };
+
+            if(tAttributes.height){
+                options.height = tAttributes.height;
+            }
+
+            lazyScript.register('build/vendor.ui.js').then(function(){
+                tElement.summernote(options);                
+            });
+        }
+    }
+});
 "use strict";
 
 
@@ -12553,97 +12707,6 @@ angular.module('SmartAdmin.Forms').directive('bootstrapTogglingForm', function()
 
 
 
-});
-'use strict';
-
-angular.module('SmartAdmin.Forms').directive('smartCkEditor', function () {
-    return {
-        restrict: 'A',
-        compile: function ( tElement) {
-            tElement.removeAttr('smart-ck-editor data-smart-ck-editor');
-            //CKEDITOR.basePath = 'bower_components/ckeditor/';
-
-            CKEDITOR.replace( tElement.attr('name'), { height: '380px', startupFocus : true} );
-        }
-    }
-});
-'use strict';
-
-angular.module('SmartAdmin.Forms').directive('smartDestroySummernote', function () {
-    return {
-        restrict: 'A',
-        compile: function (tElement, tAttributes) {
-            tElement.removeAttr('smart-destroy-summernote data-smart-destroy-summernote')
-            tElement.on('click', function() {
-                angular.element(tAttributes.smartDestroySummernote).destroy();
-            })
-        }
-    }
-});
-
-'use strict';
-
-angular.module('SmartAdmin.Forms').directive('smartEditSummernote', function () {
-    return {
-        restrict: 'A',
-        compile: function (tElement, tAttributes) {
-            tElement.removeAttr('smart-edit-summernote data-smart-edit-summernote');
-            tElement.on('click', function(){
-                angular.element(tAttributes.smartEditSummernote).summernote({
-                    focus : true
-                });  
-            });
-        }
-    }
-});
-
-'use strict';
-
-angular.module('SmartAdmin.Forms').directive('smartMarkdownEditor', function () {
-    return {
-        restrict: 'A',
-        compile: function (element, attributes) {
-            element.removeAttr('smart-markdown-editor data-smart-markdown-editor')
-
-            var options = {
-                autofocus:false,
-                savable:true,
-                fullscreen: {
-                    enable: false
-                }
-            };
-
-            if(attributes.height){
-                options.height = parseInt(attributes.height);
-            }
-
-            element.markdown(options);
-        }
-    }
-});
-
-'use strict';
-
-angular.module('SmartAdmin.Forms').directive('smartSummernoteEditor', function (lazyScript) {
-    return {
-        restrict: 'A',
-        compile: function (tElement, tAttributes) {
-            tElement.removeAttr('smart-summernote-editor data-smart-summernote-editor');
-
-            var options = {
-                focus : true,
-                tabsize : 2
-            };
-
-            if(tAttributes.height){
-                options.height = tAttributes.height;
-            }
-
-            lazyScript.register('build/vendor.ui.js').then(function(){
-                tElement.summernote(options);                
-            });
-        }
-    }
 });
 'use strict';
 
@@ -13588,6 +13651,74 @@ angular.module('SmartAdmin.Forms').directive('smartDropzone', function () {
 
 'use strict';
 
+angular.module('SmartAdmin.Forms').directive('smartValidateForm', function (formsCommon) {
+    return {
+        restrict: 'A',
+        link: function (scope, form, attributes) {
+
+            var validateOptions = {
+                rules: {},
+                messages: {},
+                highlight: function (element) {
+                    $(element).closest('.form-group').removeClass('has-success').addClass('has-error');
+                },
+                unhighlight: function (element) {
+                    $(element).closest('.form-group').removeClass('has-error').addClass('has-success');
+                },
+                errorElement: 'span',
+                errorClass: 'help-block',
+                errorPlacement: function (error, element) {
+                    if (element.parent('.input-group').length) {
+                        error.insertAfter(element.parent());
+                    } else {
+                        error.insertAfter(element);
+                    }
+                }
+            };
+            form.find('[data-smart-validate-input], [smart-validate-input]').each(function () {
+                var $input = $(this), fieldName = $input.attr('name');
+
+                validateOptions.rules[fieldName] = {};
+
+                if ($input.data('required') != undefined) {
+                    validateOptions.rules[fieldName].required = true;
+                }
+                if ($input.data('email') != undefined) {
+                    validateOptions.rules[fieldName].email = true;
+                }
+
+                if ($input.data('maxlength') != undefined) {
+                    validateOptions.rules[fieldName].maxlength = $input.data('maxlength');
+                }
+
+                if ($input.data('minlength') != undefined) {
+                    validateOptions.rules[fieldName].minlength = $input.data('minlength');
+                }
+
+                if($input.data('message')){
+                    validateOptions.messages[fieldName] = $input.data('message');
+                } else {
+                    angular.forEach($input.data(), function(value, key){
+                        if(key.search(/message/)== 0){
+                            if(!validateOptions.messages[fieldName])
+                                validateOptions.messages[fieldName] = {};
+
+                            var messageKey = key.toLowerCase().replace(/^message/,'')
+                            validateOptions.messages[fieldName][messageKey] = value;
+                        }
+                    });
+                }
+            });
+
+
+            form.validate(validateOptions);
+
+        }
+    }
+});
+
+'use strict';
+
 angular.module('SmartAdmin.Forms').directive('smartFueluxWizard', function () {
     return {
         restrict: 'A',
@@ -13712,74 +13843,6 @@ angular.module('SmartAdmin.Forms').directive('smartWizard', function () {
         }
     }
 });
-'use strict';
-
-angular.module('SmartAdmin.Forms').directive('smartValidateForm', function (formsCommon) {
-    return {
-        restrict: 'A',
-        link: function (scope, form, attributes) {
-
-            var validateOptions = {
-                rules: {},
-                messages: {},
-                highlight: function (element) {
-                    $(element).closest('.form-group').removeClass('has-success').addClass('has-error');
-                },
-                unhighlight: function (element) {
-                    $(element).closest('.form-group').removeClass('has-error').addClass('has-success');
-                },
-                errorElement: 'span',
-                errorClass: 'help-block',
-                errorPlacement: function (error, element) {
-                    if (element.parent('.input-group').length) {
-                        error.insertAfter(element.parent());
-                    } else {
-                        error.insertAfter(element);
-                    }
-                }
-            };
-            form.find('[data-smart-validate-input], [smart-validate-input]').each(function () {
-                var $input = $(this), fieldName = $input.attr('name');
-
-                validateOptions.rules[fieldName] = {};
-
-                if ($input.data('required') != undefined) {
-                    validateOptions.rules[fieldName].required = true;
-                }
-                if ($input.data('email') != undefined) {
-                    validateOptions.rules[fieldName].email = true;
-                }
-
-                if ($input.data('maxlength') != undefined) {
-                    validateOptions.rules[fieldName].maxlength = $input.data('maxlength');
-                }
-
-                if ($input.data('minlength') != undefined) {
-                    validateOptions.rules[fieldName].minlength = $input.data('minlength');
-                }
-
-                if($input.data('message')){
-                    validateOptions.messages[fieldName] = $input.data('message');
-                } else {
-                    angular.forEach($input.data(), function(value, key){
-                        if(key.search(/message/)== 0){
-                            if(!validateOptions.messages[fieldName])
-                                validateOptions.messages[fieldName] = {};
-
-                            var messageKey = key.toLowerCase().replace(/^message/,'')
-                            validateOptions.messages[fieldName][messageKey] = value;
-                        }
-                    });
-                }
-            });
-
-
-            form.validate(validateOptions);
-
-        }
-    }
-});
-
 'use strict';
 
 angular.module('SmartAdmin.Layout').directive('demoStates', function ($rootScope) {

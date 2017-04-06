@@ -1,6 +1,8 @@
 var express = require('express');
 var router = express.Router();
 var dbCommand = require('../until/dbCommand.js');
+var dbCommandByTask = require('../until/dbCommandByTask.js');
+var async = require('async');
 
 /**
  * Restful 查詢
@@ -119,6 +121,89 @@ router.delete('/crud', function(req, res) {
     //         "returnData": req.query
     //     });
     // }
+});
+
+
+/**
+ * Restful By Task 查詢
+ * 參考 http://qiita.com/mima_ita/items/dc867fa4f316d85533b1
+ */
+router.get('/crudByTask', function(req, res) {
+    
+    // console.log(req.query);
+
+    var tasks = [];
+    tasks.push(dbCommandByTask.Connect);
+    tasks.push(dbCommandByTask.TransactionBegin);
+
+    for(var i in req.query){
+        var _task = JSON.parse(req.query[i]);
+        switch(_task.crudType){
+            case "Select":
+                tasks.push(async.apply(dbCommandByTask.SelectRequestWithTransaction, _task));
+                break;
+            case "Insert":
+                tasks.push(async.apply(dbCommandByTask.InsertRequestWithTransaction, _task));
+                break;
+            case "Update":
+                tasks.push(async.apply(dbCommandByTask.UpdateRequestWithTransaction, _task));
+                break;
+            case "Delete":
+                tasks.push(async.apply(dbCommandByTask.DeleteRequestWithTransaction, _task));
+                break;
+            default:
+                break;
+        }
+    }
+
+    tasks.push(dbCommandByTask.TransactionCommit);
+    tasks.push(dbCommandByTask.DisConnect);
+
+    async.waterfall(tasks, function (err, args) {
+        if (err) {
+            dbCommandByTask.TransactionRollback(args, function (err, result){
+                
+            });
+            // res.json({
+            //     err : err
+            // });
+
+            res.status(500).send('任務失敗');
+            // process.exit();
+        }else{
+            // console.log("args:", args);
+            res.json({
+                "returnData": args.result
+            });
+        }
+    });
+    
+    // async.waterfall([
+    //     myFirstFunction,
+    //     mySecondFunction,
+    //     async.apply(myLastFunction, 'deen'),
+    // ], function (err, result) {
+    //     console.log(err, result);
+    // });
+    // function myFirstFunction(callback) {
+    //     var arg1 = [];
+    //     arg1.push('one');
+    //     callback(null, arg1);
+    // }
+    // function mySecondFunction(arg1, callback) {
+    //     console.log("mySecondFunction", arg1);
+    //     arg1.push('three');
+    //     // arg1 now equals 'one' and arg2 now equals 'two'
+    //     callback(null, arg1);
+    // }
+    // function myLastFunction(arg1, arg2, callback) {
+    //     console.log("myLastFunction", arg1, arg2);
+    //     // arg1 is what you have passed in the apply function
+    //     // arg2 is from second function
+    //     callback(null, 'done');
+    // }
+
+
 });
 
 module.exports = router;

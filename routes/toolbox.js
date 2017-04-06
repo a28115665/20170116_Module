@@ -1,5 +1,6 @@
 var express = require('express');
 var router = express.Router();
+var mkdirp = require('mkdirp');
 var dbCommand = require('../until/dbCommand.js');
 var tmpXlsObj = require('../until/tmpXlsObj.js');
 
@@ -83,18 +84,26 @@ router.post('/uploadFile', function(req, res) {
     try{
         req.pipe(req.busboy);
         req.busboy.on('file', function(fieldname, file, filename) {
-            var _dir = path.dirname(module.parent.filename) + '/upload/file/' + req.query["filePath"];
+            var _filepath =  '/upload/file/' + req.query["filePath"],
+                _dir = path.dirname(module.parent.filename) + _filepath;
 
-            if (!fs.existsSync(_dir)){
-                fs.mkdirSync(_dir);
-            }
+            mkdirp(_dir, function(err) { 
+                // path exists unless there was an error
+                if(err) return;
 
-            var stream = fsExtra.createWriteStream(_dir + filename);
-            file.pipe(stream);
-            stream.on('close', function() {
-                console.log('File ' + filename + ' is uploaded');
-                res.json({
-                    filename: filename
+                var _filename = filename;
+                if(req.query["rFilename"]){
+                    _filename = req.query["rFilename"];
+                }
+                var stream = fsExtra.createWriteStream(_dir + _filename);
+                file.pipe(stream);
+                stream.on('close', function() {
+                    // console.log('File ' + filename + ' is uploaded');
+                    res.json({
+                        oFilename: filename,
+                        rFilename: _filename,
+                        Filepath: _filepath
+                    });
                 });
             });
         });

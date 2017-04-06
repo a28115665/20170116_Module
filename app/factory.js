@@ -25,6 +25,7 @@ angular.module('app')
                 'insert': { method: 'POST'}
             }
         ),
+        CRUDBYTASK : $resource('/restful/crudByTask'),
         LOGIN : $resource('/auth/login'),
         LOGOUT : $resource('/auth/logout'),
         EXPORTEXCELBYVAR : $resource('/toolbox/exportExcelByVar', null, 

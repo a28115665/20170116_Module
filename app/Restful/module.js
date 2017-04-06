@@ -51,6 +51,10 @@ angular.module('app.restful').config(function ($stateProvider){
                                 exportExcelByVarTest : {
                                     status : "",
                                     result : ""
+                                },
+                                queryTestByTask : {
+                                    status : "",
+                                    result : ""
                                 }
                             }
                         });
@@ -161,6 +165,46 @@ angular.module('app.restful').config(function ($stateProvider){
                             }, function (err) {
                                 $vm.restful.exportExcelByVarTest.status = "失敗";
                                 $vm.restful.exportExcelByVarTest.result = "匯出失敗";
+                            });
+                        };
+
+                        /**
+                         * Query By Task Sample
+                         */
+                        $vm.QueryTestByTask = function(){
+                            RestfulApi.CRUDMSSQLDataByTask([
+                                {
+                                    crudType: 'Select',
+                                    querymain: 'accountManagement',
+                                    queryname: 'SelectAllUserInfo',
+                                    params: {
+                                        U_ID : $vm.testTask.ID1
+                                    }
+                                },
+                                {  
+                                    crudType: 'Select',
+                                    querymain: 'accountManagement',
+                                    queryname: 'SelectAllUserInfo',
+                                    params: {
+                                        U_ID : $vm.testTask.ID2
+                                    }
+                                }
+                            ]).then(function (res){
+                                $vm.restful.queryTestByTask.status = "成功";
+                                if(res["returnData"].length > 0){
+                                    console.log(res["returnData"]);
+                                    $vm.restful.queryTestByTask.result = [
+                                        {
+                                            data : res["returnData"][0]
+                                        },
+                                        {
+                                            data : res["returnData"][1]
+                                        }
+                                    ];
+                                }
+                            }, function (err){
+                                $vm.restful.queryTestByTask.status = "失敗";
+                                $vm.restful.queryTestByTask.result = err;
                             });
                         };
 

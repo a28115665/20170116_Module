@@ -13,7 +13,7 @@ angular.module('app.settings').controller('NewsCtrl', function ($scope, $statePa
 
     var $vm = this,
         _d = new Date(),
-        _filePath = _d.getFullYear() + '/' + ("0" + (_d.getMonth()+1)).slice(-2) + '/' + ("0" + _d.getDate()).slice(-2) + '/';
+        _filepath = _d.getFullYear() + '/' + ("0" + (_d.getMonth()+1)).slice(-2) + '/' + ("0" + _d.getDate()).slice(-2) + '/';
 
     // 初始化設定
     if($stateParams.data == null){
@@ -29,7 +29,7 @@ angular.module('app.settings').controller('NewsCtrl', function ($scope, $statePa
         boolData : bool,
         ioTypeData : ioType,
         uploader : new FileUploader({
-            url: '/toolbox/uploadFile?filePath='+_filePath
+            url: '/toolbox/uploadFile?filePath='+_filepath
         }),
         tinymceOptions : {
             skin_url: 'styles/skins/lightgray',
@@ -73,20 +73,62 @@ angular.module('app.settings').controller('NewsCtrl', function ($scope, $statePa
         },
         Add : function(){
             console.log($vm);
-            RestfulApi.InsertMSSQLData({
-                insertname: 'Insert',
-                table: 1,
-                params: {
-                    BB_TITLE : $vm.TITLE,
-                    BB_CONTENT : $vm.TITLE,
-                    BB_POST_FROM : $vm.POST_FROM,
-                    BB_POST_TOXX : $vm.POST_TOXX,
-                    BB_IO_TYPE : $vm.IO_TYPE,
-                    BB_CR_USER : $vm.profile.U_ID,
-                    BB_CR_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss')
-                }
-            }).then(function (res) {
-                console.log(res["returnData"]);
+            var ioTypePromise = null;
+            switch($vm.IO_TYPE){
+                case "In":
+                case "Out": 
+                    ioTypePromise = RestfulApi.InsertMSSQLData({
+                        insertname: 'Insert',
+                        table: 1,
+                        params: {
+                            BB_TITLE : $vm.TITLE,
+                            BB_CONTENT : $vm.CONTENT,
+                            BB_POST_FROM : $vm.POST_FROM,
+                            BB_POST_TOXX : $vm.POST_TOXX,
+                            BB_IO_TYPE : $vm.IO_TYPE,
+                            BB_CR_USER : $vm.profile.U_ID,
+                            BB_CR_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss')
+                        }
+                    });
+                    break;
+                case "All":
+                    ioTypePromise = RestfulApi.CRUDMSSQLDataByTask([
+                        {
+                            crudType: 'Insert',
+                            table: 1,
+                            params: {
+                                BB_TITLE : $vm.TITLE,
+                                BB_CONTENT : $vm.CONTENT,
+                                BB_POST_FROM : $vm.POST_FROM,
+                                BB_POST_TOXX : $vm.POST_TOXX,
+                                BB_IO_TYPE : "In",
+                                BB_CR_USER : $vm.profile.U_ID,
+                                BB_CR_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss')
+                            }
+                        },
+                        {
+                            crudType: 'Insert',
+                            table: 1,
+                            params: {
+                                BB_TITLE : $vm.TITLE,
+                                BB_CONTENT : $vm.CONTENT,
+                                BB_POST_FROM : $vm.POST_FROM,
+                                BB_POST_TOXX : $vm.POST_TOXX,
+                                BB_IO_TYPE : "Out",
+                                BB_CR_USER : $vm.profile.U_ID,
+                                BB_CR_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss')
+                            }
+                        }
+                    ]);
+                    break;
+            }
+
+            ioTypePromise.then(function (res) {
+                console.log(res);
+                // 上傳所有檔案
+                // if($vm.uploader.getNotUploadedItems().length > 0){
+                //     $vm.uploader.uploadAll();
+                // }
             }, function (err) {
                 console.log(err);
             });
@@ -158,8 +200,7 @@ angular.module('app.settings').controller('NewsCtrl', function ($scope, $statePa
             // }else{
                 // $scope.duplicateFile.push(rename);
                 // $scope.queueFile.push(rename);
-                fileItem.file["rename"] = rename;
-                fileItem.url += '&rename='+rename+'&oname='+fileItem.file.name;
+                fileItem.url += '&rFilename='+rename;
             // }
             // var dataFile = forumService.b64toBlob(btoa(data), fileItem.file.type);
             // fileItem.file = dataFile;
@@ -190,64 +231,26 @@ angular.module('app.settings').controller('NewsCtrl', function ($scope, $statePa
     };
     $vm.uploader.onCompleteItem = function(fileItem, response, status, headers) {
         console.info('onCompleteItem', fileItem, response, status, headers);
-        // if(status == 200){
-        //     var _d = new Date();
-        //     var insertUploadMessage = {
-        //         active: true,
-        //         title: "insertUploadMessage",
-        //         jspUrl: "jsp/",
-        //         handler: "DBInsertReturnID.jsp",
-        //         addr: $rootScope._URL,
-        //         table: 5,
-        //         returnidentity: true,
-        //         insertname: 'Insert',
-        //         insert: {
-        //             C_ID              : $scope.caseChoice,
-        //             CJ_UploadDateTime : $filter('date')(_d, 'yyyy/MM/dd HH:mm:ss'),
-        //             CJ_OName          : fileItem.file.name,
-        //             CJ_RName          : fileItem.file.rename,
-        //             CJ_FilePath       : f_filepath,
-        //             CJ_TranState      : 0,
-        //             CJ_SoftDelete     : 0,
-        //             C_CR_USER         : $rootScope.UserInfo.U_ID,
-        //             C_CR_DateTime     : $filter('date')(_d, 'yyyy/MM/dd HH:mm:ss')
-        //         }
-        //     };
-        //     var promise = forumService.insertMSSQLData(insertUploadMessage);
-        //     promise.then(function(res) {
-        //         if(res.trim() != "Fail"){
-        //             // console.log("更新成功");
-        //             var doexe = {
-        //                 active: true,
-        //                 title: "DoExe",
-        //                 jspUrl: "jsp/",
-        //                 handler: "DoExeForCC.jsp",
-        //                 filepath: f_filepath,
-        //                 filename: fileItem.file.rename,
-        //                 fileid: res.trim(),
-        //                 filecaseid: $scope.caseChoice
-        //             };
-        //             var promise = forumService.doCJExe(doexe);
-        //             promise.then(function(res) {
-        //                 console.log(res.trim())
-        //                 if(res.trim() != "Fail"){
-                            
-        //                 }else{
-
-        //                 }
-        //             }, function(data) {
-        //                 return 'fail';
-        //             });
-
-        //         }else{
-        //             // console.log("更新失敗");
-        //         }
-        //     }, function(data) {
-        //         // console.log("更新失敗");
-        //     });
-        // }else{
-        //     toaster.pop('error', "", "檔案上傳失敗", 3000);
-        // }
+        if(status == 200){
+            // 儲存每個上傳檔案的資訊
+            RestfulApi.InsertMSSQLData({
+                insertname: 'Insert',
+                table: 2,
+                params: {
+                    BBAF_O_FILENAME : response.oFilename,
+                    BBAF_R_FILENAME : response.rFilename,
+                    BBAF_FILEPATH : response.Filepath,
+                    BBAF_CR_USER : $vm.profile.U_ID,
+                    BBAF_CR_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss')
+                }
+            }).then(function (res) {
+                console.log(res["returnData"]);
+            }, function (err) {
+                toaster.pop('error', "訊息", err, 3000);
+            });
+        }else{
+            toaster.pop('error', "檔案上傳失敗", response.oFilename, 3000);
+        }
     };
     $vm.uploader.onCompleteAll = function() {
         console.info('onCompleteAll');

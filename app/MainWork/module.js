@@ -36,7 +36,7 @@ angular.module('app.mainwork').config(function ($stateProvider){
                             for(var i in data){
                                 finalData.push({
                                     BB_STICK_TOP    : data[i]['BB_STICK_TOP'],
-                                    BB_EXPECTED_POST    : data[i]['BB_EXPECTED_POST'],
+                                    BB_POST_FROM    : data[i]['BB_POST_FROM'],
                                     BB_TITLE  : data[i]['BB_TITLE'],
                                     BB_CONTENT : data[i]['BB_CONTENT'],
                                     BB_CR_Name  : data[i]['BB_CR_Name']
