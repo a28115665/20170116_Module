@@ -4,13 +4,13 @@ module.exports = function(pQueryname, pParams){
 	switch(pQueryname){
 		case "SelectAllUserInfo":
 			_SQLCommand += "SELECT * \
-						   FROM UserInfo \
+						   FROM USER_INFO \
 						   WHERE 1=1"
 			if(pParams["U_ID"] !== undefined){
 				_SQLCommand += " AND U_ID = @U_ID";
 			}
-			if(pParams["U_Name"] !== undefined){
-				_SQLCommand += " AND U_Name = @U_Name";
+			if(pParams["U_NAME"] !== undefined){
+				_SQLCommand += " AND U_NAME = @U_NAME";
 			}
 			if(pParams["U_PW"] !== undefined){
 				_SQLCommand += " AND U_PW = @U_PW";
@@ -18,9 +18,9 @@ module.exports = function(pQueryname, pParams){
 			break;
 		case "SelectAllUserInfoNotWithAdmin":
 			_SQLCommand += "SELECT * \
-						   FROM UserInfo \
+						   FROM USER_INFO \
 						   WHERE U_ID != 'Administrator' \
-						   ORDER BY U_CR_DateTime Desc";
+						   ORDER BY U_CR_DATETIME Desc";
 			break;
 		case "SelectAllSysCode":
 			_SQLCommand += "SELECT * \

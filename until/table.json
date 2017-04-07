@@ -1,6 +1,8 @@
 {
-	"0" : "UserInfo",
+	"0" : "USER_INFO",
 	"1" : "BILLBOARD",
 	"2" : "BILLBOARD_ATTACHED_FILE",
-	"3" : "BILLBOARD_POST_GOAL"
+	"3" : "BILLBOARD_POST_GOAL",
+	"4" : "USER_GROUP",
+	"5" : "USER_GRIGHT"
 }

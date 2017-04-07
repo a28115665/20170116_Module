@@ -5,22 +5,22 @@ function AccountResolve (RestfulApi, $q) {
         querymain: 'accountManagement',
         queryname: 'SelectAllUserInfoNotWithAdmin'
     }).then(function (res){
-        var data = res["returnData"] || [],
-            finalData = [];
+        // var data = res["returnData"] || [],
+        //     finalData = [];
 
-        for(var i in data){
-            finalData.push({
-                U_ID      : data[i]['U_ID'],
-                U_PW      : data[i]['U_PW'],
-                U_Name    : data[i]['U_Name'],
-                U_Email   : data[i]['U_Email'],
-                U_Role    : data[i]['U_Role'],
-                U_Depart  : data[i]['U_Depart'],
-                U_Check   : data[i]['U_Check']
-            });
-        }
+        // for(var i in data){
+        //     finalData.push({
+        //         U_ID      : data[i]['U_ID'],
+        //         U_PW      : data[i]['U_PW'],
+        //         U_Name    : data[i]['U_Name'],
+        //         U_Email   : data[i]['U_Email'],
+        //         U_Role    : data[i]['U_Role'],
+        //         U_Depart  : data[i]['U_Depart'],
+        //         U_Check   : data[i]['U_Check']
+        //     });
+        // }
 
-        deferred.resolve(finalData);
+        deferred.resolve(res["returnData"]);
     });
 
     return deferred.promise;

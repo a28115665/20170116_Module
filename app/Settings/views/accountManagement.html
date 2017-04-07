@@ -106,7 +106,7 @@
 				<div class="form-group">
 			        <label class="col-md-2 control-label">{{getWord('UserName')}}</label>
 			        <div class="col-md-10">
-			            <input class="form-control" ng-model="$ctrl.items['U_Name']" type="text" data-required>
+			            <input class="form-control" ng-model="$ctrl.items['U_NAME']" type="text" data-required>
 			        </div>
 			    </div>
 				<div class="form-group">
@@ -118,19 +118,25 @@
 				<div class="form-group">
 			        <label class="col-md-2 control-label">{{getWord('E-Mail')}}</label>
 			        <div class="col-md-10">
-			            <input class="form-control" ng-model="$ctrl.items['U_Email']" type="email" data-required>
+			            <input class="form-control" ng-model="$ctrl.items['U_EMAIL']" type="email">
+			        </div>
+			    </div>
+				<div class="form-group">
+			        <label class="col-md-2 control-label">{{getWord('Phone')}}</label>
+			        <div class="col-md-10">
+			            <input class="form-control" ng-model="$ctrl.items['U_PHONE']" type="phone">
 			        </div>
 			    </div>
 				<div class="form-group">
 			        <label class="col-md-2 control-label">{{getWord('Role')}}</label>
 			        <div class="col-md-10">
-  						<select class="form-control" ng-model="$ctrl.items['U_Role']" ng-options="key as value for (key , value) in $ctrl.role" required></select>
+  						<select class="form-control" ng-model="$ctrl.items['U_ROLE']" ng-options="key as value for (key , value) in $ctrl.role" required></select>
 			        </div>
 			    </div>
 				<div class="form-group">
 			        <label class="col-md-2 control-label">{{getWord('Department')}}</label>
 			        <div class="col-md-10">
-  						<select class="form-control" ng-model="$ctrl.items['U_Depart']" ng-options="key as value for (key , value) in $ctrl.depart" required></select>
+  						<select class="form-control" ng-model="$ctrl.items['U_DEPART']" ng-options="key as value for (key , value) in $ctrl.depart" required></select>
 			        </div>
 			    </div>
 			</fieldset>

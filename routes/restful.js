@@ -177,32 +177,6 @@ router.get('/crudByTask', function(req, res) {
             });
         }
     });
-    
-    // async.waterfall([
-    //     myFirstFunction,
-    //     mySecondFunction,
-    //     async.apply(myLastFunction, 'deen'),
-    // ], function (err, result) {
-    //     console.log(err, result);
-    // });
-    // function myFirstFunction(callback) {
-    //     var arg1 = [];
-    //     arg1.push('one');
-    //     callback(null, arg1);
-    // }
-    // function mySecondFunction(arg1, callback) {
-    //     console.log("mySecondFunction", arg1);
-    //     arg1.push('three');
-    //     // arg1 now equals 'one' and arg2 now equals 'two'
-    //     callback(null, arg1);
-    // }
-    // function myLastFunction(arg1, arg2, callback) {
-    //     console.log("myLastFunction", arg1, arg2);
-    //     // arg1 is what you have passed in the apply function
-    //     // arg2 is from second function
-    //     callback(null, 'done');
-    // }
-
 
 });
 

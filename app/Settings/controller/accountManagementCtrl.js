@@ -3,7 +3,7 @@
 angular.module('app.settings').controller('AccountManagementCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, $filter, account, role, RestfulApi) {
 
 	var $vm = this;
-
+    console.log(account);
 	angular.extend(this, {
         profile : Session.Get(),
         accountData : account,
@@ -21,13 +21,15 @@ angular.module('app.settings').controller('AccountManagementCtrl', function ($sc
         accountManagementOptions : {
             data: '$vm.accountData',
             columnDefs: [
+                { name: 'U_STS'    ,  displayName: '離職', cellFilter: 'booleanFilter' },
+                { name: 'U_CHECK'  ,  displayName: '認證', cellFilter: 'booleanFilter' },
                 { name: 'U_ID'     ,  displayName: '帳號' },
-                { name: 'U_PW'     ,  displayName: '密碼' },
-                { name: 'U_Name'   ,  displayName: '名稱' },
-                { name: 'U_Email'  ,  displayName: '信箱' },
-                { name: 'U_Role'   ,  displayName: '角色', cellFilter: 'roleFilter' },
-                { name: 'U_Depart' ,  displayName: '單位', cellFilter: 'departFilter' },
-                { name: 'U_Check'  ,  displayName: '開通', cellFilter: 'booleanFilter' },
+                { name: 'U_NAME'   ,  displayName: '名稱' },
+                { name: 'U_EMAIL'  ,  displayName: '信箱' },
+                { name: 'U_PHONE'  ,  displayName: '電話' },
+                { name: 'U_JOB'    ,  displayName: '職稱' },
+                { name: 'U_ROLE'   ,  displayName: '角色', cellFilter: 'roleFilter' },
+                { name: 'U_DEPART' ,  displayName: '單位', cellFilter: 'departFilter' },
                 { name: 'Options'  ,  displayName: '操作', cellTemplate: $templateCache.get('accessibilityToMD') }
             ],
             enableFiltering: false,
@@ -128,13 +130,14 @@ angular.module('app.settings').controller('AccountManagementCtrl', function ($sc
     var $ctrl = this;
     $ctrl.role = role;
     $ctrl.depart = depart;
+    console.log($ctrl.depart);
     $ctrl.items = {};
     $ctrl.items["U_ID"] = "User2";
-	$ctrl.items["U_Name"] = "測試二號";
+	$ctrl.items["U_NAME"] = "測試二號";
 	$ctrl.items["U_PW"] = "Test#1";
-	$ctrl.items["U_Email"] = "aaa@test.com";
-	$ctrl.items["U_Role"] = "SUser";
-	$ctrl.items["U_Depart"] = "A03";
+	$ctrl.items["U_EMAIL"] = "aaa@test.com";
+	$ctrl.items["U_ROLE"] = "SUser";
+	$ctrl.items["U_DEPART"] = "003";
 
     $ctrl.ok = function() {
         $uibModalInstance.close($ctrl.items);
