@@ -1,12 +1,11 @@
 "use strict";
 
-angular.module('app.settings').controller('AccountManagementCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, $filter, Account, Role, Depart, RestfulApi) {
+angular.module('app.settings').controller('AccountManagementCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, $filter, Account, SysCode, RestfulApi) {
 
 	var $vm = this;
     // console.log(Account.get());
-    Account.get().then(function (res){
-        $vm.accountData = res;
-    });
+    LoadAccount();
+
 	angular.extend(this, {
         profile : Session.Get(),
         // accountData : Account.get().then(function (res){
@@ -59,10 +58,10 @@ angular.module('app.settings').controller('AccountManagementCtrl', function ($sc
                 // appendTo: parentElem,
                 resolve: {
                     role: function () {
-                        return Role;
+                        return SysCode.get('Role');
                     },
                     depart: function () {
-                        return Depart;
+                        return SysCode.get('Depart');;
                     }
                 }
             });
@@ -98,17 +97,8 @@ angular.module('app.settings').controller('AccountManagementCtrl', function ($sc
         }
 	})
 
-	function LoadAccount(){
-    	// RestfulApi.SearchMSSQLData({
-     //        querymain: 'accountManagement',
-	    //     queryname: 'SelectAllUserInfoNotWithAdmin'
-	    // }).then(function (res){
-     //    	console.log(res);
-     //    	$vm.accountData = res["returnData"]
-	    // });
-        
+	function LoadAccount(){        
         Account.get().then(function (res){
-            console.log(res);
             $vm.accountData = res;
         }); 
 	}
@@ -118,7 +108,6 @@ angular.module('app.settings').controller('AccountManagementCtrl', function ($sc
     var $ctrl = this;
     $ctrl.role = role;
     $ctrl.depart = depart;
-    console.log($ctrl.depart);
     $ctrl.items = {};
     $ctrl.items["U_ID"] = "User2";
 	$ctrl.items["U_NAME"] = "測試二號";

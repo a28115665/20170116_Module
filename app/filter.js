@@ -1,21 +1,9 @@
 angular.module('app')
-.filter('booleanFilter', function (Bool) {
- //  	var bool = {
-	//     'true': '是',
-	//     'false': '否'
-	// };
-
-	// return function(input) {
-	// 	if (bool[input]) {
-	// 	    return bool[input];
-	// 	} else {
-	// 	    return '';
-	// 	}
-	// };
+.filter('booleanFilter', function (SysCode) {
 
 	var resData = {};
 
-	Bool.then(function (res){
+	SysCode.get('Boolean').then(function (res){
 		resData = res
 	});
 
@@ -28,11 +16,11 @@ angular.module('app')
 
 	return FilterFunction;
 })
-.filter('roleFilter', function (Role) {
+.filter('roleFilter', function (SysCode) {
 
 	var resData = {};
 
-	Role.then(function (res){
+	SysCode.get('Role').then(function (res){
 		resData = res
 	});
 
@@ -51,11 +39,11 @@ angular.module('app')
 	return FilterFunction;
 
 })
-.filter('departFilter', function (Depart) {
+.filter('departFilter', function (SysCode) {
 
 	var resData = {};
 
-	Depart.then(function (res){
+	SysCode.get('Depart').then(function (res){
 		resData = res
 	});
 

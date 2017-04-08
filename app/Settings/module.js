@@ -51,9 +51,7 @@ angular.module('app.settings').config(function ($stateProvider){
                 controller: 'AccountManagementCtrl',
                 controllerAs: '$vm',
                 resolve: {
-                    account: function (Account){
-                        return Account;
-                    }
+
                 }
             }
         }
@@ -90,11 +88,11 @@ angular.module('app.settings').config(function ($stateProvider){
                 controller: 'NewsCtrl',
                 controllerAs: '$vm',
                 resolve: {
-                    bool: function (Bool){
-                        return Bool;
+                    bool: function (SysCode){
+                        return SysCode.get('Boolean');
                     },
-                    ioType: function (IOType){
-                        return IOType;
+                    ioType: function (SysCode){
+                        return SysCode.get('IOType');
                     }
                 }
             }

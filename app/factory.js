@@ -44,8 +44,5 @@ angular.module('app')
     };
 })
 .factory('Account', AccountResolve)
-.factory('Role', RoleResolve)
-.factory('Depart', DepartResolve)
-.factory('Bool', BooleanResolve)
-.factory('IOType', IOTypeResolve)
+.factory('SysCode', SysCodeResolve)
 
