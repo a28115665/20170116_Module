@@ -53,9 +53,6 @@ angular.module('app.settings').config(function ($stateProvider){
                 resolve: {
                     account: function (Account){
                         return Account;
-                    },
-                    role: function (Role){
-                        return Role;
                     }
                 }
             }

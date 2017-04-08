@@ -1,12 +1,17 @@
 "use strict";
 
-angular.module('app.settings').controller('AccountManagementCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, $filter, account, role, RestfulApi) {
+angular.module('app.settings').controller('AccountManagementCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, $filter, Account, Role, Depart, RestfulApi) {
 
 	var $vm = this;
-    console.log(account);
+    // console.log(Account.get());
+    Account.get().then(function (res){
+        $vm.accountData = res;
+    });
 	angular.extend(this, {
         profile : Session.Get(),
-        accountData : account,
+        // accountData : Account.get().then(function (res){
+        //     return res;
+        // }),
         // roleData : role,
         gridMethod : {
             //編輯
@@ -54,31 +59,10 @@ angular.module('app.settings').controller('AccountManagementCtrl', function ($sc
                 // appendTo: parentElem,
                 resolve: {
                     role: function () {
-                        return role;
+                        return Role;
                     },
-                    depart: function (RestfulApi, $q) {
-                        var deferred = $q.defer();
-
-                        RestfulApi.SearchMSSQLData({
-                            querymain: 'accountManagement',
-                            queryname: 'SelectAllSysCode',
-                            params: {
-                                SC_TYPE : "Depart"
-                            }
-                        }).then(function (res){
-                            var data = res["returnData"] || [],
-                                finalData = {};
-
-                            for(var i in data){
-                                finalData[data[i].SC_CODE] = data[i].SC_DESC
-                            }
-                            
-                            deferred.resolve(finalData);
-                        }, function (err){
-                            deferred.reject({});
-                        });
-                        
-                        return deferred.promise;
+                    depart: function () {
+                        return Depart;
                     }
                 }
             });
@@ -91,14 +75,13 @@ angular.module('app.settings').controller('AccountManagementCtrl', function ($sc
                     table: 0,
                     params: {
                         U_ID          : selectedItem.U_ID,
-                        U_Name        : selectedItem.U_Name,
+                        U_NAME        : selectedItem.U_NAME,
                         U_PW          : selectedItem.U_PW,
-                        U_Email       : selectedItem.U_Email,
-                        U_Role        : selectedItem.U_Role,
-                        U_Depart      : selectedItem.U_Depart,
-                        U_Check       : false,
-                        U_CR_User     : $vm.profile.U_ID,
-                        U_CR_DateTime : new Date()
+                        U_EMAIL       : selectedItem.U_EMAIL,
+                        U_ROLE        : selectedItem.U_ROLE,
+                        U_DEPART      : selectedItem.U_DEPART,
+                        U_CR_USER     : $vm.profile.U_ID,
+                        U_CR_DATETIME : new Date()
                     }
                 }).then(function(res) {
                     console.log(res);
@@ -116,13 +99,18 @@ angular.module('app.settings').controller('AccountManagementCtrl', function ($sc
 	})
 
 	function LoadAccount(){
-    	RestfulApi.SearchMSSQLData({
-            querymain: 'accountManagement',
-	        queryname: 'SelectAllUserInfoNotWithAdmin'
-	    }).then(function (res){
-        	console.log(res);
-        	$vm.accountData = res["returnData"]
-	    });
+    	// RestfulApi.SearchMSSQLData({
+     //        querymain: 'accountManagement',
+	    //     queryname: 'SelectAllUserInfoNotWithAdmin'
+	    // }).then(function (res){
+     //    	console.log(res);
+     //    	$vm.accountData = res["returnData"]
+	    // });
+        
+        Account.get().then(function (res){
+            console.log(res);
+            $vm.accountData = res;
+        }); 
 	}
 
 })

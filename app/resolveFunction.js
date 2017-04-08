@@ -1,29 +1,19 @@
 function AccountResolve (RestfulApi, $q) {
-    var deferred = $q.defer();
 
-    RestfulApi.SearchMSSQLData({
-        querymain: 'accountManagement',
-        queryname: 'SelectAllUserInfoNotWithAdmin'
-    }).then(function (res){
-        // var data = res["returnData"] || [],
-        //     finalData = [];
+    return {
+        get : function(){
+            var deferred = $q.defer();
 
-        // for(var i in data){
-        //     finalData.push({
-        //         U_ID      : data[i]['U_ID'],
-        //         U_PW      : data[i]['U_PW'],
-        //         U_Name    : data[i]['U_Name'],
-        //         U_Email   : data[i]['U_Email'],
-        //         U_Role    : data[i]['U_Role'],
-        //         U_Depart  : data[i]['U_Depart'],
-        //         U_Check   : data[i]['U_Check']
-        //     });
-        // }
+            RestfulApi.SearchMSSQLData({
+                querymain: 'accountManagement',
+                queryname: 'SelectAllUserInfoNotWithAdmin'
+            }).then(function (res){
+                deferred.resolve(res["returnData"]);
+            });
 
-        deferred.resolve(res["returnData"]);
-    });
-
-    return deferred.promise;
+            return deferred.promise;
+        }
+    }
 };
 function RoleResolve (RestfulApi, $q) {
     var deferred = $q.defer();
