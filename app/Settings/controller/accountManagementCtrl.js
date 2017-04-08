@@ -1,12 +1,16 @@
 "use strict";
 
-angular.module('app.settings').controller('AccountManagementCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, $filter, account, role, RestfulApi, Account) {
+angular.module('app.settings').controller('AccountManagementCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, $filter, Account, SysCode, RestfulApi) {
 
 	var $vm = this;
+    // console.log(Account.get());
+    LoadAccount();
 
 	angular.extend(this, {
         profile : Session.Get(),
-        accountData : account,
+        // accountData : Account.get().then(function (res){
+        //     return res;
+        // }),
         // roleData : role,
         gridMethod : {
             //編輯
@@ -19,15 +23,17 @@ angular.module('app.settings').controller('AccountManagementCtrl', function ($sc
             }
         },
         accountManagementOptions : {
-            data:  '$vm.accountData',
+            data: '$vm.accountData',
             columnDefs: [
+                { name: 'U_STS'    ,  displayName: '離職', cellFilter: 'booleanFilter' },
+                { name: 'U_CHECK'  ,  displayName: '認證', cellFilter: 'booleanFilter' },
                 { name: 'U_ID'     ,  displayName: '帳號' },
-                { name: 'U_PW'     ,  displayName: '密碼' },
-                { name: 'U_Name'   ,  displayName: '名稱' },
-                { name: 'U_Email'  ,  displayName: '信箱' },
-                { name: 'U_Role'   ,  displayName: '角色', cellFilter: 'roleFilter' },
-                { name: 'U_Depart' ,  displayName: '單位', cellFilter: 'departFilter' },
-                { name: 'U_Check'  ,  displayName: '開通', cellFilter: 'booleanFilter' },
+                { name: 'U_NAME'   ,  displayName: '名稱' },
+                { name: 'U_EMAIL'  ,  displayName: '信箱' },
+                { name: 'U_PHONE'  ,  displayName: '電話' },
+                { name: 'U_JOB'    ,  displayName: '職稱' },
+                { name: 'U_ROLE'   ,  displayName: '角色', cellFilter: 'roleFilter' },
+                { name: 'U_DEPART' ,  displayName: '單位', cellFilter: 'departFilter' },
                 { name: 'Options'  ,  displayName: '操作', cellTemplate: $templateCache.get('accessibilityToMD') }
             ],
             enableFiltering: false,
@@ -52,31 +58,10 @@ angular.module('app.settings').controller('AccountManagementCtrl', function ($sc
                 // appendTo: parentElem,
                 resolve: {
                     role: function () {
-                        return role;
+                        return SysCode.get('Role');
                     },
-                    depart: function (RestfulApi, $q) {
-                        var deferred = $q.defer();
-
-                        RestfulApi.SearchMSSQLData({
-                            querymain: 'accountManagement',
-                            queryname: 'SelectAllSysCode',
-                            params: {
-                                SC_Type : "Depart"
-                            }
-                        }).then(function (res){
-                            var data = res["returnData"] || [],
-                                finalData = {};
-
-                            for(var i in data){
-                                finalData[data[i].SC_Code] = data[i].SC_Desc
-                            }
-                            
-                            deferred.resolve(finalData);
-                        }, function (err){
-                            deferred.reject({});
-                        });
-                        
-                        return deferred.promise;
+                    depart: function () {
+                        return SysCode.get('Depart');;
                     }
                 }
             });
@@ -89,14 +74,13 @@ angular.module('app.settings').controller('AccountManagementCtrl', function ($sc
                     table: 0,
                     params: {
                         U_ID          : selectedItem.U_ID,
-                        U_Name        : selectedItem.U_Name,
+                        U_NAME        : selectedItem.U_NAME,
                         U_PW          : selectedItem.U_PW,
-                        U_Email       : selectedItem.U_Email,
-                        U_Role        : selectedItem.U_Role,
-                        U_Depart      : selectedItem.U_Depart,
-                        U_Check       : false,
-                        U_CR_User     : $vm.profile.U_ID,
-                        U_CR_DateTime : new Date()
+                        U_EMAIL       : selectedItem.U_EMAIL,
+                        U_ROLE        : selectedItem.U_ROLE,
+                        U_DEPART      : selectedItem.U_DEPART,
+                        U_CR_USER     : $vm.profile.U_ID,
+                        U_CR_DATETIME : new Date()
                     }
                 }).then(function(res) {
                     console.log(res);
@@ -113,14 +97,10 @@ angular.module('app.settings').controller('AccountManagementCtrl', function ($sc
         }
 	})
 
-	function LoadAccount(){
-    	RestfulApi.SearchMSSQLData({
-            querymain: 'accountManagement',
-	        queryname: 'SelectAllUserInfoNotWithAdmin'
-	    }).then(function (res){
-        	// console.log(res);
-        	$vm.accountData = res.data.returnData
-	    });
+	function LoadAccount(){        
+        Account.get().then(function (res){
+            $vm.accountData = res;
+        }); 
 	}
 
 })
@@ -130,11 +110,11 @@ angular.module('app.settings').controller('AccountManagementCtrl', function ($sc
     $ctrl.depart = depart;
     $ctrl.items = {};
     $ctrl.items["U_ID"] = "User2";
-	$ctrl.items["U_Name"] = "測試二號";
+	$ctrl.items["U_NAME"] = "測試二號";
 	$ctrl.items["U_PW"] = "Test#1";
-	$ctrl.items["U_Email"] = "aaa@test.com";
-	$ctrl.items["U_Role"] = "SUser";
-	$ctrl.items["U_Depart"] = "A03";
+	$ctrl.items["U_EMAIL"] = "aaa@test.com";
+	$ctrl.items["U_ROLE"] = "SUser";
+	$ctrl.items["U_DEPART"] = "003";
 
     $ctrl.ok = function() {
         $uibModalInstance.close($ctrl.items);

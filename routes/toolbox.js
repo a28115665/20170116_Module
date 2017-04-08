@@ -1,5 +1,6 @@
 var express = require('express');
 var router = express.Router();
+var mkdirp = require('mkdirp');
 var dbCommand = require('../until/dbCommand.js');
 var tmpXlsObj = require('../until/tmpXlsObj.js');
 
@@ -7,6 +8,8 @@ var dateFormat = require('dateformat');
 
 const path = require('path');
 const fs = require('fs');
+var fsExtra = require('fs-extra');
+var busboy = require('connect-busboy');
 
 /**
  * ExportExcelByVar 經由前端參數匯出Excel
@@ -71,6 +74,43 @@ router.get('/exportExcelByVar', function(req, res) {
             res.end(toArrayBuffer(buffer));
         }
     });
+});
+
+/**
+ * Upload 檔案上傳
+ */
+router.post('/uploadFile', function(req, res) {
+
+    try{
+        req.pipe(req.busboy);
+        req.busboy.on('file', function(fieldname, file, filename) {
+            var _filepath =  '/upload/file/' + req.query["filePath"],
+                _dir = path.dirname(module.parent.filename) + _filepath;
+
+            mkdirp(_dir, function(err) { 
+                // path exists unless there was an error
+                if(err) return;
+
+                var _filename = filename;
+                if(req.query["rFilename"]){
+                    _filename = req.query["rFilename"];
+                }
+                var stream = fsExtra.createWriteStream(_dir + _filename);
+                file.pipe(stream);
+                stream.on('close', function() {
+                    // console.log('File ' + filename + ' is uploaded');
+                    res.json({
+                        oFilename: filename,
+                        rFilename: _filename,
+                        Filepath: _filepath
+                    });
+                });
+            });
+        });
+    } catch(err) {
+        res.status(500).send('上傳失敗');
+    }
+
 });
 
 function toArrayBuffer(buf) {

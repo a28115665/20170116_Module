@@ -197,3 +197,22 @@ angular.module('app')
         });
     };
 })
+.directive('isDate', function ($filter) {
+    return {
+        restrict: 'A',
+        require: '^ngModel',
+        link: function (scope, element, attrs, ctrl) {
+            ctrl.$parsers.unshift(function (viewValue) {
+                var _d = new Date(viewValue);
+                // Check valid
+                if(_d && _d != 'Invalid Date'){
+                    ctrl.$setValidity('isDate', true);
+                    return $filter('date')(_d, 'yyyy-MM-dd');
+                }else{
+                    ctrl.$setValidity('isDate', false);
+                    return undefined;
+                }
+            });
+        }
+    };
+})

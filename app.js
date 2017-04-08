@@ -4,6 +4,7 @@ var path = require('path');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
+var busboy = require('connect-busboy');
 var session = require('express-session');
 var RedisStore = require('connect-redis')(session);
 var redis = require('redis');
@@ -30,6 +31,7 @@ app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
+app.use(busboy());
 app.use(session({
     store : new RedisStore({
         host : setting.RedisStore.host,

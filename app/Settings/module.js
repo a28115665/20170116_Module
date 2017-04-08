@@ -51,11 +51,48 @@ angular.module('app.settings').config(function ($stateProvider){
                 controller: 'AccountManagementCtrl',
                 controllerAs: '$vm',
                 resolve: {
-                    account: function (Account){
-                        return Account;
+
+                }
+            }
+        }
+    })
+
+    .state('app.settings.billboardeditor', {
+        url: '/settings/billboardeditor',
+        data: {
+            title: 'Billboard Editor'
+        },
+        views: {
+            "content@app" : {
+                templateUrl: 'app/Settings/views/billboardEditor.html',
+                controller: 'BillboardEditorCtrl',
+                controllerAs: '$vm',
+                resolve: {
+                    
+                }
+            }
+        }
+    })
+
+    .state('app.settings.billboardeditor.news', {
+        url: '/news',
+        data: {
+            title: 'Add News'
+        },
+        params: { 
+            data: null
+        },
+        views: {
+            "content@app" : {
+                templateUrl: 'app/Settings/views/news.html',
+                controller: 'NewsCtrl',
+                controllerAs: '$vm',
+                resolve: {
+                    bool: function (SysCode){
+                        return SysCode.get('Boolean');
                     },
-                    role: function (Role){
-                        return Role;
+                    ioType: function (SysCode){
+                        return SysCode.get('IOType');
                     }
                 }
             }

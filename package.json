@@ -23,8 +23,12 @@
     "lodash": "^4.0.0"
   },
   "dependencies": {
+    "async": "^2.3.0",
+    "connect-busboy": "0.0.2",
     "connect-redis": "^3.2.0",
     "express": "^4.14.0",
+    "fs-extra": "^2.1.2",
+    "mkdirp": "^0.5.1",
     "mssql": "^3.3.0",
     "xlsx-template": "0.0.7"
   }

@@ -11,8 +11,8 @@
 	"MSSQL" : {
 		"user": "sa",
 		"password": "p@ssw0rd",
-		"server": "10.1.21.15",
-		"database": "DFL",
+		"server": "192.168.1.9",
+		"database": "EWS",
 		"pool": {
 	        "max": 10,
 	        "min": 0,

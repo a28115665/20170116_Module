@@ -1,23 +1,26 @@
 angular.module('app')
-.filter('booleanFilter', function () {
-  	var bool = {
-	    'true': '是',
-	    'false': '否'
-	};
-
-	return function(input) {
-		if (bool[input]) {
-		    return bool[input];
-		} else {
-		    return '';
-		}
-	};
-})
-.filter('roleFilter', function (Role) {
+.filter('booleanFilter', function (SysCode) {
 
 	var resData = {};
 
-	Role.then(function (res){
+	SysCode.get('Boolean').then(function (res){
+		resData = res
+	});
+
+	var FilterFunction = function (input){
+		return angular.isUndefined(resData[input]) ? '' : resData[input];
+	}
+
+	// 持續偵測
+	FilterFunction.$stateful = true;
+
+	return FilterFunction;
+})
+.filter('roleFilter', function (SysCode) {
+
+	var resData = {};
+
+	SysCode.get('Role').then(function (res){
 		resData = res
 	});
 
@@ -36,11 +39,11 @@ angular.module('app')
 	return FilterFunction;
 
 })
-.filter('departFilter', function (Depart) {
+.filter('departFilter', function (SysCode) {
 
 	var resData = {};
 
-	Depart.then(function (res){
+	SysCode.get('Depart').then(function (res){
 		resData = res
 	});
 

@@ -26,6 +26,9 @@ angular.module('app', [
     'ui.grid.pagination',
     'ui.grid.treeView',
     'ui.grid.pinning',
+    'ui.mask',
+    'ui.tinymce',
+    'angularFileUpload',
 
     // Smartadmin Angular Common Module
     'SmartAdmin',

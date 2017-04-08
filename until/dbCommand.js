@@ -123,7 +123,7 @@ var InsertMethod = function (insertname, table, params, callback){
 					
 					break;
 				default:
-					callback(null, {});
+					return callback(null, {});
 					break;
 			}	    
 			schemaType.SchemaType(_params, ps, sql);
