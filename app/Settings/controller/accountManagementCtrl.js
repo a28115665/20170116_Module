@@ -21,7 +21,7 @@ angular.module('app.settings').controller('AccountManagementCtrl', function ($sc
                     break;
             }
         },
-        gridMethod : {
+        gridAccountMethod : {
             //編輯
             modifyData : function(row){
                 console.log(row);
@@ -43,7 +43,7 @@ angular.module('app.settings').controller('AccountManagementCtrl', function ($sc
                 { name: 'U_JOB'    ,  displayName: '職稱' },
                 { name: 'U_ROLE'   ,  displayName: '角色', cellFilter: 'roleFilter' },
                 { name: 'U_DEPART' ,  displayName: '單位', cellFilter: 'departFilter' },
-                { name: 'Options'  ,  displayName: '操作', cellTemplate: $templateCache.get('accessibilityToMD') }
+                { name: 'Options'  ,  displayName: '操作', cellTemplate: $templateCache.get('accessibilityToMDForAccount') }
             ],
             enableFiltering: false,
             enableSorting: false,
@@ -55,13 +55,58 @@ angular.module('app.settings').controller('AccountManagementCtrl', function ($sc
                 $vm.accountManagementGridApi = gridApi;
             }
         },
+        gridGroupMethod : {
+            //編輯
+            modifyData : function(row){
+                // console.log(row);
+                $state.transitionTo("app.settings.accountmanagement.group", {
+                    data: row.entity
+                });
+            },
+            //刪除
+            deleteData : function(row){
+                console.log(row);
+                var modalInstance = $uibModal.open({
+                    animation: true,
+                    ariaLabelledBy: 'modal-title',
+                    ariaDescribedBy: 'modal-body',
+                    templateUrl: 'isDelete.html',
+                    controller: 'IsDeleteModalInstanceCtrl',
+                    controllerAs: '$ctrl',
+                    size: 'sm',
+                    resolve: {
+                        items: function () {
+                            return row.entity;
+                        }
+                    }
+                });
+
+                modalInstance.result.then(function(selectedItem) {
+                    console.log(selectedItem);
+
+                    RestfulApi.DeleteMSSQLData({
+                        deletename: 'Delete',
+                        table: 6,
+                        params: {
+                            SG_GCODE : selectedItem.SG_GCODE
+                        }
+                    }).then(function (res) {
+                        if(res["returnData"] == 1){
+                            LoadGroup();
+                        }
+                    });
+                }, function() {
+                    // $log.info('Modal dismissed at: ' + new Date());
+                });
+            }
+        },
         groupManagementOptions : {
             data: '$vm.groupData',
             columnDefs: [
                 { name: 'SG_TITLE' ,  displayName: '群組名稱' },
                 { name: 'SG_DESC'  ,  displayName: '群組敘述' },
                 { name: 'SG_STS'   ,  displayName: '作廢', cellFilter: 'booleanFilter' },
-                { name: 'Options'  ,  displayName: '操作', cellTemplate: $templateCache.get('accessibilityToMD') }
+                { name: 'Options'  ,  displayName: '操作', cellTemplate: $templateCache.get('accessibilityToMDForGroup') }
             ],
             enableFiltering: false,
             enableSorting: false,
@@ -132,34 +177,27 @@ angular.module('app.settings').controller('AccountManagementCtrl', function ($sc
             });
 
             modalInstance.result.then(function(selectedItem) {
-                console.log(selectedItem);
+                // console.log(selectedItem);
 
-                // RestfulApi.InsertMSSQLData({
-                //     insertname: 'Insert',
-                //     table: 0,
-                //     params: {
-                //         U_ID          : selectedItem.U_ID,
-                //         U_NAME        : selectedItem.U_NAME,
-                //         U_PW          : selectedItem.U_PW,
-                //         U_EMAIL       : selectedItem.U_EMAIL,
-                //         U_ROLE        : selectedItem.U_ROLE,
-                //         U_DEPART      : selectedItem.U_DEPART,
-                //         U_CR_USER     : $vm.profile.U_ID,
-                //         U_CR_DATETIME : new Date()
-                //     }
-                // }).then(function(res) {
-                //     console.log(res);
+                RestfulApi.InsertMSSQLData({
+                    insertname: 'Insert',
+                    table: 6,
+                    params: {
+                        SG_TITLE : selectedItem.TITLE,
+                        SG_DESC  : selectedItem.DESC
+                    }
+                }).then(function(res) {
+                    console.log(res);
 
-                //     if(res["returnData"] == 1){
-                //         LoadAccount();
-                //     }
+                    if(res["returnData"] == 1){
+                        LoadGroup();
+                    }
 
-                //     // $state.reload()
-                // });
+                    // $state.reload()
+                });
             }, function() {
                 // $log.info('Modal dismissed at: ' + new Date());
             });
-            // $state.transitionTo("app.settings.accountmanagement.group");
         }
 	})
 
@@ -169,6 +207,8 @@ angular.module('app.settings').controller('AccountManagementCtrl', function ($sc
             queryname: 'SelectAllUserInfoNotWithAdmin'
         }).then(function (res){
             $vm.accountData = res["returnData"];
+        }).finally(function() {
+            HandleWindowResize($vm.accountManagementGridApi);
         });    
 	}
 
@@ -178,6 +218,8 @@ angular.module('app.settings').controller('AccountManagementCtrl', function ($sc
             queryname: 'SelectAllGroup'
         }).then(function (res){
             $vm.groupData = res["returnData"];
+        }).finally(function() {
+            HandleWindowResize($vm.groupManagementOptions);
         });    
     }
 

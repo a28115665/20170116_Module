@@ -62,6 +62,9 @@ angular.module('app.settings').config(function ($stateProvider){
         data: {
             title: 'Group Management'
         },
+        params: { 
+            data: null
+        },
         views: {
             "content@app" : {
                 templateUrl: 'app/Settings/views/group.html',

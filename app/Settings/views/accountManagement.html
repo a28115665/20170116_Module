@@ -168,45 +168,15 @@
 	    <form class="form-horizontal" name="addGroupForm">
 			<fieldset>
 				<div class="form-group">
-			        <label class="col-md-2 control-label">{{getWord('ID')}}</label>
+			        <label class="col-md-2 control-label">{{getWord('GroupName')}}</label>
 			        <div class="col-md-10">
-			            <input class="form-control" ng-model="$ctrl.items['U_ID']" type="text">
+			            <input class="form-control" ng-model="$ctrl.items['TITLE']" type="text" placeholder="請輸入群組名稱">
 			        </div>
 			    </div>
 				<div class="form-group">
-			        <label class="col-md-2 control-label">{{getWord('UserName')}}</label>
+			        <label class="col-md-2 control-label">{{getWord('Description')}}</label>
 			        <div class="col-md-10">
-			            <input class="form-control" ng-model="$ctrl.items['U_NAME']" type="text" data-required>
-			        </div>
-			    </div>
-				<div class="form-group">
-			        <label class="col-md-2 control-label">{{getWord('Password')}}</label>
-			        <div class="col-md-10">
-			            <input class="form-control" ng-model="$ctrl.items['U_PW']" type="password" data-required>
-			        </div>
-			    </div>
-				<div class="form-group">
-			        <label class="col-md-2 control-label">{{getWord('E-Mail')}}</label>
-			        <div class="col-md-10">
-			            <input class="form-control" ng-model="$ctrl.items['U_EMAIL']" type="email">
-			        </div>
-			    </div>
-				<div class="form-group">
-			        <label class="col-md-2 control-label">{{getWord('Phone')}}</label>
-			        <div class="col-md-10">
-			            <input class="form-control" ng-model="$ctrl.items['U_PHONE']" type="phone">
-			        </div>
-			    </div>
-				<div class="form-group">
-			        <label class="col-md-2 control-label">{{getWord('Role')}}</label>
-			        <div class="col-md-10">
-  						<select class="form-control" ng-model="$ctrl.items['U_ROLE']" ng-options="key as value for (key , value) in $ctrl.role" required></select>
-			        </div>
-			    </div>
-				<div class="form-group">
-			        <label class="col-md-2 control-label">{{getWord('Department')}}</label>
-			        <div class="col-md-10">
-  						<select class="form-control" ng-model="$ctrl.items['U_DEPART']" ng-options="key as value for (key , value) in $ctrl.depart" required></select>
+		        		<textarea class="form-control" rows="3" ng-model="$ctrl.items['DESC']" placeholder="字數限制 50字"></textarea>
 			        </div>
 			    </div>
 			</fieldset>

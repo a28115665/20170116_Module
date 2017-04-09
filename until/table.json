@@ -4,5 +4,6 @@
 	"2" : "BILLBOARD_ATTACHED_FILE",
 	"3" : "BILLBOARD_POST_GOAL",
 	"4" : "USER_GROUP",
-	"5" : "USER_GRIGHT"
+	"5" : "USER_GRIGHT",
+	"6" : "SYS_GROUP"
 }
