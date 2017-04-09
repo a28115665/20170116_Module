@@ -12,7 +12,7 @@
 	        <!-- NEW WIDGET START -->
 	        <article class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
 	        	<!-- Widget ID (each widget will need unique ID)-->
-				<div id="managementSettings" data-widget-sortable="false" data-widget-colorbutton="false" data-widget-togglebutton="false" data-widget-editbutton="false" data-widget-fullscreenbutton="false" data-widget-deletebutton="false" data-widget-color="blue" data-jarvis-widget ng-init="ShowTabs = true">
+				<div id="managementSettings" data-widget-sortable="false" data-widget-colorbutton="false" data-widget-togglebutton="false" data-widget-editbutton="false" data-widget-fullscreenbutton="false" data-widget-deletebutton="false" data-widget-color="blue" data-jarvis-widget ng-init="ShowTabs = true;$vm.LoadData()">
 				    <!-- widget options:
 				        usage: <div data-jarvis-widget id="wid-id-0" data-widget-editbutton="false">
 				        data-widget-colorbutton="false"
@@ -27,11 +27,11 @@
 				    <header>
 				        <h2>管理設定 </h2>
 				        <ul id="widget-tab-1" class="nav pull-right" ng-class="{'nav-tabs' : !!ShowTabs, 'nav-pills': !ShowTabs }">
-				            <li class="active">
-				                <a data-toggle="tab" href="#hr1"> <i class="fa fa-lg fa-user"></i> <span class="hidden-mobile hidden-tablet"> 帳號 </span> </a>
+				            <li ng-class="$vm.TabSwitch('hr1')">
+				                <a data-toggle="tab" href="#hr1"> <i class="fa fa-lg fa-user"></i> <span class="hidden-mobile hidden-tablet" ng-click="$vm.defaultTab='hr1';$vm.LoadData()"> 帳號 </span> </a>
 				            </li>
-				            <li>
-				                <a data-toggle="tab" href="#hr2"> <i class="fa fa-lg fa-users"></i> <span class="hidden-mobile hidden-tablet"> 群組 </span></a>
+				            <li ng-class="$vm.TabSwitch('hr2')">
+				                <a data-toggle="tab" href="#hr2"> <i class="fa fa-lg fa-users"></i> <span class="hidden-mobile hidden-tablet" ng-click="$vm.defaultTab='hr2';$vm.LoadData()"> 群組 </span></a>
 				            </li>
 				        </ul>
 
@@ -43,7 +43,7 @@
 
 				            <!-- widget body text-->
 				            <div class="tab-content no-padding">
-				                <div class="tab-pane fade in active" id="hr1">
+				                <div class="tab-pane fade in " ng-class="$vm.TabSwitch('hr1')" id="hr1">
 
 									<div class="widget-body-toolbar">
 									    <div class="row">
@@ -64,9 +64,21 @@
 									
 									<div id="grid1" ui-grid="$vm.accountManagementOptions" class="my-ui-grid" ui-grid-pagination ui-grid-resize-columns></div>
 				                </div>
-				                <div class="tab-pane fade" id="hr2">
-				                    <h4 class="alert alert-warning"> Checkout the <a href="general-elements.html">General Elements</a> page for more tab options </h4>
-				                    Food truck fixie locavore, accusamus mcsweeney's marfa nulla single-origin coffee squid. Exercitation +1 labore velit, blog sartorial PBR leggings next level wes anderson artisan four loko farm-to-table craft beer twee.
+				                <div class="tab-pane fade in " ng-class="$vm.TabSwitch('hr2')" id="hr2">
+				                    <div class="widget-body-toolbar">
+									    <div class="row">
+									        <div class="col-xs-9 col-sm-5 col-md-5 col-lg-5">
+									        </div>
+									        <div class="col-xs-3 col-sm-7 col-md-7 col-lg-7 text-right">
+									            <button class="btn btn-primary"
+									            		ng-click="$vm.AddGroup()">
+									                {{getWord('Add Group')}}
+									            </button>
+									        </div>
+									    </div>
+									</div>
+									
+									<div id="grid1" ui-grid="$vm.groupManagementOptions" class="my-ui-grid" ui-grid-pagination ui-grid-resize-columns></div>
 				                </div>
 				            </div>
 
@@ -95,7 +107,7 @@
 	    <h3 class="modal-title" id="modal-title">{{getWord('Add Account')}}</h3>
 	</div>
 	<div class="modal-body" id="modal-body">
-	    <form class="form-horizontal" name="addAccountform">
+	    <form class="form-horizontal" name="addAccountForm">
 			<fieldset>
 				<div class="form-group">
 			        <label class="col-md-2 control-label">{{getWord('ID')}}</label>
@@ -143,7 +155,65 @@
 	    </form>
 	</div>
 	<div class="modal-footer">
-	    <button class="btn btn-primary" type="button" ng-click="$ctrl.ok()" ng-disabled="!addAccountform.$valid">{{getWord('OK')}}</button>
+	    <button class="btn btn-primary" type="button" ng-click="$ctrl.ok()" ng-disabled="!addAccountForm.$valid">{{getWord('OK')}}</button>
+	    <button class="btn btn-default" type="button" ng-click="$ctrl.cancel()">{{getWord('Cancel')}}</button>
+	</div>
+</script>
+
+<script type="text/ng-template" id="addGroupModalContent.html">
+    <div class="modal-header">
+	    <h3 class="modal-title" id="modal-title">{{getWord('Add Group')}}</h3>
+	</div>
+	<div class="modal-body" id="modal-body">
+	    <form class="form-horizontal" name="addGroupForm">
+			<fieldset>
+				<div class="form-group">
+			        <label class="col-md-2 control-label">{{getWord('ID')}}</label>
+			        <div class="col-md-10">
+			            <input class="form-control" ng-model="$ctrl.items['U_ID']" type="text">
+			        </div>
+			    </div>
+				<div class="form-group">
+			        <label class="col-md-2 control-label">{{getWord('UserName')}}</label>
+			        <div class="col-md-10">
+			            <input class="form-control" ng-model="$ctrl.items['U_NAME']" type="text" data-required>
+			        </div>
+			    </div>
+				<div class="form-group">
+			        <label class="col-md-2 control-label">{{getWord('Password')}}</label>
+			        <div class="col-md-10">
+			            <input class="form-control" ng-model="$ctrl.items['U_PW']" type="password" data-required>
+			        </div>
+			    </div>
+				<div class="form-group">
+			        <label class="col-md-2 control-label">{{getWord('E-Mail')}}</label>
+			        <div class="col-md-10">
+			            <input class="form-control" ng-model="$ctrl.items['U_EMAIL']" type="email">
+			        </div>
+			    </div>
+				<div class="form-group">
+			        <label class="col-md-2 control-label">{{getWord('Phone')}}</label>
+			        <div class="col-md-10">
+			            <input class="form-control" ng-model="$ctrl.items['U_PHONE']" type="phone">
+			        </div>
+			    </div>
+				<div class="form-group">
+			        <label class="col-md-2 control-label">{{getWord('Role')}}</label>
+			        <div class="col-md-10">
+  						<select class="form-control" ng-model="$ctrl.items['U_ROLE']" ng-options="key as value for (key , value) in $ctrl.role" required></select>
+			        </div>
+			    </div>
+				<div class="form-group">
+			        <label class="col-md-2 control-label">{{getWord('Department')}}</label>
+			        <div class="col-md-10">
+  						<select class="form-control" ng-model="$ctrl.items['U_DEPART']" ng-options="key as value for (key , value) in $ctrl.depart" required></select>
+			        </div>
+			    </div>
+			</fieldset>
+	    </form>
+	</div>
+	<div class="modal-footer">
+	    <button class="btn btn-primary" type="button" ng-click="$ctrl.ok()" ng-disabled="!addGroupForm.$valid">{{getWord('OK')}}</button>
 	    <button class="btn btn-default" type="button" ng-click="$ctrl.cancel()">{{getWord('Cancel')}}</button>
 	</div>
 </script>

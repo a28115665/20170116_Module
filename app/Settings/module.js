@@ -57,6 +57,23 @@ angular.module('app.settings').config(function ($stateProvider){
         }
     })
 
+    .state('app.settings.accountmanagement.group', {
+        url: '/group',
+        data: {
+            title: 'Group Management'
+        },
+        views: {
+            "content@app" : {
+                templateUrl: 'app/Settings/views/group.html',
+                controller: 'GroupCtrl',
+                controllerAs: '$vm',
+                resolve: {
+
+                }
+            }
+        }
+    })
+
     .state('app.settings.billboardeditor', {
         url: '/settings/billboardeditor',
         data: {

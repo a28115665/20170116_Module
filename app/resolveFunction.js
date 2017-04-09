@@ -1,19 +1,3 @@
-function AccountResolve (RestfulApi, $q) {
-    return {
-        get : function(){
-            var deferred = $q.defer();
-
-            RestfulApi.SearchMSSQLData({
-                querymain: 'accountManagement',
-                queryname: 'SelectAllUserInfoNotWithAdmin'
-            }).then(function (res){
-                deferred.resolve(res["returnData"]);
-            });
-
-            return deferred.promise;
-        }
-    };
-};
 function SysCodeResolve (RestfulApi, $q){
     return {
         get : function(pType){

@@ -43,6 +43,5 @@ angular.module('app')
         )
     };
 })
-.factory('Account', AccountResolve)
 .factory('SysCode', SysCodeResolve)
 

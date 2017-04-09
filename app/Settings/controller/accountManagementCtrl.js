@@ -1,17 +1,26 @@
 "use strict";
 
-angular.module('app.settings').controller('AccountManagementCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, $filter, Account, SysCode, RestfulApi) {
+angular.module('app.settings').controller('AccountManagementCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, $filter, SysCode, RestfulApi) {
 
 	var $vm = this;
     // console.log(Account.get());
-    LoadAccount();
 
 	angular.extend(this, {
         profile : Session.Get(),
-        // accountData : Account.get().then(function (res){
-        //     return res;
-        // }),
-        // roleData : role,
+        defaultTab : 'hr2',
+        TabSwitch : function(pTabID){
+            return pTabID == $vm.defaultTab ? 'active' : '';
+        },
+        LoadData : function(){
+            switch($vm.defaultTab){
+                case 'hr1':
+                    LoadAccount();
+                    break;
+                case 'hr2':
+                    LoadGroup();
+                    break;
+            }
+        },
         gridMethod : {
             //編輯
             modifyData : function(row){
@@ -44,6 +53,23 @@ angular.module('app.settings').controller('AccountManagementCtrl', function ($sc
             paginationPageSize: 10,
             onRegisterApi: function(gridApi){
                 $vm.accountManagementGridApi = gridApi;
+            }
+        },
+        groupManagementOptions : {
+            data: '$vm.groupData',
+            columnDefs: [
+                { name: 'SG_TITLE' ,  displayName: '群組名稱' },
+                { name: 'SG_DESC'  ,  displayName: '群組敘述' },
+                { name: 'SG_STS'   ,  displayName: '作廢', cellFilter: 'booleanFilter' },
+                { name: 'Options'  ,  displayName: '操作', cellTemplate: $templateCache.get('accessibilityToMD') }
+            ],
+            enableFiltering: false,
+            enableSorting: false,
+            enableColumnMenus: false,
+            paginationPageSizes: [10, 25, 50],
+            paginationPageSize: 10,
+            onRegisterApi: function(gridApi){
+                $vm.groupManagementOptions = gridApi;
             }
         },
         AddAccount : function(){
@@ -94,14 +120,66 @@ angular.module('app.settings').controller('AccountManagementCtrl', function ($sc
             }, function() {
                 // $log.info('Modal dismissed at: ' + new Date());
             });
+        },
+        AddGroup : function(){
+            var modalInstance = $uibModal.open({
+                animation: true,
+                ariaLabelledBy: 'modal-title',
+                ariaDescribedBy: 'modal-body',
+                templateUrl: 'addGroupModalContent.html',
+                controller: 'AddGroupModalInstanceCtrl',
+                controllerAs: '$ctrl',
+            });
+
+            modalInstance.result.then(function(selectedItem) {
+                console.log(selectedItem);
+
+                // RestfulApi.InsertMSSQLData({
+                //     insertname: 'Insert',
+                //     table: 0,
+                //     params: {
+                //         U_ID          : selectedItem.U_ID,
+                //         U_NAME        : selectedItem.U_NAME,
+                //         U_PW          : selectedItem.U_PW,
+                //         U_EMAIL       : selectedItem.U_EMAIL,
+                //         U_ROLE        : selectedItem.U_ROLE,
+                //         U_DEPART      : selectedItem.U_DEPART,
+                //         U_CR_USER     : $vm.profile.U_ID,
+                //         U_CR_DATETIME : new Date()
+                //     }
+                // }).then(function(res) {
+                //     console.log(res);
+
+                //     if(res["returnData"] == 1){
+                //         LoadAccount();
+                //     }
+
+                //     // $state.reload()
+                // });
+            }, function() {
+                // $log.info('Modal dismissed at: ' + new Date());
+            });
+            // $state.transitionTo("app.settings.accountmanagement.group");
         }
 	})
 
-	function LoadAccount(){        
-        Account.get().then(function (res){
-            $vm.accountData = res;
-        }); 
+	function LoadAccount(){    
+        RestfulApi.SearchMSSQLData({
+            querymain: 'accountManagement',
+            queryname: 'SelectAllUserInfoNotWithAdmin'
+        }).then(function (res){
+            $vm.accountData = res["returnData"];
+        });    
 	}
+
+    function LoadGroup(){    
+        RestfulApi.SearchMSSQLData({
+            querymain: 'accountManagement',
+            queryname: 'SelectAllGroup'
+        }).then(function (res){
+            $vm.groupData = res["returnData"];
+        });    
+    }
 
 })
 .controller('AddAccountModalInstanceCtrl', function ($uibModalInstance, role, depart) {
@@ -124,3 +202,14 @@ angular.module('app.settings').controller('AccountManagementCtrl', function ($sc
         $uibModalInstance.dismiss('cancel');
     };
 })
+.controller('AddGroupModalInstanceCtrl', function ($uibModalInstance) {
+    var $ctrl = this;
+
+    $ctrl.ok = function() {
+        $uibModalInstance.close($ctrl.items);
+    };
+
+    $ctrl.cancel = function() {
+        $uibModalInstance.dismiss('cancel');
+    };
+});
