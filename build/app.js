@@ -5770,11 +5770,12 @@ angular.module('app.settings').controller('AccountManagementCtrl', function ($sc
 
 	angular.extend(this, {
         profile : Session.Get(),
-        defaultTab : 'hr2',
+        defaultTab : 'hr1',
         TabSwitch : function(pTabID){
             return pTabID == $vm.defaultTab ? 'active' : '';
         },
         LoadData : function(){
+            console.log($vm.defaultTab);
             switch($vm.defaultTab){
                 case 'hr1':
                     LoadAccount();
@@ -6093,6 +6094,24 @@ angular.module('app.settings').controller('GroupCtrl', function ($scope, $stateP
                 resolve: {
                     vmData: function () {
                         return $vm.vmData;
+                    },
+                    depart: function($q) {
+                        var deferred = $q.defer();
+
+                        SysCode.get('Depart').then(function (res){
+                            var finalData = [];
+                            for(var i in res){
+                                finalData.push({
+                                    value: i, 
+                                    label: res[i]
+                                });
+                            }
+                            deferred.resolve(finalData);
+                        }, function (err){
+                            deferred.reject(err);
+                        })
+
+                        return deferred.promise
                     }
                 }
             });
@@ -6100,17 +6119,31 @@ angular.module('app.settings').controller('GroupCtrl', function ($scope, $stateP
             modalInstance.result.then(function(selectedItem) {
                 console.log(selectedItem);
 
-                // RestfulApi.DeleteMSSQLData({
-                //     deletename: 'Delete',
-                //     table: 6,
-                //     params: {
-                //         SG_GCODE : selectedItem.SG_GCODE
-                //     }
-                // }).then(function (res) {
-                //     if(res["returnData"] == 1){
-                //         LoadGroup();
-                //     }
-                // });
+                var _tasks = [];
+                _tasks.push({
+                    crudType: 'Delete',
+                    table: 4,
+                    params: {
+                        UG_GROUP : $vm.vmData.SG_GCODE
+                    }
+                });
+
+                for(var i in selectedItem){
+                    _tasks.push({
+                        crudType: 'Insert',
+                        table: 4,
+                        params: {
+                            UG_ID : selectedItem[i].U_ID,
+                            UG_GROUP : $vm.vmData.SG_GCODE
+                        }
+                    });
+                }
+
+                RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res){
+                    console.log(res);
+                }, function (err){
+                    
+                });
             }, function() {
                 // $log.info('Modal dismissed at: ' + new Date());
             });
@@ -6128,43 +6161,56 @@ angular.module('app.settings').controller('GroupCtrl', function ($scope, $stateP
     };
 
 })
-.controller('AddGroupPeopleModalInstanceCtrl', function ($uibModalInstance, RestfulApi, vmData) {
+.controller('AddGroupPeopleModalInstanceCtrl', function ($uibModalInstance, RestfulApi, vmData, $filter, $timeout, uiGridConstants, depart) {
     var $ctrl = this;
     $ctrl.vmData = vmData;
+    $ctrl.depart = depart;
 
     $ctrl.mdData = [];
 
-    RestfulApi.SearchMSSQLData({
-        querymain: 'group',
-        queryname: 'SelectAllUserInfoNotWithAdmin'
-    }).then(function (res){
-        $ctrl.mdData = res["returnData"];
-        // console.log($ctrl.mdData);
-    });   
-
-    RestfulApi.SearchMSSQLData({
-        querymain: 'group',
-        queryname: 'SelectSysGroup',
-        params: {
-            UG_GROUP : $ctrl.vmData.SG_GCODE
+    RestfulApi.CRUDMSSQLDataByTask([
+        {
+            crudType: 'Select',
+            querymain: 'group',
+            queryname: 'SelectAllUserInfoNotWithAdmin'
+        },
+        {  
+            crudType: 'Select',
+            querymain: 'group',
+            queryname: 'SelectUserGroup',
+            params: {
+                UG_GROUP : $ctrl.vmData.SG_GCODE
+            }
         }
-    }).then(function (res){
-        // $ctrl.mdData = res["returnData"];
-        console.log(res["returnData"]);
+    ]).then(function (res){
+        // console.log(res);
+        // 顯示所有帳號
+        $ctrl.mdData = res["returnData"][0];
+        // 把已被選取的帳號打勾
+        $timeout(function() {
+            if($ctrl.mdDataGridApi.selection.selectRow){
+                for(var i in res["returnData"][1]){
+                    $ctrl.mdDataGridApi.selection.selectRow($filter('filter')($ctrl.mdData, {U_ID: res["returnData"][1][i].UG_ID})[0]);
+                }
+            }
+        });
+    }, function (err){
+        
     });
 
     $ctrl.mdDataOptions = {
         data:  '$ctrl.mdData',
         columnDefs: [
-            // { name: 'U_STS'    ,  displayName: '離職', cellFilter: 'booleanFilter' },
-            // { name: 'U_CHECK'  ,  displayName: '認證', cellFilter: 'booleanFilter' },
             { name: 'U_ID'     ,  displayName: '帳號' },
             { name: 'U_NAME'   ,  displayName: '名稱' },
-            // { name: 'U_EMAIL'  ,  displayName: '信箱' },
-            // { name: 'U_PHONE'  ,  displayName: '電話' },
             { name: 'U_JOB'    ,  displayName: '職稱' },
-            // { name: 'U_ROLE'   ,  displayName: '角色', cellFilter: 'roleFilter' },
-            { name: 'U_DEPART' ,  displayName: '單位', cellFilter: 'departFilter' }
+            { name: 'U_DEPART' ,  displayName: '單位', cellFilter: 'departFilter', filter: 
+                {
+                    term: null,
+                    type: uiGridConstants.filter.SELECT,
+                    selectOptions: $ctrl.depart
+                }
+            }
         ],
         enableSorting: false,
         enableColumnMenus: false,
@@ -12200,6 +12246,43 @@ angular.module('SmartAdmin.Layout').directive('stateBreadcrumbs', function ($roo
         }
     }
 });
+
+"use strict";
+
+angular.module('SmartAdmin.UI').directive('smartPopoverHtml', function () {
+    return {
+        restrict: "A",
+        link: function(scope, element, attributes){
+            var options = {};
+            options.content = attributes.smartPopoverHtml;
+            options.placement = attributes.popoverPlacement || 'top';
+            options.html = true;
+            options.trigger =  attributes.popoverTrigger || 'click';
+            options.title =  attributes.popoverTitle || attributes.title;
+            element.popover(options)
+
+        }
+
+    };
+});
+
+
+"use strict";
+
+angular.module('SmartAdmin.UI').directive('smartTooltipHtml', function () {
+        return {
+            restrict: 'A',
+            link: function(scope, element, attributes){
+                element.tooltip({
+                    placement: attributes.tooltipPlacement || 'top',
+                    html: true,
+                    title: attributes.smartTooltipHtml
+                })
+            }
+        };
+    }
+);
+
 'use strict';
 
 angular.module('SmartAdmin.Layout').factory('lazyScript', function($q, $http){
@@ -12344,43 +12427,6 @@ angular.module('SmartAdmin.Layout').factory('SmartCss', function ($rootScope, $t
 
 
 
-
-
-"use strict";
-
-angular.module('SmartAdmin.UI').directive('smartPopoverHtml', function () {
-    return {
-        restrict: "A",
-        link: function(scope, element, attributes){
-            var options = {};
-            options.content = attributes.smartPopoverHtml;
-            options.placement = attributes.popoverPlacement || 'top';
-            options.html = true;
-            options.trigger =  attributes.popoverTrigger || 'click';
-            options.title =  attributes.popoverTitle || attributes.title;
-            element.popover(options)
-
-        }
-
-    };
-});
-
-
-"use strict";
-
-angular.module('SmartAdmin.UI').directive('smartTooltipHtml', function () {
-        return {
-            restrict: 'A',
-            link: function(scope, element, attributes){
-                element.tooltip({
-                    placement: attributes.tooltipPlacement || 'top',
-                    html: true,
-                    title: attributes.smartTooltipHtml
-                })
-            }
-        };
-    }
-);
 
 "use strict";
 

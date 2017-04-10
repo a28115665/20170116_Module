@@ -7,11 +7,12 @@ angular.module('app.settings').controller('AccountManagementCtrl', function ($sc
 
 	angular.extend(this, {
         profile : Session.Get(),
-        defaultTab : 'hr2',
+        defaultTab : 'hr1',
         TabSwitch : function(pTabID){
             return pTabID == $vm.defaultTab ? 'active' : '';
         },
         LoadData : function(){
+            console.log($vm.defaultTab);
             switch($vm.defaultTab){
                 case 'hr1':
                     LoadAccount();

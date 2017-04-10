@@ -104,5 +104,15 @@
     "BanName": "關注人名",
     "BanAddress": "關注地址",
     "DailyAlert": "每日主動通報",
-    "Export Excel": "匯出Excel"
+    "Export Excel": "匯出Excel",
+    "Group": "群組",
+    "Return": "返回",
+    "Update": "更新",
+    "Delete": "刪除",
+    "Group of people": "群組人員",
+    "Billboard": "公佈欄",
+    "Editor": "編輯",
+    "Billboard Editor": "公佈欄編輯",
+    "News": "消息",
+    "Add": "新增"      
 }

@@ -27,11 +27,11 @@
 				    <header>
 				        <h2>管理設定 </h2>
 				        <ul id="widget-tab-1" class="nav pull-right" ng-class="{'nav-tabs' : !!ShowTabs, 'nav-pills': !ShowTabs }">
-				            <li ng-class="$vm.TabSwitch('hr1')">
-				                <a data-toggle="tab" href="#hr1"> <i class="fa fa-lg fa-user"></i> <span class="hidden-mobile hidden-tablet" ng-click="$vm.defaultTab='hr1';$vm.LoadData()"> 帳號 </span> </a>
+				            <li ng-class="$vm.TabSwitch('hr1')" ng-click="$vm.defaultTab='hr1';$vm.LoadData()">
+				                <a data-toggle="tab" href="#hr1"> <i class="fa fa-lg fa-user"></i> <span class="hidden-mobile hidden-tablet"> 帳號 </span> </a>
 				            </li>
-				            <li ng-class="$vm.TabSwitch('hr2')">
-				                <a data-toggle="tab" href="#hr2"> <i class="fa fa-lg fa-users"></i> <span class="hidden-mobile hidden-tablet" ng-click="$vm.defaultTab='hr2';$vm.LoadData()"> 群組 </span></a>
+				            <li ng-class="$vm.TabSwitch('hr2')" ng-click="$vm.defaultTab='hr2';$vm.LoadData()">
+				                <a data-toggle="tab" href="#hr2"> <i class="fa fa-lg fa-users"></i> <span class="hidden-mobile hidden-tablet"> 群組 </span></a>
 				            </li>
 				        </ul>
 
@@ -72,7 +72,7 @@
 									        <div class="col-xs-3 col-sm-7 col-md-7 col-lg-7 text-right">
 									            <button class="btn btn-primary"
 									            		ng-click="$vm.AddGroup()">
-									                {{getWord('Add Group')}}
+									                {{getWord('Add')}}{{getWord('Group')}}
 									            </button>
 									        </div>
 									    </div>

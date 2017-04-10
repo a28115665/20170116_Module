@@ -8,12 +8,12 @@ module.exports = function(pQueryname, pParams){
 								   U_JOB, \
 								   U_DEPART \
 						   FROM USER_INFO \
-						   WHERE U_ID != 'Administrator' AND U_CHECK = False AND U_STS = True \
+						   WHERE U_ID != 'Administrator' AND U_CHECK = 1 AND U_STS = 0 \
 						   ORDER BY U_CR_DATETIME Desc";
 			break;
-		case "SelectSysGroup":
+		case "SelectUserGroup":
 			_SQLCommand += "SELECT * \
-						   FROM SYS_GROUP \
+						   FROM USER_GROUP \
 						   WHERE 1=1 ";
 			if(pParams["UG_GROUP"] !== undefined){
 				_SQLCommand += " AND UG_GROUP = @UG_GROUP ";

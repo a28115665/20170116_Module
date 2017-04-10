@@ -62,7 +62,7 @@ var SelectRequestWithTransaction = function(task, args, callback) {
 
 	requestSql(request, SQLCommand, function(err, ret) {
 		args.result.push(ret);
-		if(err) callback(err, {});
+		if(err) callback(err, args);
 		else callback(null, args);
 	});
 };
@@ -91,7 +91,7 @@ var InsertRequestWithTransaction = function(task, args, callback) {
 
 	requestSql(request, SQLCommand, function(err, ret) {
 		args.result.push(ret);
-		if(err) callback(err, {});
+		if(err) callback(err, args);
 		else callback(null, args);
 	});
 };
@@ -122,7 +122,7 @@ var UpdateRequestWithTransaction = function(task, args, callback) {
 	
 	requestSql(request, SQLCommand, function(err, ret) {
 		args.result.push(ret);
-		if(err) callback(err, {});
+		if(err) callback(err, args);
 		else callback(null, args);
 	});
 };
@@ -145,11 +145,11 @@ var DeleteRequestWithTransaction = function(task, args, callback) {
 		Condition.push(" AND "+key + "=@" + key);
 	}
 
-	SQLCommand += "DELETE FROM " + tables[table] + " WHERE 1=1 "+Condition.join("");
+	SQLCommand += "DELETE FROM " + tables[task.table] + " WHERE 1=1 "+Condition.join("");
 	
 	requestSql(request, SQLCommand, function(err, ret) {
 		args.result.push(ret);
-		if(err) callback(err, {});
+		if(err) callback(err, args);
 		else callback(null, args);
 	});
 };
@@ -174,6 +174,7 @@ var TransactionCommit = function(args, callback){
  */
 var TransactionRollback = function(args, callback){
 	// console.log("TransactionRollback:");
+	console.log(args);
 	args.transaction.rollback(function(err, ret) {
 		if(err) callback(err, {});
 		else callback(null, args);
@@ -221,7 +222,12 @@ function requestSql(request, sql, callback) {
         // console.log(returnValue);
         // Always emitted as the last one
         if (errors.length == 0) {
-            callback(null, result[0].records);
+        	// 如果returnValue為0 表示delete
+        	if(result.length == 0){
+            	callback(null, result);
+        	}else{
+            	callback(null, result[0].records);
+        	}
         } else {
             callback(errors, {});
         }

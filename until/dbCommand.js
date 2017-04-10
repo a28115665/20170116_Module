@@ -33,7 +33,7 @@ var SelectMethod = function (querymain, queryname, params, callback){
 
 			// 依querymain至各檔案下查詢method
 			SQLCommand = queryMethods[querymain](queryname, _params)
-
+			
 			// schema所需的orm
 			schemaType.SchemaType(_params, ps, sql);
 
