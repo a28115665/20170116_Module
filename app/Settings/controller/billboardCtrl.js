@@ -38,11 +38,6 @@ angular.module('app.settings').controller('BillboardEditorCtrl', function ($scop
     };
 
     function ChangeToAddNewsPage(){
-        $state.transitionTo("app.settings.billboardeditor.news", {
-            data: {
-              id: 5,
-              blue: '#0000FF'
-            }
-        });
+        $state.transitionTo("app.settings.billboardeditor.news");
     };
 })
