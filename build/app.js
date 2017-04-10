@@ -2013,7 +2013,25 @@ angular.module('app.settings').config(function ($stateProvider){
                 controller: 'GroupCtrl',
                 controllerAs: '$vm',
                 resolve: {
+                    bool: function (SysCode, $q){
 
+                        var deferred = $q.defer();
+
+                        SysCode.get('Boolean').then(function (res){
+                            var finalData = [];
+
+                            for(var i in res){
+                                finalData.push({
+                                    value: (i == 'true'), 
+                                    key: res[i]
+                                });
+                            }
+
+                            deferred.resolve(finalData);
+                        });
+
+                        return deferred.promise;
+                    }
                 }
             }
         }
@@ -2050,8 +2068,24 @@ angular.module('app.settings').config(function ($stateProvider){
                 controller: 'NewsCtrl',
                 controllerAs: '$vm',
                 resolve: {
-                    bool: function (SysCode){
-                        return SysCode.get('Boolean');
+                    bool: function (SysCode, $q){
+
+                        var deferred = $q.defer();
+
+                        SysCode.get('Boolean').then(function (res){
+                            var finalData = [];
+
+                            for(var i in res){
+                                finalData.push({
+                                    value: (i == 'true'), 
+                                    key: res[i]
+                                });
+                            }
+
+                            deferred.resolve(finalData);
+                        });
+
+                        return deferred.promise;
                     },
                     ioType: function (SysCode){
                         return SysCode.get('IOType');
@@ -6034,22 +6068,57 @@ angular.module('app.settings').controller('BillboardEditorCtrl', function ($scop
 })
 "use strict";
 
-angular.module('app.settings').controller('GroupCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, $filter, SysCode, RestfulApi) {
+angular.module('app.settings').controller('GroupCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, $filter, SysCode, RestfulApi, bool) {
     // console.log($stateParams);
     
-
 	var $vm = this;
 
 	angular.extend(this, {
         Init : function(){
+            // 不正常登入此頁面
             if($stateParams.data == null) ReturnToBillboardEditorPage();
         },
         profile : Session.Get(),
+        boolData : bool,
         vmData : $stateParams.data,
+        AddGroupPeople : function(){
+            var modalInstance = $uibModal.open({
+                animation: true,
+                ariaLabelledBy: 'modal-title',
+                ariaDescribedBy: 'modal-body',
+                templateUrl: 'addGroupPeople.html',
+                controller: 'AddGroupPeopleModalInstanceCtrl',
+                controllerAs: '$ctrl',
+                size: 'lg',
+                resolve: {
+                    vmData: function () {
+                        return $vm.vmData;
+                    }
+                }
+            });
+
+            modalInstance.result.then(function(selectedItem) {
+                console.log(selectedItem);
+
+                // RestfulApi.DeleteMSSQLData({
+                //     deletename: 'Delete',
+                //     table: 6,
+                //     params: {
+                //         SG_GCODE : selectedItem.SG_GCODE
+                //     }
+                // }).then(function (res) {
+                //     if(res["returnData"] == 1){
+                //         LoadGroup();
+                //     }
+                // });
+            }, function() {
+                // $log.info('Modal dismissed at: ' + new Date());
+            });
+        },
         Return : function(){
             ReturnToBillboardEditorPage();
         },
-        Modify : function(){
+        Update : function(){
 
         }
 	})
@@ -6059,6 +6128,65 @@ angular.module('app.settings').controller('GroupCtrl', function ($scope, $stateP
     };
 
 })
+.controller('AddGroupPeopleModalInstanceCtrl', function ($uibModalInstance, RestfulApi, vmData) {
+    var $ctrl = this;
+    $ctrl.vmData = vmData;
+
+    $ctrl.mdData = [];
+
+    RestfulApi.SearchMSSQLData({
+        querymain: 'group',
+        queryname: 'SelectAllUserInfoNotWithAdmin'
+    }).then(function (res){
+        $ctrl.mdData = res["returnData"];
+        // console.log($ctrl.mdData);
+    });   
+
+    RestfulApi.SearchMSSQLData({
+        querymain: 'group',
+        queryname: 'SelectSysGroup',
+        params: {
+            UG_GROUP : $ctrl.vmData.SG_GCODE
+        }
+    }).then(function (res){
+        // $ctrl.mdData = res["returnData"];
+        console.log(res["returnData"]);
+    });
+
+    $ctrl.mdDataOptions = {
+        data:  '$ctrl.mdData',
+        columnDefs: [
+            // { name: 'U_STS'    ,  displayName: '離職', cellFilter: 'booleanFilter' },
+            // { name: 'U_CHECK'  ,  displayName: '認證', cellFilter: 'booleanFilter' },
+            { name: 'U_ID'     ,  displayName: '帳號' },
+            { name: 'U_NAME'   ,  displayName: '名稱' },
+            // { name: 'U_EMAIL'  ,  displayName: '信箱' },
+            // { name: 'U_PHONE'  ,  displayName: '電話' },
+            { name: 'U_JOB'    ,  displayName: '職稱' },
+            // { name: 'U_ROLE'   ,  displayName: '角色', cellFilter: 'roleFilter' },
+            { name: 'U_DEPART' ,  displayName: '單位', cellFilter: 'departFilter' }
+        ],
+        enableSorting: false,
+        enableColumnMenus: false,
+        enableFiltering: true,
+        enableRowSelection: true,
+        enableSelectAll: true,
+        selectionRowHeaderWidth: 35,
+        paginationPageSizes: [10, 25, 50],
+        paginationPageSize: 10,
+        onRegisterApi: function(gridApi){ 
+            $ctrl.mdDataGridApi = gridApi;
+        } 
+    };
+
+    $ctrl.ok = function() {
+        $uibModalInstance.close($ctrl.mdDataGridApi.selection.getSelectedRows());
+    };
+
+    $ctrl.cancel = function() {
+        $uibModalInstance.dismiss('cancel');
+    };
+});
 "use strict";
 
 angular.module('app.settings').controller('NewsCtrl', function ($scope, $stateParams, $state, RestfulApi, Session, toaster, $uibModal, $filter, bool, ioType, FileUploader) {
@@ -13386,24 +13514,6 @@ angular.module('SmartAdmin.Forms').directive('smartJcrop', function ($q) {
 });
 'use strict';
 
-angular.module('SmartAdmin.Forms').directive('smartDropzone', function () {
-    return function (scope, element, attrs) {
-        var config, dropzone;
-
-        config = scope[attrs.smartDropzone];
-
-        // create a Dropzone for the element with the given options
-        dropzone = new Dropzone(element[0], config.options);
-
-        // bind the given event handlers
-        angular.forEach(config.eventHandlers, function (handler, event) {
-            dropzone.on(event, handler);
-        });
-    };
-});
-
-'use strict';
-
 angular.module('SmartAdmin.Forms').directive('smartClockpicker', function () {
     return {
         restrict: 'A',
@@ -13724,6 +13834,24 @@ angular.module('SmartAdmin.Forms').directive('smartXeditable', function($timeout
 
     }
 });
+'use strict';
+
+angular.module('SmartAdmin.Forms').directive('smartDropzone', function () {
+    return function (scope, element, attrs) {
+        var config, dropzone;
+
+        config = scope[attrs.smartDropzone];
+
+        // create a Dropzone for the element with the given options
+        dropzone = new Dropzone(element[0], config.options);
+
+        // bind the given event handlers
+        angular.forEach(config.eventHandlers, function (handler, event) {
+            dropzone.on(event, handler);
+        });
+    };
+});
+
 'use strict';
 
 angular.module('SmartAdmin.Forms').directive('smartValidateForm', function (formsCommon) {

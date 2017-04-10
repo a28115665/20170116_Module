@@ -57,23 +57,18 @@
 								        <div class="col-md-2">
 											<select class="form-control" 
 													ng-model="$vm.STICK_TOP"
-													ng-options="key as value for (key, value) in $vm.boolData"
-													convert-to-number>
+													ng-options="key as value for (key, value) in $vm.boolData">
 											</select>
 								        </div>
 								        <label class="col-md-2 control-label">公佈類型</label>
 								        <div class="col-md-2">
 											<select class="form-control" 
 													ng-model="$vm.IO_TYPE"
-													ng-options="key as value for (key, value) in $vm.ioTypeData"
-													convert-to-number>
+													ng-options="key as value for (key, value) in $vm.ioTypeData">
 											</select>
 								        </div>
 								        <label class="col-md-2 control-label">公佈對象</label>
 								        <div class="col-md-2">
-								            <!-- <button class="btn btn-default" type="submit">
-								                {{getWord('Add')}}
-								            </button> -->
 	                            			<a href-void="" class="btn txt-color-white bg-color-magenta btn-sm" href="#" ng-click="$vm.AddPostGoal()"><i class="fa fa-plus-square"></i> 新增</a>
 								        </div>
 								    </div>
