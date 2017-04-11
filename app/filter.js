@@ -84,4 +84,28 @@ angular.module('app')
 
 	return FilterFunction;
 
+})
+.filter('dateFilter', function ($filter) {
+
+	return function (input){
+		if (!input) {
+		    return '';
+		} else {
+		    return $filter('date')(input.replace(/\Z/g, ''), 'yyyy-MM-dd');
+		}
+
+	};
+
+})
+.filter('datetimeFilter', function ($filter) {
+
+	return function (input){
+		if (!input) {
+		    return '';
+		} else {
+		    return $filter('date')(input.replace(/\Z/g, ''), 'yyyy-MM-dd HH:mm:ss');
+		}
+
+	};
+
 });

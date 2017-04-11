@@ -106,7 +106,12 @@ angular.module('app.settings').config(function ($stateProvider){
                 controller: 'BillboardEditorCtrl',
                 controllerAs: '$vm',
                 resolve: {
-                    
+                    boolFilter: function (SysCodeFilter){
+                        return SysCodeFilter.get('Boolean');
+                    },
+                    ioTypeFilter: function (SysCodeFilter){
+                        return SysCodeFilter.get('IOType');
+                    }
                 }
             }
         }
@@ -152,4 +157,22 @@ angular.module('app.settings').config(function ($stateProvider){
             }
         }
     })
+
+    .state('app.settings.externalmanagement', {
+        url: '/settings/externalmanagement',
+        data: {
+            title: 'External Management'
+        },
+        views: {
+            "content@app" : {
+                templateUrl: 'app/Settings/views/externalManagement.html',
+                controller: 'ExternalManagementCtrl',
+                controllerAs: '$vm',
+                resolve: {
+                    
+                }
+            }
+        }
+    })
+
 });

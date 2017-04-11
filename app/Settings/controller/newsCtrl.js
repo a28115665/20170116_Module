@@ -63,6 +63,9 @@ angular.module('app.settings').controller('NewsCtrl', function ($scope, $statePa
                 resolve: {
                     vmData: function(){
                         return $vm.vmData;
+                    },
+                    ioTypeFilter: function(SysCodeFilter){
+                        return SysCodeFilter.get('IOType');
                     }
                 }
             });
@@ -273,15 +276,20 @@ angular.module('app.settings').controller('NewsCtrl', function ($scope, $statePa
     };
 
     function ReturnToBillboardEditorPage(){
-        toaster.success("狀態", "資料上傳成功", 3000);
+        if(_tasks.length > 0){
+            toaster.success("狀態", "資料上傳成功", 3000);    
+        }
         $state.transitionTo("app.settings.billboardeditor");
     };
 })
-.controller('AddPostGoalModalInstanceCtrl', function ($uibModalInstance, vmData, RestfulApi, $timeout, $filter) {
+.controller('AddPostGoalModalInstanceCtrl', function ($uibModalInstance, vmData, RestfulApi, $timeout, $filter, ioTypeFilter, uiGridConstants) {
     var $ctrl = this;
     $ctrl.mdData = [];
 
     $ctrl.MdInit = function (){
+        // 拿掉All
+        ioTypeFilter.shift();
+
         var _request = null;
 
         switch(vmData.IO_TYPE){ 
@@ -328,7 +336,13 @@ angular.module('app.settings').controller('NewsCtrl', function ($scope, $statePa
         columnDefs: [
             { name: 'CODE'     , displayName: '系統代碼' },
             { name: 'NAME'     , displayName: '名稱' },
-            { name: 'IO_TYPE'  , displayName: '公佈類型', cellFilter: 'ioTypeFilter', enableFiltering: false }
+            { name: 'IO_TYPE'  , displayName: '公佈類型', cellFilter: 'ioTypeFilter', filter: 
+                {
+                    term: null,
+                    type: uiGridConstants.filter.SELECT,
+                    selectOptions: ioTypeFilter
+                }
+            }
         ],
         enableSorting: false,
         enableColumnMenus: false,

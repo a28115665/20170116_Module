@@ -44,4 +44,4 @@ angular.module('app')
     };
 })
 .factory('SysCode', SysCodeResolve)
-
+.factory('SysCodeFilter', SysCodeFilterResolve)
