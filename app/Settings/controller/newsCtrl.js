@@ -12,8 +12,9 @@ angular.module('app.settings').controller('NewsCtrl', function ($scope, $statePa
     // };
 
     var $vm = this,
+        _tasks = [],
         _d = new Date(),
-        _filepath = _d.getFullYear() + '/' + ("0" + (_d.getMonth()+1)).slice(-2) + '/' + ("0" + _d.getDate()).slice(-2) + '/';
+        _filepath = _d.getFullYear() + '\\' + ("0" + (_d.getMonth()+1)).slice(-2) + '\\' + ("0" + _d.getDate()).slice(-2) + '\\';
 
     angular.extend(this, {
         Init : function(){
@@ -23,8 +24,11 @@ angular.module('app.settings').controller('NewsCtrl', function ($scope, $statePa
                 $vm.vmData = {
                     STICK_TOP : false,
                     IO_TYPE : "All",
-                    CONTENT : ""
+                    CONTENT : "",
+                    IU : "Add"
                 }
+            }else{
+                $vm.vmData = $stateParams.data;
             }
         },
         profile : Session.Get(),
@@ -64,8 +68,9 @@ angular.module('app.settings').controller('NewsCtrl', function ($scope, $statePa
             });
 
             modalInstance.result.then(function(selectedItem) {
-                console.log(selectedItem);
-                // $ctrl.selected = selectedItem;
+                // console.log(selectedItem);
+                $vm.vmData.PostGoal = angular.copy(selectedItem);
+                console.log($vm.vmData);
             }, function() {
                 // $log.info('Modal dismissed at: ' + new Date());
             });
@@ -76,65 +81,40 @@ angular.module('app.settings').controller('NewsCtrl', function ($scope, $statePa
         },
         Add : function(){
             console.log($vm.vmData);
-            // var ioTypePromise = null;
-            // switch($vm.vmData.IO_TYPE){
-            //     case "In":
-            //     case "Out": 
-            //         ioTypePromise = RestfulApi.InsertMSSQLData({
-            //             insertname: 'Insert',
-            //             table: 1,
-            //             params: {
-            //                 BB_TITLE : $vm.vmData.TITLE,
-            //                 BB_CONTENT : $vm.vmData.CONTENT,
-            //                 BB_POST_FROM : $vm.vmData.POST_FROM,
-            //                 BB_POST_TOXX : $vm.vmData.POST_TOXX,
-            //                 BB_IO_TYPE : $vm.vmData.IO_TYPE,
-            //                 BB_CR_USER : $vm.profile.U_ID,
-            //                 BB_CR_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss')
-            //             }
-            //         });
-            //         break;
-            //     case "All":
-            //         ioTypePromise = RestfulApi.CRUDMSSQLDataByTask([
-            //             {
-            //                 crudType: 'Insert',
-            //                 table: 1,
-            //                 params: {
-            //                     BB_TITLE : $vm.vmData.TITLE,
-            //                     BB_CONTENT : $vm.vmData.CONTENT,
-            //                     BB_POST_FROM : $vm.vmData.POST_FROM,
-            //                     BB_POST_TOXX : $vm.vmData.POST_TOXX,
-            //                     BB_IO_TYPE : "In",
-            //                     BB_CR_USER : $vm.profile.U_ID,
-            //                     BB_CR_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss')
-            //                 }
-            //             },
-            //             {
-            //                 crudType: 'Insert',
-            //                 table: 1,
-            //                 params: {
-            //                     BB_TITLE : $vm.vmData.TITLE,
-            //                     BB_CONTENT : $vm.vmData.CONTENT,
-            //                     BB_POST_FROM : $vm.vmData.POST_FROM,
-            //                     BB_POST_TOXX : $vm.vmData.POST_TOXX,
-            //                     BB_IO_TYPE : "Out",
-            //                     BB_CR_USER : $vm.profile.U_ID,
-            //                     BB_CR_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss')
-            //                 }
-            //             }
-            //         ]);
-            //         break;
-            // }
 
-            // ioTypePromise.then(function (res) {
-            //     console.log(res);
-            //     // 上傳所有檔案
-            //     // if($vm.uploader.getNotUploadedItems().length > 0){
-            //     //     $vm.uploader.uploadAll();
-            //     // }
-            // }, function (err) {
-            //     console.log(err);
-            // });
+            // Insert 主表
+            _tasks.push({
+                crudType: 'Insert',
+                table: 1,
+                params: {
+                    BB_TITLE : $vm.vmData.TITLE,
+                    BB_CONTENT : $vm.vmData.CONTENT,
+                    BB_POST_FROM : $vm.vmData.POST_FROM,
+                    BB_POST_TOXX : $vm.vmData.POST_TOXX,
+                    BB_IO_TYPE : $vm.vmData.IO_TYPE,
+                    BB_CR_USER : $vm.profile.U_ID,
+                    BB_CR_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss')
+                }
+            });
+
+            // Insert 公佈對象
+            for(var i in DeleteAndInsertPostGoal()){
+                _tasks.push(DeleteAndInsertPostGoal()[i]);
+            }
+
+            // 有上傳檔案 先上傳檔案之後再Insert DB
+            if($vm.uploader.getNotUploadedItems().length > 0){
+                $vm.uploader.uploadAll();
+            }
+            // 無上傳檔案 直接Insert DB
+            else{
+                RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res) {
+                    console.log(res);
+                    ReturnToBillboardEditorPage();
+                }, function (err) {
+                    console.log(err);
+                });
+            }
         }
     });
 
@@ -236,8 +216,8 @@ angular.module('app.settings').controller('NewsCtrl', function ($scope, $statePa
         console.info('onCompleteItem', fileItem, response, status, headers);
         if(status == 200){
             // 儲存每個上傳檔案的資訊
-            RestfulApi.InsertMSSQLData({
-                insertname: 'Insert',
+            _tasks.push({
+                crudType: 'Insert',
                 table: 2,
                 params: {
                     BBAF_O_FILENAME : response.oFilename,
@@ -246,10 +226,6 @@ angular.module('app.settings').controller('NewsCtrl', function ($scope, $statePa
                     BBAF_CR_USER : $vm.profile.U_ID,
                     BBAF_CR_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss')
                 }
-            }).then(function (res) {
-                console.log(res["returnData"]);
-            }, function (err) {
-                toaster.pop('error', "訊息", err, 3000);
             });
         }else{
             toaster.pop('error', "檔案上傳失敗", response.oFilename, 3000);
@@ -257,13 +233,51 @@ angular.module('app.settings').controller('NewsCtrl', function ($scope, $statePa
     };
     $vm.uploader.onCompleteAll = function() {
         console.info('onCompleteAll');
+
+        RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res) {
+            console.log(res);
+            ReturnToBillboardEditorPage();
+        }, function (err) {
+            console.log(err);
+        });
+    };
+
+    var DeleteAndInsertPostGoal = function(){
+        var _task = [];
+
+        // 表示為Update
+        if($vm.vmData.IU == "Update"){
+            _task.push({
+                crudType: 'Delete',
+                table: 3,
+                params: {
+                    BBPG_CR_USER : $vm.vmData.CR_USER,
+                    BBPG_CR_DATETIME : $vm.vmData.CR_DATETIME
+                }
+            });
+        }
+
+        for(var i in $vm.vmData["PostGoal"]){
+            _task.push({
+                crudType: 'Insert',
+                table: 3,
+                params: {
+                    BBPG_CR_USER : $vm.profile.U_ID,
+                    BBPG_CR_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss'),
+                    BBPG_GOAL_ID : $vm.vmData.PostGoal[i].CODE
+                }
+            });
+        }
+
+        return _task;
     };
 
     function ReturnToBillboardEditorPage(){
+        toaster.success("狀態", "資料上傳成功", 3000);
         $state.transitionTo("app.settings.billboardeditor");
     };
 })
-.controller('AddPostGoalModalInstanceCtrl', function ($uibModalInstance, vmData, RestfulApi) {
+.controller('AddPostGoalModalInstanceCtrl', function ($uibModalInstance, vmData, RestfulApi, $timeout, $filter) {
     var $ctrl = this;
     $ctrl.mdData = [];
 
@@ -296,6 +310,14 @@ angular.module('app.settings').controller('NewsCtrl', function ($scope, $statePa
         RestfulApi.SearchMSSQLData(_request).then(function (res){
             // console.log(res["returnData"]);
             $ctrl.mdData = res["returnData"];
+            // 把已被選取的帳號打勾
+            $timeout(function() {
+                if($ctrl.mdDataGridApi.selection.selectRow){
+                    for(var i in vmData.PostGoal){
+                        $ctrl.mdDataGridApi.selection.selectRow($filter('filter')($ctrl.mdData, {CODE: vmData.PostGoal[i].CODE})[0]);
+                    }
+                }
+            });
         }).finally(function() {
             HandleWindowResize($vm.mdDataGridApi);
         });

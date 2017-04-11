@@ -174,7 +174,6 @@ var TransactionCommit = function(args, callback){
  */
 var TransactionRollback = function(args, callback){
 	// console.log("TransactionRollback:");
-	console.log(args);
 	args.transaction.rollback(function(err, ret) {
 		if(err) callback(err, {});
 		else callback(null, args);
