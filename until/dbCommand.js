@@ -28,12 +28,12 @@ var SelectMethod = function (querymain, queryname, params, callback){
 	try {
 		var connection = sql.connect(setting.MSSQL).then(function(cp) {
 			var ps = new sql.PreparedStatement(cp),
-				_params = typeof params == "string" ? JSON.parse(params) : params,
+				_params = typeof params == "string" ? JSON.parse(params) : {},
 				SQLCommand = "";
 
 			// 依querymain至各檔案下查詢method
 			SQLCommand = queryMethods[querymain](queryname, _params)
-
+			
 			// schema所需的orm
 			schemaType.SchemaType(_params, ps, sql);
 

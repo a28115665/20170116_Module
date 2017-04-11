@@ -1,4 +1,4 @@
-<div id="content">
+<div id="content" ng-init="$vm.Init()">
 
 	<div class="row">
 		<big-breadcrumbs items="['Settings', 'Billboard Editor']" icon="newspaper-o" class="col-xs-12 col-sm-7 col-md-7 col-lg-4"></big-breadcrumbs>
@@ -26,18 +26,12 @@
 				    -->
 				    <header>
 				        <h2>公佈欄 </h2>
-
-				        <div class="widget-toolbar" role="menu">
-				            <a href-void="" class="btn btn-primary" href="#"
-			            	   ng-click="$vm.AddNews()" >{{getWord('Add News')}}</a>
-				        </div>
-
-				        <ul id="widget-tab-1" class="nav pull-right" ng-class="{'nav-tabs' : !!ShowTabs, 'nav-pills': !ShowTabs }">
-				            <li class="active">
-				                <a data-toggle="tab" href="#hr1"> <i class="fa fa-lg fa-building-o"></i> <span class="hidden-mobile hidden-tablet"> 對外 </span> </a>
+						<ul id="widget-tab-1" class="nav pull-right" ng-class="{'nav-tabs' : !!ShowTabs, 'nav-pills': !ShowTabs }">
+				            <li ng-class="$vm.TabSwitch('hr1')" ng-click="$vm.defaultTab='hr1';$vm.LoadData()">
+				                <a data-toggle="tab" href="#hr1"> <i class="fa fa-lg fa-bullhorn"></i> <span class="hidden-mobile hidden-tablet"> 公佈區 </span> </a>
 				            </li>
-				            <li>
-				                <a data-toggle="tab" href="#hr2"> <i class="fa fa-lg fa-building"></i> <span class="hidden-mobile hidden-tablet"> 對內 </span></a>
+				            <li ng-class="$vm.TabSwitch('hr2')" ng-click="$vm.defaultTab='hr2';$vm.LoadData()">
+				                <a data-toggle="tab" href="#hr2"> <i class="fa fa-lg fa-history"></i> <span class="hidden-mobile hidden-tablet"> 歷史區 </span></a>
 				            </li>
 				        </ul>
 
@@ -47,23 +41,36 @@
 				        <!-- widget content -->
 						<div class="widget-body no-padding">
 
-				            <!-- widget body text-->
+							<!-- widget body text-->
 				            <div class="tab-content no-padding">
-				                <div class="tab-pane fade in active" id="hr1">
+				                <div class="tab-pane fade in " ng-class="$vm.TabSwitch('hr1')" id="hr1">
 
-									<!-- <div id="grid1" ui-grid="$vm.accountManagementOptions" class="my-ui-grid" ui-grid-pagination ui-grid-resize-columns></div> -->
+									<div class="widget-body-toolbar">
+									    <div class="row">
+									        <div class="col-xs-9 col-sm-5 col-md-5 col-lg-5">
+									        </div>
+									        <div class="col-xs-3 col-sm-7 col-md-7 col-lg-7 text-right">
+									            <button class="btn btn-primary"
+									            		ng-click="$vm.AddNews()">
+									                {{getWord('Add')}}{{getWord('News')}}
+									            </button>
+									            <button class="btn btn-danger"
+									            		ng-click="$vm.DeleteNews()"
+									            		ng-disabled="$vm.billboardEditorGridApi.selection.getSelectedRows() == 0">
+									                {{getWord('Delete')}}{{getWord('News')}}
+									            </button>
+									        </div>
+									    </div>
+									</div>
+									
+									<div id="grid1" ui-grid="$vm.billboardEditorOptions" class="my-ui-grid" ui-grid-pagination ui-grid-resize-columns ui-grid-selection></div>
 				                </div>
-				                <div class="tab-pane fade" id="hr2">
-				                    <h4 class="alert alert-warning"> Checkout the <a href="general-elements.html">General Elements</a> page for more tab options </h4>
-				                    Food truck fixie locavore, accusamus mcsweeney's marfa nulla single-origin coffee squid. Exercitation +1 labore velit, blog sartorial PBR leggings next level wes anderson artisan four loko farm-to-table craft beer twee.
+				                <div class="tab-pane fade in " ng-class="$vm.TabSwitch('hr2')" id="hr2">
+
+									<div id="grid1" ui-grid="$vm.billboardHistoryOptions" class="my-ui-grid" ui-grid-pagination ui-grid-resize-columns></div>
+
 				                </div>
 				            </div>
-
-							<!-- <div class="table-responsive">
-
-								<div id="grid1" ui-grid="$vm.historySearchOptions" class="my-ui-grid" ui-grid-pagination ui-grid-resize-columns></div>
-
-							</div> -->
 
 						</div>
 						<!-- end widget content -->

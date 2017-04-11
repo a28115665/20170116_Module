@@ -11,11 +11,15 @@ angular.module('SmartAdmin.Layout').directive('stateBreadcrumbs', function ($roo
         link: function (scope, element) {
 
             function setBreadcrumbs(breadcrumbs) {
-                var html = '<li>'+$rootScope.getWord('Home')+'</li>';
-                angular.forEach(breadcrumbs, function (crumb) {
-                    html += '<li>' + $rootScope.getWord(crumb) + '</li>'
-                });
-                element.html(html)
+                if(angular.isFunction($rootScope.getWord)){
+                    var html = '<li>'+$rootScope.getWord('Home')+'</li>';
+                    angular.forEach(breadcrumbs, function (crumb) {
+                        html += '<li>' + $rootScope.getWord(crumb) + '</li>'
+                    });
+                    element.html(html)
+                }else{
+                    element.html('')
+                }
             }
 
             function fetchBreadcrumbs(stateName, breadcrunbs) {

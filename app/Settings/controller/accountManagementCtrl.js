@@ -1,18 +1,28 @@
 "use strict";
 
-angular.module('app.settings').controller('AccountManagementCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, $filter, Account, SysCode, RestfulApi) {
+angular.module('app.settings').controller('AccountManagementCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, $filter, SysCode, RestfulApi) {
 
 	var $vm = this;
     // console.log(Account.get());
-    LoadAccount();
 
 	angular.extend(this, {
         profile : Session.Get(),
-        // accountData : Account.get().then(function (res){
-        //     return res;
-        // }),
-        // roleData : role,
-        gridMethod : {
+        defaultTab : 'hr1',
+        TabSwitch : function(pTabID){
+            return pTabID == $vm.defaultTab ? 'active' : '';
+        },
+        LoadData : function(){
+            console.log($vm.defaultTab);
+            switch($vm.defaultTab){
+                case 'hr1':
+                    LoadAccount();
+                    break;
+                case 'hr2':
+                    LoadGroup();
+                    break;
+            }
+        },
+        gridAccountMethod : {
             //編輯
             modifyData : function(row){
                 console.log(row);
@@ -34,7 +44,7 @@ angular.module('app.settings').controller('AccountManagementCtrl', function ($sc
                 { name: 'U_JOB'    ,  displayName: '職稱' },
                 { name: 'U_ROLE'   ,  displayName: '角色', cellFilter: 'roleFilter' },
                 { name: 'U_DEPART' ,  displayName: '單位', cellFilter: 'departFilter' },
-                { name: 'Options'  ,  displayName: '操作', cellTemplate: $templateCache.get('accessibilityToMD') }
+                { name: 'Options'  ,  displayName: '操作', cellTemplate: $templateCache.get('accessibilityToMDForAccount') }
             ],
             enableFiltering: false,
             enableSorting: false,
@@ -44,6 +54,68 @@ angular.module('app.settings').controller('AccountManagementCtrl', function ($sc
             paginationPageSize: 10,
             onRegisterApi: function(gridApi){
                 $vm.accountManagementGridApi = gridApi;
+            }
+        },
+        gridGroupMethod : {
+            //編輯
+            modifyData : function(row){
+                // console.log(row);
+                $state.transitionTo("app.settings.accountmanagement.group", {
+                    data: row.entity
+                });
+            },
+            //刪除
+            deleteData : function(row){
+                console.log(row);
+                var modalInstance = $uibModal.open({
+                    animation: true,
+                    ariaLabelledBy: 'modal-title',
+                    ariaDescribedBy: 'modal-body',
+                    templateUrl: 'isDelete.html',
+                    controller: 'IsDeleteModalInstanceCtrl',
+                    controllerAs: '$ctrl',
+                    size: 'sm',
+                    resolve: {
+                        items: function () {
+                            return row.entity;
+                        }
+                    }
+                });
+
+                modalInstance.result.then(function(selectedItem) {
+                    console.log(selectedItem);
+
+                    RestfulApi.DeleteMSSQLData({
+                        deletename: 'Delete',
+                        table: 6,
+                        params: {
+                            SG_GCODE : selectedItem.SG_GCODE
+                        }
+                    }).then(function (res) {
+                        if(res["returnData"] == 1){
+                            LoadGroup();
+                        }
+                    });
+                }, function() {
+                    // $log.info('Modal dismissed at: ' + new Date());
+                });
+            }
+        },
+        groupManagementOptions : {
+            data: '$vm.groupData',
+            columnDefs: [
+                { name: 'SG_TITLE' ,  displayName: '群組名稱' },
+                { name: 'SG_DESC'  ,  displayName: '群組敘述' },
+                { name: 'SG_STS'   ,  displayName: '作廢', cellFilter: 'booleanFilter' },
+                { name: 'Options'  ,  displayName: '操作', cellTemplate: $templateCache.get('accessibilityToMDForGroup') }
+            ],
+            enableFiltering: false,
+            enableSorting: false,
+            enableColumnMenus: false,
+            paginationPageSizes: [10, 25, 50],
+            paginationPageSize: 10,
+            onRegisterApi: function(gridApi){
+                $vm.groupManagementOptions = gridApi;
             }
         },
         AddAccount : function(){
@@ -94,14 +166,63 @@ angular.module('app.settings').controller('AccountManagementCtrl', function ($sc
             }, function() {
                 // $log.info('Modal dismissed at: ' + new Date());
             });
+        },
+        AddGroup : function(){
+            var modalInstance = $uibModal.open({
+                animation: true,
+                ariaLabelledBy: 'modal-title',
+                ariaDescribedBy: 'modal-body',
+                templateUrl: 'addGroupModalContent.html',
+                controller: 'AddGroupModalInstanceCtrl',
+                controllerAs: '$ctrl',
+            });
+
+            modalInstance.result.then(function(selectedItem) {
+                // console.log(selectedItem);
+
+                RestfulApi.InsertMSSQLData({
+                    insertname: 'Insert',
+                    table: 6,
+                    params: {
+                        SG_TITLE : selectedItem.TITLE,
+                        SG_DESC  : selectedItem.DESC
+                    }
+                }).then(function(res) {
+                    console.log(res);
+
+                    if(res["returnData"] == 1){
+                        LoadGroup();
+                    }
+
+                    // $state.reload()
+                });
+            }, function() {
+                // $log.info('Modal dismissed at: ' + new Date());
+            });
         }
 	})
 
-	function LoadAccount(){        
-        Account.get().then(function (res){
-            $vm.accountData = res;
-        }); 
+	function LoadAccount(){    
+        RestfulApi.SearchMSSQLData({
+            querymain: 'accountManagement',
+            queryname: 'SelectAllUserInfoNotWithAdmin'
+        }).then(function (res){
+            $vm.accountData = res["returnData"];
+        }).finally(function() {
+            HandleWindowResize($vm.accountManagementGridApi);
+        });    
 	}
+
+    function LoadGroup(){    
+        RestfulApi.SearchMSSQLData({
+            querymain: 'accountManagement',
+            queryname: 'SelectAllGroup'
+        }).then(function (res){
+            $vm.groupData = res["returnData"];
+        }).finally(function() {
+            HandleWindowResize($vm.groupManagementOptions);
+        });    
+    }
 
 })
 .controller('AddAccountModalInstanceCtrl', function ($uibModalInstance, role, depart) {
@@ -124,3 +245,14 @@ angular.module('app.settings').controller('AccountManagementCtrl', function ($sc
         $uibModalInstance.dismiss('cancel');
     };
 })
+.controller('AddGroupModalInstanceCtrl', function ($uibModalInstance) {
+    var $ctrl = this;
+
+    $ctrl.ok = function() {
+        $uibModalInstance.close($ctrl.items);
+    };
+
+    $ctrl.cancel = function() {
+        $uibModalInstance.dismiss('cancel');
+    };
+});

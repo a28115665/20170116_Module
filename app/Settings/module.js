@@ -57,6 +57,44 @@ angular.module('app.settings').config(function ($stateProvider){
         }
     })
 
+    .state('app.settings.accountmanagement.group', {
+        url: '/group',
+        data: {
+            title: 'Group Management'
+        },
+        params: { 
+            data: null
+        },
+        views: {
+            "content@app" : {
+                templateUrl: 'app/Settings/views/group.html',
+                controller: 'GroupCtrl',
+                controllerAs: '$vm',
+                resolve: {
+                    bool: function (SysCode, $q){
+
+                        var deferred = $q.defer();
+
+                        SysCode.get('Boolean').then(function (res){
+                            var finalData = [];
+
+                            for(var i in res){
+                                finalData.push({
+                                    value: (i == 'true'), 
+                                    key: res[i]
+                                });
+                            }
+
+                            deferred.resolve(finalData);
+                        });
+
+                        return deferred.promise;
+                    }
+                }
+            }
+        }
+    })
+
     .state('app.settings.billboardeditor', {
         url: '/settings/billboardeditor',
         data: {
@@ -68,7 +106,12 @@ angular.module('app.settings').config(function ($stateProvider){
                 controller: 'BillboardEditorCtrl',
                 controllerAs: '$vm',
                 resolve: {
-                    
+                    boolFilter: function (SysCodeFilter){
+                        return SysCodeFilter.get('Boolean');
+                    },
+                    ioTypeFilter: function (SysCodeFilter){
+                        return SysCodeFilter.get('IOType');
+                    }
                 }
             }
         }
@@ -88,8 +131,24 @@ angular.module('app.settings').config(function ($stateProvider){
                 controller: 'NewsCtrl',
                 controllerAs: '$vm',
                 resolve: {
-                    bool: function (SysCode){
-                        return SysCode.get('Boolean');
+                    bool: function (SysCode, $q){
+
+                        var deferred = $q.defer();
+
+                        SysCode.get('Boolean').then(function (res){
+                            var finalData = [];
+
+                            for(var i in res){
+                                finalData.push({
+                                    value: (i == 'true'), 
+                                    key: res[i]
+                                });
+                            }
+
+                            deferred.resolve(finalData);
+                        });
+
+                        return deferred.promise;
                     },
                     ioType: function (SysCode){
                         return SysCode.get('IOType');
@@ -98,4 +157,22 @@ angular.module('app.settings').config(function ($stateProvider){
             }
         }
     })
+
+    .state('app.settings.externalmanagement', {
+        url: '/settings/externalmanagement',
+        data: {
+            title: 'External Management'
+        },
+        views: {
+            "content@app" : {
+                templateUrl: 'app/Settings/views/externalManagement.html',
+                controller: 'ExternalManagementCtrl',
+                controllerAs: '$vm',
+                resolve: {
+                    
+                }
+            }
+        }
+    })
+
 });

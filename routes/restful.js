@@ -158,15 +158,14 @@ router.get('/crudByTask', function(req, res) {
 
     tasks.push(dbCommandByTask.TransactionCommit);
     tasks.push(dbCommandByTask.DisConnect);
+    console.log(tasks);
 
     async.waterfall(tasks, function (err, args) {
         if (err) {
             dbCommandByTask.TransactionRollback(args, function (err, result){
                 
             });
-            // res.json({
-            //     err : err
-            // });
+            console.log(err);
 
             res.status(500).send('任務失敗');
             // process.exit();

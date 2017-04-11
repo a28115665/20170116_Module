@@ -42,6 +42,18 @@ module.exports = function(pQueryname, pParams){
 				_SQLCommand += " AND SC_STS = @SC_STS";
 			}
 			break;
+		case "SelectAllGroup":
+			_SQLCommand += "SELECT SG_GCODE, \
+								   SG_TITLE, \
+								   SG_DESC,  \
+								   SG_STS    \
+						   FROM SYS_GROUP \
+						   WHERE 1=1";
+			if(pParams["SC_TYPE"] !== undefined){
+				_SQLCommand += " AND SC_TYPE = @SC_TYPE";
+			}
+			_SQLCommand += " ORDER BY SG_CR_DATETIME DESC ";
+			break;
 	}
 
 	return _SQLCommand;

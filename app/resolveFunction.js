@@ -1,19 +1,3 @@
-function AccountResolve (RestfulApi, $q) {
-    return {
-        get : function(){
-            var deferred = $q.defer();
-
-            RestfulApi.SearchMSSQLData({
-                querymain: 'accountManagement',
-                queryname: 'SelectAllUserInfoNotWithAdmin'
-            }).then(function (res){
-                deferred.resolve(res["returnData"]);
-            });
-
-            return deferred.promise;
-        }
-    };
-};
 function SysCodeResolve (RestfulApi, $q){
     return {
         get : function(pType){
@@ -34,6 +18,38 @@ function SysCodeResolve (RestfulApi, $q){
                     finalData[data[i].SC_CODE] = data[i].SC_DESC
                 }
                 
+                deferred.resolve(finalData);
+            }, function (err){
+                deferred.reject({});
+            });
+            
+            return deferred.promise;
+        }
+    };
+};
+function SysCodeFilterResolve (RestfulApi, $q){
+    return {
+        get : function(pType){
+            var deferred = $q.defer();
+            
+            RestfulApi.SearchMSSQLData({
+                querymain: 'accountManagement',
+                queryname: 'SelectAllSysCode',
+                params: {
+                    SC_TYPE : pType,
+                    SC_STS : false
+                }
+            }).then(function (res){
+                var data = res["returnData"] || [],
+                    finalData = [];
+
+                for(var i in data){
+                    finalData.push({
+                        value: data[i].SC_CODE,
+                        label: data[i].SC_DESC
+                    });
+                }
+
                 deferred.resolve(finalData);
             }, function (err){
                 deferred.reject({});

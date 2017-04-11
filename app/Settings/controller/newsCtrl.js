@@ -12,19 +12,25 @@ angular.module('app.settings').controller('NewsCtrl', function ($scope, $statePa
     // };
 
     var $vm = this,
+        _tasks = [],
         _d = new Date(),
-        _filepath = _d.getFullYear() + '/' + ("0" + (_d.getMonth()+1)).slice(-2) + '/' + ("0" + _d.getDate()).slice(-2) + '/';
-
-    // 初始化設定
-    if($stateParams.data == null){
-        // $vm.POST_FROM = $filter('date')(_d, 'yyyyMMdd');
-        // $vm.POST_TOXX = $filter('date')(_d, 'yyyyMMdd');
-        $vm.STICK_TOP = "false";
-        $vm.IO_TYPE = "All";
-        $vm.CONTENT = "";
-    }
+        _filepath = _d.getFullYear() + '\\' + ("0" + (_d.getMonth()+1)).slice(-2) + '\\' + ("0" + _d.getDate()).slice(-2) + '\\';
 
     angular.extend(this, {
+        Init : function(){
+            // 不正常登入此頁面
+            // if($stateParams.data == null) ReturnToBillboardEditorPage();
+            if($stateParams.data == null){
+                $vm.vmData = {
+                    STICK_TOP : false,
+                    IO_TYPE : "All",
+                    CONTENT : "",
+                    IU : "Add"
+                }
+            }else{
+                $vm.vmData = $stateParams.data;
+            }
+        },
         profile : Session.Get(),
         boolData : bool,
         ioTypeData : ioType,
@@ -55,14 +61,19 @@ angular.module('app.settings').controller('NewsCtrl', function ($scope, $statePa
                 size: 'lg',
                 // appendTo: parentElem,
                 resolve: {
-                    items: function() {
-                        return $vm.profile;
+                    vmData: function(){
+                        return $vm.vmData;
+                    },
+                    ioTypeFilter: function(SysCodeFilter){
+                        return SysCodeFilter.get('IOType');
                     }
                 }
             });
 
             modalInstance.result.then(function(selectedItem) {
-                // $ctrl.selected = selectedItem;
+                // console.log(selectedItem);
+                $vm.vmData.PostGoal = angular.copy(selectedItem);
+                console.log($vm.vmData);
             }, function() {
                 // $log.info('Modal dismissed at: ' + new Date());
             });
@@ -72,66 +83,41 @@ angular.module('app.settings').controller('NewsCtrl', function ($scope, $statePa
             ReturnToBillboardEditorPage();
         },
         Add : function(){
-            console.log($vm);
-            var ioTypePromise = null;
-            switch($vm.IO_TYPE){
-                case "In":
-                case "Out": 
-                    ioTypePromise = RestfulApi.InsertMSSQLData({
-                        insertname: 'Insert',
-                        table: 1,
-                        params: {
-                            BB_TITLE : $vm.TITLE,
-                            BB_CONTENT : $vm.CONTENT,
-                            BB_POST_FROM : $vm.POST_FROM,
-                            BB_POST_TOXX : $vm.POST_TOXX,
-                            BB_IO_TYPE : $vm.IO_TYPE,
-                            BB_CR_USER : $vm.profile.U_ID,
-                            BB_CR_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss')
-                        }
-                    });
-                    break;
-                case "All":
-                    ioTypePromise = RestfulApi.CRUDMSSQLDataByTask([
-                        {
-                            crudType: 'Insert',
-                            table: 1,
-                            params: {
-                                BB_TITLE : $vm.TITLE,
-                                BB_CONTENT : $vm.CONTENT,
-                                BB_POST_FROM : $vm.POST_FROM,
-                                BB_POST_TOXX : $vm.POST_TOXX,
-                                BB_IO_TYPE : "In",
-                                BB_CR_USER : $vm.profile.U_ID,
-                                BB_CR_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss')
-                            }
-                        },
-                        {
-                            crudType: 'Insert',
-                            table: 1,
-                            params: {
-                                BB_TITLE : $vm.TITLE,
-                                BB_CONTENT : $vm.CONTENT,
-                                BB_POST_FROM : $vm.POST_FROM,
-                                BB_POST_TOXX : $vm.POST_TOXX,
-                                BB_IO_TYPE : "Out",
-                                BB_CR_USER : $vm.profile.U_ID,
-                                BB_CR_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss')
-                            }
-                        }
-                    ]);
-                    break;
+            console.log($vm.vmData);
+
+            // Insert 主表
+            _tasks.push({
+                crudType: 'Insert',
+                table: 1,
+                params: {
+                    BB_TITLE : $vm.vmData.TITLE,
+                    BB_CONTENT : $vm.vmData.CONTENT,
+                    BB_POST_FROM : $vm.vmData.POST_FROM,
+                    BB_POST_TOXX : $vm.vmData.POST_TOXX,
+                    BB_IO_TYPE : $vm.vmData.IO_TYPE,
+                    BB_CR_USER : $vm.profile.U_ID,
+                    BB_CR_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss')
+                }
+            });
+
+            // Insert 公佈對象
+            for(var i in DeleteAndInsertPostGoal()){
+                _tasks.push(DeleteAndInsertPostGoal()[i]);
             }
 
-            ioTypePromise.then(function (res) {
-                console.log(res);
-                // 上傳所有檔案
-                // if($vm.uploader.getNotUploadedItems().length > 0){
-                //     $vm.uploader.uploadAll();
-                // }
-            }, function (err) {
-                console.log(err);
-            });
+            // 有上傳檔案 先上傳檔案之後再Insert DB
+            if($vm.uploader.getNotUploadedItems().length > 0){
+                $vm.uploader.uploadAll();
+            }
+            // 無上傳檔案 直接Insert DB
+            else{
+                RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res) {
+                    console.log(res);
+                    ReturnToBillboardEditorPage();
+                }, function (err) {
+                    console.log(err);
+                });
+            }
         }
     });
 
@@ -233,8 +219,8 @@ angular.module('app.settings').controller('NewsCtrl', function ($scope, $statePa
         console.info('onCompleteItem', fileItem, response, status, headers);
         if(status == 200){
             // 儲存每個上傳檔案的資訊
-            RestfulApi.InsertMSSQLData({
-                insertname: 'Insert',
+            _tasks.push({
+                crudType: 'Insert',
                 table: 2,
                 params: {
                     BBAF_O_FILENAME : response.oFilename,
@@ -243,10 +229,6 @@ angular.module('app.settings').controller('NewsCtrl', function ($scope, $statePa
                     BBAF_CR_USER : $vm.profile.U_ID,
                     BBAF_CR_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss')
                 }
-            }).then(function (res) {
-                console.log(res["returnData"]);
-            }, function (err) {
-                toaster.pop('error', "訊息", err, 3000);
             });
         }else{
             toaster.pop('error', "檔案上傳失敗", response.oFilename, 3000);
@@ -254,21 +236,129 @@ angular.module('app.settings').controller('NewsCtrl', function ($scope, $statePa
     };
     $vm.uploader.onCompleteAll = function() {
         console.info('onCompleteAll');
+
+        RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res) {
+            console.log(res);
+            ReturnToBillboardEditorPage();
+        }, function (err) {
+            console.log(err);
+        });
+    };
+
+    var DeleteAndInsertPostGoal = function(){
+        var _task = [];
+
+        // 表示為Update
+        if($vm.vmData.IU == "Update"){
+            _task.push({
+                crudType: 'Delete',
+                table: 3,
+                params: {
+                    BBPG_CR_USER : $vm.vmData.CR_USER,
+                    BBPG_CR_DATETIME : $vm.vmData.CR_DATETIME
+                }
+            });
+        }
+
+        for(var i in $vm.vmData["PostGoal"]){
+            _task.push({
+                crudType: 'Insert',
+                table: 3,
+                params: {
+                    BBPG_CR_USER : $vm.profile.U_ID,
+                    BBPG_CR_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss'),
+                    BBPG_GOAL_ID : $vm.vmData.PostGoal[i].CODE
+                }
+            });
+        }
+
+        return _task;
     };
 
     function ReturnToBillboardEditorPage(){
+        if(_tasks.length > 0){
+            toaster.success("狀態", "資料上傳成功", 3000);    
+        }
         $state.transitionTo("app.settings.billboardeditor");
     };
 })
-.controller('AddPostGoalModalInstanceCtrl', function ($uibModalInstance, items) {
+.controller('AddPostGoalModalInstanceCtrl', function ($uibModalInstance, vmData, RestfulApi, $timeout, $filter, ioTypeFilter, uiGridConstants) {
     var $ctrl = this;
-    $ctrl.items = items;
-    $ctrl.selected = {
-        item: $ctrl.items[0]
+    $ctrl.mdData = [];
+
+    $ctrl.MdInit = function (){
+        // 拿掉All
+        ioTypeFilter.shift();
+
+        var _request = null;
+
+        switch(vmData.IO_TYPE){ 
+            case "In":
+                _request = {
+                    querymain: 'news',
+                    queryname: 'SelectSysGroup'
+                };
+                break;
+            case "Out":
+                _request = {
+                    querymain: 'news',
+                    queryname: 'SelectCompyInfo'
+                };
+                break;
+            case "All":
+                _request = {
+                    querymain: 'news',
+                    queryname: 'SelectSysGroupUnionCompyInfo'
+                };
+                break;
+        }
+
+        if (_request == null) return;
+
+        RestfulApi.SearchMSSQLData(_request).then(function (res){
+            // console.log(res["returnData"]);
+            $ctrl.mdData = res["returnData"];
+            // 把已被選取的帳號打勾
+            $timeout(function() {
+                if($ctrl.mdDataGridApi.selection.selectRow){
+                    for(var i in vmData.PostGoal){
+                        $ctrl.mdDataGridApi.selection.selectRow($filter('filter')($ctrl.mdData, {CODE: vmData.PostGoal[i].CODE})[0]);
+                    }
+                }
+            });
+        }).finally(function() {
+            HandleWindowResize($vm.mdDataGridApi);
+        });
+    };
+
+    $ctrl.mdDataOptions = {
+        data:  '$ctrl.mdData',
+        columnDefs: [
+            { name: 'CODE'     , displayName: '系統代碼' },
+            { name: 'NAME'     , displayName: '名稱' },
+            { name: 'IO_TYPE'  , displayName: '公佈類型', cellFilter: 'ioTypeFilter', filter: 
+                {
+                    term: null,
+                    type: uiGridConstants.filter.SELECT,
+                    selectOptions: ioTypeFilter
+                }
+            }
+        ],
+        enableSorting: false,
+        enableColumnMenus: false,
+        enableFiltering: true,
+        enableRowSelection: true,
+        enableSelectAll: true,
+        selectionRowHeaderWidth: 35,
+        paginationPageSizes: [10, 25, 50],
+        paginationPageSize: 10,
+        onRegisterApi: function(gridApi){ 
+            $ctrl.mdDataGridApi = gridApi;
+        } 
     };
 
     $ctrl.ok = function() {
-        $uibModalInstance.close($ctrl.selected.item);
+        $uibModalInstance.close($ctrl.mdDataGridApi.selection.getSelectedRows());
     };
 
     $ctrl.cancel = function() {

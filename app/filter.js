@@ -61,4 +61,51 @@ angular.module('app')
 
 	return FilterFunction;
 
+})
+.filter('ioTypeFilter', function (SysCode) {
+
+	var resData = {};
+
+	SysCode.get('IOType').then(function (res){
+		resData = res
+	});
+
+	var FilterFunction = function (input){
+		if (!input) {
+		    return '';
+		} else {
+		    return resData[input];
+		}
+
+	}
+
+	// 持續偵測
+	FilterFunction.$stateful = true;
+
+	return FilterFunction;
+
+})
+.filter('dateFilter', function ($filter) {
+
+	return function (input){
+		if (!input) {
+		    return '';
+		} else {
+		    return $filter('date')(input.replace(/\Z/g, ''), 'yyyy-MM-dd');
+		}
+
+	};
+
+})
+.filter('datetimeFilter', function ($filter) {
+
+	return function (input){
+		if (!input) {
+		    return '';
+		} else {
+		    return $filter('date')(input.replace(/\Z/g, ''), 'yyyy-MM-dd HH:mm:ss');
+		}
+
+	};
+
 });

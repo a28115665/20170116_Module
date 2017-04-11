@@ -84,7 +84,7 @@ router.post('/uploadFile', function(req, res) {
     try{
         req.pipe(req.busboy);
         req.busboy.on('file', function(fieldname, file, filename) {
-            var _filepath =  '/upload/file/' + req.query["filePath"],
+            var _filepath =  '\\upload\\file\\' + req.query["filePath"],
                 _dir = path.dirname(module.parent.filename) + _filepath;
 
             mkdirp(_dir, function(err) { 
@@ -102,7 +102,7 @@ router.post('/uploadFile', function(req, res) {
                     res.json({
                         oFilename: filename,
                         rFilename: _filename,
-                        Filepath: _filepath
+                        Filepath: _dir
                     });
                 });
             });
