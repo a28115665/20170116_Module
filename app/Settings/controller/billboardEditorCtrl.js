@@ -27,7 +27,10 @@ angular.module('app.settings').controller('BillboardEditorCtrl', function ($scop
         gridMethod : {
             //編輯
             modifyData : function(row){
-                console.log(row);
+                // console.log(row);
+                $state.transitionTo("app.settings.billboardeditor.news", {
+                    data: row.entity
+                });
             }
         },
         billboardEditorOptions : {
@@ -43,6 +46,7 @@ angular.module('app.settings').controller('BillboardEditorCtrl', function ($scop
                 { name: 'BB_POST_FROM'   , displayName: '開始日期', cellFilter: 'dateFilter' },
                 { name: 'BB_POST_TOXX'   , displayName: '結束日期', cellFilter: 'dateFilter' },
                 { name: 'BB_TITLE'       , displayName: '標題' },
+                { name: 'BB_CONTENT'     , visible: false },
                 { name: 'BB_IO_TYPE'     , displayName: '公佈類型', cellFilter: 'ioTypeFilter', filter: 
                     {
                         term: null,

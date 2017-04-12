@@ -7,6 +7,7 @@ module.exports = function(pQueryname, pParams){
 									BB_POST_FROM, \
 									BB_POST_TOXX, \
 									BB_TITLE, \
+									BB_CONTENT, \
 									BB_IO_TYPE, \
 									BB_CR_USER, \
 									BB_CR_DATETIME \

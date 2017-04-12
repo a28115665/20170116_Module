@@ -3728,27 +3728,6 @@ angular.module('app.auth').directive('loginInfo', function(User){
     }
 })
 
-
-
-'use strict';
-
-angular.module('app.auth').factory('User', function ($http, $q, APP_CONFIG) {
-    var dfd = $q.defer();
-
-    var UserModel = {
-        initialized: dfd.promise,
-        username: undefined,
-        picture: undefined
-    };
-     $http.get(APP_CONFIG.apiRootUrl + '/user.json').then(function(response){
-         UserModel.username = response.data.username;
-         UserModel.picture= response.data.picture;
-         dfd.resolve(UserModel)
-     });
-
-    return UserModel;
-});
-
 "use strict";
 
 angular.module('app.auth').controller('LoginCtrl', function ($scope, $state, GooglePlus, User, ezfb) {
@@ -3771,6 +3750,27 @@ angular.module('app.auth').controller('LoginCtrl', function ($scope, $state, Goo
         });
     });
 })
+
+
+
+'use strict';
+
+angular.module('app.auth').factory('User', function ($http, $q, APP_CONFIG) {
+    var dfd = $q.defer();
+
+    var UserModel = {
+        initialized: dfd.promise,
+        username: undefined,
+        picture: undefined
+    };
+     $http.get(APP_CONFIG.apiRootUrl + '/user.json').then(function(response){
+         UserModel.username = response.data.username;
+         UserModel.picture= response.data.picture;
+         dfd.resolve(UserModel)
+     });
+
+    return UserModel;
+});
 
 'use strict';
 
@@ -6153,7 +6153,10 @@ angular.module('app.settings').controller('BillboardEditorCtrl', function ($scop
         gridMethod : {
             //編輯
             modifyData : function(row){
-                console.log(row);
+                // console.log(row);
+                $state.transitionTo("app.settings.billboardeditor.news", {
+                    data: row.entity
+                });
             }
         },
         billboardEditorOptions : {
@@ -6169,6 +6172,7 @@ angular.module('app.settings').controller('BillboardEditorCtrl', function ($scop
                 { name: 'BB_POST_FROM'   , displayName: '開始日期', cellFilter: 'dateFilter' },
                 { name: 'BB_POST_TOXX'   , displayName: '結束日期', cellFilter: 'dateFilter' },
                 { name: 'BB_TITLE'       , displayName: '標題' },
+                { name: 'BB_CONTENT'     , visible: false },
                 { name: 'BB_IO_TYPE'     , displayName: '公佈類型', cellFilter: 'ioTypeFilter', filter: 
                     {
                         term: null,
@@ -6463,13 +6467,18 @@ angular.module('app.settings').controller('NewsCtrl', function ($scope, $statePa
             // if($stateParams.data == null) ReturnToBillboardEditorPage();
             if($stateParams.data == null){
                 $vm.vmData = {
-                    STICK_TOP : false,
-                    IO_TYPE : "All",
-                    CONTENT : "",
+                    BB_STICK_TOP : false,
+                    BB_IO_TYPE : "All",
+                    BB_CONTENT : "",
+                    UploadedData : [],
                     IU : "Add"
                 }
             }else{
                 $vm.vmData = $stateParams.data;
+                $vm.vmData["IU"] = "Update";
+
+                LoadBBPG();
+                LoadBBAF();
             }
         },
         profile : Session.Get(),
@@ -6520,6 +6529,48 @@ angular.module('app.settings').controller('NewsCtrl', function ($scope, $statePa
             });
 
         },
+        /**
+         * [DeleteUploaded description] 刪除已上傳檔案
+         * @param {[type]} pDeleteUploaded [description] 檔案
+         * @param {[type]} pIndex          [description] array index
+         */
+        DeleteUploaded : function(pDeleteUploaded, pIndex){
+            var modalInstance = $uibModal.open({
+                animation: true,
+                ariaLabelledBy: 'modal-title',
+                ariaDescribedBy: 'modal-body',
+                templateUrl: 'isDelete.html',
+                controller: 'IsDeleteModalInstanceCtrl',
+                controllerAs: '$ctrl',
+                size: 'sm',
+                resolve: {
+                    items: function () {
+                        return pDeleteUploaded;
+                    }
+                }
+            });
+
+            modalInstance.result.then(function(selectedItem) {
+                // console.log(selectedItem);
+
+                RestfulApi.UpdateMSSQLData({
+                    updatename: 'Update',
+                    table: 2,
+                    params: {
+                        BBAF_SOFT_DELETE : true
+                    },
+                    condition: {
+                        BBAF_ID : selectedItem.BBAF_ID
+                    }
+                }).then(function (res) {
+                    $vm.vmData.UploadedData.splice(pIndex, 1);
+                }, function (err) {
+
+                });
+            }, function() {
+                // $log.info('Modal dismissed at: ' + new Date());
+            });
+        },
         Return : function(){
             ReturnToBillboardEditorPage();
         },
@@ -6531,11 +6582,11 @@ angular.module('app.settings').controller('NewsCtrl', function ($scope, $statePa
                 crudType: 'Insert',
                 table: 1,
                 params: {
-                    BB_TITLE : $vm.vmData.TITLE,
-                    BB_CONTENT : $vm.vmData.CONTENT,
-                    BB_POST_FROM : $vm.vmData.POST_FROM,
-                    BB_POST_TOXX : $vm.vmData.POST_TOXX,
-                    BB_IO_TYPE : $vm.vmData.IO_TYPE,
+                    BB_TITLE : $vm.vmData.BB_TITLE,
+                    BB_CONTENT : $vm.vmData.BB_CONTENT,
+                    BB_POST_FROM : $vm.vmData.BB_POST_FROM,
+                    BB_POST_TOXX : $vm.vmData.BB_POST_TOXX,
+                    BB_IO_TYPE : $vm.vmData.BB_IO_TYPE,
                     BB_CR_USER : $vm.profile.U_ID,
                     BB_CR_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss')
                 }
@@ -6559,6 +6610,9 @@ angular.module('app.settings').controller('NewsCtrl', function ($scope, $statePa
                     console.log(err);
                 });
             }
+        },
+        Update : function(){
+            console.log($vm.vmData);
         }
     });
 
@@ -6667,6 +6721,7 @@ angular.module('app.settings').controller('NewsCtrl', function ($scope, $statePa
                     BBAF_O_FILENAME : response.oFilename,
                     BBAF_R_FILENAME : response.rFilename,
                     BBAF_FILEPATH : response.Filepath,
+                    BBAF_FILESIZE : response.Filesize,
                     BBAF_CR_USER : $vm.profile.U_ID,
                     BBAF_CR_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss')
                 }
@@ -6695,8 +6750,8 @@ angular.module('app.settings').controller('NewsCtrl', function ($scope, $statePa
                 crudType: 'Delete',
                 table: 3,
                 params: {
-                    BBPG_CR_USER : $vm.vmData.CR_USER,
-                    BBPG_CR_DATETIME : $vm.vmData.CR_DATETIME
+                    BBPG_CR_USER : $vm.vmData.BB_CR_USER,
+                    BBPG_CR_DATETIME : $vm.vmData.BB_CR_DATETIME
                 }
             });
         }
@@ -6716,6 +6771,34 @@ angular.module('app.settings').controller('NewsCtrl', function ($scope, $statePa
         return _task;
     };
 
+    function LoadBBPG(){
+        RestfulApi.SearchMSSQLData({
+            querymain: 'news',
+            queryname: 'SelectBBPG',
+            params: {
+                BBPG_CR_USER: $vm.vmData.BB_CR_USER,
+                BBPG_CR_DATETIME: $vm.vmData.BB_CR_DATETIME
+            }
+        }).then(function (res){
+            console.log(res["returnData"]);
+            $vm.vmData.PostGoal = res["returnData"];
+        });
+    };
+
+    function LoadBBAF(){
+        RestfulApi.SearchMSSQLData({
+            querymain: 'news',
+            queryname: 'SelectBBAF',
+            params: {
+                BBAF_CR_USER: $vm.vmData.BB_CR_USER,
+                BBAF_CR_DATETIME: $vm.vmData.BB_CR_DATETIME
+            }
+        }).then(function (res){
+            console.log(res["returnData"]);
+            $vm.vmData.UploadedData = res["returnData"];
+        });
+    };
+
     function ReturnToBillboardEditorPage(){
         if(_tasks.length > 0){
             toaster.success("狀態", "資料上傳成功", 3000);    
@@ -6733,7 +6816,7 @@ angular.module('app.settings').controller('NewsCtrl', function ($scope, $statePa
 
         var _request = null;
 
-        switch(vmData.IO_TYPE){ 
+        switch(vmData.BB_IO_TYPE){ 
             case "In":
                 _request = {
                     querymain: 'news',
@@ -11316,6 +11399,153 @@ angular.module('app.tables').directive('jqGrid', function ($compile) {
         }
     }
 });
+"use strict";
+
+angular.module('SmartAdmin.Layout').directive('fullScreen', function(){
+    return {
+        restrict: 'A',
+        link: function(scope, element){
+            var $body = $('body');
+            var toggleFullSceen = function(e){
+                if (!$body.hasClass("full-screen")) {
+                    $body.addClass("full-screen");
+                    if (document.documentElement.requestFullscreen) {
+                        document.documentElement.requestFullscreen();
+                    } else if (document.documentElement.mozRequestFullScreen) {
+                        document.documentElement.mozRequestFullScreen();
+                    } else if (document.documentElement.webkitRequestFullscreen) {
+                        document.documentElement.webkitRequestFullscreen();
+                    } else if (document.documentElement.msRequestFullscreen) {
+                        document.documentElement.msRequestFullscreen();
+                    }
+                } else {
+                    $body.removeClass("full-screen");
+                    if (document.exitFullscreen) {
+                        document.exitFullscreen();
+                    } else if (document.mozCancelFullScreen) {
+                        document.mozCancelFullScreen();
+                    } else if (document.webkitExitFullscreen) {
+                        document.webkitExitFullscreen();
+                    }
+                }
+            };
+
+            element.on('click', toggleFullSceen);
+
+        }
+    }
+});
+"use strict";
+
+angular.module('SmartAdmin.Layout').directive('minifyMenu', function(){
+    return {
+        restrict: 'A',
+        link: function(scope, element){
+                var $body = $('body');
+            var minifyMenu = function() {
+                if (!$body.hasClass("menu-on-top")) {
+                    $body.toggleClass("minified");
+                    $body.removeClass("hidden-menu");
+                    $('html').removeClass("hidden-menu-mobile-lock");
+                }
+            };
+
+            element.on('click', minifyMenu);
+        }
+    }
+})
+'use strict';
+
+angular.module('SmartAdmin.Layout').directive('reloadState', function ($rootScope) {
+    return {
+        restrict: 'A',
+        compile: function (tElement, tAttributes) {
+            tElement.removeAttr('reload-state data-reload-state');
+            tElement.on('click', function (e) {
+                $rootScope.$state.transitionTo($rootScope.$state.current, $rootScope.$stateParams, {
+                    reload: true,
+                    inherit: false,
+                    notify: true
+                });
+                e.preventDefault();
+            })
+        }
+    }
+});
+
+"use strict";
+
+angular.module('SmartAdmin.Layout').directive('resetWidgets', function($state){
+
+    return {
+        restrict: 'A',
+        link: function(scope, element){
+            element.on('click', function(){
+                $.SmartMessageBox({
+                    title : "<i class='fa fa-refresh' style='color:green'></i> Clear Local Storage",
+                    content : "Would you like to RESET all your saved widgets and clear LocalStorage?1",
+                    buttons : '[No][Yes]'
+                }, function(ButtonPressed) {
+                    if (ButtonPressed == "Yes" && localStorage) {
+                        localStorage.clear();
+                        location.reload()
+                    }
+                });
+
+            });
+        }
+    }
+
+});
+
+'use strict';
+
+angular.module('SmartAdmin.Layout').directive('searchMobile', function () {
+    return {
+        restrict: 'A',
+        compile: function (element, attributes) {
+            element.removeAttr('search-mobile data-search-mobile');
+
+            element.on('click', function (e) {
+                $('body').addClass('search-mobile');
+                e.preventDefault();
+            });
+
+            $('#cancel-search-js').on('click', function (e) {
+                $('body').removeClass('search-mobile');
+                e.preventDefault();
+            });
+        }
+    }
+});
+"use strict";
+
+angular.module('SmartAdmin.Layout').directive('toggleMenu', function(){
+    return {
+        restrict: 'A',
+        link: function(scope, element){
+            var $body = $('body');
+
+            var toggleMenu = function(){
+                if (!$body.hasClass("menu-on-top")){
+                    $('html').toggleClass("hidden-menu-mobile-lock");
+                    $body.toggleClass("hidden-menu");
+                    $body.removeClass("minified");
+                } else if ( $body.hasClass("menu-on-top") && $body.hasClass("mobile-view-activated") ) {
+                    $('html').toggleClass("hidden-menu-mobile-lock");
+                    $body.toggleClass("hidden-menu");
+                    $body.removeClass("minified");
+                }
+            };
+
+            element.on('click', toggleMenu);
+
+            scope.$on('requestToggleMenu', function(){
+                toggleMenu();
+            });
+        }
+    }
+});
 'use strict';
 
 angular.module('SmartAdmin.Layout').directive('bigBreadcrumbs', function ($rootScope) {
@@ -12392,153 +12622,6 @@ angular.module('SmartAdmin.Layout').directive('stateBreadcrumbs', function ($roo
             $rootScope.$on('$stateChangeStart', function (event, state) {
                 processState(state);
             })
-        }
-    }
-});
-"use strict";
-
-angular.module('SmartAdmin.Layout').directive('fullScreen', function(){
-    return {
-        restrict: 'A',
-        link: function(scope, element){
-            var $body = $('body');
-            var toggleFullSceen = function(e){
-                if (!$body.hasClass("full-screen")) {
-                    $body.addClass("full-screen");
-                    if (document.documentElement.requestFullscreen) {
-                        document.documentElement.requestFullscreen();
-                    } else if (document.documentElement.mozRequestFullScreen) {
-                        document.documentElement.mozRequestFullScreen();
-                    } else if (document.documentElement.webkitRequestFullscreen) {
-                        document.documentElement.webkitRequestFullscreen();
-                    } else if (document.documentElement.msRequestFullscreen) {
-                        document.documentElement.msRequestFullscreen();
-                    }
-                } else {
-                    $body.removeClass("full-screen");
-                    if (document.exitFullscreen) {
-                        document.exitFullscreen();
-                    } else if (document.mozCancelFullScreen) {
-                        document.mozCancelFullScreen();
-                    } else if (document.webkitExitFullscreen) {
-                        document.webkitExitFullscreen();
-                    }
-                }
-            };
-
-            element.on('click', toggleFullSceen);
-
-        }
-    }
-});
-"use strict";
-
-angular.module('SmartAdmin.Layout').directive('minifyMenu', function(){
-    return {
-        restrict: 'A',
-        link: function(scope, element){
-                var $body = $('body');
-            var minifyMenu = function() {
-                if (!$body.hasClass("menu-on-top")) {
-                    $body.toggleClass("minified");
-                    $body.removeClass("hidden-menu");
-                    $('html').removeClass("hidden-menu-mobile-lock");
-                }
-            };
-
-            element.on('click', minifyMenu);
-        }
-    }
-})
-'use strict';
-
-angular.module('SmartAdmin.Layout').directive('reloadState', function ($rootScope) {
-    return {
-        restrict: 'A',
-        compile: function (tElement, tAttributes) {
-            tElement.removeAttr('reload-state data-reload-state');
-            tElement.on('click', function (e) {
-                $rootScope.$state.transitionTo($rootScope.$state.current, $rootScope.$stateParams, {
-                    reload: true,
-                    inherit: false,
-                    notify: true
-                });
-                e.preventDefault();
-            })
-        }
-    }
-});
-
-"use strict";
-
-angular.module('SmartAdmin.Layout').directive('resetWidgets', function($state){
-
-    return {
-        restrict: 'A',
-        link: function(scope, element){
-            element.on('click', function(){
-                $.SmartMessageBox({
-                    title : "<i class='fa fa-refresh' style='color:green'></i> Clear Local Storage",
-                    content : "Would you like to RESET all your saved widgets and clear LocalStorage?1",
-                    buttons : '[No][Yes]'
-                }, function(ButtonPressed) {
-                    if (ButtonPressed == "Yes" && localStorage) {
-                        localStorage.clear();
-                        location.reload()
-                    }
-                });
-
-            });
-        }
-    }
-
-});
-
-'use strict';
-
-angular.module('SmartAdmin.Layout').directive('searchMobile', function () {
-    return {
-        restrict: 'A',
-        compile: function (element, attributes) {
-            element.removeAttr('search-mobile data-search-mobile');
-
-            element.on('click', function (e) {
-                $('body').addClass('search-mobile');
-                e.preventDefault();
-            });
-
-            $('#cancel-search-js').on('click', function (e) {
-                $('body').removeClass('search-mobile');
-                e.preventDefault();
-            });
-        }
-    }
-});
-"use strict";
-
-angular.module('SmartAdmin.Layout').directive('toggleMenu', function(){
-    return {
-        restrict: 'A',
-        link: function(scope, element){
-            var $body = $('body');
-
-            var toggleMenu = function(){
-                if (!$body.hasClass("menu-on-top")){
-                    $('html').toggleClass("hidden-menu-mobile-lock");
-                    $body.toggleClass("hidden-menu");
-                    $body.removeClass("minified");
-                } else if ( $body.hasClass("menu-on-top") && $body.hasClass("mobile-view-activated") ) {
-                    $('html').toggleClass("hidden-menu-mobile-lock");
-                    $body.toggleClass("hidden-menu");
-                    $body.removeClass("minified");
-                }
-            };
-
-            element.on('click', toggleMenu);
-
-            scope.$on('requestToggleMenu', function(){
-                toggleMenu();
-            });
         }
     }
 });
@@ -14178,6 +14261,24 @@ angular.module('SmartAdmin.Forms').directive('smartXeditable', function($timeout
 });
 'use strict';
 
+angular.module('SmartAdmin.Forms').directive('smartDropzone', function () {
+    return function (scope, element, attrs) {
+        var config, dropzone;
+
+        config = scope[attrs.smartDropzone];
+
+        // create a Dropzone for the element with the given options
+        dropzone = new Dropzone(element[0], config.options);
+
+        // bind the given event handlers
+        angular.forEach(config.eventHandlers, function (handler, event) {
+            dropzone.on(event, handler);
+        });
+    };
+});
+
+'use strict';
+
 angular.module('SmartAdmin.Forms').directive('smartValidateForm', function (formsCommon) {
     return {
         restrict: 'A',
@@ -14370,24 +14471,6 @@ angular.module('SmartAdmin.Forms').directive('smartWizard', function () {
         }
     }
 });
-'use strict';
-
-angular.module('SmartAdmin.Forms').directive('smartDropzone', function () {
-    return function (scope, element, attrs) {
-        var config, dropzone;
-
-        config = scope[attrs.smartDropzone];
-
-        // create a Dropzone for the element with the given options
-        dropzone = new Dropzone(element[0], config.options);
-
-        // bind the given event handlers
-        angular.forEach(config.eventHandlers, function (handler, event) {
-            dropzone.on(event, handler);
-        });
-    };
-});
-
 'use strict';
 
 angular.module('SmartAdmin.Layout').directive('demoStates', function ($rootScope) {

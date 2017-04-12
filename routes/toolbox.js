@@ -97,12 +97,14 @@ router.post('/uploadFile', function(req, res) {
                 }
                 var stream = fsExtra.createWriteStream(_dir + _filename);
                 file.pipe(stream);
+                var _filesize = file._readableState.length;
                 stream.on('close', function() {
                     // console.log('File ' + filename + ' is uploaded');
                     res.json({
                         oFilename: filename,
                         rFilename: _filename,
-                        Filepath: _dir
+                        Filepath: _dir,
+                        Filesize: _filesize
                     });
                 });
             });
