@@ -877,125 +877,6 @@ angular.module('app.eCommerce', ['ui.router'])
 
 "use strict";
 
-angular.module('app.graphs', [
-    'ui.router'
-]).config(function ($stateProvider) {
-    $stateProvider
-        .state('app.graphs', {
-            abstract: true,
-            data: {
-                title: 'Graphs'
-            }
-        })
-
-        .state('app.graphs.flot', {
-            url: '/graphs/flot',
-            data: {
-                title: 'Flot Charts'
-            },
-            views: {
-                "content@app": {
-                    controller: 'FlotCtrl',
-                    templateUrl: "app/graphs/views/flot-charts.html"
-                }
-            }
-        })
-
-        .state('app.graphs.morris', {
-            url: '/graphs/morris',
-            data: {
-                title: 'Morris Charts'
-            },
-            views: {
-                "content@app": {
-                    templateUrl: "app/graphs/views/morris-charts.html"
-                }
-            },
-            resolve: {
-                scripts: function(lazyScript){
-                    return lazyScript.register([
-                        'build/vendor.graphs.js'
-                    ]);
-                }
-            }
-        })
-
-        .state('app.graphs.sparkline', {
-            url: '/graphs/sparkline',
-            data: {
-                title: 'Sparklines'
-            },
-            views: {
-                "content@app": {
-                    templateUrl: "app/graphs/views/sparkline.html"
-                }
-            }
-        })
-        .state('app.graphs.easyPieCharts', {
-            url: '/graphs/easy-pie',
-            data: {
-                title: 'Easy Pie Charts'
-            },
-            views: {
-                "content@app": {
-                    templateUrl: "app/graphs/views/easy-pie-charts.html"
-                }
-            }
-        })
-
-        .state('app.graphs.dygraphs', {
-            url: '/graphs/dygraphs',
-            data: {
-                title: 'Dygraphs Charts'
-            },
-            views: {
-                "content@app": {
-                    templateUrl: "app/graphs/views/dygraphs-charts.html"
-                }
-            },
-            resolve: {
-                scripts: function(lazyScript){
-                    return lazyScript.register([
-                        'build/vendor.graphs.js'
-                    ]);
-                }
-            }
-        })
-
-        .state('app.graphs.chartjs', {
-            url: '/graphs/chartjs',
-            data: {
-                title: 'Chart.js'
-            },
-            views: {
-                "content@app": {
-                    templateUrl: "app/graphs/views/chartjs-charts.html"
-                }
-            },
-            resolve: {
-                scripts: function(lazyScript){
-                    return lazyScript.register([
-                        'build/vendor.graphs.js'
-                    ]);
-                }
-            }
-        })
-
-
-        .state('app.graphs.highchartTables', {
-            url: '/graphs/highchart-tables',
-            data: {
-                title: 'Highchart Tables'
-            },
-            views: {
-                "content@app": {
-                    templateUrl: "app/graphs/views/highchart-tables.html"
-                }
-            }
-        })
-});
-"use strict";
-
 
 angular.module('app.forms', ['ui.router'])
 
@@ -1188,6 +1069,125 @@ angular.module('app.forms').config(function ($stateProvider) {
 
 
 });
+"use strict";
+
+angular.module('app.graphs', [
+    'ui.router'
+]).config(function ($stateProvider) {
+    $stateProvider
+        .state('app.graphs', {
+            abstract: true,
+            data: {
+                title: 'Graphs'
+            }
+        })
+
+        .state('app.graphs.flot', {
+            url: '/graphs/flot',
+            data: {
+                title: 'Flot Charts'
+            },
+            views: {
+                "content@app": {
+                    controller: 'FlotCtrl',
+                    templateUrl: "app/graphs/views/flot-charts.html"
+                }
+            }
+        })
+
+        .state('app.graphs.morris', {
+            url: '/graphs/morris',
+            data: {
+                title: 'Morris Charts'
+            },
+            views: {
+                "content@app": {
+                    templateUrl: "app/graphs/views/morris-charts.html"
+                }
+            },
+            resolve: {
+                scripts: function(lazyScript){
+                    return lazyScript.register([
+                        'build/vendor.graphs.js'
+                    ]);
+                }
+            }
+        })
+
+        .state('app.graphs.sparkline', {
+            url: '/graphs/sparkline',
+            data: {
+                title: 'Sparklines'
+            },
+            views: {
+                "content@app": {
+                    templateUrl: "app/graphs/views/sparkline.html"
+                }
+            }
+        })
+        .state('app.graphs.easyPieCharts', {
+            url: '/graphs/easy-pie',
+            data: {
+                title: 'Easy Pie Charts'
+            },
+            views: {
+                "content@app": {
+                    templateUrl: "app/graphs/views/easy-pie-charts.html"
+                }
+            }
+        })
+
+        .state('app.graphs.dygraphs', {
+            url: '/graphs/dygraphs',
+            data: {
+                title: 'Dygraphs Charts'
+            },
+            views: {
+                "content@app": {
+                    templateUrl: "app/graphs/views/dygraphs-charts.html"
+                }
+            },
+            resolve: {
+                scripts: function(lazyScript){
+                    return lazyScript.register([
+                        'build/vendor.graphs.js'
+                    ]);
+                }
+            }
+        })
+
+        .state('app.graphs.chartjs', {
+            url: '/graphs/chartjs',
+            data: {
+                title: 'Chart.js'
+            },
+            views: {
+                "content@app": {
+                    templateUrl: "app/graphs/views/chartjs-charts.html"
+                }
+            },
+            resolve: {
+                scripts: function(lazyScript){
+                    return lazyScript.register([
+                        'build/vendor.graphs.js'
+                    ]);
+                }
+            }
+        })
+
+
+        .state('app.graphs.highchartTables', {
+            url: '/graphs/highchart-tables',
+            data: {
+                title: 'Highchart Tables'
+            },
+            views: {
+                "content@app": {
+                    templateUrl: "app/graphs/views/highchart-tables.html"
+                }
+            }
+        })
+});
 'use strict';
 
 angular.module('app.inbox', [
@@ -1358,31 +1358,7 @@ angular.module('app.mainwork').config(function ($stateProvider){
                 controller: 'MainWorkCtrl',
                 controllerAs: '$vm',
                 resolve: {
-                    billboardData: function (RestfulApi, $q) {
-                        var deferred = $q.defer();
-
-                        RestfulApi.SearchMSSQLData({
-                            querymain: 'main',
-                            queryname: 'SelectAllBillboard'
-                        }).then(function (res){
-                            var data = res["returnData"] || [],
-                                finalData = [];
-
-                            for(var i in data){
-                                finalData.push({
-                                    BB_STICK_TOP    : data[i]['BB_STICK_TOP'],
-                                    BB_POST_FROM    : data[i]['BB_POST_FROM'],
-                                    BB_TITLE  : data[i]['BB_TITLE'],
-                                    BB_CONTENT : data[i]['BB_CONTENT'],
-                                    BB_CR_Name  : data[i]['BB_CR_Name']
-                                });
-                            }
-
-                            deferred.resolve(finalData);
-                        });
-
-                        return deferred.promise;
-                    }
+                    
                 }
             }
         }
@@ -3039,8 +3015,18 @@ angular.module('app')
 angular.module('app')
 .run(function ($templateCache){
 	$templateCache.put('accessibilityIsTop', '<div class="ui-grid-cell-contents text-center">\
-                                          			<i class="fa fa-lock" ng-if="row.entity.BB_IsTop == 1"></i>\
+                                          			<i class="fa fa-lock" ng-if="row.entity.BB_STICK_TOP"></i>\
                                        		  </div>');
+    $templateCache.put('accessibilityTitleURL', '<div class="ui-grid-cell-contents">\
+                                                <a href="javascript:void(0);" style="text-decoration:none" ng-click="grid.appScope.$vm.gridMethod.showNews(row)">{{row.entity.BB_TITLE}}</a>\
+                                              </div>');
+    $templateCache.put('accessibilityFileCounts', '<div class="ui-grid-cell-contents text-center">\
+                                                <span class="badge bg-color-orange">{{row.entity.BBAF_COUNTS}}</span>\
+                                              </div>');
+    $templateCache.put('accessibilityToOnceDownload', '<div class="ui-grid-cell-contents text-center">\
+                                                <a href="javascript:void(0);" class="btn btn-default txt-color-pink btn-xs" href="#" ng-click="grid.appScope.$vm.gridMethod.onceDownload(row)" ng-disabled="row.entity.BBAF_COUNTS == 0"><i class="fa fa-download fa-lg"></i></a>\
+                                            </div>');
+    
 	$templateCache.put('accessibilityToS', '<div class="ui-grid-cell-contents text-center">\
                                       			<a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethod.selectData(row)"> 領單</a>\
                                    		  	</div>');
@@ -3058,15 +3044,15 @@ angular.module('app')
                                     				<a href="javascript:void(0);" class="btn btn-primary btn-xs" ng-click="grid.appScope.swejVM.gridMethod.banData(row)"> 加入黑名單</a>\
                                     				<a href="javascript:void(0);" class="btn btn-danger btn-xs" ng-click="grid.appScope.swejVM.gridMethod.alertData(row)"> 通報前線</a>\
                                		  		  </div>');
-  $templateCache.put('accessibilityToMDForAccount', '<div class="ui-grid-cell-contents text-center">\
+    $templateCache.put('accessibilityToMDForAccount', '<div class="ui-grid-cell-contents text-center">\
                                             <a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridAccountMethod.modifyData(row)"> {{$parent.$root.getWord(\'Modify\')}}</a>\
                                             <a href="javascript:void(0);" class="btn btn-danger btn-xs" ng-click="grid.appScope.$vm.gridAccountMethod.deleteData(row)"> {{$parent.$root.getWord(\'Delete\')}}</a>\
                                           </div>');
-  $templateCache.put('accessibilityToMDForGroup', '<div class="ui-grid-cell-contents text-center">\
+    $templateCache.put('accessibilityToMDForGroup', '<div class="ui-grid-cell-contents text-center">\
                                             <a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridGroupMethod.modifyData(row)"> {{$parent.$root.getWord(\'Modify\')}}</a>\
                                             <a href="javascript:void(0);" class="btn btn-danger btn-xs" ng-click="grid.appScope.$vm.gridGroupMethod.deleteData(row)"> {{$parent.$root.getWord(\'Delete\')}}</a>\
                                           </div>');
-  $templateCache.put('accessibilityToM', '<div class="ui-grid-cell-contents text-center">\
+    $templateCache.put('accessibilityToM', '<div class="ui-grid-cell-contents text-center">\
                                             <a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethod.modifyData(row)"> {{$parent.$root.getWord(\'Modify\')}}</a>\
                                           </div>');
 })
@@ -5358,126 +5344,142 @@ angular.module('app').directive('toggleShortcut', function($log,$timeout) {
 })
 "use strict";
 
-angular.module('app.mainwork').controller('MainWorkCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, billboardData) {
+angular.module('app.mainwork').controller('MainWorkCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, RestfulApi) {
     
-    var $vm = this;
-
-    var cellClass = function(grid, row, col, rowRenderIndex, colRenderIndex) {
-        if (row.entity.BB_IsTop == 1) {
-            return 'bg-color-lighten';
-        }
-    }
+    var $vm = this,
+        cellClass = function(grid, row, col, rowRenderIndex, colRenderIndex) {
+            if (row.entity.BB_STICK_TOP) {
+                return 'bg-color-lighten';
+            }
+        };
 
     angular.extend(this, {
-        profile : Session.Get(),
-        billboardOptions : {
-            data:  billboardData,
-            columnDefs: [
-                { name: 'BB_STICK_TOP',    displayName: '置頂', cellClass: cellClass, cellTemplate: $templateCache.get('accessibilityIsTop'), width: '5%' },
-                { name: 'BB_EXPECTED_POST', displayName: '公佈時間', cellClass: cellClass },
-                { name: 'BB_TITLE',    displayName: '標題', cellClass: cellClass },
-                { name: 'BB_CONTENT',  displayName: '內容', cellClass: cellClass },
-                { name: 'BB_CR_Name',  displayName: '公佈人員名稱', cellClass: cellClass }
-            ],
-            enableFiltering: false,
-            enableSorting: false,
-            enableColumnMenus: false,
-            // enableVerticalScrollbar: false,
-            paginationPageSizes: [10, 25, 50],
-            paginationPageSize: 10
+        Init : function(){
+            LoadBB();
         },
+        profile : Session.Get(),
         gridMethod : {
-            //Select
-            selectData : function(row){
+            // 顯示消息
+            showNews : function(row){
+                console.log(row.entity);
+                var modalInstance = $uibModal.open({
+                    animation: true,
+                    ariaLabelledBy: 'modal-title',
+                    ariaDescribedBy: 'modal-body',
+                    templateUrl: 'news.html',
+                    controller: 'NewsModalInstanceCtrl',
+                    controllerAs: '$ctrl',
+                    size: 'lg',
+                    resolve: {
+                        vmData: function () {
+                            return row.entity;
+                        }
+                    }
+                });
+
+                modalInstance.result.then(function(selectedItem) {
+                    
+                }, function() {
+                    // $log.info('Modal dismissed at: ' + new Date());
+                });
+            },
+            // 一次下載所有檔案
+            onceDownload : function(row){
                 console.log(row);
             }
         },
-        allOrdersOptions : {
-            data:  [
-                {
-                    a : '2017-02-09',
-                    b : '297-64659291',
-                    c : '2017-01-15',
-                    d : 'CI5822',
-                    e : 'HK',
-                    f : '新桥供应链',
-                    g : true
-                },
-                {
-                    a : '2017-02-09',
-                    b : '297-64659292',
-                    c : '2017-01-15',
-                    d : 'CI5822',
-                    e : 'HK',
-                    f : '新桥供应链',
-                    g : false
-                },
-            ],
+        billboardOptions : {
+            data:  '$vm.billboardData',
             columnDefs: [
-                { name: 'a',        displayName: '提單日期' },
-                { name: 'b',        displayName: '主號' },
-                { name: 'c',        displayName: '進口日期' },
-                { name: 'd',        displayName: '班機' },
-                { name: 'e',        displayName: '啟運國別' },
-                { name: 'f',        displayName: '寄件人或公司' },
-                { name: 'g',        displayName: '是否已領單', visible: false },
-                { name: 'options',  displayName: '操作', cellTemplate: $templateCache.get('accessibilityToS') }
+                { name: 'BB_STICK_TOP', displayName: '置頂', cellClass: cellClass, cellTemplate: $templateCache.get('accessibilityIsTop'), width: '5%' },
+                { name: 'BB_POST_FROM', displayName: '開始公佈時間', cellFilter: 'dateFilter', cellClass: cellClass },
+                { name: 'BB_POST_TOXX', displayName: '結束公佈時間', cellFilter: 'dateFilter', cellClass: cellClass },
+                { name: 'BB_TITLE',     displayName: '標題', cellClass: cellClass, cellTemplate: $templateCache.get('accessibilityTitleURL') },
+                { name: 'BB_CONTENT',   displayName: '內容', visible: false, cellClass: cellClass },
+                { name: 'BB_CR_DATETIME',   visible: false },
+                { name: 'BBAF_COUNTS',  displayName: '附件量', width: '5%', cellClass: cellClass, cellTemplate: $templateCache.get('accessibilityFileCounts') },
+                { name: 'U_NAME',       displayName: '公佈人員名稱', visible: false, cellClass: cellClass },
+                { name: 'Options'     , displayName: '下載', width: '7%', enableFiltering: false, cellClass: cellClass, cellTemplate: $templateCache.get('accessibilityToOnceDownload') }
             ],
             enableFiltering: false,
             enableSorting: false,
             enableColumnMenus: false,
             // enableVerticalScrollbar: false,
             paginationPageSizes: [10, 25, 50],
-            paginationPageSize: 10
-        }
-    });
-    // this.profile = Session.Get();
-
-    $vm.Editor = function (pProfile){
-        console.log(pProfile);
-        var modalInstance = $uibModal.open({
-            animation: true,
-            ariaLabelledBy: 'modal-title',
-            ariaDescribedBy: 'modal-body',
-            templateUrl: 'myModalContent.html',
-            controller: 'ModalInstanceCtrl',
-            controllerAs: '$ctrl',
-            size: 'lg',
-            // appendTo: parentElem,
-            resolve: {
-                items: function() {
-                    return pProfile;
-                }
+            paginationPageSize: 10,
+            onRegisterApi: function(gridApi){
+                $vm.billboardGridApi = gridApi;
             }
-        });
+        },
+        // gridMethod : {
+        //     //Select
+        //     selectData : function(row){
+        //         console.log(row);
+        //     }
+        // },
+        // allOrdersOptions : {
+        //     data:  [
+        //         {
+        //             a : '2017-02-09',
+        //             b : '297-64659291',
+        //             c : '2017-01-15',
+        //             d : 'CI5822',
+        //             e : 'HK',
+        //             f : '新桥供应链',
+        //             g : true
+        //         },
+        //         {
+        //             a : '2017-02-09',
+        //             b : '297-64659292',
+        //             c : '2017-01-15',
+        //             d : 'CI5822',
+        //             e : 'HK',
+        //             f : '新桥供应链',
+        //             g : false
+        //         },
+        //     ],
+        //     columnDefs: [
+        //         { name: 'a',        displayName: '提單日期' },
+        //         { name: 'b',        displayName: '主號' },
+        //         { name: 'c',        displayName: '進口日期' },
+        //         { name: 'd',        displayName: '班機' },
+        //         { name: 'e',        displayName: '啟運國別' },
+        //         { name: 'f',        displayName: '寄件人或公司' },
+        //         { name: 'g',        displayName: '是否已領單', visible: false },
+        //         { name: 'options',  displayName: '操作', cellTemplate: $templateCache.get('accessibilityToS') }
+        //     ],
+        //     enableFiltering: false,
+        //     enableSorting: false,
+        //     enableColumnMenus: false,
+        //     // enableVerticalScrollbar: false,
+        //     paginationPageSizes: [10, 25, 50],
+        //     paginationPageSize: 10
+        // }
+    });
 
-        modalInstance.result.then(function(selectedItem) {
-            // $ctrl.selected = selectedItem;
-        }, function() {
-            // $log.info('Modal dismissed at: ' + new Date());
+    function LoadBB(){
+        RestfulApi.SearchMSSQLData({
+            querymain: 'main',
+            queryname: 'SelectAllBillboard'
+        }).then(function (res){
+            $vm.billboardData = res["returnData"];
+        }).finally(function() {
+            HandleWindowResize($vm.billboardGridApi);
         });
-
     }
-
-    // $scope.Login = function(mlVM){
-    //     console.log(mlVM);
-    //     AuthApi.Login({
-    //         queryname: 'SelectAllUserInfo',
-    //         params: {
-    //             U_ID : mlVM.userid,
-    //             U_PW : mlVM.password
-    //         }
-    //     }).then(function(res) {
-    //         // console.log(res);
-    //         if(res.data["returnData"] && res.data["returnData"].length > 0){
-    //             toaster.success("狀態", "登入成功", 3000);
-    //             $state.transitionTo("app.dashboard");
-    //         }else{                
-    //             toaster.error("狀態", "帳號密碼錯誤", 3000);
-    //         }
-    //     });
-    // }
 })
+.controller('NewsModalInstanceCtrl', function ($uibModalInstance, vmData) {
+    var $ctrl = this;
+    $ctrl.mdData = vmData;
+
+    $ctrl.ok = function() {
+        $uibModalInstance.close();
+    };
+
+    $ctrl.cancel = function() {
+        $uibModalInstance.dismiss('cancel');
+    };
+});
 'use strict';
 
 angular.module('app.maps').controller('MapsDemoCtrl',
