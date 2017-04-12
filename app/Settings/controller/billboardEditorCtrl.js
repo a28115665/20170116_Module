@@ -74,6 +74,50 @@ angular.module('app.settings').controller('BillboardEditorCtrl', function ($scop
         },
         DeleteNews : function(){
             console.log($vm.billboardEditorGridApi.selection.getSelectedRows());
+
+            var modalInstance = $uibModal.open({
+                animation: true,
+                ariaLabelledBy: 'modal-title',
+                ariaDescribedBy: 'modal-body',
+                templateUrl: 'isDelete.html',
+                controller: 'IsDeleteModalInstanceCtrl',
+                controllerAs: '$ctrl',
+                size: 'sm',
+                resolve: {
+                    items: function () {
+                        return $vm.billboardEditorGridApi.selection.getSelectedRows();
+                    }
+                }
+            });
+
+            modalInstance.result.then(function(selectedItem) {
+                console.log(selectedItem);
+
+                var _tasks = [];
+
+                for(var i in selectedItem){
+                    _tasks.push({
+                        crudType: 'Update',
+                        table: 1,
+                        params: {
+                            BB_SOFT_DELETE : true
+                        },
+                        condition: {
+                            BB_CR_USER : selectedItem[i].BB_CR_USER,
+                            BB_CR_DATETIME : selectedItem[i].BB_CR_DATETIME
+                        }
+                    });
+                }
+
+                RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res) {
+                    toaster.pop('success', '訊息', '公佈區刪除成功', 3000);
+                    LoadBillboardEditor();
+                }, function (err) {
+
+                });
+            }, function() {
+                // $log.info('Modal dismissed at: ' + new Date());
+            });
         },
         billboardHistoryOptions : {
             data: '$vm.billboardHistoryData',
@@ -109,6 +153,54 @@ angular.module('app.settings').controller('BillboardEditorCtrl', function ($scop
             onRegisterApi: function(gridApi){
                 $vm.billboardHistoryGridApi = gridApi;
             }
+        },
+        DeleteHistoryNews : function(){
+            console.log($vm.billboardHistoryGridApi.selection.getSelectedRows());
+
+            var modalInstance = $uibModal.open({
+                animation: true,
+                ariaLabelledBy: 'modal-title',
+                ariaDescribedBy: 'modal-body',
+                templateUrl: 'isDelete.html',
+                controller: 'IsDeleteModalInstanceCtrl',
+                controllerAs: '$ctrl',
+                size: 'sm',
+                resolve: {
+                    items: function () {
+                        return $vm.billboardHistoryGridApi.selection.getSelectedRows();
+                    }
+                }
+            });
+
+            modalInstance.result.then(function(selectedItem) {
+                console.log(selectedItem);
+
+                var _tasks = [];
+
+                for(var i in selectedItem){
+                    _tasks.push({
+                        crudType: 'Update',
+                        table: 1,
+                        params: {
+                            BB_SOFT_DELETE : true
+                        },
+                        condition: {
+                            BB_CR_USER : selectedItem[i].BB_CR_USER,
+                            BB_CR_DATETIME : selectedItem[i].BB_CR_DATETIME
+                        }
+                    });
+                }
+
+                RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res) {
+                    toaster.pop('success', '訊息', '歷史區刪除成功', 3000);
+                    LoadBillboardHistory();
+                }, function (err) {
+
+                });
+            }, function() {
+                // $log.info('Modal dismissed at: ' + new Date());
+            });
+            
         }
     });
 

@@ -15,7 +15,7 @@ angular.module('app.auth').controller('MainLoginCtrl', function ($scope, $stateP
             // console.log(res);
             if(res["returnData"] && res["returnData"].length > 0){
                 toaster.success("狀態", "登入成功", 3000);
-                $state.transitionTo("app.dashboard");
+                $state.transitionTo("app.mainwork");
             }else{                
                 toaster.error("狀態", "帳號密碼錯誤", 3000);
             }

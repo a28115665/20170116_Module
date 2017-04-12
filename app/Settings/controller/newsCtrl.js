@@ -32,6 +32,8 @@ angular.module('app.settings').controller('NewsCtrl', function ($scope, $statePa
                 $vm.vmData = $stateParams.data;
                 $vm.vmData["IU"] = "Update";
 
+                _d = $vm.vmData["BB_CR_DATETIME"].replace(/\Z/g, '');
+
                 LoadBBPG();
                 LoadBBAF();
             }
@@ -141,6 +143,7 @@ angular.module('app.settings').controller('NewsCtrl', function ($scope, $statePa
                     BB_CONTENT : $vm.vmData.BB_CONTENT,
                     BB_POST_FROM : $vm.vmData.BB_POST_FROM,
                     BB_POST_TOXX : $vm.vmData.BB_POST_TOXX,
+                    BB_STICK_TOP : $vm.vmData.BB_STICK_TOP,
                     BB_IO_TYPE : $vm.vmData.BB_IO_TYPE,
                     BB_CR_USER : $vm.profile.U_ID,
                     BB_CR_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss')
@@ -168,6 +171,45 @@ angular.module('app.settings').controller('NewsCtrl', function ($scope, $statePa
         },
         Update : function(){
             console.log($vm.vmData);
+
+            // Update 主表
+            _tasks.push({
+                crudType: 'Update',
+                table: 1,
+                params: {
+                    BB_TITLE : $vm.vmData.BB_TITLE,
+                    BB_CONTENT : $vm.vmData.BB_CONTENT,
+                    BB_POST_FROM : $vm.vmData.BB_POST_FROM,
+                    BB_POST_TOXX : $vm.vmData.BB_POST_TOXX,
+                    BB_STICK_TOP : $vm.vmData.BB_STICK_TOP,
+                    BB_IO_TYPE : $vm.vmData.BB_IO_TYPE,
+                    BB_UP_USER : $vm.profile.U_ID,
+                    BB_UP_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss')
+                },
+                condition: {
+                    BB_CR_USER : $vm.vmData.BB_CR_USER,
+                    BB_CR_DATETIME : $vm.vmData.BB_CR_DATETIME
+                }
+            });
+
+            // Delete And Insert 公佈對象
+            for(var i in DeleteAndInsertPostGoal()){
+                _tasks.push(DeleteAndInsertPostGoal()[i]);
+            }
+
+            // 有上傳檔案 先上傳檔案之後再Insert DB
+            if($vm.uploader.getNotUploadedItems().length > 0){
+                $vm.uploader.uploadAll();
+            }
+            // 無上傳檔案 直接Insert DB
+            else{
+                RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res) {
+                    console.log(res);
+                    ReturnToBillboardEditorPage();
+                }, function (err) {
+                    console.log(err);
+                });
+            }
         }
     });
 
@@ -312,15 +354,30 @@ angular.module('app.settings').controller('NewsCtrl', function ($scope, $statePa
         }
 
         for(var i in $vm.vmData["PostGoal"]){
-            _task.push({
-                crudType: 'Insert',
-                table: 3,
-                params: {
-                    BBPG_CR_USER : $vm.profile.U_ID,
-                    BBPG_CR_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss'),
-                    BBPG_GOAL_ID : $vm.vmData.PostGoal[i].CODE
+            if($vm.vmData.BB_IO_TYPE == 'All'){
+                _task.push({
+                    crudType: 'Insert',
+                    table: 3,
+                    params: {
+                        BBPG_CR_USER : $vm.profile.U_ID,
+                        BBPG_CR_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss'),
+                        BBPG_GOAL_ID : $vm.vmData.PostGoal[i].CODE
+                    }
+                });
+            }else{
+                // 當所有變成對內或對外時的判斷
+                if($vm.vmData.PostGoal[i].IO_TYPE == $vm.vmData.BB_IO_TYPE){
+                    _task.push({
+                        crudType: 'Insert',
+                        table: 3,
+                        params: {
+                            BBPG_CR_USER : $vm.profile.U_ID,
+                            BBPG_CR_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss'),
+                            BBPG_GOAL_ID : $vm.vmData.PostGoal[i].CODE
+                        }
+                    });
                 }
-            });
+            }
         }
 
         return _task;

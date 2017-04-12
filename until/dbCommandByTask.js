@@ -106,10 +106,11 @@ var UpdateRequestWithTransaction = function(task, args, callback) {
 	// console.log("UpdateRequestWithTransaction:");
 	var request = new sql.Request(args.transaction),
 		SQLCommand = "",
+		psParams = extend({}, task.params, task.condition)
 		Schema = [],
 		Condition = [];
 
-	schemaType.SchemaType2(task.params, request, sql);
+	schemaType.SchemaType2(psParams, request, sql);
 
 	for(var key in task.params){
 		Schema.push(key + "=@" + key);
@@ -231,6 +232,21 @@ function requestSql(request, sql, callback) {
             callback(errors, {});
         }
     });
+}
+
+/**
+ * [extend 合併Object]
+ * @param  {[type]} target [需要被合併的Objects]
+ * @return {[type]}        [回傳合併後的Object]
+ */
+function extend(target) {
+    var sources = [].slice.call(arguments, 1);
+    sources.forEach(function (source) {
+        for (var prop in source) {
+            target[prop] = source[prop];
+        }
+    });
+    return target;
 }
 
 module.exports = {
