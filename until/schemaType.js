@@ -31,23 +31,8 @@ var SchemaType = function (params, ps, sql){
         	// console.log(key);
 			var type = null;
 			// 判斷Schema是哪種類型
-			switch(DatabaseSchema[key]["DATA_TYPE"]){
-				case "int":
-					type = sql.Int;
-					break;
-				case "bit":
-					type = sql.Bit;
-					break;
-				case "varchar":
-					type = sql.VarChar(DatabaseSchema[key]["CHARACTER_MAXIMUM_LENGTH"]);
-					break;
-				case "nvarchar":
-					type = sql.NVarChar(DatabaseSchema[key]["CHARACTER_MAXIMUM_LENGTH"]);
-					break;
-				case "datetime":
-					type = sql.VarChar(30);
-					break;
-			}
+			type = GiveSchemaType(type, sql, DatabaseSchema[key]);
+
 			ps.input(key, type);
 		}
 	}
@@ -65,26 +50,36 @@ var SchemaType2 = function (params, request, sql){
         	// console.log(key);
 			var type = null;
 			// 判斷Schema是哪種類型
-			switch(DatabaseSchema[key]["DATA_TYPE"]){
-				case "int":
-					type = sql.Int;
-					break;
-				case "bit":
-					type = sql.Bit;
-					break;
-				case "varchar":
-					type = sql.VarChar(DatabaseSchema[key]["CHARACTER_MAXIMUM_LENGTH"]);
-					break;
-				case "nvarchar":
-					type = sql.NVarChar(DatabaseSchema[key]["CHARACTER_MAXIMUM_LENGTH"]);
-					break;
-				case "datetime":
-					type = sql.VarChar(30);
-					break;
-			}
+			type = GiveSchemaType(type, sql, DatabaseSchema[key]);
+
 			request.input(key, type, params[key]);
 		}
 	}
+};
+
+function GiveSchemaType(pType, pSql, pSchema){
+	switch(pSchema["DATA_TYPE"]){
+		case "int":
+			pType = pSql.Int;
+			break;
+		case "bit":
+			pType = pSql.Bit;
+			break;
+		case "varchar":
+			pType = pSql.VarChar(pSchema["CHARACTER_MAXIMUM_LENGTH"]);
+			break;
+		case "nvarchar":
+			pType = pSql.NVarChar(pSchema["CHARACTER_MAXIMUM_LENGTH"]);
+			break;
+		case "datetime":
+			pType = pSql.VarChar(30);
+			break;
+		case "date":
+			pType = pSql.VarChar(30);
+			break;
+	}
+
+	return pType;
 };
 
 module.exports.SchemaType = SchemaType;

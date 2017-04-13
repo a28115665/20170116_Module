@@ -1328,7 +1328,7 @@ angular.module('app.layout', ['ui.router'])
                 }
             }
         });
-    $urlRouterProvider.otherwise('/dashboard');
+    $urlRouterProvider.otherwise('/mainwork');
 
 })
 
@@ -1358,31 +1358,7 @@ angular.module('app.mainwork').config(function ($stateProvider){
                 controller: 'MainWorkCtrl',
                 controllerAs: '$vm',
                 resolve: {
-                    billboardData: function (RestfulApi, $q) {
-                        var deferred = $q.defer();
-
-                        RestfulApi.SearchMSSQLData({
-                            querymain: 'main',
-                            queryname: 'SelectAllBillboard'
-                        }).then(function (res){
-                            var data = res["returnData"] || [],
-                                finalData = [];
-
-                            for(var i in data){
-                                finalData.push({
-                                    BB_STICK_TOP    : data[i]['BB_STICK_TOP'],
-                                    BB_POST_FROM    : data[i]['BB_POST_FROM'],
-                                    BB_TITLE  : data[i]['BB_TITLE'],
-                                    BB_CONTENT : data[i]['BB_CONTENT'],
-                                    BB_CR_Name  : data[i]['BB_CR_Name']
-                                });
-                            }
-
-                            deferred.resolve(finalData);
-                        });
-
-                        return deferred.promise;
-                    }
+                    
                 }
             }
         }
@@ -2718,6 +2694,19 @@ angular.module('app')
                     }
                 }
             }
+        ),
+        DOWNLOADFILES : $resource('/toolbox/downloadFiles', null, 
+            {
+                'postByArraybuffer': { 
+                    method: 'GET',
+                    responseType : 'arraybuffer',
+                    transformResponse: function(data) {
+                        return {
+                            response: new Blob([data], { type: 'application/zip, application/octet-stream' })
+                        };
+                    }
+                }
+            }
         )
     };
 })
@@ -2832,6 +2821,13 @@ angular.module('app')
 		    return $filter('date')(input.replace(/\Z/g, ''), 'yyyy-MM-dd HH:mm:ss');
 		}
 
+	};
+
+})
+.filter('dataMBSize', function () {
+
+	return function (input){
+		return angular.isUndefined(input) ? '' : (parseInt(input)/1024/1024).toFixed(2) + ' MB';
 	};
 
 });
@@ -3034,13 +3030,53 @@ angular.module('app')
 	    	});
 
 	    return deferred.promise
+	},
+
+	this.DownloadFiles = function (dataSrc) {
+	    // console.log(dataSrc);
+	    var deferred = $q.defer();
+
+	    Resource.DOWNLOADFILES.postByArraybuffer(dataSrc,
+	    	function (pSResponse){
+
+	    		var objectUrl = URL.createObjectURL(pSResponse["response"]);
+                var link = document.createElement('a');
+                if (typeof link.download === 'string') {
+                    // Firefox requires the link to be in the body
+                    document.body.appendChild(link); 
+                    link.download = angular.isUndefined(dataSrc.filename) ? '未知' : dataSrc.filename ;
+                    link.href = objectUrl;
+                    link.click();
+                    // remove the link when done
+                    document.body.removeChild(link); 
+                } else {
+                    location.replace(objectUrl);
+                }
+
+				deferred.resolve(pSResponse);
+			},
+	    	function (pFResponse){
+	    		deferred.reject(pFResponse.data);
+	    	});
+
+	    return deferred.promise
 	}
 });
 angular.module('app')
 .run(function ($templateCache){
 	$templateCache.put('accessibilityIsTop', '<div class="ui-grid-cell-contents text-center">\
-                                          			<i class="fa fa-lock" ng-if="row.entity.BB_IsTop == 1"></i>\
+                                          			<i class="fa fa-lock" ng-if="row.entity.BB_STICK_TOP"></i>\
                                        		  </div>');
+    $templateCache.put('accessibilityTitleURL', '<div class="ui-grid-cell-contents">\
+                                                <a href="javascript:void(0);" style="text-decoration:none" ng-click="grid.appScope.$vm.gridMethod.showNews(row)">{{row.entity.BB_TITLE}}</a>\
+                                              </div>');
+    $templateCache.put('accessibilityFileCounts', '<div class="ui-grid-cell-contents text-center">\
+                                                <span class="badge bg-color-orange">{{row.entity.BBAF_COUNTS}}</span>\
+                                              </div>');
+    $templateCache.put('accessibilityToOnceDownload', '<div class="ui-grid-cell-contents text-center">\
+                                                <a href="javascript:void(0);" class="btn btn-default txt-color-pink btn-xs" href="#" ng-click="grid.appScope.$vm.gridMethod.downloadFiles(row)"><i class="fa fa-download fa-lg"></i></a>\
+                                            </div>');
+    
 	$templateCache.put('accessibilityToS', '<div class="ui-grid-cell-contents text-center">\
                                       			<a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethod.selectData(row)"> 領單</a>\
                                    		  	</div>');
@@ -3058,15 +3094,15 @@ angular.module('app')
                                     				<a href="javascript:void(0);" class="btn btn-primary btn-xs" ng-click="grid.appScope.swejVM.gridMethod.banData(row)"> 加入黑名單</a>\
                                     				<a href="javascript:void(0);" class="btn btn-danger btn-xs" ng-click="grid.appScope.swejVM.gridMethod.alertData(row)"> 通報前線</a>\
                                		  		  </div>');
-  $templateCache.put('accessibilityToMDForAccount', '<div class="ui-grid-cell-contents text-center">\
+    $templateCache.put('accessibilityToMDForAccount', '<div class="ui-grid-cell-contents text-center">\
                                             <a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridAccountMethod.modifyData(row)"> {{$parent.$root.getWord(\'Modify\')}}</a>\
                                             <a href="javascript:void(0);" class="btn btn-danger btn-xs" ng-click="grid.appScope.$vm.gridAccountMethod.deleteData(row)"> {{$parent.$root.getWord(\'Delete\')}}</a>\
                                           </div>');
-  $templateCache.put('accessibilityToMDForGroup', '<div class="ui-grid-cell-contents text-center">\
+    $templateCache.put('accessibilityToMDForGroup', '<div class="ui-grid-cell-contents text-center">\
                                             <a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridGroupMethod.modifyData(row)"> {{$parent.$root.getWord(\'Modify\')}}</a>\
                                             <a href="javascript:void(0);" class="btn btn-danger btn-xs" ng-click="grid.appScope.$vm.gridGroupMethod.deleteData(row)"> {{$parent.$root.getWord(\'Delete\')}}</a>\
                                           </div>');
-  $templateCache.put('accessibilityToM', '<div class="ui-grid-cell-contents text-center">\
+    $templateCache.put('accessibilityToM', '<div class="ui-grid-cell-contents text-center">\
                                             <a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethod.modifyData(row)"> {{$parent.$root.getWord(\'Modify\')}}</a>\
                                           </div>');
 })
@@ -3705,7 +3741,7 @@ angular.module('app.auth').controller('MainLoginCtrl', function ($scope, $stateP
             // console.log(res);
             if(res["returnData"] && res["returnData"].length > 0){
                 toaster.success("狀態", "登入成功", 3000);
-                $state.transitionTo("app.dashboard");
+                $state.transitionTo("app.mainwork");
             }else{                
                 toaster.error("狀態", "帳號密碼錯誤", 3000);
             }
@@ -3727,27 +3763,6 @@ angular.module('app.auth').directive('loginInfo', function(User){
         }
     }
 })
-
-
-
-'use strict';
-
-angular.module('app.auth').factory('User', function ($http, $q, APP_CONFIG) {
-    var dfd = $q.defer();
-
-    var UserModel = {
-        initialized: dfd.promise,
-        username: undefined,
-        picture: undefined
-    };
-     $http.get(APP_CONFIG.apiRootUrl + '/user.json').then(function(response){
-         UserModel.username = response.data.username;
-         UserModel.picture= response.data.picture;
-         dfd.resolve(UserModel)
-     });
-
-    return UserModel;
-});
 
 "use strict";
 
@@ -3772,69 +3787,25 @@ angular.module('app.auth').controller('LoginCtrl', function ($scope, $state, Goo
     });
 })
 
+
+
 'use strict';
 
-angular.module('app.calendar').controller('CalendarCtrl', function ($scope, $log, CalendarEvent) {
+angular.module('app.auth').factory('User', function ($http, $q, APP_CONFIG) {
+    var dfd = $q.defer();
 
-
-    // Events scope
-    $scope.events = [];
-
-    // Unassigned events scope
-    $scope.eventsExternal = [
-        {
-            title: "Office Meeting",
-            description: "Currently busy",
-            className: "bg-color-darken txt-color-white",
-            icon: "fa-time"
-        },
-        {
-            title: "Lunch Break",
-            description: "No Description",
-            className: "bg-color-blue txt-color-white",
-            icon: "fa-pie"
-        },
-        {
-            title: "URGENT",
-            description: "urgent tasks",
-            className: "bg-color-red txt-color-white",
-            icon: "fa-alert"
-        }
-    ];
-
-
-    // Queriing our events from CalendarEvent resource...
-    // Scope update will automatically update the calendar
-    CalendarEvent.query().$promise.then(function (events) {
-        $scope.events = events;
-    });
-
-
-    $scope.newEvent = {};
-
-    $scope.addEvent = function() {
-
-        $log.log("Adding new event:", $scope.newEvent);
-
-        var newEventDefaults = {
-            title: "Untitled Event",
-            description: "no description",
-            className: "bg-color-darken txt-color-white",
-            icon: "fa-info"
-        };
-
-
-        $scope.newEvent = angular.extend(newEventDefaults, $scope.newEvent);
-
-        $scope.eventsExternal.unshift($scope.newEvent);
-
-        $scope.newEvent = {};
-
-        // $log.log("New events now:", $scope.eventsExternal);
-
+    var UserModel = {
+        initialized: dfd.promise,
+        username: undefined,
+        picture: undefined
     };
+     $http.get(APP_CONFIG.apiRootUrl + '/user.json').then(function(response){
+         UserModel.username = response.data.username;
+         UserModel.picture= response.data.picture;
+         dfd.resolve(UserModel)
+     });
 
-
+    return UserModel;
 });
 
 "use strict";
@@ -3995,6 +3966,71 @@ angular.module('app.calendar').directive('fullCalendar', function (CalendarEvent
         }
     }
 });
+'use strict';
+
+angular.module('app.calendar').controller('CalendarCtrl', function ($scope, $log, CalendarEvent) {
+
+
+    // Events scope
+    $scope.events = [];
+
+    // Unassigned events scope
+    $scope.eventsExternal = [
+        {
+            title: "Office Meeting",
+            description: "Currently busy",
+            className: "bg-color-darken txt-color-white",
+            icon: "fa-time"
+        },
+        {
+            title: "Lunch Break",
+            description: "No Description",
+            className: "bg-color-blue txt-color-white",
+            icon: "fa-pie"
+        },
+        {
+            title: "URGENT",
+            description: "urgent tasks",
+            className: "bg-color-red txt-color-white",
+            icon: "fa-alert"
+        }
+    ];
+
+
+    // Queriing our events from CalendarEvent resource...
+    // Scope update will automatically update the calendar
+    CalendarEvent.query().$promise.then(function (events) {
+        $scope.events = events;
+    });
+
+
+    $scope.newEvent = {};
+
+    $scope.addEvent = function() {
+
+        $log.log("Adding new event:", $scope.newEvent);
+
+        var newEventDefaults = {
+            title: "Untitled Event",
+            description: "no description",
+            className: "bg-color-darken txt-color-white",
+            icon: "fa-info"
+        };
+
+
+        $scope.newEvent = angular.extend(newEventDefaults, $scope.newEvent);
+
+        $scope.eventsExternal.unshift($scope.newEvent);
+
+        $scope.newEvent = {};
+
+        // $log.log("New events now:", $scope.eventsExternal);
+
+    };
+
+
+});
+
 
 "use strict";
 
@@ -4503,7 +4539,7 @@ $templateCache.put("app/app/layout/partials/navigation.tpl.html","<aside id=\"le
 $templateCache.put("app/app/layout/partials/sub-header.tpl.html","<div class=\"col-xs-12 col-sm-5 col-md-5 col-lg-8\" data-sparkline-container>\r\n    <ul id=\"sparks\" class=\"\">\r\n        <li class=\"sparks-info\">\r\n            <h5> My Income <span class=\"txt-color-blue\">$47,171</span></h5>\r\n            <div class=\"sparkline txt-color-blue hidden-mobile hidden-md hidden-sm\">\r\n                1300, 1877, 2500, 2577, 2000, 2100, 3000, 2700, 3631, 2471, 2700, 3631, 2471\r\n            </div>\r\n        </li>\r\n        <li class=\"sparks-info\">\r\n            <h5> Site Traffic <span class=\"txt-color-purple\"><i class=\"fa fa-arrow-circle-up\"></i>&nbsp;45%</span></h5>\r\n            <div class=\"sparkline txt-color-purple hidden-mobile hidden-md hidden-sm\">\r\n                110,150,300,130,400,240,220,310,220,300, 270, 210\r\n            </div>\r\n        </li>\r\n        <li class=\"sparks-info\">\r\n            <h5> Site Orders <span class=\"txt-color-greenDark\"><i class=\"fa fa-shopping-cart\"></i>&nbsp;2447</span></h5>\r\n            <div class=\"sparkline txt-color-greenDark hidden-mobile hidden-md hidden-sm\">\r\n                110,150,300,130,400,240,220,310,220,300, 270, 210\r\n            </div>\r\n        </li>\r\n    </ul>\r\n</div>\r\n			");
 $templateCache.put("app/app/layout/partials/voice-commands.tpl.html","<!-- TRIGGER BUTTON:\r\n<a href=\"/my-ajax-page.html\" data-toggle=\"modal\" data-target=\"#remoteModal\" class=\"btn btn-default\">Open Modal</a>  -->\r\n\r\n<!-- MODAL PLACE HOLDER\r\n<div class=\"modal fade\" id=\"remoteModal\" tabindex=\"-1\" role=\"dialog\" aria-labelledby=\"remoteModalLabel\" aria-hidden=\"true\">\r\n<div class=\"modal-dialog\">\r\n<div class=\"modal-content\"></div>\r\n</div>\r\n</div>   -->\r\n<!--////////////////////////////////////-->\r\n\r\n<!--<div class=\"modal-header\">\r\n<button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-hidden=\"true\">\r\n&times;\r\n</button>\r\n<h4 class=\"modal-title\" id=\"myModalLabel\">Command List</h4>\r\n</div>-->\r\n<div class=\"modal-body\">\r\n\r\n	<h1><i class=\"fa fa-microphone text-muted\"></i>&nbsp;&nbsp; SmartAdmin Voice Command</h1>\r\n	<hr class=\"simple\">\r\n	<h5>Instruction</h5>\r\n\r\n	Click <span class=\"text-success\">\"Allow\"</span> to access your microphone and activate Voice Command.\r\n	You will notice a <span class=\"text-primary\"><strong>BLUE</strong> Flash</span> on the microphone icon indicating activation.\r\n	The icon will appear <span class=\"text-danger\"><strong>RED</strong></span> <span class=\"label label-danger\"><i class=\"fa fa-microphone fa-lg\"></i></span> if you <span class=\"text-danger\">\"Deny\"</span> access or don\'t have any microphone installed.\r\n	<br>\r\n	<br>\r\n	As a security precaution, your browser will disconnect the microphone every 60 to 120 seconds (sooner if not being used). In which case Voice Command will prompt you again to <span class=\"text-success\">\"Allow\"</span> or <span class=\"text-danger\">\"Deny\"</span> access to your microphone.\r\n	<br>\r\n	<br>\r\n	If you host your page over <strong>http<span class=\"text-success\">s</span></strong> (secure socket layer) protocol you can wave this security measure and have an unintrupted Voice Command.\r\n	<br>\r\n	<br>\r\n	<h5>Commands</h5>\r\n	<ul>\r\n		<li>\r\n			<strong>\'show\' </strong> then say the <strong>*page*</strong> you want to go to. For example <strong>\"show inbox\"</strong> or <strong>\"show calendar\"</strong>\r\n		</li>\r\n		<li>\r\n			<strong>\'mute\' </strong> - mutes all sound effects for the theme.\r\n		</li>\r\n		<li>\r\n			<strong>\'sound on\'</strong> - unmutes all sound effects for the theme.\r\n		</li>\r\n		<li>\r\n			<span class=\"text-danger\"><strong>\'stop\'</strong></span> - deactivates voice command.\r\n		</li>\r\n		<li>\r\n			<span class=\"text-primary\"><strong>\'help\'</strong></span> - brings up the command list\r\n		</li>\r\n		<li>\r\n			<span class=\"text-danger\"><strong>\'got it\'</strong></span> - closes help modal\r\n		</li>\r\n		<li>\r\n			<strong>\'hide navigation\'</strong> - toggle navigation collapse\r\n		</li>\r\n		<li>\r\n			<strong>\'show navigation\'</strong> - toggle navigation to open (can be used again to close)\r\n		</li>\r\n		<li>\r\n			<strong>\'scroll up\'</strong> - scrolls to the top of the page\r\n		</li>\r\n		<li>\r\n			<strong>\'scroll down\'</strong> - scrollts to the bottom of the page\r\n		</li>\r\n		<li>\r\n			<strong>\'go back\' </strong> - goes back in history (history -1 click)\r\n		</li>\r\n		<li>\r\n			<strong>\'logout\'</strong> - logs you out\r\n		</li>\r\n	</ul>\r\n	<br>\r\n	<h5>Adding your own commands</h5>\r\n	Voice Command supports up to 80 languages. Adding your own commands is extreamly easy. All commands are stored inside <strong>app.config.js</strong> file under the <code>var commands = {...}</code>. \r\n\r\n	<hr class=\"simple\">\r\n	<div class=\"text-right\">\r\n		<button type=\"button\" class=\"btn btn-success btn-lg\" data-dismiss=\"modal\">\r\n			Got it!\r\n		</button>\r\n	</div>\r\n\r\n</div>\r\n<!--<div class=\"modal-footer\">\r\n<button type=\"button\" class=\"btn btn-primary\" data-dismiss=\"modal\">Got it!</button>\r\n</div> -->");
 $templateCache.put("app/app/layout/shortcut/shortcut.tpl.html","<div id=\"shortcut\">\r\n	<ul>\r\n		<li>\r\n			<a href=\"#/inbox/\" class=\"jarvismetro-tile big-cubes bg-color-blue\"> <span class=\"iconbox\"> <i class=\"fa fa-envelope fa-4x\"></i> <span>Mail <span class=\"label pull-right bg-color-darken\">14</span></span> </span> </a>\r\n		</li>\r\n		<li>\r\n			<a href=\"#/calendar\" class=\"jarvismetro-tile big-cubes bg-color-orangeDark\"> <span class=\"iconbox\"> <i class=\"fa fa-calendar fa-4x\"></i> <span>Calendar</span> </span> </a>\r\n		</li>\r\n		<li>\r\n			<a href=\"#/maps\" class=\"jarvismetro-tile big-cubes bg-color-purple\"> <span class=\"iconbox\"> <i class=\"fa fa-map-marker fa-4x\"></i> <span>Maps</span> </span> </a>\r\n		</li>\r\n		<li>\r\n			<a href=\"#/invoice\" class=\"jarvismetro-tile big-cubes bg-color-blueDark\"> <span class=\"iconbox\"> <i class=\"fa fa-book fa-4x\"></i> <span>Invoice <span class=\"label pull-right bg-color-darken\">99</span></span> </span> </a>\r\n		</li>\r\n		<li>\r\n			<a href=\"#/gallery\" class=\"jarvismetro-tile big-cubes bg-color-greenLight\"> <span class=\"iconbox\"> <i class=\"fa fa-picture-o fa-4x\"></i> <span>Gallery </span> </span> </a>\r\n		</li>\r\n		<li>\r\n			<a href=\"#/profile\" class=\"jarvismetro-tile big-cubes selected bg-color-pinkDark\"> <span class=\"iconbox\"> <i class=\"fa fa-user fa-4x\"></i> <span>My Profile </span> </span> </a>\r\n		</li>\r\n	</ul>\r\n</div>");
-$templateCache.put("app/app/Template/views/isDelete.tpl.html","<!-- <div class=\"modal-header\">\r\n        <h3 class=\"modal-title\">\r\n            <strong class=\"label label-default\">案件概要</strong>\r\n        </h3>\r\n    </div> -->\r\n\r\n<div class=\"modal-body\" id=\"modal-body\">\r\n    <p>確定是否要刪除此筆?</p>\r\n</div>\r\n<div class=\"modal-footer\">\r\n    <button class=\"btn btn-danger\" type=\"button\" ng-click=\"$ctrl.ok()\">{{getWord(\'OK\')}}</button>\r\n    <button class=\"btn btn-default\" type=\"button\" ng-click=\"$ctrl.cancel()\">{{getWord(\'Cancel\')}}</button>\r\n</div>\r\n");
+$templateCache.put("app/app/Template/views/isDelete.tpl.html","<!-- <div class=\"modal-header\">\r\n        <h3 class=\"modal-title\">\r\n            <strong class=\"label label-default\">案件概要</strong>\r\n        </h3>\r\n    </div> -->\r\n\r\n<div class=\"modal-body\" id=\"modal-body\">\r\n    <p>確定是否要刪除?</p>\r\n</div>\r\n<div class=\"modal-footer\">\r\n    <button class=\"btn btn-danger\" type=\"button\" ng-click=\"$ctrl.ok()\">{{getWord(\'OK\')}}</button>\r\n    <button class=\"btn btn-default\" type=\"button\" ng-click=\"$ctrl.cancel()\">{{getWord(\'Cancel\')}}</button>\r\n</div>\r\n");
 $templateCache.put("app/public/app/dashboard/live-feeds.tpl.html","<div jarvis-widget id=\"live-feeds-widget\" data-widget-togglebutton=\"false\" data-widget-editbutton=\"false\"\r\n     data-widget-fullscreenbutton=\"false\" data-widget-colorbutton=\"false\" data-widget-deletebutton=\"false\">\r\n<!-- widget options:\r\nusage: <div class=\"jarviswidget\" id=\"wid-id-0\" data-widget-editbutton=\"false\">\r\n\r\ndata-widget-colorbutton=\"false\"\r\ndata-widget-editbutton=\"false\"\r\ndata-widget-togglebutton=\"false\"\r\ndata-widget-deletebutton=\"false\"\r\ndata-widget-fullscreenbutton=\"false\"\r\ndata-widget-custombutton=\"false\"\r\ndata-widget-collapsed=\"true\"\r\ndata-widget-sortable=\"false\"\r\n\r\n-->\r\n<header>\r\n    <span class=\"widget-icon\"> <i class=\"glyphicon glyphicon-stats txt-color-darken\"></i> </span>\r\n\r\n    <h2>Live Feeds </h2>\r\n\r\n    <ul class=\"nav nav-tabs pull-right in\" id=\"myTab\">\r\n        <li class=\"active\">\r\n            <a data-toggle=\"tab\" href=\"#s1\"><i class=\"fa fa-clock-o\"></i> <span class=\"hidden-mobile hidden-tablet\">Live Stats</span></a>\r\n        </li>\r\n\r\n        <li>\r\n            <a data-toggle=\"tab\" href=\"#s2\"><i class=\"fa fa-facebook\"></i> <span class=\"hidden-mobile hidden-tablet\">Social Network</span></a>\r\n        </li>\r\n\r\n        <li>\r\n            <a data-toggle=\"tab\" href=\"#s3\"><i class=\"fa fa-dollar\"></i> <span class=\"hidden-mobile hidden-tablet\">Revenue</span></a>\r\n        </li>\r\n    </ul>\r\n\r\n</header>\r\n\r\n<!-- widget div-->\r\n<div class=\"no-padding\">\r\n\r\n    <div class=\"widget-body\">\r\n        <!-- content -->\r\n        <div id=\"myTabContent\" class=\"tab-content\">\r\n            <div class=\"tab-pane fade active in padding-10 no-padding-bottom\" id=\"s1\">\r\n                <div class=\"row no-space\">\r\n                    <div class=\"col-xs-12 col-sm-12 col-md-8 col-lg-8\">\r\n														<span class=\"demo-liveupdate-1\"> <span\r\n                                                                class=\"onoffswitch-title\">Live switch</span> <span\r\n                                                                class=\"onoffswitch\">\r\n																<input type=\"checkbox\" name=\"start_interval\" ng-model=\"autoUpdate\"\r\n                                                                       class=\"onoffswitch-checkbox\" id=\"start_interval\">\r\n																<label class=\"onoffswitch-label\" for=\"start_interval\">\r\n                                                                    <span class=\"onoffswitch-inner\"\r\n                                                                          data-swchon-text=\"ON\"\r\n                                                                          data-swchoff-text=\"OFF\"></span>\r\n                                                                    <span class=\"onoffswitch-switch\"></span>\r\n                                                                </label> </span> </span>\r\n\r\n                        <div id=\"updating-chart\" class=\"chart-large txt-color-blue\" flot-basic flot-data=\"liveStats\" flot-options=\"liveStatsOptions\"></div>\r\n\r\n                    </div>\r\n                    <div class=\"col-xs-12 col-sm-12 col-md-4 col-lg-4 show-stats\">\r\n\r\n                        <div class=\"row\">\r\n                            <div class=\"col-xs-6 col-sm-6 col-md-12 col-lg-12\"><span class=\"text\"> My Tasks <span\r\n                                    class=\"pull-right\">130/200</span> </span>\r\n\r\n                                <div class=\"progress\">\r\n                                    <div class=\"progress-bar bg-color-blueDark\" style=\"width: 65%;\"></div>\r\n                                </div>\r\n                            </div>\r\n                            <div class=\"col-xs-6 col-sm-6 col-md-12 col-lg-12\"><span class=\"text\"> Transfered <span\r\n                                    class=\"pull-right\">440 GB</span> </span>\r\n\r\n                                <div class=\"progress\">\r\n                                    <div class=\"progress-bar bg-color-blue\" style=\"width: 34%;\"></div>\r\n                                </div>\r\n                            </div>\r\n                            <div class=\"col-xs-6 col-sm-6 col-md-12 col-lg-12\"><span class=\"text\"> Bugs Squashed<span\r\n                                    class=\"pull-right\">77%</span> </span>\r\n\r\n                                <div class=\"progress\">\r\n                                    <div class=\"progress-bar bg-color-blue\" style=\"width: 77%;\"></div>\r\n                                </div>\r\n                            </div>\r\n                            <div class=\"col-xs-6 col-sm-6 col-md-12 col-lg-12\"><span class=\"text\"> User Testing <span\r\n                                    class=\"pull-right\">7 Days</span> </span>\r\n\r\n                                <div class=\"progress\">\r\n                                    <div class=\"progress-bar bg-color-greenLight\" style=\"width: 84%;\"></div>\r\n                                </div>\r\n                            </div>\r\n\r\n                            <span class=\"show-stat-buttons\"> <span class=\"col-xs-12 col-sm-6 col-md-6 col-lg-6\"> <a\r\n                                    href-void class=\"btn btn-default btn-block hidden-xs\">Generate PDF</a> </span> <span\r\n                                    class=\"col-xs-12 col-sm-6 col-md-6 col-lg-6\"> <a href-void\r\n                                                                                     class=\"btn btn-default btn-block hidden-xs\">Report\r\n                                a bug</a> </span> </span>\r\n\r\n                        </div>\r\n\r\n                    </div>\r\n                </div>\r\n\r\n                <div class=\"show-stat-microcharts\" data-sparkline-container data-easy-pie-chart-container>\r\n                    <div class=\"col-xs-12 col-sm-3 col-md-3 col-lg-3\">\r\n\r\n                        <div class=\"easy-pie-chart txt-color-orangeDark\" data-percent=\"33\" data-pie-size=\"50\">\r\n                            <span class=\"percent percent-sign\">35</span>\r\n                        </div>\r\n                        <span class=\"easy-pie-title\"> Server Load <i class=\"fa fa-caret-up icon-color-bad\"></i> </span>\r\n                        <ul class=\"smaller-stat hidden-sm pull-right\">\r\n                            <li>\r\n                                <span class=\"label bg-color-greenLight\"><i class=\"fa fa-caret-up\"></i> 97%</span>\r\n                            </li>\r\n                            <li>\r\n                                <span class=\"label bg-color-blueLight\"><i class=\"fa fa-caret-down\"></i> 44%</span>\r\n                            </li>\r\n                        </ul>\r\n                        <div class=\"sparkline txt-color-greenLight hidden-sm hidden-md pull-right\"\r\n                             data-sparkline-type=\"line\" data-sparkline-height=\"33px\" data-sparkline-width=\"70px\"\r\n                             data-fill-color=\"transparent\">\r\n                            130, 187, 250, 257, 200, 210, 300, 270, 363, 247, 270, 363, 247\r\n                        </div>\r\n                    </div>\r\n                    <div class=\"col-xs-12 col-sm-3 col-md-3 col-lg-3\">\r\n                        <div class=\"easy-pie-chart txt-color-greenLight\" data-percent=\"78.9\" data-pie-size=\"50\">\r\n                            <span class=\"percent percent-sign\">78.9 </span>\r\n                        </div>\r\n                        <span class=\"easy-pie-title\"> Disk Space <i class=\"fa fa-caret-down icon-color-good\"></i></span>\r\n                        <ul class=\"smaller-stat hidden-sm pull-right\">\r\n                            <li>\r\n                                <span class=\"label bg-color-blueDark\"><i class=\"fa fa-caret-up\"></i> 76%</span>\r\n                            </li>\r\n                            <li>\r\n                                <span class=\"label bg-color-blue\"><i class=\"fa fa-caret-down\"></i> 3%</span>\r\n                            </li>\r\n                        </ul>\r\n                        <div class=\"sparkline txt-color-blue hidden-sm hidden-md pull-right\" data-sparkline-type=\"line\"\r\n                             data-sparkline-height=\"33px\" data-sparkline-width=\"70px\" data-fill-color=\"transparent\">\r\n                            257, 200, 210, 300, 270, 363, 130, 187, 250, 247, 270, 363, 247\r\n                        </div>\r\n                    </div>\r\n                    <div class=\"col-xs-12 col-sm-3 col-md-3 col-lg-3\">\r\n                        <div class=\"easy-pie-chart txt-color-blue\" data-percent=\"23\" data-pie-size=\"50\">\r\n                            <span class=\"percent percent-sign\">23 </span>\r\n                        </div>\r\n                        <span class=\"easy-pie-title\"> Transfered <i class=\"fa fa-caret-up icon-color-good\"></i></span>\r\n                        <ul class=\"smaller-stat hidden-sm pull-right\">\r\n                            <li>\r\n                                <span class=\"label bg-color-darken\">10GB</span>\r\n                            </li>\r\n                            <li>\r\n                                <span class=\"label bg-color-blueDark\"><i class=\"fa fa-caret-up\"></i> 10%</span>\r\n                            </li>\r\n                        </ul>\r\n                        <div class=\"sparkline txt-color-darken hidden-sm hidden-md pull-right\"\r\n                             data-sparkline-type=\"line\" data-sparkline-height=\"33px\" data-sparkline-width=\"70px\"\r\n                             data-fill-color=\"transparent\">\r\n                            200, 210, 363, 247, 300, 270, 130, 187, 250, 257, 363, 247, 270\r\n                        </div>\r\n                    </div>\r\n                    <div class=\"col-xs-12 col-sm-3 col-md-3 col-lg-3\">\r\n                        <div class=\"easy-pie-chart txt-color-darken\" data-percent=\"36\" data-pie-size=\"50\">\r\n                            <span class=\"percent degree-sign\">36 <i class=\"fa fa-caret-up\"></i></span>\r\n                        </div>\r\n                        <span class=\"easy-pie-title\"> Temperature <i\r\n                                class=\"fa fa-caret-down icon-color-good\"></i></span>\r\n                        <ul class=\"smaller-stat hidden-sm pull-right\">\r\n                            <li>\r\n                                <span class=\"label bg-color-red\"><i class=\"fa fa-caret-up\"></i> 124</span>\r\n                            </li>\r\n                            <li>\r\n                                <span class=\"label bg-color-blue\"><i class=\"fa fa-caret-down\"></i> 40 F</span>\r\n                            </li>\r\n                        </ul>\r\n                        <div class=\"sparkline txt-color-red hidden-sm hidden-md pull-right\" data-sparkline-type=\"line\"\r\n                             data-sparkline-height=\"33px\" data-sparkline-width=\"70px\" data-fill-color=\"transparent\">\r\n                            2700, 3631, 2471, 2700, 3631, 2471, 1300, 1877, 2500, 2577, 2000, 2100, 3000\r\n                        </div>\r\n                    </div>\r\n                </div>\r\n\r\n            </div>\r\n            <!-- end s1 tab pane -->\r\n\r\n            <div class=\"tab-pane fade\" id=\"s2\">\r\n                <div class=\"widget-body-toolbar bg-color-white\">\r\n\r\n                    <form class=\"form-inline\" role=\"form\">\r\n\r\n                        <div class=\"form-group\">\r\n                            <label class=\"sr-only\" for=\"s123\">Show From</label>\r\n                            <input type=\"email\" class=\"form-control input-sm\" id=\"s123\" placeholder=\"Show From\">\r\n                        </div>\r\n                        <div class=\"form-group\">\r\n                            <input type=\"email\" class=\"form-control input-sm\" id=\"s124\" placeholder=\"To\">\r\n                        </div>\r\n\r\n                        <div class=\"btn-group hidden-phone pull-right\">\r\n                            <a class=\"btn dropdown-toggle btn-xs btn-default\" data-toggle=\"dropdown\"><i\r\n                                    class=\"fa fa-cog\"></i> More <span class=\"caret\"> </span> </a>\r\n                            <ul class=\"dropdown-menu pull-right\">\r\n                                <li>\r\n                                    <a href-void><i class=\"fa fa-file-text-alt\"></i> Export to PDF</a>\r\n                                </li>\r\n                                <li>\r\n                                    <a href-void><i class=\"fa fa-question-sign\"></i> Help</a>\r\n                                </li>\r\n                            </ul>\r\n                        </div>\r\n\r\n                    </form>\r\n\r\n                </div>\r\n                <div class=\"padding-10\">\r\n                    <div id=\"statsChart\" class=\"chart-large has-legend-unique\" flot-basic flot-data=\"statsData\" flot-options=\"statsDisplayOptions\"></div>\r\n                </div>\r\n\r\n            </div>\r\n            <!-- end s2 tab pane -->\r\n\r\n            <div class=\"tab-pane fade\" id=\"s3\">\r\n\r\n                <div class=\"widget-body-toolbar bg-color-white smart-form\" id=\"rev-toggles\">\r\n\r\n                    <div class=\"inline-group\">\r\n\r\n                        <label for=\"gra-0\" class=\"checkbox\">\r\n                            <input type=\"checkbox\" id=\"gra-0\" ng-model=\"targetsShow\">\r\n                            <i></i> Target </label>\r\n                        <label for=\"gra-1\" class=\"checkbox\">\r\n                            <input type=\"checkbox\" id=\"gra-1\" ng-model=\"actualsShow\">\r\n                            <i></i> Actual </label>\r\n                        <label for=\"gra-2\" class=\"checkbox\">\r\n                            <input type=\"checkbox\" id=\"gra-2\" ng-model=\"signupsShow\">\r\n                            <i></i> Signups </label>\r\n                    </div>\r\n\r\n                    <div class=\"btn-group hidden-phone pull-right\">\r\n                        <a class=\"btn dropdown-toggle btn-xs btn-default\" data-toggle=\"dropdown\"><i\r\n                                class=\"fa fa-cog\"></i> More <span class=\"caret\"> </span> </a>\r\n                        <ul class=\"dropdown-menu pull-right\">\r\n                            <li>\r\n                                <a href-void><i class=\"fa fa-file-text-alt\"></i> Export to PDF</a>\r\n                            </li>\r\n                            <li>\r\n                                <a href-void><i class=\"fa fa-question-sign\"></i> Help</a>\r\n                            </li>\r\n                        </ul>\r\n                    </div>\r\n\r\n                </div>\r\n\r\n                <div class=\"padding-10\">\r\n                    <div id=\"flotcontainer\" class=\"chart-large has-legend-unique\" flot-basic flot-data=\"revenewData\" flot-options=\"revenewDisplayOptions\" ></div>\r\n                </div>\r\n            </div>\r\n            <!-- end s3 tab pane -->\r\n        </div>\r\n\r\n        <!-- end content -->\r\n    </div>\r\n\r\n</div>\r\n<!-- end widget div -->\r\n</div>\r\n");
 $templateCache.put("app/public/app/layout/layout.tpl.html","<!-- HEADER -->\r\n<div data-smart-include=\"app/layout/partials/header.tpl.html\" class=\"placeholder-header\"></div>\r\n<!-- END HEADER -->\r\n\r\n\r\n<!-- Left panel : Navigation area -->\r\n<!-- Note: This width of the aside area can be adjusted through LESS variables -->\r\n<div data-smart-include=\"app/layout/partials/navigation.tpl.html\" class=\"placeholder-left-panel\"></div>\r\n\r\n<!-- END NAVIGATION -->\r\n\r\n<!-- MAIN PANEL -->\r\n<div id=\"main\" role=\"main\">\r\n    <demo-states></demo-states>\r\n\r\n    <!-- RIBBON -->\r\n    <div id=\"ribbon\">\r\n\r\n		<span class=\"ribbon-button-alignment\">\r\n			<span id=\"refresh\" class=\"btn btn-ribbon\" reset-widgets\r\n                  tooltip-placement=\"bottom\"\r\n                  smart-tooltip-html=\"<i class=\'text-warning fa fa-warning\'></i> Warning! This will reset all your widget settings.\">\r\n				<i class=\"fa fa-refresh\"></i>\r\n			</span>\r\n		</span>\r\n\r\n        <!-- breadcrumb -->\r\n        <state-breadcrumbs></state-breadcrumbs>\r\n        <!-- end breadcrumb -->\r\n\r\n\r\n    </div>\r\n    <!-- END RIBBON -->\r\n\r\n\r\n    <div data-smart-router-animation-wrap=\"content content@app\" data-wrap-for=\"#content\">\r\n        <div data-ui-view=\"content\" data-autoscroll=\"false\"></div>\r\n    </div>\r\n\r\n</div>\r\n<!-- END MAIN PANEL -->\r\n\r\n<!-- PAGE FOOTER -->\r\n<div data-smart-include=\"app/layout/partials/footer.tpl.html\"></div>\r\n\r\n<div data-smart-include=\"app/layout/shortcut/shortcut.tpl.html\"></div>\r\n\r\n<!-- END PAGE FOOTER -->\r\n\r\n\r\n");
 $templateCache.put("app/app/dashboard/chat/directives/aside-chat-widget.tpl.html","<ul>\r\n    <li>\r\n        <div class=\"display-users\">\r\n            <input class=\"form-control chat-user-filter\" placeholder=\"Filter\" type=\"text\">\r\n            <dl>\r\n                <dt>\r\n                    <a href=\"#\" class=\"usr\"\r\n                       data-chat-id=\"cha1\"\r\n                       data-chat-fname=\"Sadi\"\r\n                       data-chat-lname=\"Orlaf\"\r\n                       data-chat-status=\"busy\"\r\n                       data-chat-alertmsg=\"Sadi Orlaf is in a meeting. Please do not disturb!\"\r\n                       data-chat-alertshow=\"true\"\r\n                       popover-trigger=\"hover\"\r\n                       popover-placement=\"right\"\r\n                       smart-popover-html=\"\r\n										<div class=\'usr-card\'>\r\n											<img src=\'styles/img/avatars/5.png\' alt=\'Sadi Orlaf\'>\r\n											<div class=\'usr-card-content\'>\r\n												<h3>Sadi Orlaf</h3>\r\n												<p>Marketing Executive</p>\r\n											</div>\r\n										</div>\r\n									\">\r\n                        <i></i>Sadi Orlaf\r\n                    </a>\r\n                </dt>\r\n                <dt>\r\n                    <a href=\"#\" class=\"usr\"\r\n                       data-chat-id=\"cha2\"\r\n                       data-chat-fname=\"Jessica\"\r\n                       data-chat-lname=\"Dolof\"\r\n                       data-chat-status=\"online\"\r\n                       data-chat-alertmsg=\"\"\r\n                       data-chat-alertshow=\"false\"\r\n                       popover-trigger=\"hover\"\r\n                       popover-placement=\"right\"\r\n                       smart-popover-html=\"\r\n										<div class=\'usr-card\'>\r\n											<img src=\'styles/img/avatars/1.png\' alt=\'Jessica Dolof\'>\r\n											<div class=\'usr-card-content\'>\r\n												<h3>Jessica Dolof</h3>\r\n												<p>Sales Administrator</p>\r\n											</div>\r\n										</div>\r\n									\">\r\n                        <i></i>Jessica Dolof\r\n                    </a>\r\n                </dt>\r\n                <dt>\r\n                    <a href=\"#\" class=\"usr\"\r\n                       data-chat-id=\"cha3\"\r\n                       data-chat-fname=\"Zekarburg\"\r\n                       data-chat-lname=\"Almandalie\"\r\n                       data-chat-status=\"online\"\r\n                       popover-trigger=\"hover\"\r\n                       popover-placement=\"right\"\r\n                       smart-popover-html=\"\r\n										<div class=\'usr-card\'>\r\n											<img src=\'styles/img/avatars/3.png\' alt=\'Zekarburg Almandalie\'>\r\n											<div class=\'usr-card-content\'>\r\n												<h3>Zekarburg Almandalie</h3>\r\n												<p>Sales Admin</p>\r\n											</div>\r\n										</div>\r\n									\">\r\n                        <i></i>Zekarburg Almandalie\r\n                    </a>\r\n                </dt>\r\n                <dt>\r\n                    <a href=\"#\" class=\"usr\"\r\n                       data-chat-id=\"cha4\"\r\n                       data-chat-fname=\"Barley\"\r\n                       data-chat-lname=\"Krazurkth\"\r\n                       data-chat-status=\"away\"\r\n                       popover-trigger=\"hover\"\r\n                       popover-placement=\"right\"\r\n                       smart-popover-html=\"\r\n										<div class=\'usr-card\'>\r\n											<img src=\'styles/img/avatars/4.png\' alt=\'Barley Krazurkth\'>\r\n											<div class=\'usr-card-content\'>\r\n												<h3>Barley Krazurkth</h3>\r\n												<p>Sales Director</p>\r\n											</div>\r\n										</div>\r\n									\">\r\n                        <i></i>Barley Krazurkth\r\n                    </a>\r\n                </dt>\r\n                <dt>\r\n                    <a href=\"#\" class=\"usr offline\"\r\n                       data-chat-id=\"cha5\"\r\n                       data-chat-fname=\"Farhana\"\r\n                       data-chat-lname=\"Amrin\"\r\n                       data-chat-status=\"incognito\"\r\n                       popover-trigger=\"hover\"\r\n                       popover-placement=\"right\"\r\n                       smart-popover-html=\"\r\n										<div class=\'usr-card\'>\r\n											<img src=\'styles/img/avatars/female.png\' alt=\'Farhana Amrin\'>\r\n											<div class=\'usr-card-content\'>\r\n												<h3>Farhana Amrin</h3>\r\n												<p>Support Admin <small><i class=\'fa fa-music\'></i> Playing Beethoven Classics</small></p>\r\n											</div>\r\n										</div>\r\n									\">\r\n                        <i></i>Farhana Amrin (offline)\r\n                    </a>\r\n                </dt>\r\n                <dt>\r\n                    <a href=\"#\" class=\"usr offline\"\r\n                       data-chat-id=\"cha6\"\r\n                       data-chat-fname=\"Lezley\"\r\n                       data-chat-lname=\"Jacob\"\r\n                       data-chat-status=\"incognito\"\r\n                       popover-trigger=\"hover\"\r\n                       popover-placement=\"right\"\r\n                       smart-popover-html=\"\r\n										<div class=\'usr-card\'>\r\n											<img src=\'styles/img/avatars/male.png\' alt=\'Lezley Jacob\'>\r\n											<div class=\'usr-card-content\'>\r\n												<h3>Lezley Jacob</h3>\r\n												<p>Sales Director</p>\r\n											</div>\r\n										</div>\r\n									\">\r\n                        <i></i>Lezley Jacob (offline)\r\n                    </a>\r\n                </dt>\r\n            </dl>\r\n\r\n\r\n            <!--<a href=\"chat.html\" class=\"btn btn-xs btn-default btn-block sa-chat-learnmore-btn\">About the API</a>-->\r\n        </div>\r\n    </li>\r\n</ul>");
@@ -4522,7 +4558,7 @@ $templateCache.put("app/public/app/layout/partials/navigation.tpl.html","<aside 
 $templateCache.put("app/public/app/layout/partials/sub-header.tpl.html","<div class=\"col-xs-12 col-sm-5 col-md-5 col-lg-8\" data-sparkline-container>\r\n    <ul id=\"sparks\" class=\"\">\r\n        <li class=\"sparks-info\">\r\n            <h5> My Income <span class=\"txt-color-blue\">$47,171</span></h5>\r\n            <div class=\"sparkline txt-color-blue hidden-mobile hidden-md hidden-sm\">\r\n                1300, 1877, 2500, 2577, 2000, 2100, 3000, 2700, 3631, 2471, 2700, 3631, 2471\r\n            </div>\r\n        </li>\r\n        <li class=\"sparks-info\">\r\n            <h5> Site Traffic <span class=\"txt-color-purple\"><i class=\"fa fa-arrow-circle-up\"></i>&nbsp;45%</span></h5>\r\n            <div class=\"sparkline txt-color-purple hidden-mobile hidden-md hidden-sm\">\r\n                110,150,300,130,400,240,220,310,220,300, 270, 210\r\n            </div>\r\n        </li>\r\n        <li class=\"sparks-info\">\r\n            <h5> Site Orders <span class=\"txt-color-greenDark\"><i class=\"fa fa-shopping-cart\"></i>&nbsp;2447</span></h5>\r\n            <div class=\"sparkline txt-color-greenDark hidden-mobile hidden-md hidden-sm\">\r\n                110,150,300,130,400,240,220,310,220,300, 270, 210\r\n            </div>\r\n        </li>\r\n    </ul>\r\n</div>\r\n			");
 $templateCache.put("app/public/app/layout/partials/voice-commands.tpl.html","<!-- TRIGGER BUTTON:\r\n<a href=\"/my-ajax-page.html\" data-toggle=\"modal\" data-target=\"#remoteModal\" class=\"btn btn-default\">Open Modal</a>  -->\r\n\r\n<!-- MODAL PLACE HOLDER\r\n<div class=\"modal fade\" id=\"remoteModal\" tabindex=\"-1\" role=\"dialog\" aria-labelledby=\"remoteModalLabel\" aria-hidden=\"true\">\r\n<div class=\"modal-dialog\">\r\n<div class=\"modal-content\"></div>\r\n</div>\r\n</div>   -->\r\n<!--////////////////////////////////////-->\r\n\r\n<!--<div class=\"modal-header\">\r\n<button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-hidden=\"true\">\r\n&times;\r\n</button>\r\n<h4 class=\"modal-title\" id=\"myModalLabel\">Command List</h4>\r\n</div>-->\r\n<div class=\"modal-body\">\r\n\r\n	<h1><i class=\"fa fa-microphone text-muted\"></i>&nbsp;&nbsp; SmartAdmin Voice Command</h1>\r\n	<hr class=\"simple\">\r\n	<h5>Instruction</h5>\r\n\r\n	Click <span class=\"text-success\">\"Allow\"</span> to access your microphone and activate Voice Command.\r\n	You will notice a <span class=\"text-primary\"><strong>BLUE</strong> Flash</span> on the microphone icon indicating activation.\r\n	The icon will appear <span class=\"text-danger\"><strong>RED</strong></span> <span class=\"label label-danger\"><i class=\"fa fa-microphone fa-lg\"></i></span> if you <span class=\"text-danger\">\"Deny\"</span> access or don\'t have any microphone installed.\r\n	<br>\r\n	<br>\r\n	As a security precaution, your browser will disconnect the microphone every 60 to 120 seconds (sooner if not being used). In which case Voice Command will prompt you again to <span class=\"text-success\">\"Allow\"</span> or <span class=\"text-danger\">\"Deny\"</span> access to your microphone.\r\n	<br>\r\n	<br>\r\n	If you host your page over <strong>http<span class=\"text-success\">s</span></strong> (secure socket layer) protocol you can wave this security measure and have an unintrupted Voice Command.\r\n	<br>\r\n	<br>\r\n	<h5>Commands</h5>\r\n	<ul>\r\n		<li>\r\n			<strong>\'show\' </strong> then say the <strong>*page*</strong> you want to go to. For example <strong>\"show inbox\"</strong> or <strong>\"show calendar\"</strong>\r\n		</li>\r\n		<li>\r\n			<strong>\'mute\' </strong> - mutes all sound effects for the theme.\r\n		</li>\r\n		<li>\r\n			<strong>\'sound on\'</strong> - unmutes all sound effects for the theme.\r\n		</li>\r\n		<li>\r\n			<span class=\"text-danger\"><strong>\'stop\'</strong></span> - deactivates voice command.\r\n		</li>\r\n		<li>\r\n			<span class=\"text-primary\"><strong>\'help\'</strong></span> - brings up the command list\r\n		</li>\r\n		<li>\r\n			<span class=\"text-danger\"><strong>\'got it\'</strong></span> - closes help modal\r\n		</li>\r\n		<li>\r\n			<strong>\'hide navigation\'</strong> - toggle navigation collapse\r\n		</li>\r\n		<li>\r\n			<strong>\'show navigation\'</strong> - toggle navigation to open (can be used again to close)\r\n		</li>\r\n		<li>\r\n			<strong>\'scroll up\'</strong> - scrolls to the top of the page\r\n		</li>\r\n		<li>\r\n			<strong>\'scroll down\'</strong> - scrollts to the bottom of the page\r\n		</li>\r\n		<li>\r\n			<strong>\'go back\' </strong> - goes back in history (history -1 click)\r\n		</li>\r\n		<li>\r\n			<strong>\'logout\'</strong> - logs you out\r\n		</li>\r\n	</ul>\r\n	<br>\r\n	<h5>Adding your own commands</h5>\r\n	Voice Command supports up to 80 languages. Adding your own commands is extreamly easy. All commands are stored inside <strong>app.config.js</strong> file under the <code>var commands = {...}</code>. \r\n\r\n	<hr class=\"simple\">\r\n	<div class=\"text-right\">\r\n		<button type=\"button\" class=\"btn btn-success btn-lg\" data-dismiss=\"modal\">\r\n			Got it!\r\n		</button>\r\n	</div>\r\n\r\n</div>\r\n<!--<div class=\"modal-footer\">\r\n<button type=\"button\" class=\"btn btn-primary\" data-dismiss=\"modal\">Got it!</button>\r\n</div> -->");
 $templateCache.put("app/public/app/layout/shortcut/shortcut.tpl.html","<div id=\"shortcut\">\r\n	<ul>\r\n		<li>\r\n			<a href=\"#/inbox/\" class=\"jarvismetro-tile big-cubes bg-color-blue\"> <span class=\"iconbox\"> <i class=\"fa fa-envelope fa-4x\"></i> <span>Mail <span class=\"label pull-right bg-color-darken\">14</span></span> </span> </a>\r\n		</li>\r\n		<li>\r\n			<a href=\"#/calendar\" class=\"jarvismetro-tile big-cubes bg-color-orangeDark\"> <span class=\"iconbox\"> <i class=\"fa fa-calendar fa-4x\"></i> <span>Calendar</span> </span> </a>\r\n		</li>\r\n		<li>\r\n			<a href=\"#/maps\" class=\"jarvismetro-tile big-cubes bg-color-purple\"> <span class=\"iconbox\"> <i class=\"fa fa-map-marker fa-4x\"></i> <span>Maps</span> </span> </a>\r\n		</li>\r\n		<li>\r\n			<a href=\"#/invoice\" class=\"jarvismetro-tile big-cubes bg-color-blueDark\"> <span class=\"iconbox\"> <i class=\"fa fa-book fa-4x\"></i> <span>Invoice <span class=\"label pull-right bg-color-darken\">99</span></span> </span> </a>\r\n		</li>\r\n		<li>\r\n			<a href=\"#/gallery\" class=\"jarvismetro-tile big-cubes bg-color-greenLight\"> <span class=\"iconbox\"> <i class=\"fa fa-picture-o fa-4x\"></i> <span>Gallery </span> </span> </a>\r\n		</li>\r\n		<li>\r\n			<a href=\"#/profile\" class=\"jarvismetro-tile big-cubes selected bg-color-pinkDark\"> <span class=\"iconbox\"> <i class=\"fa fa-user fa-4x\"></i> <span>My Profile </span> </span> </a>\r\n		</li>\r\n	</ul>\r\n</div>");
-$templateCache.put("app/public/app/Template/views/isDelete.tpl.html","<!-- <div class=\"modal-header\">\r\n        <h3 class=\"modal-title\">\r\n            <strong class=\"label label-default\">案件概要</strong>\r\n        </h3>\r\n    </div> -->\r\n\r\n<div class=\"modal-body\" id=\"modal-body\">\r\n    <p>確定是否要刪除此筆?</p>\r\n</div>\r\n<div class=\"modal-footer\">\r\n    <button class=\"btn btn-danger\" type=\"button\" ng-click=\"$ctrl.ok()\">{{getWord(\'OK\')}}</button>\r\n    <button class=\"btn btn-default\" type=\"button\" ng-click=\"$ctrl.cancel()\">{{getWord(\'Cancel\')}}</button>\r\n</div>\r\n");
+$templateCache.put("app/public/app/Template/views/isDelete.tpl.html","<!-- <div class=\"modal-header\">\r\n        <h3 class=\"modal-title\">\r\n            <strong class=\"label label-default\">案件概要</strong>\r\n        </h3>\r\n    </div> -->\r\n\r\n<div class=\"modal-body\" id=\"modal-body\">\r\n    <p>確定是否要刪除?</p>\r\n</div>\r\n<div class=\"modal-footer\">\r\n    <button class=\"btn btn-danger\" type=\"button\" ng-click=\"$ctrl.ok()\">{{getWord(\'OK\')}}</button>\r\n    <button class=\"btn btn-default\" type=\"button\" ng-click=\"$ctrl.cancel()\">{{getWord(\'Cancel\')}}</button>\r\n</div>\r\n");
 $templateCache.put("app/app/_common/forms/directives/bootstrap-validation/bootstrap-attribute-form.tpl.html","<form id=\"attributeForm\" class=\"form-horizontal\"\r\n      data-bv-message=\"This value is not valid\"\r\n      data-bv-feedbackicons-valid=\"glyphicon glyphicon-ok\"\r\n      data-bv-feedbackicons-invalid=\"glyphicon glyphicon-remove\"\r\n      data-bv-feedbackicons-validating=\"glyphicon glyphicon-refresh\">\r\n\r\n    <fieldset>\r\n        <legend>\r\n            Set validator options via HTML attributes\r\n        </legend>\r\n\r\n        <div class=\"alert alert-warning\">\r\n            <code>&lt; input\r\n                data-bv-validatorname\r\n                data-bv-validatorname-validatoroption=\"...\" / &gt;</code>\r\n\r\n            <br>\r\n            <br>\r\n            More validator options can be found here:\r\n            <a href=\"http://bootstrapvalidator.com/validators/\" target=\"_blank\">http://bootstrapvalidator.com/validators/</a>\r\n        </div>\r\n\r\n        <div class=\"form-group\">\r\n            <label class=\"col-lg-3 control-label\">Full name</label>\r\n            <div class=\"col-lg-4\">\r\n                <input type=\"text\" class=\"form-control\" name=\"firstName\" placeholder=\"First name\"\r\n                       data-bv-notempty=\"true\"\r\n                       data-bv-notempty-message=\"The first name is required and cannot be empty\" />\r\n            </div>\r\n            <div class=\"col-lg-4\">\r\n                <input type=\"text\" class=\"form-control\" name=\"lastName\" placeholder=\"Last name\"\r\n                       data-bv-notempty=\"true\"\r\n                       data-bv-notempty-message=\"The last name is required and cannot be empty\" />\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n\r\n    <fieldset>\r\n        <div class=\"form-group\">\r\n            <label class=\"col-lg-3 control-label\">Username</label>\r\n            <div class=\"col-lg-5\">\r\n                <input type=\"text\" class=\"form-control\" name=\"username\"\r\n                       data-bv-message=\"The username is not valid\"\r\n\r\n                       data-bv-notempty=\"true\"\r\n                       data-bv-notempty-message=\"The username is required and cannot be empty\"\r\n\r\n                       data-bv-regexp=\"true\"\r\n                       data-bv-regexp-regexp=\"^[a-zA-Z0-9_\\.]+$\"\r\n                       data-bv-regexp-message=\"The username can only consist of alphabetical, number, dot and underscore\"\r\n\r\n                       data-bv-stringlength=\"true\"\r\n                       data-bv-stringlength-min=\"6\"\r\n                       data-bv-stringlength-max=\"30\"\r\n                       data-bv-stringlength-message=\"The username must be more than 6 and less than 30 characters long\"\r\n\r\n                       data-bv-different=\"true\"\r\n                       data-bv-different-field=\"password\"\r\n                       data-bv-different-message=\"The username and password cannot be the same as each other\" />\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n\r\n    <fieldset>\r\n        <div class=\"form-group\">\r\n            <label class=\"col-lg-3 control-label\">Email address</label>\r\n            <div class=\"col-lg-5\">\r\n                <input class=\"form-control\" name=\"email\" type=\"email\"\r\n                       data-bv-emailaddress=\"true\"\r\n                       data-bv-emailaddress-message=\"The input is not a valid email address\" />\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n\r\n    <fieldset>\r\n        <div class=\"form-group\">\r\n            <label class=\"col-lg-3 control-label\">Password</label>\r\n            <div class=\"col-lg-5\">\r\n                <input type=\"password\" class=\"form-control\" name=\"password\"\r\n                       data-bv-notempty=\"true\"\r\n                       data-bv-notempty-message=\"The password is required and cannot be empty\"\r\n\r\n                       data-bv-identical=\"true\"\r\n                       data-bv-identical-field=\"confirmPassword\"\r\n                       data-bv-identical-message=\"The password and its confirm are not the same\"\r\n\r\n                       data-bv-different=\"true\"\r\n                       data-bv-different-field=\"username\"\r\n                       data-bv-different-message=\"The password cannot be the same as username\" />\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n\r\n    <fieldset>\r\n        <div class=\"form-group\">\r\n            <label class=\"col-lg-3 control-label\">Retype password</label>\r\n            <div class=\"col-lg-5\">\r\n                <input type=\"password\" class=\"form-control\" name=\"confirmPassword\"\r\n                       data-bv-notempty=\"true\"\r\n                       data-bv-notempty-message=\"The confirm password is required and cannot be empty\"\r\n\r\n                       data-bv-identical=\"true\"\r\n                       data-bv-identical-field=\"password\"\r\n                       data-bv-identical-message=\"The password and its confirm are not the same\"\r\n\r\n                       data-bv-different=\"true\"\r\n                       data-bv-different-field=\"username\"\r\n                       data-bv-different-message=\"The password cannot be the same as username\" />\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n\r\n    <fieldset>\r\n        <div class=\"form-group\">\r\n            <label class=\"col-lg-3 control-label\">Languages</label>\r\n            <div class=\"col-lg-5\">\r\n                <div class=\"checkbox\">\r\n                    <label>\r\n                        <input type=\"checkbox\" name=\"languages[]\" value=\"english\"\r\n                               data-bv-message=\"Please specify at least one language you can speak\"\r\n                               data-bv-notempty=\"true\" />\r\n                        English </label>\r\n                </div>\r\n                <div class=\"checkbox\">\r\n                    <label>\r\n                        <input type=\"checkbox\" name=\"languages[]\" value=\"french\" />\r\n                        French </label>\r\n                </div>\r\n                <div class=\"checkbox\">\r\n                    <label>\r\n                        <input type=\"checkbox\" name=\"languages[]\" value=\"german\" />\r\n                        German </label>\r\n                </div>\r\n                <div class=\"checkbox\">\r\n                    <label>\r\n                        <input type=\"checkbox\" name=\"languages[]\" value=\"russian\" />\r\n                        Russian </label>\r\n                </div>\r\n                <div class=\"checkbox\">\r\n                    <label>\r\n                        <input type=\"checkbox\" name=\"languages[]\" value=\"other\" />\r\n                        Other </label>\r\n                </div>\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n\r\n    <div class=\"form-actions\">\r\n        <div class=\"row\">\r\n            <div class=\"col-md-12\">\r\n                <button class=\"btn btn-default\" type=\"submit\">\r\n                    <i class=\"fa fa-eye\"></i>\r\n                    Validate\r\n                </button>\r\n            </div>\r\n        </div>\r\n    </div>\r\n\r\n</form>\r\n     ");
 $templateCache.put("app/app/_common/forms/directives/bootstrap-validation/bootstrap-button-group-form.tpl.html","<form id=\"buttonGroupForm\" method=\"post\" class=\"form-horizontal\">\r\n\r\n    <fieldset>\r\n        <legend>\r\n            Default Form Elements\r\n        </legend>\r\n        <div class=\"form-group\">\r\n            <label class=\"col-lg-3 control-label\">Gender</label>\r\n            <div class=\"col-lg-9\">\r\n                <div class=\"btn-group\" data-toggle=\"buttons\">\r\n                    <label class=\"btn btn-default\">\r\n                        <input type=\"radio\" name=\"gender\" value=\"male\" />\r\n                        Male </label>\r\n                    <label class=\"btn btn-default\">\r\n                        <input type=\"radio\" name=\"gender\" value=\"female\" />\r\n                        Female </label>\r\n                    <label class=\"btn btn-default\">\r\n                        <input type=\"radio\" name=\"gender\" value=\"other\" />\r\n                        Other </label>\r\n                </div>\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n\r\n    <fieldset>\r\n        <div class=\"form-group\">\r\n            <label class=\"col-lg-3 control-label\">Languages</label>\r\n            <div class=\"col-lg-9\">\r\n                <div class=\"btn-group\" data-toggle=\"buttons\">\r\n                    <label class=\"btn btn-default\">\r\n                        <input type=\"checkbox\" name=\"languages[]\" value=\"english\" />\r\n                        English </label>\r\n                    <label class=\"btn btn-default\">\r\n                        <input type=\"checkbox\" name=\"languages[]\" value=\"german\" />\r\n                        German </label>\r\n                    <label class=\"btn btn-default\">\r\n                        <input type=\"checkbox\" name=\"languages[]\" value=\"french\" />\r\n                        French </label>\r\n                    <label class=\"btn btn-default\">\r\n                        <input type=\"checkbox\" name=\"languages[]\" value=\"russian\" />\r\n                        Russian </label>\r\n                    <label class=\"btn btn-default\">\r\n                        <input type=\"checkbox\" name=\"languages[]\" value=\"italian\">\r\n                        Italian </label>\r\n                </div>\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n\r\n    <div class=\"form-actions\">\r\n        <div class=\"row\">\r\n            <div class=\"col-md-12\">\r\n                <button class=\"btn btn-default\" type=\"submit\">\r\n                    <i class=\"fa fa-eye\"></i>\r\n                    Validate\r\n                </button>\r\n            </div>\r\n        </div>\r\n    </div>\r\n\r\n</form>\r\n");
 $templateCache.put("app/app/_common/forms/directives/bootstrap-validation/bootstrap-contact-form.tpl.html","<form id=\"contactForm\" method=\"post\" class=\"form-horizontal\">\r\n\r\n    <fieldset>\r\n        <legend>Showing messages in custom area</legend>\r\n        <div class=\"form-group\">\r\n            <label class=\"col-md-3 control-label\">Full name</label>\r\n            <div class=\"col-md-6\">\r\n                <input type=\"text\" class=\"form-control\" name=\"fullName\" />\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n\r\n    <fieldset>\r\n        <div class=\"form-group\">\r\n            <label class=\"col-md-3 control-label\">Email</label>\r\n            <div class=\"col-md-6\">\r\n                <input type=\"text\" class=\"form-control\" name=\"email\" />\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n\r\n    <fieldset>\r\n        <div class=\"form-group\">\r\n            <label class=\"col-md-3 control-label\">Title</label>\r\n            <div class=\"col-md-6\">\r\n                <input type=\"text\" class=\"form-control\" name=\"title\" />\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n\r\n    <fieldset>\r\n        <div class=\"form-group\">\r\n            <label class=\"col-md-3 control-label\">Content</label>\r\n            <div class=\"col-md-6\">\r\n                <textarea class=\"form-control\" name=\"content\" rows=\"5\"></textarea>\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n\r\n    <fieldset>\r\n        <!-- #messages is where the messages are placed inside -->\r\n        <div class=\"form-group\">\r\n            <div class=\"col-md-9 col-md-offset-3\">\r\n                <div id=\"messages\"></div>\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n\r\n    <div class=\"form-actions\">\r\n        <div class=\"row\">\r\n            <div class=\"col-md-12\">\r\n                <button class=\"btn btn-default\" type=\"submit\">\r\n                    <i class=\"fa fa-eye\"></i>\r\n                    Validate\r\n                </button>\r\n            </div>\r\n        </div>\r\n    </div>\r\n\r\n</form>\r\n");
@@ -4535,14 +4571,14 @@ $templateCache.put("app/public/app/dashboard/chat/directives/aside-chat-widget.t
 $templateCache.put("app/public/app/dashboard/chat/directives/chat-users.tpl.html","<div id=\"chat-container\" ng-class=\"{open: open}\">\r\n    <span class=\"chat-list-open-close\" ng-click=\"openToggle()\"><i class=\"fa fa-user\"></i><b>!</b></span>\r\n\r\n    <div class=\"chat-list-body custom-scroll\">\r\n        <ul id=\"chat-users\">\r\n            <li ng-repeat=\"chatUser in chatUsers | filter: chatUserFilter\">\r\n                <a ng-click=\"messageTo(chatUser)\"><img ng-src=\"{{chatUser.picture}}\">{{chatUser.username}} <span\r\n                        class=\"badge badge-inverse\">{{chatUser.username.length}}</span><span class=\"state\"><i\r\n                        class=\"fa fa-circle txt-color-green pull-right\"></i></span></a>\r\n            </li>\r\n        </ul>\r\n    </div>\r\n    <div class=\"chat-list-footer\">\r\n        <div class=\"control-group\">\r\n            <form class=\"smart-form\">\r\n                <section>\r\n                    <label class=\"input\" >\r\n                        <input type=\"text\" ng-model=\"chatUserFilter\" id=\"filter-chat-list\" placeholder=\"Filter\">\r\n                    </label>\r\n                </section>\r\n            </form>\r\n        </div>\r\n    </div>\r\n</div>");
 $templateCache.put("app/public/app/dashboard/chat/directives/chat-widget.tpl.html","<div id=\"chat-widget\" jarvis-widget data-widget-color=\"blueDark\" data-widget-editbutton=\"false\"\r\n     data-widget-fullscreenbutton=\"false\">\r\n\r\n\r\n    <header>\r\n        <span class=\"widget-icon\"> <i class=\"fa fa-comments txt-color-white\"></i> </span>\r\n\r\n        <h2> SmartMessage </h2>\r\n\r\n        <div class=\"widget-toolbar\">\r\n            <!-- add: non-hidden - to disable auto hide -->\r\n\r\n            <div class=\"btn-group\" data-dropdown>\r\n                <button class=\"btn dropdown-toggle btn-xs btn-success\" data-toggle=\"dropdown\">\r\n                    Status <i class=\"fa fa-caret-down\"></i>\r\n                </button>\r\n                <ul class=\"dropdown-menu pull-right js-status-update\">\r\n                    <li>\r\n                        <a href-void><i class=\"fa fa-circle txt-color-green\"></i> Online</a>\r\n                    </li>\r\n                    <li>\r\n                        <a href-void><i class=\"fa fa-circle txt-color-red\"></i> Busy</a>\r\n                    </li>\r\n                    <li>\r\n                        <a href-void><i class=\"fa fa-circle txt-color-orange\"></i> Away</a>\r\n                    </li>\r\n                    <li class=\"divider\"></li>\r\n                    <li>\r\n                        <a href-void><i class=\"fa fa-power-off\"></i> Log Off</a>\r\n                    </li>\r\n                </ul>\r\n            </div>\r\n        </div>\r\n    </header>\r\n\r\n    <!-- widget div-->\r\n    <div>\r\n        <div class=\"widget-body widget-hide-overflow no-padding\">\r\n            <!-- content goes here -->\r\n\r\n            <chat-users></chat-users>\r\n\r\n            <!-- CHAT BODY -->\r\n            <div id=\"chat-body\" class=\"chat-body custom-scroll\">\r\n                <ul>\r\n                    <li class=\"message\" ng-repeat=\"message in chatMessages\">\r\n                        <img class=\"message-picture online\" ng-src=\"{{message.user.picture}}\">\r\n\r\n                        <div class=\"message-text\">\r\n                            <time>\r\n                                {{message.date | date }}\r\n                            </time>\r\n                            <a ng-click=\"messageTo(message.user)\" class=\"username\">{{message.user.username}}</a>\r\n                            <div ng-bind-html=\"message.body\"></div>\r\n\r\n                        </div>\r\n                    </li>\r\n                </ul>\r\n            </div>\r\n\r\n            <!-- CHAT FOOTER -->\r\n            <div class=\"chat-footer\">\r\n\r\n                <!-- CHAT TEXTAREA -->\r\n                <div class=\"textarea-div\">\r\n\r\n                    <div class=\"typearea\">\r\n                        <textarea placeholder=\"Write a reply...\" id=\"textarea-expand\"\r\n                                  class=\"custom-scroll\" ng-model=\"newMessage\"></textarea>\r\n                    </div>\r\n\r\n                </div>\r\n\r\n                <!-- CHAT REPLY/SEND -->\r\n											<span class=\"textarea-controls\">\r\n												<button class=\"btn btn-sm btn-primary pull-right\" ng-click=\"sendMessage()\">\r\n                                                    Reply\r\n                                                </button> <span class=\"pull-right smart-form\"\r\n                                                                style=\"margin-top: 3px; margin-right: 10px;\"> <label\r\n                                                    class=\"checkbox pull-right\">\r\n                                                <input type=\"checkbox\" name=\"subscription\" id=\"subscription\">\r\n                                                <i></i>Press <strong> ENTER </strong> to send </label> </span> <a\r\n                                                    href-void class=\"pull-left\"><i\r\n                                                    class=\"fa fa-camera fa-fw fa-lg\"></i></a> </span>\r\n\r\n            </div>\r\n\r\n            <!-- end content -->\r\n        </div>\r\n\r\n    </div>\r\n    <!-- end widget div -->\r\n</div>");
 $templateCache.put("app/public/app/dashboard/todo/directives/todo-list.tpl.html","<div>\r\n    <h5 class=\"todo-group-title\"><i class=\"fa fa-{{icon}}\"></i> {{title}} (\r\n        <small class=\"num-of-tasks\">{{scopeItems.length}}</small>\r\n        )\r\n    </h5>\r\n    <ul class=\"todo\">\r\n        <li ng-class=\"{complete: todo.completedAt}\" ng-repeat=\"todo in todos | orderBy: todo._id | filter: filter  track by todo._id\" >\r\n    	<span class=\"handle\"> <label class=\"checkbox\">\r\n            <input type=\"checkbox\" ng-click=\"todo.toggle()\" ng-checked=\"todo.completedAt\"\r\n                   name=\"checkbox-inline\">\r\n            <i></i> </label> </span>\r\n\r\n            <p>\r\n                <strong>Ticket #{{$index + 1}}</strong> - {{todo.title}}\r\n                <span class=\"text-muted\" ng-if=\"todo.description\">{{todo.description}}</span>\r\n                <span class=\"date\">{{todo.createdAt | date}} &dash; <a ng-click=\"deleteTodo(todo)\" class=\"text-muted\"><i\r\n                        class=\"fa fa-trash\"></i></a></span>\r\n\r\n            </p>\r\n        </li>\r\n    </ul>\r\n</div>");
+$templateCache.put("app/public/app/_common/layout/directives/demo/demo-states.tpl.html","<div class=\"demo\"><span id=\"demo-setting\"><i class=\"fa fa-cog txt-color-blueDark\"></i></span>\r\n\r\n    <form>\r\n        <legend class=\"no-padding margin-bottom-10\">Layout Options</legend>\r\n        <section>\r\n            <label><input type=\"checkbox\" ng-model=\"fixedHeader\"\r\n                          class=\"checkbox style-0\"><span>Fixed Header</span></label>\r\n            <label><input type=\"checkbox\"\r\n                          ng-model=\"fixedNavigation\"\r\n                          class=\"checkbox style-0\"><span>Fixed Navigation</span></label>\r\n            <label><input type=\"checkbox\"\r\n                          ng-model=\"fixedRibbon\"\r\n                          class=\"checkbox style-0\"><span>Fixed Ribbon</span></label>\r\n            <label><input type=\"checkbox\"\r\n                          ng-model=\"fixedPageFooter\"\r\n                          class=\"checkbox style-0\"><span>Fixed Footer</span></label>\r\n            <label><input type=\"checkbox\"\r\n                          ng-model=\"insideContainer\"\r\n                          class=\"checkbox style-0\"><span>Inside <b>.container</b></span></label>\r\n            <label><input type=\"checkbox\"\r\n                          ng-model=\"rtl\"\r\n                          class=\"checkbox style-0\"><span>RTL</span></label>\r\n            <label><input type=\"checkbox\"\r\n                          ng-model=\"menuOnTop\"\r\n                          class=\"checkbox style-0\"><span>Menu on <b>top</b></span></label>\r\n            <label><input type=\"checkbox\"\r\n                          ng-model=\"colorblindFriendly\"\r\n                          class=\"checkbox style-0\"><span>For Colorblind <div\r\n                    class=\"font-xs text-right\">(experimental)\r\n            </div></span>\r\n            </label><span id=\"smart-bgimages\"></span></section>\r\n        <section><h6 class=\"margin-top-10 semi-bold margin-bottom-5\">Clear Localstorage</h6><a\r\n                ng-click=\"factoryReset()\" class=\"btn btn-xs btn-block btn-primary\" id=\"reset-smart-widget\"><i\r\n                class=\"fa fa-refresh\"></i> Factory Reset</a></section>\r\n\r\n        <h6 class=\"margin-top-10 semi-bold margin-bottom-5\">SmartAdmin Skins</h6>\r\n\r\n\r\n        <section id=\"smart-styles\">\r\n            <a ng-repeat=\"skin in skins\" ng-click=\"setSkin(skin)\" class=\"{{skin.class}}\" style=\"{{skin.style}}\"><i ng-if=\"skin.name == $parent.smartSkin\" class=\"fa fa-check fa-fw\"></i> {{skin.label}} <sup ng-if=\"skin.beta\">beta</sup></a>\r\n        </section>\r\n    </form>\r\n</div>");
 $templateCache.put("app/public/app/_common/forms/directives/bootstrap-validation/bootstrap-attribute-form.tpl.html","<form id=\"attributeForm\" class=\"form-horizontal\"\r\n      data-bv-message=\"This value is not valid\"\r\n      data-bv-feedbackicons-valid=\"glyphicon glyphicon-ok\"\r\n      data-bv-feedbackicons-invalid=\"glyphicon glyphicon-remove\"\r\n      data-bv-feedbackicons-validating=\"glyphicon glyphicon-refresh\">\r\n\r\n    <fieldset>\r\n        <legend>\r\n            Set validator options via HTML attributes\r\n        </legend>\r\n\r\n        <div class=\"alert alert-warning\">\r\n            <code>&lt; input\r\n                data-bv-validatorname\r\n                data-bv-validatorname-validatoroption=\"...\" / &gt;</code>\r\n\r\n            <br>\r\n            <br>\r\n            More validator options can be found here:\r\n            <a href=\"http://bootstrapvalidator.com/validators/\" target=\"_blank\">http://bootstrapvalidator.com/validators/</a>\r\n        </div>\r\n\r\n        <div class=\"form-group\">\r\n            <label class=\"col-lg-3 control-label\">Full name</label>\r\n            <div class=\"col-lg-4\">\r\n                <input type=\"text\" class=\"form-control\" name=\"firstName\" placeholder=\"First name\"\r\n                       data-bv-notempty=\"true\"\r\n                       data-bv-notempty-message=\"The first name is required and cannot be empty\" />\r\n            </div>\r\n            <div class=\"col-lg-4\">\r\n                <input type=\"text\" class=\"form-control\" name=\"lastName\" placeholder=\"Last name\"\r\n                       data-bv-notempty=\"true\"\r\n                       data-bv-notempty-message=\"The last name is required and cannot be empty\" />\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n\r\n    <fieldset>\r\n        <div class=\"form-group\">\r\n            <label class=\"col-lg-3 control-label\">Username</label>\r\n            <div class=\"col-lg-5\">\r\n                <input type=\"text\" class=\"form-control\" name=\"username\"\r\n                       data-bv-message=\"The username is not valid\"\r\n\r\n                       data-bv-notempty=\"true\"\r\n                       data-bv-notempty-message=\"The username is required and cannot be empty\"\r\n\r\n                       data-bv-regexp=\"true\"\r\n                       data-bv-regexp-regexp=\"^[a-zA-Z0-9_\\.]+$\"\r\n                       data-bv-regexp-message=\"The username can only consist of alphabetical, number, dot and underscore\"\r\n\r\n                       data-bv-stringlength=\"true\"\r\n                       data-bv-stringlength-min=\"6\"\r\n                       data-bv-stringlength-max=\"30\"\r\n                       data-bv-stringlength-message=\"The username must be more than 6 and less than 30 characters long\"\r\n\r\n                       data-bv-different=\"true\"\r\n                       data-bv-different-field=\"password\"\r\n                       data-bv-different-message=\"The username and password cannot be the same as each other\" />\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n\r\n    <fieldset>\r\n        <div class=\"form-group\">\r\n            <label class=\"col-lg-3 control-label\">Email address</label>\r\n            <div class=\"col-lg-5\">\r\n                <input class=\"form-control\" name=\"email\" type=\"email\"\r\n                       data-bv-emailaddress=\"true\"\r\n                       data-bv-emailaddress-message=\"The input is not a valid email address\" />\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n\r\n    <fieldset>\r\n        <div class=\"form-group\">\r\n            <label class=\"col-lg-3 control-label\">Password</label>\r\n            <div class=\"col-lg-5\">\r\n                <input type=\"password\" class=\"form-control\" name=\"password\"\r\n                       data-bv-notempty=\"true\"\r\n                       data-bv-notempty-message=\"The password is required and cannot be empty\"\r\n\r\n                       data-bv-identical=\"true\"\r\n                       data-bv-identical-field=\"confirmPassword\"\r\n                       data-bv-identical-message=\"The password and its confirm are not the same\"\r\n\r\n                       data-bv-different=\"true\"\r\n                       data-bv-different-field=\"username\"\r\n                       data-bv-different-message=\"The password cannot be the same as username\" />\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n\r\n    <fieldset>\r\n        <div class=\"form-group\">\r\n            <label class=\"col-lg-3 control-label\">Retype password</label>\r\n            <div class=\"col-lg-5\">\r\n                <input type=\"password\" class=\"form-control\" name=\"confirmPassword\"\r\n                       data-bv-notempty=\"true\"\r\n                       data-bv-notempty-message=\"The confirm password is required and cannot be empty\"\r\n\r\n                       data-bv-identical=\"true\"\r\n                       data-bv-identical-field=\"password\"\r\n                       data-bv-identical-message=\"The password and its confirm are not the same\"\r\n\r\n                       data-bv-different=\"true\"\r\n                       data-bv-different-field=\"username\"\r\n                       data-bv-different-message=\"The password cannot be the same as username\" />\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n\r\n    <fieldset>\r\n        <div class=\"form-group\">\r\n            <label class=\"col-lg-3 control-label\">Languages</label>\r\n            <div class=\"col-lg-5\">\r\n                <div class=\"checkbox\">\r\n                    <label>\r\n                        <input type=\"checkbox\" name=\"languages[]\" value=\"english\"\r\n                               data-bv-message=\"Please specify at least one language you can speak\"\r\n                               data-bv-notempty=\"true\" />\r\n                        English </label>\r\n                </div>\r\n                <div class=\"checkbox\">\r\n                    <label>\r\n                        <input type=\"checkbox\" name=\"languages[]\" value=\"french\" />\r\n                        French </label>\r\n                </div>\r\n                <div class=\"checkbox\">\r\n                    <label>\r\n                        <input type=\"checkbox\" name=\"languages[]\" value=\"german\" />\r\n                        German </label>\r\n                </div>\r\n                <div class=\"checkbox\">\r\n                    <label>\r\n                        <input type=\"checkbox\" name=\"languages[]\" value=\"russian\" />\r\n                        Russian </label>\r\n                </div>\r\n                <div class=\"checkbox\">\r\n                    <label>\r\n                        <input type=\"checkbox\" name=\"languages[]\" value=\"other\" />\r\n                        Other </label>\r\n                </div>\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n\r\n    <div class=\"form-actions\">\r\n        <div class=\"row\">\r\n            <div class=\"col-md-12\">\r\n                <button class=\"btn btn-default\" type=\"submit\">\r\n                    <i class=\"fa fa-eye\"></i>\r\n                    Validate\r\n                </button>\r\n            </div>\r\n        </div>\r\n    </div>\r\n\r\n</form>\r\n     ");
 $templateCache.put("app/public/app/_common/forms/directives/bootstrap-validation/bootstrap-button-group-form.tpl.html","<form id=\"buttonGroupForm\" method=\"post\" class=\"form-horizontal\">\r\n\r\n    <fieldset>\r\n        <legend>\r\n            Default Form Elements\r\n        </legend>\r\n        <div class=\"form-group\">\r\n            <label class=\"col-lg-3 control-label\">Gender</label>\r\n            <div class=\"col-lg-9\">\r\n                <div class=\"btn-group\" data-toggle=\"buttons\">\r\n                    <label class=\"btn btn-default\">\r\n                        <input type=\"radio\" name=\"gender\" value=\"male\" />\r\n                        Male </label>\r\n                    <label class=\"btn btn-default\">\r\n                        <input type=\"radio\" name=\"gender\" value=\"female\" />\r\n                        Female </label>\r\n                    <label class=\"btn btn-default\">\r\n                        <input type=\"radio\" name=\"gender\" value=\"other\" />\r\n                        Other </label>\r\n                </div>\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n\r\n    <fieldset>\r\n        <div class=\"form-group\">\r\n            <label class=\"col-lg-3 control-label\">Languages</label>\r\n            <div class=\"col-lg-9\">\r\n                <div class=\"btn-group\" data-toggle=\"buttons\">\r\n                    <label class=\"btn btn-default\">\r\n                        <input type=\"checkbox\" name=\"languages[]\" value=\"english\" />\r\n                        English </label>\r\n                    <label class=\"btn btn-default\">\r\n                        <input type=\"checkbox\" name=\"languages[]\" value=\"german\" />\r\n                        German </label>\r\n                    <label class=\"btn btn-default\">\r\n                        <input type=\"checkbox\" name=\"languages[]\" value=\"french\" />\r\n                        French </label>\r\n                    <label class=\"btn btn-default\">\r\n                        <input type=\"checkbox\" name=\"languages[]\" value=\"russian\" />\r\n                        Russian </label>\r\n                    <label class=\"btn btn-default\">\r\n                        <input type=\"checkbox\" name=\"languages[]\" value=\"italian\">\r\n                        Italian </label>\r\n                </div>\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n\r\n    <div class=\"form-actions\">\r\n        <div class=\"row\">\r\n            <div class=\"col-md-12\">\r\n                <button class=\"btn btn-default\" type=\"submit\">\r\n                    <i class=\"fa fa-eye\"></i>\r\n                    Validate\r\n                </button>\r\n            </div>\r\n        </div>\r\n    </div>\r\n\r\n</form>\r\n");
 $templateCache.put("app/public/app/_common/forms/directives/bootstrap-validation/bootstrap-contact-form.tpl.html","<form id=\"contactForm\" method=\"post\" class=\"form-horizontal\">\r\n\r\n    <fieldset>\r\n        <legend>Showing messages in custom area</legend>\r\n        <div class=\"form-group\">\r\n            <label class=\"col-md-3 control-label\">Full name</label>\r\n            <div class=\"col-md-6\">\r\n                <input type=\"text\" class=\"form-control\" name=\"fullName\" />\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n\r\n    <fieldset>\r\n        <div class=\"form-group\">\r\n            <label class=\"col-md-3 control-label\">Email</label>\r\n            <div class=\"col-md-6\">\r\n                <input type=\"text\" class=\"form-control\" name=\"email\" />\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n\r\n    <fieldset>\r\n        <div class=\"form-group\">\r\n            <label class=\"col-md-3 control-label\">Title</label>\r\n            <div class=\"col-md-6\">\r\n                <input type=\"text\" class=\"form-control\" name=\"title\" />\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n\r\n    <fieldset>\r\n        <div class=\"form-group\">\r\n            <label class=\"col-md-3 control-label\">Content</label>\r\n            <div class=\"col-md-6\">\r\n                <textarea class=\"form-control\" name=\"content\" rows=\"5\"></textarea>\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n\r\n    <fieldset>\r\n        <!-- #messages is where the messages are placed inside -->\r\n        <div class=\"form-group\">\r\n            <div class=\"col-md-9 col-md-offset-3\">\r\n                <div id=\"messages\"></div>\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n\r\n    <div class=\"form-actions\">\r\n        <div class=\"row\">\r\n            <div class=\"col-md-12\">\r\n                <button class=\"btn btn-default\" type=\"submit\">\r\n                    <i class=\"fa fa-eye\"></i>\r\n                    Validate\r\n                </button>\r\n            </div>\r\n        </div>\r\n    </div>\r\n\r\n</form>\r\n");
 $templateCache.put("app/public/app/_common/forms/directives/bootstrap-validation/bootstrap-movie-form.tpl.html","\r\n<form id=\"movieForm\" method=\"post\">\r\n\r\n    <fieldset>\r\n        <legend>\r\n            Default Form Elements\r\n        </legend>\r\n        <div class=\"form-group\">\r\n            <div class=\"row\">\r\n                <div class=\"col-md-8\">\r\n                    <label class=\"control-label\">Movie title</label>\r\n                    <input type=\"text\" class=\"form-control\" name=\"title\" />\r\n                </div>\r\n\r\n                <div class=\"col-md-4 selectContainer\">\r\n                    <label class=\"control-label\">Genre</label>\r\n                    <select class=\"form-control\" name=\"genre\">\r\n                        <option value=\"\">Choose a genre</option>\r\n                        <option value=\"action\">Action</option>\r\n                        <option value=\"comedy\">Comedy</option>\r\n                        <option value=\"horror\">Horror</option>\r\n                        <option value=\"romance\">Romance</option>\r\n                    </select>\r\n                </div>\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n\r\n    <fieldset>\r\n        <div class=\"form-group\">\r\n            <div class=\"row\">\r\n                <div class=\"col-sm-12 col-md-4\">\r\n                    <label class=\"control-label\">Director</label>\r\n                    <input type=\"text\" class=\"form-control\" name=\"director\" />\r\n                </div>\r\n\r\n                <div class=\"col-sm-12 col-md-4\">\r\n                    <label class=\"control-label\">Writer</label>\r\n                    <input type=\"text\" class=\"form-control\" name=\"writer\" />\r\n                </div>\r\n\r\n                <div class=\"col-sm-12 col-md-4\">\r\n                    <label class=\"control-label\">Producer</label>\r\n                    <input type=\"text\" class=\"form-control\" name=\"producer\" />\r\n                </div>\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n\r\n    <fieldset>\r\n        <div class=\"form-group\">\r\n            <div class=\"row\">\r\n                <div class=\"col-sm-12 col-md-6\">\r\n                    <label class=\"control-label\">Website</label>\r\n                    <input type=\"text\" class=\"form-control\" name=\"website\" />\r\n                </div>\r\n\r\n                <div class=\"col-sm-12 col-md-6\">\r\n                    <label class=\"control-label\">Youtube trailer</label>\r\n                    <input type=\"text\" class=\"form-control\" name=\"trailer\" />\r\n                </div>\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n\r\n    <fieldset>\r\n        <div class=\"form-group\">\r\n            <label class=\"control-label\">Review</label>\r\n            <textarea class=\"form-control\" name=\"review\" rows=\"8\"></textarea>\r\n        </div>\r\n    </fieldset>\r\n\r\n    <fieldset>\r\n        <div class=\"form-group\">\r\n\r\n            <div class=\"row\">\r\n                <div class=\"col-sm-12 col-md-12\">\r\n                    <label class=\"control-label\">Rating</label>\r\n                </div>\r\n\r\n                <div class=\"col-sm-12 col-md-10\">\r\n\r\n                    <label class=\"radio radio-inline no-margin\">\r\n                        <input type=\"radio\" name=\"rating\" value=\"terrible\" class=\"radiobox style-2\" />\r\n                        <span>Terrible</span> </label>\r\n\r\n                    <label class=\"radio radio-inline\">\r\n                        <input type=\"radio\" name=\"rating\" value=\"watchable\" class=\"radiobox style-2\" />\r\n                        <span>Watchable</span> </label>\r\n                    <label class=\"radio radio-inline\">\r\n                        <input type=\"radio\" name=\"rating\" value=\"best\" class=\"radiobox style-2\" />\r\n                        <span>Best ever</span> </label>\r\n\r\n                </div>\r\n\r\n            </div>\r\n\r\n        </div>\r\n    </fieldset>\r\n\r\n    <div class=\"form-actions\">\r\n        <div class=\"row\">\r\n            <div class=\"col-md-12\">\r\n                <button class=\"btn btn-default\" type=\"submit\">\r\n                    <i class=\"fa fa-eye\"></i>\r\n                    Validate\r\n                </button>\r\n            </div>\r\n        </div>\r\n    </div>\r\n\r\n</form>\r\n\r\n ");
 $templateCache.put("app/public/app/_common/forms/directives/bootstrap-validation/bootstrap-product-form.tpl.html","<form id=\"productForm\" class=\"form-horizontal\">\r\n\r\n    <fieldset>\r\n        <legend>\r\n            Default Form Elements\r\n        </legend>\r\n        <div class=\"form-group\">\r\n            <label class=\"col-xs-2 col-lg-3 control-label\">Price</label>\r\n            <div class=\"col-xs-9 col-lg-6 inputGroupContainer\">\r\n                <div class=\"input-group\">\r\n                    <input type=\"text\" class=\"form-control\" name=\"price\" />\r\n                    <span class=\"input-group-addon\">$</span>\r\n                </div>\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n\r\n    <fieldset>\r\n        <div class=\"form-group\">\r\n            <label class=\"col-xs-2 col-lg-3 control-label\">Amount</label>\r\n            <div class=\"col-xs-9 col-lg-6 inputGroupContainer\">\r\n                <div class=\"input-group\">\r\n                    <span class=\"input-group-addon\">&#8364;</span>\r\n                    <input type=\"text\" class=\"form-control\" name=\"amount\" />\r\n                </div>\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n\r\n    <fieldset>\r\n        <div class=\"form-group\">\r\n            <label class=\"col-xs-2 col-lg-3 control-label\">Color</label>\r\n            <div class=\"col-xs-9 col-lg-6 selectContainer\">\r\n                <select class=\"form-control\" name=\"color\">\r\n                    <option value=\"\">Choose a color</option>\r\n                    <option value=\"blue\">Blue</option>\r\n                    <option value=\"green\">Green</option>\r\n                    <option value=\"red\">Red</option>\r\n                    <option value=\"yellow\">Yellow</option>\r\n                    <option value=\"white\">White</option>\r\n                </select>\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n\r\n    <fieldset>\r\n        <div class=\"form-group\">\r\n            <label class=\"col-xs-2 col-lg-3 control-label\">Size</label>\r\n            <div class=\"col-xs-9 col-lg-6 selectContainer\">\r\n                <select class=\"form-control\" name=\"size\">\r\n                    <option value=\"\">Choose a size</option>\r\n                    <option value=\"S\">S</option>\r\n                    <option value=\"M\">M</option>\r\n                    <option value=\"L\">L</option>\r\n                    <option value=\"XL\">XL</option>\r\n                </select>\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n\r\n    <div class=\"form-actions\">\r\n        <div class=\"row\">\r\n            <div class=\"col-md-12\">\r\n                <button class=\"btn btn-default\" type=\"submit\">\r\n                    <i class=\"fa fa-eye\"></i>\r\n                    Validate\r\n                </button>\r\n            </div>\r\n        </div>\r\n    </div>\r\n</form>\r\n\r\n");
 $templateCache.put("app/public/app/_common/forms/directives/bootstrap-validation/bootstrap-profile-form.tpl.html","<form id=\"profileForm\">\r\n\r\n    <fieldset>\r\n        <legend>\r\n            Default Form Elements\r\n        </legend>\r\n        <div class=\"form-group\">\r\n            <label>Email address</label>\r\n            <input type=\"text\" class=\"form-control\" name=\"email\" />\r\n        </div>\r\n    </fieldset>\r\n    <fieldset>\r\n        <div class=\"form-group\">\r\n            <label>Password</label>\r\n            <input type=\"password\" class=\"form-control\" name=\"password\" />\r\n        </div>\r\n    </fieldset>\r\n\r\n    <div class=\"form-actions\">\r\n        <div class=\"row\">\r\n            <div class=\"col-md-12\">\r\n                <button class=\"btn btn-default\" type=\"submit\">\r\n                    <i class=\"fa fa-eye\"></i>\r\n                    Validate\r\n                </button>\r\n            </div>\r\n        </div>\r\n    </div>\r\n</form>\r\n");
-$templateCache.put("app/public/app/_common/forms/directives/bootstrap-validation/bootstrap-toggling-form.tpl.html","<form id=\"togglingForm\" method=\"post\" class=\"form-horizontal\">\r\n\r\n    <fieldset>\r\n        <legend>\r\n            Default Form Elements\r\n        </legend>\r\n        <div class=\"form-group\">\r\n            <label class=\"col-lg-3 control-label\">Full name <sup>*</sup></label>\r\n            <div class=\"col-lg-4\">\r\n                <input type=\"text\" class=\"form-control\" name=\"firstName\" placeholder=\"First name\" />\r\n            </div>\r\n            <div class=\"col-lg-4\">\r\n                <input type=\"text\" class=\"form-control\" name=\"lastName\" placeholder=\"Last name\" />\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n\r\n    <fieldset>\r\n        <div class=\"form-group\">\r\n            <label class=\"col-lg-3 control-label\">Company <sup>*</sup></label>\r\n            <div class=\"col-lg-5\">\r\n                <input type=\"text\" class=\"form-control\" name=\"company\"\r\n                       required data-bv-notempty-message=\"The company name is required\" />\r\n            </div>\r\n            <div class=\"col-lg-2\">\r\n                <button type=\"button\" class=\"btn btn-info btn-sm\" data-toggle=\"#jobInfo\">\r\n                    Add more info\r\n                </button>\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n\r\n    <!-- These fields will not be validated as long as they are not visible -->\r\n    <div id=\"jobInfo\" style=\"display: none;\">\r\n        <fieldset>\r\n            <div class=\"form-group\">\r\n                <label class=\"col-lg-3 control-label\">Job title <sup>*</sup></label>\r\n                <div class=\"col-lg-5\">\r\n                    <input type=\"text\" class=\"form-control\" name=\"job\" />\r\n                </div>\r\n            </div>\r\n        </fieldset>\r\n\r\n        <fieldset>\r\n            <div class=\"form-group\">\r\n                <label class=\"col-lg-3 control-label\">Department <sup>*</sup></label>\r\n                <div class=\"col-lg-5\">\r\n                    <input type=\"text\" class=\"form-control\" name=\"department\" />\r\n                </div>\r\n            </div>\r\n        </fieldset>\r\n    </div>\r\n\r\n    <fieldset>\r\n        <div class=\"form-group\">\r\n            <label class=\"col-lg-3 control-label\">Mobile phone <sup>*</sup></label>\r\n            <div class=\"col-lg-5\">\r\n                <input type=\"text\" class=\"form-control\" name=\"mobilePhone\" />\r\n            </div>\r\n            <div class=\"col-lg-2\">\r\n                <button type=\"button\" class=\"btn btn-info btn-sm\" data-toggle=\"#phoneInfo\">\r\n                    Add more phone numbers\r\n                </button>\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n    <!-- These fields will not be validated as long as they are not visible -->\r\n    <div id=\"phoneInfo\" style=\"display: none;\">\r\n\r\n        <fieldset>\r\n            <div class=\"form-group\">\r\n                <label class=\"col-lg-3 control-label\">Home phone</label>\r\n                <div class=\"col-lg-5\">\r\n                    <input type=\"text\" class=\"form-control\" name=\"homePhone\" />\r\n                </div>\r\n            </div>\r\n        </fieldset>\r\n        <fieldset>\r\n            <div class=\"form-group\">\r\n                <label class=\"col-lg-3 control-label\">Office phone</label>\r\n                <div class=\"col-lg-5\">\r\n                    <input type=\"text\" class=\"form-control\" name=\"officePhone\" />\r\n                </div>\r\n            </div>\r\n        </fieldset>\r\n    </div>\r\n\r\n    <div class=\"form-actions\">\r\n        <div class=\"row\">\r\n            <div class=\"col-md-12\">\r\n                <button class=\"btn btn-default\" type=\"submit\">\r\n                    <i class=\"fa fa-eye\"></i>\r\n                    Validate\r\n                </button>\r\n            </div>\r\n        </div>\r\n    </div>\r\n</form>");
-$templateCache.put("app/public/app/_common/layout/directives/demo/demo-states.tpl.html","<div class=\"demo\"><span id=\"demo-setting\"><i class=\"fa fa-cog txt-color-blueDark\"></i></span>\r\n\r\n    <form>\r\n        <legend class=\"no-padding margin-bottom-10\">Layout Options</legend>\r\n        <section>\r\n            <label><input type=\"checkbox\" ng-model=\"fixedHeader\"\r\n                          class=\"checkbox style-0\"><span>Fixed Header</span></label>\r\n            <label><input type=\"checkbox\"\r\n                          ng-model=\"fixedNavigation\"\r\n                          class=\"checkbox style-0\"><span>Fixed Navigation</span></label>\r\n            <label><input type=\"checkbox\"\r\n                          ng-model=\"fixedRibbon\"\r\n                          class=\"checkbox style-0\"><span>Fixed Ribbon</span></label>\r\n            <label><input type=\"checkbox\"\r\n                          ng-model=\"fixedPageFooter\"\r\n                          class=\"checkbox style-0\"><span>Fixed Footer</span></label>\r\n            <label><input type=\"checkbox\"\r\n                          ng-model=\"insideContainer\"\r\n                          class=\"checkbox style-0\"><span>Inside <b>.container</b></span></label>\r\n            <label><input type=\"checkbox\"\r\n                          ng-model=\"rtl\"\r\n                          class=\"checkbox style-0\"><span>RTL</span></label>\r\n            <label><input type=\"checkbox\"\r\n                          ng-model=\"menuOnTop\"\r\n                          class=\"checkbox style-0\"><span>Menu on <b>top</b></span></label>\r\n            <label><input type=\"checkbox\"\r\n                          ng-model=\"colorblindFriendly\"\r\n                          class=\"checkbox style-0\"><span>For Colorblind <div\r\n                    class=\"font-xs text-right\">(experimental)\r\n            </div></span>\r\n            </label><span id=\"smart-bgimages\"></span></section>\r\n        <section><h6 class=\"margin-top-10 semi-bold margin-bottom-5\">Clear Localstorage</h6><a\r\n                ng-click=\"factoryReset()\" class=\"btn btn-xs btn-block btn-primary\" id=\"reset-smart-widget\"><i\r\n                class=\"fa fa-refresh\"></i> Factory Reset</a></section>\r\n\r\n        <h6 class=\"margin-top-10 semi-bold margin-bottom-5\">SmartAdmin Skins</h6>\r\n\r\n\r\n        <section id=\"smart-styles\">\r\n            <a ng-repeat=\"skin in skins\" ng-click=\"setSkin(skin)\" class=\"{{skin.class}}\" style=\"{{skin.style}}\"><i ng-if=\"skin.name == $parent.smartSkin\" class=\"fa fa-check fa-fw\"></i> {{skin.label}} <sup ng-if=\"skin.beta\">beta</sup></a>\r\n        </section>\r\n    </form>\r\n</div>");}]);
+$templateCache.put("app/public/app/_common/forms/directives/bootstrap-validation/bootstrap-toggling-form.tpl.html","<form id=\"togglingForm\" method=\"post\" class=\"form-horizontal\">\r\n\r\n    <fieldset>\r\n        <legend>\r\n            Default Form Elements\r\n        </legend>\r\n        <div class=\"form-group\">\r\n            <label class=\"col-lg-3 control-label\">Full name <sup>*</sup></label>\r\n            <div class=\"col-lg-4\">\r\n                <input type=\"text\" class=\"form-control\" name=\"firstName\" placeholder=\"First name\" />\r\n            </div>\r\n            <div class=\"col-lg-4\">\r\n                <input type=\"text\" class=\"form-control\" name=\"lastName\" placeholder=\"Last name\" />\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n\r\n    <fieldset>\r\n        <div class=\"form-group\">\r\n            <label class=\"col-lg-3 control-label\">Company <sup>*</sup></label>\r\n            <div class=\"col-lg-5\">\r\n                <input type=\"text\" class=\"form-control\" name=\"company\"\r\n                       required data-bv-notempty-message=\"The company name is required\" />\r\n            </div>\r\n            <div class=\"col-lg-2\">\r\n                <button type=\"button\" class=\"btn btn-info btn-sm\" data-toggle=\"#jobInfo\">\r\n                    Add more info\r\n                </button>\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n\r\n    <!-- These fields will not be validated as long as they are not visible -->\r\n    <div id=\"jobInfo\" style=\"display: none;\">\r\n        <fieldset>\r\n            <div class=\"form-group\">\r\n                <label class=\"col-lg-3 control-label\">Job title <sup>*</sup></label>\r\n                <div class=\"col-lg-5\">\r\n                    <input type=\"text\" class=\"form-control\" name=\"job\" />\r\n                </div>\r\n            </div>\r\n        </fieldset>\r\n\r\n        <fieldset>\r\n            <div class=\"form-group\">\r\n                <label class=\"col-lg-3 control-label\">Department <sup>*</sup></label>\r\n                <div class=\"col-lg-5\">\r\n                    <input type=\"text\" class=\"form-control\" name=\"department\" />\r\n                </div>\r\n            </div>\r\n        </fieldset>\r\n    </div>\r\n\r\n    <fieldset>\r\n        <div class=\"form-group\">\r\n            <label class=\"col-lg-3 control-label\">Mobile phone <sup>*</sup></label>\r\n            <div class=\"col-lg-5\">\r\n                <input type=\"text\" class=\"form-control\" name=\"mobilePhone\" />\r\n            </div>\r\n            <div class=\"col-lg-2\">\r\n                <button type=\"button\" class=\"btn btn-info btn-sm\" data-toggle=\"#phoneInfo\">\r\n                    Add more phone numbers\r\n                </button>\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n    <!-- These fields will not be validated as long as they are not visible -->\r\n    <div id=\"phoneInfo\" style=\"display: none;\">\r\n\r\n        <fieldset>\r\n            <div class=\"form-group\">\r\n                <label class=\"col-lg-3 control-label\">Home phone</label>\r\n                <div class=\"col-lg-5\">\r\n                    <input type=\"text\" class=\"form-control\" name=\"homePhone\" />\r\n                </div>\r\n            </div>\r\n        </fieldset>\r\n        <fieldset>\r\n            <div class=\"form-group\">\r\n                <label class=\"col-lg-3 control-label\">Office phone</label>\r\n                <div class=\"col-lg-5\">\r\n                    <input type=\"text\" class=\"form-control\" name=\"officePhone\" />\r\n                </div>\r\n            </div>\r\n        </fieldset>\r\n    </div>\r\n\r\n    <div class=\"form-actions\">\r\n        <div class=\"row\">\r\n            <div class=\"col-md-12\">\r\n                <button class=\"btn btn-default\" type=\"submit\">\r\n                    <i class=\"fa fa-eye\"></i>\r\n                    Validate\r\n                </button>\r\n            </div>\r\n        </div>\r\n    </div>\r\n</form>");}]);
 
 "use strict";
 
@@ -4818,6 +4854,175 @@ angular.module('app.forms').controller('ImageEditorCtrl', function ($scope) {
 angular.module('app.forms').controller('ModalDemoCtrl', function($scope, $modalInstance){
     $scope.closeModal = function(){
         $modalInstance.dismiss('cancel');
+    }
+});
+"use strict";
+
+angular.module('app.inbox').directive('messageLabels', function (InboxConfig) {
+    return {
+        replace: true,
+        restrict: 'AE',
+        link: function (scope, element) {
+
+            if (scope.message.labels && scope.message.labels.length) {
+                InboxConfig.success(function (config) {
+                    var html = _.map(scope.message.labels, function (label) {
+                        return '<span class="label bg-color-'+config.labels[label].color +'">' + config.labels[label].name + '</span>';
+                    }).join('');
+                    element.replaceWith(html);
+                });
+
+            } else {
+                element.replaceWith('');
+            }
+        }
+    }
+});
+"use strict";
+
+angular.module('app.inbox').directive('unreadMessagesCount', function(InboxConfig){
+    return {
+        restrict: 'A',
+        link: function(scope, element){
+            InboxConfig.success(function(config){
+                element.html(_.find(config.folders, {key: 'inbox'}).unread);
+            })
+        }
+    }
+});
+"use strict";
+
+angular.module('app.inbox').factory('InboxConfig', function($http, APP_CONFIG){
+    return $http.get(APP_CONFIG.apiRootUrl + '/inbox.json');
+})
+"use strict";
+
+angular.module('app.inbox').factory('InboxMessage', function($resource, APP_CONFIG){
+   var InboxMessage = $resource(APP_CONFIG.apiRootUrl + '/messages.json/:id', {'id': '@_id'}, {
+        get:{
+            url: APP_CONFIG.apiRootUrl + '/message.json',
+            isArray: false
+        }
+    });
+
+    _.extend(InboxMessage.prototype, {
+        selected: false,
+        hasAttachments: function(){
+            return (_.isArray(this.attachments) && this.attachments.length)
+        },
+        fullAttachmentsTootlip: function(){
+            return 'FILES: ' + _.pluck(this.attachments, 'name').join(', ');
+        },
+        getBodyTeaser: function(){
+            var clearBody  = this.body.replace(/<[^<>]+?>/gm, ' ').replace(/(\s{2}|\n)/gm, ' ');
+
+            var teaserMaxLength = 55 - this.subject.length;
+
+            return clearBody.length > teaserMaxLength ? clearBody.substring(0, teaserMaxLength) + '...' : clearBody;
+        }
+    });
+
+    return InboxMessage;
+
+});
+"use strict";
+
+angular.module('app').controller("LanguagesCtrl",  function LanguagesCtrl($scope, $rootScope, $log, Language, APP_CONFIG){
+
+    $rootScope.lang = $rootScope.lang || {};
+    
+    Language.getLanguages(function(data){
+
+        var languageNumber = 0;
+        data.forEach(function(value, index, fullArray){
+            if(value.key == APP_CONFIG.view_lang){
+                languageNumber = index;
+            }
+        });
+
+        $rootScope.currentLanguage = data[languageNumber];
+
+        $rootScope.languages = data;
+
+        Language.getLang(data[languageNumber].key, function(data){
+
+            $rootScope.lang = data;
+        });
+
+    });
+
+    $scope.selectLanguage = function(language){
+        $rootScope.currentLanguage = language;
+        
+        Language.getLang(language.key,function(data){
+
+            $rootScope.lang = data;
+            
+        });
+    }
+
+    $rootScope.getWord = function(key){
+        if(angular.isDefined($rootScope.lang[key])){
+            return $rootScope.lang[key];
+        } 
+        else {
+            return key;
+        }
+    }
+
+});
+"use strict";
+
+angular.module('app').factory('Language', function($http, APP_CONFIG){
+
+	function getLanguage(key, callback) {
+
+		$http.get(APP_CONFIG.apiRootUrl + '/langs/' + key + '.json').success(function(data){
+
+			callback(data);
+			
+		}).error(function(){
+
+			$log.log('Error');
+			callback([]);
+
+		});
+
+	}
+
+	function getLanguages(callback) {
+
+		$http.get(APP_CONFIG.apiRootUrl + '/languages.json').success(function(data){
+
+			callback(data);
+			
+		}).error(function(){
+
+			$log.log('Error');
+			callback([]);
+
+		});
+
+	}
+
+	return {
+		getLang: function(type, callback) {
+			getLanguage(type, callback);
+		},
+		getLanguages:function(callback){
+			getLanguages(callback);
+		}
+	}
+
+});
+"use strict";
+
+angular.module('app').directive('languageSelector', function(Language){
+    return {
+        restrict: "EA",
+        replace: true,
+        templateUrl: "app/layout/language/language-selector.tpl.html",
+        scope: true
     }
 });
 "use strict";
@@ -5127,175 +5332,6 @@ angular.module('app.graphs').controller('FlotCtrl', function ($scope) {
 });
 "use strict";
 
-angular.module('app.inbox').directive('messageLabels', function (InboxConfig) {
-    return {
-        replace: true,
-        restrict: 'AE',
-        link: function (scope, element) {
-
-            if (scope.message.labels && scope.message.labels.length) {
-                InboxConfig.success(function (config) {
-                    var html = _.map(scope.message.labels, function (label) {
-                        return '<span class="label bg-color-'+config.labels[label].color +'">' + config.labels[label].name + '</span>';
-                    }).join('');
-                    element.replaceWith(html);
-                });
-
-            } else {
-                element.replaceWith('');
-            }
-        }
-    }
-});
-"use strict";
-
-angular.module('app.inbox').directive('unreadMessagesCount', function(InboxConfig){
-    return {
-        restrict: 'A',
-        link: function(scope, element){
-            InboxConfig.success(function(config){
-                element.html(_.find(config.folders, {key: 'inbox'}).unread);
-            })
-        }
-    }
-});
-"use strict";
-
-angular.module('app.inbox').factory('InboxConfig', function($http, APP_CONFIG){
-    return $http.get(APP_CONFIG.apiRootUrl + '/inbox.json');
-})
-"use strict";
-
-angular.module('app.inbox').factory('InboxMessage', function($resource, APP_CONFIG){
-   var InboxMessage = $resource(APP_CONFIG.apiRootUrl + '/messages.json/:id', {'id': '@_id'}, {
-        get:{
-            url: APP_CONFIG.apiRootUrl + '/message.json',
-            isArray: false
-        }
-    });
-
-    _.extend(InboxMessage.prototype, {
-        selected: false,
-        hasAttachments: function(){
-            return (_.isArray(this.attachments) && this.attachments.length)
-        },
-        fullAttachmentsTootlip: function(){
-            return 'FILES: ' + _.pluck(this.attachments, 'name').join(', ');
-        },
-        getBodyTeaser: function(){
-            var clearBody  = this.body.replace(/<[^<>]+?>/gm, ' ').replace(/(\s{2}|\n)/gm, ' ');
-
-            var teaserMaxLength = 55 - this.subject.length;
-
-            return clearBody.length > teaserMaxLength ? clearBody.substring(0, teaserMaxLength) + '...' : clearBody;
-        }
-    });
-
-    return InboxMessage;
-
-});
-"use strict";
-
-angular.module('app').controller("LanguagesCtrl",  function LanguagesCtrl($scope, $rootScope, $log, Language, APP_CONFIG){
-
-    $rootScope.lang = $rootScope.lang || {};
-    
-    Language.getLanguages(function(data){
-
-        var languageNumber = 0;
-        data.forEach(function(value, index, fullArray){
-            if(value.key == APP_CONFIG.view_lang){
-                languageNumber = index;
-            }
-        });
-
-        $rootScope.currentLanguage = data[languageNumber];
-
-        $rootScope.languages = data;
-
-        Language.getLang(data[languageNumber].key, function(data){
-
-            $rootScope.lang = data;
-        });
-
-    });
-
-    $scope.selectLanguage = function(language){
-        $rootScope.currentLanguage = language;
-        
-        Language.getLang(language.key,function(data){
-
-            $rootScope.lang = data;
-            
-        });
-    }
-
-    $rootScope.getWord = function(key){
-        if(angular.isDefined($rootScope.lang[key])){
-            return $rootScope.lang[key];
-        } 
-        else {
-            return key;
-        }
-    }
-
-});
-"use strict";
-
-angular.module('app').factory('Language', function($http, APP_CONFIG){
-
-	function getLanguage(key, callback) {
-
-		$http.get(APP_CONFIG.apiRootUrl + '/langs/' + key + '.json').success(function(data){
-
-			callback(data);
-			
-		}).error(function(){
-
-			$log.log('Error');
-			callback([]);
-
-		});
-
-	}
-
-	function getLanguages(callback) {
-
-		$http.get(APP_CONFIG.apiRootUrl + '/languages.json').success(function(data){
-
-			callback(data);
-			
-		}).error(function(){
-
-			$log.log('Error');
-			callback([]);
-
-		});
-
-	}
-
-	return {
-		getLang: function(type, callback) {
-			getLanguage(type, callback);
-		},
-		getLanguages:function(callback){
-			getLanguages(callback);
-		}
-	}
-
-});
-"use strict";
-
-angular.module('app').directive('languageSelector', function(Language){
-    return {
-        restrict: "EA",
-        replace: true,
-        templateUrl: "app/layout/language/language-selector.tpl.html",
-        scope: true
-    }
-});
-"use strict";
-
 angular.module('app').directive('toggleShortcut', function($log,$timeout) {
 
 	var initDomEvents = function($element){
@@ -5358,126 +5394,232 @@ angular.module('app').directive('toggleShortcut', function($log,$timeout) {
 })
 "use strict";
 
-angular.module('app.mainwork').controller('MainWorkCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, billboardData) {
+angular.module('app.mainwork').controller('MainWorkCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, RestfulApi, ToolboxApi) {
     
-    var $vm = this;
-
-    var cellClass = function(grid, row, col, rowRenderIndex, colRenderIndex) {
-        if (row.entity.BB_IsTop == 1) {
-            return 'bg-color-lighten';
-        }
-    }
+    var $vm = this,
+        cellClass = function(grid, row, col, rowRenderIndex, colRenderIndex) {
+            if (row.entity.BB_STICK_TOP) {
+                return 'bg-color-lighten';
+            }
+        };
 
     angular.extend(this, {
+        Init : function(){
+            LoadBB();
+        },
         profile : Session.Get(),
-        billboardOptions : {
-            data:  billboardData,
-            columnDefs: [
-                { name: 'BB_STICK_TOP',    displayName: '置頂', cellClass: cellClass, cellTemplate: $templateCache.get('accessibilityIsTop'), width: '5%' },
-                { name: 'BB_EXPECTED_POST', displayName: '公佈時間', cellClass: cellClass },
-                { name: 'BB_TITLE',    displayName: '標題', cellClass: cellClass },
-                { name: 'BB_CONTENT',  displayName: '內容', cellClass: cellClass },
-                { name: 'BB_CR_Name',  displayName: '公佈人員名稱', cellClass: cellClass }
-            ],
-            enableFiltering: false,
-            enableSorting: false,
-            enableColumnMenus: false,
-            // enableVerticalScrollbar: false,
-            paginationPageSizes: [10, 25, 50],
-            paginationPageSize: 10
-        },
         gridMethod : {
-            //Select
-            selectData : function(row){
-                console.log(row);
-            }
-        },
-        allOrdersOptions : {
-            data:  [
-                {
-                    a : '2017-02-09',
-                    b : '297-64659291',
-                    c : '2017-01-15',
-                    d : 'CI5822',
-                    e : 'HK',
-                    f : '新桥供应链',
-                    g : true
-                },
-                {
-                    a : '2017-02-09',
-                    b : '297-64659292',
-                    c : '2017-01-15',
-                    d : 'CI5822',
-                    e : 'HK',
-                    f : '新桥供应链',
-                    g : false
-                },
-            ],
-            columnDefs: [
-                { name: 'a',        displayName: '提單日期' },
-                { name: 'b',        displayName: '主號' },
-                { name: 'c',        displayName: '進口日期' },
-                { name: 'd',        displayName: '班機' },
-                { name: 'e',        displayName: '啟運國別' },
-                { name: 'f',        displayName: '寄件人或公司' },
-                { name: 'g',        displayName: '是否已領單', visible: false },
-                { name: 'options',  displayName: '操作', cellTemplate: $templateCache.get('accessibilityToS') }
-            ],
-            enableFiltering: false,
-            enableSorting: false,
-            enableColumnMenus: false,
-            // enableVerticalScrollbar: false,
-            paginationPageSizes: [10, 25, 50],
-            paginationPageSize: 10
-        }
-    });
-    // this.profile = Session.Get();
+            // 顯示消息
+            showNews : function(row){
+                console.log(row.entity);
+                var modalInstance = $uibModal.open({
+                    animation: true,
+                    ariaLabelledBy: 'modal-title',
+                    ariaDescribedBy: 'modal-body',
+                    templateUrl: 'news.html',
+                    controller: 'NewsModalInstanceCtrl',
+                    controllerAs: '$ctrl',
+                    size: 'lg',
+                    resolve: {
+                        vmData: function () {
+                            return row.entity;
+                        }
+                    }
+                });
 
-    $vm.Editor = function (pProfile){
-        console.log(pProfile);
-        var modalInstance = $uibModal.open({
-            animation: true,
-            ariaLabelledBy: 'modal-title',
-            ariaDescribedBy: 'modal-body',
-            templateUrl: 'myModalContent.html',
-            controller: 'ModalInstanceCtrl',
-            controllerAs: '$ctrl',
-            size: 'lg',
-            // appendTo: parentElem,
-            resolve: {
-                items: function() {
-                    return pProfile;
+                modalInstance.result.then(function(selectedItem) {
+                    
+                }, function() {
+                    // $log.info('Modal dismissed at: ' + new Date());
+                });
+            },
+            // 一次下載所有檔案
+            downloadFiles : function(row){
+                console.log(row);
+                // 檔案數大於0
+                if(row.entity.BBAF_COUNTS > 0){
+                    var modalInstance = $uibModal.open({
+                        animation: true,
+                        ariaLabelledBy: 'modal-title',
+                        ariaDescribedBy: 'modal-body',
+                        templateUrl: 'downloadFiles.html',
+                        controller: 'DownloadFilesModalInstanceCtrl',
+                        controllerAs: '$ctrl',
+                        // size: 'lg',
+                        resolve: {
+                            vmData: function () {
+                                return row.entity;
+                            }
+                        }
+                    });
+
+                    modalInstance.result.then(function(selectedItem) {
+                        console.log(selectedItem);
+                        if(selectedItem.length > 0){
+                            var _params = [];
+                            for(var i in selectedItem){
+                                _params.push({
+                                    Filepath : selectedItem[i].BBAF_FILEPATH,
+                                    oFilename : selectedItem[i].BBAF_O_FILENAME,
+                                    rFilename : selectedItem[i].BBAF_R_FILENAME
+                                });
+                            }
+
+                            ToolboxApi.DownloadFiles({
+                                filename : '檔案下載.zip',
+                                params: _params
+                            }).then(function (res) {
+                                
+                            }, function (err) {
+                                
+                            });
+                        }
+                    }, function() {
+                        // $log.info('Modal dismissed at: ' + new Date());
+                    });
+                }else{
+                    toaster.pop('info', '訊息', '無檔案可下載', 3000);
                 }
             }
-        });
+        },
+        billboardOptions : {
+            data:  '$vm.billboardData',
+            columnDefs: [
+                { name: 'BB_STICK_TOP', displayName: '置頂', cellClass: cellClass, cellTemplate: $templateCache.get('accessibilityIsTop'), width: '5%' },
+                { name: 'BB_POST_FROM', displayName: '開始公佈時間', cellFilter: 'dateFilter', cellClass: cellClass },
+                { name: 'BB_POST_TOXX', displayName: '結束公佈時間', cellFilter: 'dateFilter', cellClass: cellClass },
+                { name: 'BB_TITLE',     displayName: '標題', cellClass: cellClass, cellTemplate: $templateCache.get('accessibilityTitleURL') },
+                { name: 'BB_CONTENT',   displayName: '內容', visible: false, cellClass: cellClass },
+                { name: 'BB_CR_USER',   visible: false },
+                { name: 'BB_CR_DATETIME',   visible: false },
+                { name: 'BBAF_COUNTS',  displayName: '附件', width: '5%', cellClass: cellClass, cellTemplate: $templateCache.get('accessibilityFileCounts') },
+                { name: 'U_NAME',       displayName: '公佈人員名稱', visible: false, cellClass: cellClass },
+                { name: 'Options'     , displayName: '下載', width: '7%', enableFiltering: false, cellClass: cellClass, cellTemplate: $templateCache.get('accessibilityToOnceDownload') }
+            ],
+            enableFiltering: false,
+            enableSorting: false,
+            enableColumnMenus: false,
+            // enableVerticalScrollbar: false,
+            paginationPageSizes: [10, 25, 50],
+            paginationPageSize: 10,
+            onRegisterApi: function(gridApi){
+                $vm.billboardGridApi = gridApi;
+            }
+        },
+        // gridMethod : {
+        //     //Select
+        //     selectData : function(row){
+        //         console.log(row);
+        //     }
+        // },
+        // allOrdersOptions : {
+        //     data:  [
+        //         {
+        //             a : '2017-02-09',
+        //             b : '297-64659291',
+        //             c : '2017-01-15',
+        //             d : 'CI5822',
+        //             e : 'HK',
+        //             f : '新桥供应链',
+        //             g : true
+        //         },
+        //         {
+        //             a : '2017-02-09',
+        //             b : '297-64659292',
+        //             c : '2017-01-15',
+        //             d : 'CI5822',
+        //             e : 'HK',
+        //             f : '新桥供应链',
+        //             g : false
+        //         },
+        //     ],
+        //     columnDefs: [
+        //         { name: 'a',        displayName: '提單日期' },
+        //         { name: 'b',        displayName: '主號' },
+        //         { name: 'c',        displayName: '進口日期' },
+        //         { name: 'd',        displayName: '班機' },
+        //         { name: 'e',        displayName: '啟運國別' },
+        //         { name: 'f',        displayName: '寄件人或公司' },
+        //         { name: 'g',        displayName: '是否已領單', visible: false },
+        //         { name: 'options',  displayName: '操作', cellTemplate: $templateCache.get('accessibilityToS') }
+        //     ],
+        //     enableFiltering: false,
+        //     enableSorting: false,
+        //     enableColumnMenus: false,
+        //     // enableVerticalScrollbar: false,
+        //     paginationPageSizes: [10, 25, 50],
+        //     paginationPageSize: 10
+        // }
+    });
 
-        modalInstance.result.then(function(selectedItem) {
-            // $ctrl.selected = selectedItem;
-        }, function() {
-            // $log.info('Modal dismissed at: ' + new Date());
+    function LoadBB(){
+        RestfulApi.SearchMSSQLData({
+            querymain: 'main',
+            queryname: 'SelectAllBillboard'
+        }).then(function (res){
+            $vm.billboardData = res["returnData"];
+        }).finally(function() {
+            HandleWindowResize($vm.billboardGridApi);
         });
+    }
+})
+.controller('NewsModalInstanceCtrl', function ($uibModalInstance, vmData) {
+    var $ctrl = this;
+    $ctrl.mdData = vmData;
 
+    $ctrl.ok = function() {
+        $uibModalInstance.close();
+    };
+
+    $ctrl.cancel = function() {
+        $uibModalInstance.dismiss('cancel');
+    };
+})
+.controller('DownloadFilesModalInstanceCtrl', function ($uibModalInstance, vmData, RestfulApi, $templateCache) {
+    var $ctrl = this;
+    $ctrl.vmData = vmData;
+    $ctrl.mdData = [];
+
+    $ctrl.MdInit = function(){
+        RestfulApi.SearchMSSQLData({
+            querymain: 'main',
+            queryname: 'SelectBBAF',
+            params: {
+                BBAF_CR_USER : $ctrl.vmData.BB_CR_USER,
+                BBAF_CR_DATETIME : $ctrl.vmData.BB_CR_DATETIME
+            }
+        }).then(function (res){
+            $ctrl.mdData = res["returnData"];
+            console.log($ctrl.mdData);
+        })
+    };
+
+    $ctrl.mdDataOptions = {
+        data:  '$ctrl.mdData',
+        columnDefs: [
+            { name: 'BBAF_O_FILENAME', displayName: '檔案名稱' },
+            { name: 'BBAF_FILESIZE',   displayName: '檔案大小', cellFilter: 'dataMBSize' },
+            { name: 'BBAF_FILEPATH', visible: false },
+            { name: 'BBAF_R_FILENAME', visible: false }
+        ],
+        enableFiltering: false,
+        enableSorting: false,
+        enableColumnMenus: false,
+        enableRowSelection: true,
+        enableSelectAll: true,
+        onRegisterApi: function(gridApi){
+            $ctrl.mdDataGridApi = gridApi;
+        }
     }
 
-    // $scope.Login = function(mlVM){
-    //     console.log(mlVM);
-    //     AuthApi.Login({
-    //         queryname: 'SelectAllUserInfo',
-    //         params: {
-    //             U_ID : mlVM.userid,
-    //             U_PW : mlVM.password
-    //         }
-    //     }).then(function(res) {
-    //         // console.log(res);
-    //         if(res.data["returnData"] && res.data["returnData"].length > 0){
-    //             toaster.success("狀態", "登入成功", 3000);
-    //             $state.transitionTo("app.dashboard");
-    //         }else{                
-    //             toaster.error("狀態", "帳號密碼錯誤", 3000);
-    //         }
-    //     });
-    // }
-})
+    $ctrl.ok = function() {
+        $uibModalInstance.close($ctrl.mdDataGridApi.selection.getSelectedRows());
+    };
+
+    $ctrl.cancel = function() {
+        $uibModalInstance.dismiss('cancel');
+    };
+});
 'use strict';
 
 angular.module('app.maps').controller('MapsDemoCtrl',
@@ -6053,7 +6195,8 @@ angular.module('app.settings').controller('AccountManagementCtrl', function ($sc
                     table: 6,
                     params: {
                         SG_TITLE : selectedItem.TITLE,
-                        SG_DESC  : selectedItem.DESC
+                        SG_DESC  : selectedItem.DESC,
+                        SG_CR_DATETIME : $filter('date')(new Date(), 'yyyy-MM-dd HH:mm:ss')
                     }
                 }).then(function(res) {
                     console.log(res);
@@ -6153,7 +6296,10 @@ angular.module('app.settings').controller('BillboardEditorCtrl', function ($scop
         gridMethod : {
             //編輯
             modifyData : function(row){
-                console.log(row);
+                // console.log(row);
+                $state.transitionTo("app.settings.billboardeditor.news", {
+                    data: row.entity
+                });
             }
         },
         billboardEditorOptions : {
@@ -6169,6 +6315,7 @@ angular.module('app.settings').controller('BillboardEditorCtrl', function ($scop
                 { name: 'BB_POST_FROM'   , displayName: '開始日期', cellFilter: 'dateFilter' },
                 { name: 'BB_POST_TOXX'   , displayName: '結束日期', cellFilter: 'dateFilter' },
                 { name: 'BB_TITLE'       , displayName: '標題' },
+                { name: 'BB_CONTENT'     , visible: false },
                 { name: 'BB_IO_TYPE'     , displayName: '公佈類型', cellFilter: 'ioTypeFilter', filter: 
                     {
                         term: null,
@@ -6196,6 +6343,50 @@ angular.module('app.settings').controller('BillboardEditorCtrl', function ($scop
         },
         DeleteNews : function(){
             console.log($vm.billboardEditorGridApi.selection.getSelectedRows());
+
+            var modalInstance = $uibModal.open({
+                animation: true,
+                ariaLabelledBy: 'modal-title',
+                ariaDescribedBy: 'modal-body',
+                templateUrl: 'isDelete.html',
+                controller: 'IsDeleteModalInstanceCtrl',
+                controllerAs: '$ctrl',
+                size: 'sm',
+                resolve: {
+                    items: function () {
+                        return $vm.billboardEditorGridApi.selection.getSelectedRows();
+                    }
+                }
+            });
+
+            modalInstance.result.then(function(selectedItem) {
+                console.log(selectedItem);
+
+                var _tasks = [];
+
+                for(var i in selectedItem){
+                    _tasks.push({
+                        crudType: 'Update',
+                        table: 1,
+                        params: {
+                            BB_SOFT_DELETE : true
+                        },
+                        condition: {
+                            BB_CR_USER : selectedItem[i].BB_CR_USER,
+                            BB_CR_DATETIME : selectedItem[i].BB_CR_DATETIME
+                        }
+                    });
+                }
+
+                RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res) {
+                    toaster.pop('success', '訊息', '公佈區刪除成功', 3000);
+                    LoadBillboardEditor();
+                }, function (err) {
+
+                });
+            }, function() {
+                // $log.info('Modal dismissed at: ' + new Date());
+            });
         },
         billboardHistoryOptions : {
             data: '$vm.billboardHistoryData',
@@ -6231,6 +6422,54 @@ angular.module('app.settings').controller('BillboardEditorCtrl', function ($scop
             onRegisterApi: function(gridApi){
                 $vm.billboardHistoryGridApi = gridApi;
             }
+        },
+        DeleteHistoryNews : function(){
+            console.log($vm.billboardHistoryGridApi.selection.getSelectedRows());
+
+            var modalInstance = $uibModal.open({
+                animation: true,
+                ariaLabelledBy: 'modal-title',
+                ariaDescribedBy: 'modal-body',
+                templateUrl: 'isDelete.html',
+                controller: 'IsDeleteModalInstanceCtrl',
+                controllerAs: '$ctrl',
+                size: 'sm',
+                resolve: {
+                    items: function () {
+                        return $vm.billboardHistoryGridApi.selection.getSelectedRows();
+                    }
+                }
+            });
+
+            modalInstance.result.then(function(selectedItem) {
+                console.log(selectedItem);
+
+                var _tasks = [];
+
+                for(var i in selectedItem){
+                    _tasks.push({
+                        crudType: 'Update',
+                        table: 1,
+                        params: {
+                            BB_SOFT_DELETE : true
+                        },
+                        condition: {
+                            BB_CR_USER : selectedItem[i].BB_CR_USER,
+                            BB_CR_DATETIME : selectedItem[i].BB_CR_DATETIME
+                        }
+                    });
+                }
+
+                RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res) {
+                    toaster.pop('success', '訊息', '歷史區刪除成功', 3000);
+                    LoadBillboardHistory();
+                }, function (err) {
+
+                });
+            }, function() {
+                // $log.info('Modal dismissed at: ' + new Date());
+            });
+            
         }
     });
 
@@ -6463,13 +6702,20 @@ angular.module('app.settings').controller('NewsCtrl', function ($scope, $statePa
             // if($stateParams.data == null) ReturnToBillboardEditorPage();
             if($stateParams.data == null){
                 $vm.vmData = {
-                    STICK_TOP : false,
-                    IO_TYPE : "All",
-                    CONTENT : "",
+                    BB_STICK_TOP : false,
+                    BB_IO_TYPE : "All",
+                    BB_CONTENT : "",
+                    UploadedData : [],
                     IU : "Add"
                 }
             }else{
                 $vm.vmData = $stateParams.data;
+                $vm.vmData["IU"] = "Update";
+
+                _d = $vm.vmData["BB_CR_DATETIME"].replace(/\Z/g, '');
+
+                LoadBBPG();
+                LoadBBAF();
             }
         },
         profile : Session.Get(),
@@ -6520,6 +6766,48 @@ angular.module('app.settings').controller('NewsCtrl', function ($scope, $statePa
             });
 
         },
+        /**
+         * [DeleteUploaded description] 刪除已上傳檔案
+         * @param {[type]} pDeleteUploaded [description] 檔案
+         * @param {[type]} pIndex          [description] array index
+         */
+        DeleteUploaded : function(pDeleteUploaded, pIndex){
+            var modalInstance = $uibModal.open({
+                animation: true,
+                ariaLabelledBy: 'modal-title',
+                ariaDescribedBy: 'modal-body',
+                templateUrl: 'isDelete.html',
+                controller: 'IsDeleteModalInstanceCtrl',
+                controllerAs: '$ctrl',
+                size: 'sm',
+                resolve: {
+                    items: function () {
+                        return pDeleteUploaded;
+                    }
+                }
+            });
+
+            modalInstance.result.then(function(selectedItem) {
+                // console.log(selectedItem);
+
+                RestfulApi.UpdateMSSQLData({
+                    updatename: 'Update',
+                    table: 2,
+                    params: {
+                        BBAF_SOFT_DELETE : true
+                    },
+                    condition: {
+                        BBAF_ID : selectedItem.BBAF_ID
+                    }
+                }).then(function (res) {
+                    $vm.vmData.UploadedData.splice(pIndex, 1);
+                }, function (err) {
+
+                });
+            }, function() {
+                // $log.info('Modal dismissed at: ' + new Date());
+            });
+        },
         Return : function(){
             ReturnToBillboardEditorPage();
         },
@@ -6531,17 +6819,60 @@ angular.module('app.settings').controller('NewsCtrl', function ($scope, $statePa
                 crudType: 'Insert',
                 table: 1,
                 params: {
-                    BB_TITLE : $vm.vmData.TITLE,
-                    BB_CONTENT : $vm.vmData.CONTENT,
-                    BB_POST_FROM : $vm.vmData.POST_FROM,
-                    BB_POST_TOXX : $vm.vmData.POST_TOXX,
-                    BB_IO_TYPE : $vm.vmData.IO_TYPE,
+                    BB_TITLE : $vm.vmData.BB_TITLE,
+                    BB_CONTENT : $vm.vmData.BB_CONTENT,
+                    BB_POST_FROM : $vm.vmData.BB_POST_FROM,
+                    BB_POST_TOXX : $vm.vmData.BB_POST_TOXX,
+                    BB_STICK_TOP : $vm.vmData.BB_STICK_TOP,
+                    BB_IO_TYPE : $vm.vmData.BB_IO_TYPE,
                     BB_CR_USER : $vm.profile.U_ID,
                     BB_CR_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss')
                 }
             });
 
             // Insert 公佈對象
+            for(var i in DeleteAndInsertPostGoal()){
+                _tasks.push(DeleteAndInsertPostGoal()[i]);
+            }
+
+            // 有上傳檔案 先上傳檔案之後再Insert DB
+            if($vm.uploader.getNotUploadedItems().length > 0){
+                $vm.uploader.uploadAll();
+            }
+            // 無上傳檔案 直接Insert DB
+            else{
+                RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res) {
+                    console.log(res);
+                    ReturnToBillboardEditorPage();
+                }, function (err) {
+                    console.log(err);
+                });
+            }
+        },
+        Update : function(){
+            console.log($vm.vmData);
+
+            // Update 主表
+            _tasks.push({
+                crudType: 'Update',
+                table: 1,
+                params: {
+                    BB_TITLE : $vm.vmData.BB_TITLE,
+                    BB_CONTENT : $vm.vmData.BB_CONTENT,
+                    BB_POST_FROM : $vm.vmData.BB_POST_FROM,
+                    BB_POST_TOXX : $vm.vmData.BB_POST_TOXX,
+                    BB_STICK_TOP : $vm.vmData.BB_STICK_TOP,
+                    BB_IO_TYPE : $vm.vmData.BB_IO_TYPE,
+                    BB_UP_USER : $vm.profile.U_ID,
+                    BB_UP_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss')
+                },
+                condition: {
+                    BB_CR_USER : $vm.vmData.BB_CR_USER,
+                    BB_CR_DATETIME : $vm.vmData.BB_CR_DATETIME
+                }
+            });
+
+            // Delete And Insert 公佈對象
             for(var i in DeleteAndInsertPostGoal()){
                 _tasks.push(DeleteAndInsertPostGoal()[i]);
             }
@@ -6667,6 +6998,7 @@ angular.module('app.settings').controller('NewsCtrl', function ($scope, $statePa
                     BBAF_O_FILENAME : response.oFilename,
                     BBAF_R_FILENAME : response.rFilename,
                     BBAF_FILEPATH : response.Filepath,
+                    BBAF_FILESIZE : response.Filesize,
                     BBAF_CR_USER : $vm.profile.U_ID,
                     BBAF_CR_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss')
                 }
@@ -6695,25 +7027,68 @@ angular.module('app.settings').controller('NewsCtrl', function ($scope, $statePa
                 crudType: 'Delete',
                 table: 3,
                 params: {
-                    BBPG_CR_USER : $vm.vmData.CR_USER,
-                    BBPG_CR_DATETIME : $vm.vmData.CR_DATETIME
+                    BBPG_CR_USER : $vm.vmData.BB_CR_USER,
+                    BBPG_CR_DATETIME : $vm.vmData.BB_CR_DATETIME
                 }
             });
         }
 
         for(var i in $vm.vmData["PostGoal"]){
-            _task.push({
-                crudType: 'Insert',
-                table: 3,
-                params: {
-                    BBPG_CR_USER : $vm.profile.U_ID,
-                    BBPG_CR_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss'),
-                    BBPG_GOAL_ID : $vm.vmData.PostGoal[i].CODE
+            if($vm.vmData.BB_IO_TYPE == 'All'){
+                _task.push({
+                    crudType: 'Insert',
+                    table: 3,
+                    params: {
+                        BBPG_CR_USER : $vm.profile.U_ID,
+                        BBPG_CR_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss'),
+                        BBPG_GOAL_ID : $vm.vmData.PostGoal[i].CODE
+                    }
+                });
+            }else{
+                // 當所有變成對內或對外時的判斷
+                if($vm.vmData.PostGoal[i].IO_TYPE == $vm.vmData.BB_IO_TYPE){
+                    _task.push({
+                        crudType: 'Insert',
+                        table: 3,
+                        params: {
+                            BBPG_CR_USER : $vm.profile.U_ID,
+                            BBPG_CR_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss'),
+                            BBPG_GOAL_ID : $vm.vmData.PostGoal[i].CODE
+                        }
+                    });
                 }
-            });
+            }
         }
 
         return _task;
+    };
+
+    function LoadBBPG(){
+        RestfulApi.SearchMSSQLData({
+            querymain: 'news',
+            queryname: 'SelectBBPG',
+            params: {
+                BBPG_CR_USER: $vm.vmData.BB_CR_USER,
+                BBPG_CR_DATETIME: $vm.vmData.BB_CR_DATETIME
+            }
+        }).then(function (res){
+            console.log(res["returnData"]);
+            $vm.vmData.PostGoal = res["returnData"];
+        });
+    };
+
+    function LoadBBAF(){
+        RestfulApi.SearchMSSQLData({
+            querymain: 'news',
+            queryname: 'SelectBBAF',
+            params: {
+                BBAF_CR_USER: $vm.vmData.BB_CR_USER,
+                BBAF_CR_DATETIME: $vm.vmData.BB_CR_DATETIME
+            }
+        }).then(function (res){
+            console.log(res["returnData"]);
+            $vm.vmData.UploadedData = res["returnData"];
+        });
     };
 
     function ReturnToBillboardEditorPage(){
@@ -6733,7 +7108,7 @@ angular.module('app.settings').controller('NewsCtrl', function ($scope, $statePa
 
         var _request = null;
 
-        switch(vmData.IO_TYPE){ 
+        switch(vmData.BB_IO_TYPE){ 
             case "In":
                 _request = {
                     querymain: 'news',
@@ -11316,6 +11691,153 @@ angular.module('app.tables').directive('jqGrid', function ($compile) {
         }
     }
 });
+"use strict";
+
+angular.module('SmartAdmin.Layout').directive('fullScreen', function(){
+    return {
+        restrict: 'A',
+        link: function(scope, element){
+            var $body = $('body');
+            var toggleFullSceen = function(e){
+                if (!$body.hasClass("full-screen")) {
+                    $body.addClass("full-screen");
+                    if (document.documentElement.requestFullscreen) {
+                        document.documentElement.requestFullscreen();
+                    } else if (document.documentElement.mozRequestFullScreen) {
+                        document.documentElement.mozRequestFullScreen();
+                    } else if (document.documentElement.webkitRequestFullscreen) {
+                        document.documentElement.webkitRequestFullscreen();
+                    } else if (document.documentElement.msRequestFullscreen) {
+                        document.documentElement.msRequestFullscreen();
+                    }
+                } else {
+                    $body.removeClass("full-screen");
+                    if (document.exitFullscreen) {
+                        document.exitFullscreen();
+                    } else if (document.mozCancelFullScreen) {
+                        document.mozCancelFullScreen();
+                    } else if (document.webkitExitFullscreen) {
+                        document.webkitExitFullscreen();
+                    }
+                }
+            };
+
+            element.on('click', toggleFullSceen);
+
+        }
+    }
+});
+"use strict";
+
+angular.module('SmartAdmin.Layout').directive('minifyMenu', function(){
+    return {
+        restrict: 'A',
+        link: function(scope, element){
+                var $body = $('body');
+            var minifyMenu = function() {
+                if (!$body.hasClass("menu-on-top")) {
+                    $body.toggleClass("minified");
+                    $body.removeClass("hidden-menu");
+                    $('html').removeClass("hidden-menu-mobile-lock");
+                }
+            };
+
+            element.on('click', minifyMenu);
+        }
+    }
+})
+'use strict';
+
+angular.module('SmartAdmin.Layout').directive('reloadState', function ($rootScope) {
+    return {
+        restrict: 'A',
+        compile: function (tElement, tAttributes) {
+            tElement.removeAttr('reload-state data-reload-state');
+            tElement.on('click', function (e) {
+                $rootScope.$state.transitionTo($rootScope.$state.current, $rootScope.$stateParams, {
+                    reload: true,
+                    inherit: false,
+                    notify: true
+                });
+                e.preventDefault();
+            })
+        }
+    }
+});
+
+"use strict";
+
+angular.module('SmartAdmin.Layout').directive('resetWidgets', function($state){
+
+    return {
+        restrict: 'A',
+        link: function(scope, element){
+            element.on('click', function(){
+                $.SmartMessageBox({
+                    title : "<i class='fa fa-refresh' style='color:green'></i> Clear Local Storage",
+                    content : "Would you like to RESET all your saved widgets and clear LocalStorage?1",
+                    buttons : '[No][Yes]'
+                }, function(ButtonPressed) {
+                    if (ButtonPressed == "Yes" && localStorage) {
+                        localStorage.clear();
+                        location.reload()
+                    }
+                });
+
+            });
+        }
+    }
+
+});
+
+'use strict';
+
+angular.module('SmartAdmin.Layout').directive('searchMobile', function () {
+    return {
+        restrict: 'A',
+        compile: function (element, attributes) {
+            element.removeAttr('search-mobile data-search-mobile');
+
+            element.on('click', function (e) {
+                $('body').addClass('search-mobile');
+                e.preventDefault();
+            });
+
+            $('#cancel-search-js').on('click', function (e) {
+                $('body').removeClass('search-mobile');
+                e.preventDefault();
+            });
+        }
+    }
+});
+"use strict";
+
+angular.module('SmartAdmin.Layout').directive('toggleMenu', function(){
+    return {
+        restrict: 'A',
+        link: function(scope, element){
+            var $body = $('body');
+
+            var toggleMenu = function(){
+                if (!$body.hasClass("menu-on-top")){
+                    $('html').toggleClass("hidden-menu-mobile-lock");
+                    $body.toggleClass("hidden-menu");
+                    $body.removeClass("minified");
+                } else if ( $body.hasClass("menu-on-top") && $body.hasClass("mobile-view-activated") ) {
+                    $('html').toggleClass("hidden-menu-mobile-lock");
+                    $body.toggleClass("hidden-menu");
+                    $body.removeClass("minified");
+                }
+            };
+
+            element.on('click', toggleMenu);
+
+            scope.$on('requestToggleMenu', function(){
+                toggleMenu();
+            });
+        }
+    }
+});
 'use strict';
 
 angular.module('SmartAdmin.Layout').directive('bigBreadcrumbs', function ($rootScope) {
@@ -12392,153 +12914,6 @@ angular.module('SmartAdmin.Layout').directive('stateBreadcrumbs', function ($roo
             $rootScope.$on('$stateChangeStart', function (event, state) {
                 processState(state);
             })
-        }
-    }
-});
-"use strict";
-
-angular.module('SmartAdmin.Layout').directive('fullScreen', function(){
-    return {
-        restrict: 'A',
-        link: function(scope, element){
-            var $body = $('body');
-            var toggleFullSceen = function(e){
-                if (!$body.hasClass("full-screen")) {
-                    $body.addClass("full-screen");
-                    if (document.documentElement.requestFullscreen) {
-                        document.documentElement.requestFullscreen();
-                    } else if (document.documentElement.mozRequestFullScreen) {
-                        document.documentElement.mozRequestFullScreen();
-                    } else if (document.documentElement.webkitRequestFullscreen) {
-                        document.documentElement.webkitRequestFullscreen();
-                    } else if (document.documentElement.msRequestFullscreen) {
-                        document.documentElement.msRequestFullscreen();
-                    }
-                } else {
-                    $body.removeClass("full-screen");
-                    if (document.exitFullscreen) {
-                        document.exitFullscreen();
-                    } else if (document.mozCancelFullScreen) {
-                        document.mozCancelFullScreen();
-                    } else if (document.webkitExitFullscreen) {
-                        document.webkitExitFullscreen();
-                    }
-                }
-            };
-
-            element.on('click', toggleFullSceen);
-
-        }
-    }
-});
-"use strict";
-
-angular.module('SmartAdmin.Layout').directive('minifyMenu', function(){
-    return {
-        restrict: 'A',
-        link: function(scope, element){
-                var $body = $('body');
-            var minifyMenu = function() {
-                if (!$body.hasClass("menu-on-top")) {
-                    $body.toggleClass("minified");
-                    $body.removeClass("hidden-menu");
-                    $('html').removeClass("hidden-menu-mobile-lock");
-                }
-            };
-
-            element.on('click', minifyMenu);
-        }
-    }
-})
-'use strict';
-
-angular.module('SmartAdmin.Layout').directive('reloadState', function ($rootScope) {
-    return {
-        restrict: 'A',
-        compile: function (tElement, tAttributes) {
-            tElement.removeAttr('reload-state data-reload-state');
-            tElement.on('click', function (e) {
-                $rootScope.$state.transitionTo($rootScope.$state.current, $rootScope.$stateParams, {
-                    reload: true,
-                    inherit: false,
-                    notify: true
-                });
-                e.preventDefault();
-            })
-        }
-    }
-});
-
-"use strict";
-
-angular.module('SmartAdmin.Layout').directive('resetWidgets', function($state){
-
-    return {
-        restrict: 'A',
-        link: function(scope, element){
-            element.on('click', function(){
-                $.SmartMessageBox({
-                    title : "<i class='fa fa-refresh' style='color:green'></i> Clear Local Storage",
-                    content : "Would you like to RESET all your saved widgets and clear LocalStorage?1",
-                    buttons : '[No][Yes]'
-                }, function(ButtonPressed) {
-                    if (ButtonPressed == "Yes" && localStorage) {
-                        localStorage.clear();
-                        location.reload()
-                    }
-                });
-
-            });
-        }
-    }
-
-});
-
-'use strict';
-
-angular.module('SmartAdmin.Layout').directive('searchMobile', function () {
-    return {
-        restrict: 'A',
-        compile: function (element, attributes) {
-            element.removeAttr('search-mobile data-search-mobile');
-
-            element.on('click', function (e) {
-                $('body').addClass('search-mobile');
-                e.preventDefault();
-            });
-
-            $('#cancel-search-js').on('click', function (e) {
-                $('body').removeClass('search-mobile');
-                e.preventDefault();
-            });
-        }
-    }
-});
-"use strict";
-
-angular.module('SmartAdmin.Layout').directive('toggleMenu', function(){
-    return {
-        restrict: 'A',
-        link: function(scope, element){
-            var $body = $('body');
-
-            var toggleMenu = function(){
-                if (!$body.hasClass("menu-on-top")){
-                    $('html').toggleClass("hidden-menu-mobile-lock");
-                    $body.toggleClass("hidden-menu");
-                    $body.removeClass("minified");
-                } else if ( $body.hasClass("menu-on-top") && $body.hasClass("mobile-view-activated") ) {
-                    $('html').toggleClass("hidden-menu-mobile-lock");
-                    $body.toggleClass("hidden-menu");
-                    $body.removeClass("minified");
-                }
-            };
-
-            element.on('click', toggleMenu);
-
-            scope.$on('requestToggleMenu', function(){
-                toggleMenu();
-            });
         }
     }
 });
@@ -14178,6 +14553,24 @@ angular.module('SmartAdmin.Forms').directive('smartXeditable', function($timeout
 });
 'use strict';
 
+angular.module('SmartAdmin.Forms').directive('smartDropzone', function () {
+    return function (scope, element, attrs) {
+        var config, dropzone;
+
+        config = scope[attrs.smartDropzone];
+
+        // create a Dropzone for the element with the given options
+        dropzone = new Dropzone(element[0], config.options);
+
+        // bind the given event handlers
+        angular.forEach(config.eventHandlers, function (handler, event) {
+            dropzone.on(event, handler);
+        });
+    };
+});
+
+'use strict';
+
 angular.module('SmartAdmin.Forms').directive('smartValidateForm', function (formsCommon) {
     return {
         restrict: 'A',
@@ -14370,24 +14763,6 @@ angular.module('SmartAdmin.Forms').directive('smartWizard', function () {
         }
     }
 });
-'use strict';
-
-angular.module('SmartAdmin.Forms').directive('smartDropzone', function () {
-    return function (scope, element, attrs) {
-        var config, dropzone;
-
-        config = scope[attrs.smartDropzone];
-
-        // create a Dropzone for the element with the given options
-        dropzone = new Dropzone(element[0], config.options);
-
-        // bind the given event handlers
-        angular.forEach(config.eventHandlers, function (handler, event) {
-            dropzone.on(event, handler);
-        });
-    };
-});
-
 'use strict';
 
 angular.module('SmartAdmin.Layout').directive('demoStates', function ($rootScope) {

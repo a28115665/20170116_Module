@@ -22,13 +22,20 @@ angular.module('app.settings').controller('NewsCtrl', function ($scope, $statePa
             // if($stateParams.data == null) ReturnToBillboardEditorPage();
             if($stateParams.data == null){
                 $vm.vmData = {
-                    STICK_TOP : false,
-                    IO_TYPE : "All",
-                    CONTENT : "",
+                    BB_STICK_TOP : false,
+                    BB_IO_TYPE : "All",
+                    BB_CONTENT : "",
+                    UploadedData : [],
                     IU : "Add"
                 }
             }else{
                 $vm.vmData = $stateParams.data;
+                $vm.vmData["IU"] = "Update";
+
+                _d = $vm.vmData["BB_CR_DATETIME"].replace(/\Z/g, '');
+
+                LoadBBPG();
+                LoadBBAF();
             }
         },
         profile : Session.Get(),
@@ -79,6 +86,48 @@ angular.module('app.settings').controller('NewsCtrl', function ($scope, $statePa
             });
 
         },
+        /**
+         * [DeleteUploaded description] 刪除已上傳檔案
+         * @param {[type]} pDeleteUploaded [description] 檔案
+         * @param {[type]} pIndex          [description] array index
+         */
+        DeleteUploaded : function(pDeleteUploaded, pIndex){
+            var modalInstance = $uibModal.open({
+                animation: true,
+                ariaLabelledBy: 'modal-title',
+                ariaDescribedBy: 'modal-body',
+                templateUrl: 'isDelete.html',
+                controller: 'IsDeleteModalInstanceCtrl',
+                controllerAs: '$ctrl',
+                size: 'sm',
+                resolve: {
+                    items: function () {
+                        return pDeleteUploaded;
+                    }
+                }
+            });
+
+            modalInstance.result.then(function(selectedItem) {
+                // console.log(selectedItem);
+
+                RestfulApi.UpdateMSSQLData({
+                    updatename: 'Update',
+                    table: 2,
+                    params: {
+                        BBAF_SOFT_DELETE : true
+                    },
+                    condition: {
+                        BBAF_ID : selectedItem.BBAF_ID
+                    }
+                }).then(function (res) {
+                    $vm.vmData.UploadedData.splice(pIndex, 1);
+                }, function (err) {
+
+                });
+            }, function() {
+                // $log.info('Modal dismissed at: ' + new Date());
+            });
+        },
         Return : function(){
             ReturnToBillboardEditorPage();
         },
@@ -90,17 +139,60 @@ angular.module('app.settings').controller('NewsCtrl', function ($scope, $statePa
                 crudType: 'Insert',
                 table: 1,
                 params: {
-                    BB_TITLE : $vm.vmData.TITLE,
-                    BB_CONTENT : $vm.vmData.CONTENT,
-                    BB_POST_FROM : $vm.vmData.POST_FROM,
-                    BB_POST_TOXX : $vm.vmData.POST_TOXX,
-                    BB_IO_TYPE : $vm.vmData.IO_TYPE,
+                    BB_TITLE : $vm.vmData.BB_TITLE,
+                    BB_CONTENT : $vm.vmData.BB_CONTENT,
+                    BB_POST_FROM : $vm.vmData.BB_POST_FROM,
+                    BB_POST_TOXX : $vm.vmData.BB_POST_TOXX,
+                    BB_STICK_TOP : $vm.vmData.BB_STICK_TOP,
+                    BB_IO_TYPE : $vm.vmData.BB_IO_TYPE,
                     BB_CR_USER : $vm.profile.U_ID,
                     BB_CR_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss')
                 }
             });
 
             // Insert 公佈對象
+            for(var i in DeleteAndInsertPostGoal()){
+                _tasks.push(DeleteAndInsertPostGoal()[i]);
+            }
+
+            // 有上傳檔案 先上傳檔案之後再Insert DB
+            if($vm.uploader.getNotUploadedItems().length > 0){
+                $vm.uploader.uploadAll();
+            }
+            // 無上傳檔案 直接Insert DB
+            else{
+                RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res) {
+                    console.log(res);
+                    ReturnToBillboardEditorPage();
+                }, function (err) {
+                    console.log(err);
+                });
+            }
+        },
+        Update : function(){
+            console.log($vm.vmData);
+
+            // Update 主表
+            _tasks.push({
+                crudType: 'Update',
+                table: 1,
+                params: {
+                    BB_TITLE : $vm.vmData.BB_TITLE,
+                    BB_CONTENT : $vm.vmData.BB_CONTENT,
+                    BB_POST_FROM : $vm.vmData.BB_POST_FROM,
+                    BB_POST_TOXX : $vm.vmData.BB_POST_TOXX,
+                    BB_STICK_TOP : $vm.vmData.BB_STICK_TOP,
+                    BB_IO_TYPE : $vm.vmData.BB_IO_TYPE,
+                    BB_UP_USER : $vm.profile.U_ID,
+                    BB_UP_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss')
+                },
+                condition: {
+                    BB_CR_USER : $vm.vmData.BB_CR_USER,
+                    BB_CR_DATETIME : $vm.vmData.BB_CR_DATETIME
+                }
+            });
+
+            // Delete And Insert 公佈對象
             for(var i in DeleteAndInsertPostGoal()){
                 _tasks.push(DeleteAndInsertPostGoal()[i]);
             }
@@ -226,6 +318,7 @@ angular.module('app.settings').controller('NewsCtrl', function ($scope, $statePa
                     BBAF_O_FILENAME : response.oFilename,
                     BBAF_R_FILENAME : response.rFilename,
                     BBAF_FILEPATH : response.Filepath,
+                    BBAF_FILESIZE : response.Filesize,
                     BBAF_CR_USER : $vm.profile.U_ID,
                     BBAF_CR_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss')
                 }
@@ -254,25 +347,68 @@ angular.module('app.settings').controller('NewsCtrl', function ($scope, $statePa
                 crudType: 'Delete',
                 table: 3,
                 params: {
-                    BBPG_CR_USER : $vm.vmData.CR_USER,
-                    BBPG_CR_DATETIME : $vm.vmData.CR_DATETIME
+                    BBPG_CR_USER : $vm.vmData.BB_CR_USER,
+                    BBPG_CR_DATETIME : $vm.vmData.BB_CR_DATETIME
                 }
             });
         }
 
         for(var i in $vm.vmData["PostGoal"]){
-            _task.push({
-                crudType: 'Insert',
-                table: 3,
-                params: {
-                    BBPG_CR_USER : $vm.profile.U_ID,
-                    BBPG_CR_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss'),
-                    BBPG_GOAL_ID : $vm.vmData.PostGoal[i].CODE
+            if($vm.vmData.BB_IO_TYPE == 'All'){
+                _task.push({
+                    crudType: 'Insert',
+                    table: 3,
+                    params: {
+                        BBPG_CR_USER : $vm.profile.U_ID,
+                        BBPG_CR_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss'),
+                        BBPG_GOAL_ID : $vm.vmData.PostGoal[i].CODE
+                    }
+                });
+            }else{
+                // 當所有變成對內或對外時的判斷
+                if($vm.vmData.PostGoal[i].IO_TYPE == $vm.vmData.BB_IO_TYPE){
+                    _task.push({
+                        crudType: 'Insert',
+                        table: 3,
+                        params: {
+                            BBPG_CR_USER : $vm.profile.U_ID,
+                            BBPG_CR_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss'),
+                            BBPG_GOAL_ID : $vm.vmData.PostGoal[i].CODE
+                        }
+                    });
                 }
-            });
+            }
         }
 
         return _task;
+    };
+
+    function LoadBBPG(){
+        RestfulApi.SearchMSSQLData({
+            querymain: 'news',
+            queryname: 'SelectBBPG',
+            params: {
+                BBPG_CR_USER: $vm.vmData.BB_CR_USER,
+                BBPG_CR_DATETIME: $vm.vmData.BB_CR_DATETIME
+            }
+        }).then(function (res){
+            console.log(res["returnData"]);
+            $vm.vmData.PostGoal = res["returnData"];
+        });
+    };
+
+    function LoadBBAF(){
+        RestfulApi.SearchMSSQLData({
+            querymain: 'news',
+            queryname: 'SelectBBAF',
+            params: {
+                BBAF_CR_USER: $vm.vmData.BB_CR_USER,
+                BBAF_CR_DATETIME: $vm.vmData.BB_CR_DATETIME
+            }
+        }).then(function (res){
+            console.log(res["returnData"]);
+            $vm.vmData.UploadedData = res["returnData"];
+        });
     };
 
     function ReturnToBillboardEditorPage(){
@@ -292,7 +428,7 @@ angular.module('app.settings').controller('NewsCtrl', function ($scope, $statePa
 
         var _request = null;
 
-        switch(vmData.IO_TYPE){ 
+        switch(vmData.BB_IO_TYPE){ 
             case "In":
                 _request = {
                     querymain: 'news',
