@@ -40,8 +40,36 @@ angular.module('app.mainwork').controller('MainWorkCtrl', function ($scope, $sta
                 });
             },
             // 一次下載所有檔案
-            onceDownload : function(row){
+            downloadFiles : function(row){
                 console.log(row);
+                // 檔案數大於0
+                if(row.entity.BBAF_COUNTS > 0){
+                    var modalInstance = $uibModal.open({
+                        animation: true,
+                        ariaLabelledBy: 'modal-title',
+                        ariaDescribedBy: 'modal-body',
+                        templateUrl: 'downloadFiles.html',
+                        controller: 'DownloadFilesModalInstanceCtrl',
+                        controllerAs: '$ctrl',
+                        // size: 'lg',
+                        resolve: {
+                            vmData: function () {
+                                return row.entity;
+                            }
+                        }
+                    });
+
+                    modalInstance.result.then(function(selectedItem) {
+                        console.log(selectedItem);
+                        if(selectedItem.length > 0){
+
+                        }
+                    }, function() {
+                        // $log.info('Modal dismissed at: ' + new Date());
+                    });
+                }else{
+                    toaster.pop('info', '訊息', '無檔案可下載', 3000);
+                }
             }
         },
         billboardOptions : {
@@ -52,8 +80,9 @@ angular.module('app.mainwork').controller('MainWorkCtrl', function ($scope, $sta
                 { name: 'BB_POST_TOXX', displayName: '結束公佈時間', cellFilter: 'dateFilter', cellClass: cellClass },
                 { name: 'BB_TITLE',     displayName: '標題', cellClass: cellClass, cellTemplate: $templateCache.get('accessibilityTitleURL') },
                 { name: 'BB_CONTENT',   displayName: '內容', visible: false, cellClass: cellClass },
+                { name: 'BB_CR_USER',   visible: false },
                 { name: 'BB_CR_DATETIME',   visible: false },
-                { name: 'BBAF_COUNTS',  displayName: '附件量', width: '5%', cellClass: cellClass, cellTemplate: $templateCache.get('accessibilityFileCounts') },
+                { name: 'BBAF_COUNTS',  displayName: '附件', width: '5%', cellClass: cellClass, cellTemplate: $templateCache.get('accessibilityFileCounts') },
                 { name: 'U_NAME',       displayName: '公佈人員名稱', visible: false, cellClass: cellClass },
                 { name: 'Options'     , displayName: '下載', width: '7%', enableFiltering: false, cellClass: cellClass, cellTemplate: $templateCache.get('accessibilityToOnceDownload') }
             ],
@@ -130,6 +159,51 @@ angular.module('app.mainwork').controller('MainWorkCtrl', function ($scope, $sta
 
     $ctrl.ok = function() {
         $uibModalInstance.close();
+    };
+
+    $ctrl.cancel = function() {
+        $uibModalInstance.dismiss('cancel');
+    };
+})
+.controller('DownloadFilesModalInstanceCtrl', function ($uibModalInstance, vmData, RestfulApi, $templateCache) {
+    var $ctrl = this;
+    $ctrl.vmData = vmData;
+    $ctrl.mdData = [];
+
+    $ctrl.MdInit = function(){
+        RestfulApi.SearchMSSQLData({
+            querymain: 'main',
+            queryname: 'SelectBBAF',
+            params: {
+                BBAF_CR_USER : $ctrl.vmData.BB_CR_USER,
+                BBAF_CR_DATETIME : $ctrl.vmData.BB_CR_DATETIME
+            }
+        }).then(function (res){
+            $ctrl.mdData = res["returnData"];
+            console.log($ctrl.mdData);
+        })
+    };
+
+    $ctrl.mdDataOptions = {
+        data:  '$ctrl.mdData',
+        columnDefs: [
+            { name: 'BBAF_O_FILENAME', displayName: '檔案名稱' },
+            { name: 'BBAF_FILESIZE',   displayName: '檔案大小', cellFilter: 'dataMBSize' },
+            { name: 'BBAF_FILEPATH', visible: false },
+            { name: 'BBAF_R_FILENAME', visible: false }
+        ],
+        enableFiltering: false,
+        enableSorting: false,
+        enableColumnMenus: false,
+        enableRowSelection: true,
+        enableSelectAll: true,
+        onRegisterApi: function(gridApi){
+            $ctrl.mdDataGridApi = gridApi;
+        }
+    }
+
+    $ctrl.ok = function() {
+        $uibModalInstance.close($ctrl.mdDataGridApi.selection.getSelectedRows());
     };
 
     $ctrl.cancel = function() {

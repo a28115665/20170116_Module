@@ -10,7 +10,7 @@ angular.module('app')
                                                 <span class="badge bg-color-orange">{{row.entity.BBAF_COUNTS}}</span>\
                                               </div>');
     $templateCache.put('accessibilityToOnceDownload', '<div class="ui-grid-cell-contents text-center">\
-                                                <a href="javascript:void(0);" class="btn btn-default txt-color-pink btn-xs" href="#" ng-click="grid.appScope.$vm.gridMethod.onceDownload(row)" ng-disabled="row.entity.BBAF_COUNTS == 0"><i class="fa fa-download fa-lg"></i></a>\
+                                                <a href="javascript:void(0);" class="btn btn-default txt-color-pink btn-xs" href="#" ng-click="grid.appScope.$vm.gridMethod.downloadFiles(row)"><i class="fa fa-download fa-lg"></i></a>\
                                             </div>');
     
 	$templateCache.put('accessibilityToS', '<div class="ui-grid-cell-contents text-center">\

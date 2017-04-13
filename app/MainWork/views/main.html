@@ -78,3 +78,32 @@
 	    <button class="btn btn-primary" type="button" ng-click="$ctrl.ok()">{{getWord('OK')}}</button>
 	</div>
 </script>
+
+<script type="text/ng-template" id="downloadFiles.html">
+    <div class="modal-header" ng-init="$ctrl.MdInit()">
+	    <h1 class="modal-title" id="modal-title">
+	    	<span class="label txt-color-pink">檔案下載</span>
+	    </h1>
+	</div>
+	<div class="modal-body no-padding" id="modal-body">
+
+		<div id="grid1" ui-grid="$ctrl.mdDataOptions" class="my-ui-grid-300" ui-grid-resize-columns ui-grid-selection></div>
+		<!-- <p class="alert alert-info"> 
+			<small>發文時間 <cite>{{$ctrl.mdData.BB_CR_DATETIME | datetimeFilter}}</cite></small>
+		</p>
+		<div style="overflow: hidden;">
+		    <blockquote class="pull-left">
+    			<p>{{$ctrl.mdData.BB_CONTENT}}</p>
+	        </blockquote>
+		</div>
+		<div style="overflow: hidden;">
+		    <blockquote class="pull-right">
+	            <small>發文者 <cite ng-title="$ctrl.mdData.U_NAME" ng-bind="$ctrl.mdData.U_NAME"></cite></small>
+	        </blockquote>
+		</div> -->
+	</div>
+	<div class="modal-footer">
+		<a href-void="" class="btn bg-color-pink txt-color-white" href="#" ng-click="$ctrl.ok()">{{getWord('Download')}}</a>
+	    <button class="btn btn-default" type="button" ng-click="$ctrl.cancel()">{{getWord('Cancel')}}</button>
+	</div>
+</script>
