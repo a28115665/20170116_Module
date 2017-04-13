@@ -196,6 +196,7 @@ function requestSql(request, sql, callback) {
     var errors = [];
     var result = [];
     var records = [];
+    console.log(sql);
     request.query(sql);
     request.stream = true;
     request.on('recordset', function(columns) {

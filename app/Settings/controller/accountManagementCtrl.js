@@ -142,7 +142,7 @@ angular.module('app.settings').controller('AccountManagementCtrl', function ($sc
             	console.log(selectedItem);
 
                 RestfulApi.InsertMSSQLData({
-                    insertname: 'Insert',
+                    insertname: 'InsertByDecryption',
                     table: 0,
                     params: {
                         U_ID          : selectedItem.U_ID,

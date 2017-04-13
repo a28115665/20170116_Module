@@ -36,7 +36,7 @@ var SelectMethod = function (querymain, queryname, params, callback){
 			
 			// schema所需的orm
 			schemaType.SchemaType(_params, ps, sql);
-
+			
 			// 執行SQL，並且回傳值
 		    ps.prepare(SQLCommand, function(err) {
 			    // ... error checks
@@ -120,6 +120,18 @@ var InsertMethod = function (insertname, table, params, callback){
 					}
 
 					SQLCommand += "INSERT INTO " + tables[table] + " ("+Schema.join()+") VALUES (@"+Schema.join(",@")+")";
+					
+					break;
+				case "InsertByDecryption":
+					for(var key in _params){
+						Schema.push(key);
+						Values.push(_params[key]);
+					}
+					SQLCommand += "EXEC OpenKeys;";
+
+					SQLCommand += "INSERT INTO " + tables[table] + " ("+Schema.join()+") VALUES (@"+Schema.join(",@")+")";
+					
+					SQLCommand = SQLCommand.replace(/@U_PW/gi, 'dbo.Encrypt(@U_PW)');
 					
 					break;
 				default:
