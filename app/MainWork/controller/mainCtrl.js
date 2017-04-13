@@ -1,6 +1,6 @@
 "use strict";
 
-angular.module('app.mainwork').controller('MainWorkCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, RestfulApi) {
+angular.module('app.mainwork').controller('MainWorkCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, RestfulApi, ToolboxApi) {
     
     var $vm = this,
         cellClass = function(grid, row, col, rowRenderIndex, colRenderIndex) {
@@ -62,7 +62,23 @@ angular.module('app.mainwork').controller('MainWorkCtrl', function ($scope, $sta
                     modalInstance.result.then(function(selectedItem) {
                         console.log(selectedItem);
                         if(selectedItem.length > 0){
+                            var _params = [];
+                            for(var i in selectedItem){
+                                _params.push({
+                                    Filepath : selectedItem[i].BBAF_FILEPATH,
+                                    oFilename : selectedItem[i].BBAF_O_FILENAME,
+                                    rFilename : selectedItem[i].BBAF_R_FILENAME
+                                });
+                            }
 
+                            ToolboxApi.DownloadFiles({
+                                filename : '檔案下載.zip',
+                                params: _params
+                            }).then(function (res) {
+                                
+                            }, function (err) {
+                                
+                            });
                         }
                     }, function() {
                         // $log.info('Modal dismissed at: ' + new Date());

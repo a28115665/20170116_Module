@@ -3,6 +3,7 @@ var router = express.Router();
 var mkdirp = require('mkdirp');
 var dbCommand = require('../until/dbCommand.js');
 var tmpXlsObj = require('../until/tmpXlsObj.js');
+var archiver = require('archiver');
 
 var dateFormat = require('dateformat');
 
@@ -111,6 +112,36 @@ router.post('/uploadFile', function(req, res) {
         });
     } catch(err) {
         res.status(500).send('上傳失敗');
+    }
+
+});
+
+/**
+ * Download files and zip 壓縮並下載
+ */
+router.get('/downloadFiles', function(req, res) {
+
+    try{
+        var archive = archiver('zip');
+
+        // 發生錯誤時
+        archive.on('error', function(err) {
+            throw err;
+        });
+
+        // 塞入檔案
+        for(var i in req.query["params"]){
+            var _param = JSON.parse(req.query["params"][i]);
+            
+            archive.append(fs.createReadStream(_param.Filepath + _param.rFilename), { name: _param.oFilename });
+        }
+
+        // finalize the archive
+        archive.finalize();
+
+        archive.pipe(res);
+    } catch(err) {
+        res.status(500).send('下載失敗');
     }
 
 });

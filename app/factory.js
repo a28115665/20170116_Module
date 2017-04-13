@@ -40,6 +40,19 @@ angular.module('app')
                     }
                 }
             }
+        ),
+        DOWNLOADFILES : $resource('/toolbox/downloadFiles', null, 
+            {
+                'postByArraybuffer': { 
+                    method: 'GET',
+                    responseType : 'arraybuffer',
+                    transformResponse: function(data) {
+                        return {
+                            response: new Blob([data], { type: 'application/zip, application/octet-stream' })
+                        };
+                    }
+                }
+            }
         )
     };
 })

@@ -112,7 +112,7 @@ angular.module('app')
 .filter('dataMBSize', function () {
 
 	return function (input){
-		return angular.isUndefined(input) ? '' : parseInt(input)/1024/1024 + ' MB';
+		return angular.isUndefined(input) ? '' : (parseInt(input)/1024/1024).toFixed(2) + ' MB';
 	};
 
 });
