@@ -185,7 +185,8 @@ angular.module('app.settings').controller('AccountManagementCtrl', function ($sc
                     table: 6,
                     params: {
                         SG_TITLE : selectedItem.TITLE,
-                        SG_DESC  : selectedItem.DESC
+                        SG_DESC  : selectedItem.DESC,
+                        SG_CR_DATETIME : $filter('date')(new Date(), 'yyyy-MM-dd HH:mm:ss')
                     }
                 }).then(function(res) {
                     console.log(res);
