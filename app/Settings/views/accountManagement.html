@@ -1,4 +1,4 @@
-<div id="content">
+<div id="content" ng-init="$vm.Init()">
 
 	<div class="row">
 		<big-breadcrumbs items="['Settings', 'Account Management']" icon="sitemap" class="col-xs-12 col-sm-7 col-md-7 col-lg-4"></big-breadcrumbs>
@@ -12,7 +12,7 @@
 	        <!-- NEW WIDGET START -->
 	        <article class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
 	        	<!-- Widget ID (each widget will need unique ID)-->
-				<div id="managementSettings" data-widget-sortable="false" data-widget-colorbutton="false" data-widget-togglebutton="false" data-widget-editbutton="false" data-widget-fullscreenbutton="false" data-widget-deletebutton="false" data-widget-color="blue" data-jarvis-widget ng-init="ShowTabs = true;$vm.LoadData()">
+				<div id="managementSettings" data-widget-sortable="false" data-widget-colorbutton="false" data-widget-togglebutton="false" data-widget-editbutton="false" data-widget-fullscreenbutton="false" data-widget-deletebutton="false" data-widget-color="blue" data-jarvis-widget>
 				    <!-- widget options:
 				        usage: <div data-jarvis-widget id="wid-id-0" data-widget-editbutton="false">
 				        data-widget-colorbutton="false"
@@ -48,10 +48,6 @@
 									<div class="widget-body-toolbar">
 									    <div class="row">
 									        <div class="col-xs-9 col-sm-5 col-md-5 col-lg-5">
-									            <div class="input-group">
-									                <span class="input-group-addon"><i class="fa fa-search"></i></span>
-									                <input class="form-control" id="prepend" placeholder="查詢" type="text">
-									            </div>
 									        </div>
 									        <div class="col-xs-3 col-sm-7 col-md-7 col-lg-7 text-right">
 									            <button class="btn btn-primary"

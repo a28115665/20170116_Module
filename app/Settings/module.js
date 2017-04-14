@@ -23,18 +23,6 @@ angular.module('app.settings').config(function ($stateProvider){
                 controller: 'ProfileCtrl',
                 controllerAs: '$vm',
                 resolve: {
-                    // config: function (RestfulApi) {
-                    // 	/**
-                    // 	 * Select Sample
-                    // 	 */
-                    //     return RestfulApi.SearchMSSQLData({
-                    //         queryname: 'SelectAllUserInfo',
-	                   //      params: {
-	                   //          U_ID : "Admin",
-	                   //          U_Name : "系統管理員"
-	                   //      }
-                    //     });
-                    // }
                 }
 			}
 		}
@@ -51,7 +39,59 @@ angular.module('app.settings').config(function ($stateProvider){
                 controller: 'AccountManagementCtrl',
                 controllerAs: '$vm',
                 resolve: {
+                    boolFilter: function (SysCodeFilter){
+                        return SysCodeFilter.get('Boolean');
+                    },
+                    departFilter: function (SysCodeFilter){
+                        return SysCodeFilter.get('Depart');
+                    },
+                    roleFilter: function (SysCodeFilter){
+                        return SysCodeFilter.get('Role');
+                    }
+                }
+            }
+        }
+    })
 
+    .state('app.settings.accountmanagement.account', {
+        url: '/account',
+        data: {
+            title: 'Account'
+        },
+        params: { 
+            data: null
+        },
+        views: {
+            "content@app" : {
+                templateUrl: 'app/Settings/views/account.html',
+                controller: 'AccountCtrl',
+                controllerAs: '$vm',
+                resolve: {
+                    bool: function (SysCode, $q){
+
+                        var deferred = $q.defer();
+
+                        SysCode.get('Boolean').then(function (res){
+                            var finalData = [];
+
+                            for(var i in res){
+                                finalData.push({
+                                    value: (i == 'true'), 
+                                    key: res[i]
+                                });
+                            }
+
+                            deferred.resolve(finalData);
+                        });
+
+                        return deferred.promise;
+                    },
+                    depart: function (SysCode){
+                        return SysCode.get('Depart');
+                    },
+                    role : function (SysCode){
+                        return SysCode.get('Role');
+                    }
                 }
             }
         }
@@ -60,7 +100,7 @@ angular.module('app.settings').config(function ($stateProvider){
     .state('app.settings.accountmanagement.group', {
         url: '/group',
         data: {
-            title: 'Group Management'
+            title: 'Group'
         },
         params: { 
             data: null
