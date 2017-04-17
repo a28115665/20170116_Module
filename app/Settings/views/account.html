@@ -50,14 +50,14 @@
 						                    <div class="input-icon-right">
                         						<i class="txt-color-green fa fa-check" ng-show="account.PW.$dirty && account.PW.$valid && account.PW.$viewValue != ''"></i>
                         						<i class="txt-color-red fa fa-remove" ng-show="account.PW.$dirty && !account.PW.$valid"></i>
-								            	<input class="form-control" name="PW" placeholder="請輸入使用者密碼" type="password" ng-model="$vm.vmData.U_PW" ng-pattern="/^.*(?=.{6,15})(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$^&+=]).*$/" minlength="6" maxlength="15" required>
+								            	<input class="form-control" name="PW" placeholder="請輸入使用者密碼（長度6-15，需含英文大小寫+數字+特殊符號[@#$^&+=]）" type="password" ng-model="$vm.vmData.U_PW" ng-pattern="/^.*(?=.{6,15})(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$^&+=]).*$/" minlength="6" maxlength="15" required>
 						                    </div>
 								        </div>
 								        <div class="col-md-6" ng-show="$vm.vmData.IU == 'Update'">
 						                    <div class="input-group">
-									            <input class="form-control" placeholder="請輸入使用者密碼（長度6-15，需含英文大寫+數字+特殊符號[@#$^&+=]）" type="password" ng-model="$vm.vmData.U_PW" ng-disabled="true" required>
+									            <input class="form-control" placeholder="請輸入使用者密碼（長度6-15，需含英文大小寫+數字+特殊符號[@#$^&+=]）" type="password" ng-model="$vm.vmData.U_PW" ng-disabled="true" required>
 						                        <div class="input-group-btn">
-						                            <button class="btn btn-danger" type="button">
+						                            <button class="btn btn-danger" type="button" ng-click="$vm.ModifyPW()">
 						                                修改密碼
 						                            </button>
 						                        </div>
@@ -153,3 +153,37 @@
 	</section>
 
 </div>
+
+<script type="text/ng-template" id="modifyPWModalContent.html">
+    <div class="modal-header">
+	    <h3 class="modal-title" id="modal-title">{{getWord('Modify')}}{{getWord('Password')}}</h3>
+	</div>
+	<div class="modal-body" id="modal-body">
+	    <form class="form-horizontal" name="modifyPWForm">
+			<fieldset>
+				<div class="form-group">
+			        <label class="col-md-2 control-label">當前密碼</label>
+			        <div class="col-md-10">
+			            <input class="form-control" ng-model="$ctrl.mdData['N_PW']" type="password" placeholder="請輸入當前密碼" required>
+			        </div>
+			    </div>
+				<div class="form-group">
+			        <label class="col-md-2 control-label">更改密碼</label>
+			        <div class="col-md-10">
+			            <input class="form-control" ng-model="$ctrl.mdData['M_PW']" type="password" placeholder="請輸入更改密碼（長度6-15，需含英文大小寫+數字+特殊符號[@#$^&+=]）" ng-pattern="/^.*(?=.{6,15})(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$^&+=]).*$/" minlength="6" maxlength="15" required>
+			        </div>
+			    </div>
+				<div class="form-group">
+			        <label class="col-md-2 control-label">確認密碼</label>
+			        <div class="col-md-10">
+			            <input class="form-control" ng-model="$ctrl.mdData['C_PW']" type="password" placeholder="請輸入確認密碼" required>
+			        </div>
+			    </div>
+			</fieldset>
+	    </form>
+	</div>
+	<div class="modal-footer">
+	    <button class="btn btn-warning" type="button" ng-click="$ctrl.ok()" ng-disabled="!modifyPWForm.$valid || $ctrl.CheckPW()">{{getWord('Modify')}}</button>
+	    <button class="btn btn-default" type="button" ng-click="$ctrl.cancel()">{{getWord('Cancel')}}</button>
+	</div>
+</script>

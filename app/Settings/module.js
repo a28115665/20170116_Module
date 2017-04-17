@@ -47,6 +47,9 @@ angular.module('app.settings').config(function ($stateProvider){
                     },
                     roleFilter: function (SysCodeFilter){
                         return SysCodeFilter.get('Role');
+                    },
+                    jobFilter: function (SysCodeFilter){
+                        return SysCodeFilter.get('Job');
                     }
                 }
             }
