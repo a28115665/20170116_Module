@@ -37,6 +37,39 @@ angular.module('app.settings').controller('AccountManagementCtrl', function ($sc
             //刪除
             deleteData : function(row){
                 console.log(row);
+
+                var modalInstance = $uibModal.open({
+                    animation: true,
+                    ariaLabelledBy: 'modal-title',
+                    ariaDescribedBy: 'modal-body',
+                    templateUrl: 'isDelete.html',
+                    controller: 'IsDeleteModalInstanceCtrl',
+                    controllerAs: '$ctrl',
+                    size: 'sm',
+                    resolve: {
+                        items: function () {
+                            return row.entity;
+                        }
+                    }
+                });
+
+                modalInstance.result.then(function(selectedItem) {
+                    console.log(selectedItem);
+
+                    RestfulApi.DeleteMSSQLData({
+                        deletename: 'Delete',
+                        table: 0,
+                        params: {
+                            U_ID : selectedItem.U_ID
+                        }
+                    }).then(function (res) {
+                        if(res["returnData"] == 1){
+                            LoadAccount();
+                        }
+                    });
+                }, function() {
+                    // $log.info('Modal dismissed at: ' + new Date());
+                });
             }
         },
         accountManagementOptions : {
@@ -143,10 +176,16 @@ angular.module('app.settings').controller('AccountManagementCtrl', function ($sc
             columnDefs: [
                 { name: 'SG_TITLE' ,  displayName: '群組名稱' },
                 { name: 'SG_DESC'  ,  displayName: '群組敘述' },
-                { name: 'SG_STS'   ,  displayName: '作廢', cellFilter: 'booleanFilter' },
-                { name: 'Options'  ,  displayName: '操作', cellTemplate: $templateCache.get('accessibilityToMDForGroup') }
+                { name: 'SG_STS'   ,  displayName: '作廢', cellFilter: 'booleanFilter', filter: 
+                    {
+                        term: null,
+                        type: uiGridConstants.filter.SELECT,
+                        selectOptions: boolFilter
+                    }
+                },
+                { name: 'Options'  ,  displayName: '操作', enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToMDForGroup') }
             ],
-            enableFiltering: false,
+            enableFiltering: true,
             enableSorting: false,
             enableColumnMenus: false,
             paginationPageSizes: [10, 25, 50],
