@@ -12,7 +12,7 @@ module.exports = function(pQueryname, pParams){
 						   ORDER BY U_CR_DATETIME Desc";
 			break;
 		case "SelectUserGroup":
-			_SQLCommand += "SELECT * \
+			_SQLCommand += "SELECT UG_ID AS 'U_ID' \
 						   FROM USER_GROUP \
 						   WHERE 1=1 ";
 			if(pParams["UG_GROUP"] !== undefined){

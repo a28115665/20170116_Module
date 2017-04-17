@@ -3,9 +3,10 @@ module.exports = function(pQueryname, pParams){
 
 	switch(pQueryname){
 		case "SelectAllUserInfo":
-			_SQLCommand += "SELECT * \
-						   FROM USER_INFO \
-						   WHERE 1=1"
+			_SQLCommand += "EXEC OpenKeys;";
+			_SQLCommand += "SELECT U_ID \
+							From USER_INFO \
+						    WHERE 1=1"
 			if(pParams["U_ID"] !== undefined){
 				_SQLCommand += " AND U_ID = @U_ID";
 			}
@@ -13,11 +14,22 @@ module.exports = function(pQueryname, pParams){
 				_SQLCommand += " AND U_NAME = @U_NAME";
 			}
 			if(pParams["U_PW"] !== undefined){
-				_SQLCommand += " AND U_PW = @U_PW";
+				_SQLCommand += " AND dbo.Decrypt(U_PW) = @U_PW";
 			}
 			break;
 		case "SelectAllUserInfoNotWithAdmin":
-			_SQLCommand += "SELECT * \
+			_SQLCommand += "EXEC OpenKeys;";
+			_SQLCommand += "SELECT U_CHECK, \
+								   U_DEPART, \
+								   U_EMAIL, \
+								   U_ID, \
+								   U_JOB, \
+								   U_JOB_AGENT, \
+								   U_NAME, \
+								   U_PHONE, \
+								   U_ROLE, \
+								   U_STS, \
+								   dbo.Decrypt(U_PW) AS 'U_PW' \
 						   FROM USER_INFO \
 						   WHERE U_ID != 'Administrator' \
 						   ORDER BY U_CR_DATETIME Desc";

@@ -31,8 +31,8 @@ var SchemaType = function (params, ps, sql){
         	// console.log(key);
 			var type = null;
 			// 判斷Schema是哪種類型
-			type = GiveSchemaType(type, sql, DatabaseSchema[key]);
-
+			type = GiveSchemaType(type, sql, DatabaseSchema[key], key);
+			
 			ps.input(key, type);
 		}
 	}
@@ -50,33 +50,42 @@ var SchemaType2 = function (params, request, sql){
         	// console.log(key);
 			var type = null;
 			// 判斷Schema是哪種類型
-			type = GiveSchemaType(type, sql, DatabaseSchema[key]);
+			type = GiveSchemaType(type, sql, DatabaseSchema[key], key);
 
 			request.input(key, type, params[key]);
 		}
 	}
 };
 
-function GiveSchemaType(pType, pSql, pSchema){
-	switch(pSchema["DATA_TYPE"]){
-		case "int":
-			pType = pSql.Int;
-			break;
-		case "bit":
-			pType = pSql.Bit;
-			break;
-		case "varchar":
-			pType = pSql.VarChar(pSchema["CHARACTER_MAXIMUM_LENGTH"]);
-			break;
-		case "nvarchar":
-			pType = pSql.NVarChar(pSchema["CHARACTER_MAXIMUM_LENGTH"]);
-			break;
-		case "datetime":
-			pType = pSql.VarChar(30);
-			break;
-		case "date":
-			pType = pSql.VarChar(30);
-			break;
+function GiveSchemaType(pType, pSql, pSchema, key){
+	var _length = pSchema["CHARACTER_MAXIMUM_LENGTH"] == -1 ? pSql.MAX : pSchema["CHARACTER_MAXIMUM_LENGTH"];
+	// 特殊處理加密欄位
+	if(key == 'U_PW'){
+		pType = sql.NVarChar(15);
+	}else{
+		switch(pSchema["DATA_TYPE"]){
+			case "int":
+				pType = pSql.Int;
+				break;
+			case "bit":
+				pType = pSql.Bit;
+				break;
+			case "varchar":
+				pType = pSql.VarChar(_length);
+				break;
+			case "nvarchar":
+				pType = pSql.NVarChar(_length);
+				break;
+			case "varbinary":
+				pType = pSql.VarBinary(_length);
+				break;
+			case "datetime":
+				pType = pSql.VarChar(30);
+				break;
+			case "date":
+				pType = pSql.VarChar(30);
+				break;
+		}
 	}
 
 	return pType;

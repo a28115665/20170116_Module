@@ -1,14 +1,19 @@
 "use strict";
 
-angular.module('app.settings').controller('GroupCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, $filter, SysCode, RestfulApi, bool) {
+angular.module('app.settings').controller('GroupCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, $filter, SysCodeFilter, RestfulApi, bool) {
     // console.log($stateParams);
     
-	var $vm = this;
+	var $vm = this,
+        _task = [];
 
 	angular.extend(this, {
         Init : function(){
             // 不正常登入此頁面
             if($stateParams.data == null) ReturnToBillboardEditorPage();
+            // 撈UserGroup資料
+            else {
+                LoadUserGroup();
+            }
         },
         profile : Session.Get(),
         boolData : bool,
@@ -26,23 +31,11 @@ angular.module('app.settings').controller('GroupCtrl', function ($scope, $stateP
                     vmData: function () {
                         return $vm.vmData;
                     },
-                    depart: function($q) {
-                        var deferred = $q.defer();
-
-                        SysCode.get('Depart').then(function (res){
-                            var finalData = [];
-                            for(var i in res){
-                                finalData.push({
-                                    value: i, 
-                                    label: res[i]
-                                });
-                            }
-                            deferred.resolve(finalData);
-                        }, function (err){
-                            deferred.reject(err);
-                        })
-
-                        return deferred.promise
+                    depart: function() {
+                        return SysCodeFilter.get('Depart');
+                    },
+                    job: function(){
+                        return SysCodeFilter.get('Job');
                     }
                 }
             });
@@ -50,8 +43,13 @@ angular.module('app.settings').controller('GroupCtrl', function ($scope, $stateP
             modalInstance.result.then(function(selectedItem) {
                 console.log(selectedItem);
 
-                var _tasks = [];
-                _tasks.push({
+                $vm.vmData.UserGroup = angular.copy(selectedItem);
+
+                // 初始化
+                _task = [];
+
+                // Delete此Group相關人員
+                _task.push({
                     crudType: 'Delete',
                     table: 4,
                     params: {
@@ -59,8 +57,9 @@ angular.module('app.settings').controller('GroupCtrl', function ($scope, $stateP
                     }
                 });
 
+                // Insert此Group相關人員
                 for(var i in selectedItem){
-                    _tasks.push({
+                    _task.push({
                         crudType: 'Insert',
                         table: 4,
                         params: {
@@ -70,11 +69,6 @@ angular.module('app.settings').controller('GroupCtrl', function ($scope, $stateP
                     });
                 }
 
-                RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res){
-                    console.log(res);
-                }, function (err){
-                    
-                });
             }, function() {
                 // $log.info('Modal dismissed at: ' + new Date());
             });
@@ -83,58 +77,98 @@ angular.module('app.settings').controller('GroupCtrl', function ($scope, $stateP
             ReturnToBillboardEditorPage();
         },
         Update : function(){
+            var _tasks = [];
 
+            _tasks.push({
+                crudType: 'Update',
+                table: 6,
+                params: {
+                    SG_TITLE       : $vm.vmData.SG_TITLE,
+                    SG_DESC        : $vm.vmData.SG_DESC,
+                    SG_STS         : $vm.vmData.SG_STS,
+                    SG_UP_DATETIME : $filter('date')(new Date, 'yyyy-MM-dd HH:mm:ss')
+                },
+                condition: {
+                    SG_GCODE : $vm.vmData.SG_GCODE
+                }
+            });
+
+            // 把群組人員塞入
+            for(var i in _task){
+                _tasks.push(_task[i]);
+            }
+
+            RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res){
+                console.log(res);
+
+                ReturnToBillboardEditorPage();
+
+            }, function (err){
+                
+            });
         }
 	})
+
+    function LoadUserGroup(){
+        RestfulApi.SearchMSSQLData({
+            querymain: 'group',
+            queryname: 'SelectUserGroup',
+            params: {
+                UG_GROUP : $vm.vmData.SG_GCODE
+            }
+        }).then(function (res){
+            console.log(res["returnData"]);
+            $vm.vmData.UserGroup = res["returnData"];
+        });
+    };
 
 	function ReturnToBillboardEditorPage(){
         $state.transitionTo("app.settings.accountmanagement");
     };
 
 })
-.controller('AddGroupPeopleModalInstanceCtrl', function ($uibModalInstance, RestfulApi, vmData, $filter, $timeout, uiGridConstants, depart) {
+.controller('AddGroupPeopleModalInstanceCtrl', function ($uibModalInstance, RestfulApi, vmData, $filter, $timeout, uiGridConstants, depart, job) {
     var $ctrl = this;
     $ctrl.vmData = vmData;
+    $ctrl.job = job;
     $ctrl.depart = depart;
 
     $ctrl.mdData = [];
 
-    RestfulApi.CRUDMSSQLDataByTask([
-        {
+    $ctrl.MdInit = function(){
+        RestfulApi.SearchMSSQLData({
             crudType: 'Select',
             querymain: 'group',
             queryname: 'SelectAllUserInfoNotWithAdmin'
-        },
-        {  
-            crudType: 'Select',
-            querymain: 'group',
-            queryname: 'SelectUserGroup',
-            params: {
-                UG_GROUP : $ctrl.vmData.SG_GCODE
-            }
-        }
-    ]).then(function (res){
-        // console.log(res);
-        // 顯示所有帳號
-        $ctrl.mdData = res["returnData"][0];
-        // 把已被選取的帳號打勾
-        $timeout(function() {
-            if($ctrl.mdDataGridApi.selection.selectRow){
-                for(var i in res["returnData"][1]){
-                    $ctrl.mdDataGridApi.selection.selectRow($filter('filter')($ctrl.mdData, {U_ID: res["returnData"][1][i].UG_ID})[0]);
+        }).then(function (res){
+            console.log(res["returnData"]);
+            // console.log(res);
+            // 顯示所有帳號
+            $ctrl.mdData = res["returnData"];
+            // 把已被選取的帳號打勾
+            $timeout(function() {
+                if($ctrl.mdDataGridApi.selection.selectRow){
+                    // console.log($ctrl.vmData["UserGroup"]);
+                    for(var i in $ctrl.vmData["UserGroup"]){
+                        $ctrl.mdDataGridApi.selection.selectRow($filter('filter')($ctrl.mdData, {U_ID: $ctrl.vmData["UserGroup"][i].U_ID})[0]);
+                    }
                 }
-            }
+            });
         });
-    }, function (err){
-        
-    });
+    };
 
     $ctrl.mdDataOptions = {
         data:  '$ctrl.mdData',
         columnDefs: [
             { name: 'U_ID'     ,  displayName: '帳號' },
             { name: 'U_NAME'   ,  displayName: '名稱' },
-            { name: 'U_JOB'    ,  displayName: '職稱' },
+            { name: 'U_JOB'    ,  displayName: '職稱', cellFilter: 'jobFilter', filter: 
+                {
+                    term: null,
+                    type: uiGridConstants.filter.SELECT,
+                    selectOptions: $ctrl.job
+                }
+            },
             { name: 'U_DEPART' ,  displayName: '單位', cellFilter: 'departFilter', filter: 
                 {
                     term: null,

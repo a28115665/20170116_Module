@@ -230,6 +230,26 @@ angular.module('app.settings').controller('NewsCtrl', function ($scope, $statePa
         }
     });
 
+    // 處理已上傳的部分 : 當相同檔名時，不可上傳
+    $vm.uploader.filters.push({
+        name: 'nameFilter',
+        fn: function(item /*{File|FileLikeObject}*/, options) {
+            var uploadedDataLength = ($filter('filter')($vm.vmData.UploadedData, {BBAF_O_FILENAME: item.name})).length;
+            
+            if(uploadedDataLength > 0){
+                toaster.pop('info', "訊息", "已上傳過相同的檔名。", 3000);
+                return false;
+            }else{
+                return true;
+            }
+        }
+    });
+
+    // 處理未上傳的部分 : 當相同檔名時，不可上傳
+    FileUploader.FileSelect.prototype.isEmptyAfterSelection = function() {
+        return false;
+    };
+
     // $vm.uploader.filters.push({
     //     name: 'fileFilter',
     //     fn: function(item /*{File|FileLikeObject}*/, options) {
