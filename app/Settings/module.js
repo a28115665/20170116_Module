@@ -91,6 +91,9 @@ angular.module('app.settings').config(function ($stateProvider){
                     },
                     role : function (SysCode){
                         return SysCode.get('Role');
+                    },
+                    job : function (SysCode){
+                        return SysCode.get('Job');
                     }
                 }
             }
