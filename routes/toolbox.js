@@ -129,9 +129,17 @@ router.get('/downloadFiles', function(req, res) {
             throw err;
         });
 
+        var _params = JSON.parse(req.query["params"]);
         // 塞入檔案
-        for(var i in req.query["params"]){
-            var _param = JSON.parse(req.query["params"][i]);
+        for(var i in _params){
+
+            var _param = null;
+            // 判斷是不是json
+            try {
+                _param = JSON.parse(_params[i]);
+            } catch (e) {
+                _param = _params[i];
+            }
             
             archive.append(fs.createReadStream(_param.Filepath + _param.rFilename), { name: _param.oFilename });
         }
@@ -141,6 +149,7 @@ router.get('/downloadFiles', function(req, res) {
 
         archive.pipe(res);
     } catch(err) {
+        console.log(err);
         res.status(500).send('下載失敗');
     }
 

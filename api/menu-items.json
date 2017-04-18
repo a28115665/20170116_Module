@@ -1,6 +1,11 @@
 {
   "items": [
     {
+        "title":"MainWork",
+        "sref":"app.mainwork",
+        "icon":"newspaper-o"
+    },
+    {
         "title":"Dashboard",
         "sref":"app.dashboard",
         "icon":"home"
