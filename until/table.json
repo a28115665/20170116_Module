@@ -5,5 +5,7 @@
 	"3" : "BILLBOARD_POST_GOAL",
 	"4" : "USER_GROUP",
 	"5" : "USER_GRIGHT",
-	"6" : "SYS_GROUP"
+	"6" : "SYS_GROUP",
+	"7" : "CUST_INFO",
+	"8" : "COMPY_INFO"
 }

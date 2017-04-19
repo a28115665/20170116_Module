@@ -2,19 +2,31 @@ module.exports = function(pQueryname, pParams){
 	var _SQLCommand = "";
 
 	switch(pQueryname){
-		// case "SelectBBWithOK":
-		// 	_SQLCommand += "SELECT BB_STICK_TOP, \
-		// 							BB_POST_FROM, \
-		// 							BB_POST_TOXX, \
-		// 							BB_TITLE, \
-		// 							BB_IO_TYPE, \
-		// 							BB_CR_USER, \
-		// 							BB_CR_DATETIME \
-		// 					FROM BILLBOARD BB \
-		// 					WHERE BB.BB_SOFT_DELETE = 0 AND GETDATE() BETWEEN BB.BB_POST_FROM AND BB_POST_TOXX \
-		// 					ORDER BY BB.BB_STICK_TOP DESC, BB.BB_CR_DATETIME DESC";
+		case "SelectCustInfo":
+			_SQLCommand += "EXEC OpenKeys;";
+			_SQLCommand += "SELECT CI_ID, \
+								   CI_COMPY, \
+								   CI_NAME, \
+								   dbo.Decrypt(CI_PW) AS 'CI_PW', \
+								   CI_STS \
+							FROM CUST_INFO \
+							ORDER BY CI_CR_DATETIME DESC";
 		
-		// 	break;
+			break;
+		case "SelectCompyInfo":
+			_SQLCommand += "SELECT CO_CODE, \
+								   CO_NUMBER, \
+								   CO_NAME, \
+								   CO_ADDR, \
+								   CO_STS \
+							FROM COMPY_INFO \
+							WHERE 1=1 ";
+							
+			if(pParams["CO_STS"] !== undefined){
+				_SQLCommand += " AND CO_STS = @CO_STS";
+			}
+			_SQLCommand += "ORDER BY CO_CR_DATETIME DESC";
+			break;
 	}
 
 	return _SQLCommand;
