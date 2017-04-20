@@ -1,6 +1,6 @@
 "use strict";
 
-angular.module('app.settings').controller('ExternalManagementCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, RestfulApi, uiGridConstants, $templateCache, $filter, boolFilter) {
+angular.module('app.settings').controller('ExternalManagementCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, RestfulApi, uiGridConstants, $templateCache, $filter, boolFilter, compyFilter) {
 
     var $vm = this;
 
@@ -83,7 +83,13 @@ angular.module('app.settings').controller('ExternalManagementCtrl', function ($s
                 },
                 { name: 'CI_ID'    ,  displayName: '帳號' },
                 { name: 'CI_NAME'  ,  displayName: '名稱' },
-                { name: 'CI_COMPY' ,  displayName: '公司名稱' },
+                { name: 'CI_COMPY' ,  displayName: '公司名稱', cellFilter: 'compyFilter', filter: 
+                    {
+                        term: null,
+                        type: uiGridConstants.filter.SELECT,
+                        selectOptions: compyFilter
+                    }
+                },
                 { name: 'Options'  ,  displayName: '操作', enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToMDForCustInfo') }
             ],
             enableFiltering: true,
@@ -219,7 +225,40 @@ angular.module('app.settings').controller('ExternalManagementCtrl', function ($s
             $vm.custInfoData = res["returnData"];
         }).finally(function() {
             HandleWindowResize($vm.custInfoGridApi);
+            $vm.custInfoGridApi.grid.refresh();
         });
+
+        // RestfulApi.CRUDMSSQLDataByTask([
+        //     {
+        //         crudType: 'Select',
+        //         querymain: 'externalManagement',
+        //         queryname: 'SelectCustInfo'
+        //     },
+        //     {
+        //         crudType: 'Select',
+        //         querymain: 'externalManagement',
+        //         queryname: 'SelectCompyInfo',
+        //         params: {
+        //             CO_STS : false
+        //         }
+        //     }
+        // ]).then(function (res) {
+        //     console.log(res["returnData"]);
+        //     $vm.custInfoData = res["returnData"][0];
+        //     var _compyInfo = res["returnData"][1];
+
+        //     for(var i in $vm.custInfoData){
+        //         for(var j in _compyInfo){
+        //             if($vm.custInfoData[i]["CI_COMPY"] == _compyInfo[j].CO_CODE){
+        //                 $vm.custInfoData[i]["getCICOMPY"] = function(){
+        //                     return 
+        //                 };
+        //             }
+        //         }
+        //     }
+        // }, function (err) {
+        //     console.log(err);
+        // });
     }
 
     function LoadCompyInfo(){

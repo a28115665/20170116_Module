@@ -51,8 +51,8 @@
                         						<i class="txt-color-green fa fa-check" ng-show="exAccount.PW.$dirty && exAccount.PW.$valid && exAccount.PW.$viewValue != ''"></i>
                         						<i class="txt-color-red fa fa-remove" ng-show="exAccount.PW.$dirty && !exAccount.PW.$valid"></i>
 								            	<input class="form-control" name="PW" placeholder="請輸入使用者密碼" type="password" ng-model="$vm.vmData.CI_PW" ng-pattern="/^.*(?=.{6,15})(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$^&+=]).*$/" minlength="6" maxlength="15" required>
-								            	<p class="note">長度6-15，需含英文大小寫 + 數字 + 特殊符號[@#$^&+=]</p>
 						                    </div>
+							            	<p class="note">長度6-15，需含英文大小寫 + 數字 + 特殊符號[@#$^&+=]</p>
 								        </div>
 								        <div class="col-md-6" ng-show="$vm.vmData.IU == 'Update'">
 						                    <div class="input-group">
@@ -78,7 +78,7 @@
 													<option value="">-- 請選擇 --</option>
 											</select>
 								        </div>
-								        <label class="col-md-2 control-label">作廢</label>
+								        <label class="col-md-2 control-label">離職</label>
 								        <div class="col-md-2">
 											<select class="form-control" 
 													ng-model="$vm.vmData.CI_STS"

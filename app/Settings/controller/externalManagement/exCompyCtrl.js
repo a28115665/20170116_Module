@@ -43,7 +43,9 @@ angular.module('app.settings').controller('ExCompyCtrl', function ($scope, $stat
 	})
 
 	function ReturnToExternalManagementPage(){
-        $state.transitionTo("app.settings.externalmanagement");
+        $state.transitionTo("app.settings.externalmanagement", null, { 
+            reload: true, inherit: false, notify: true
+        });
 	}
 
 });

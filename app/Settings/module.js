@@ -217,6 +217,32 @@ angular.module('app.settings').config(function ($stateProvider){
                 resolve: {
                     boolFilter: function (SysCodeFilter){
                         return SysCodeFilter.get('Boolean');
+                    },
+                    compyFilter: function(RestfulApi, $q){
+
+                        var deferred = $q.defer();
+
+                        RestfulApi.SearchMSSQLData({
+                            querymain: 'externalManagement',
+                            queryname: 'SelectCompyInfo',
+                            params: {
+                                CO_STS : false
+                            }
+                        }).then(function (res){
+                            var data = res["returnData"] || [],
+                                finalData = [];
+
+                            for(var i in data){
+                                finalData.push({
+                                    value: data[i].CO_CODE,
+                                    label: data[i].CO_NAME == null ? '' : data[i].CO_NAME
+                                });
+                            }
+
+                            deferred.resolve(finalData);
+                        })
+
+                        return deferred.promise;
                     }
                 }
             }

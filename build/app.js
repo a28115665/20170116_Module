@@ -2135,6 +2135,32 @@ angular.module('app.settings').config(function ($stateProvider){
                 resolve: {
                     boolFilter: function (SysCodeFilter){
                         return SysCodeFilter.get('Boolean');
+                    },
+                    compyFilter: function(RestfulApi, $q){
+
+                        var deferred = $q.defer();
+
+                        RestfulApi.SearchMSSQLData({
+                            querymain: 'externalManagement',
+                            queryname: 'SelectCompyInfo',
+                            params: {
+                                CO_STS : false
+                            }
+                        }).then(function (res){
+                            var data = res["returnData"] || [],
+                                finalData = [];
+
+                            for(var i in data){
+                                finalData.push({
+                                    value: data[i].CO_CODE,
+                                    label: data[i].CO_NAME == null ? '' : data[i].CO_NAME
+                                });
+                            }
+
+                            deferred.resolve(finalData);
+                        })
+
+                        return deferred.promise;
                     }
                 }
             }
@@ -2865,6 +2891,7 @@ angular.module('app')
 })
 .factory('SysCode', SysCodeResolve)
 .factory('SysCodeFilter', SysCodeFilterResolve)
+.factory('CompyFilter', CompyFilterResolve)
 
 angular.module('app')
 .filter('booleanFilter', function (SysCode) {
@@ -2976,6 +3003,30 @@ angular.module('app')
 	return FilterFunction;
 
 })
+.filter('compyFilter', function (CompyFilter) {
+
+	var resData = {};
+
+	CompyFilter.get().then(function (res){
+		resData = res
+	});
+
+	var FilterFunction = function (input){
+
+		if (!input) {
+		    return '';
+		} else {
+		    return resData[input];
+		}
+
+	}
+
+	// 持續偵測
+	FilterFunction.$stateful = true;
+
+	return FilterFunction;
+
+})
 .filter('dateFilter', function ($filter) {
 
 	return function (input){
@@ -3036,6 +3087,7 @@ function SysCodeResolve (RestfulApi, $q){
         }
     };
 };
+
 function SysCodeFilterResolve (RestfulApi, $q){
     return {
         get : function(pType){
@@ -3059,6 +3111,34 @@ function SysCodeFilterResolve (RestfulApi, $q){
                     });
                 }
 
+                deferred.resolve(finalData);
+            }, function (err){
+                deferred.reject({});
+            });
+            
+            return deferred.promise;
+        }
+    };
+};
+function CompyFilterResolve (RestfulApi, $q){
+    return {
+        get : function(){
+            var deferred = $q.defer();
+            
+            RestfulApi.SearchMSSQLData({
+                querymain: 'externalManagement',
+                queryname: 'SelectCompyInfo',
+                params: {
+                    CO_STS : false
+                }
+            }).then(function (res){
+                var data = res["returnData"] || [],
+                    finalData = {};
+
+                for(var i in data){
+                    finalData[data[i].CO_CODE] = data[i].CO_NAME
+                }
+                
                 deferred.resolve(finalData);
             }, function (err){
                 deferred.reject({});
@@ -6700,7 +6780,7 @@ angular.module('app.settings').controller('BillboardEditorCtrl', function ($scop
 })
 "use strict";
 
-angular.module('app.settings').controller('ExternalManagementCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, RestfulApi, uiGridConstants, $templateCache, $filter, boolFilter) {
+angular.module('app.settings').controller('ExternalManagementCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, RestfulApi, uiGridConstants, $templateCache, $filter, boolFilter, compyFilter) {
 
     var $vm = this;
 
@@ -6783,7 +6863,13 @@ angular.module('app.settings').controller('ExternalManagementCtrl', function ($s
                 },
                 { name: 'CI_ID'    ,  displayName: '帳號' },
                 { name: 'CI_NAME'  ,  displayName: '名稱' },
-                { name: 'CI_COMPY' ,  displayName: '公司名稱' },
+                { name: 'CI_COMPY' ,  displayName: '公司名稱', cellFilter: 'compyFilter', filter: 
+                    {
+                        term: null,
+                        type: uiGridConstants.filter.SELECT,
+                        selectOptions: compyFilter
+                    }
+                },
                 { name: 'Options'  ,  displayName: '操作', enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToMDForCustInfo') }
             ],
             enableFiltering: true,
@@ -6919,7 +7005,40 @@ angular.module('app.settings').controller('ExternalManagementCtrl', function ($s
             $vm.custInfoData = res["returnData"];
         }).finally(function() {
             HandleWindowResize($vm.custInfoGridApi);
+            $vm.custInfoGridApi.grid.refresh();
         });
+
+        // RestfulApi.CRUDMSSQLDataByTask([
+        //     {
+        //         crudType: 'Select',
+        //         querymain: 'externalManagement',
+        //         queryname: 'SelectCustInfo'
+        //     },
+        //     {
+        //         crudType: 'Select',
+        //         querymain: 'externalManagement',
+        //         queryname: 'SelectCompyInfo',
+        //         params: {
+        //             CO_STS : false
+        //         }
+        //     }
+        // ]).then(function (res) {
+        //     console.log(res["returnData"]);
+        //     $vm.custInfoData = res["returnData"][0];
+        //     var _compyInfo = res["returnData"][1];
+
+        //     for(var i in $vm.custInfoData){
+        //         for(var j in _compyInfo){
+        //             if($vm.custInfoData[i]["CI_COMPY"] == _compyInfo[j].CO_CODE){
+        //                 $vm.custInfoData[i]["getCICOMPY"] = function(){
+        //                     return 
+        //                 };
+        //             }
+        //         }
+        //     }
+        // }, function (err) {
+        //     console.log(err);
+        // });
     }
 
     function LoadCompyInfo(){
@@ -11944,10 +12063,47 @@ angular.module('app.settings').controller('ExAccountCtrl', function ($scope, $st
         	ReturnToExternalManagementPage();
         },
         Add : function(){
+            RestfulApi.InsertMSSQLData({
+                insertname: 'InsertByEncrypt',
+                table: 7,
+                params: {
+                    CI_ID          : $vm.vmData.CI_ID,
+                    CI_PW          : $vm.vmData.CI_PW,
+                    CI_NAME        : $vm.vmData.CI_NAME,
+                    CI_COMPY       : $vm.vmData.CI_COMPY,
+                    CI_STS         : $vm.vmData.CI_STS,
+                    CI_CR_USER     : $vm.profile.U_ID,
+                    CI_CR_DATETIME : $filter('date')(new Date, 'yyyy-MM-dd HH:mm:ss')
+                }
+            }).then(function(res) {
+                // console.log(res);
 
+                ReturnToExternalManagementPage();
+
+                // $state.reload()
+            });
         },
         Update : function(){
+            RestfulApi.UpdateMSSQLData({
+                updatename: 'UpdateByEncrypt',
+                table: 7,
+                params: {
+                    CI_NAME        : $vm.vmData.CI_NAME,
+                    CI_COMPY       : $vm.vmData.CI_COMPY,
+                    CI_STS         : $vm.vmData.CI_STS,
+                    CI_UP_USER     : $vm.profile.U_ID,
+                    CI_UP_DATETIME : $filter('date')(new Date, 'yyyy-MM-dd HH:mm:ss')
+                },
+                condition: {
+                    CI_ID         : $vm.vmData.CI_ID
+                }
+            }).then(function (res) {
 
+                ReturnToExternalManagementPage();
+
+            }, function (err) {
+
+            });
         }
 	})
 
@@ -12001,7 +12157,9 @@ angular.module('app.settings').controller('ExCompyCtrl', function ($scope, $stat
 	})
 
 	function ReturnToExternalManagementPage(){
-        $state.transitionTo("app.settings.externalmanagement");
+        $state.transitionTo("app.settings.externalmanagement", null, { 
+            reload: true, inherit: false, notify: true
+        });
 	}
 
 });

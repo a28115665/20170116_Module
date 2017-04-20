@@ -25,7 +25,7 @@ module.exports = function(pQueryname, pParams){
 			if(pParams["CO_STS"] !== undefined){
 				_SQLCommand += " AND CO_STS = @CO_STS";
 			}
-			_SQLCommand += "ORDER BY CO_CR_DATETIME DESC";
+			_SQLCommand += " ORDER BY CO_CR_DATETIME DESC ";
 			break;
 	}
 

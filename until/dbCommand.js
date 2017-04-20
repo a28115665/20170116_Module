@@ -36,7 +36,7 @@ var SelectMethod = function (querymain, queryname, params, callback){
 			
 			// schema所需的orm
 			schemaType.SchemaType(_params, ps, sql);
-			
+
 			// 執行SQL，並且回傳值
 		    ps.prepare(SQLCommand, function(err) {
 			    // ... error checks
@@ -136,6 +136,9 @@ var InsertMethod = function (insertname, table, params, callback){
 					if(SQLCommand.match(/@U_PW/gi)){
 						SQLCommand = SQLCommand.replace(/@U_PW/gi, 'dbo.Encrypt(@U_PW)');
 					}
+					if(SQLCommand.match(/@CI_PW/gi)){
+						SQLCommand = SQLCommand.replace(/@CI_PW/gi, 'dbo.Encrypt(@CI_PW)');
+					}
 					
 					break;
 				default:
@@ -215,6 +218,9 @@ var UpdateMethod = function (updatetname, table, params, condition, callback){
 					for(var key in _params){
 						switch(key){
 							case 'U_PW':
+								Schema.push(key + "=dbo.Encrypt(@" + key + ")");
+								break;
+							case 'CI_PW':
 								Schema.push(key + "=dbo.Encrypt(@" + key + ")");
 								break;
 							default:
