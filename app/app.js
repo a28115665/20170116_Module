@@ -24,7 +24,7 @@ angular.module('app', [
     'ui.grid.selection',
     'ui.grid.exporter',
     'ui.grid.pagination',
-    'ui.grid.treeView',
+    'ui.grid.grouping',
     'ui.grid.pinning',
     'ui.mask',
     'ui.tinymce',
@@ -119,8 +119,8 @@ angular.module('app', [
 .constant('APP_CONFIG', window.appConfig)
 
 .run(function ($rootScope, $state, $stateParams, Session, $http) {
-    $rootScope.$state = $state;
-    $rootScope.$stateParams = $stateParams;
+    // $rootScope.$state = $state;
+    // $rootScope.$stateParams = $stateParams;
     // editableOptions.theme = 'bs3';
     
     $rootScope.$on('$stateChangeStart', function (event, toState, toParams, fromState, fromParams) {

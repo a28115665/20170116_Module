@@ -16426,6 +16426,16 @@ module.filter('px', function() {
           sizes: '行/每頁',
           totalItems: '個數',
           of: '共'
+        },
+        grouping: {
+          group: '群組',
+          ungroup: '取消群組',
+          aggregate_count: '合計: 計數',
+          aggregate_sum: '合計: 總和',
+          aggregate_max: '合計: 最大',
+          aggregate_min: '合計: 最小',
+          aggregate_avg: '合計: 平均',
+          aggregate_remove: '合計: 移除'
         }
       });
       return $delegate;
