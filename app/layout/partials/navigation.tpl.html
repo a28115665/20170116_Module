@@ -4,6 +4,7 @@
     <div login-info></div>
     <!-- end user info -->
 
+    <!-- <nav data-smart-menu-items="/api/menu-items.json"> -->
     <nav>
         <!-- NOTE: Notice the gaps after each icon usage <i></i>..
         Please note that these links work a bit different than
@@ -25,8 +26,10 @@
             </li>
 
             <li data-menu-collapse>
-                <a href="#" title="Restful"><i class="fa fa-lg fa-fw fa-home"></i> <span
-                        class="menu-item-parent">{{getWord('Restful')}}</span></a>
+                <a href="#" title="Restful">
+                    <i class="fa fa-lg fa-fw fa-home"></i> 
+                    <span class="menu-item-parent">{{getWord('Restful')}}</span>
+                </a>
                 <ul>
                     <li data-ui-sref-active="active">
                         <a data-ui-sref="app.restful.alantest">{{getWord('AlanTest')}}</a>
@@ -42,15 +45,22 @@
 
             <li data-ui-sref-active="active">
                 <a data-ui-sref="app.mainwork" title="MainWork">
-                    <i class="fa fa-lg fa-fw fa-newspaper-o"></i> <span class="menu-item-parent">{{getWord('MainWork')}}</span></a>
+                    <i class="fa fa-lg fa-fw fa-newspaper-o"></i> 
+                    <span class="menu-item-parent">{{getWord('MainWork')}}</span>
+                </a>
             </li>
 
             <li data-menu-collapse>
-                <a href="#" title="SelfWork"><i class="fa fa-lg fa-fw fa-truck"></i> <span
-                        class="menu-item-parent">{{getWord('SelfWork')}}</span></a>
+                <a href="#" title="SelfWork">
+                    <i class="fa fa-lg fa-fw fa-truck"></i> 
+                    <span class="menu-item-parent">{{getWord('SelfWork')}}</span>
+                </a>
                 <ul>
                     <li data-ui-sref-active="active">
-                        <a data-ui-sref="app.selfwork.jobs"><i class="fa fa-keyboard-o"></i> {{getWord('Jobs')}}</a>
+                        <a href="#"><i class="fa fa-cubes"></i> {{getWord('LeaderJobs')}}</a>
+                    </li>
+                    <li data-ui-sref-active="active">
+                        <a data-ui-sref="app.selfwork.employeejobs"><i class="fa fa-cube"></i> {{getWord('EmployeeJobs')}}</a>
                     </li>
                     <li data-ui-sref-active="active">
                         <a data-ui-sref="app.selfwork.historysearch"><i class="fa fa-history"></i> {{getWord('HistorySearch')}}</a>

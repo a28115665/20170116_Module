@@ -191,7 +191,7 @@ angular.module('app.settings').controller('AccountManagementCtrl', function ($sc
             paginationPageSizes: [10, 25, 50],
             paginationPageSize: 10,
             onRegisterApi: function(gridApi){
-                $vm.groupManagementOptions = gridApi;
+                $vm.groupManagementGridApi = gridApi;
             }
         },
         AddAccount : function(){
@@ -253,7 +253,7 @@ angular.module('app.settings').controller('AccountManagementCtrl', function ($sc
         }).then(function (res){
             $vm.groupData = res["returnData"];
         }).finally(function() {
-            HandleWindowResize($vm.groupManagementOptions);
+            HandleWindowResize($vm.groupManagementGridApi);
         });    
     }
 

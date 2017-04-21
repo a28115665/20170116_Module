@@ -66,7 +66,7 @@ angular.module('app.settings').config(function ($stateProvider){
         },
         views: {
             "content@app" : {
-                templateUrl: 'app/Settings/views/account.html',
+                templateUrl: 'app/Settings/views/accountmanagement/account.html',
                 controller: 'AccountCtrl',
                 controllerAs: '$vm',
                 resolve: {
@@ -113,7 +113,7 @@ angular.module('app.settings').config(function ($stateProvider){
         },
         views: {
             "content@app" : {
-                templateUrl: 'app/Settings/views/group.html',
+                templateUrl: 'app/Settings/views/accountmanagement/group.html',
                 controller: 'GroupCtrl',
                 controllerAs: '$vm',
                 resolve: {
@@ -215,7 +215,140 @@ angular.module('app.settings').config(function ($stateProvider){
                 controller: 'ExternalManagementCtrl',
                 controllerAs: '$vm',
                 resolve: {
-                    
+                    boolFilter: function (SysCodeFilter){
+                        return SysCodeFilter.get('Boolean');
+                    },
+                    compyFilter: function(RestfulApi, $q){
+
+                        var deferred = $q.defer();
+
+                        RestfulApi.SearchMSSQLData({
+                            querymain: 'externalManagement',
+                            queryname: 'SelectCompyInfo',
+                            params: {
+                                CO_STS : false
+                            }
+                        }).then(function (res){
+                            var data = res["returnData"] || [],
+                                finalData = [];
+
+                            for(var i in data){
+                                finalData.push({
+                                    value: data[i].CO_CODE,
+                                    label: data[i].CO_NAME == null ? '' : data[i].CO_NAME
+                                });
+                            }
+
+                            deferred.resolve(finalData);
+                        })
+
+                        return deferred.promise;
+                    }
+                }
+            }
+        }
+    })
+
+    .state('app.settings.externalmanagement.exaccount', {
+        url: '/exaccount',
+        data: {
+            title: 'ExAccount'
+        },
+        params: { 
+            data: null
+        },
+        views: {
+            "content@app" : {
+                templateUrl: 'app/Settings/views/externalManagement/exAccount.html',
+                controller: 'ExAccountCtrl',
+                controllerAs: '$vm',
+                resolve: {
+                    bool: function (SysCode, $q){
+
+                        var deferred = $q.defer();
+
+                        SysCode.get('Boolean').then(function (res){
+                            var finalData = [];
+
+                            for(var i in res){
+                                finalData.push({
+                                    value: (i == 'true'), 
+                                    key: res[i]
+                                });
+                            }
+
+                            deferred.resolve(finalData);
+                        });
+
+                        return deferred.promise;
+                    },
+                    compy: function(RestfulApi, $q){
+
+                        var deferred = $q.defer();
+
+                        RestfulApi.SearchMSSQLData({
+                            querymain: 'externalManagement',
+                            queryname: 'SelectCompyInfo',
+                            params: {
+                                CO_STS : false
+                            }
+                        }).then(function (res){
+                            var data = res["returnData"],
+                                finalData = [];
+
+                            for(var i in data){
+                                // console.log(data[i]);
+                                var _name = data[i].CO_NAME == null ? '' : data[i].CO_NAME,
+                                    _addr = data[i].CO_ADDR == null ? '' : data[i].CO_ADDR;
+                                finalData.push({
+                                    value: data[i].CO_CODE, 
+                                    key: _name + ' - ' + _addr
+                                });
+                            }
+
+                            deferred.resolve(finalData);
+                        })
+
+                        return deferred.promise;
+                    }
+                }
+            }
+        }
+    })
+
+    .state('app.settings.externalmanagement.excompy', {
+        url: '/excompy',
+        data: {
+            title: 'ExCompy'
+        },
+        params: { 
+            data: null
+        },
+        views: {
+            "content@app" : {
+                templateUrl: 'app/Settings/views/externalManagement/exCompy.html',
+                controller: 'ExCompyCtrl',
+                controllerAs: '$vm',
+                resolve: {
+                    bool: function (SysCode, $q){
+
+                        var deferred = $q.defer();
+
+                        SysCode.get('Boolean').then(function (res){
+                            var finalData = [];
+
+                            for(var i in res){
+                                finalData.push({
+                                    value: (i == 'true'), 
+                                    key: res[i]
+                                });
+                            }
+
+                            deferred.resolve(finalData);
+                        });
+
+                        return deferred.promise;
+                    }
                 }
             }
         }

@@ -60,7 +60,7 @@ var SchemaType2 = function (params, request, sql){
 function GiveSchemaType(pType, pSql, pSchema, key){
 	var _length = pSchema["CHARACTER_MAXIMUM_LENGTH"] == -1 ? pSql.MAX : pSchema["CHARACTER_MAXIMUM_LENGTH"];
 	// 特殊處理加密欄位
-	if(key == 'U_PW'){
+	if(key == 'U_PW' || key == 'CI_PW'){
 		pType = sql.NVarChar(15);
 	}else{
 		switch(pSchema["DATA_TYPE"]){

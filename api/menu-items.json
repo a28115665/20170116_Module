@@ -1,19 +1,87 @@
 {
   "items": [
     {
-        "title":"Dashboard",
-        "sref":"app.dashboard",
-        "icon":"home"
+        "title":"MainWork",
+        "sref":"app.mainwork",
+        "icon":"newspaper-o"
     },
     {
-        "title":"App Views",
+        "title":"SelfWork",
         "href":"#",
-        "icon":"puzzle-piece",
+        "icon":"truck",
         "items": [
             {
-                "title":"Projects",
-                "sref": "app.appViews.projects",
-                "icon":"file-text-o"
+                "title":"Jobs",
+                "sref": "app.selfwork.jobs",
+                "icon":"keyboard-o"
+            },
+            {
+                "title":"HistorySearch",
+                "sref": "app.selfwork.historysearch",
+                "icon":"history"
+            }
+        ]
+    },
+    {
+        "title":"Concerns",
+        "href":"#",
+        "icon":"address-book-o",
+        "items": [
+            {
+                "title":"Ban",
+                "sref": "app.concerns.ban",
+                "icon":"ban"
+            },
+            {
+                "title":"DailyAlert",
+                "sref": "app.concerns.dailyalert",
+                "icon":"bell-o"
+            }
+        ]
+    },
+    {
+        "title":"Settings",
+        "href":"#",
+        "icon":"cog",
+        "items": [
+            {
+                "title":"Profile",
+                "sref": "app.settings.profile",
+                "icon":"user"
+            },
+            {
+                "title":"Account Management",
+                "sref": "app.settings.accountmanagement",
+                "icon":"sitemap",
+                "subitems": [
+                    {
+                        "title":"Account",
+                        "sref": "app.settings.accountmanagement.account",
+                        "icon":"user"
+                    },
+                    {
+                        "title":"Group",
+                        "sref": "app.settings.accountmanagement.group",
+                        "icon":"users"
+                    }
+                ]
+            },
+            {
+                "title":"Billboard Editor",
+                "sref": "app.settings.billboardeditor",
+                "icon":"newspaper-o",
+                "subitems": [
+                    {
+                        "title":"News",
+                        "sref": "app.settings.billboardeditor.news",
+                        "icon":"newspaper-o"
+                    }
+                ]
+            },
+            {
+                "title":"External Management",
+                "sref": "app.settings.externalmanagement",
+                "icon":"external-link"
             }
         ]
     }

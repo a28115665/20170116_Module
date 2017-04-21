@@ -70,10 +70,10 @@ angular.module('app.mainwork').controller('MainWorkCtrl', function ($scope, $sta
                                     rFilename : selectedItem[i].BBAF_R_FILENAME
                                 });
                             }
-
+                            
                             ToolboxApi.DownloadFiles({
                                 filename : '檔案下載.zip',
-                                params: _params
+                                params: JSON.stringify(_params)
                             }).then(function (res) {
                                 
                             }, function (err) {

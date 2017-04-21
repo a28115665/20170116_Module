@@ -27,6 +27,7 @@ function SysCodeResolve (RestfulApi, $q){
         }
     };
 };
+
 function SysCodeFilterResolve (RestfulApi, $q){
     return {
         get : function(pType){
@@ -50,6 +51,34 @@ function SysCodeFilterResolve (RestfulApi, $q){
                     });
                 }
 
+                deferred.resolve(finalData);
+            }, function (err){
+                deferred.reject({});
+            });
+            
+            return deferred.promise;
+        }
+    };
+};
+function CompyFilterResolve (RestfulApi, $q){
+    return {
+        get : function(){
+            var deferred = $q.defer();
+            
+            RestfulApi.SearchMSSQLData({
+                querymain: 'externalManagement',
+                queryname: 'SelectCompyInfo',
+                params: {
+                    CO_STS : false
+                }
+            }).then(function (res){
+                var data = res["returnData"] || [],
+                    finalData = {};
+
+                for(var i in data){
+                    finalData[data[i].CO_CODE] = data[i].CO_NAME
+                }
+                
                 deferred.resolve(finalData);
             }, function (err){
                 deferred.reject({});
