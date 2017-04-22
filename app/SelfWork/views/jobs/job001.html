@@ -28,13 +28,13 @@
 				    <header>
 				        <h2>編輯 </h2>
 				        <div class="widget-toolbar smart-form" role="menu">
-				            <a href-void="" class="btn btn-success" href="#">匯出Excel</a>
+				            <a href-void="" class="btn btn-success" href="#" ng-click="$vm.ExportExcel()">匯出Excel</a>
 				        </div>
 				        <div class="widget-toolbar smart-form" role="menu">
-				            <a href-void="" class="btn btn-danger" href="#">取消併票</a>
+				            <a href-void="" class="btn btn-danger" href="#" ng-click="$vm.CancelNo()">取消併票</a>
 				        </div>
 				        <div class="widget-toolbar smart-form" role="menu">
-				            <a href-void="" class="btn btn-primary" href="#">併票</a>
+				            <a href-void="" class="btn btn-primary" href="#" ng-click="$vm.MergeNo()">併票</a>
 				        </div>
 				    </header>
 				    <!-- widget div-->
@@ -44,9 +44,21 @@
 
 							<div class="table-responsive">
 
-								<div id="grid1" ui-grid="$vm.job001Options" class="my-ui-grid" ui-grid-pagination ui-grid-resize-columns ui-grid-selection ui-grid-grouping ui-grid-pinning></div>
+								<div id="grid1" ui-grid="$vm.job001Options" class="my-ui-grid" ui-grid-pagination ui-grid-resize-columns ui-grid-selection ui-grid-pinning></div>
 
 							</div>
+
+							<!-- widget footer -->
+							<div class="widget-footer">
+								<button class="btn btn-default" type="button" ng-click="$vm.Return()">
+									返回
+								</button>
+								<button class="btn btn-sm btn-warning" type="button" ng-click="$vm.Update()">
+					                <i class="fa fa-save"></i>
+									更新
+								</button>	
+							</div>
+							<!-- end widget footer -->
 
 						</div>
 						<!-- end widget content -->

@@ -25,6 +25,9 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
         },
         defaultChoice : 'Left',
         gridMethod : {
+            changeNature : function(row){
+                console.log(row);
+            },
             //加入黑名單
             banData : function(row){
                 console.log(row);
@@ -56,54 +59,40 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
             }
         },
         job001Options : {
-            // data:  [
-            //     {
-            //         $$treeLevel : 0, a : '1', b : '0A4JV163', c : '9577943035', d : '包2饰品1纸袋2', e : '1', f : '', g : '1.2', h : '5', i : '個', j : '', k : '亞瑟仕', l : '黃韋岑', m : '台東縣台東市綠島鄉公館村大白沙32號', n : '0922769396', o : '不包稅', p : '黑貓'
-            //     },
-            //     {
-            //         a : '1', b : '0A4JV163', c : '9577943094', d : '夹3饰品3纸袋3', e : '1', f : '', g : '1', h : '9', i : '個', j : '', k : '亞瑟仕', l : '林思晴', m : '高雄市鳳山區凱旋路182號', n : '0927282581', o : '不包稅', p : '黑貓'
-            //     },
-            //     {
-            //         a : '1', b : '0A4JV164', c : '9577942883', d : '包2夹1饰品1纸袋3', e : '1', f : '', g : '3.1', h : '7', i : '個', j : '', k : '亞瑟仕', l : '許依琪', m : '台北市中山區新生北路二段60巷42號7樓', n : '0975356060', o : '不包稅', p : '黑貓'
-            //     },
-            //     {
-            //         a : '1', b : '0A4JV164', c : '9577942883', d : '包2夹1饰品1纸袋3', e : '1', f : '', g : '3.1', h : '7', i : '個', j : '', k : '亞瑟仕', l : '許依琪', m : '台北市中山區新生北路二段60巷42號7樓', n : '0975356060', o : '不包稅', p : '黑貓'
-            //     },
-            //     {
-            //         $$treeLevel : 0, a : '1', b : '0A4JV165', c : '9577942883', d : '包2夹1饰品1纸袋3', e : '1', f : '', g : '3.1', h : '7', i : '個', j : '', k : '亞瑟仕', l : '許依琪', m : '台北市中山區新生北路二段60巷42號7樓', n : '0975356060', o : '不包稅', p : '黑貓'
-            //     },
-            //     {
-            //         a : '1', b : '0A4JV166', c : '9577942883', d : '包2夹1饰品1纸袋3', e : '1', f : '', g : '3.1', h : '7', i : '個', j : '', k : '亞瑟仕', l : '許依琪', m : '台北市中山區新生北路二段60巷42號7樓', n : '0975356060', o : '不包稅', p : '黑貓'
-            //     }
-            // ],
             data: '$vm.job001Data',
             columnDefs: [
-                { name: 'a',        displayName: '正式/簡易報關/移倉', width: 154 },
-                { name: 'IL_NEWBAGNO',        displayName: '清關條碼(袋號)', width: 129, grouping: { groupPriority: 0 }, cellTemplate: '<div><div ng-if="!col.grouping || col.grouping.groupPriority === undefined || col.grouping.groupPriority === null || ( row.groupHeader && col.grouping.groupPriority === row.treeLevel )" class="ui-grid-cell-contents" title="TOOLTIP">{{COL_FIELD CUSTOM_FILTERS}}</div></div>' },
-                { name: 'IL_NEWSMALLNO',        displayName: '提單號(小號)', width: 115 },
-                { name: 'd',        displayName: '品名', width: 115 },
-                { name: 'e',        displayName: '件數', width: 115 },
-                { name: 'f',        displayName: '產地', width: 115 },
-                { name: 'g',        displayName: '重量', width: 115 },
-                { name: 'h',        displayName: '數量', width: 115 },
-                { name: 'i',        displayName: '單位', width: 115 },
-                { name: 'j',        displayName: '收件者統編', width: 115 },
-                { name: 'k',        displayName: '寄件人或公司', width: 115 },
-                { name: 'l',        displayName: '收件人或公司', width: 115 },
-                { name: 'm',        displayName: '收件地址', width: 300 },
-                { name: 'n',        displayName: '收件電話', width: 115 },
-                { name: 'o',        displayName: '是否包稅', width: 115 },
-                { name: 'p',        displayName: '派送公司', width: 115 },
-                { name: 'Options',  displayName: '操作', width: 220, cellTemplate: $templateCache.get('accessibilityToBA'), pinnedRight:true }
+                { name: 'Index',        displayName: '序列', width: 50},
+                { name: 'IL_G1',        displayName: '報關種類', width: 154 },
+                { name: 'IL_BAGNO',        displayName: '袋號', width: 129 },
+                { name: 'IL_MERGENO',        displayName: '併票號', width: 129 },
+                { name: 'IL_SMALLNO',        displayName: '小號', width: 115 },
+                { name: 'IL_NATURE',        displayName: '品名', width: 115 },
+                { name: 'IL_NATURE_NEW',        displayName: '新品名', width: 115 },
+                { name: 'IL_CTN',        displayName: '件數', width: 115 },
+                { name: 'IL_PLACE',        displayName: '產地', width: 115 },
+                { name: 'IL_WEIGHT',        displayName: '重量', width: 115 },
+                { name: 'IL_WEIGHT_NEW',        displayName: '更改後重量', width: 115 },
+                { name: 'IL_PCS',        displayName: '數量', width: 115 },
+                { name: 'IL_UNIT',        displayName: '單位', width: 115 },
+                { name: 'IL_GETNO',        displayName: '收件者統編', width: 115 },
+                { name: 'IL_SENDNAME',        displayName: '寄件人或公司', width: 115 },
+                { name: 'IL_GETNAME',        displayName: '收件人公司', width: 115 },
+                { name: 'IL_GETADDRESS',        displayName: '收件地址', width: 300 },
+                { name: 'IL_GETTEL',        displayName: '收件電話', width: 115 },
+                { name: 'IL_UNIVALENT',        displayName: '單價', width: 115 },
+                { name: 'IL_FINALCOST',        displayName: '完稅價格', width: 115 },
+                { name: 'IL_TAX',        displayName: '稅則', width: 115 },
+                { name: 'IL_TRCOM',        displayName: '派送公司', width: 115 },
+                { name: 'Options',  displayName: '操作', width: 220, cellTemplate: $templateCache.get('accessibilityToCBA'), pinnedRight:true }
             ],
             enableFiltering: false,
             enableSorting: true,
             enableColumnMenus: false,
             // enableVerticalScrollbar: false,
 		    enableRowSelection: true,
-    		enableSelectAll: false,
-            paginationPageSizes: [10, 25, 50],
-            paginationPageSize: 10,
+    		enableSelectAll: true,
+            paginationPageSizes: [50, 100, 150, 200, 250, 300],
+            paginationPageSize: 50,
             treeRowHeaderAlwaysVisible: false,
             onRegisterApi: function(gridApi){
                 $vm.job001GridApi = gridApi;
@@ -124,9 +113,35 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                 // }, 200);
             }
         },
-        // Filter: function(){
-        //     $vm.editorOrderGridApi.grid.refresh();
-        // }
+        ExportExcel: function(){
+
+        },
+        CancelNo: function(){
+            if($vm.job001GridApi.selection.getSelectedRows().length > 0){
+                for(var i in $vm.job001GridApi.selection.getSelectedRows()){
+                    var _index = $vm.job001GridApi.selection.getSelectedRows()[i].Index;
+                    $vm.job001Data[_index-1].IL_MERGENO = null;
+                }
+            }
+        },
+        MergeNo: function(){
+            // console.log($vm.job001GridApi.selection.getSelectedRows());
+            if($vm.job001GridApi.selection.getSelectedRows().length > 0){
+                // 取得第一個袋號當併票號
+                var _MergeNo = $vm.job001GridApi.selection.getSelectedRows()[0].IL_BAGNO;
+
+                for(var i in $vm.job001GridApi.selection.getSelectedRows()){
+                    var _index = $vm.job001GridApi.selection.getSelectedRows()[i].Index;
+                    $vm.job001Data[_index-1].IL_MERGENO = _MergeNo;
+                }
+            }
+        },
+        Return : function(){
+            ReturnToEmployeejobsPage();
+        },
+        Update : function(){
+
+        }
     });
 
     function LoadItemList(){
@@ -138,7 +153,10 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                 IL_SEQ: 'AdminTest20170419101047'
             }
         }).then(function (res){
-            console.log(res["returnData"]);
+            // console.log(res["returnData"]);
+            for(var i=0;i<res["returnData"].length;i++){
+                res["returnData"][i]["Index"] = i+1;
+            }
             $vm.job001Data = res["returnData"];
         }).finally(function() {
             HandleWindowResize($vm.job001GridApi);

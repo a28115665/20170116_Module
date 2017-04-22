@@ -7,5 +7,8 @@
 	"5" : "USER_GRIGHT",
 	"6" : "SYS_GROUP",
 	"7" : "CUST_INFO",
-	"8" : "COMPY_INFO"
+	"8" : "COMPY_INFO",
+	"9" : "ITEM_LIST",
+	"10" : "FLIGHT_ITEM_LIST",
+	"11" : "Delivery_Item_List"
 }
