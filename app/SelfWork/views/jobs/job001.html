@@ -11,6 +11,44 @@
 	    <div class="row">
 
 	        <!-- NEW WIDGET START -->
+            <article class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+
+                <div class="well well-sm bg-color-greenDark txt-color-white text-center">
+                    <h5>主號</h5>
+                    <code>{{$vm.vmData.OL_MASTER}}</code>
+                </div>
+
+            </article>
+
+            <article class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+
+                <div class="well well-sm bg-color-blue txt-color-white text-center">
+                    <h5>航班</h5>
+                    <code>{{$vm.vmData.OL_FLIGHTNO}}</code>
+                </div>
+
+            </article>
+
+            <article class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+
+                <div class="well well-sm bg-color-teal txt-color-white text-center">
+                    <h5>進口日期</h5>
+                    <code>{{$vm.vmData.OL_IMPORTDT | dateFilter}}</code>
+                </div>
+
+            </article>
+
+            <article class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+
+                <div class="well well-sm bg-color-magenta txt-color-white text-center">
+                    <h5>國別</h5>
+                    <code>{{$vm.vmData.OL_COUNTRY}}</code>
+                </div>
+
+            </article>
+	        <!-- End WIDGET START -->
+
+	        <!-- NEW WIDGET START -->
 	        <article class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
 	        	<!-- Widget ID (each widget will need unique ID)-->
 				<div id="job001" data-widget-sortable="false" data-widget-colorbutton="false" data-widget-togglebutton="false" data-widget-editbutton="false" data-widget-fullscreenbutton="false" data-widget-deletebutton="false" data-widget-color="blue" data-jarvis-widget>

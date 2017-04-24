@@ -96,6 +96,27 @@ angular.module('app.selfwork').config(function ($stateProvider){
         }
     })
 
+    .state('app.selfwork.employeejobs.job003', {
+        url: '/job003',
+        data: {
+            title: 'Job003'
+        },
+        params: { 
+            data: null
+        },
+        parent: 'app.selfwork.employeejobs',
+        views: {
+            "content@app" : {
+                templateUrl: 'app/SelfWork/views/jobs/job003.html',
+                controller: 'Job003Ctrl',
+                controllerAs: '$vm',
+                resolve: {
+
+                }
+            }
+        }
+    })
+
     .state('app.selfwork.historysearch', {
         url: '/selfwork/historysearch',
         data: {
