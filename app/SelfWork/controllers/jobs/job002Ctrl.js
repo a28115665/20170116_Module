@@ -1,6 +1,6 @@
 "use strict";
 
-angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, RestfulApi, uiGridConstants, $filter) {
+angular.module('app.selfwork').controller('Job002Ctrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, RestfulApi, uiGridConstants, $filter) {
     // console.log($stateParams, $state);
 
     var $vm = this,
@@ -9,20 +9,20 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
     angular.extend(this, {
         Init : function(){
             // 不正常登入此頁面
-            if($stateParams.data == null){
-                ReturnToEmployeejobsPage();
-            }else{
+            // if($stateParams.data == null){
+            //     ReturnToEmployeejobsPage();
+            // }else{
                 $vm.vmData = $stateParams.data;
 
                 // 測試用
-                // if($vm.vmData == null){
-                //     $vm.vmData = {
-                //         OL_SEQ : 'AdminTest20170419101047'
-                //     };
-                // }
+                if($vm.vmData == null){
+                    $vm.vmData = {
+                        OL_SEQ : 'AdminTest20170419101047'
+                    };
+                }
                 
                 LoadItemList();
-            }
+            // }
         },
         profile : Session.Get(),
         defaultChoice : 'Left',
@@ -56,8 +56,8 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                 });
             }
         },
-        job001Options : {
-            data: '$vm.job001Data',
+        job002Options : {
+            data: '$vm.job002Data',
             columnDefs: [
                 { name: 'Index'         , displayName: '序列', width: 50, enableFiltering: false},
                 { name: 'IL_G1'         , displayName: '報關種類', width: 154 },
@@ -92,121 +92,11 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
             paginationPageSizes: [50, 100, 150, 200, 250, 300],
             paginationPageSize: 50,
             onRegisterApi: function(gridApi){
-                $vm.job001GridApi = gridApi;
-                // $vm.editorOrderGridApi.grid.registerRowsProcessor(function ( renderableRows ){
-                //     var matcher = new RegExp($vm.filterValue);
-                //     renderableRows.forEach(function(row) {
-                //         var match = false;
-                //         ['b', 'c', 'm', 'n', 'o'].forEach(function(field) {
-                //             if (row.entity[field].match(matcher)) {
-                //                 match = true;
-                //             }
-                //         });
-                //         if (!match) {
-                //             row.visible = false;
-                //         }
-                //     });
-                //     return renderableRows;
-                // }, 200);
-                
-                // gridApi.edit.on.afterCellEdit($scope, function(rowEntity, colDef, newValue, oldValue){
-                   
-                //     colDef.cellClass = function(grid, row, col, rowRenderIndex, colRenderIndex) {
-            
-                //         var _class = "";
-                //         if (rowEntity.Index === row.entity.Index && newValue !== oldValue) {
-                //             // 檢查有沒有重複
-                //             if($filter('filter')(cellClassEditabled, {
-                //                 rowRenderIndex: row.entity.Index - 1,
-                //                 colRenderIndex: colRenderIndex
-                //             }).length == 0){
-                //                 // 沒有就塞入
-                //                 cellClassEditabled.push({
-                //                     rowRenderIndex: row.entity.Index - 1,
-                //                     colRenderIndex: colRenderIndex
-                //                 });
-                //             }
-                //             _class = "cell-class-editabled";
-                //         }
-
-                //         // console.log(cellClassEditabled)
-                //         for (var i in cellClassEditabled) {
-                //             if (cellClassEditabled[i].rowRenderIndex == rowRenderIndex && cellClassEditabled[i].colRenderIndex == colRenderIndex) {
-                //                 _class = "cell-class-editabled";
-                //                 break;
-                //             } else {
-                //                 _class = "";
-                //             }
-                //         }
-
-                //         return _class;
-
-                //     };
-
-                //     gridApi.core.notifyDataChange(uiGridConstants.dataChange.COLUMN);
-    
-                // });
+                $vm.job002GridApi = gridApi;
             }
         },
         ExportExcel: function(){
 
-        },
-        CancelNo: function(){
-            if($vm.job001GridApi.selection.getSelectedRows().length > 0){
-                for(var i in $vm.job001GridApi.selection.getSelectedRows()){
-                    var _index = $vm.job001GridApi.selection.getSelectedRows()[i].Index;
-                    $vm.job001Data[_index-1].IL_MERGENO = null;
-                }
-            }
-        },
-        MergeNo: function(){
-            // console.log($vm.job001GridApi.selection.getSelectedRows());
-            if($vm.job001GridApi.selection.getSelectedRows().length > 0){
-                // 取得第一個袋號當併票號
-                var _mergeNo = $vm.job001GridApi.selection.getSelectedRows()[0].IL_BAGNO,
-                    _natureNew = [];
-
-                // 塞入新品名
-                for(var i in $vm.job001GridApi.selection.getSelectedRows()){
-                    // console.log($vm.job001GridApi.selection.getSelectedRows()[i].IL_NATURE_NEW);
-                    if($vm.job001GridApi.selection.getSelectedRows()[i].IL_NATURE_NEW != null){
-                        _natureNew.push($vm.job001GridApi.selection.getSelectedRows()[i].IL_NATURE_NEW);
-                    }
-                }
-                var modalInstance = $uibModal.open({
-                    animation: true,
-                    ariaLabelledBy: 'modal-title',
-                    ariaDescribedBy: 'modal-body',
-                    templateUrl: 'mergeNoModalContent.html',
-                    controller: 'MergeNoModalInstanceCtrl',
-                    controllerAs: '$ctrl',
-                    // size: 'lg',
-                    // appendTo: parentElem,
-                    resolve: {
-                        mergeNo: function() {
-                            return _mergeNo;
-                        },
-                        natureNew: function() {
-                            return _natureNew;
-                        }
-                    }
-                });
-
-                modalInstance.result.then(function(selectedItem) {
-                    // $ctrl.selected = selectedItem;
-                    console.log(selectedItem);
-
-                    // 變更併票號與新品名
-                    for(var i in $vm.job001GridApi.selection.getSelectedRows()){
-                        var _index = $vm.job001GridApi.selection.getSelectedRows()[i].Index;
-                        $vm.job001Data[_index-1].IL_MERGENO = selectedItem.mergeNo;
-
-                        $vm.job001Data[_index-1].IL_NATURE_NEW = selectedItem.natureNew;
-                    }
-                }, function() {
-                    // $log.info('Modal dismissed at: ' + new Date());
-                });
-            }
         },
         Return : function(){
             ReturnToEmployeejobsPage();
@@ -225,8 +115,8 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                 size: 'lg',
                 // appendTo: parentElem,
                 resolve: {
-                    job001Data: function() {
-                        return $vm.job001Data;
+                    job002Data: function() {
+                        return $vm.job002Data;
                     }
                 }
             });
@@ -241,19 +131,19 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
 
     function LoadItemList(){
         RestfulApi.SearchMSSQLData({
-            querymain: 'job001',
-            queryname: 'SelectItemList',
+            querymain: 'job002',
+            queryname: 'SelectFlightItemList',
             params: {
-                IL_SEQ: $vm.vmData.OL_SEQ
+                FLL_SEQ: $vm.vmData.OL_SEQ
             }
         }).then(function (res){
-            // console.log(res["returnData"]);
+            console.log(res["returnData"]);
             for(var i=0;i<res["returnData"].length;i++){
                 res["returnData"][i]["Index"] = i+1;
             }
-            $vm.job001Data = res["returnData"];
+            $vm.job002Data = res["returnData"];
         }).finally(function() {
-            HandleWindowResize($vm.job001GridApi);
+            HandleWindowResize($vm.job002GridApi);
         }); 
     };
 
@@ -298,22 +188,22 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
         $uibModalInstance.dismiss('cancel');
     };
 })
-.controller('MergeNoResultModalInstanceCtrl', function ($uibModalInstance, job001Data, uiGridGroupingConstants) {
+.controller('MergeNoResultModalInstanceCtrl', function ($uibModalInstance, job002Data, uiGridGroupingConstants) {
     var $ctrl = this;
-    $ctrl.items = job001Data;
+    $ctrl.items = job002Data;
 
     $ctrl.MdInit = function(){
         DoMergeNoSplit();
-        // console.log($ctrl.job001DataHaveMergeNo);
-        // console.log($ctrl.job001DataNotMergeNo);
+        // console.log($ctrl.job002DataHaveMergeNo);
+        // console.log($ctrl.job002DataNotMergeNo);
     };
 
     $ctrl.HandleWindowResize = function(pGridApi){
         HandleWindowResize(pGridApi);
     }
 
-    $ctrl.job001DataHaveMergeNoOption = {
-        data: '$ctrl.job001DataHaveMergeNo',
+    $ctrl.job002DataHaveMergeNoOption = {
+        data: '$ctrl.job002DataHaveMergeNo',
         columnDefs: [
             { name: 'Index',        displayName: '序列', width: 50},
             { name: 'IL_G1',        displayName: '報關種類', width: 154 },
@@ -359,13 +249,13 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
         paginationPageSizes: [50, 100, 150, 200, 250, 300],
         paginationPageSize: 50,
         onRegisterApi: function(gridApi){
-            $ctrl.job001DataHaveMergeNoGridApi = gridApi;
-            HandleWindowResize($ctrl.job001DataHaveMergeNoGridApi);
+            $ctrl.job002DataHaveMergeNoGridApi = gridApi;
+            HandleWindowResize($ctrl.job002DataHaveMergeNoGridApi);
         }
     };
 
-    $ctrl.job001DataNotMergeNoOption = {
-        data: '$ctrl.job001DataNotMergeNo',
+    $ctrl.job002DataNotMergeNoOption = {
+        data: '$ctrl.job002DataNotMergeNo',
         columnDefs: [
             { name: 'Index',        displayName: '序列', width: 50},
             { name: 'IL_G1',        displayName: '報關種類', width: 154 },
@@ -397,20 +287,20 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
         paginationPageSizes: [50, 100, 150, 200, 250, 300],
         paginationPageSize: 50,
         onRegisterApi: function(gridApi){
-            $ctrl.job001DataNotMergeNoGridApi = gridApi;
-            HandleWindowResize($ctrl.job001DataNotMergeNoGridApi);
+            $ctrl.job002DataNotMergeNoGridApi = gridApi;
+            HandleWindowResize($ctrl.job002DataNotMergeNoGridApi);
         }
     }
 
     function DoMergeNoSplit(){
-        $ctrl.job001DataHaveMergeNo = [];
-        $ctrl.job001DataNotMergeNo = [];
+        $ctrl.job002DataHaveMergeNo = [];
+        $ctrl.job002DataNotMergeNo = [];
 
-        for(var i in job001Data){
-            if(job001Data[i].IL_MERGENO){
-                $ctrl.job001DataHaveMergeNo.push(job001Data[i]);
+        for(var i in job002Data){
+            if(job002Data[i].IL_MERGENO){
+                $ctrl.job002DataHaveMergeNo.push(job002Data[i]);
             }else{
-                $ctrl.job001DataNotMergeNo.push(job001Data[i]);
+                $ctrl.job002DataNotMergeNo.push(job002Data[i]);
             }
         }
     }
