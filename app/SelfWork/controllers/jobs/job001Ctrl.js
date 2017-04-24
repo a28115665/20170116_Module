@@ -54,10 +54,6 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                 }, function() {
                     // $log.info('Modal dismissed at: ' + new Date());
                 });
-            },
-            //通報前線人員
-            alertData : function(row){
-                console.log(row);
             }
         },
         job001Options : {
@@ -113,47 +109,43 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                 //     return renderableRows;
                 // }, 200);
                 
-                gridApi.edit.on.afterCellEdit($scope, function(rowEntity, colDef, newValue, oldValue){
-                    // $scope.msg.lastCellEdited = 'edited row id:' + rowEntity.id + ' Column:' + colDef.name + ' newValue:' + newValue + ' oldValue:' + oldValue ;
-                    console.log('edited row id:' + rowEntity.id + ' Column:' + colDef.name + ' newValue:' + newValue + ' oldValue:' + oldValue);
-                    // $scope.$apply();
-
-                    colDef.cellClass = function(grid, row, col, rowRenderIndex, colRenderIndex) {
+                // gridApi.edit.on.afterCellEdit($scope, function(rowEntity, colDef, newValue, oldValue){
+                   
+                //     colDef.cellClass = function(grid, row, col, rowRenderIndex, colRenderIndex) {
             
-                        var _class = "";
-                        if (rowEntity.Index === row.entity.Index && newValue !== oldValue) {
-                            // 檢查有沒有重複
-                            if($filter('filter')(cellClassEditabled, {
-                                rowRenderIndex: row.entity.Index - 1,
-                                colRenderIndex: colRenderIndex
-                            }).length == 0){
-                                // 沒有就塞入
-                                cellClassEditabled.push({
-                                    rowRenderIndex: row.entity.Index - 1,
-                                    colRenderIndex: colRenderIndex
-                                });
-                            }
-                            _class = "cell-class-editabled";
-                        }
+                //         var _class = "";
+                //         if (rowEntity.Index === row.entity.Index && newValue !== oldValue) {
+                //             // 檢查有沒有重複
+                //             if($filter('filter')(cellClassEditabled, {
+                //                 rowRenderIndex: row.entity.Index - 1,
+                //                 colRenderIndex: colRenderIndex
+                //             }).length == 0){
+                //                 // 沒有就塞入
+                //                 cellClassEditabled.push({
+                //                     rowRenderIndex: row.entity.Index - 1,
+                //                     colRenderIndex: colRenderIndex
+                //                 });
+                //             }
+                //             _class = "cell-class-editabled";
+                //         }
 
-                        console.log(cellClassEditabled)
-                        for (var i in cellClassEditabled) {
-                            // console.log(cellClassEditabled[i].rowRenderIndex, rowRenderIndex, cellClassEditabled[i].colRenderIndex, colRenderIndex);
-                            if (cellClassEditabled[i].rowRenderIndex == rowRenderIndex && cellClassEditabled[i].colRenderIndex == colRenderIndex) {
-                                _class = "cell-class-editabled";
-                                break;
-                            } else {
-                                _class = "";
-                            }
-                        }
+                //         // console.log(cellClassEditabled)
+                //         for (var i in cellClassEditabled) {
+                //             if (cellClassEditabled[i].rowRenderIndex == rowRenderIndex && cellClassEditabled[i].colRenderIndex == colRenderIndex) {
+                //                 _class = "cell-class-editabled";
+                //                 break;
+                //             } else {
+                //                 _class = "";
+                //             }
+                //         }
 
-                        return _class;
+                //         return _class;
 
-                    };
+                //     };
 
-                    gridApi.core.notifyDataChange(uiGridConstants.dataChange.COLUMN);
+                //     gridApi.core.notifyDataChange(uiGridConstants.dataChange.COLUMN);
     
-                });
+                // });
             }
         },
         ExportExcel: function(){
@@ -171,12 +163,49 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
             // console.log($vm.job001GridApi.selection.getSelectedRows());
             if($vm.job001GridApi.selection.getSelectedRows().length > 0){
                 // 取得第一個袋號當併票號
-                var _MergeNo = $vm.job001GridApi.selection.getSelectedRows()[0].IL_BAGNO;
+                var _mergeNo = $vm.job001GridApi.selection.getSelectedRows()[0].IL_BAGNO,
+                    _natureNew = [];
 
+                // 塞入新品名
                 for(var i in $vm.job001GridApi.selection.getSelectedRows()){
-                    var _index = $vm.job001GridApi.selection.getSelectedRows()[i].Index;
-                    $vm.job001Data[_index-1].IL_MERGENO = _MergeNo;
+                    // console.log($vm.job001GridApi.selection.getSelectedRows()[i].IL_NATURE_NEW);
+                    if($vm.job001GridApi.selection.getSelectedRows()[i].IL_NATURE_NEW != null){
+                        _natureNew.push($vm.job001GridApi.selection.getSelectedRows()[i].IL_NATURE_NEW);
+                    }
                 }
+                var modalInstance = $uibModal.open({
+                    animation: true,
+                    ariaLabelledBy: 'modal-title',
+                    ariaDescribedBy: 'modal-body',
+                    templateUrl: 'mergeNoModalContent.html',
+                    controller: 'MergeNoModalInstanceCtrl',
+                    controllerAs: '$ctrl',
+                    // size: 'lg',
+                    // appendTo: parentElem,
+                    resolve: {
+                        mergeNo: function() {
+                            return _mergeNo;
+                        },
+                        natureNew: function() {
+                            return _natureNew;
+                        }
+                    }
+                });
+
+                modalInstance.result.then(function(selectedItem) {
+                    // $ctrl.selected = selectedItem;
+                    console.log(selectedItem);
+
+                    // 變更併票號與新品名
+                    for(var i in $vm.job001GridApi.selection.getSelectedRows()){
+                        var _index = $vm.job001GridApi.selection.getSelectedRows()[i].Index;
+                        $vm.job001Data[_index-1].IL_MERGENO = selectedItem.mergeNo;
+
+                        $vm.job001Data[_index-1].IL_NATURE_NEW = selectedItem.natureNew;
+                    }
+                }, function() {
+                    // $log.info('Modal dismissed at: ' + new Date());
+                });
             }
         },
         Return : function(){
@@ -232,6 +261,27 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
         $state.transitionTo($state.current.parent);
     };
 
+})
+.controller('MergeNoModalInstanceCtrl', function ($uibModalInstance, mergeNo, natureNew) {
+    var $ctrl = this;
+    $ctrl.natureNew = natureNew;
+
+    $ctrl.mdData = {
+        mergeNo : mergeNo,
+        natureNew : null
+    };
+
+    $ctrl.Init = function(){
+        $ctrl.mergeNoChoice = '1';
+    };
+
+    $ctrl.ok = function() {
+        $uibModalInstance.close($ctrl.mdData);
+    };
+
+    $ctrl.cancel = function() {
+        $uibModalInstance.dismiss('cancel');
+    };
 })
 .controller('ModalInstanceCtrl', function ($uibModalInstance, items) {
     var $ctrl = this;

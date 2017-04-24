@@ -29,8 +29,8 @@
 .cell-class-editabled {
     background-color: red !important; 
     color: #000 !important;
-    -webkit-animation-name: cellClassEditabled; /* Safari 4.0 - 8.0 */
-    -webkit-animation-duration: 1s; /* Safari 4.0 - 8.0 */
+    -webkit-animation-name: cellClassEditabled; 
+    -webkit-animation-duration: 1s; 
     -webkit-animation-iteration-count: infinite;
     animation-name: cellClassEditabled;
     animation-duration: 1s;
