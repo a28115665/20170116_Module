@@ -1,9 +1,10 @@
 "use strict";
 
-angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, RestfulApi) {
+angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, RestfulApi, uiGridConstants, $filter) {
     // console.log($stateParams, $state);
 
-    var $vm = this;
+    var $vm = this,
+        cellClassEditabled = [];
 
     angular.extend(this, {
         Init : function(){
@@ -115,7 +116,43 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                 gridApi.edit.on.afterCellEdit($scope, function(rowEntity, colDef, newValue, oldValue){
                     // $scope.msg.lastCellEdited = 'edited row id:' + rowEntity.id + ' Column:' + colDef.name + ' newValue:' + newValue + ' oldValue:' + oldValue ;
                     console.log('edited row id:' + rowEntity.id + ' Column:' + colDef.name + ' newValue:' + newValue + ' oldValue:' + oldValue);
-                    $scope.$apply();
+                    // $scope.$apply();
+
+                    colDef.cellClass = function(grid, row, col, rowRenderIndex, colRenderIndex) {
+            
+                        var _class = "";
+                        if (rowEntity.Index === row.entity.Index && newValue !== oldValue) {
+                            // 檢查有沒有重複
+                            if($filter('filter')(cellClassEditabled, {
+                                rowRenderIndex: row.entity.Index - 1,
+                                colRenderIndex: colRenderIndex
+                            }).length == 0){
+                                // 沒有就塞入
+                                cellClassEditabled.push({
+                                    rowRenderIndex: row.entity.Index - 1,
+                                    colRenderIndex: colRenderIndex
+                                });
+                            }
+                            _class = "cell-class-editabled";
+                        }
+
+                        console.log(cellClassEditabled)
+                        for (var i in cellClassEditabled) {
+                            // console.log(cellClassEditabled[i].rowRenderIndex, rowRenderIndex, cellClassEditabled[i].colRenderIndex, colRenderIndex);
+                            if (cellClassEditabled[i].rowRenderIndex == rowRenderIndex && cellClassEditabled[i].colRenderIndex == colRenderIndex) {
+                                _class = "cell-class-editabled";
+                                break;
+                            } else {
+                                _class = "";
+                            }
+                        }
+
+                        return _class;
+
+                    };
+
+                    gridApi.core.notifyDataChange(uiGridConstants.dataChange.COLUMN);
+    
                 });
             }
         },
