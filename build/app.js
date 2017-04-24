@@ -1858,7 +1858,7 @@ angular.module('app.selfwork').config(function ($stateProvider){
     .state('app.selfwork.employeejobs', {
         url: '/selfwork/employeejobs',
         data: {
-            title: 'Employee Jobs'
+            title: 'EmployeeJobs'
         },
         views: {
             "content@app" : {
@@ -3368,10 +3368,9 @@ angular.module('app')
                                     				<a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethod.modifyData(row)"> 編輯</a>\
                                     				<a href="javascript:void(0);" class="btn btn-primary btn-xs" ng-click="grid.appScope.$vm.gridMethod.closeData(row)" ng-disabled="row.entity.g"> 完成</a>\
                                		  		  </div>');
-	$templateCache.put('accessibilityToCBA', '<div class="ui-grid-cell-contents text-center">\
+	$templateCache.put('accessibilityToCB', '<div class="ui-grid-cell-contents text-center">\
                                             <a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethod.changeNature(row)"> 改單</a>\
                                     				<a href="javascript:void(0);" class="btn btn-primary btn-xs" ng-click="grid.appScope.$vm.gridMethod.banData(row)"> 加入黑名單</a>\
-                                    				<a href="javascript:void(0);" class="btn btn-danger btn-xs" ng-click="grid.appScope.$vm.gridMethod.alertData(row)"> 通報前線</a>\
                                		  		  </div>');
     $templateCache.put('accessibilityToMDForAccount', '<div class="ui-grid-cell-contents text-center">\
                                             <a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridAccountMethod.modifyData(row)"> {{$parent.$root.getWord(\'Modify\')}}</a>\
@@ -11583,16 +11582,17 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
             // }else{
                 $vm.vmData = $stateParams.data;
 
+                // 測試用
+                if($vm.vmData == null){
+                    $vm.vmData = {
+                        OL_SEQ : 'AdminTest20170419101047'
+                    };
+                }
+                
                 LoadItemList();
             // }
         },
         profile : Session.Get(),
-        searchCondition : {
-            a : ['0A4JV163', '0A4JV164', '0A4JV165'],
-            b : ['9577943035', '9577943094', '9577942883'],
-            c : ['亞瑟仕'],
-            d : ['黑貓']
-        },
         defaultChoice : 'Left',
         gridMethod : {
             changeNature : function(row){
@@ -11631,31 +11631,31 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
         job001Options : {
             data: '$vm.job001Data',
             columnDefs: [
-                { name: 'Index',        displayName: '序列', width: 50},
-                { name: 'IL_G1',        displayName: '報關種類', width: 154 },
-                { name: 'IL_BAGNO',        displayName: '袋號', width: 129 },
-                { name: 'IL_MERGENO',        displayName: '併票號', width: 129 },
-                { name: 'IL_SMALLNO',        displayName: '小號', width: 115 },
-                { name: 'IL_NATURE',        displayName: '品名', width: 115 },
-                { name: 'IL_NATURE_NEW',        displayName: '新品名', width: 115 },
-                { name: 'IL_CTN',        displayName: '件數', width: 115 },
-                { name: 'IL_PLACE',        displayName: '產地', width: 115 },
-                { name: 'IL_WEIGHT',        displayName: '重量', width: 115 },
-                { name: 'IL_WEIGHT_NEW',        displayName: '更改後重量', width: 115 },
-                { name: 'IL_PCS',        displayName: '數量', width: 115 },
-                { name: 'IL_UNIT',        displayName: '單位', width: 115 },
-                { name: 'IL_GETNO',        displayName: '收件者統編', width: 115 },
-                { name: 'IL_SENDNAME',        displayName: '寄件人或公司', width: 115 },
-                { name: 'IL_GETNAME',        displayName: '收件人公司', width: 115 },
-                { name: 'IL_GETADDRESS',        displayName: '收件地址', width: 300 },
-                { name: 'IL_GETTEL',        displayName: '收件電話', width: 115 },
-                { name: 'IL_UNIVALENT',        displayName: '單價', width: 115 },
-                { name: 'IL_FINALCOST',        displayName: '完稅價格', width: 115 },
-                { name: 'IL_TAX',        displayName: '稅則', width: 115 },
-                { name: 'IL_TRCOM',        displayName: '派送公司', width: 115 },
-                { name: 'Options',  displayName: '操作', width: 220, cellTemplate: $templateCache.get('accessibilityToCBA'), pinnedRight:true }
+                { name: 'Index'         , displayName: '序列', width: 50, enableFiltering: false},
+                { name: 'IL_G1'         , displayName: '報關種類', width: 154 },
+                { name: 'IL_MERGENO'    , displayName: '併票號', width: 129, enableCellEdit: false },
+                { name: 'IL_BAGNO'      , displayName: '袋號', width: 129 },
+                { name: 'IL_SMALLNO'    , displayName: '小號', width: 115 },
+                { name: 'IL_NATURE'     , displayName: '品名', width: 115 },
+                { name: 'IL_NATURE_NEW' , displayName: '新品名', width: 115 },
+                { name: 'IL_CTN'        , displayName: '件數', width: 115 },
+                { name: 'IL_PLACE'      , displayName: '產地', width: 115 },
+                { name: 'IL_WEIGHT'     , displayName: '重量', width: 115 },
+                { name: 'IL_WEIGHT_NEW' , displayName: '更改後重量', width: 115 },
+                { name: 'IL_PCS'        , displayName: '數量', width: 115 },
+                { name: 'IL_UNIT'       , displayName: '單位', width: 115 },
+                { name: 'IL_GETNO'      , displayName: '收件者統編', width: 115 },
+                { name: 'IL_SENDNAME'   , displayName: '寄件人或公司', width: 115 },
+                { name: 'IL_GETNAME'    , displayName: '收件人公司', width: 115 },
+                { name: 'IL_GETADDRESS' , displayName: '收件地址', width: 300 },
+                { name: 'IL_GETTEL'     , displayName: '收件電話', width: 115 },
+                { name: 'IL_UNIVALENT'  , displayName: '單價', width: 115 },
+                { name: 'IL_FINALCOST'  , displayName: '完稅價格', width: 115 },
+                { name: 'IL_TAX'        , displayName: '稅則', width: 115 },
+                { name: 'IL_TRCOM'      , displayName: '派送公司', width: 115 },
+                { name: 'Options'       , displayName: '操作', width: 160, enableCellEdit: false, enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToCB'), pinnedRight:true }
             ],
-            enableFiltering: false,
+            enableFiltering: true,
             enableSorting: true,
             enableColumnMenus: false,
             // enableVerticalScrollbar: false,
@@ -11663,7 +11663,6 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
     		enableSelectAll: true,
             paginationPageSizes: [50, 100, 150, 200, 250, 300],
             paginationPageSize: 50,
-            treeRowHeaderAlwaysVisible: false,
             onRegisterApi: function(gridApi){
                 $vm.job001GridApi = gridApi;
                 // $vm.editorOrderGridApi.grid.registerRowsProcessor(function ( renderableRows ){
@@ -11681,6 +11680,12 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                 //     });
                 //     return renderableRows;
                 // }, 200);
+                
+                gridApi.edit.on.afterCellEdit($scope, function(rowEntity, colDef, newValue, oldValue){
+                    // $scope.msg.lastCellEdited = 'edited row id:' + rowEntity.id + ' Column:' + colDef.name + ' newValue:' + newValue + ' oldValue:' + oldValue ;
+                    console.log('edited row id:' + rowEntity.id + ' Column:' + colDef.name + ' newValue:' + newValue + ' oldValue:' + oldValue);
+                    $scope.$apply();
+                });
             }
         },
         ExportExcel: function(){
@@ -11742,8 +11747,7 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
             querymain: 'job001',
             queryname: 'SelectItemList',
             params: {
-                // IL_SEQ: $vm.vmData.OL_SEQ
-                IL_SEQ: 'AdminTest20170419101047'
+                IL_SEQ: $vm.vmData.OL_SEQ
             }
         }).then(function (res){
             // console.log(res["returnData"]);
@@ -11782,7 +11786,6 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
 
     $ctrl.MdInit = function(){
         DoMergeNoSplit();
-
         // console.log($ctrl.job001DataHaveMergeNo);
         // console.log($ctrl.job001DataNotMergeNo);
     };
@@ -11796,8 +11799,8 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
         columnDefs: [
             { name: 'Index',        displayName: '序列', width: 50},
             { name: 'IL_G1',        displayName: '報關種類', width: 154 },
-            { name: 'IL_BAGNO',        displayName: '袋號', width: 129 },
             { name: 'IL_MERGENO',        displayName: '併票號', width: 129, grouping: { groupPriority: 0 } },
+            { name: 'IL_BAGNO',        displayName: '袋號', width: 129 },
             { name: 'IL_SMALLNO',        displayName: '小號', width: 115 },
             { name: 'IL_NATURE',        displayName: '品名', width: 115 },
             { name: 'IL_NATURE_NEW',        displayName: '新品名', width: 115 },
@@ -11827,11 +11830,13 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
         enableFiltering: false,
         enableSorting: true,
         enableColumnMenus: false,
+        groupingShowCounts: false,
         // enableVerticalScrollbar: false,
         paginationPageSizes: [50, 100, 150, 200, 250, 300],
         paginationPageSize: 50,
         onRegisterApi: function(gridApi){
             $ctrl.job001DataHaveMergeNoGridApi = gridApi;
+            HandleWindowResize($ctrl.job001DataHaveMergeNoGridApi);
         }
     };
 
@@ -11840,8 +11845,8 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
         columnDefs: [
             { name: 'Index',        displayName: '序列', width: 50},
             { name: 'IL_G1',        displayName: '報關種類', width: 154 },
-            { name: 'IL_BAGNO',        displayName: '袋號', width: 129 },
             { name: 'IL_MERGENO',        displayName: '併票號', width: 129 },
+            { name: 'IL_BAGNO',        displayName: '袋號', width: 129 },
             { name: 'IL_SMALLNO',        displayName: '小號', width: 115 },
             { name: 'IL_NATURE',        displayName: '品名', width: 115 },
             { name: 'IL_NATURE_NEW',        displayName: '新品名', width: 115 },
@@ -11869,6 +11874,7 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
         paginationPageSize: 50,
         onRegisterApi: function(gridApi){
             $ctrl.job001DataNotMergeNoGridApi = gridApi;
+            HandleWindowResize($ctrl.job001DataNotMergeNoGridApi);
         }
     }
 

@@ -15,7 +15,7 @@ angular.module('app.selfwork').config(function ($stateProvider){
     .state('app.selfwork.employeejobs', {
         url: '/selfwork/employeejobs',
         data: {
-            title: 'Employee Jobs'
+            title: 'EmployeeJobs'
         },
         views: {
             "content@app" : {
