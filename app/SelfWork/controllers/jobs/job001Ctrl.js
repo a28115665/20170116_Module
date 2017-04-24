@@ -59,7 +59,7 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
         job001Options : {
             data: '$vm.job001Data',
             columnDefs: [
-                { name: 'Index'         , displayName: '序列', width: 50, enableFiltering: false},
+                { name: 'Index'         , displayName: '序列', width: 50, enableFiltering: false, enableCellEdit: false},
                 { name: 'IL_G1'         , displayName: '報關種類', width: 154 },
                 { name: 'IL_MERGENO'    , displayName: '併票號', width: 129, enableCellEdit: false },
                 { name: 'IL_BAGNO'      , displayName: '袋號', width: 129 },
