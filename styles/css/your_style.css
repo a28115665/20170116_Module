@@ -20,8 +20,34 @@
 .my-ui-grid {
     height: 420px;
 }
+.my-ui-grid-job {
+    height: 720px;
+}
 .my-ui-grid-350 {
     height: 350px;
+}
+.cell-class-editabled {
+    background-color: red !important; 
+    color: #000 !important;
+    -webkit-animation-name: cellClassEditabled; 
+    -webkit-animation-duration: 1s; 
+    -webkit-animation-iteration-count: infinite;
+    animation-name: cellClassEditabled;
+    animation-duration: 1s;
+    animation-iteration-count: infinite;
+}
+@keyframes cellClassEditabled {
+    0%   {background-color:rgba(255, 0, 0, 0.4);}
+    10%  {background-color:rgba(255, 0, 0, 0.44);}
+    20%  {background-color:rgba(255, 0, 0, 0.48);}
+    30%  {background-color:rgba(255, 0, 0, 0.52);}
+    40%  {background-color:rgba(255, 0, 0, 0.56);}
+    50%  {background-color:rgba(255, 0, 0, 0.60);}
+    60%  {background-color:rgba(255, 0, 0, 0.64);}
+    70%  {background-color:rgba(255, 0, 0, 0.68);}
+    80%  {background-color:rgba(255, 0, 0, 0.72);}
+    90%  {background-color:rgba(255, 0, 0, 0.76);}
+    100% {background-color:rgba(255, 0, 0, 0.8);}
 }
 .fileUpload {
     position: relative;

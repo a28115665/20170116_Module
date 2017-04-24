@@ -25,10 +25,24 @@ angular.module('app')
                                     				<a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethod.modifyData(row)"> 編輯</a>\
                                     				<a href="javascript:void(0);" class="btn btn-primary btn-xs" ng-click="grid.appScope.$vm.gridMethod.closeData(row)" ng-disabled="row.entity.g"> 完成</a>\
                                		  		  </div>');
-	$templateCache.put('accessibilityToBA', '<div class="ui-grid-cell-contents text-center">\
-                                            <a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.swejVM.gridMethod.modifyData(row)"> 編輯</a>\
-                                    				<a href="javascript:void(0);" class="btn btn-primary btn-xs" ng-click="grid.appScope.swejVM.gridMethod.banData(row)"> 加入黑名單</a>\
-                                    				<a href="javascript:void(0);" class="btn btn-danger btn-xs" ng-click="grid.appScope.swejVM.gridMethod.alertData(row)"> 通報前線</a>\
+  $templateCache.put('accessibilityToDMCForJob001', '<div class="ui-grid-cell-contents text-center">\
+                                            <a href="javascript:void(0);" class="btn btn-danger btn-xs" ng-click="grid.appScope.$vm.gridMethodForJob001.rejectData(row)" ng-disabled="row.entity.g"> 退單</a>\
+                                            <a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethodForJob001.modifyData(row)"> 編輯</a>\
+                                            <a href="javascript:void(0);" class="btn btn-primary btn-xs" ng-click="grid.appScope.$vm.gridMethodForJob001.closeData(row)" ng-disabled="row.entity.g"> 完成</a>\
+                                          </div>');
+  $templateCache.put('accessibilityToDMCForJob002', '<div class="ui-grid-cell-contents text-center">\
+                                            <a href="javascript:void(0);" class="btn btn-danger btn-xs" ng-click="grid.appScope.$vm.gridMethodForJob002.rejectData(row)" ng-disabled="row.entity.g"> 退單</a>\
+                                            <a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethodForJob002.modifyData(row)"> 編輯</a>\
+                                            <a href="javascript:void(0);" class="btn btn-primary btn-xs" ng-click="grid.appScope.$vm.gridMethodForJob002.closeData(row)" ng-disabled="row.entity.g"> 完成</a>\
+                                          </div>');
+  $templateCache.put('accessibilityToDMCForJob003', '<div class="ui-grid-cell-contents text-center">\
+                                            <a href="javascript:void(0);" class="btn btn-danger btn-xs" ng-click="grid.appScope.$vm.gridMethodForJob003.rejectData(row)" ng-disabled="row.entity.g"> 退單</a>\
+                                            <a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethodForJob003.modifyData(row)"> 編輯</a>\
+                                            <a href="javascript:void(0);" class="btn btn-primary btn-xs" ng-click="grid.appScope.$vm.gridMethodForJob003.closeData(row)" ng-disabled="row.entity.g"> 完成</a>\
+                                          </div>');
+	$templateCache.put('accessibilityToCB', '<div class="ui-grid-cell-contents text-center">\
+                                            <a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethod.changeNature(row)"> 改單</a>\
+                                    				<a href="javascript:void(0);" class="btn btn-primary btn-xs" ng-click="grid.appScope.$vm.gridMethod.banData(row)"> 加入黑名單</a>\
                                		  		  </div>');
     $templateCache.put('accessibilityToMDForAccount', '<div class="ui-grid-cell-contents text-center">\
                                             <a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridAccountMethod.modifyData(row)"> {{$parent.$root.getWord(\'Modify\')}}</a>\

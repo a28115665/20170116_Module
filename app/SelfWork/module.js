@@ -15,7 +15,7 @@ angular.module('app.selfwork').config(function ($stateProvider){
     .state('app.selfwork.employeejobs', {
         url: '/selfwork/employeejobs',
         data: {
-            title: 'Employee Jobs'
+            title: 'EmployeeJobs'
         },
         views: {
             "content@app" : {
@@ -69,9 +69,49 @@ angular.module('app.selfwork').config(function ($stateProvider){
                 controller: 'Job001Ctrl',
                 controllerAs: '$vm',
                 resolve: {
-                    billboardData: function () {
-                        return [];
-                    }
+
+                }
+            }
+        }
+    })
+
+    .state('app.selfwork.employeejobs.job002', {
+        url: '/job002',
+        data: {
+            title: 'Job002'
+        },
+        params: { 
+            data: null
+        },
+        parent: 'app.selfwork.employeejobs',
+        views: {
+            "content@app" : {
+                templateUrl: 'app/SelfWork/views/jobs/job002.html',
+                controller: 'Job002Ctrl',
+                controllerAs: '$vm',
+                resolve: {
+
+                }
+            }
+        }
+    })
+
+    .state('app.selfwork.employeejobs.job003', {
+        url: '/job003',
+        data: {
+            title: 'Job003'
+        },
+        params: { 
+            data: null
+        },
+        parent: 'app.selfwork.employeejobs',
+        views: {
+            "content@app" : {
+                templateUrl: 'app/SelfWork/views/jobs/job003.html',
+                controller: 'Job003Ctrl',
+                controllerAs: '$vm',
+                resolve: {
+
                 }
             }
         }

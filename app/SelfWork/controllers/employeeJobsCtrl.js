@@ -9,16 +9,8 @@ angular.module('app.selfwork').controller('EmployeeJobsCtrl', function ($scope, 
             LoadOrderList();
         },
         profile : Session.Get(),
-        searchCondition : {
-        	a : ['297-64659291', '297-64659292'],
-        	b : ['CI5822'],
-            c : ['HK'],
-            d : ['新桥供应链'],
-            e : ['0A4JV163', '0A4JV164', '0A4JV165'],
-            f : ['9577943035', '9577943094', '9577942883']
-        },
         defaultChoice : 'Left',
-        gridMethod : {
+        gridMethodForJob001 : {
             //退件
             rejectData : function(row){
                 console.log(row);
@@ -35,10 +27,43 @@ angular.module('app.selfwork').controller('EmployeeJobsCtrl', function ($scope, 
                 console.log(row);
             }
         },
+        gridMethodForJob002 : {
+            //退件
+            rejectData : function(row){
+                console.log(row);
+            },
+            //編輯
+            modifyData : function(row){
+                console.log(row);
+                $state.transitionTo("app.selfwork.employeejobs.job002", {
+                    data: row.entity
+                });
+            },
+            //結單
+            closeData : function(row){
+                console.log(row);
+            }
+        },
+        gridMethodForJob003 : {
+            //退件
+            rejectData : function(row){
+                console.log(row);
+            },
+            //編輯
+            modifyData : function(row){
+                console.log(row);
+                $state.transitionTo("app.selfwork.employeejobs.job003", {
+                    data: row.entity
+                });
+            },
+            //結單
+            closeData : function(row){
+                console.log(row);
+            }
+        },
         orderListOptions : {
             data:  '$vm.selfWorkData',
             columnDefs: [
-                // { name: 'a',        displayName: '提單日期' },
                 { name: 'OL_MASTER'   ,  displayName: '主號' },
                 { name: 'OL_IMPORTDT' ,  displayName: '進口日期', cellFilter: 'dateFilter' },
                 { name: 'OL_FLIGHTNO' ,  displayName: '航班' },
@@ -50,10 +75,9 @@ angular.module('app.selfwork').controller('EmployeeJobsCtrl', function ($scope, 
                         selectOptions: compyFilter
                     }
                 },
-                // { name: 'g',        displayName: '狀態', cellTemplate: $templateCache.get('accessibilityLightStatus') },
-                { name: 'ITEM_LIST'          ,  displayName: '報機單', enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToDMC') },
-                { name: 'FLIGHT_ITEM_LIST'   ,  displayName: '銷艙單', enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToDMC') },
-                { name: 'DELIVERY_ITEM_LIST' ,  displayName: '派送單', enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToDMC') }
+                { name: 'ITEM_LIST'          ,  displayName: '報機單', enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToDMCForJob001') },
+                { name: 'FLIGHT_ITEM_LIST'   ,  displayName: '銷艙單', enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToDMCForJob002') },
+                { name: 'DELIVERY_ITEM_LIST' ,  displayName: '派送單', enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToDMCForJob003') }
             ],
             enableFiltering: true,
             enableSorting: false,

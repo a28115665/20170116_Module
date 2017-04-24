@@ -1858,7 +1858,7 @@ angular.module('app.selfwork').config(function ($stateProvider){
     .state('app.selfwork.employeejobs', {
         url: '/selfwork/employeejobs',
         data: {
-            title: 'Employee Jobs'
+            title: 'EmployeeJobs'
         },
         views: {
             "content@app" : {
@@ -1912,9 +1912,49 @@ angular.module('app.selfwork').config(function ($stateProvider){
                 controller: 'Job001Ctrl',
                 controllerAs: '$vm',
                 resolve: {
-                    billboardData: function () {
-                        return [];
-                    }
+
+                }
+            }
+        }
+    })
+
+    .state('app.selfwork.employeejobs.job002', {
+        url: '/job002',
+        data: {
+            title: 'Job002'
+        },
+        params: { 
+            data: null
+        },
+        parent: 'app.selfwork.employeejobs',
+        views: {
+            "content@app" : {
+                templateUrl: 'app/SelfWork/views/jobs/job002.html',
+                controller: 'Job002Ctrl',
+                controllerAs: '$vm',
+                resolve: {
+
+                }
+            }
+        }
+    })
+
+    .state('app.selfwork.employeejobs.job003', {
+        url: '/job003',
+        data: {
+            title: 'Job003'
+        },
+        params: { 
+            data: null
+        },
+        parent: 'app.selfwork.employeejobs',
+        views: {
+            "content@app" : {
+                templateUrl: 'app/SelfWork/views/jobs/job003.html',
+                controller: 'Job003Ctrl',
+                controllerAs: '$vm',
+                resolve: {
+
                 }
             }
         }
@@ -3368,10 +3408,24 @@ angular.module('app')
                                     				<a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethod.modifyData(row)"> 編輯</a>\
                                     				<a href="javascript:void(0);" class="btn btn-primary btn-xs" ng-click="grid.appScope.$vm.gridMethod.closeData(row)" ng-disabled="row.entity.g"> 完成</a>\
                                		  		  </div>');
-	$templateCache.put('accessibilityToBA', '<div class="ui-grid-cell-contents text-center">\
-                                            <a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.swejVM.gridMethod.modifyData(row)"> 編輯</a>\
-                                    				<a href="javascript:void(0);" class="btn btn-primary btn-xs" ng-click="grid.appScope.swejVM.gridMethod.banData(row)"> 加入黑名單</a>\
-                                    				<a href="javascript:void(0);" class="btn btn-danger btn-xs" ng-click="grid.appScope.swejVM.gridMethod.alertData(row)"> 通報前線</a>\
+  $templateCache.put('accessibilityToDMCForJob001', '<div class="ui-grid-cell-contents text-center">\
+                                            <a href="javascript:void(0);" class="btn btn-danger btn-xs" ng-click="grid.appScope.$vm.gridMethodForJob001.rejectData(row)" ng-disabled="row.entity.g"> 退單</a>\
+                                            <a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethodForJob001.modifyData(row)"> 編輯</a>\
+                                            <a href="javascript:void(0);" class="btn btn-primary btn-xs" ng-click="grid.appScope.$vm.gridMethodForJob001.closeData(row)" ng-disabled="row.entity.g"> 完成</a>\
+                                          </div>');
+  $templateCache.put('accessibilityToDMCForJob002', '<div class="ui-grid-cell-contents text-center">\
+                                            <a href="javascript:void(0);" class="btn btn-danger btn-xs" ng-click="grid.appScope.$vm.gridMethodForJob002.rejectData(row)" ng-disabled="row.entity.g"> 退單</a>\
+                                            <a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethodForJob002.modifyData(row)"> 編輯</a>\
+                                            <a href="javascript:void(0);" class="btn btn-primary btn-xs" ng-click="grid.appScope.$vm.gridMethodForJob002.closeData(row)" ng-disabled="row.entity.g"> 完成</a>\
+                                          </div>');
+  $templateCache.put('accessibilityToDMCForJob003', '<div class="ui-grid-cell-contents text-center">\
+                                            <a href="javascript:void(0);" class="btn btn-danger btn-xs" ng-click="grid.appScope.$vm.gridMethodForJob003.rejectData(row)" ng-disabled="row.entity.g"> 退單</a>\
+                                            <a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethodForJob003.modifyData(row)"> 編輯</a>\
+                                            <a href="javascript:void(0);" class="btn btn-primary btn-xs" ng-click="grid.appScope.$vm.gridMethodForJob003.closeData(row)" ng-disabled="row.entity.g"> 完成</a>\
+                                          </div>');
+	$templateCache.put('accessibilityToCB', '<div class="ui-grid-cell-contents text-center">\
+                                            <a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethod.changeNature(row)"> 改單</a>\
+                                    				<a href="javascript:void(0);" class="btn btn-primary btn-xs" ng-click="grid.appScope.$vm.gridMethod.banData(row)"> 加入黑名單</a>\
                                		  		  </div>');
     $templateCache.put('accessibilityToMDForAccount', '<div class="ui-grid-cell-contents text-center">\
                                             <a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridAccountMethod.modifyData(row)"> {{$parent.$root.getWord(\'Modify\')}}</a>\
@@ -6020,16 +6074,8 @@ angular.module('app.selfwork').controller('EmployeeJobsCtrl', function ($scope, 
             LoadOrderList();
         },
         profile : Session.Get(),
-        searchCondition : {
-        	a : ['297-64659291', '297-64659292'],
-        	b : ['CI5822'],
-            c : ['HK'],
-            d : ['新桥供应链'],
-            e : ['0A4JV163', '0A4JV164', '0A4JV165'],
-            f : ['9577943035', '9577943094', '9577942883']
-        },
         defaultChoice : 'Left',
-        gridMethod : {
+        gridMethodForJob001 : {
             //退件
             rejectData : function(row){
                 console.log(row);
@@ -6046,10 +6092,43 @@ angular.module('app.selfwork').controller('EmployeeJobsCtrl', function ($scope, 
                 console.log(row);
             }
         },
+        gridMethodForJob002 : {
+            //退件
+            rejectData : function(row){
+                console.log(row);
+            },
+            //編輯
+            modifyData : function(row){
+                console.log(row);
+                $state.transitionTo("app.selfwork.employeejobs.job002", {
+                    data: row.entity
+                });
+            },
+            //結單
+            closeData : function(row){
+                console.log(row);
+            }
+        },
+        gridMethodForJob003 : {
+            //退件
+            rejectData : function(row){
+                console.log(row);
+            },
+            //編輯
+            modifyData : function(row){
+                console.log(row);
+                $state.transitionTo("app.selfwork.employeejobs.job003", {
+                    data: row.entity
+                });
+            },
+            //結單
+            closeData : function(row){
+                console.log(row);
+            }
+        },
         orderListOptions : {
             data:  '$vm.selfWorkData',
             columnDefs: [
-                // { name: 'a',        displayName: '提單日期' },
                 { name: 'OL_MASTER'   ,  displayName: '主號' },
                 { name: 'OL_IMPORTDT' ,  displayName: '進口日期', cellFilter: 'dateFilter' },
                 { name: 'OL_FLIGHTNO' ,  displayName: '航班' },
@@ -6061,10 +6140,9 @@ angular.module('app.selfwork').controller('EmployeeJobsCtrl', function ($scope, 
                         selectOptions: compyFilter
                     }
                 },
-                // { name: 'g',        displayName: '狀態', cellTemplate: $templateCache.get('accessibilityLightStatus') },
-                { name: 'ITEM_LIST'          ,  displayName: '報機單', enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToDMC') },
-                { name: 'FLIGHT_ITEM_LIST'   ,  displayName: '銷艙單', enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToDMC') },
-                { name: 'DELIVERY_ITEM_LIST' ,  displayName: '派送單', enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToDMC') }
+                { name: 'ITEM_LIST'          ,  displayName: '報機單', enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToDMCForJob001') },
+                { name: 'FLIGHT_ITEM_LIST'   ,  displayName: '銷艙單', enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToDMCForJob002') },
+                { name: 'DELIVERY_ITEM_LIST' ,  displayName: '派送單', enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToDMCForJob003') }
             ],
             enableFiltering: true,
             enableSorting: false,
@@ -11570,31 +11648,36 @@ angular.module('app.graphs').directive('vectorMap', function () {
 });
 "use strict";
 
-angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, RestfulApi) {
+angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, RestfulApi, uiGridConstants, $filter) {
     // console.log($stateParams, $state);
 
-    var $vm = this;
+    var $vm = this,
+        cellClassEditabled = [];
 
     angular.extend(this, {
         Init : function(){
             // 不正常登入此頁面
-            // if($stateParams.data == null){
-            //     ReturnToEmployeejobsPage();
-            // }else{
+            if($stateParams.data == null){
+                ReturnToEmployeejobsPage();
+            }else{
                 $vm.vmData = $stateParams.data;
 
+                // 測試用
+                // if($vm.vmData == null){
+                //     $vm.vmData = {
+                //         OL_SEQ : 'AdminTest20170419101047'
+                //     };
+                // }
+                
                 LoadItemList();
-            // }
+            }
         },
         profile : Session.Get(),
-        searchCondition : {
-            a : ['0A4JV163', '0A4JV164', '0A4JV165'],
-            b : ['9577943035', '9577943094', '9577942883'],
-            c : ['亞瑟仕'],
-            d : ['黑貓']
-        },
         defaultChoice : 'Left',
         gridMethod : {
+            changeNature : function(row){
+                console.log(row);
+            },
             //加入黑名單
             banData : function(row){
                 console.log(row);
@@ -11619,62 +11702,43 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                 }, function() {
                     // $log.info('Modal dismissed at: ' + new Date());
                 });
-            },
-            //通報前線人員
-            alertData : function(row){
-                console.log(row);
             }
         },
         job001Options : {
-            // data:  [
-            //     {
-            //         $$treeLevel : 0, a : '1', b : '0A4JV163', c : '9577943035', d : '包2饰品1纸袋2', e : '1', f : '', g : '1.2', h : '5', i : '個', j : '', k : '亞瑟仕', l : '黃韋岑', m : '台東縣台東市綠島鄉公館村大白沙32號', n : '0922769396', o : '不包稅', p : '黑貓'
-            //     },
-            //     {
-            //         a : '1', b : '0A4JV163', c : '9577943094', d : '夹3饰品3纸袋3', e : '1', f : '', g : '1', h : '9', i : '個', j : '', k : '亞瑟仕', l : '林思晴', m : '高雄市鳳山區凱旋路182號', n : '0927282581', o : '不包稅', p : '黑貓'
-            //     },
-            //     {
-            //         a : '1', b : '0A4JV164', c : '9577942883', d : '包2夹1饰品1纸袋3', e : '1', f : '', g : '3.1', h : '7', i : '個', j : '', k : '亞瑟仕', l : '許依琪', m : '台北市中山區新生北路二段60巷42號7樓', n : '0975356060', o : '不包稅', p : '黑貓'
-            //     },
-            //     {
-            //         a : '1', b : '0A4JV164', c : '9577942883', d : '包2夹1饰品1纸袋3', e : '1', f : '', g : '3.1', h : '7', i : '個', j : '', k : '亞瑟仕', l : '許依琪', m : '台北市中山區新生北路二段60巷42號7樓', n : '0975356060', o : '不包稅', p : '黑貓'
-            //     },
-            //     {
-            //         $$treeLevel : 0, a : '1', b : '0A4JV165', c : '9577942883', d : '包2夹1饰品1纸袋3', e : '1', f : '', g : '3.1', h : '7', i : '個', j : '', k : '亞瑟仕', l : '許依琪', m : '台北市中山區新生北路二段60巷42號7樓', n : '0975356060', o : '不包稅', p : '黑貓'
-            //     },
-            //     {
-            //         a : '1', b : '0A4JV166', c : '9577942883', d : '包2夹1饰品1纸袋3', e : '1', f : '', g : '3.1', h : '7', i : '個', j : '', k : '亞瑟仕', l : '許依琪', m : '台北市中山區新生北路二段60巷42號7樓', n : '0975356060', o : '不包稅', p : '黑貓'
-            //     }
-            // ],
             data: '$vm.job001Data',
             columnDefs: [
-                { name: 'a',        displayName: '正式/簡易報關/移倉', width: 154 },
-                { name: 'IL_NEWBAGNO',        displayName: '清關條碼(袋號)', width: 129, grouping: { groupPriority: 0 }, cellTemplate: '<div><div ng-if="!col.grouping || col.grouping.groupPriority === undefined || col.grouping.groupPriority === null || ( row.groupHeader && col.grouping.groupPriority === row.treeLevel )" class="ui-grid-cell-contents" title="TOOLTIP">{{COL_FIELD CUSTOM_FILTERS}}</div></div>' },
-                { name: 'IL_NEWSMALLNO',        displayName: '提單號(小號)', width: 115 },
-                { name: 'd',        displayName: '品名', width: 115 },
-                { name: 'e',        displayName: '件數', width: 115 },
-                { name: 'f',        displayName: '產地', width: 115 },
-                { name: 'g',        displayName: '重量', width: 115 },
-                { name: 'h',        displayName: '數量', width: 115 },
-                { name: 'i',        displayName: '單位', width: 115 },
-                { name: 'j',        displayName: '收件者統編', width: 115 },
-                { name: 'k',        displayName: '寄件人或公司', width: 115 },
-                { name: 'l',        displayName: '收件人或公司', width: 115 },
-                { name: 'm',        displayName: '收件地址', width: 300 },
-                { name: 'n',        displayName: '收件電話', width: 115 },
-                { name: 'o',        displayName: '是否包稅', width: 115 },
-                { name: 'p',        displayName: '派送公司', width: 115 },
-                { name: 'Options',  displayName: '操作', width: 220, cellTemplate: $templateCache.get('accessibilityToBA'), pinnedRight:true }
+                { name: 'Index'         , displayName: '序列', width: 50, enableFiltering: false, enableCellEdit: false},
+                { name: 'IL_G1'         , displayName: '報關種類', width: 154 },
+                { name: 'IL_MERGENO'    , displayName: '併票號', width: 129, enableCellEdit: false },
+                { name: 'IL_BAGNO'      , displayName: '袋號', width: 129 },
+                { name: 'IL_SMALLNO'    , displayName: '小號', width: 115 },
+                { name: 'IL_NATURE'     , displayName: '品名', width: 115 },
+                { name: 'IL_NATURE_NEW' , displayName: '新品名', width: 115 },
+                { name: 'IL_CTN'        , displayName: '件數', width: 115 },
+                { name: 'IL_PLACE'      , displayName: '產地', width: 115 },
+                { name: 'IL_WEIGHT'     , displayName: '重量', width: 115 },
+                { name: 'IL_WEIGHT_NEW' , displayName: '更改後重量', width: 115 },
+                { name: 'IL_PCS'        , displayName: '數量', width: 115 },
+                { name: 'IL_UNIT'       , displayName: '單位', width: 115 },
+                { name: 'IL_GETNO'      , displayName: '收件者統編', width: 115 },
+                { name: 'IL_SENDNAME'   , displayName: '寄件人或公司', width: 115 },
+                { name: 'IL_GETNAME'    , displayName: '收件人公司', width: 115 },
+                { name: 'IL_GETADDRESS' , displayName: '收件地址', width: 300 },
+                { name: 'IL_GETTEL'     , displayName: '收件電話', width: 115 },
+                { name: 'IL_UNIVALENT'  , displayName: '單價', width: 115 },
+                { name: 'IL_FINALCOST'  , displayName: '完稅價格', width: 115 },
+                { name: 'IL_TAX'        , displayName: '稅則', width: 115 },
+                { name: 'IL_TRCOM'      , displayName: '派送公司', width: 115 },
+                { name: 'Options'       , displayName: '操作', width: 160, enableCellEdit: false, enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToCB'), pinnedRight:true }
             ],
-            enableFiltering: false,
+            enableFiltering: true,
             enableSorting: true,
             enableColumnMenus: false,
             // enableVerticalScrollbar: false,
 		    enableRowSelection: true,
-    		enableSelectAll: false,
-            paginationPageSizes: [10, 25, 50],
-            paginationPageSize: 10,
-            treeRowHeaderAlwaysVisible: false,
+    		enableSelectAll: true,
+            paginationPageSizes: [50, 100, 150, 200, 250, 300],
+            paginationPageSize: 50,
             onRegisterApi: function(gridApi){
                 $vm.job001GridApi = gridApi;
                 // $vm.editorOrderGridApi.grid.registerRowsProcessor(function ( renderableRows ){
@@ -11692,11 +11756,135 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                 //     });
                 //     return renderableRows;
                 // }, 200);
+                
+                // gridApi.edit.on.afterCellEdit($scope, function(rowEntity, colDef, newValue, oldValue){
+                   
+                //     colDef.cellClass = function(grid, row, col, rowRenderIndex, colRenderIndex) {
+            
+                //         var _class = "";
+                //         if (rowEntity.Index === row.entity.Index && newValue !== oldValue) {
+                //             // 檢查有沒有重複
+                //             if($filter('filter')(cellClassEditabled, {
+                //                 rowRenderIndex: row.entity.Index - 1,
+                //                 colRenderIndex: colRenderIndex
+                //             }).length == 0){
+                //                 // 沒有就塞入
+                //                 cellClassEditabled.push({
+                //                     rowRenderIndex: row.entity.Index - 1,
+                //                     colRenderIndex: colRenderIndex
+                //                 });
+                //             }
+                //             _class = "cell-class-editabled";
+                //         }
+
+                //         // console.log(cellClassEditabled)
+                //         for (var i in cellClassEditabled) {
+                //             if (cellClassEditabled[i].rowRenderIndex == rowRenderIndex && cellClassEditabled[i].colRenderIndex == colRenderIndex) {
+                //                 _class = "cell-class-editabled";
+                //                 break;
+                //             } else {
+                //                 _class = "";
+                //             }
+                //         }
+
+                //         return _class;
+
+                //     };
+
+                //     gridApi.core.notifyDataChange(uiGridConstants.dataChange.COLUMN);
+    
+                // });
             }
         },
-        // Filter: function(){
-        //     $vm.editorOrderGridApi.grid.refresh();
-        // }
+        ExportExcel: function(){
+
+        },
+        CancelNo: function(){
+            if($vm.job001GridApi.selection.getSelectedRows().length > 0){
+                for(var i in $vm.job001GridApi.selection.getSelectedRows()){
+                    var _index = $vm.job001GridApi.selection.getSelectedRows()[i].Index;
+                    $vm.job001Data[_index-1].IL_MERGENO = null;
+                }
+            }
+        },
+        MergeNo: function(){
+            // console.log($vm.job001GridApi.selection.getSelectedRows());
+            if($vm.job001GridApi.selection.getSelectedRows().length > 0){
+                // 取得第一個袋號當併票號
+                var _mergeNo = $vm.job001GridApi.selection.getSelectedRows()[0].IL_BAGNO,
+                    _natureNew = [];
+
+                // 塞入新品名
+                for(var i in $vm.job001GridApi.selection.getSelectedRows()){
+                    // console.log($vm.job001GridApi.selection.getSelectedRows()[i].IL_NATURE_NEW);
+                    if($vm.job001GridApi.selection.getSelectedRows()[i].IL_NATURE_NEW != null){
+                        _natureNew.push($vm.job001GridApi.selection.getSelectedRows()[i].IL_NATURE_NEW);
+                    }
+                }
+                var modalInstance = $uibModal.open({
+                    animation: true,
+                    ariaLabelledBy: 'modal-title',
+                    ariaDescribedBy: 'modal-body',
+                    templateUrl: 'mergeNoModalContent.html',
+                    controller: 'MergeNoModalInstanceCtrl',
+                    controllerAs: '$ctrl',
+                    // size: 'lg',
+                    // appendTo: parentElem,
+                    resolve: {
+                        mergeNo: function() {
+                            return _mergeNo;
+                        },
+                        natureNew: function() {
+                            return _natureNew;
+                        }
+                    }
+                });
+
+                modalInstance.result.then(function(selectedItem) {
+                    // $ctrl.selected = selectedItem;
+                    console.log(selectedItem);
+
+                    // 變更併票號與新品名
+                    for(var i in $vm.job001GridApi.selection.getSelectedRows()){
+                        var _index = $vm.job001GridApi.selection.getSelectedRows()[i].Index;
+                        $vm.job001Data[_index-1].IL_MERGENO = selectedItem.mergeNo;
+
+                        $vm.job001Data[_index-1].IL_NATURE_NEW = selectedItem.natureNew;
+                    }
+                }, function() {
+                    // $log.info('Modal dismissed at: ' + new Date());
+                });
+            }
+        },
+        Return : function(){
+            ReturnToEmployeejobsPage();
+        },
+        Update : function(){
+
+        },
+        MergeNoResult : function(){
+            var modalInstance = $uibModal.open({
+                animation: true,
+                ariaLabelledBy: 'modal-title',
+                ariaDescribedBy: 'modal-body',
+                templateUrl: 'mergeNoResultModalContent.html',
+                controller: 'MergeNoResultModalInstanceCtrl',
+                controllerAs: '$ctrl',
+                size: 'lg',
+                // appendTo: parentElem,
+                resolve: {
+                    job001Data: function() {
+                        return $vm.job001Data;
+                    }
+                }
+            });
+
+            modalInstance.result.then(function(selectedItem) {
+                // $ctrl.selected = selectedItem;
+            }, function() {
+                // $log.info('Modal dismissed at: ' + new Date());
+            });
+        }
     });
 
     function LoadItemList(){
@@ -11704,11 +11892,13 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
             querymain: 'job001',
             queryname: 'SelectItemList',
             params: {
-                // IL_SEQ: $vm.vmData.OL_SEQ
-                IL_SEQ: 'AdminTest20170419101047'
+                IL_SEQ: $vm.vmData.OL_SEQ
             }
         }).then(function (res){
-            console.log(res["returnData"]);
+            // console.log(res["returnData"]);
+            for(var i=0;i<res["returnData"].length;i++){
+                res["returnData"][i]["Index"] = i+1;
+            }
             $vm.job001Data = res["returnData"];
         }).finally(function() {
             HandleWindowResize($vm.job001GridApi);
@@ -11719,6 +11909,27 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
         $state.transitionTo($state.current.parent);
     };
 
+})
+.controller('MergeNoModalInstanceCtrl', function ($uibModalInstance, mergeNo, natureNew) {
+    var $ctrl = this;
+    $ctrl.natureNew = natureNew;
+
+    $ctrl.mdData = {
+        mergeNo : mergeNo,
+        natureNew : null
+    };
+
+    $ctrl.Init = function(){
+        $ctrl.mergeNoChoice = '1';
+    };
+
+    $ctrl.ok = function() {
+        $uibModalInstance.close($ctrl.mdData);
+    };
+
+    $ctrl.cancel = function() {
+        $uibModalInstance.dismiss('cancel');
+    };
 })
 .controller('ModalInstanceCtrl', function ($uibModalInstance, items) {
     var $ctrl = this;
@@ -11734,6 +11945,307 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
     $ctrl.cancel = function() {
         $uibModalInstance.dismiss('cancel');
     };
+})
+.controller('MergeNoResultModalInstanceCtrl', function ($uibModalInstance, job001Data, uiGridGroupingConstants) {
+    var $ctrl = this;
+    $ctrl.items = job001Data;
+
+    $ctrl.MdInit = function(){
+        DoMergeNoSplit();
+        // console.log($ctrl.job001DataHaveMergeNo);
+        // console.log($ctrl.job001DataNotMergeNo);
+    };
+
+    $ctrl.HandleWindowResize = function(pGridApi){
+        HandleWindowResize(pGridApi);
+    }
+
+    $ctrl.job001DataHaveMergeNoOption = {
+        data: '$ctrl.job001DataHaveMergeNo',
+        columnDefs: [
+            { name: 'Index',        displayName: '序列', width: 50},
+            { name: 'IL_G1',        displayName: '報關種類', width: 154 },
+            { name: 'IL_MERGENO',        displayName: '併票號', width: 129, grouping: { groupPriority: 0 } },
+            { name: 'IL_BAGNO',        displayName: '袋號', width: 129 },
+            { name: 'IL_SMALLNO',        displayName: '小號', width: 115 },
+            { name: 'IL_NATURE',        displayName: '品名', width: 115 },
+            { name: 'IL_NATURE_NEW',        displayName: '新品名', width: 115, treeAggregationType: uiGridGroupingConstants.aggregation.MAX, 
+                customTreeAggregationFinalizerFn: function( aggregation ) {
+                    aggregation.rendered = aggregation.value;
+                }
+            },
+            { name: 'IL_CTN',        displayName: '件數', width: 115, treeAggregationType: uiGridGroupingConstants.aggregation.SUM, 
+                customTreeAggregationFinalizerFn: function( aggregation ) {
+                    aggregation.rendered = aggregation.value;
+                }
+            },
+            { name: 'IL_PLACE',        displayName: '產地', width: 115 },
+            { name: 'IL_WEIGHT',        displayName: '重量', width: 115, treeAggregationType: uiGridGroupingConstants.aggregation.SUM, 
+                customTreeAggregationFinalizerFn: function( aggregation ) {
+                    // console.log(aggregation);
+                    aggregation.rendered = aggregation.value;
+                }
+            },
+            { name: 'IL_WEIGHT_NEW',        displayName: '更改後重量', width: 115 },
+            { name: 'IL_PCS',        displayName: '數量', width: 115 },
+            { name: 'IL_UNIT',        displayName: '單位', width: 115 },
+            { name: 'IL_GETNO',        displayName: '收件者統編', width: 115 },
+            { name: 'IL_SENDNAME',        displayName: '寄件人或公司', width: 115 },
+            { name: 'IL_GETNAME',        displayName: '收件人公司', width: 115 },
+            { name: 'IL_GETADDRESS',        displayName: '收件地址', width: 300 },
+            { name: 'IL_GETTEL',        displayName: '收件電話', width: 115 },
+            { name: 'IL_UNIVALENT',        displayName: '單價', width: 115 },
+            { name: 'IL_FINALCOST',        displayName: '完稅價格', width: 115 },
+            { name: 'IL_TAX',        displayName: '稅則', width: 115 },
+            { name: 'IL_TRCOM',        displayName: '派送公司', width: 115 }
+        ],
+        enableFiltering: false,
+        enableSorting: true,
+        enableColumnMenus: false,
+        groupingShowCounts: false,
+        // enableVerticalScrollbar: false,
+        paginationPageSizes: [50, 100, 150, 200, 250, 300],
+        paginationPageSize: 50,
+        onRegisterApi: function(gridApi){
+            $ctrl.job001DataHaveMergeNoGridApi = gridApi;
+            HandleWindowResize($ctrl.job001DataHaveMergeNoGridApi);
+        }
+    };
+
+    $ctrl.job001DataNotMergeNoOption = {
+        data: '$ctrl.job001DataNotMergeNo',
+        columnDefs: [
+            { name: 'Index',        displayName: '序列', width: 50},
+            { name: 'IL_G1',        displayName: '報關種類', width: 154 },
+            { name: 'IL_MERGENO',        displayName: '併票號', width: 129 },
+            { name: 'IL_BAGNO',        displayName: '袋號', width: 129 },
+            { name: 'IL_SMALLNO',        displayName: '小號', width: 115 },
+            { name: 'IL_NATURE',        displayName: '品名', width: 115 },
+            { name: 'IL_NATURE_NEW',        displayName: '新品名', width: 115 },
+            { name: 'IL_CTN',        displayName: '件數', width: 115 },
+            { name: 'IL_PLACE',        displayName: '產地', width: 115 },
+            { name: 'IL_WEIGHT',        displayName: '重量', width: 115 },
+            { name: 'IL_WEIGHT_NEW',        displayName: '更改後重量', width: 115 },
+            { name: 'IL_PCS',        displayName: '數量', width: 115 },
+            { name: 'IL_UNIT',        displayName: '單位', width: 115 },
+            { name: 'IL_GETNO',        displayName: '收件者統編', width: 115 },
+            { name: 'IL_SENDNAME',        displayName: '寄件人或公司', width: 115 },
+            { name: 'IL_GETNAME',        displayName: '收件人公司', width: 115 },
+            { name: 'IL_GETADDRESS',        displayName: '收件地址', width: 300 },
+            { name: 'IL_GETTEL',        displayName: '收件電話', width: 115 },
+            { name: 'IL_UNIVALENT',        displayName: '單價', width: 115 },
+            { name: 'IL_FINALCOST',        displayName: '完稅價格', width: 115 },
+            { name: 'IL_TAX',        displayName: '稅則', width: 115 },
+            { name: 'IL_TRCOM',        displayName: '派送公司', width: 115 }
+        ],
+        enableFiltering: false,
+        enableSorting: true,
+        enableColumnMenus: false,
+        // enableVerticalScrollbar: false,
+        paginationPageSizes: [50, 100, 150, 200, 250, 300],
+        paginationPageSize: 50,
+        onRegisterApi: function(gridApi){
+            $ctrl.job001DataNotMergeNoGridApi = gridApi;
+            HandleWindowResize($ctrl.job001DataNotMergeNoGridApi);
+        }
+    }
+
+    function DoMergeNoSplit(){
+        $ctrl.job001DataHaveMergeNo = [];
+        $ctrl.job001DataNotMergeNo = [];
+
+        for(var i in job001Data){
+            if(job001Data[i].IL_MERGENO){
+                $ctrl.job001DataHaveMergeNo.push(job001Data[i]);
+            }else{
+                $ctrl.job001DataNotMergeNo.push(job001Data[i]);
+            }
+        }
+    }
+
+    $ctrl.ok = function() {
+        $uibModalInstance.close($ctrl.selected.item);
+    };
+
+    $ctrl.cancel = function() {
+        $uibModalInstance.dismiss('cancel');
+    };
+});
+"use strict";
+
+angular.module('app.selfwork').controller('Job002Ctrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, RestfulApi, uiGridConstants, $filter) {
+    // console.log($stateParams, $state);
+
+    var $vm = this,
+        cellClassEditabled = [];
+
+    angular.extend(this, {
+        Init : function(){
+            // 不正常登入此頁面
+            if($stateParams.data == null){
+                ReturnToEmployeejobsPage();
+            }else{
+                $vm.vmData = $stateParams.data;
+
+                // 測試用
+                // if($vm.vmData == null){
+                //     $vm.vmData = {
+                //         OL_SEQ : 'AdminTest20170418195141'
+                //     };
+                // }
+                
+                LoadFlightItemList();
+            }
+        },
+        profile : Session.Get(),
+        defaultChoice : 'Left',
+        job002Options : {
+            data: '$vm.job002Data',
+            columnDefs: [
+                { name: 'Index'         , displayName: '序列', width: 50, enableCellEdit: false, enableFiltering: false},
+                { name: 'FLL_ITEM'         , displayName: '' },
+                { name: 'FLL_BAGNO'    , displayName: '袋號' },
+                { name: 'FLL_CTN'    , displayName: '件數' },
+                { name: 'FLL_WEIGHT'     , displayName: '重量' },
+                { name: 'FLL_DESCRIPTION' , displayName: '品名' },
+                { name: 'FLL_DECLAREDNO'        , displayName: '宣告序號' },
+                { name: 'FLL_REMARK'      , displayName: '備註' }
+            ],
+            enableFiltering: true,
+            enableSorting: true,
+            enableColumnMenus: false,
+            // enableVerticalScrollbar: false,
+		    enableRowSelection: true,
+    		enableSelectAll: true,
+            paginationPageSizes: [50, 100, 150, 200, 250, 300],
+            paginationPageSize: 50,
+            onRegisterApi: function(gridApi){
+                $vm.job002GridApi = gridApi;
+            }
+        },
+        ExportExcel: function(){
+
+        },
+        Return : function(){
+            ReturnToEmployeejobsPage();
+        },
+        Update : function(){
+
+        }
+    });
+
+    function LoadFlightItemList(){
+        RestfulApi.SearchMSSQLData({
+            querymain: 'job002',
+            queryname: 'SelectFlightItemList',
+            params: {
+                FLL_SEQ: $vm.vmData.OL_SEQ
+            }
+        }).then(function (res){
+            console.log(res["returnData"]);
+            for(var i=0;i<res["returnData"].length;i++){
+                res["returnData"][i]["Index"] = i+1;
+            }
+            $vm.job002Data = res["returnData"];
+        }).finally(function() {
+            HandleWindowResize($vm.job002GridApi);
+        }); 
+    };
+
+    function ReturnToEmployeejobsPage(){
+        $state.transitionTo($state.current.parent);
+    };
+
+});
+"use strict";
+
+angular.module('app.selfwork').controller('Job003Ctrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, RestfulApi, uiGridConstants, $filter) {
+    // console.log($stateParams, $state);
+
+    var $vm = this,
+        cellClassEditabled = [];
+
+    angular.extend(this, {
+        Init : function(){
+            // 不正常登入此頁面
+            if($stateParams.data == null){
+                ReturnToEmployeejobsPage();
+            }else{
+                $vm.vmData = $stateParams.data;
+
+                // 測試用
+                // if($vm.vmData == null){
+                //     $vm.vmData = {
+                //         OL_SEQ : 'AdminTest20170418195141'
+                //     };
+                // }
+                
+                LoadFlightItemList();
+            }
+        },
+        profile : Session.Get(),
+        defaultChoice : 'Left',
+        job003Options : {
+            data: '$vm.job003Data',
+            columnDefs: [
+                { name: 'Index'         , displayName: '序列', width: 50, enableCellEdit: false, enableFiltering: false},
+                { name: 'DIL_DRIVER'         , displayName: '司機' },
+                { name: 'DIL_BAGNO'    , displayName: '袋號' },
+                { name: 'DIL_ORDERNO'    , displayName: '提單號' },
+                { name: 'DIL_BARCODE'     , displayName: '條碼號' },
+                { name: 'DIL_CTN' , displayName: '件數' },
+                { name: 'DIL_WEIGHT'        , displayName: '重量' },
+                { name: 'DIL_GETNAME'      , displayName: '收件人公司' },
+                { name: 'DIL_GETADDRESS'     , displayName: '收件地址' },
+                { name: 'DIL_GETTEL' , displayName: '收件人電話' },
+                { name: 'DIL_INCOME'        , displayName: '代收款' },
+                { name: 'DIL_REMARK'      , displayName: '備註' }
+            ],
+            enableFiltering: true,
+            enableSorting: true,
+            enableColumnMenus: false,
+            // enableVerticalScrollbar: false,
+		    enableRowSelection: true,
+    		enableSelectAll: true,
+            paginationPageSizes: [50, 100, 150, 200, 250, 300],
+            paginationPageSize: 50,
+            onRegisterApi: function(gridApi){
+                $vm.job003GridApi = gridApi;
+            }
+        },
+        ExportExcel: function(){
+
+        },
+        Return : function(){
+            ReturnToEmployeejobsPage();
+        },
+        Update : function(){
+
+        }
+    });
+
+    function LoadFlightItemList(){
+        RestfulApi.SearchMSSQLData({
+            querymain: 'job003',
+            queryname: 'SelectDeliveryItemList',
+            params: {
+                DIL_SEQ: $vm.vmData.OL_SEQ
+            }
+        }).then(function (res){
+            console.log(res["returnData"]);
+            for(var i=0;i<res["returnData"].length;i++){
+                res["returnData"][i]["Index"] = i+1;
+            }
+            $vm.job003Data = res["returnData"];
+        }).finally(function() {
+            HandleWindowResize($vm.job003GridApi);
+        }); 
+    };
+
+    function ReturnToEmployeejobsPage(){
+        $state.transitionTo($state.current.parent);
+    };
+
 });
 "use strict";
 
@@ -15523,6 +16035,74 @@ angular.module('SmartAdmin.Forms').directive('smartDropzone', function () {
 
 'use strict';
 
+angular.module('SmartAdmin.Forms').directive('smartValidateForm', function (formsCommon) {
+    return {
+        restrict: 'A',
+        link: function (scope, form, attributes) {
+
+            var validateOptions = {
+                rules: {},
+                messages: {},
+                highlight: function (element) {
+                    $(element).closest('.form-group').removeClass('has-success').addClass('has-error');
+                },
+                unhighlight: function (element) {
+                    $(element).closest('.form-group').removeClass('has-error').addClass('has-success');
+                },
+                errorElement: 'span',
+                errorClass: 'help-block',
+                errorPlacement: function (error, element) {
+                    if (element.parent('.input-group').length) {
+                        error.insertAfter(element.parent());
+                    } else {
+                        error.insertAfter(element);
+                    }
+                }
+            };
+            form.find('[data-smart-validate-input], [smart-validate-input]').each(function () {
+                var $input = $(this), fieldName = $input.attr('name');
+
+                validateOptions.rules[fieldName] = {};
+
+                if ($input.data('required') != undefined) {
+                    validateOptions.rules[fieldName].required = true;
+                }
+                if ($input.data('email') != undefined) {
+                    validateOptions.rules[fieldName].email = true;
+                }
+
+                if ($input.data('maxlength') != undefined) {
+                    validateOptions.rules[fieldName].maxlength = $input.data('maxlength');
+                }
+
+                if ($input.data('minlength') != undefined) {
+                    validateOptions.rules[fieldName].minlength = $input.data('minlength');
+                }
+
+                if($input.data('message')){
+                    validateOptions.messages[fieldName] = $input.data('message');
+                } else {
+                    angular.forEach($input.data(), function(value, key){
+                        if(key.search(/message/)== 0){
+                            if(!validateOptions.messages[fieldName])
+                                validateOptions.messages[fieldName] = {};
+
+                            var messageKey = key.toLowerCase().replace(/^message/,'')
+                            validateOptions.messages[fieldName][messageKey] = value;
+                        }
+                    });
+                }
+            });
+
+
+            form.validate(validateOptions);
+
+        }
+    }
+});
+
+'use strict';
+
 angular.module('SmartAdmin.Forms').directive('smartFueluxWizard', function () {
     return {
         restrict: 'A',
@@ -15647,74 +16227,6 @@ angular.module('SmartAdmin.Forms').directive('smartWizard', function () {
         }
     }
 });
-'use strict';
-
-angular.module('SmartAdmin.Forms').directive('smartValidateForm', function (formsCommon) {
-    return {
-        restrict: 'A',
-        link: function (scope, form, attributes) {
-
-            var validateOptions = {
-                rules: {},
-                messages: {},
-                highlight: function (element) {
-                    $(element).closest('.form-group').removeClass('has-success').addClass('has-error');
-                },
-                unhighlight: function (element) {
-                    $(element).closest('.form-group').removeClass('has-error').addClass('has-success');
-                },
-                errorElement: 'span',
-                errorClass: 'help-block',
-                errorPlacement: function (error, element) {
-                    if (element.parent('.input-group').length) {
-                        error.insertAfter(element.parent());
-                    } else {
-                        error.insertAfter(element);
-                    }
-                }
-            };
-            form.find('[data-smart-validate-input], [smart-validate-input]').each(function () {
-                var $input = $(this), fieldName = $input.attr('name');
-
-                validateOptions.rules[fieldName] = {};
-
-                if ($input.data('required') != undefined) {
-                    validateOptions.rules[fieldName].required = true;
-                }
-                if ($input.data('email') != undefined) {
-                    validateOptions.rules[fieldName].email = true;
-                }
-
-                if ($input.data('maxlength') != undefined) {
-                    validateOptions.rules[fieldName].maxlength = $input.data('maxlength');
-                }
-
-                if ($input.data('minlength') != undefined) {
-                    validateOptions.rules[fieldName].minlength = $input.data('minlength');
-                }
-
-                if($input.data('message')){
-                    validateOptions.messages[fieldName] = $input.data('message');
-                } else {
-                    angular.forEach($input.data(), function(value, key){
-                        if(key.search(/message/)== 0){
-                            if(!validateOptions.messages[fieldName])
-                                validateOptions.messages[fieldName] = {};
-
-                            var messageKey = key.toLowerCase().replace(/^message/,'')
-                            validateOptions.messages[fieldName][messageKey] = value;
-                        }
-                    });
-                }
-            });
-
-
-            form.validate(validateOptions);
-
-        }
-    }
-});
-
 'use strict';
 
 angular.module('SmartAdmin.Layout').directive('demoStates', function ($rootScope) {
