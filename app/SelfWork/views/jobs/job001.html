@@ -164,7 +164,7 @@
 	</div>
 </script>
 
-<script type="text/ng-template" id="myModalContent.html">
+<script type="text/ng-template" id="opAddBanModalContent.html">
     <div class="modal-header">
 	    <h3 class="modal-title" id="modal-title">黑名單</h3>
 	</div>
@@ -172,15 +172,21 @@
 	    <form class="form-horizontal">
 			<fieldset>
 				<div class="form-group">
-			        <label class="col-md-2 control-label">收件人/公司</label>
-			        <div class="col-md-10">
-			            <input class="form-control" ng-model="$ctrl.items.k" type="text">
+			        <label class="col-md-3 control-label">寄件人公司</label>
+			        <div class="col-md-9">
+			            <input class="form-control" placeholder="請輸入寄件人公司" ng-model="$ctrl.mdData['IL_SENDNAME']" type="text" ng-disabled="true" required>
 			        </div>
 			    </div>
 				<div class="form-group">
-			        <label class="col-md-2 control-label">收件地址</label>
-			        <div class="col-md-10">
-			            <input class="form-control" ng-model="$ctrl.items.l" type="text" data-required>
+			        <label class="col-md-3 control-label">收件人或公司</label>
+			        <div class="col-md-9">
+			            <input class="form-control" placeholder="請輸入收件人或公司" ng-model="$ctrl.mdData['IL_GETNAME']" type="text" ng-disabled="true" required>
+			        </div>
+			    </div>
+				<div class="form-group">
+			        <label class="col-md-3 control-label">收件人地址</label>
+			        <div class="col-md-9">
+			            <input class="form-control" placeholder="請輸入收件人地址" ng-model="$ctrl.mdData['IL_GETADDRESS']" type="text" ng-disabled="true" required>
 			        </div>
 			    </div>
 			</fieldset>

@@ -9,20 +9,20 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
     angular.extend(this, {
         Init : function(){
             // 不正常登入此頁面
-            if($stateParams.data == null){
-                ReturnToEmployeejobsPage();
-            }else{
+            // if($stateParams.data == null){
+            //     ReturnToEmployeejobsPage();
+            // }else{
                 $vm.vmData = $stateParams.data;
 
                 // 測試用
-                // if($vm.vmData == null){
-                //     $vm.vmData = {
-                //         OL_SEQ : 'AdminTest20170419101047'
-                //     };
-                // }
+                if($vm.vmData == null){
+                    $vm.vmData = {
+                        OL_SEQ : 'AdminTest20170419101047'
+                    };
+                }
                 
                 LoadItemList();
-            }
+            // }
         },
         profile : Session.Get(),
         defaultChoice : 'Left',
@@ -37,13 +37,13 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                     animation: true,
                     ariaLabelledBy: 'modal-title',
                     ariaDescribedBy: 'modal-body',
-                    templateUrl: 'myModalContent.html',
-                    controller: 'ModalInstanceCtrl',
+                    templateUrl: 'opAddBanModalContent.html',
+                    controller: 'OPAddBanModalInstanceCtrl',
                     controllerAs: '$ctrl',
                     // size: 'lg',
                     // appendTo: parentElem,
                     resolve: {
-                        items: function() {
+                        vmData: function() {
                             return row.entity;
                         }
                     }
@@ -51,6 +51,22 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
 
                 modalInstance.result.then(function(selectedItem) {
                     // $ctrl.selected = selectedItem;
+                    console.log(selectedItem);
+                    RestfulApi.InsertMSSQLData({
+                        insertname: 'Insert',
+                        table: 13,
+                        params: {
+                            BLFO_SEQ         : selectedItem.IL_SEQ,
+                            BLFO_NEWBAGNO    : selectedItem.IL_NEWBAGNO,
+                            BLFO_NEWSMALLNO  : selectedItem.IL_NEWSMALLNO,
+                            BLFO_ORDERINDEX  : selectedItem.IL_ORDERINDEX,
+                            BLFO_CR_USER     : $vm.profile.U_ID,
+                            BLFO_CR_DATETIME : $filter('date')(new Date, 'yyyy-MM-dd HH:mm:ss')
+                        }
+                    }).then(function(res) {
+                        // 加入後需要Disabled
+                    });
+
                 }, function() {
                     // $log.info('Modal dismissed at: ' + new Date());
                 });
@@ -283,15 +299,12 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
         $uibModalInstance.dismiss('cancel');
     };
 })
-.controller('ModalInstanceCtrl', function ($uibModalInstance, items) {
+.controller('OPAddBanModalInstanceCtrl', function ($uibModalInstance, vmData) {
     var $ctrl = this;
-    $ctrl.items = items;
-    $ctrl.selected = {
-        item: $ctrl.items[0]
-    };
+    $ctrl.mdData = vmData;
 
     $ctrl.ok = function() {
-        $uibModalInstance.close($ctrl.selected.item);
+        $uibModalInstance.close($ctrl.mdData);
     };
 
     $ctrl.cancel = function() {

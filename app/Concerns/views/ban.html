@@ -61,15 +61,15 @@
 									        </div>
 									        <div class="col-xs-3 col-sm-7 col-md-7 col-lg-7 text-right">
 									            <button class="btn btn-danger"
-									            		ng-click="$vm.DeleteNews()"
-									            		ng-disabled="$vm.billboardEditorGridApi.selection.getSelectedRows() == 0">
-									                {{getWord('Delete')}}{{getWord('News')}}
+									            		ng-click="$vm.DeleteBLFO()"
+									            		ng-disabled="$vm.blfoGridApi.selection.getSelectedRows() == 0">
+									                {{getWord('Delete')}}{{getWord('Ban')}}
 									            </button>
 									        </div>
 									    </div>
 									</div>
 									
-									<div id="grid1" ui-grid="$vm.blfoOptions" class="my-ui-grid" ui-grid-pagination ui-grid-resize-columns></div>
+									<div id="grid1" ui-grid="$vm.blfoOptions" class="my-ui-grid" ui-grid-pagination ui-grid-resize-columns ui-grid-selection></div>
 
 				                </div>
 				                <div class="tab-pane fade in " ng-class="$vm.TabSwitch('hr2')" id="hr2">

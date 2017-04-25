@@ -82,9 +82,17 @@ angular.module('app.concerns').controller('BanCtrl', function ($scope, $statePar
         blfoOptions : {
             data: '$vm.blfoData',
             columnDefs: [
-                { name: 'a',        displayName: '關注人名' },
-                { name: 'b',        displayName: '關注地址' },
-                { name: 'Options',  displayName: '操作', width: '150', enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToMForBLFO') }
+                { name: 'IL_SENDNAME'   , displayName: '寄件人公司' },
+                { name: 'IL_GETNAME'    , displayName: '收件人或公司' },
+                { name: 'IL_GETADDRESS' , displayName: '收件人地址' },
+                { name: 'BLFO_TRACK'    , displayName: '追蹤', cellFilter: 'booleanFilter', filter: 
+                    {
+                        term: null,
+                        type: uiGridConstants.filter.SELECT,
+                        selectOptions: boolFilter
+                    }
+                },
+                { name: 'Options',  displayName: '操作', width: '100', enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToMForBLFO') }
             ],
             enableFiltering: true,
             enableSorting: false,
@@ -95,6 +103,9 @@ angular.module('app.concerns').controller('BanCtrl', function ($scope, $statePar
             onRegisterApi: function(gridApi){
                 $vm.blfoGridApi = gridApi;
             }
+        },
+        DeleteBLFO : function(){
+
         },
         gridMethodForBLFL : {
             // 編輯
@@ -203,14 +214,14 @@ angular.module('app.concerns').controller('BanCtrl', function ($scope, $statePar
 
                 RestfulApi.InsertMSSQLData({
                     insertname: 'Insert',
-                    table: 12,
+                    table: 13,
                     params: {
-                        BLFL_SENDNAME    : selectedItem.BLFL_SENDNAME,
-                        BLFL_GETNAME     : selectedItem.BLFL_GETNAME,
-                        BLFL_GETADDRESS  : selectedItem.BLFL_GETADDRESS,
-                        BLFL_TRACK       : selectedItem.BLFL_TRACK,
-                        BLFL_CR_USER     : $vm.profile.U_ID,
-                        BLFL_CR_DATETIME : $filter('date')(new Date, 'yyyy-MM-dd HH:mm:ss')
+                        BLFO_SENDNAME    : selectedItem.IL_SENDNAME,
+                        BLFO_GETNAME     : selectedItem.IL_GETNAME,
+                        BLFO_GETADDRESS  : selectedItem.IL_GETADDRESS,
+                        BLFO_TRACK       : selectedItem.IL_TRACK,
+                        BLFO_CR_USER     : $vm.profile.U_ID,
+                        BLFO_CR_DATETIME : $filter('date')(new Date, 'yyyy-MM-dd HH:mm:ss')
                     }
                 }).then(function(res) {
                     // console.log(res);
