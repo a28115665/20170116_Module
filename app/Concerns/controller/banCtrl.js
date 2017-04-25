@@ -1,6 +1,6 @@
 "use strict";
 
-angular.module('app.concerns').controller('ConcernsBanCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache) {
+angular.module('app.concerns').controller('BanCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache) {
     
     var $vm = this;
 
@@ -12,23 +12,19 @@ angular.module('app.concerns').controller('ConcernsBanCtrl', function ($scope, $
         },
         defaultChoice : 'Left',
         gridMethod : {
-            //退件
-            rejectData : function(row){
-                console.log(row);
-            },
             //編輯
             modifyData : function(row){
                 console.log(row);
-                $state.transitionTo("app.selfwork.jobs.editorjob", {
-                    data: {
-                      id: 5,
-                      blue: '#0000FF'
-                    }
-                });
             },
-            //結單
-            closeData : function(row){
+            //刪除
+            deleteData : function(row){
                 console.log(row);
+                // $state.transitionTo("app.selfwork.jobs.editorjob", {
+                //     data: {
+                //       id: 5,
+                //       blue: '#0000FF'
+                //     }
+                // });
             }
         },
         banOptions : {
@@ -45,9 +41,9 @@ angular.module('app.concerns').controller('ConcernsBanCtrl', function ($scope, $
             columnDefs: [
                 { name: 'a',        displayName: '關注人名' },
                 { name: 'b',        displayName: '關注地址' },
-                { name: 'options',  displayName: '操作', width: '100', cellTemplate: $templateCache.get('accessibilityToMD') }
+                { name: 'options',  displayName: '操作', width: '150', enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToMD'), pinnedRight:true }
             ],
-            enableFiltering: false,
+            enableFiltering: true,
             enableSorting: false,
             enableColumnMenus: false,
             // enableVerticalScrollbar: false,

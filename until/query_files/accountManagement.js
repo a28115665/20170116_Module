@@ -4,7 +4,19 @@ module.exports = function(pQueryname, pParams){
 	switch(pQueryname){
 		case "SelectAllUserInfo":
 			_SQLCommand += "EXEC OpenKeys;";
-			_SQLCommand += "SELECT U_ID \
+			_SQLCommand += "SELECT U_CHECK, \
+								   U_DEPART, \
+								   U_EMAIL, \
+								   U_ID, \
+								   U_JOB, \
+								   U_JOB_AGENT, \
+								   U_NAME, \
+								   U_PHONE, \
+								   U_ROLE, \
+								   U_STS, \
+								   dbo.Decrypt(U_PW) AS 'U_PW', \
+								   U_CR_DATETIME, \
+								   U_UP_DATETIME \
 							From USER_INFO \
 						    WHERE 1=1"
 			if(pParams["U_ID"] !== undefined){

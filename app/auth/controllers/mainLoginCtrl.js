@@ -2,14 +2,14 @@
 
 angular.module('app.auth').controller('MainLoginCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, RestfulApi) {
 
-    $scope.Login = function(mlVM){
-        console.log(mlVM);
+    $scope.Login = function($vm){
+        // console.log($vm);
         AuthApi.Login({
             querymain: 'accountManagement',
             queryname: 'SelectAllUserInfo',
             params: {
-                U_ID : mlVM.userid,
-                U_PW : mlVM.password
+                U_ID : $vm.userid,
+                U_PW : $vm.password
             }
         }).then(function(res) {
             console.log(res);

@@ -1,6 +1,6 @@
 "use strict";
 
-angular.module('app.concerns').controller('ConcernsDailyAlertCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, $timeout) {
+angular.module('app.concerns').controller('DailyAlertCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, $timeout) {
     
     var $vm = this;
 

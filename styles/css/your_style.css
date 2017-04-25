@@ -11,6 +11,24 @@
  */
 
 /*
+    Login Style
+ */
+.txt-east-style {
+    color: #006137!important;
+    font-weight:bold;
+}
+.txt-wind-style {
+    color: #b5b5b5!important;
+    font-weight:bold;
+}
+.txt-express-style {
+    color: #e37e12!important;
+    font-weight:bold;
+    position: relative;
+    left: 50px;
+}
+
+/*
  * INDEX
  * 
  * - HTML

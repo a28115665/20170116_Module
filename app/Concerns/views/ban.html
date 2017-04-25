@@ -13,72 +13,7 @@
 	    	<!-- NEW WIDGET START -->
 	        <article class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
 	        	<!-- Widget ID (each widget will need unique ID)-->
-				<div id="billboard" data-widget-sortable="false" data-widget-colorbutton="false" data-widget-togglebutton="false" data-widget-editbutton="false" data-widget-fullscreenbutton="false" data-widget-deletebutton="false" data-widget-color="blue" data-jarvis-widget>
-				    <!-- widget options:
-				        usage: <div data-jarvis-widget id="wid-id-0" data-widget-editbutton="false">
-				        data-widget-colorbutton="false"
-				        data-widget-editbutton="false"
-				        data-widget-togglebutton="false"
-				        data-widget-deletebutton="false"
-				        data-widget-fullscreenbutton="false"
-				        data-widget-custombutton="false"
-				        data-widget-collapsed="true"
-				        data-widget-sortable="false"
-				    -->
-				    <header>
-				        <h2>查詢條件 </h2>
-				    </header>
-				    <!-- widget div-->
-				    <div>
-				        <!-- widget content -->
-						<div class="widget-body">
-
-							<form id="search-form"
-		                          name="searchform"
-		                          class="form-horizontal">
-							    <fieldset>
-								    <div class="form-group">
-								        <label class="col-md-2 control-label">關注人名</label>
-								        <div class="col-md-10">
-								            <input class="form-control" placeholder="請輸入人名" type="text">
-								        </div>
-								    </div>
-								    <div class="form-group">
-								        <label class="col-md-2 control-label">關注地址</label>
-								        <div class="col-md-10">
-								            <input class="form-control" placeholder="請輸入地址" type="text">
-								        </div>
-								    </div>
-								</fieldset>
-
-		                        <div class="form-actions">
-								    <div class="row">
-								        <div class="col-md-12">
-								            <button class="btn btn-default" type="submit">
-								                {{getWord('Cancel')}}
-								            </button>
-								            <button class="btn btn-primary" type="submit">
-								                <i class="fa fa-search"></i>
-								                {{getWord('Search')}}
-								            </button>
-								        </div>
-								    </div>
-								</div>
-		                    </form>
-
-						</div>
-						<!-- end widget content -->
-				    </div>
-				    <!-- end widget div -->
-				</div>
-				<!-- end widget -->
-	        </article>
-	        <!-- End WIDGET START -->
-
-	    	<!-- NEW WIDGET START -->
-	        <article class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-	        	<!-- Widget ID (each widget will need unique ID)-->
-				<div id="billboard" data-widget-sortable="false" data-widget-colorbutton="false" data-widget-togglebutton="false" data-widget-editbutton="false" data-widget-fullscreenbutton="false" data-widget-deletebutton="false" data-widget-color="blue" data-jarvis-widget>
+				<div id="ban" data-widget-sortable="false" data-widget-colorbutton="false" data-widget-togglebutton="false" data-widget-editbutton="false" data-widget-fullscreenbutton="false" data-widget-deletebutton="false" data-widget-color="blue" data-jarvis-widget>
 				    <!-- widget options:
 				        usage: <div data-jarvis-widget id="wid-id-0" data-widget-editbutton="false">
 				        data-widget-colorbutton="false"
@@ -104,7 +39,7 @@
 
 							<div class="table-responsive">
 
-								<div id="grid1" ui-grid="$vm.banOptions" class="my-ui-grid" ui-grid-pagination ui-grid-resize-columns></div>
+								<div id="grid1" ui-grid="$vm.banOptions" class="my-ui-grid" ui-grid-pagination ui-grid-resize-columns ui-grid-pinning></div>
 
 							</div>
 

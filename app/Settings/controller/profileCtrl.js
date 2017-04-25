@@ -1,13 +1,13 @@
 "use strict";
 
-angular.module('app.settings').controller('ProfileCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal) {
+angular.module('app.settings').controller('ProfileCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, RestfulApi, $filter) {
 
     var $vm = this;
 
     angular.extend(this, {
         profile : Session.Get(),
-        Editor : function (pProfile){
-            console.log(pProfile);
+        Editor : function (){
+
             var modalInstance = $uibModal.open({
                 animation: true,
                 ariaLabelledBy: 'modal-title',
@@ -18,14 +18,37 @@ angular.module('app.settings').controller('ProfileCtrl', function ($scope, $stat
                 size: 'lg',
                 // appendTo: parentElem,
                 resolve: {
-                    items: function() {
-                        return pProfile;
+                    profile: function() {
+                        return $vm.profile;
                     }
                 }
             });
 
             modalInstance.result.then(function(selectedItem) {
                 // $ctrl.selected = selectedItem;
+                // console.log(selectedItem);
+
+                RestfulApi.UpdateMSSQLData({
+                    updatename: 'UpdateByEncrypt',
+                    table: 0,
+                    params: {
+                        U_PW          : selectedItem.C_PW,
+                        U_EMAIL       : selectedItem.U_EMAIL,
+                        U_UP_USER     : $vm.profile.U_ID,
+                        U_UP_DATETIME : $filter('date')(new Date, 'yyyy-MM-dd HH:mm:ss')
+                    },
+                    condition: {
+                        U_ID          : selectedItem.U_ID
+                    }
+                }).then(function (res) {
+
+                    toaster.success("狀態", "更新成功並重新登入", 3000);
+
+                    Session.Destroy();
+                    $state.transitionTo("login");
+                }, function (err) {
+
+                });
             }, function() {
                 // $log.info('Modal dismissed at: ' + new Date());
             });
@@ -33,34 +56,35 @@ angular.module('app.settings').controller('ProfileCtrl', function ($scope, $stat
         }
     });
 
-    // $scope.Login = function(mlVM){
-    //     console.log(mlVM);
-    //     AuthApi.Login({
-    //         queryname: 'SelectAllUserInfo',
-    //         params: {
-    //             U_ID : mlVM.userid,
-    //             U_PW : mlVM.password
-    //         }
-    //     }).then(function(res) {
-    //         // console.log(res);
-    //         if(res.data["returnData"] && res.data["returnData"].length > 0){
-    //             toaster.success("狀態", "登入成功", 3000);
-    //             $state.transitionTo("app.dashboard");
-    //         }else{                
-    //             toaster.error("狀態", "帳號密碼錯誤", 3000);
-    //         }
-    //     });
-    // }
 })
-.controller('ModalInstanceCtrl', function ($uibModalInstance, items) {
+.controller('ModalInstanceCtrl', function ($uibModalInstance, profile) {
     var $ctrl = this;
-    $ctrl.items = items;
-    $ctrl.selected = {
-        item: $ctrl.items[0]
+    $ctrl.mdData = profile;
+
+    /**
+     * [CheckPW description]
+     * N_PW : 當前密碼
+     * M_PW : 更改密碼
+     * C_PW : 確認密碼
+     */
+    $ctrl.CheckPW = function(){
+        var _check = true;
+
+        // N_PW必須輸入且正確
+        if(!angular.isUndefined($ctrl.mdData['N_PW']) && $ctrl.mdData['N_PW'] == profile.U_PW){
+            if(!angular.isUndefined($ctrl.mdData['M_PW']) && !angular.isUndefined($ctrl.mdData['C_PW'])){
+                // 更改密碼 等於 確認密碼
+                if($ctrl.mdData['M_PW'] == $ctrl.mdData['C_PW']){
+                    _check = false;
+                }
+            }
+        }
+
+        return _check;
     };
 
     $ctrl.ok = function() {
-        $uibModalInstance.close($ctrl.selected.item);
+        $uibModalInstance.close($ctrl.mdData);
     };
 
     $ctrl.cancel = function() {

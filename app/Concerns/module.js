@@ -20,12 +20,10 @@ angular.module('app.concerns').config(function ($stateProvider){
         views: {
             "content@app" : {
                 templateUrl: 'app/Concerns/views/ban.html',
-                controller: 'ConcernsBanCtrl',
+                controller: 'BanCtrl',
                 controllerAs: '$vm',
                 resolve: {
-                    billboardData: function () {
-                        return [];
-                    }
+
                 }
             }
         }
@@ -39,12 +37,10 @@ angular.module('app.concerns').config(function ($stateProvider){
         views: {
             "content@app" : {
                 templateUrl: 'app/Concerns/views/dailyAlert.html',
-                controller: 'ConcernsDailyAlertCtrl',
+                controller: 'DailyAlertCtrl',
                 controllerAs: '$vm',
                 resolve: {
-                    // billboardData: function () {
-                    //     return [];
-                    // }
+                    
                 }
             }
         }
