@@ -3476,6 +3476,9 @@ angular.module('app')
                                             <a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethod.changeNature(row)"> 改單</a>\
                                     				<a href="javascript:void(0);" class="btn btn-primary btn-xs" ng-click="grid.appScope.$vm.gridMethod.banData(row)"> 加入黑名單</a>\
                                		  		  </div>');
+    $templateCache.put('accessibilityToMForBLFO', '<div class="ui-grid-cell-contents text-center">\
+                                            <a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethodForBLFO.modifyData(row)"> {{$parent.$root.getWord(\'Modify\')}}</a>\
+                                          </div>');
     $templateCache.put('accessibilityToMForBLFL', '<div class="ui-grid-cell-contents text-center">\
                                             <a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethodForBLFL.modifyData(row)"> {{$parent.$root.getWord(\'Modify\')}}</a>\
                                           </div>');
@@ -4443,7 +4446,7 @@ angular.module('app.concerns').controller('BanCtrl', function ($scope, $statePar
             $vm.LoadData();
         },
         profile : Session.Get(),
-        defaultTab : 'hr2',
+        defaultTab : 'hr1',
         TabSwitch : function(pTabID){
             return pTabID == $vm.defaultTab ? 'active' : '';
         },
@@ -4451,35 +4454,83 @@ angular.module('app.concerns').controller('BanCtrl', function ($scope, $statePar
             console.log($vm.defaultTab);
             switch($vm.defaultTab){
                 case 'hr1':
-                    // LoadAccount();
+                    LoadBLFO();
                     break;
                 case 'hr2':
                     LoadBLFL();
                     break;
             }
         },
-        banOptions : {
-            data:  [
-                {
-                    a : '龍邦',
-                    b : '臺灣新北市'
-                },
-                {
-                    a : '龍潭',
-                    b : '臺灣桃園'
-                }
-            ],
+        gridMethodForBLFO : {
+            // 編輯
+            modifyData : function(row){
+                console.log(row);
+
+                // var modalInstance = $uibModal.open({
+                //     animation: true,
+                //     ariaLabelledBy: 'modal-title',
+                //     ariaDescribedBy: 'modal-body',
+                //     templateUrl: 'banMemberModalContent.html',
+                //     controller: 'BanMemberModalInstanceCtrl',
+                //     controllerAs: '$ctrl',
+                //     // size: 'lg',
+                //     // appendTo: parentElem,
+                //     resolve: {
+                //         vmData: function() {
+                //             return row.entity;
+                //         },
+                //         bool: function() {
+                //             return bool;
+                //         }
+                //     }
+                // });
+
+                // modalInstance.result.then(function(selectedItem) {
+                //     console.log(selectedItem);
+
+                //     RestfulApi.UpdateMSSQLData({
+                //         updatename: 'Update',
+                //         table: 12,
+                //         params: {
+                //             BLFL_SENDNAME    : selectedItem.BLFL_SENDNAME,
+                //             BLFL_GETNAME     : selectedItem.BLFL_GETNAME,
+                //             BLFL_GETADDRESS  : selectedItem.BLFL_GETADDRESS,
+                //             BLFL_TRACK       : selectedItem.BLFL_TRACK,
+                //             BLFL_CR_USER     : $vm.profile.U_ID,
+                //             BLFL_CR_DATETIME : $filter('date')(new Date, 'yyyy-MM-dd HH:mm:ss')
+                //         },
+                //         condition: {
+                //             BLFL_ID : selectedItem.BLFL_ID
+                //         }
+                //     }).then(function (res) {
+
+                //         LoadBLFL();
+
+                //     }, function (err) {
+
+                //     });
+
+                // }, function() {
+                //     // $log.info('Modal dismissed at: ' + new Date());
+                // });
+            }
+        },
+        blfoOptions : {
+            data: '$vm.blfoData',
             columnDefs: [
                 { name: 'a',        displayName: '關注人名' },
                 { name: 'b',        displayName: '關注地址' },
-                { name: 'options',  displayName: '操作', width: '150', enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToMD'), pinnedRight:true }
+                { name: 'Options',  displayName: '操作', width: '150', enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToMForBLFO') }
             ],
             enableFiltering: true,
             enableSorting: false,
             enableColumnMenus: false,
             // enableVerticalScrollbar: false,
             paginationPageSizes: [10, 25, 50],
-            paginationPageSize: 10
+            paginationPageSize: 10,
+            onRegisterApi: function(gridApi){
+                $vm.blfoGridApi = gridApi;
+            }
         },
         gridMethodForBLFL : {
             // 編輯
@@ -4652,6 +4703,18 @@ angular.module('app.concerns').controller('BanCtrl', function ($scope, $statePar
             });
         }
     });
+
+    function LoadBLFO(){
+        RestfulApi.SearchMSSQLData({
+            querymain: 'ban',
+            queryname: 'SelectBLFO'
+        }).then(function (res){
+            console.log(res["returnData"]);
+            $vm.blfoData = res["returnData"];
+        }).finally(function() {
+            HandleWindowResize($vm.blfoGridApi);
+        }); 
+    }
 
     function LoadBLFL(){
         RestfulApi.SearchMSSQLData({
@@ -14836,97 +14899,6 @@ angular.module('SmartAdmin.UI').directive('smartTooltipHtml', function () {
     }
 );
 
-'use strict';
-
-angular.module('SmartAdmin.Forms').directive('smartCkEditor', function () {
-    return {
-        restrict: 'A',
-        compile: function ( tElement) {
-            tElement.removeAttr('smart-ck-editor data-smart-ck-editor');
-            //CKEDITOR.basePath = 'bower_components/ckeditor/';
-
-            CKEDITOR.replace( tElement.attr('name'), { height: '380px', startupFocus : true} );
-        }
-    }
-});
-'use strict';
-
-angular.module('SmartAdmin.Forms').directive('smartDestroySummernote', function () {
-    return {
-        restrict: 'A',
-        compile: function (tElement, tAttributes) {
-            tElement.removeAttr('smart-destroy-summernote data-smart-destroy-summernote')
-            tElement.on('click', function() {
-                angular.element(tAttributes.smartDestroySummernote).destroy();
-            })
-        }
-    }
-});
-
-'use strict';
-
-angular.module('SmartAdmin.Forms').directive('smartEditSummernote', function () {
-    return {
-        restrict: 'A',
-        compile: function (tElement, tAttributes) {
-            tElement.removeAttr('smart-edit-summernote data-smart-edit-summernote');
-            tElement.on('click', function(){
-                angular.element(tAttributes.smartEditSummernote).summernote({
-                    focus : true
-                });  
-            });
-        }
-    }
-});
-
-'use strict';
-
-angular.module('SmartAdmin.Forms').directive('smartMarkdownEditor', function () {
-    return {
-        restrict: 'A',
-        compile: function (element, attributes) {
-            element.removeAttr('smart-markdown-editor data-smart-markdown-editor')
-
-            var options = {
-                autofocus:false,
-                savable:true,
-                fullscreen: {
-                    enable: false
-                }
-            };
-
-            if(attributes.height){
-                options.height = parseInt(attributes.height);
-            }
-
-            element.markdown(options);
-        }
-    }
-});
-
-'use strict';
-
-angular.module('SmartAdmin.Forms').directive('smartSummernoteEditor', function (lazyScript) {
-    return {
-        restrict: 'A',
-        compile: function (tElement, tAttributes) {
-            tElement.removeAttr('smart-summernote-editor data-smart-summernote-editor');
-
-            var options = {
-                focus : true,
-                tabsize : 2
-            };
-
-            if(tAttributes.height){
-                options.height = tAttributes.height;
-            }
-
-            lazyScript.register('build/vendor.ui.js').then(function(){
-                tElement.summernote(options);                
-            });
-        }
-    }
-});
 "use strict";
 
 
@@ -15364,6 +15336,97 @@ angular.module('SmartAdmin.Forms').directive('bootstrapTogglingForm', function()
 
 
 
+});
+'use strict';
+
+angular.module('SmartAdmin.Forms').directive('smartCkEditor', function () {
+    return {
+        restrict: 'A',
+        compile: function ( tElement) {
+            tElement.removeAttr('smart-ck-editor data-smart-ck-editor');
+            //CKEDITOR.basePath = 'bower_components/ckeditor/';
+
+            CKEDITOR.replace( tElement.attr('name'), { height: '380px', startupFocus : true} );
+        }
+    }
+});
+'use strict';
+
+angular.module('SmartAdmin.Forms').directive('smartDestroySummernote', function () {
+    return {
+        restrict: 'A',
+        compile: function (tElement, tAttributes) {
+            tElement.removeAttr('smart-destroy-summernote data-smart-destroy-summernote')
+            tElement.on('click', function() {
+                angular.element(tAttributes.smartDestroySummernote).destroy();
+            })
+        }
+    }
+});
+
+'use strict';
+
+angular.module('SmartAdmin.Forms').directive('smartEditSummernote', function () {
+    return {
+        restrict: 'A',
+        compile: function (tElement, tAttributes) {
+            tElement.removeAttr('smart-edit-summernote data-smart-edit-summernote');
+            tElement.on('click', function(){
+                angular.element(tAttributes.smartEditSummernote).summernote({
+                    focus : true
+                });  
+            });
+        }
+    }
+});
+
+'use strict';
+
+angular.module('SmartAdmin.Forms').directive('smartMarkdownEditor', function () {
+    return {
+        restrict: 'A',
+        compile: function (element, attributes) {
+            element.removeAttr('smart-markdown-editor data-smart-markdown-editor')
+
+            var options = {
+                autofocus:false,
+                savable:true,
+                fullscreen: {
+                    enable: false
+                }
+            };
+
+            if(attributes.height){
+                options.height = parseInt(attributes.height);
+            }
+
+            element.markdown(options);
+        }
+    }
+});
+
+'use strict';
+
+angular.module('SmartAdmin.Forms').directive('smartSummernoteEditor', function (lazyScript) {
+    return {
+        restrict: 'A',
+        compile: function (tElement, tAttributes) {
+            tElement.removeAttr('smart-summernote-editor data-smart-summernote-editor');
+
+            var options = {
+                focus : true,
+                tabsize : 2
+            };
+
+            if(tAttributes.height){
+                options.height = tAttributes.height;
+            }
+
+            lazyScript.register('build/vendor.ui.js').then(function(){
+                tElement.summernote(options);                
+            });
+        }
+    }
 });
 'use strict';
 

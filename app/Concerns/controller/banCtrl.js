@@ -10,7 +10,7 @@ angular.module('app.concerns').controller('BanCtrl', function ($scope, $statePar
             $vm.LoadData();
         },
         profile : Session.Get(),
-        defaultTab : 'hr2',
+        defaultTab : 'hr1',
         TabSwitch : function(pTabID){
             return pTabID == $vm.defaultTab ? 'active' : '';
         },
@@ -18,35 +18,83 @@ angular.module('app.concerns').controller('BanCtrl', function ($scope, $statePar
             console.log($vm.defaultTab);
             switch($vm.defaultTab){
                 case 'hr1':
-                    // LoadAccount();
+                    LoadBLFO();
                     break;
                 case 'hr2':
                     LoadBLFL();
                     break;
             }
         },
-        banOptions : {
-            data:  [
-                {
-                    a : '龍邦',
-                    b : '臺灣新北市'
-                },
-                {
-                    a : '龍潭',
-                    b : '臺灣桃園'
-                }
-            ],
+        gridMethodForBLFO : {
+            // 編輯
+            modifyData : function(row){
+                console.log(row);
+
+                // var modalInstance = $uibModal.open({
+                //     animation: true,
+                //     ariaLabelledBy: 'modal-title',
+                //     ariaDescribedBy: 'modal-body',
+                //     templateUrl: 'banMemberModalContent.html',
+                //     controller: 'BanMemberModalInstanceCtrl',
+                //     controllerAs: '$ctrl',
+                //     // size: 'lg',
+                //     // appendTo: parentElem,
+                //     resolve: {
+                //         vmData: function() {
+                //             return row.entity;
+                //         },
+                //         bool: function() {
+                //             return bool;
+                //         }
+                //     }
+                // });
+
+                // modalInstance.result.then(function(selectedItem) {
+                //     console.log(selectedItem);
+
+                //     RestfulApi.UpdateMSSQLData({
+                //         updatename: 'Update',
+                //         table: 12,
+                //         params: {
+                //             BLFL_SENDNAME    : selectedItem.BLFL_SENDNAME,
+                //             BLFL_GETNAME     : selectedItem.BLFL_GETNAME,
+                //             BLFL_GETADDRESS  : selectedItem.BLFL_GETADDRESS,
+                //             BLFL_TRACK       : selectedItem.BLFL_TRACK,
+                //             BLFL_CR_USER     : $vm.profile.U_ID,
+                //             BLFL_CR_DATETIME : $filter('date')(new Date, 'yyyy-MM-dd HH:mm:ss')
+                //         },
+                //         condition: {
+                //             BLFL_ID : selectedItem.BLFL_ID
+                //         }
+                //     }).then(function (res) {
+
+                //         LoadBLFL();
+
+                //     }, function (err) {
+
+                //     });
+
+                // }, function() {
+                //     // $log.info('Modal dismissed at: ' + new Date());
+                // });
+            }
+        },
+        blfoOptions : {
+            data: '$vm.blfoData',
             columnDefs: [
                 { name: 'a',        displayName: '關注人名' },
                 { name: 'b',        displayName: '關注地址' },
-                { name: 'options',  displayName: '操作', width: '150', enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToMD'), pinnedRight:true }
+                { name: 'Options',  displayName: '操作', width: '150', enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToMForBLFO') }
             ],
             enableFiltering: true,
             enableSorting: false,
             enableColumnMenus: false,
             // enableVerticalScrollbar: false,
             paginationPageSizes: [10, 25, 50],
-            paginationPageSize: 10
+            paginationPageSize: 10,
+            onRegisterApi: function(gridApi){
+                $vm.blfoGridApi = gridApi;
+            }
         },
         gridMethodForBLFL : {
             // 編輯
@@ -219,6 +267,18 @@ angular.module('app.concerns').controller('BanCtrl', function ($scope, $statePar
             });
         }
     });
+
+    function LoadBLFO(){
+        RestfulApi.SearchMSSQLData({
+            querymain: 'ban',
+            queryname: 'SelectBLFO'
+        }).then(function (res){
+            console.log(res["returnData"]);
+            $vm.blfoData = res["returnData"];
+        }).finally(function() {
+            HandleWindowResize($vm.blfoGridApi);
+        }); 
+    }
 
     function LoadBLFL(){
         RestfulApi.SearchMSSQLData({
