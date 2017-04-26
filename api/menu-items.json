@@ -11,9 +11,14 @@
         "icon":"truck",
         "items": [
             {
-                "title":"Jobs",
-                "sref": "app.selfwork.jobs",
-                "icon":"keyboard-o"
+                "title":"LeaderJobs",
+                "sref": "",
+                "icon":"cubes"
+            },
+            {
+                "title":"EmployeeJobs",
+                "sref": "app.selfwork.employeejobs",
+                "icon":"cube"
             },
             {
                 "title":"HistorySearch",

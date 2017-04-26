@@ -9,20 +9,20 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
     angular.extend(this, {
         Init : function(){
             // 不正常登入此頁面
-            // if($stateParams.data == null){
-            //     ReturnToEmployeejobsPage();
-            // }else{
+            if($stateParams.data == null){
+                ReturnToEmployeejobsPage();
+            }else{
                 $vm.vmData = $stateParams.data;
 
                 // 測試用
-                if($vm.vmData == null){
-                    $vm.vmData = {
-                        OL_SEQ : 'AdminTest20170418195141'
-                    };
-                }
+                // if($vm.vmData == null){
+                //     $vm.vmData = {
+                //         OL_SEQ : 'AdminTest20170418195141'
+                //     };
+                // }
                 
                 LoadItemList();
-            // }
+            }
         },
         profile : Session.Get(),
         defaultChoice : 'Left',
@@ -100,6 +100,9 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                 { name: 'IL_TRCOM'      , displayName: '派送公司', width: 115 },
                 { name: 'Options'       , displayName: '操作', width: 160, enableCellEdit: false, enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToCB'), pinnedRight:true }
             ],
+            rowTemplate: '<div> \
+                            <div ng-repeat="(colRenderIndex, col) in colContainer.renderedColumns track by col.colDef.name" class="ui-grid-cell" ng-class="row.entity.BLFO_TRACK != null ? \'cell-class-ban\' : \'\'" ui-grid-cell></div> \
+                          </div>',
             enableFiltering: true,
             enableSorting: true,
             enableColumnMenus: false,

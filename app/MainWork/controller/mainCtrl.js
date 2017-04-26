@@ -2,12 +2,27 @@
 
 angular.module('app.mainwork').controller('MainWorkCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, RestfulApi, ToolboxApi) {
     
-    var $vm = this,
-        cellClass = function(grid, row, col, rowRenderIndex, colRenderIndex) {
-            if (row.entity.BB_STICK_TOP) {
-                return 'bg-color-lighten';
+    $scope.barChartData = _.range(2).map(function (barNum) {
+        return {
+            data: _.range(12).map(function (i) {
+                return [i+1, parseInt(Math.random() * 30)]
+            }),
+            bars: {
+                show: true,
+                barWidth: 0.2,
+                order: barNum + 1
             }
-        };
+        }
+    });
+
+    $scope.pieChartData = _.range(Math.floor(Math.random() * 10) + 3).map(function(i){
+        return {
+            label : "Series" + (i + 1),
+            data : Math.floor(Math.random() * 100) + 1
+        }
+    });
+
+    var $vm = this;
 
     angular.extend(this, {
         Init : function(){
@@ -91,17 +106,20 @@ angular.module('app.mainwork').controller('MainWorkCtrl', function ($scope, $sta
         billboardOptions : {
             data:  '$vm.billboardData',
             columnDefs: [
-                { name: 'BB_STICK_TOP', displayName: '置頂', cellClass: cellClass, cellTemplate: $templateCache.get('accessibilityIsTop'), width: '5%' },
-                { name: 'BB_POST_FROM', displayName: '開始公佈時間', cellFilter: 'dateFilter', cellClass: cellClass },
-                { name: 'BB_POST_TOXX', displayName: '結束公佈時間', cellFilter: 'dateFilter', cellClass: cellClass },
-                { name: 'BB_TITLE',     displayName: '標題', cellClass: cellClass, cellTemplate: $templateCache.get('accessibilityTitleURL') },
-                { name: 'BB_CONTENT',   displayName: '內容', visible: false, cellClass: cellClass },
+                { name: 'BB_STICK_TOP', displayName: '置頂', cellTemplate: $templateCache.get('accessibilityIsTop'), width: '5%' },
+                { name: 'BB_POST_FROM', displayName: '開始公佈時間', cellFilter: 'dateFilter' },
+                { name: 'BB_POST_TOXX', displayName: '結束公佈時間', cellFilter: 'dateFilter' },
+                { name: 'BB_TITLE',     displayName: '標題', cellTemplate: $templateCache.get('accessibilityTitleURL') },
+                { name: 'BB_CONTENT',   displayName: '內容', visible: false },
                 { name: 'BB_CR_USER',   visible: false },
                 { name: 'BB_CR_DATETIME',   visible: false },
-                { name: 'BBAF_COUNTS',  displayName: '附件', width: '5%', cellClass: cellClass, cellTemplate: $templateCache.get('accessibilityFileCounts') },
-                { name: 'U_NAME',       displayName: '公佈人員名稱', visible: false, cellClass: cellClass },
-                { name: 'Options'     , displayName: '下載', width: '7%', enableFiltering: false, cellClass: cellClass, cellTemplate: $templateCache.get('accessibilityToOnceDownload') }
+                { name: 'BBAF_COUNTS',  displayName: '附件', width: '5%', cellTemplate: $templateCache.get('accessibilityFileCounts') },
+                { name: 'U_NAME',       displayName: '公佈人員名稱', visible: false },
+                { name: 'Options'     , displayName: '下載', width: '7%', enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToOnceDownload') }
             ],
+            rowTemplate: '<div> \
+                            <div ng-repeat="(colRenderIndex, col) in colContainer.renderedColumns track by col.colDef.name" class="ui-grid-cell" ng-class="row.entity.BB_STICK_TOP ? \'bg-color-lighten\' : \'\'" ui-grid-cell></div> \
+                          </div>',
             enableFiltering: false,
             enableSorting: false,
             enableColumnMenus: false,
