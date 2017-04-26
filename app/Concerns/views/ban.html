@@ -109,12 +109,56 @@
 
 </div>
 
-<script type="text/ng-template" id="banMemberModalContent.html">
+<script type="text/ng-template" id="banMemberByOPModalContent.html">
     <div class="modal-header">
 	    <h3 class="modal-title" id="modal-title">關注成員</h3>
 	</div>
 	<div class="modal-body" id="modal-body">
-	    <form class="form-horizontal" name="banMemberform">
+	    <form class="form-horizontal" name="banMemberByOPform">
+			<fieldset>
+				<div class="form-group">
+			        <label class="col-md-3 control-label">寄件人公司</label>
+			        <div class="col-md-9">
+			            <input class="form-control" placeholder="請輸入寄件人公司" ng-model="$ctrl.mdData['IL_SENDNAME']" type="text" ng-disabled="true" required>
+			        </div>
+			    </div>
+				<div class="form-group">
+			        <label class="col-md-3 control-label">收件人或公司</label>
+			        <div class="col-md-9">
+			            <input class="form-control" placeholder="請輸入收件人或公司" ng-model="$ctrl.mdData['IL_GETNAME']" type="text" ng-disabled="true" required>
+			        </div>
+			    </div>
+				<div class="form-group">
+			        <label class="col-md-3 control-label">收件人地址</label>
+			        <div class="col-md-9">
+			            <input class="form-control" placeholder="請輸入收件人地址" ng-model="$ctrl.mdData['IL_GETADDRESS']" type="text" ng-disabled="true" required>
+			        </div>
+			    </div>
+				<div class="form-group">
+			        <label class="col-md-3 control-label">追蹤</label>
+			        <div class="col-md-9">
+						<select class="form-control" 
+								ng-model="$ctrl.mdData['BLFO_TRACK']"
+								ng-options="bool.value as bool.key for bool in $ctrl.bool"
+								required>
+						</select>
+			        </div>
+			    </div>
+			</fieldset>
+	    </form>
+	</div>
+	<div class="modal-footer">
+	    <button class="btn btn-warning" type="button" ng-click="$ctrl.ok()" ng-disabled="!banMemberByOPform.$valid">{{getWord('Update')}}</button>
+	    <button class="btn btn-default" type="button" ng-click="$ctrl.cancel()">{{getWord('Cancel')}}</button>
+	</div>
+</script>
+
+<script type="text/ng-template" id="banMemberByLeaderModalContent.html">
+    <div class="modal-header">
+	    <h3 class="modal-title" id="modal-title">關注成員</h3>
+	</div>
+	<div class="modal-body" id="modal-body">
+	    <form class="form-horizontal" name="banMemberByLeaderform">
 			<fieldset>
 				<div class="form-group">
 			        <label class="col-md-3 control-label">寄件人公司</label>
@@ -148,8 +192,8 @@
 	    </form>
 	</div>
 	<div class="modal-footer">
-	    <button class="btn btn-warning" type="button" ng-click="$ctrl.ok()" ng-disabled="!banMemberform.$valid" ng-show="$ctrl.mdData['BLFL_ID'] != null">{{getWord('Update')}}</button>
-	    <button class="btn btn-primary" type="button" ng-click="$ctrl.ok()" ng-disabled="!banMemberform.$valid" ng-show="$ctrl.mdData['BLFL_ID'] == null">{{getWord('OK')}}</button>
+	    <button class="btn btn-warning" type="button" ng-click="$ctrl.ok()" ng-disabled="!banMemberByLeaderform.$valid" ng-show="$ctrl.mdData['BLFL_ID'] != null">{{getWord('Update')}}</button>
+	    <button class="btn btn-primary" type="button" ng-click="$ctrl.ok()" ng-disabled="!banMemberByLeaderform.$valid" ng-show="$ctrl.mdData['BLFL_ID'] == null">{{getWord('OK')}}</button>
 	    <button class="btn btn-default" type="button" ng-click="$ctrl.cancel()">{{getWord('Cancel')}}</button>
 	</div>
 </script>

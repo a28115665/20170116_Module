@@ -30,53 +30,53 @@ angular.module('app.concerns').controller('BanCtrl', function ($scope, $statePar
             modifyData : function(row){
                 console.log(row);
 
-                // var modalInstance = $uibModal.open({
-                //     animation: true,
-                //     ariaLabelledBy: 'modal-title',
-                //     ariaDescribedBy: 'modal-body',
-                //     templateUrl: 'banMemberModalContent.html',
-                //     controller: 'BanMemberModalInstanceCtrl',
-                //     controllerAs: '$ctrl',
-                //     // size: 'lg',
-                //     // appendTo: parentElem,
-                //     resolve: {
-                //         vmData: function() {
-                //             return row.entity;
-                //         },
-                //         bool: function() {
-                //             return bool;
-                //         }
-                //     }
-                // });
+                var modalInstance = $uibModal.open({
+                    animation: true,
+                    ariaLabelledBy: 'modal-title',
+                    ariaDescribedBy: 'modal-body',
+                    templateUrl: 'banMemberByOPModalContent.html',
+                    controller: 'BanMemberByOPModalInstanceCtrl',
+                    controllerAs: '$ctrl',
+                    // size: 'lg',
+                    // appendTo: parentElem,
+                    resolve: {
+                        vmData: function() {
+                            return row.entity;
+                        },
+                        bool: function() {
+                            return bool;
+                        }
+                    }
+                });
 
-                // modalInstance.result.then(function(selectedItem) {
-                //     console.log(selectedItem);
+                modalInstance.result.then(function(selectedItem) {
+                    console.log(selectedItem);
 
-                //     RestfulApi.UpdateMSSQLData({
-                //         updatename: 'Update',
-                //         table: 12,
-                //         params: {
-                //             BLFL_SENDNAME    : selectedItem.BLFL_SENDNAME,
-                //             BLFL_GETNAME     : selectedItem.BLFL_GETNAME,
-                //             BLFL_GETADDRESS  : selectedItem.BLFL_GETADDRESS,
-                //             BLFL_TRACK       : selectedItem.BLFL_TRACK,
-                //             BLFL_CR_USER     : $vm.profile.U_ID,
-                //             BLFL_CR_DATETIME : $filter('date')(new Date, 'yyyy-MM-dd HH:mm:ss')
-                //         },
-                //         condition: {
-                //             BLFL_ID : selectedItem.BLFL_ID
-                //         }
-                //     }).then(function (res) {
+                    RestfulApi.UpdateMSSQLData({
+                        updatename: 'Update',
+                        table: 13,
+                        params: {
+                            BLFO_TRACK       : selectedItem.BLFO_TRACK,
+                            BLFO_UP_USER     : $vm.profile.U_ID,
+                            BLFO_UP_DATETIME : $filter('date')(new Date, 'yyyy-MM-dd HH:mm:ss')
+                        },
+                        condition: {
+                            BLFO_SEQ        : selectedItem.BLFO_SEQ,
+                            BLFO_ORDERINDEX : selectedItem.BLFO_ORDERINDEX,
+                            BLFO_NEWSMALLNO : selectedItem.BLFO_NEWSMALLNO,
+                            BLFO_NEWBAGNO   : selectedItem.BLFO_NEWBAGNO
+                        }
+                    }).then(function (res) {
 
-                //         LoadBLFL();
+                        LoadBLFO();
 
-                //     }, function (err) {
+                    }, function (err) {
 
-                //     });
+                    });
 
-                // }, function() {
-                //     // $log.info('Modal dismissed at: ' + new Date());
-                // });
+                }, function() {
+                    // $log.info('Modal dismissed at: ' + new Date());
+                });
             }
         },
         blfoOptions : {
@@ -105,7 +105,48 @@ angular.module('app.concerns').controller('BanCtrl', function ($scope, $statePar
             }
         },
         DeleteBLFO : function(){
+            var modalInstance = $uibModal.open({
+                animation: true,
+                ariaLabelledBy: 'modal-title',
+                ariaDescribedBy: 'modal-body',
+                templateUrl: 'isDelete.html',
+                controller: 'IsDeleteModalInstanceCtrl',
+                controllerAs: '$ctrl',
+                size: 'sm',
+                resolve: {
+                    items: function () {
+                        return $vm.blfoGridApi.selection.getSelectedRows();
+                    }
+                }
+            });
 
+            modalInstance.result.then(function(selectedItem) {
+                console.log(selectedItem);
+
+                var _tasks = [];
+
+                for(var i in selectedItem){
+                    _tasks.push({
+                        crudType: 'Delete',
+                        table: 13,
+                        params: {
+                            BLFO_SEQ : selectedItem[i].BLFO_SEQ,
+                            BLFO_NEWBAGNO : selectedItem[i].BLFO_NEWBAGNO,
+                            BLFO_NEWSMALLNO : selectedItem[i].BLFO_NEWSMALLNO,
+                            BLFO_ORDERINDEX : selectedItem[i].BLFO_ORDERINDEX
+                        }
+                    });
+                }
+
+                RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res) {
+                    toaster.pop('success', '訊息', '名單成員刪除成功', 3000);
+                    LoadBLFO();
+                }, function (err) {
+
+                });
+            }, function() {
+                // $log.info('Modal dismissed at: ' + new Date());
+            });
         },
         gridMethodForBLFL : {
             // 編輯
@@ -116,8 +157,8 @@ angular.module('app.concerns').controller('BanCtrl', function ($scope, $statePar
                     animation: true,
                     ariaLabelledBy: 'modal-title',
                     ariaDescribedBy: 'modal-body',
-                    templateUrl: 'banMemberModalContent.html',
-                    controller: 'BanMemberModalInstanceCtrl',
+                    templateUrl: 'banMemberByLeaderModalContent.html',
+                    controller: 'BanMemberByLeaderModalInstanceCtrl',
                     controllerAs: '$ctrl',
                     // size: 'lg',
                     // appendTo: parentElem,
@@ -142,8 +183,8 @@ angular.module('app.concerns').controller('BanCtrl', function ($scope, $statePar
                             BLFL_GETNAME     : selectedItem.BLFL_GETNAME,
                             BLFL_GETADDRESS  : selectedItem.BLFL_GETADDRESS,
                             BLFL_TRACK       : selectedItem.BLFL_TRACK,
-                            BLFL_CR_USER     : $vm.profile.U_ID,
-                            BLFL_CR_DATETIME : $filter('date')(new Date, 'yyyy-MM-dd HH:mm:ss')
+                            BLFL_UP_USER     : $vm.profile.U_ID,
+                            BLFL_UP_DATETIME : $filter('date')(new Date, 'yyyy-MM-dd HH:mm:ss')
                         },
                         condition: {
                             BLFL_ID : selectedItem.BLFL_ID
@@ -304,7 +345,34 @@ angular.module('app.concerns').controller('BanCtrl', function ($scope, $statePar
     }
 
 })
-.controller('BanMemberModalInstanceCtrl', function ($uibModalInstance, vmData, bool) {
+.controller('BanMemberByOPModalInstanceCtrl', function ($uibModalInstance, vmData, bool) {
+    var $ctrl = this;
+    $ctrl.bool = bool;
+    $ctrl.mdData = vmData;
+
+    /**
+     * [CheckEmpty description]
+     * 檢核
+     */
+    // $ctrl.CheckEmpty = function() {
+    //     var _flag = true;
+
+    //     if(!angular.equals($ctrl.mdData['SendName'], '') && !angular.isUndefined($ctrl.mdData['SendName'])) _flag = false;
+    //     if(!angular.equals($ctrl.mdData['GetName'], '') && !angular.isUndefined($ctrl.mdData['GetName'])) _flag = false;
+    //     if(!angular.equals($ctrl.mdData['GetAddress'], '') && !angular.isUndefined($ctrl.mdData['GetAddress'])) _flag = false;
+
+    //     return _flag;
+    // };
+
+    $ctrl.ok = function() {
+        $uibModalInstance.close($ctrl.mdData);
+    };
+
+    $ctrl.cancel = function() {
+        $uibModalInstance.dismiss('cancel');
+    };
+})
+.controller('BanMemberByLeaderModalInstanceCtrl', function ($uibModalInstance, vmData, bool) {
     var $ctrl = this;
     $ctrl.bool = bool;
     $ctrl.mdData = vmData;
