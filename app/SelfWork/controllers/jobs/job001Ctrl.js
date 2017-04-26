@@ -17,7 +17,7 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                 // 測試用
                 if($vm.vmData == null){
                     $vm.vmData = {
-                        OL_SEQ : 'AdminTest20170419101047'
+                        OL_SEQ : 'AdminTest20170418195141'
                     };
                 }
                 
@@ -65,6 +65,7 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                         }
                     }).then(function(res) {
                         // 加入後需要Disabled
+                        row.entity.BLFO_TRACK = true;
                     });
 
                 }, function() {
