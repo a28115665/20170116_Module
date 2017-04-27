@@ -13,6 +13,7 @@ module.exports = function(pQueryname, pParams){
 			_SQLCommand += "SELECT IL.IL_SENDNAME, \
 								   IL.IL_GETNAME, \
 								   IL.IL_GETADDRESS, \
+								   IL.IL_GETTEL, \
 								   BLFO.* \
 							FROM BLACK_LIST_FROM_OP BLFO \
 							LEFT JOIN ITEM_LIST IL ON IL.IL_SEQ = BLFO.BLFO_SEQ AND \

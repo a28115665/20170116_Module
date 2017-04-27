@@ -5,7 +5,32 @@ angular.module('app.concerns').controller('DailyAlertCtrl', function ($scope, $s
     var $vm = this;
 
 	angular.extend(this, {
+        Init : function(){
+            $scope.ShowTabs = true;
+            $vm.LoadData();
+        },
         profile : Session.Get(),
+        defaultTab : 'hr1',
+        TabSwitch : function(pTabID){
+            return pTabID == $vm.defaultTab ? 'active' : '';
+        },
+        LoadData : function(){
+            console.log($vm.defaultTab);
+            switch($vm.defaultTab){
+                case 'hr1':
+                    // LoadBLFO();
+                    break;
+                case 'hr2':
+                    // LoadBLFL();
+                    break;
+                case 'hr3':
+                    // LoadBLFL();
+                    break;
+                case 'hr4':
+                    // LoadBLFL();
+                    break;
+            }
+        },
         dailyAlertPersonOptions : {
             data:  [
                 {

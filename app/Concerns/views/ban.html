@@ -135,6 +135,12 @@
 			        </div>
 			    </div>
 				<div class="form-group">
+			        <label class="col-md-3 control-label">收件人電話</label>
+			        <div class="col-md-9">
+			            <input class="form-control" placeholder="請輸入收件人電話" ng-model="$ctrl.mdData['IL_GETTEL']" type="text" ng-disabled="true" required>
+			        </div>
+			    </div>
+				<div class="form-group">
 			        <label class="col-md-3 control-label">追蹤</label>
 			        <div class="col-md-9">
 						<select class="form-control" 
@@ -176,6 +182,12 @@
 			        <label class="col-md-3 control-label">收件人地址</label>
 			        <div class="col-md-9">
 			            <input class="form-control" placeholder="請輸入收件人地址" ng-model="$ctrl.mdData['BLFL_GETADDRESS']" type="text" required>
+			        </div>
+			    </div>
+				<div class="form-group">
+			        <label class="col-md-3 control-label">收件人電話</label>
+			        <div class="col-md-9">
+			            <input class="form-control" placeholder="收件人電話" ng-model="$ctrl.mdData['BLFL_GETTEL']" type="text" ng-pattern="/^\d+$/" required>
 			        </div>
 			    </div>
 				<div class="form-group">

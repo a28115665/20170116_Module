@@ -85,6 +85,7 @@ angular.module('app.concerns').controller('BanCtrl', function ($scope, $statePar
                 { name: 'IL_SENDNAME'   , displayName: '寄件人公司' },
                 { name: 'IL_GETNAME'    , displayName: '收件人或公司' },
                 { name: 'IL_GETADDRESS' , displayName: '收件人地址' },
+                { name: 'IL_GETTEL'     , displayName: '收件人電話' },
                 { name: 'BLFO_TRACK'    , displayName: '追蹤', cellFilter: 'booleanFilter', filter: 
                     {
                         term: null,
@@ -182,6 +183,7 @@ angular.module('app.concerns').controller('BanCtrl', function ($scope, $statePar
                             BLFL_SENDNAME    : selectedItem.BLFL_SENDNAME,
                             BLFL_GETNAME     : selectedItem.BLFL_GETNAME,
                             BLFL_GETADDRESS  : selectedItem.BLFL_GETADDRESS,
+                            BLFL_GETTEL      : selectedItem.BLFL_GETTEL,
                             BLFL_TRACK       : selectedItem.BLFL_TRACK,
                             BLFL_UP_USER     : $vm.profile.U_ID,
                             BLFL_UP_DATETIME : $filter('date')(new Date, 'yyyy-MM-dd HH:mm:ss')
@@ -208,6 +210,7 @@ angular.module('app.concerns').controller('BanCtrl', function ($scope, $statePar
                 { name: 'BLFL_SENDNAME'   , displayName: '寄件人公司' },
                 { name: 'BLFL_GETNAME'    , displayName: '收件人或公司' },
                 { name: 'BLFL_GETADDRESS' , displayName: '收件人地址' },
+                { name: 'BLFL_GETTEL'     , displayName: '收件人電話' },
                 { name: 'BLFL_TRACK'      , displayName: '追蹤', cellFilter: 'booleanFilter', filter: 
                     {
                         term: null,
@@ -255,14 +258,15 @@ angular.module('app.concerns').controller('BanCtrl', function ($scope, $statePar
 
                 RestfulApi.InsertMSSQLData({
                     insertname: 'Insert',
-                    table: 13,
+                    table: 12,
                     params: {
-                        BLFO_SENDNAME    : selectedItem.IL_SENDNAME,
-                        BLFO_GETNAME     : selectedItem.IL_GETNAME,
-                        BLFO_GETADDRESS  : selectedItem.IL_GETADDRESS,
-                        BLFO_TRACK       : selectedItem.IL_TRACK,
-                        BLFO_CR_USER     : $vm.profile.U_ID,
-                        BLFO_CR_DATETIME : $filter('date')(new Date, 'yyyy-MM-dd HH:mm:ss')
+                        BLFL_SENDNAME    : selectedItem.BLFL_SENDNAME,
+                        BLFL_GETNAME     : selectedItem.BLFL_GETNAME,
+                        BLFL_GETADDRESS  : selectedItem.BLFL_GETADDRESS,
+                        BLFL_GETTEL      : selectedItem.BLFL_GETTEL,
+                        BLFL_TRACK       : selectedItem.BLFL_TRACK,
+                        BLFL_CR_USER     : $vm.profile.U_ID,
+                        BLFL_CR_DATETIME : $filter('date')(new Date, 'yyyy-MM-dd HH:mm:ss')
                     }
                 }).then(function(res) {
                     // console.log(res);
