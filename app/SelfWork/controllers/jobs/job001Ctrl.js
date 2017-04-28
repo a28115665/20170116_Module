@@ -325,10 +325,6 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
         // console.log($ctrl.job001DataNotMergeNo);
     };
 
-    $ctrl.HandleWindowResize = function(pGridApi){
-        HandleWindowResize(pGridApi);
-    }
-
     $ctrl.job001DataHaveMergeNoOption = {
         data: '$ctrl.job001DataHaveMergeNo',
         columnDefs: [

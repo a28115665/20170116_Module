@@ -1,13 +1,38 @@
 "use strict";
 
-angular.module('app.concerns').controller('DailyAlertCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, $timeout) {
+angular.module('app.concerns').controller('DailyAlertCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, $timeout, RestfulApi) {
     
-    var $vm = this;
+    var $vm = this,
+        columnDefs = [
+            { name: 'BAN_TYPE'      , displayName: '名單類型', width: 100 },
+            { name: 'IL_G1'         , displayName: '報關種類', width: 154 },
+            { name: 'IL_MERGENO'    , displayName: '併票號', width: 129 },
+            { name: 'IL_BAGNO'      , displayName: '袋號', width: 129 },
+            { name: 'IL_SMALLNO'    , displayName: '小號', width: 115 },
+            { name: 'IL_NATURE'     , displayName: '品名', width: 115 },
+            { name: 'IL_NATURE_NEW' , displayName: '新品名', width: 115 },
+            { name: 'IL_CTN'        , displayName: '件數', width: 115 },
+            { name: 'IL_PLACE'      , displayName: '產地', width: 115 },
+            { name: 'IL_WEIGHT'     , displayName: '重量', width: 115 },
+            { name: 'IL_WEIGHT_NEW' , displayName: '更改後重量', width: 115 },
+            { name: 'IL_PCS'        , displayName: '數量', width: 115 },
+            { name: 'IL_UNIT'       , displayName: '單位', width: 115 },
+            { name: 'IL_GETNO'      , displayName: '收件者統編', width: 115 },
+            { name: 'IL_SENDNAME'   , displayName: '寄件人或公司', width: 115 },
+            { name: 'IL_GETNAME'    , displayName: '收件人公司', width: 115 },
+            { name: 'IL_GETADDRESS' , displayName: '收件地址', width: 300 },
+            { name: 'IL_GETTEL'     , displayName: '收件電話', width: 115 },
+            { name: 'IL_UNIVALENT'  , displayName: '單價', width: 115 },
+            { name: 'IL_FINALCOST'  , displayName: '完稅價格', width: 115 },
+            { name: 'IL_TAX'        , displayName: '稅則', width: 115 },
+            { name: 'IL_TRCOM'      , displayName: '派送公司', width: 115 }
+        ];
 
 	angular.extend(this, {
         Init : function(){
             $scope.ShowTabs = true;
             $vm.LoadData();
+            LoadILCount();
         },
         profile : Session.Get(),
         defaultTab : 'hr1',
@@ -18,171 +43,149 @@ angular.module('app.concerns').controller('DailyAlertCtrl', function ($scope, $s
             console.log($vm.defaultTab);
             switch($vm.defaultTab){
                 case 'hr1':
-                    // LoadBLFO();
+                    LoadCaseA();
                     break;
                 case 'hr2':
-                    // LoadBLFL();
+                    LoadCaseB();
                     break;
                 case 'hr3':
-                    // LoadBLFL();
+                    LoadCaseC();
                     break;
                 case 'hr4':
-                    // LoadBLFL();
+                    LoadCaseD();
                     break;
             }
         },
-        dailyAlertPersonOptions : {
-            data:  [
-                {
-                    a : '2017-02-09',
-                    b : '297-64659291',
-                    c : '2017-01-15',
-                    d : 'CI5822',
-                    e : 'HK',
-                    f : '0A4JV163',
-                    g : '9577943094',
-                    h : '夹3饰品3纸袋3',
-                    i : '亞瑟仕',
-                    j : '許依琪',
-                    k : '台北市中山區新生北路二段60巷42號7樓',
-                    l : '0975356060',
-                    m : '不包稅',
-                    n : '黑貓'
-                },
-            ],
-            columnDefs: [
-                { name: 'a', displayName: '提單日期', width: 115 },
-                { name: 'b', displayName: '主號', width: 115 },
-                { name: 'c', displayName: '進口日期', width: 115 },
-                { name: 'd', displayName: '班機', width: 115 },
-                { name: 'e', displayName: '啟運國別', width: 115 },
-                { name: 'f', displayName: '清關條碼(袋號)', width: 129 },
-                { name: 'g', displayName: '提單號(小號)', width: 115 },
-                { name: 'h', displayName: '品名', width: 115 },
-                { name: 'i', displayName: '寄件人或公司', width: 115 },
-                { name: 'j', displayName: '收件人或公司', width: 115 },
-                { name: 'k', displayName: '收件地址', width: 300 },
-                { name: 'l', displayName: '收件電話', width: 115 },
-                { name: 'm', displayName: '是否包稅', width: 115 },
-                { name: 'n', displayName: '派送公司', width: 115 }
-            ],
-            enableFiltering: false,
-            enableSorting: false,
+        caseAOptions : {
+            data:  '$vm.caseAData',
+            columnDefs: columnDefs,
+            enableFiltering: true,
+            enableSorting: true,
             enableColumnMenus: false,
             // enableVerticalScrollbar: false,
             paginationPageSizes: [10, 25, 50],
             paginationPageSize: 10,
             onRegisterApi: function(gridApi){
-                $vm.dailyAlertPersonGridApi = gridApi;
+                $vm.caseAGridApi = gridApi;
             }
         },
-        dailyAlertAddressOptions : {
-            data:  [
-                {
-                    a : '2017-02-09',
-                    b : '297-64659291',
-                    c : '2017-01-15',
-                    d : 'CI5822',
-                    e : 'HK',
-                    f : '0A4JV163',
-                    g : '9577943094',
-                    h : '夹3饰品3纸袋3',
-                    i : '亞瑟仕',
-                    j : '林思晴',
-                    k : '高雄市鳳山區凱旋路182號',
-                    l : '0927282581',
-                    m : '不包稅',
-                    n : '黑貓'
-                }
-            ],
-            columnDefs: [
-                { name: 'a', displayName: '提單日期', width: 115 },
-                { name: 'b', displayName: '主號', width: 115 },
-                { name: 'c', displayName: '進口日期', width: 115 },
-                { name: 'd', displayName: '班機', width: 115 },
-                { name: 'e', displayName: '啟運國別', width: 115 },
-                { name: 'f', displayName: '清關條碼(袋號)', width: 129 },
-                { name: 'g', displayName: '提單號(小號)', width: 115 },
-                { name: 'h', displayName: '品名', width: 115 },
-                { name: 'i', displayName: '寄件人或公司', width: 115 },
-                { name: 'j', displayName: '收件人或公司', width: 115 },
-                { name: 'k', displayName: '收件地址', width: 300 },
-                { name: 'l', displayName: '收件電話', width: 115 },
-                { name: 'm', displayName: '是否包稅', width: 115 },
-                { name: 'n', displayName: '派送公司', width: 115 }
-            ],
-            enableFiltering: false,
-            enableSorting: false,
+        caseBOptions : {
+            data:  '$vm.caseBData',
+            columnDefs: columnDefs,
+            enableFiltering: true,
+            enableSorting: true,
             enableColumnMenus: false,
             // enableVerticalScrollbar: false,
             paginationPageSizes: [10, 25, 50],
             paginationPageSize: 10,
             onRegisterApi: function(gridApi){
-                $vm.dailyAlertAddressGridApi = gridApi;
+                $vm.caseBGridApi = gridApi;
             }
         },
-        dailyAlertPAndAOptions : {
-            data:  [
-                {
-                    a : '2017-02-09',
-                    b : '297-64659291',
-                    c : '2017-01-15',
-                    d : 'CI5822',
-                    e : 'HK',
-                    f : '0A4JV163',
-                    g : '9577943094',
-                    h : '夹3饰品3纸袋3',
-                    i : '亞瑟仕',
-                    j : '林思晴',
-                    k : '高雄市鳳山區凱旋路182號',
-                    l : '0927282581',
-                    m : '不包稅',
-                    n : '黑貓'
-                },
-                {
-                    a : '2017-02-09',
-                    b : '297-64659291',
-                    c : '2017-01-15',
-                    d : 'CI5822',
-                    e : 'HK',
-                    f : '0A4JV163',
-                    g : '9577943094',
-                    h : '夹3饰品3纸袋3',
-                    i : '亞瑟仕',
-                    j : '許依琪',
-                    k : '台北市中山區新生北路二段60巷42號7樓',
-                    l : '0975356060',
-                    m : '不包稅',
-                    n : '黑貓'
-                },
-            ],
-            columnDefs: [
-                { name: 'a', displayName: '提單日期', width: 115 },
-                { name: 'b', displayName: '主號', width: 115 },
-                { name: 'c', displayName: '進口日期', width: 115 },
-                { name: 'd', displayName: '班機', width: 115 },
-                { name: 'e', displayName: '啟運國別', width: 115 },
-                { name: 'f', displayName: '清關條碼(袋號)', width: 129 },
-                { name: 'g', displayName: '提單號(小號)', width: 115 },
-                { name: 'h', displayName: '品名', width: 115 },
-                { name: 'i', displayName: '寄件人或公司', width: 115 },
-                { name: 'j', displayName: '收件人或公司', width: 115 },
-                { name: 'k', displayName: '收件地址', width: 300 },
-                { name: 'l', displayName: '收件電話', width: 115 },
-                { name: 'm', displayName: '是否包稅', width: 115 },
-                { name: 'n', displayName: '派送公司', width: 115 }
-            ],
-            enableFiltering: false,
-            enableSorting: false,
+        caseCOptions : {
+            data:  '$vm.caseCData',
+            columnDefs: columnDefs,
+            enableFiltering: true,
+            enableSorting: true,
             enableColumnMenus: false,
             // enableVerticalScrollbar: false,
             paginationPageSizes: [10, 25, 50],
             paginationPageSize: 10,
             onRegisterApi: function(gridApi){
-                $vm.dailyAlertPAndAGridApi = gridApi;
+                $vm.caseCGridApi = gridApi;
             }
         },
-        GridResize : HandleWindowResize
+        caseDOptions : {
+            data:  '$vm.caseDData',
+            columnDefs: columnDefs,
+            enableFiltering: true,
+            enableSorting: true,
+            enableColumnMenus: false,
+            // enableVerticalScrollbar: false,
+            paginationPageSizes: [10, 25, 50],
+            paginationPageSize: 10,
+            onRegisterApi: function(gridApi){
+                $vm.caseDGridApi = gridApi;
+            }
+        }
     });
 
+    function LoadILCount(){
+        RestfulApi.CRUDMSSQLDataByTask([
+            {
+                crudType: 'Select',
+                querymain: 'dailyAlert',
+                queryname: 'SelectCaseACount'
+            },
+            {
+                crudType: 'Select',
+                querymain: 'dailyAlert',
+                queryname: 'SelectCaseBCount'
+            },
+            {
+                crudType: 'Select',
+                querymain: 'dailyAlert',
+                queryname: 'SelectCaseCCount'
+            },
+            {
+                crudType: 'Select',
+                querymain: 'dailyAlert',
+                queryname: 'SelectCaseDCount'
+            },
+            {
+                crudType: 'Select',
+                querymain: 'dailyAlert',
+                queryname: 'SelectILCount'
+            }
+        ]).then(function (res) {
+            console.log(res["returnData"]);
+            var _returnData = [];
+            for(var i in res["returnData"]){
+                _returnData.push(res["returnData"][i][0].COUNT);
+            }
+            $vm.allCountData = _returnData;
+        }, function (err) {
+
+        });
+    }
+
+    function LoadCaseA(){
+        RestfulApi.SearchMSSQLData({
+            querymain: 'dailyAlert',
+            queryname: 'SelectCaseA'
+        }).then(function (res){
+            console.log(res["returnData"]);
+            $vm.caseAData = res["returnData"];
+        }); 
+    }
+
+    function LoadCaseB(){
+        RestfulApi.SearchMSSQLData({
+            querymain: 'dailyAlert',
+            queryname: 'SelectCaseB'
+        }).then(function (res){
+            console.log(res["returnData"]);
+            $vm.caseBData = res["returnData"];
+        }); 
+    }
+
+    function LoadCaseC(){
+        RestfulApi.SearchMSSQLData({
+            querymain: 'dailyAlert',
+            queryname: 'SelectCaseC'
+        }).then(function (res){
+            console.log(res["returnData"]);
+            $vm.caseCData = res["returnData"];
+        }); 
+    }
+
+    function LoadCaseD(){
+        RestfulApi.SearchMSSQLData({
+            querymain: 'dailyAlert',
+            queryname: 'SelectCaseD'
+        }).then(function (res){
+            console.log(res["returnData"]);
+            $vm.caseDData = res["returnData"];
+        }); 
+    }
 })

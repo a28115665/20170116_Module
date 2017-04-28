@@ -19,19 +19,22 @@
 	                <div class="panel-body no-padding text-align-center">
 	                    <div class="the-price">
 	                        <h1>
-	                            $35<span class="subscript">/mo</span></h1>
-	                        <small>1 month FREE trial</small>
+	                            {{$vm.allCountData[0]}}<span class="subscript">/{{$vm.allCountData[4]}}</span>
+	                        </h1>
+	                        <small>不合格率 : {{($vm.allCountData[0] / $vm.allCountData[4]) * 100 | number:2}}%</small>
 	                    </div>
 	                    <table class="table">
 	                        <tbody>
 	                        	<tr>
 		                            <td>
-		                                收件人或公司
+		                                <i class="fa fa-street-view"></i>
+		                                <span>收件人或公司</span>
 		                            </td>
 		                        </tr>
 		                        <tr class="active">
 		                            <td>
-		                                收件人地址
+		                                <i class="fa fa-map-marker"></i>
+		                                <span>收件人地址</span>
 		                            </td>
 		                        </tr>
 		                    </tbody>
@@ -49,19 +52,22 @@
 	                <div class="panel-body no-padding text-align-center">
 	                    <div class="the-price">
 	                        <h1>
-	                            $35<span class="subscript">/mo</span></h1>
-	                        <small>1 month FREE trial</small>
+	                            {{$vm.allCountData[1]}}<span class="subscript">/{{$vm.allCountData[4]}}</span>
+	                        </h1>
+	                        <small>不合格率 : {{($vm.allCountData[1] / $vm.allCountData[4]) * 100 | number:2}}%</small>
 	                    </div>
 	                    <table class="table">
 	                        <tbody>
 	                        	<tr>
 		                            <td>
-		                                收件人地址
+		                                <i class="fa fa-map-marker"></i>
+		                                <span>收件人地址</span>
 		                            </td>
 		                        </tr>
 		                        <tr class="active">
 		                            <td>
-		                                收件人電話
+		                                <i class="fa fa-phone"></i>
+		                                <span>收件人電話</span>
 		                            </td>
 		                        </tr>
 		                    </tbody>
@@ -79,19 +85,22 @@
 	                <div class="panel-body no-padding text-align-center">
 	                    <div class="the-price">
 	                        <h1>
-	                            $35<span class="subscript">/mo</span></h1>
-	                        <small>1 month FREE trial</small>
+	                            {{$vm.allCountData[2]}}<span class="subscript">/{{$vm.allCountData[4]}}</span>
+	                        </h1>
+	                        <small>不合格率 : {{($vm.allCountData[2] / $vm.allCountData[4]) * 100 | number:2}}%</small>
 	                    </div>
 	                    <table class="table">
 	                        <tbody>
 	                        	<tr>
 		                            <td>
-		                                收件人或公司
+		                                <i class="fa fa-street-view"></i>
+		                                <span>收件人或公司</span>
 		                            </td>
 		                        </tr>
 		                        <tr class="active">
 		                            <td>
-		                                收件人電話
+		                                <i class="fa fa-phone"></i>
+		                                <span>收件人電話</span>
 		                            </td>
 		                        </tr>
 		                    </tbody>
@@ -109,24 +118,28 @@
 	                <div class="panel-body no-padding text-align-center">
 	                    <div class="the-price">
 	                        <h1>
-	                            $35<span class="subscript">/mo</span></h1>
-	                        <small>1 month FREE trial</small>
+	                            {{$vm.allCountData[3]}}<span class="subscript">/{{$vm.allCountData[4]}}</span>
+	                        </h1>
+	                        <small>不合格率 : {{($vm.allCountData[3] / $vm.allCountData[4]) * 100 | number:2}}%</small>
 	                    </div>
 	                    <table class="table">
 	                        <tbody>
 	                        	<tr>
 		                            <td>
-		                                收件人或公司
+		                                <i class="fa fa-street-view"></i>
+		                                <span>收件人或公司</span>
 		                            </td>
 		                        </tr>
 		                        <tr class="active">
 		                            <td>
-		                                收件人地址
+		                                <i class="fa fa-map-marker"></i>
+		                                <span>收件人地址</span>
 		                            </td>
 		                        </tr>
 	                        	<tr>
 		                            <td>
-		                                收件人電話
+		                                <i class="fa fa-phone"></i>
+		                                <span>收件人電話</span>
 		                            </td>
 		                        </tr>
 		                    </tbody>
@@ -161,13 +174,13 @@
 				                <a data-toggle="tab" href="#hr1"> <i class="fa fa-lg fa-bullseye"></i> <span class="hidden-mobile hidden-tablet"> 組合A </span> </a>
 				            </li>
 				            <li ng-class="$vm.TabSwitch('hr2')" ng-click="$vm.defaultTab='hr2';$vm.LoadData()">
-				                <a data-toggle="tab" href="#hr2"> <i class="fa fa-lg fa-pencil"></i> <span class="hidden-mobile hidden-tablet"> 組合B </span></a>
+				                <a data-toggle="tab" href="#hr2"> <i class="fa fa-lg fa-bullseye"></i> <span class="hidden-mobile hidden-tablet"> 組合B </span></a>
 				            </li>
 				            <li ng-class="$vm.TabSwitch('hr3')" ng-click="$vm.defaultTab='hr3';$vm.LoadData()">
-				                <a data-toggle="tab" href="#hr3"> <i class="fa fa-lg fa-pencil"></i> <span class="hidden-mobile hidden-tablet"> 組合C </span></a>
+				                <a data-toggle="tab" href="#hr3"> <i class="fa fa-lg fa-bullseye"></i> <span class="hidden-mobile hidden-tablet"> 組合C </span></a>
 				            </li>
 				            <li ng-class="$vm.TabSwitch('hr4')" ng-click="$vm.defaultTab='hr4';$vm.LoadData()">
-				                <a data-toggle="tab" href="#hr4"> <i class="fa fa-lg fa-pencil"></i> <span class="hidden-mobile hidden-tablet"> 組合D </span></a>
+				                <a data-toggle="tab" href="#hr4"> <i class="fa fa-lg fa-bullseye"></i> <span class="hidden-mobile hidden-tablet"> 組合D </span></a>
 				            </li>
 				        </ul>
 
@@ -193,8 +206,8 @@
 									        </div>
 									    </div>
 									</div>
-									1
-									<!-- <div id="grid1" ui-grid="$vm.blfoOptions" class="my-ui-grid" ui-grid-pagination ui-grid-resize-columns ui-grid-selection></div> -->
+									
+									<div id="grid1" ui-grid="$vm.caseAOptions" class="my-ui-grid" ui-grid-pagination ui-grid-resize-columns ui-grid-auto-resize></div>
 
 				                </div>
 				                <div class="tab-pane fade in " ng-class="$vm.TabSwitch('hr2')" id="hr2">
@@ -210,8 +223,8 @@
 									        </div>
 									    </div>
 									</div>
-									2
-									<!-- <div id="grid1" ui-grid="$vm.blfoOptions" class="my-ui-grid" ui-grid-pagination ui-grid-resize-columns ui-grid-selection></div> -->
+
+									<div id="grid1" ui-grid="$vm.caseBOptions" class="my-ui-grid" ui-grid-pagination ui-grid-resize-columns ui-grid-auto-resize></div>
 
 				                </div>
 				                <div class="tab-pane fade in " ng-class="$vm.TabSwitch('hr3')" id="hr3">
@@ -227,8 +240,8 @@
 									        </div>
 									    </div>
 									</div>
-									3
-									<!-- <div id="grid1" ui-grid="$vm.blfoOptions" class="my-ui-grid" ui-grid-pagination ui-grid-resize-columns ui-grid-selection></div> -->
+									
+									<div id="grid1" ui-grid="$vm.caseCOptions" class="my-ui-grid" ui-grid-pagination ui-grid-resize-columns ui-grid-auto-resize></div>
 
 				                </div>
 				                <div class="tab-pane fade in " ng-class="$vm.TabSwitch('hr4')" id="hr4">
@@ -244,8 +257,8 @@
 									        </div>
 									    </div>
 									</div>
-									4
-									<!-- <div id="grid1" ui-grid="$vm.blfoOptions" class="my-ui-grid" ui-grid-pagination ui-grid-resize-columns ui-grid-selection></div> -->
+									
+									<div id="grid1" ui-grid="$vm.caseDOptions" class="my-ui-grid" ui-grid-pagination ui-grid-resize-columns ui-grid-auto-resize></div>
 
 				                </div>
 
