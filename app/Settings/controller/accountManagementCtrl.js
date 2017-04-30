@@ -1,6 +1,6 @@
 "use strict";
 
-angular.module('app.settings').controller('AccountManagementCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, $filter, SysCode, RestfulApi, uiGridConstants, boolFilter, jobFilter, departFilter, roleFilter) {
+angular.module('app.settings').controller('AccountManagementCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, $filter, SysCode, RestfulApi, uiGridConstants, boolFilter, gradeFilter, departFilter, roleFilter) {
 
 	var $vm = this;
     // console.log(Account.get());
@@ -93,11 +93,11 @@ angular.module('app.settings').controller('AccountManagementCtrl', function ($sc
                 { name: 'U_NAME'   ,  displayName: '名稱' },
                 { name: 'U_EMAIL'  ,  displayName: '信箱' },
                 { name: 'U_PHONE'  ,  displayName: '電話' },
-                { name: 'U_JOB'    ,  displayName: '職稱', cellFilter: 'jobFilter', filter: 
+                { name: 'U_GRADE'  ,  displayName: '職稱', cellFilter: 'gradeFilter', filter: 
                     {
                         term: null,
                         type: uiGridConstants.filter.SELECT,
-                        selectOptions: jobFilter
+                        selectOptions: gradeFilter
                     }
                 },
                 { name: 'U_ROLE'   ,  displayName: '角色', cellFilter: 'roleFilter', filter: 
@@ -105,13 +105,6 @@ angular.module('app.settings').controller('AccountManagementCtrl', function ($sc
                         term: null,
                         type: uiGridConstants.filter.SELECT,
                         selectOptions: roleFilter
-                    }
-                },
-                { name: 'U_DEPART' ,  displayName: '單位', cellFilter: 'departFilter', filter: 
-                    {
-                        term: null,
-                        type: uiGridConstants.filter.SELECT,
-                        selectOptions: departFilter
                     }
                 },
                 { name: 'Options'  ,  displayName: '操作', enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToMDForAccount') }

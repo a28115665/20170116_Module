@@ -88,6 +88,34 @@ function CompyFilterResolve (RestfulApi, $q){
         }
     };
 };
+function GradeFilterResolve (RestfulApi, $q){
+    return {
+        get : function(){
+            var deferred = $q.defer();
+            
+            RestfulApi.SearchMSSQLData({
+                querymain: 'account',
+                queryname: 'SelectSysUserGrade',
+                params: {
+                    SUG_STS : false
+                }
+            }).then(function (res){
+                var data = res["returnData"] || [],
+                    finalData = {};
+
+                for(var i in data){
+                    finalData[data[i].SUG_GRADE] = data[i].SUG_NAME
+                }
+                
+                deferred.resolve(finalData);
+            }, function (err){
+                deferred.reject({});
+            });
+            
+            return deferred.promise;
+        }
+    };
+};
 
 /*
     Some Function

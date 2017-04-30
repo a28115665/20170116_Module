@@ -21,7 +21,7 @@ module.exports = function(pQueryname, pParams){
 				_SQLCommand += " AND SUG_STS = @SUG_STS ";
 			}
 
-			_SQLCommand += " ORDER BY SUG_GRADE DESC ";
+			_SQLCommand += " ORDER BY SUG_GRADE ASC ";
 			break;
 		case "SelectSysUserDept":
 			_SQLCommand += "SELECT SUD_DEPT, \

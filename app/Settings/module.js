@@ -48,8 +48,31 @@ angular.module('app.settings').config(function ($stateProvider){
                     roleFilter: function (SysCodeFilter){
                         return SysCodeFilter.get('Role');
                     },
-                    jobFilter: function (SysCodeFilter){
-                        return SysCodeFilter.get('Job');
+                    gradeFilter: function (RestfulApi, $q){
+                        var deferred = $q.defer();
+
+                        RestfulApi.SearchMSSQLData({
+                            querymain: 'account',
+                            queryname: 'SelectSysUserGrade',
+                            params: {
+                                SUG_STS : false
+                            }
+                        }).then(function (res){
+                            var data = res["returnData"] || [],
+                                finalData = [];
+                                console.log(data);
+
+                            for(var i in data){
+                                finalData.push({
+                                    value: data[i].SUG_GRADE,
+                                    label: data[i].SUG_NAME
+                                });
+                            }
+
+                            deferred.resolve(finalData);
+                        })
+
+                        return deferred.promise;
                     }
                 }
             }

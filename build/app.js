@@ -2096,8 +2096,31 @@ angular.module('app.settings').config(function ($stateProvider){
                     roleFilter: function (SysCodeFilter){
                         return SysCodeFilter.get('Role');
                     },
-                    jobFilter: function (SysCodeFilter){
-                        return SysCodeFilter.get('Job');
+                    gradeFilter: function (RestfulApi, $q){
+                        var deferred = $q.defer();
+
+                        RestfulApi.SearchMSSQLData({
+                            querymain: 'account',
+                            queryname: 'SelectSysUserGrade',
+                            params: {
+                                SUG_STS : false
+                            }
+                        }).then(function (res){
+                            var data = res["returnData"] || [],
+                                finalData = [];
+                                console.log(data);
+
+                            for(var i in data){
+                                finalData.push({
+                                    value: data[i].SUG_GRADE,
+                                    label: data[i].SUG_NAME
+                                });
+                            }
+
+                            deferred.resolve(finalData);
+                        })
+
+                        return deferred.promise;
                     }
                 }
             }
@@ -3005,6 +3028,22 @@ angular.module('app')
         }
     };
 })
+/**  
+ * Convert Number to String.  
+ */
+.directive('convertToNumber', function() {
+    return {
+        require: 'ngModel',
+        link: function(scope, element, attrs, ngModel) {
+            ngModel.$parsers.push(function(val) {
+                return val != null ? parseInt(val, 10) : null;
+            });
+            ngModel.$formatters.push(function(val) {
+                return val != null ? '' + val : null;
+            });
+        }
+    };
+})
 angular.module('app')
 .factory('Session', function ($rootScope, $http) {
     var session = {};
@@ -3201,6 +3240,51 @@ angular.module('app')
 	return FilterFunction;
 
 })
+.filter('gradeFilter', function (RestfulApi, $q) {
+
+	var resData = {};
+
+	var deferred = $q.defer();
+            
+    RestfulApi.SearchMSSQLData({
+        querymain: 'account',
+        queryname: 'SelectSysUserGrade',
+        params: {
+            SUG_STS : false
+        }
+    }).then(function (res){
+        var data = res["returnData"] || [],
+            finalData = {};
+
+        for(var i in data){
+            finalData[data[i].SUG_GRADE] = data[i].SUG_NAME
+        }
+        
+        deferred.resolve(finalData);
+    }, function (err){
+        deferred.reject({});
+    });
+
+	deferred.promise.then(function (res){
+		resData = res
+	});
+
+	var FilterFunction = function (input){
+
+		if (!input) {
+		    return '';
+		} else {
+		    return resData[input];
+		}
+
+	}
+
+	// 持續偵測
+	FilterFunction.$stateful = true;
+
+	return FilterFunction;
+
+})
 .filter('dateFilter', function ($filter) {
 
 	return function (input){
@@ -3311,6 +3395,34 @@ function CompyFilterResolve (RestfulApi, $q){
 
                 for(var i in data){
                     finalData[data[i].CO_CODE] = data[i].CO_NAME
+                }
+                
+                deferred.resolve(finalData);
+            }, function (err){
+                deferred.reject({});
+            });
+            
+            return deferred.promise;
+        }
+    };
+};
+function GradeFilterResolve (RestfulApi, $q){
+    return {
+        get : function(){
+            var deferred = $q.defer();
+            
+            RestfulApi.SearchMSSQLData({
+                querymain: 'account',
+                queryname: 'SelectSysUserGrade',
+                params: {
+                    SUG_STS : false
+                }
+            }).then(function (res){
+                var data = res["returnData"] || [],
+                    finalData = {};
+
+                for(var i in data){
+                    finalData[data[i].SUG_GRADE] = data[i].SUG_NAME
                 }
                 
                 deferred.resolve(finalData);
@@ -6724,7 +6836,7 @@ angular.module('app.selfwork').controller('SelfWorkHistorySearchCtrl', function 
 })
 "use strict";
 
-angular.module('app.settings').controller('AccountManagementCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, $filter, SysCode, RestfulApi, uiGridConstants, boolFilter, jobFilter, departFilter, roleFilter) {
+angular.module('app.settings').controller('AccountManagementCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, $filter, SysCode, RestfulApi, uiGridConstants, boolFilter, gradeFilter, departFilter, roleFilter) {
 
 	var $vm = this;
     // console.log(Account.get());
@@ -6817,11 +6929,11 @@ angular.module('app.settings').controller('AccountManagementCtrl', function ($sc
                 { name: 'U_NAME'   ,  displayName: '名稱' },
                 { name: 'U_EMAIL'  ,  displayName: '信箱' },
                 { name: 'U_PHONE'  ,  displayName: '電話' },
-                { name: 'U_JOB'    ,  displayName: '職稱', cellFilter: 'jobFilter', filter: 
+                { name: 'U_GRADE'  ,  displayName: '職稱', cellFilter: 'gradeFilter', filter: 
                     {
                         term: null,
                         type: uiGridConstants.filter.SELECT,
-                        selectOptions: jobFilter
+                        selectOptions: gradeFilter
                     }
                 },
                 { name: 'U_ROLE'   ,  displayName: '角色', cellFilter: 'roleFilter', filter: 
@@ -6829,13 +6941,6 @@ angular.module('app.settings').controller('AccountManagementCtrl', function ($sc
                         term: null,
                         type: uiGridConstants.filter.SELECT,
                         selectOptions: roleFilter
-                    }
-                },
-                { name: 'U_DEPART' ,  displayName: '單位', cellFilter: 'departFilter', filter: 
-                    {
-                        term: null,
-                        type: uiGridConstants.filter.SELECT,
-                        selectOptions: departFilter
                     }
                 },
                 { name: 'Options'  ,  displayName: '操作', enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToMDForAccount') }
@@ -12877,7 +12982,7 @@ angular.module('app.settings').controller('AccountCtrl', function ($scope, $stat
                     U_ID          : $vm.vmData.U_ID
                 }
             });
-
+            
         	RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res) {
 
     			ReturnToAccountManagementPage();
@@ -15230,97 +15335,6 @@ angular.module('SmartAdmin.UI').directive('smartTooltipHtml', function () {
     }
 );
 
-'use strict';
-
-angular.module('SmartAdmin.Forms').directive('smartCkEditor', function () {
-    return {
-        restrict: 'A',
-        compile: function ( tElement) {
-            tElement.removeAttr('smart-ck-editor data-smart-ck-editor');
-            //CKEDITOR.basePath = 'bower_components/ckeditor/';
-
-            CKEDITOR.replace( tElement.attr('name'), { height: '380px', startupFocus : true} );
-        }
-    }
-});
-'use strict';
-
-angular.module('SmartAdmin.Forms').directive('smartDestroySummernote', function () {
-    return {
-        restrict: 'A',
-        compile: function (tElement, tAttributes) {
-            tElement.removeAttr('smart-destroy-summernote data-smart-destroy-summernote')
-            tElement.on('click', function() {
-                angular.element(tAttributes.smartDestroySummernote).destroy();
-            })
-        }
-    }
-});
-
-'use strict';
-
-angular.module('SmartAdmin.Forms').directive('smartEditSummernote', function () {
-    return {
-        restrict: 'A',
-        compile: function (tElement, tAttributes) {
-            tElement.removeAttr('smart-edit-summernote data-smart-edit-summernote');
-            tElement.on('click', function(){
-                angular.element(tAttributes.smartEditSummernote).summernote({
-                    focus : true
-                });  
-            });
-        }
-    }
-});
-
-'use strict';
-
-angular.module('SmartAdmin.Forms').directive('smartMarkdownEditor', function () {
-    return {
-        restrict: 'A',
-        compile: function (element, attributes) {
-            element.removeAttr('smart-markdown-editor data-smart-markdown-editor')
-
-            var options = {
-                autofocus:false,
-                savable:true,
-                fullscreen: {
-                    enable: false
-                }
-            };
-
-            if(attributes.height){
-                options.height = parseInt(attributes.height);
-            }
-
-            element.markdown(options);
-        }
-    }
-});
-
-'use strict';
-
-angular.module('SmartAdmin.Forms').directive('smartSummernoteEditor', function (lazyScript) {
-    return {
-        restrict: 'A',
-        compile: function (tElement, tAttributes) {
-            tElement.removeAttr('smart-summernote-editor data-smart-summernote-editor');
-
-            var options = {
-                focus : true,
-                tabsize : 2
-            };
-
-            if(tAttributes.height){
-                options.height = tAttributes.height;
-            }
-
-            lazyScript.register('build/vendor.ui.js').then(function(){
-                tElement.summernote(options);                
-            });
-        }
-    }
-});
 "use strict";
 
 
@@ -15758,6 +15772,97 @@ angular.module('SmartAdmin.Forms').directive('bootstrapTogglingForm', function()
 
 
 
+});
+'use strict';
+
+angular.module('SmartAdmin.Forms').directive('smartCkEditor', function () {
+    return {
+        restrict: 'A',
+        compile: function ( tElement) {
+            tElement.removeAttr('smart-ck-editor data-smart-ck-editor');
+            //CKEDITOR.basePath = 'bower_components/ckeditor/';
+
+            CKEDITOR.replace( tElement.attr('name'), { height: '380px', startupFocus : true} );
+        }
+    }
+});
+'use strict';
+
+angular.module('SmartAdmin.Forms').directive('smartDestroySummernote', function () {
+    return {
+        restrict: 'A',
+        compile: function (tElement, tAttributes) {
+            tElement.removeAttr('smart-destroy-summernote data-smart-destroy-summernote')
+            tElement.on('click', function() {
+                angular.element(tAttributes.smartDestroySummernote).destroy();
+            })
+        }
+    }
+});
+
+'use strict';
+
+angular.module('SmartAdmin.Forms').directive('smartEditSummernote', function () {
+    return {
+        restrict: 'A',
+        compile: function (tElement, tAttributes) {
+            tElement.removeAttr('smart-edit-summernote data-smart-edit-summernote');
+            tElement.on('click', function(){
+                angular.element(tAttributes.smartEditSummernote).summernote({
+                    focus : true
+                });  
+            });
+        }
+    }
+});
+
+'use strict';
+
+angular.module('SmartAdmin.Forms').directive('smartMarkdownEditor', function () {
+    return {
+        restrict: 'A',
+        compile: function (element, attributes) {
+            element.removeAttr('smart-markdown-editor data-smart-markdown-editor')
+
+            var options = {
+                autofocus:false,
+                savable:true,
+                fullscreen: {
+                    enable: false
+                }
+            };
+
+            if(attributes.height){
+                options.height = parseInt(attributes.height);
+            }
+
+            element.markdown(options);
+        }
+    }
+});
+
+'use strict';
+
+angular.module('SmartAdmin.Forms').directive('smartSummernoteEditor', function (lazyScript) {
+    return {
+        restrict: 'A',
+        compile: function (tElement, tAttributes) {
+            tElement.removeAttr('smart-summernote-editor data-smart-summernote-editor');
+
+            var options = {
+                focus : true,
+                tabsize : 2
+            };
+
+            if(tAttributes.height){
+                options.height = tAttributes.height;
+            }
+
+            lazyScript.register('build/vendor.ui.js').then(function(){
+                tElement.summernote(options);                
+            });
+        }
+    }
 });
 'use strict';
 

@@ -112,7 +112,7 @@ angular.module('app.settings').controller('AccountCtrl', function ($scope, $stat
                     U_ID          : $vm.vmData.U_ID
                 }
             });
-
+            
         	RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res) {
 
     			ReturnToAccountManagementPage();

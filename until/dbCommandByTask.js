@@ -112,6 +112,13 @@ var InsertRequestWithTransaction = function(task, args, callback) {
 			
 			break;
 		default:
+			for(var key in task.params){
+				Schema.push(key);
+				Values.push(task.params[key]);
+			}
+
+			SQLCommand += "INSERT INTO " + tables[task.table] + " ("+Schema.join()+") VALUES (@"+Schema.join(",@")+")";
+			
 			break;
 	}	 
 
@@ -138,7 +145,7 @@ var UpdateRequestWithTransaction = function(task, args, callback) {
 
 	schemaType.SchemaType2(psParams, request, sql);
 
-	switch(task.updatetname){
+	switch(task.updatename){
 		case "Update":
 			for(var key in task.params){
 				Schema.push(key + "=@" + key);
@@ -174,6 +181,15 @@ var UpdateRequestWithTransaction = function(task, args, callback) {
 			
 			break;
 		default:
+			for(var key in task.params){
+				Schema.push(key + "=@" + key);
+			}
+			for(var key in task.condition){
+				Condition.push(" AND "+key + "=@" + key);
+			}
+
+			SQLCommand += "UPDATE " + tables[task.table] + " SET "+Schema.join()+" WHERE 1=1 "+Condition.join(" ");
+			
 			break;
 	}	
 	
@@ -276,7 +292,7 @@ function requestSql(request, sql, callback) {
     });
 
     request.on('done', function(returnValue) {
-        // console.log(returnValue);
+        // console.log(errors.length, result.length);
         // Always emitted as the last one
         if (errors.length == 0) {
         	// 如果returnValue為0 表示delete
