@@ -1595,8 +1595,25 @@ angular.module('app.restful').config(function ($stateProvider){
 			views: {
 				"content@app" : {
 					templateUrl: 'app/Restful/views/test.html',
-                    controller: function ($scope, config, RestfulApi, ToolboxApi, Session, $filter) {
-                        
+                    controller: function ($scope, config, RestfulApi, ToolboxApi, Session, $filter, $http) {
+                        // $http({
+                        //     method: 'GET',
+                        //     url: 'http://10.1.21.22/EWSWS/WebServiceImport.asmx',
+                        //     params: [{ 
+                        //         "UserId": "Admin",
+                        //         "UserPW": "Admin#1",  
+                        //         "Nature": "電熱毯,服飾"
+                        //     }]
+                        // }).then(function successCallback(response) {
+                        //     // this callback will be called asynchronously
+                        //     // when the response is available
+                        //     console.log(response);
+                        // }, function errorCallback(response) {
+                        //     // called asynchronously if an error occurs
+                        //     // or server returns response with an error status.
+                        // });
+
+
                         var $vm = this;
 
                         angular.extend(this, {
@@ -2120,14 +2137,58 @@ angular.module('app.settings').config(function ($stateProvider){
 
                         return deferred.promise;
                     },
-                    depart: function (SysCode){
-                        return SysCode.get('Depart');
+                    depart: function (RestfulApi, $q){
+
+                        var deferred = $q.defer();
+            
+                        RestfulApi.SearchMSSQLData({
+                            querymain: 'account',
+                            queryname: 'SelectSysUserDept',
+                            params: {
+                                SUD_STS : false
+                            }
+                        }).then(function (res){
+                            var data = res["returnData"] || [],
+                                finalData = {};
+
+                            for(var i in data){
+                                finalData[data[i].SUD_DEPT] = data[i].SUD_NAME
+                            }
+                            
+                            deferred.resolve(finalData);
+                        }, function (err){
+                            deferred.reject({});
+                        });
+                        
+                        return deferred.promise;
                     },
                     role : function (SysCode){
                         return SysCode.get('Role');
                     },
-                    job : function (SysCode){
-                        return SysCode.get('Job');
+                    grade : function (RestfulApi, $q){
+
+                        var deferred = $q.defer();
+            
+                        RestfulApi.SearchMSSQLData({
+                            querymain: 'account',
+                            queryname: 'SelectSysUserGrade',
+                            params: {
+                                SUG_STS : false
+                            }
+                        }).then(function (res){
+                            var data = res["returnData"] || [],
+                                finalData = {};
+
+                            for(var i in data){
+                                finalData[data[i].SUG_GRADE] = data[i].SUG_NAME
+                            }
+                            
+                            deferred.resolve(finalData);
+                        }, function (err){
+                            deferred.reject({});
+                        });
+                        
+                        return deferred.promise;
                     }
                 }
             }
@@ -12704,16 +12765,16 @@ angular.module('app.selfwork').controller('Job003Ctrl', function ($scope, $state
 });
 "use strict";
 
-angular.module('app.settings').controller('AccountCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, RestfulApi, $filter, bool, depart, role, job) {
+angular.module('app.settings').controller('AccountCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, RestfulApi, $filter, bool, role, grade) {
 
-    var $vm = this;
+    var $vm = this,
+        _tasks = [];
 
     angular.extend(this, {
     	Init : function(){
     		if($stateParams.data == null){
                 $vm.vmData = {
                 	U_ROLE : "SUser",
-                	U_DEPART : "001",
                 	U_STS : false,
                 	U_CHECK : true,
                     IU : "Add"
@@ -12722,14 +12783,15 @@ angular.module('app.settings').controller('AccountCtrl', function ($scope, $stat
                 $vm.vmData = $stateParams.data;
                 $vm.vmData["IU"] = "Update";
 
+                LoadUserDept();
+
                 console.log($vm.vmData);
             }
     	},
         profile : Session.Get(),
         boolData : bool,
-        departData : depart,
         roleData : role,
-        jobData : job,
+        gradeData : grade,
         ModifyPW : function(){
         	var modalInstance = $uibModal.open({
                 animation: true,
@@ -12760,7 +12822,10 @@ angular.module('app.settings').controller('AccountCtrl', function ($scope, $stat
         },
         Add : function(){
         	console.log($vm.vmData);
-        	RestfulApi.InsertMSSQLData({
+
+            // Insert此人Info
+            _tasks.push({
+                crudType: 'Insert',
                 insertname: 'InsertByEncrypt',
                 table: 0,
                 params: {
@@ -12770,26 +12835,29 @@ angular.module('app.settings').controller('AccountCtrl', function ($scope, $stat
                     U_PHONE       : $vm.vmData.U_PHONE,
                     U_ROLE        : $vm.vmData.U_ROLE,
                     U_EMAIL       : $vm.vmData.U_EMAIL,
-                    U_JOB         : $vm.vmData.U_JOB,
+                    U_GRADE       : $vm.vmData.U_GRADE,
                     U_JOB_AGENT   : $vm.vmData.U_JOB_AGENT,
-                    U_DEPART      : $vm.vmData.U_DEPART,
                     U_STS         : $vm.vmData.U_STS,
                     U_CHECK       : $vm.vmData.U_CHECK,
                     U_CR_USER     : $vm.profile.U_ID,
                     U_CR_DATETIME : $filter('date')(new Date, 'yyyy-MM-dd HH:mm:ss')
                 }
-            }).then(function(res) {
-                // console.log(res);
+            });
 
-    			ReturnToAccountManagementPage();
+            RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res) {
 
-                // $state.reload()
+                ReturnToAccountManagementPage();
+
+            }, function (err) {
+
             });
         },
         Update : function(){
         	console.log($vm.vmData);
 
-        	RestfulApi.UpdateMSSQLData({
+            // Update此人Info
+            _tasks.push({
+                crudType: 'Update',
                 updatename: 'UpdateByEncrypt',
                 table: 0,
                 params: {
@@ -12798,9 +12866,8 @@ angular.module('app.settings').controller('AccountCtrl', function ($scope, $stat
                     U_PHONE       : $vm.vmData.U_PHONE,
                     U_ROLE        : $vm.vmData.U_ROLE,
                     U_EMAIL       : $vm.vmData.U_EMAIL,
-                    U_JOB         : $vm.vmData.U_JOB,
+                    U_GRADE       : $vm.vmData.U_GRADE,
                     U_JOB_AGENT   : $vm.vmData.U_JOB_AGENT,
-                    U_DEPART      : $vm.vmData.U_DEPART,
                     U_STS         : $vm.vmData.U_STS,
                     U_CHECK       : $vm.vmData.U_CHECK,
                     U_UP_USER     : $vm.profile.U_ID,
@@ -12809,15 +12876,79 @@ angular.module('app.settings').controller('AccountCtrl', function ($scope, $stat
                 condition: {
                     U_ID          : $vm.vmData.U_ID
                 }
-            }).then(function (res) {
+            });
+
+        	RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res) {
 
     			ReturnToAccountManagementPage();
 
             }, function (err) {
 
             });
+        },
+        AddUserDept : function(){
+            var modalInstance = $uibModal.open({
+                animation: true,
+                ariaLabelledBy: 'modal-title',
+                ariaDescribedBy: 'modal-body',
+                templateUrl: 'addUserDept.html',
+                controller: 'AddUserDeptModalInstanceCtrl',
+                controllerAs: '$ctrl',
+                size: 'lg',
+                resolve: {
+                    vmData: function () {
+                        return $vm.vmData;
+                    }
+                }
+            });
+
+            modalInstance.result.then(function(selectedItem) {
+                console.log(selectedItem);
+
+                $vm.vmData.UserDept = angular.copy(selectedItem);
+
+                // 初始化
+                _tasks = [];
+
+                // Delete此部門相關人員
+                _tasks.push({
+                    crudType: 'Delete',
+                    table: 14,
+                    params: {
+                        UD_ID : $vm.vmData.U_ID
+                    }
+                });
+
+                // Insert此部門相關人員
+                for(var i in selectedItem){
+                    _tasks.push({
+                        crudType: 'Insert',
+                        table: 14,
+                        params: {
+                            UD_ID : $vm.vmData.U_ID,
+                            UD_DEPT : selectedItem[i].SUD_DEPT
+                        }
+                    });
+                }
+
+            }, function() {
+                // $log.info('Modal dismissed at: ' + new Date());
+            });
         }
     });
+
+    function LoadUserDept(){
+        RestfulApi.SearchMSSQLData({
+            querymain: 'account',
+            queryname: 'SelectUserDept',
+            params: {
+                UD_ID : $vm.vmData.U_ID
+            }
+        }).then(function (res){
+            console.log(res["returnData"]);
+            $vm.vmData.UserDept = res["returnData"];
+        });
+    };
 
     function ReturnToAccountManagementPage(){
         // if(_tasks.length > 0){
@@ -12855,6 +12986,64 @@ angular.module('app.settings').controller('AccountCtrl', function ($scope, $stat
 
     $ctrl.ok = function() {
         $uibModalInstance.close($ctrl.mdData.C_PW);
+    };
+
+    $ctrl.cancel = function() {
+        $uibModalInstance.dismiss('cancel');
+    };
+})
+.controller('AddUserDeptModalInstanceCtrl', function ($uibModalInstance, RestfulApi, $filter, $timeout, vmData) {
+    var $ctrl = this;
+    $ctrl.vmData = vmData;
+    $ctrl.mdData = [];
+
+    $ctrl.MdInit = function(){
+        RestfulApi.SearchMSSQLData({
+            querymain: 'account',
+            queryname: 'SelectSysUserDept',
+            params: {
+                SUD_STS : false
+            }
+        }).then(function (res){
+            console.log(res["returnData"]);
+            // console.log(res);
+            // 顯示所有帳號
+            $ctrl.mdData = res["returnData"];
+            // 把已被選取的帳號打勾
+            $timeout(function() {
+                if($ctrl.mdDataGridApi.selection.selectRow){
+                    // console.log($ctrl.vmData["UserGroup"]);
+                    for(var i in $ctrl.vmData["UserDept"]){
+                        $ctrl.mdDataGridApi.selection.selectRow($filter('filter')($ctrl.mdData, {SUD_DEPT: $ctrl.vmData["UserDept"][i].SUD_DEPT})[0]);
+                    }
+                }
+            });
+        });
+    }
+
+    $ctrl.mdDataOptions = {
+        data:  '$ctrl.mdData',
+        columnDefs: [
+            { name: 'SUD_DEPT'  ,  displayName: '部門代號'},
+            { name: 'SUD_DLVL'  ,  displayName: '部門層級'},
+            { name: 'SUD_DPATH' ,  displayName: '層級路徑'},
+            { name: 'SUD_NAME'  ,  displayName: '部門名稱'}
+        ],
+        enableSorting: false,
+        enableColumnMenus: false,
+        enableFiltering: true,
+        enableRowSelection: true,
+        enableSelectAll: true,
+        selectionRowHeaderWidth: 35,
+        paginationPageSizes: [10, 25, 50],
+        paginationPageSize: 10,
+        onRegisterApi: function(gridApi){ 
+            $ctrl.mdDataGridApi = gridApi;
+        } 
+    };
+
+    $ctrl.ok = function() {
+        $uibModalInstance.close($ctrl.mdDataGridApi.selection.getSelectedRows());
     };
 
     $ctrl.cancel = function() {
@@ -13000,7 +13189,6 @@ angular.module('app.settings').controller('GroupCtrl', function ($scope, $stateP
 
     $ctrl.MdInit = function(){
         RestfulApi.SearchMSSQLData({
-            crudType: 'Select',
             querymain: 'group',
             queryname: 'SelectAllUserInfoNotWithAdmin'
         }).then(function (res){
@@ -15042,6 +15230,97 @@ angular.module('SmartAdmin.UI').directive('smartTooltipHtml', function () {
     }
 );
 
+'use strict';
+
+angular.module('SmartAdmin.Forms').directive('smartCkEditor', function () {
+    return {
+        restrict: 'A',
+        compile: function ( tElement) {
+            tElement.removeAttr('smart-ck-editor data-smart-ck-editor');
+            //CKEDITOR.basePath = 'bower_components/ckeditor/';
+
+            CKEDITOR.replace( tElement.attr('name'), { height: '380px', startupFocus : true} );
+        }
+    }
+});
+'use strict';
+
+angular.module('SmartAdmin.Forms').directive('smartDestroySummernote', function () {
+    return {
+        restrict: 'A',
+        compile: function (tElement, tAttributes) {
+            tElement.removeAttr('smart-destroy-summernote data-smart-destroy-summernote')
+            tElement.on('click', function() {
+                angular.element(tAttributes.smartDestroySummernote).destroy();
+            })
+        }
+    }
+});
+
+'use strict';
+
+angular.module('SmartAdmin.Forms').directive('smartEditSummernote', function () {
+    return {
+        restrict: 'A',
+        compile: function (tElement, tAttributes) {
+            tElement.removeAttr('smart-edit-summernote data-smart-edit-summernote');
+            tElement.on('click', function(){
+                angular.element(tAttributes.smartEditSummernote).summernote({
+                    focus : true
+                });  
+            });
+        }
+    }
+});
+
+'use strict';
+
+angular.module('SmartAdmin.Forms').directive('smartMarkdownEditor', function () {
+    return {
+        restrict: 'A',
+        compile: function (element, attributes) {
+            element.removeAttr('smart-markdown-editor data-smart-markdown-editor')
+
+            var options = {
+                autofocus:false,
+                savable:true,
+                fullscreen: {
+                    enable: false
+                }
+            };
+
+            if(attributes.height){
+                options.height = parseInt(attributes.height);
+            }
+
+            element.markdown(options);
+        }
+    }
+});
+
+'use strict';
+
+angular.module('SmartAdmin.Forms').directive('smartSummernoteEditor', function (lazyScript) {
+    return {
+        restrict: 'A',
+        compile: function (tElement, tAttributes) {
+            tElement.removeAttr('smart-summernote-editor data-smart-summernote-editor');
+
+            var options = {
+                focus : true,
+                tabsize : 2
+            };
+
+            if(tAttributes.height){
+                options.height = tAttributes.height;
+            }
+
+            lazyScript.register('build/vendor.ui.js').then(function(){
+                tElement.summernote(options);                
+            });
+        }
+    }
+});
 "use strict";
 
 
@@ -15479,97 +15758,6 @@ angular.module('SmartAdmin.Forms').directive('bootstrapTogglingForm', function()
 
 
 
-});
-'use strict';
-
-angular.module('SmartAdmin.Forms').directive('smartCkEditor', function () {
-    return {
-        restrict: 'A',
-        compile: function ( tElement) {
-            tElement.removeAttr('smart-ck-editor data-smart-ck-editor');
-            //CKEDITOR.basePath = 'bower_components/ckeditor/';
-
-            CKEDITOR.replace( tElement.attr('name'), { height: '380px', startupFocus : true} );
-        }
-    }
-});
-'use strict';
-
-angular.module('SmartAdmin.Forms').directive('smartDestroySummernote', function () {
-    return {
-        restrict: 'A',
-        compile: function (tElement, tAttributes) {
-            tElement.removeAttr('smart-destroy-summernote data-smart-destroy-summernote')
-            tElement.on('click', function() {
-                angular.element(tAttributes.smartDestroySummernote).destroy();
-            })
-        }
-    }
-});
-
-'use strict';
-
-angular.module('SmartAdmin.Forms').directive('smartEditSummernote', function () {
-    return {
-        restrict: 'A',
-        compile: function (tElement, tAttributes) {
-            tElement.removeAttr('smart-edit-summernote data-smart-edit-summernote');
-            tElement.on('click', function(){
-                angular.element(tAttributes.smartEditSummernote).summernote({
-                    focus : true
-                });  
-            });
-        }
-    }
-});
-
-'use strict';
-
-angular.module('SmartAdmin.Forms').directive('smartMarkdownEditor', function () {
-    return {
-        restrict: 'A',
-        compile: function (element, attributes) {
-            element.removeAttr('smart-markdown-editor data-smart-markdown-editor')
-
-            var options = {
-                autofocus:false,
-                savable:true,
-                fullscreen: {
-                    enable: false
-                }
-            };
-
-            if(attributes.height){
-                options.height = parseInt(attributes.height);
-            }
-
-            element.markdown(options);
-        }
-    }
-});
-
-'use strict';
-
-angular.module('SmartAdmin.Forms').directive('smartSummernoteEditor', function (lazyScript) {
-    return {
-        restrict: 'A',
-        compile: function (tElement, tAttributes) {
-            tElement.removeAttr('smart-summernote-editor data-smart-summernote-editor');
-
-            var options = {
-                focus : true,
-                tabsize : 2
-            };
-
-            if(tAttributes.height){
-                options.height = tAttributes.height;
-            }
-
-            lazyScript.register('build/vendor.ui.js').then(function(){
-                tElement.summernote(options);                
-            });
-        }
-    }
 });
 'use strict';
 

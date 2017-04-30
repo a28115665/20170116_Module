@@ -20,8 +20,25 @@ angular.module('app.restful').config(function ($stateProvider){
 			views: {
 				"content@app" : {
 					templateUrl: 'app/Restful/views/test.html',
-                    controller: function ($scope, config, RestfulApi, ToolboxApi, Session, $filter) {
-                        
+                    controller: function ($scope, config, RestfulApi, ToolboxApi, Session, $filter, $http) {
+                        // $http({
+                        //     method: 'GET',
+                        //     url: 'http://10.1.21.22/EWSWS/WebServiceImport.asmx',
+                        //     params: [{ 
+                        //         "UserId": "Admin",
+                        //         "UserPW": "Admin#1",  
+                        //         "Nature": "電熱毯,服飾"
+                        //     }]
+                        // }).then(function successCallback(response) {
+                        //     // this callback will be called asynchronously
+                        //     // when the response is available
+                        //     console.log(response);
+                        // }, function errorCallback(response) {
+                        //     // called asynchronously if an error occurs
+                        //     // or server returns response with an error status.
+                        // });
+
+
                         var $vm = this;
 
                         angular.extend(this, {
