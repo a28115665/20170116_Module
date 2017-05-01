@@ -113,6 +113,170 @@ router.post('/uploadFile', function(req, res) {
 
 });
 
+router.get('/ComposeMenuFile', function(req, res) {
+    
+    req.query["querymain"] = 'ComposeMenu';
+    req.query["queryname"] = 'SelectMaxLvl';
+    //req.query["params"] = { "U_ID" : "Administrator" };
+
+    //取得最大層級是多少
+    // var maxLvlObj;
+    // var menuObj;//SelectMenu
+    
+    //maxLvl
+    dbCommand.SelectMethod(req.query["querymain"], req.query["queryname"], req.query["params"], function(err, maxLvlObj) {
+        if (err) {
+            //console.log(err);            
+            res.status(500).send('查詢失敗');
+        } else {
+            req.query["queryname"] = 'SelectSubsys';
+            //subsys
+            dbCommand.SelectMethod(req.query["querymain"], req.query["queryname"], req.query["params"], function(err, subsysObj) {
+                if (err) {
+                    //console.log(err);            
+                    res.status(500).send('查詢失敗');
+                } else {
+                    req.query["queryname"] = 'SelectProgm';
+                    //progm
+                    dbCommand.SelectMethod(req.query["querymain"], req.query["queryname"], req.query["params"], function(err, progmObj) {
+                        if (err) {
+                            //console.log(err);            
+                            res.status(500).send('查詢失敗');
+                        } else {
+
+                            if(maxLvlObj != undefined){
+                            //取得menu目前最深的階層
+                            var iMaxLvl = parseInt(maxLvlObj[0].MAXLVL);
+                            //有幾個子系統
+                            var sysCount = subsysObj.length;
+                            var progmCount = progmObj.length;
+
+                            //程式與系統物件
+                            var progItem = { items:[] };
+                            var sysItem = { items:[] };
+                            var tempItem ;
+                            
+                            //1.取得程式Array
+                            for(var iProgm = 0 ; iProgm < progmCount; iProgm++){
+                                tempItem = {};
+                                tempItem = {
+                                                "title": progmObj[iProgm].SP_PNAME,
+                                                "sref": progmObj[iProgm].PROG_PATH.toLowerCase(),
+                                                "icon": progmObj[iProgm].SP_ICON,
+                                                "lvl": progmObj[iProgm].SP_LVL,
+                                                "exsysId": progmObj[iProgm].SS_SYSID
+                                            };
+                                
+                                progItem.items.push(tempItem);
+                            }
+                            //2.取得系統Array
+                            var tmpExSubsys = '';
+                            for(var iSys = 0 ; iSys < sysCount; iSys++){
+                                //找出上一層的子系統
+                                tmpExSubsys = '';
+                                var lvl = parseInt(subsysObj[iSys].SS_LVL);
+                                var tmpSplitObj = subsysObj[iSys].SS_PATH.split('.');
+                                //若split後的長度與lvl相等，且長度大於1，取得前一層的子系統
+                                if(tmpSplitObj.length == lvl && tmpSplitObj.length > 1){
+                                    tmpExSubsys = tmpSplitObj[lvl-2];
+                                }
+
+                                tempItem = {};
+                                tempItem = {
+                                                "title": subsysObj[iSys].SS_NAME,
+                                                "href": "#",
+                                                "icon": subsysObj[iSys].SS_ICON,
+                                                "lvl": subsysObj[iSys].SS_LVL,
+                                                "sysId": subsysObj[iSys].SS_SYSID,
+                                                "exsysId": tmpExSubsys,
+                                                "items":[]
+                                            };
+                                sysItem.items.push(tempItem);
+                            }
+
+                            //3.將程式塞入對應的子系統
+                            var outputObj;
+                            for(var iLvl = iMaxLvl + 1 ; iLvl >= 1 ; iLvl--){
+                                for(var iProg = 0; iProg < progmCount ; iProg++){
+                                    for(var iSys = 0 ; iSys < sysCount; iSys++){
+                                        //找出最小的lvl 往上加
+                                        if(progItem.items[iProg].lvl == iLvl){
+                                            //若lvl-1等於前一子系統之lvl，且程式附屬的系統ID=系統ID，則將程式加入該系統
+                                            if((progItem.items[iProg].lvl - 1) == sysItem.items[iSys].lvl && 
+                                                progItem.items[iProg].exsysId == sysItem.items[iSys].sysId){
+                                                    var tmpObj = {
+                                                            "title": progItem.items[iProg].title,
+                                                            "sref": progItem.items[iProg].sref,
+                                                            "icon": progItem.items[iProg].icon                                                            
+                                                        };
+                                                    sysItem.items[iSys].items.push(tmpObj);
+                                                }
+                                        }//if end
+                                    }//for iSys end
+                                }//for iProg end
+                            }
+
+                            //4.將子系統塞入對應之item下，從最小的開始往上塞
+                            for(var iLvl = iMaxLvl ; iLvl >= 1 ; iLvl--){
+                                for(var iSys = 0 ; iSys < sysCount; iSys++){
+                                    for(var iSubsys = 0 ; iSubsys < sysCount; iSubsys++){
+                                        //從最小的開始往上塞
+                                        if(sysItem.items[iSubsys].lvl == iLvl){
+                                            if((sysItem.items[iSubsys].lvl - 1) == sysItem.items[iSys].lvl &&
+                                                sysItem.items[iSubsys].exsysId == sysItem.items[iSys].sysId){
+                                                    var tmpObj = {
+                                                            "title": sysItem.items[iSubsys].title,
+                                                            "href": "#",
+                                                            "icon": sysItem.items[iSubsys].icon,
+                                                            "items": sysItem.items[iSubsys].items
+                                                        };
+                                                    sysItem.items[iSys].items.push(tmpObj);
+                                                }
+                                        }
+
+                                    }//for iSubsys End
+                                }//for iSys End
+                            }//for lvl end
+
+                            //5.最後output資料
+                            var finalObj = { "items":sysItem.items[0].items};
+
+                            //寫檔
+                            // var fso = new ActiveXObject('Scripting.FileSystemObject');
+
+                            // var folder ='D:\\error-'+temp+'.txt';
+
+                            // var s = fso.CreateTextFile(folder, true);
+                            // s.WriteLine(text);
+                            // s.Close();
+
+                            
+                            res.header('Cache-Control', 'no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0')
+                            .status(200)
+                            .json({
+                                "returnData": finalObj
+                            });
+
+                            }//若有menu資料 end
+                            
+                        }//if end
+                    })//subsys data end
+                    
+                }
+            })//subsys data end
+
+            
+        }
+    })//maxLvl command end
+
+});
+
+
+
+
+
+
+
 function toArrayBuffer(buf) {
     var ab = new ArrayBuffer(buf.length);
     var view = new Uint8Array(ab);
