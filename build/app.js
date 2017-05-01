@@ -268,7 +268,8 @@ if (appConfig.voice_command) {
 /**
  * 畫面的語言
  */
-appConfig.view_lang = 'en';
+// appConfig.view_lang = 'en';
+appConfig.view_lang = 'tw';
 
 appConfig.apiRootUrl = 'api';
 
@@ -320,6 +321,7 @@ angular.module('app', [
     'ui.grid.pagination',
     'ui.grid.grouping',
     'ui.grid.pinning',
+    'ui.grid.autoResize',
     'ui.mask',
     'ui.tinymce',
     'angularFileUpload',
@@ -638,11 +640,11 @@ angular.module('app.auth', [
             root: {
                 templateUrl: 'app/auth/views/login.html',
                 controller: 'MainLoginCtrl',
-                controllerAs: 'mlVM'
+                controllerAs: '$vm'
             }
         },
         data: {
-            title: 'Login',
+            title: '登入',
             htmlId: 'extr-page'
         },
         resolve: {
@@ -747,11 +749,61 @@ angular.module('app.concerns').config(function ($stateProvider){
         views: {
             "content@app" : {
                 templateUrl: 'app/Concerns/views/ban.html',
-                controller: 'ConcernsBanCtrl',
+                controller: 'BanCtrl',
                 controllerAs: '$vm',
                 resolve: {
-                    billboardData: function () {
-                        return [];
+                    bool: function (SysCode, $q){
+
+                        var deferred = $q.defer();
+
+                        SysCode.get('Boolean').then(function (res){
+                            var finalData = [];
+
+                            for(var i in res){
+                                finalData.push({
+                                    value: (i == 'true'), 
+                                    key: res[i]
+                                });
+                            }
+
+                            deferred.resolve(finalData);
+                        });
+
+                        return deferred.promise;
+                    },
+                    boolFilter: function (SysCodeFilter){
+                        return SysCodeFilter.get('Boolean');
+                    },
+                    compy: function(RestfulApi, $q){
+
+                        var deferred = $q.defer();
+
+                        RestfulApi.SearchMSSQLData({
+                            querymain: 'externalManagement',
+                            queryname: 'SelectCompyInfo',
+                            params: {
+                                CO_STS : false
+                            }
+                        }).then(function (res){
+                            var data = res["returnData"],
+                                finalData = [];
+
+                            for(var i in data){
+                                // console.log(data[i]);
+                                var _name = data[i].CO_NAME == null ? '' : data[i].CO_NAME,
+                                    _addr = data[i].CO_ADDR == null ? '' : data[i].CO_ADDR;
+                                finalData.push({
+                                    // value: data[i].CO_CODE, 
+                                    // 因Table存字串，所以用name
+                                    value: _name,
+                                    key: _name + ' - ' + _addr
+                                });
+                            }
+
+                            deferred.resolve(finalData);
+                        })
+
+                        return deferred.promise;
                     }
                 }
             }
@@ -766,12 +818,10 @@ angular.module('app.concerns').config(function ($stateProvider){
         views: {
             "content@app" : {
                 templateUrl: 'app/Concerns/views/dailyAlert.html',
-                controller: 'ConcernsDailyAlertCtrl',
+                controller: 'DailyAlertCtrl',
                 controllerAs: '$vm',
                 resolve: {
-                    // billboardData: function () {
-                    //     return [];
-                    // }
+                    
                 }
             }
         }
@@ -1545,8 +1595,25 @@ angular.module('app.restful').config(function ($stateProvider){
 			views: {
 				"content@app" : {
 					templateUrl: 'app/Restful/views/test.html',
-                    controller: function ($scope, config, RestfulApi, ToolboxApi, Session, $filter) {
-                        
+                    controller: function ($scope, config, RestfulApi, ToolboxApi, Session, $filter, $http) {
+                        // $http({
+                        //     method: 'GET',
+                        //     url: 'http://10.1.21.22/EWSWS/WebServiceImport.asmx',
+                        //     params: [{ 
+                        //         "UserId": "Admin",
+                        //         "UserPW": "Admin#1",  
+                        //         "Nature": "電熱毯,服飾"
+                        //     }]
+                        // }).then(function successCallback(response) {
+                        //     // this callback will be called asynchronously
+                        //     // when the response is available
+                        //     console.log(response);
+                        // }, function errorCallback(response) {
+                        //     // called asynchronously if an error occurs
+                        //     // or server returns response with an error status.
+                        // });
+
+
                         var $vm = this;
 
                         angular.extend(this, {
@@ -1855,6 +1922,40 @@ angular.module('app.selfwork').config(function ($stateProvider){
         }
     })
 
+    .state('app.selfwork.compydistribution', {
+        url: '/selfwork/compydistribution',
+        data: {
+            title: 'CompyDistribution'
+        },
+        views: {
+            "content@app" : {
+                templateUrl: 'app/SelfWork/views/leaderOption/compyDistribution.html',
+                controller: 'CompyDistributionCtrl',
+                controllerAs: '$vm',
+                resolve: {
+                    
+                }
+            }
+        }
+    })
+
+    .state('app.selfwork.leaderjobs', {
+        url: '/selfwork/leaderjobs',
+        data: {
+            title: 'LeaderJobs'
+        },
+        views: {
+            "content@app" : {
+                templateUrl: 'app/SelfWork/views/LeaderJobs.html',
+                controller: 'LeaderJobsCtrl',
+                controllerAs: '$vm',
+                resolve: {
+                    
+                }
+            }
+        }
+    })
+
     .state('app.selfwork.employeejobs', {
         url: '/selfwork/employeejobs',
         data: {
@@ -2020,6 +2121,7 @@ angular.module('app.settings').config(function ($stateProvider){
                 controller: 'AccountManagementCtrl',
                 controllerAs: '$vm',
                 resolve: {
+                    // Grid的篩選條件
                     boolFilter: function (SysCodeFilter){
                         return SysCodeFilter.get('Boolean');
                     },
@@ -2029,8 +2131,8 @@ angular.module('app.settings').config(function ($stateProvider){
                     roleFilter: function (SysCodeFilter){
                         return SysCodeFilter.get('Role');
                     },
-                    jobFilter: function (SysCodeFilter){
-                        return SysCodeFilter.get('Job');
+                    gradeFilter: function (UserGradeFilter){
+                        return UserGradeFilter.get();
                     }
                 }
             }
@@ -2070,14 +2172,36 @@ angular.module('app.settings').config(function ($stateProvider){
 
                         return deferred.promise;
                     },
-                    depart: function (SysCode){
-                        return SysCode.get('Depart');
+                    depart: function (RestfulApi, $q){
+
+                        var deferred = $q.defer();
+            
+                        RestfulApi.SearchMSSQLData({
+                            querymain: 'account',
+                            queryname: 'SelectSysUserDept',
+                            params: {
+                                SUD_STS : false
+                            }
+                        }).then(function (res){
+                            var data = res["returnData"] || [],
+                                finalData = {};
+
+                            for(var i in data){
+                                finalData[data[i].SUD_DEPT] = data[i].SUD_NAME
+                            }
+                            
+                            deferred.resolve(finalData);
+                        }, function (err){
+                            deferred.reject({});
+                        });
+                        
+                        return deferred.promise;
                     },
                     role : function (SysCode){
                         return SysCode.get('Role');
                     },
-                    job : function (SysCode){
-                        return SysCode.get('Job');
+                    grade : function (UserGrade){
+                        return UserGrade.get();
                     }
                 }
             }
@@ -2894,6 +3018,22 @@ angular.module('app')
         }
     };
 })
+/**  
+ * Convert Number to String.  
+ */
+.directive('convertToNumber', function() {
+    return {
+        require: 'ngModel',
+        link: function(scope, element, attrs, ngModel) {
+            ngModel.$parsers.push(function(val) {
+                return val != null ? parseInt(val, 10) : null;
+            });
+            ngModel.$formatters.push(function(val) {
+                return val != null ? '' + val : null;
+            });
+        }
+    };
+})
 angular.module('app')
 .factory('Session', function ($rootScope, $http) {
     var session = {};
@@ -2954,7 +3094,9 @@ angular.module('app')
 })
 .factory('SysCode', SysCodeResolve)
 .factory('SysCodeFilter', SysCodeFilterResolve)
-.factory('CompyFilter', CompyFilterResolve)
+.factory('Compy', CompyResolve)
+.factory('UserGrade', UserGradeResolve)
+.factory('UserGradeFilter', UserGradeFilterResolve)
 
 angular.module('app')
 .filter('booleanFilter', function (SysCode) {
@@ -3066,11 +3208,35 @@ angular.module('app')
 	return FilterFunction;
 
 })
-.filter('compyFilter', function (CompyFilter) {
+.filter('compyFilter', function (Compy) {
 
 	var resData = {};
 
-	CompyFilter.get().then(function (res){
+	Compy.get().then(function (res){
+		resData = res
+	});
+
+	var FilterFunction = function (input){
+
+		if (!input) {
+		    return '';
+		} else {
+		    return resData[input];
+		}
+
+	}
+
+	// 持續偵測
+	FilterFunction.$stateful = true;
+
+	return FilterFunction;
+
+})
+.filter('gradeFilter', function (UserGrade) {
+
+	var resData = {};
+
+	UserGrade.get().then(function (res){
 		resData = res
 	});
 
@@ -3183,7 +3349,7 @@ function SysCodeFilterResolve (RestfulApi, $q){
         }
     };
 };
-function CompyFilterResolve (RestfulApi, $q){
+function CompyResolve (RestfulApi, $q){
     return {
         get : function(){
             var deferred = $q.defer();
@@ -3202,6 +3368,65 @@ function CompyFilterResolve (RestfulApi, $q){
                     finalData[data[i].CO_CODE] = data[i].CO_NAME
                 }
                 
+                deferred.resolve(finalData);
+            }, function (err){
+                deferred.reject({});
+            });
+            
+            return deferred.promise;
+        }
+    };
+};
+function UserGradeResolve (RestfulApi, $q){
+    return {
+        get : function(){
+            var deferred = $q.defer();
+            
+            RestfulApi.SearchMSSQLData({
+                querymain: 'account',
+                queryname: 'SelectSysUserGrade',
+                params: {
+                    SUG_STS : false
+                }
+            }).then(function (res){
+                var data = res["returnData"] || [],
+                    finalData = {};
+
+                for(var i in data){
+                    finalData[data[i].SUG_GRADE] = data[i].SUG_NAME
+                }
+                
+                deferred.resolve(finalData);
+            }, function (err){
+                deferred.reject({});
+            });
+            
+            return deferred.promise;
+        }
+    };
+};
+function UserGradeFilterResolve (RestfulApi, $q){
+    return {
+        get : function(){
+            var deferred = $q.defer();
+            
+            RestfulApi.SearchMSSQLData({
+                querymain: 'account',
+                queryname: 'SelectSysUserGrade',
+                params: {
+                    SUG_STS : false
+                }
+            }).then(function (res){
+                var data = res["returnData"] || [],
+                    finalData = [];
+
+                for(var i in data){
+                    finalData.push({
+                        value: data[i].SUG_GRADE,
+                        label: data[i].SUG_NAME
+                    });
+                }
+
                 deferred.resolve(finalData);
             }, function (err){
                 deferred.reject({});
@@ -3425,8 +3650,14 @@ angular.module('app')
                                           </div>');
 	$templateCache.put('accessibilityToCB', '<div class="ui-grid-cell-contents text-center">\
                                             <a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethod.changeNature(row)"> 改單</a>\
-                                    				<a href="javascript:void(0);" class="btn btn-primary btn-xs" ng-click="grid.appScope.$vm.gridMethod.banData(row)"> 加入黑名單</a>\
+                                    				<a href="javascript:void(0);" class="btn btn-primary btn-xs" ng-click="grid.appScope.$vm.gridMethod.banData(row)" ng-class="row.entity.BLFO_TRACK != null ? \'disabled\' : \'\'"> 加入黑名單</a>\
                                		  		  </div>');
+    $templateCache.put('accessibilityToMForBLFO', '<div class="ui-grid-cell-contents text-center">\
+                                            <a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethodForBLFO.modifyData(row)"> {{$parent.$root.getWord(\'Modify\')}}</a>\
+                                          </div>');
+    $templateCache.put('accessibilityToMForBLFL', '<div class="ui-grid-cell-contents text-center">\
+                                            <a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethodForBLFL.modifyData(row)"> {{$parent.$root.getWord(\'Modify\')}}</a>\
+                                          </div>');
     $templateCache.put('accessibilityToMDForAccount', '<div class="ui-grid-cell-contents text-center">\
                                             <a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridAccountMethod.modifyData(row)"> {{$parent.$root.getWord(\'Modify\')}}</a>\
                                             <a href="javascript:void(0);" class="btn btn-danger btn-xs" ng-click="grid.appScope.$vm.gridAccountMethod.deleteData(row)"> {{$parent.$root.getWord(\'Delete\')}}</a>\
@@ -4069,14 +4300,14 @@ angular.module('app.appViews').controller('ProjectsDemoCtrl', function ($scope, 
 
 angular.module('app.auth').controller('MainLoginCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, RestfulApi) {
 
-    $scope.Login = function(mlVM){
-        console.log(mlVM);
+    $scope.Login = function($vm){
+        // console.log($vm);
         AuthApi.Login({
             querymain: 'accountManagement',
             queryname: 'SelectAllUserInfo',
             params: {
-                U_ID : mlVM.userid,
-                U_PW : mlVM.password
+                U_ID : $vm.userid,
+                U_PW : $vm.password
             }
         }).then(function(res) {
             console.log(res);
@@ -4381,255 +4612,599 @@ angular.module('app.calendar').factory('CalendarEvent', function($resource, APP_
 });
 "use strict";
 
-angular.module('app.concerns').controller('ConcernsBanCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache) {
+angular.module('app.concerns').controller('BanCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, RestfulApi, $filter, uiGridConstants, bool, boolFilter, compy) {
     
     var $vm = this;
 
 	angular.extend(this, {
-        profile : Session.Get(),
-        searchCondition : {
-        	startDate : new Date(),
-        	endDate : new Date(),
+        Init : function(){
+            $scope.ShowTabs = true;
+            $vm.LoadData();
         },
-        defaultChoice : 'Left',
-        gridMethod : {
-            //退件
-            rejectData : function(row){
-                console.log(row);
-            },
-            //編輯
-            modifyData : function(row){
-                console.log(row);
-                $state.transitionTo("app.selfwork.jobs.editorjob", {
-                    data: {
-                      id: 5,
-                      blue: '#0000FF'
-                    }
-                });
-            },
-            //結單
-            closeData : function(row){
-                console.log(row);
+        profile : Session.Get(),
+        defaultTab : 'hr1',
+        TabSwitch : function(pTabID){
+            return pTabID == $vm.defaultTab ? 'active' : '';
+        },
+        LoadData : function(){
+            console.log($vm.defaultTab);
+            switch($vm.defaultTab){
+                case 'hr1':
+                    LoadBLFO();
+                    break;
+                case 'hr2':
+                    LoadBLFL();
+                    break;
             }
         },
-        banOptions : {
-            data:  [
-                {
-                    a : '龍邦',
-                    b : '臺灣新北市'
-                },
-                {
-                    a : '龍潭',
-                    b : '臺灣桃園'
-                }
-            ],
+        gridMethodForBLFO : {
+            // 編輯
+            modifyData : function(row){
+                console.log(row);
+
+                var modalInstance = $uibModal.open({
+                    animation: true,
+                    ariaLabelledBy: 'modal-title',
+                    ariaDescribedBy: 'modal-body',
+                    templateUrl: 'banMemberByOPModalContent.html',
+                    controller: 'BanMemberByOPModalInstanceCtrl',
+                    controllerAs: '$ctrl',
+                    // size: 'lg',
+                    // appendTo: parentElem,
+                    resolve: {
+                        vmData: function() {
+                            return row.entity;
+                        },
+                        bool: function() {
+                            return bool;
+                        }
+                    }
+                });
+
+                modalInstance.result.then(function(selectedItem) {
+                    console.log(selectedItem);
+
+                    RestfulApi.UpdateMSSQLData({
+                        updatename: 'Update',
+                        table: 13,
+                        params: {
+                            BLFO_TRACK       : selectedItem.BLFO_TRACK,
+                            BLFO_UP_USER     : $vm.profile.U_ID,
+                            BLFO_UP_DATETIME : $filter('date')(new Date, 'yyyy-MM-dd HH:mm:ss')
+                        },
+                        condition: {
+                            BLFO_SEQ        : selectedItem.BLFO_SEQ,
+                            BLFO_ORDERINDEX : selectedItem.BLFO_ORDERINDEX,
+                            BLFO_NEWSMALLNO : selectedItem.BLFO_NEWSMALLNO,
+                            BLFO_NEWBAGNO   : selectedItem.BLFO_NEWBAGNO
+                        }
+                    }).then(function (res) {
+
+                        LoadBLFO();
+
+                    }, function (err) {
+
+                    });
+
+                }, function() {
+                    // $log.info('Modal dismissed at: ' + new Date());
+                });
+            }
+        },
+        blfoOptions : {
+            data: '$vm.blfoData',
             columnDefs: [
-                { name: 'a',        displayName: '關注人名' },
-                { name: 'b',        displayName: '關注地址' },
-                { name: 'options',  displayName: '操作', width: '100', cellTemplate: $templateCache.get('accessibilityToMD') }
+                { name: 'IL_SENDNAME'   , displayName: '寄件人公司' },
+                { name: 'IL_GETNAME'    , displayName: '收件人或公司' },
+                { name: 'IL_GETADDRESS' , displayName: '收件人地址' },
+                { name: 'IL_GETTEL'     , displayName: '收件人電話' },
+                { name: 'BLFO_TRACK'    , displayName: '追蹤', cellFilter: 'booleanFilter', filter: 
+                    {
+                        term: null,
+                        type: uiGridConstants.filter.SELECT,
+                        selectOptions: boolFilter
+                    }
+                },
+                { name: 'Options',  displayName: '操作', width: '100', enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToMForBLFO') }
             ],
-            enableFiltering: false,
+            enableFiltering: true,
             enableSorting: false,
             enableColumnMenus: false,
             // enableVerticalScrollbar: false,
             paginationPageSizes: [10, 25, 50],
-            paginationPageSize: 10
+            paginationPageSize: 10,
+            onRegisterApi: function(gridApi){
+                $vm.blfoGridApi = gridApi;
+            }
         },
-        AddBanMember : function() {
-
+        DeleteBLFO : function(){
             var modalInstance = $uibModal.open({
                 animation: true,
                 ariaLabelledBy: 'modal-title',
                 ariaDescribedBy: 'modal-body',
-                templateUrl: 'addBanMemberModalContent.html',
-                controller: 'AddBanMemberModalInstanceCtrl',
+                templateUrl: 'isDelete.html',
+                controller: 'IsDeleteModalInstanceCtrl',
                 controllerAs: '$ctrl',
-                // size: 'lg',
-                // appendTo: parentElem,
+                size: 'sm',
+                resolve: {
+                    items: function () {
+                        return $vm.blfoGridApi.selection.getSelectedRows();
+                    }
+                }
             });
 
             modalInstance.result.then(function(selectedItem) {
                 console.log(selectedItem);
 
+                var _tasks = [];
+
+                for(var i in selectedItem){
+                    _tasks.push({
+                        crudType: 'Delete',
+                        table: 13,
+                        params: {
+                            BLFO_SEQ : selectedItem[i].BLFO_SEQ,
+                            BLFO_NEWBAGNO : selectedItem[i].BLFO_NEWBAGNO,
+                            BLFO_NEWSMALLNO : selectedItem[i].BLFO_NEWSMALLNO,
+                            BLFO_ORDERINDEX : selectedItem[i].BLFO_ORDERINDEX
+                        }
+                    });
+                }
+
+                RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res) {
+                    toaster.pop('success', '訊息', '名單成員刪除成功', 3000);
+                    LoadBLFO();
+                }, function (err) {
+
+                });
+            }, function() {
+                // $log.info('Modal dismissed at: ' + new Date());
+            });
+        },
+        gridMethodForBLFL : {
+            // 編輯
+            modifyData : function(row){
+                console.log(row);
+
+                var modalInstance = $uibModal.open({
+                    animation: true,
+                    ariaLabelledBy: 'modal-title',
+                    ariaDescribedBy: 'modal-body',
+                    templateUrl: 'banMemberByLeaderModalContent.html',
+                    controller: 'BanMemberByLeaderModalInstanceCtrl',
+                    controllerAs: '$ctrl',
+                    // size: 'lg',
+                    // appendTo: parentElem,
+                    resolve: {
+                        vmData: function() {
+                            return row.entity;
+                        },
+                        bool: function() {
+                            return bool;
+                        }
+                    }
+                });
+
+                modalInstance.result.then(function(selectedItem) {
+                    console.log(selectedItem);
+
+                    RestfulApi.UpdateMSSQLData({
+                        updatename: 'Update',
+                        table: 12,
+                        params: {
+                            BLFL_SENDNAME    : selectedItem.BLFL_SENDNAME,
+                            BLFL_GETNAME     : selectedItem.BLFL_GETNAME,
+                            BLFL_GETADDRESS  : selectedItem.BLFL_GETADDRESS,
+                            BLFL_GETTEL      : selectedItem.BLFL_GETTEL,
+                            BLFL_TRACK       : selectedItem.BLFL_TRACK,
+                            BLFL_UP_USER     : $vm.profile.U_ID,
+                            BLFL_UP_DATETIME : $filter('date')(new Date, 'yyyy-MM-dd HH:mm:ss')
+                        },
+                        condition: {
+                            BLFL_ID : selectedItem.BLFL_ID
+                        }
+                    }).then(function (res) {
+
+                        LoadBLFL();
+
+                    }, function (err) {
+
+                    });
+
+                }, function() {
+                    // $log.info('Modal dismissed at: ' + new Date());
+                });
+            }
+        },
+        blflOptions : {
+            data:  '$vm.blflData',
+            columnDefs: [
+                { name: 'BLFL_SENDNAME'   , displayName: '寄件人公司' },
+                { name: 'BLFL_GETNAME'    , displayName: '收件人或公司' },
+                { name: 'BLFL_GETADDRESS' , displayName: '收件人地址' },
+                { name: 'BLFL_GETTEL'     , displayName: '收件人電話' },
+                { name: 'BLFL_TRACK'      , displayName: '追蹤', cellFilter: 'booleanFilter', filter: 
+                    {
+                        term: null,
+                        type: uiGridConstants.filter.SELECT,
+                        selectOptions: boolFilter
+                    }
+                },
+                { name: 'options',  displayName: '操作', width: '100', enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToMForBLFL') }
+            ],
+            enableFiltering: true,
+            enableSorting: false,
+            enableColumnMenus: false,
+            // enableVerticalScrollbar: false,
+            paginationPageSizes: [10, 25, 50],
+            paginationPageSize: 10,
+            onRegisterApi: function(gridApi){
+                $vm.blflGridApi = gridApi;
+            }
+        },
+        AddBLFL : function() {
+
+            var modalInstance = $uibModal.open({
+                animation: true,
+                ariaLabelledBy: 'modal-title',
+                ariaDescribedBy: 'modal-body',
+                templateUrl: 'banMemberByLeaderModalContent.html',
+                controller: 'BanMemberByLeaderModalInstanceCtrl',
+                controllerAs: '$ctrl',
+                // size: 'lg',
+                // appendTo: parentElem,
+                resolve: {
+                    vmData: function() {
+                        return {
+                            BLFL_TRACK : true
+                        };
+                    },
+                    bool: function() {
+                        return bool;
+                    }
+                }
+            });
+
+            modalInstance.result.then(function(selectedItem) {
+                console.log(selectedItem);
+
+                RestfulApi.InsertMSSQLData({
+                    insertname: 'Insert',
+                    table: 12,
+                    params: {
+                        BLFL_SENDNAME    : selectedItem.BLFL_SENDNAME,
+                        BLFL_GETNAME     : selectedItem.BLFL_GETNAME,
+                        BLFL_GETADDRESS  : selectedItem.BLFL_GETADDRESS,
+                        BLFL_GETTEL      : selectedItem.BLFL_GETTEL,
+                        BLFL_TRACK       : selectedItem.BLFL_TRACK,
+                        BLFL_CR_USER     : $vm.profile.U_ID,
+                        BLFL_CR_DATETIME : $filter('date')(new Date, 'yyyy-MM-dd HH:mm:ss')
+                    }
+                }).then(function(res) {
+                    // console.log(res);
+
+                    LoadBLFL();
+
+                    // $state.reload()
+                });
+            }, function() {
+                // $log.info('Modal dismissed at: ' + new Date());
+            });
+        },
+        DeleteBLFL : function(){
+            console.log($vm.blflGridApi.selection.getSelectedRows());
+
+            var modalInstance = $uibModal.open({
+                animation: true,
+                ariaLabelledBy: 'modal-title',
+                ariaDescribedBy: 'modal-body',
+                templateUrl: 'isDelete.html',
+                controller: 'IsDeleteModalInstanceCtrl',
+                controllerAs: '$ctrl',
+                size: 'sm',
+                resolve: {
+                    items: function () {
+                        return $vm.blflGridApi.selection.getSelectedRows();
+                    }
+                }
+            });
+
+            modalInstance.result.then(function(selectedItem) {
+                console.log(selectedItem);
+
+                var _tasks = [];
+
+                for(var i in selectedItem){
+                    _tasks.push({
+                        crudType: 'Delete',
+                        table: 12,
+                        params: {
+                            BLFL_ID : selectedItem[i].BLFL_ID
+                        }
+                    });
+                }
+
+                RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res) {
+                    toaster.pop('success', '訊息', '名單成員刪除成功', 3000);
+                    LoadBLFL();
+                }, function (err) {
+
+                });
             }, function() {
                 // $log.info('Modal dismissed at: ' + new Date());
             });
         }
     });
+
+    function LoadBLFO(){
+        RestfulApi.SearchMSSQLData({
+            querymain: 'ban',
+            queryname: 'SelectBLFO'
+        }).then(function (res){
+            console.log(res["returnData"]);
+            $vm.blfoData = res["returnData"];
+        }).finally(function() {
+            HandleWindowResize($vm.blfoGridApi);
+        }); 
+    }
+
+    function LoadBLFL(){
+        RestfulApi.SearchMSSQLData({
+            querymain: 'ban',
+            queryname: 'SelectBLFL'
+        }).then(function (res){
+            console.log(res["returnData"]);
+            $vm.blflData = res["returnData"];
+        }).finally(function() {
+            HandleWindowResize($vm.blflGridApi);
+        }); 
+    }
+
 })
-.controller('AddBanMemberModalInstanceCtrl', function ($uibModalInstance) {
+.controller('BanMemberByOPModalInstanceCtrl', function ($uibModalInstance, vmData, bool) {
     var $ctrl = this;
+    $ctrl.bool = bool;
+    $ctrl.mdData = vmData;
+
+    /**
+     * [CheckEmpty description]
+     * 檢核
+     */
+    // $ctrl.CheckEmpty = function() {
+    //     var _flag = true;
+
+    //     if(!angular.equals($ctrl.mdData['SendName'], '') && !angular.isUndefined($ctrl.mdData['SendName'])) _flag = false;
+    //     if(!angular.equals($ctrl.mdData['GetName'], '') && !angular.isUndefined($ctrl.mdData['GetName'])) _flag = false;
+    //     if(!angular.equals($ctrl.mdData['GetAddress'], '') && !angular.isUndefined($ctrl.mdData['GetAddress'])) _flag = false;
+
+    //     return _flag;
+    // };
 
     $ctrl.ok = function() {
-        $uibModalInstance.close($ctrl.items);
+        $uibModalInstance.close($ctrl.mdData);
     };
 
     $ctrl.cancel = function() {
         $uibModalInstance.dismiss('cancel');
     };
 })
+.controller('BanMemberByLeaderModalInstanceCtrl', function ($uibModalInstance, vmData, bool) {
+    var $ctrl = this;
+    $ctrl.bool = bool;
+    $ctrl.mdData = vmData;
+
+    /**
+     * [CheckEmpty description]
+     * 檢核
+     */
+    // $ctrl.CheckEmpty = function() {
+    //     var _flag = true;
+
+    //     if(!angular.equals($ctrl.mdData['SendName'], '') && !angular.isUndefined($ctrl.mdData['SendName'])) _flag = false;
+    //     if(!angular.equals($ctrl.mdData['GetName'], '') && !angular.isUndefined($ctrl.mdData['GetName'])) _flag = false;
+    //     if(!angular.equals($ctrl.mdData['GetAddress'], '') && !angular.isUndefined($ctrl.mdData['GetAddress'])) _flag = false;
+
+    //     return _flag;
+    // };
+
+    $ctrl.ok = function() {
+        $uibModalInstance.close($ctrl.mdData);
+    };
+
+    $ctrl.cancel = function() {
+        $uibModalInstance.dismiss('cancel');
+    };
+});
 "use strict";
 
-angular.module('app.concerns').controller('ConcernsDailyAlertCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, $timeout) {
+angular.module('app.concerns').controller('DailyAlertCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, $timeout, RestfulApi) {
     
-    var $vm = this;
+    var $vm = this,
+        columnDefs = [
+            { name: 'BAN_TYPE'      , displayName: '名單類型', width: 100 },
+            { name: 'IL_G1'         , displayName: '報關種類', width: 154 },
+            { name: 'IL_MERGENO'    , displayName: '併票號', width: 129 },
+            { name: 'IL_BAGNO'      , displayName: '袋號', width: 129 },
+            { name: 'IL_SMALLNO'    , displayName: '小號', width: 115 },
+            { name: 'IL_NATURE'     , displayName: '品名', width: 115 },
+            { name: 'IL_NATURE_NEW' , displayName: '新品名', width: 115 },
+            { name: 'IL_CTN'        , displayName: '件數', width: 115 },
+            { name: 'IL_PLACE'      , displayName: '產地', width: 115 },
+            { name: 'IL_WEIGHT'     , displayName: '重量', width: 115 },
+            { name: 'IL_WEIGHT_NEW' , displayName: '更改後重量', width: 115 },
+            { name: 'IL_PCS'        , displayName: '數量', width: 115 },
+            { name: 'IL_UNIT'       , displayName: '單位', width: 115 },
+            { name: 'IL_GETNO'      , displayName: '收件者統編', width: 115 },
+            { name: 'IL_SENDNAME'   , displayName: '寄件人或公司', width: 115 },
+            { name: 'IL_GETNAME'    , displayName: '收件人公司', width: 115 },
+            { name: 'IL_GETADDRESS' , displayName: '收件地址', width: 300 },
+            { name: 'IL_GETTEL'     , displayName: '收件電話', width: 115 },
+            { name: 'IL_UNIVALENT'  , displayName: '單價', width: 115 },
+            { name: 'IL_FINALCOST'  , displayName: '完稅價格', width: 115 },
+            { name: 'IL_TAX'        , displayName: '稅則', width: 115 },
+            { name: 'IL_TRCOM'      , displayName: '派送公司', width: 115 }
+        ];
 
 	angular.extend(this, {
+        Init : function(){
+            $scope.ShowTabs = true;
+            $vm.LoadData();
+            LoadILCount();
+        },
         profile : Session.Get(),
-        dailyAlertPersonOptions : {
-            data:  [
-                {
-                    a : '2017-02-09',
-                    b : '297-64659291',
-                    c : '2017-01-15',
-                    d : 'CI5822',
-                    e : 'HK',
-                    f : '0A4JV163',
-                    g : '9577943094',
-                    h : '夹3饰品3纸袋3',
-                    i : '亞瑟仕',
-                    j : '許依琪',
-                    k : '台北市中山區新生北路二段60巷42號7樓',
-                    l : '0975356060',
-                    m : '不包稅',
-                    n : '黑貓'
-                },
-            ],
-            columnDefs: [
-                { name: 'a', displayName: '提單日期', width: 115 },
-                { name: 'b', displayName: '主號', width: 115 },
-                { name: 'c', displayName: '進口日期', width: 115 },
-                { name: 'd', displayName: '班機', width: 115 },
-                { name: 'e', displayName: '啟運國別', width: 115 },
-                { name: 'f', displayName: '清關條碼(袋號)', width: 129 },
-                { name: 'g', displayName: '提單號(小號)', width: 115 },
-                { name: 'h', displayName: '品名', width: 115 },
-                { name: 'i', displayName: '寄件人或公司', width: 115 },
-                { name: 'j', displayName: '收件人或公司', width: 115 },
-                { name: 'k', displayName: '收件地址', width: 300 },
-                { name: 'l', displayName: '收件電話', width: 115 },
-                { name: 'm', displayName: '是否包稅', width: 115 },
-                { name: 'n', displayName: '派送公司', width: 115 }
-            ],
-            enableFiltering: false,
-            enableSorting: false,
+        defaultTab : 'hr1',
+        TabSwitch : function(pTabID){
+            return pTabID == $vm.defaultTab ? 'active' : '';
+        },
+        LoadData : function(){
+            console.log($vm.defaultTab);
+            switch($vm.defaultTab){
+                case 'hr1':
+                    LoadCaseA();
+                    break;
+                case 'hr2':
+                    LoadCaseB();
+                    break;
+                case 'hr3':
+                    LoadCaseC();
+                    break;
+                case 'hr4':
+                    LoadCaseD();
+                    break;
+            }
+        },
+        caseAOptions : {
+            data:  '$vm.caseAData',
+            columnDefs: columnDefs,
+            enableFiltering: true,
+            enableSorting: true,
             enableColumnMenus: false,
             // enableVerticalScrollbar: false,
             paginationPageSizes: [10, 25, 50],
             paginationPageSize: 10,
             onRegisterApi: function(gridApi){
-                $vm.dailyAlertPersonGridApi = gridApi;
+                $vm.caseAGridApi = gridApi;
             }
         },
-        dailyAlertAddressOptions : {
-            data:  [
-                {
-                    a : '2017-02-09',
-                    b : '297-64659291',
-                    c : '2017-01-15',
-                    d : 'CI5822',
-                    e : 'HK',
-                    f : '0A4JV163',
-                    g : '9577943094',
-                    h : '夹3饰品3纸袋3',
-                    i : '亞瑟仕',
-                    j : '林思晴',
-                    k : '高雄市鳳山區凱旋路182號',
-                    l : '0927282581',
-                    m : '不包稅',
-                    n : '黑貓'
-                }
-            ],
-            columnDefs: [
-                { name: 'a', displayName: '提單日期', width: 115 },
-                { name: 'b', displayName: '主號', width: 115 },
-                { name: 'c', displayName: '進口日期', width: 115 },
-                { name: 'd', displayName: '班機', width: 115 },
-                { name: 'e', displayName: '啟運國別', width: 115 },
-                { name: 'f', displayName: '清關條碼(袋號)', width: 129 },
-                { name: 'g', displayName: '提單號(小號)', width: 115 },
-                { name: 'h', displayName: '品名', width: 115 },
-                { name: 'i', displayName: '寄件人或公司', width: 115 },
-                { name: 'j', displayName: '收件人或公司', width: 115 },
-                { name: 'k', displayName: '收件地址', width: 300 },
-                { name: 'l', displayName: '收件電話', width: 115 },
-                { name: 'm', displayName: '是否包稅', width: 115 },
-                { name: 'n', displayName: '派送公司', width: 115 }
-            ],
-            enableFiltering: false,
-            enableSorting: false,
+        caseBOptions : {
+            data:  '$vm.caseBData',
+            columnDefs: columnDefs,
+            enableFiltering: true,
+            enableSorting: true,
             enableColumnMenus: false,
             // enableVerticalScrollbar: false,
             paginationPageSizes: [10, 25, 50],
             paginationPageSize: 10,
             onRegisterApi: function(gridApi){
-                $vm.dailyAlertAddressGridApi = gridApi;
+                $vm.caseBGridApi = gridApi;
             }
         },
-        dailyAlertPAndAOptions : {
-            data:  [
-                {
-                    a : '2017-02-09',
-                    b : '297-64659291',
-                    c : '2017-01-15',
-                    d : 'CI5822',
-                    e : 'HK',
-                    f : '0A4JV163',
-                    g : '9577943094',
-                    h : '夹3饰品3纸袋3',
-                    i : '亞瑟仕',
-                    j : '林思晴',
-                    k : '高雄市鳳山區凱旋路182號',
-                    l : '0927282581',
-                    m : '不包稅',
-                    n : '黑貓'
-                },
-                {
-                    a : '2017-02-09',
-                    b : '297-64659291',
-                    c : '2017-01-15',
-                    d : 'CI5822',
-                    e : 'HK',
-                    f : '0A4JV163',
-                    g : '9577943094',
-                    h : '夹3饰品3纸袋3',
-                    i : '亞瑟仕',
-                    j : '許依琪',
-                    k : '台北市中山區新生北路二段60巷42號7樓',
-                    l : '0975356060',
-                    m : '不包稅',
-                    n : '黑貓'
-                },
-            ],
-            columnDefs: [
-                { name: 'a', displayName: '提單日期', width: 115 },
-                { name: 'b', displayName: '主號', width: 115 },
-                { name: 'c', displayName: '進口日期', width: 115 },
-                { name: 'd', displayName: '班機', width: 115 },
-                { name: 'e', displayName: '啟運國別', width: 115 },
-                { name: 'f', displayName: '清關條碼(袋號)', width: 129 },
-                { name: 'g', displayName: '提單號(小號)', width: 115 },
-                { name: 'h', displayName: '品名', width: 115 },
-                { name: 'i', displayName: '寄件人或公司', width: 115 },
-                { name: 'j', displayName: '收件人或公司', width: 115 },
-                { name: 'k', displayName: '收件地址', width: 300 },
-                { name: 'l', displayName: '收件電話', width: 115 },
-                { name: 'm', displayName: '是否包稅', width: 115 },
-                { name: 'n', displayName: '派送公司', width: 115 }
-            ],
-            enableFiltering: false,
-            enableSorting: false,
+        caseCOptions : {
+            data:  '$vm.caseCData',
+            columnDefs: columnDefs,
+            enableFiltering: true,
+            enableSorting: true,
             enableColumnMenus: false,
             // enableVerticalScrollbar: false,
             paginationPageSizes: [10, 25, 50],
             paginationPageSize: 10,
             onRegisterApi: function(gridApi){
-                $vm.dailyAlertPAndAGridApi = gridApi;
+                $vm.caseCGridApi = gridApi;
             }
         },
-        GridResize : HandleWindowResize
+        caseDOptions : {
+            data:  '$vm.caseDData',
+            columnDefs: columnDefs,
+            enableFiltering: true,
+            enableSorting: true,
+            enableColumnMenus: false,
+            // enableVerticalScrollbar: false,
+            paginationPageSizes: [10, 25, 50],
+            paginationPageSize: 10,
+            onRegisterApi: function(gridApi){
+                $vm.caseDGridApi = gridApi;
+            }
+        }
     });
 
+    function LoadILCount(){
+        RestfulApi.CRUDMSSQLDataByTask([
+            {
+                crudType: 'Select',
+                querymain: 'dailyAlert',
+                queryname: 'SelectCaseACount'
+            },
+            {
+                crudType: 'Select',
+                querymain: 'dailyAlert',
+                queryname: 'SelectCaseBCount'
+            },
+            {
+                crudType: 'Select',
+                querymain: 'dailyAlert',
+                queryname: 'SelectCaseCCount'
+            },
+            {
+                crudType: 'Select',
+                querymain: 'dailyAlert',
+                queryname: 'SelectCaseDCount'
+            },
+            {
+                crudType: 'Select',
+                querymain: 'dailyAlert',
+                queryname: 'SelectILCount'
+            }
+        ]).then(function (res) {
+            console.log(res["returnData"]);
+            var _returnData = [];
+            for(var i in res["returnData"]){
+                _returnData.push(res["returnData"][i][0].COUNT);
+            }
+            $vm.allCountData = _returnData;
+        }, function (err) {
+
+        });
+    }
+
+    function LoadCaseA(){
+        RestfulApi.SearchMSSQLData({
+            querymain: 'dailyAlert',
+            queryname: 'SelectCaseA'
+        }).then(function (res){
+            console.log(res["returnData"]);
+            $vm.caseAData = res["returnData"];
+        }); 
+    }
+
+    function LoadCaseB(){
+        RestfulApi.SearchMSSQLData({
+            querymain: 'dailyAlert',
+            queryname: 'SelectCaseB'
+        }).then(function (res){
+            console.log(res["returnData"]);
+            $vm.caseBData = res["returnData"];
+        }); 
+    }
+
+    function LoadCaseC(){
+        RestfulApi.SearchMSSQLData({
+            querymain: 'dailyAlert',
+            queryname: 'SelectCaseC'
+        }).then(function (res){
+            console.log(res["returnData"]);
+            $vm.caseCData = res["returnData"];
+        }); 
+    }
+
+    function LoadCaseD(){
+        RestfulApi.SearchMSSQLData({
+            querymain: 'dailyAlert',
+            queryname: 'SelectCaseD'
+        }).then(function (res){
+            console.log(res["returnData"]);
+            $vm.caseDData = res["returnData"];
+        }); 
+    }
 })
 "use strict";	
 
@@ -4876,8 +5451,8 @@ $templateCache.put("app/app/dashboard/projects/recent-projects.tpl.html","<div c
 $templateCache.put("app/app/dashboard/todo/todo-widget.tpl.html","<div id=\"todo-widget\" jarvis-widget data-widget-editbutton=\"false\" data-widget-color=\"blue\"\r\n     ng-controller=\"TodoCtrl\">\r\n    <header>\r\n        <span class=\"widget-icon\"> <i class=\"fa fa-check txt-color-white\"></i> </span>\r\n\r\n        <h2> ToDo\'s </h2>\r\n\r\n        <div class=\"widget-toolbar\">\r\n            <!-- add: non-hidden - to disable auto hide -->\r\n            <button class=\"btn btn-xs btn-default\" ng-class=\"{active: newTodo}\" ng-click=\"toggleAdd()\"><i ng-class=\"{ \'fa fa-plus\': !newTodo, \'fa fa-times\': newTodo}\"></i> Add</button>\r\n\r\n        </div>\r\n    </header>\r\n    <!-- widget div-->\r\n    <div>\r\n        <div class=\"widget-body no-padding smart-form\">\r\n            <!-- content goes here -->\r\n            <div ng-show=\"newTodo\">\r\n                <h5 class=\"todo-group-title\"><i class=\"fa fa-plus-circle\"></i> New Todo</h5>\r\n\r\n                <form name=\"newTodoForm\" class=\"smart-form\">\r\n                    <fieldset>\r\n                        <section>\r\n                            <label class=\"input\">\r\n                                <input type=\"text\" required class=\"input-lg\" ng-model=\"newTodo.title\"\r\n                                       placeholder=\"What needs to be done?\">\r\n                            </label>\r\n                        </section>\r\n                        <section>\r\n                            <div class=\"col-xs-6\">\r\n                                <label class=\"select\">\r\n                                    <select class=\"input-sm\" ng-model=\"newTodo.state\"\r\n                                            ng-options=\"state as state for state in states\"></select> <i></i> </label>\r\n                            </div>\r\n                        </section>\r\n                    </fieldset>\r\n                    <footer>\r\n                        <button ng-disabled=\"newTodoForm.$invalid\" type=\"button\" class=\"btn btn-primary\"\r\n                                ng-click=\"createTodo()\">\r\n                            Add\r\n                        </button>\r\n                        <button type=\"button\" class=\"btn btn-default\" ng-click=\"toggleAdd()\">\r\n                            Cancel\r\n                        </button>\r\n                    </footer>\r\n                </form>\r\n            </div>\r\n\r\n            <todo-list state=\"Critical\"  title=\"Critical Tasks\" icon=\"warning\" todos=\"todos\"></todo-list>\r\n\r\n            <todo-list state=\"Important\" title=\"Important Tasks\" icon=\"exclamation\" todos=\"todos\"></todo-list>\r\n\r\n            <todo-list state=\"Completed\" title=\"Completed Tasks\" icon=\"check\" todos=\"todos\"></todo-list>\r\n\r\n            <!-- end content -->\r\n        </div>\r\n\r\n    </div>\r\n    <!-- end widget div -->\r\n</div>");
 $templateCache.put("app/app/layout/language/language-selector.tpl.html","<ul class=\"header-dropdown-list hidden-xs ng-cloak\" ng-controller=\"LanguagesCtrl\">\r\n    <li class=\"dropdown\" dropdown>\r\n        <a class=\"dropdown-toggle\" data-toggle=\"dropdown\" href> <img src=\"styles/img/blank.gif\" class=\"flag flag-{{currentLanguage.key}}\" alt=\"{{currentLanguage.alt}}\"> <span> {{currentLanguage.title}} </span>\r\n            <i class=\"fa fa-angle-down\"></i> </a>\r\n        <ul class=\"dropdown-menu pull-right\">\r\n            <li ng-class=\"{active: language==currentLanguage}\" ng-repeat=\"language in languages\">\r\n                <a ng-click=\"selectLanguage(language)\"><img src=\"styles/img/blank.gif\" class=\"flag flag-{{language.key}}\" alt=\"{{language.alt}}\"> {{language.title}}</a>\r\n            </li>\r\n        </ul>\r\n    </li>\r\n</ul>\r\n");
 $templateCache.put("app/app/layout/partials/footer.tpl.html","<div class=\"page-footer\">\r\n    <div class=\"row\">\r\n        <div class=\"col-xs-12 col-sm-6\">\r\n            <span class=\"txt-color-white\">SmartAdmin WebApp © 2016</span>\r\n        </div>\r\n\r\n        <div class=\"col-xs-6 col-sm-6 text-right hidden-xs\">\r\n            <div class=\"txt-color-white inline-block\">\r\n                <i class=\"txt-color-blueLight hidden-mobile\">Last account activity <i class=\"fa fa-clock-o\"></i>\r\n                    <strong>52 mins ago &nbsp;</strong> </i>\r\n\r\n                <div class=\"btn-group dropup\">\r\n                    <button class=\"btn btn-xs dropdown-toggle bg-color-blue txt-color-white\" data-toggle=\"dropdown\">\r\n                        <i class=\"fa fa-link\"></i> <span class=\"caret\"></span>\r\n                    </button>\r\n                    <ul class=\"dropdown-menu pull-right text-left\">\r\n                        <li>\r\n                            <div class=\"padding-5\">\r\n                                <p class=\"txt-color-darken font-sm no-margin\">Download Progress</p>\r\n\r\n                                <div class=\"progress progress-micro no-margin\">\r\n                                    <div class=\"progress-bar progress-bar-success\" style=\"width: 50%;\"></div>\r\n                                </div>\r\n                            </div>\r\n                        </li>\r\n                        <li class=\"divider\"></li>\r\n                        <li>\r\n                            <div class=\"padding-5\">\r\n                                <p class=\"txt-color-darken font-sm no-margin\">Server Load</p>\r\n\r\n                                <div class=\"progress progress-micro no-margin\">\r\n                                    <div class=\"progress-bar progress-bar-success\" style=\"width: 20%;\"></div>\r\n                                </div>\r\n                            </div>\r\n                        </li>\r\n                        <li class=\"divider\"></li>\r\n                        <li>\r\n                            <div class=\"padding-5\">\r\n                                <p class=\"txt-color-darken font-sm no-margin\">Memory Load <span class=\"text-danger\">*critical*</span>\r\n                                </p>\r\n\r\n                                <div class=\"progress progress-micro no-margin\">\r\n                                    <div class=\"progress-bar progress-bar-danger\" style=\"width: 70%;\"></div>\r\n                                </div>\r\n                            </div>\r\n                        </li>\r\n                        <li class=\"divider\"></li>\r\n                        <li>\r\n                            <div class=\"padding-5\">\r\n                                <button class=\"btn btn-block btn-default\">refresh</button>\r\n                            </div>\r\n                        </li>\r\n                    </ul>\r\n                </div>\r\n            </div>\r\n        </div>\r\n    </div>\r\n</div>");
-$templateCache.put("app/app/layout/partials/header.tpl.html","<header id=\"header\">\r\n    <div id=\"logo-group\">\r\n        <!-- PLACE YOUR LOGO HERE -->\r\n        <span id=\"logo\"> <img src=\"styles/img/logo.png\" alt=\"SmartAdmin\"> </span>\r\n        <!-- END LOGO PLACEHOLDER -->\r\n        <!-- Note: The activity badge color changes when clicked and resets the number to 0\r\n    Suggestion: You may want to set a flag when this happens to tick off all checked messages / notifications -->\r\n        <span id=\"activity\" class=\"activity-dropdown\" activities-dropdown-toggle> \r\n        <i class=\"fa fa-user\"></i> \r\n        <b class=\"badge bg-color-red\">21</b> \r\n    </span>\r\n        <div smart-include=\"app/dashboard/activities/activities.html\"></div>\r\n    </div>\r\n    <recent-projects></recent-projects>\r\n    <!-- pulled right: nav area -->\r\n    <div class=\"pull-right\">\r\n        <!-- collapse menu button -->\r\n        <div id=\"hide-menu\" class=\"btn-header pull-right\">\r\n            <span> <a toggle-menu title=\"Collapse Menu\"><i\r\n                class=\"fa fa-reorder\"></i></a> </span>\r\n        </div>\r\n        <!-- end collapse menu -->\r\n        <!-- #MOBILE -->\r\n        <!-- Top menu profile link : this shows only when top menu is active -->\r\n        <ul id=\"mobile-profile-img\" class=\"header-dropdown-list hidden-xs padding-5\">\r\n            <li class=\"\">\r\n                <a href=\"#\" class=\"dropdown-toggle no-margin userdropdown\" data-toggle=\"dropdown\">\r\n                    <img src=\"styles/img/avatars/sunny.png\" alt=\"John Doe\" class=\"online\" />\r\n                </a>\r\n                <ul class=\"dropdown-menu pull-right\">\r\n                    <li>\r\n                        <a href-void class=\"padding-10 padding-top-0 padding-bottom-0\"><i\r\n                            class=\"fa fa-cog\"></i> Setting</a>\r\n                    </li>\r\n                    <li class=\"divider\"></li>\r\n                    <li>\r\n                        <a ui-sref=\"app.appViews.profileDemo\" class=\"padding-10 padding-top-0 padding-bottom-0\"> <i class=\"fa fa-user\"></i>\r\n                            <u>P</u>rofile</a>\r\n                    </li>\r\n                    <li class=\"divider\"></li>\r\n                    <li>\r\n                        <a href-void class=\"padding-10 padding-top-0 padding-bottom-0\" data-action=\"toggleShortcut\"><i class=\"fa fa-arrow-down\"></i> <u>S</u>hortcut</a>\r\n                    </li>\r\n                    <li class=\"divider\"></li>\r\n                    <li>\r\n                        <a href-void class=\"padding-10 padding-top-0 padding-bottom-0\" data-action=\"launchFullscreen\"><i class=\"fa fa-arrows-alt\"></i> Full <u>S</u>creen</a>\r\n                    </li>\r\n                    <li class=\"divider\"></li>\r\n                    <li>\r\n                        <a href=\"#/login\" class=\"padding-10 padding-top-5 padding-bottom-5\" data-action=\"userLogout\"><i\r\n                            class=\"fa fa-sign-out fa-lg\"></i> <strong><u>L</u>ogout</strong></a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n        </ul>\r\n        <!-- logout button -->\r\n        <div id=\"logout\" class=\"btn-header transparent pull-right\">\r\n            <span> \r\n                <a ui-sref=\"login\" \r\n                   title=\"Sign Out\" \r\n                   data-action=\"userLogout\"\r\n                   data-logout-msg=\"You can improve your security further after logging out by closing this opened browser\">\r\n                   <i class=\"fa fa-sign-out\"></i>\r\n                </a> \r\n            </span>\r\n        </div>\r\n        <!-- end logout button -->\r\n        <!-- search mobile button (this is hidden till mobile view port) -->\r\n        <div id=\"search-mobile\" class=\"btn-header transparent pull-right\" data-search-mobile>\r\n            <span> <a href=\"#\" title=\"Search\"><i class=\"fa fa-search\"></i></a> </span>\r\n        </div>\r\n        <!-- end search mobile button -->\r\n        <!-- input: search field -->\r\n        <form action=\"#/search\" class=\"header-search pull-right\">\r\n            <input id=\"search-fld\" type=\"text\" name=\"param\" placeholder=\"Find reports and more\" data-autocomplete=\'[\r\n                    \"ActionScript\",\r\n                    \"AppleScript\",\r\n                    \"Asp\",\r\n                    \"BASIC\",\r\n                    \"C\",\r\n                    \"C++\",\r\n                    \"Clojure\",\r\n                    \"COBOL\",\r\n                    \"ColdFusion\",\r\n                    \"Erlang\",\r\n                    \"Fortran\",\r\n                    \"Groovy\",\r\n                    \"Haskell\",\r\n                    \"Java\",\r\n                    \"JavaScript\",\r\n                    \"Lisp\",\r\n                    \"Perl\",\r\n                    \"PHP\",\r\n                    \"Python\",\r\n                    \"Ruby\",\r\n                    \"Scala\",\r\n                    \"Scheme\"]\'>\r\n            <button type=\"submit\">\r\n                <i class=\"fa fa-search\"></i>\r\n            </button>\r\n            <a href=\"$\" id=\"cancel-search-js\" title=\"Cancel Search\"><i class=\"fa fa-times\"></i></a>\r\n        </form>\r\n        <!-- end input: search field -->\r\n        <!-- fullscreen button -->\r\n        <div id=\"fullscreen\" class=\"btn-header transparent pull-right\">\r\n            <span> <a full-screen title=\"Full Screen\"><i\r\n                class=\"fa fa-arrows-alt\"></i></a> </span>\r\n        </div>\r\n        <!-- end fullscreen button -->\r\n        <!-- #Voice Command: Start Speech -->\r\n        <div id=\"speech-btn\" class=\"btn-header transparent pull-right hidden-sm hidden-xs\">\r\n            <div>\r\n                <a title=\"Voice Command\" id=\"voice-command-btn\" speech-recognition><i class=\"fa fa-microphone\"></i></a>\r\n                <div class=\"popover bottom\">\r\n                    <div class=\"arrow\"></div>\r\n                    <div class=\"popover-content\">\r\n                        <h4 class=\"vc-title\">Voice command activated <br>\r\n                        <small>Please speak clearly into the mic</small>\r\n                    </h4>\r\n                        <h4 class=\"vc-title-error text-center\">\r\n                        <i class=\"fa fa-microphone-slash\"></i> Voice command failed\r\n                        <br>\r\n                        <small class=\"txt-color-red\">Must <strong>\"Allow\"</strong> Microphone</small>\r\n                        <br>\r\n                        <small class=\"txt-color-red\">Must have <strong>Internet Connection</strong></small>\r\n                    </h4>\r\n                        <a href-void class=\"btn btn-success\" id=\"speech-help-btn\">See Commands</a>\r\n                        <a href-void class=\"btn bg-color-purple txt-color-white\" onclick=\"$(\'#speech-btn .popover\').fadeOut(50);\">Close Popup</a>\r\n                    </div>\r\n                </div>\r\n            </div>\r\n        </div>\r\n        <!-- end voice command -->\r\n        <!-- multiple lang dropdown : find all flags in the flags page -->\r\n        <language-selector></language-selector>\r\n        <!-- end multiple lang -->\r\n    </div>\r\n    <!-- end pulled right: nav area -->\r\n</header>\r\n");
-$templateCache.put("app/app/layout/partials/navigation.tpl.html","<aside id=\"left-panel\">\r\n\r\n    <!-- User info -->\r\n    <div login-info></div>\r\n    <!-- end user info -->\r\n\r\n    <!-- <nav data-smart-menu-items=\"/api/menu-items.json\"> -->\r\n    <nav>\r\n        <!-- NOTE: Notice the gaps after each icon usage <i></i>..\r\n        Please note that these links work a bit different than\r\n        traditional href=\"\" links. See documentation for details.\r\n        -->\r\n\r\n        <ul data-smart-menu>\r\n            <li data-menu-collapse>\r\n                <a href=\"#\" title=\"Dashboard\"><i class=\"fa fa-lg fa-fw fa-home\"></i> <span\r\n                        class=\"menu-item-parent\">{{getWord(\'Dashboard\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.dashboard\">{{getWord(\'Analytics Dashboard\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.dashboard-social\">{{getWord(\'Social Wall\')}}</a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\" title=\"Restful\">\r\n                    <i class=\"fa fa-lg fa-fw fa-home\"></i> \r\n                    <span class=\"menu-item-parent\">{{getWord(\'Restful\')}}</span>\r\n                </a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.restful.alantest\">{{getWord(\'AlanTest\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.restful.gridtest\">{{getWord(\'GridTest\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.restful.exceltest\">{{getWord(\'ExcelTest\')}}</a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-ui-sref-active=\"active\">\r\n                <a data-ui-sref=\"app.mainwork\" title=\"MainWork\">\r\n                    <i class=\"fa fa-lg fa-fw fa-newspaper-o\"></i> \r\n                    <span class=\"menu-item-parent\">{{getWord(\'MainWork\')}}</span>\r\n                </a>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\" title=\"SelfWork\">\r\n                    <i class=\"fa fa-lg fa-fw fa-truck\"></i> \r\n                    <span class=\"menu-item-parent\">{{getWord(\'SelfWork\')}}</span>\r\n                </a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a href=\"#\"><i class=\"fa fa-cubes\"></i> {{getWord(\'LeaderJobs\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.selfwork.employeejobs\"><i class=\"fa fa-cube\"></i> {{getWord(\'EmployeeJobs\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.selfwork.historysearch\"><i class=\"fa fa-history\"></i> {{getWord(\'HistorySearch\')}}</a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\" title=\"Concerns\"><i class=\"fa fa-lg fa-fw fa-address-book-o\"></i> <span\r\n                        class=\"menu-item-parent\">{{getWord(\'Concerns\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.concerns.ban\"><i class=\"fa fa-ban\"></i> {{getWord(\'Ban\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.concerns.dailyalert\"><i class=\"fa fa-bell-o\"></i> {{getWord(\'DailyAlert\')}}</a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\" title=\"Settings\"><i class=\"fa fa-lg fa-fw fa-cog\"></i> <span\r\n                        class=\"menu-item-parent\">{{getWord(\'Settings\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.settings.profile\"><i class=\"fa fa-user\"></i> {{getWord(\'Profile\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.settings.accountmanagement\"><i class=\"fa fa-sitemap\"></i> {{getWord(\'Account Management\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.settings.billboardeditor\"><i class=\"fa fa-newspaper-o\"></i> {{getWord(\'Billboard Editor\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.settings.externalmanagement\"><i class=\"fa fa-external-link\"></i> {{getWord(\'External Management\')}}</a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse class=\"top-menu-invisible\">\r\n                <a href=\"#\"><i class=\"fa fa-lg fa-fw fa-cube txt-color-blue\"></i> <span class=\"menu-item-parent\">{{getWord(\'SmartAdmin Intel\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.smartAdmin.appLayouts\"><i class=\"fa fa-gear\"></i>\r\n                            {{getWord(\'App Layouts\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.smartAdmin.prebuiltSkins\"><i class=\"fa fa-picture-o\"></i>\r\n                            {{getWord(\'Prebuilt Skins\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.smartAdmin.appLayout\"><i class=\"fa fa-cube\"></i> {{getWord(\'App Settings\')}}</a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-ui-sref-active=\"active\">\r\n                <a data-ui-sref=\"app.inbox.folder\" title=\"Outlook\">\r\n                    <i class=\"fa fa-lg fa-fw fa-inbox\"></i> <span class=\"menu-item-parent\">{{getWord(\'Outlook\')}}</span><span\r\n                        unread-messages-count class=\"badge pull-right inbox-badge\"></span></a>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\"><i class=\"fa fa-lg fa-fw fa-bar-chart-o\"></i> <span class=\"menu-item-parent\">{{getWord(\'Graphs\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.graphs.flot\">{{getWord(\'Flot Chart\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.graphs.morris\">{{getWord(\'Morris Charts\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.graphs.sparkline\">{{getWord(\'Sparkline\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.graphs.easyPieCharts\">{{getWord(\'Easy Pie Charts\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.graphs.dygraphs\">{{getWord(\'Dygraphs\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.graphs.chartjs\">Chart.js</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.graphs.highchartTables\">Highchart Tables <span\r\n                                class=\"badge pull-right inbox-badge bg-color-yellow\">new</span></a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\"><i class=\"fa fa-lg fa-fw fa-table\"></i> <span\r\n                        class=\"menu-item-parent\">{{getWord(\'Tables\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.tables.normal\">{{getWord(\'Normal Tables\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.tables.datatables\">{{getWord(\'Data Tables\')}} <span\r\n                                class=\"badge inbox-badge bg-color-greenLight\">v1.10</span></a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.tables.jqgrid\">{{getWord(\'Jquery Grid\')}}</a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\"><i class=\"fa fa-lg fa-fw fa-pencil-square-o\"></i> <span class=\"menu-item-parent\">{{getWord(\'Forms\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.form.elements\">{{getWord(\'Smart Form Elements\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.form.layouts\">{{getWord(\'Smart Form Layouts\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.form.validation\">{{getWord(\'Smart Form Validation\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.form.bootstrapForms\">{{getWord(\'Bootstrap Form Elements\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.form.bootstrapValidation\">{{getWord(\'Bootstrap Form Validation\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.form.plugins\">{{getWord(\'Form Plugins\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.form.wizards\">{{getWord(\'Wizards\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.form.editors\">{{getWord(\'Bootstrap Editors\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.form.dropzone\">{{getWord(\'Dropzone\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.form.imageEditor\">{{getWord(\'Image Cropping\')}} <span\r\n                                class=\"badge pull-right inbox-badge bg-color-yellow\">new</span></a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\"><i class=\"fa fa-lg fa-fw fa-desktop\"></i> <span class=\"menu-item-parent\">{{getWord(\'UI Elements\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.ui.general\">{{getWord(\'General Elements\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.ui.buttons\">{{getWord(\'Buttons\')}}</a>\r\n                    </li>\r\n                    <li data-menu-collapse>\r\n                        <a href=\"#\">{{getWord(\'Icons\')}}</a>\r\n                        <ul>\r\n                            <li data-ui-sref-active=\"active\">\r\n                                <a data-ui-sref=\"app.ui.iconsFa\"><i class=\"fa fa-plane\"></i> {{getWord(\'Font Awesome\')}}</a>\r\n                            </li>\r\n                            <li data-ui-sref-active=\"active\">\r\n                                <a data-ui-sref=\"app.ui.iconsGlyph\"><i class=\"glyphicon glyphicon-plane\"></i>\r\n                                    {{getWord(\'Glyph Icons\')}}</a>\r\n                            </li>\r\n                            <li data-ui-sref-active=\"active\">\r\n                                <a data-ui-sref=\"app.ui.iconsFlags\"><i class=\"fa fa-flag\"></i> {{getWord(\'Flags\')}}</a>\r\n                            </li>\r\n                        </ul>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.ui.grid\">{{getWord(\'Grid\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.ui.treeView\">{{getWord(\'Tree View\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.ui.nestableLists\">{{getWord(\'Nestable Lists\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.ui.jqueryUi\">{{getWord(\'JQuery UI\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.ui.typography\">{{getWord(\'Typography\')}}</a>\r\n                    </li>\r\n                    <li data-menu-collapse>\r\n                        <a href=\"#\">{{getWord(\'Six Level Menu\')}}</a>\r\n                        <ul>\r\n                            <li data-menu-collapse>\r\n                                <a href=\"#\"><i class=\"fa fa-fw fa-folder-open\"></i> {{getWord(\'Item #2\')}}</a>\r\n                                <ul>\r\n                                    <li data-menu-collapse>\r\n                                        <a href=\"#\"><i class=\"fa fa-fw fa-folder-open\"></i> {{getWord(\'Sub #2.1\')}} </a>\r\n                                        <ul>\r\n                                            <li>\r\n                                                <a href=\"#\"><i class=\"fa fa-fw fa-file-text\"></i> {{getWord(\'Item\r\n                                                    #2.1.1\')}}</a>\r\n                                            </li>\r\n                                            <li data-menu-collapse>\r\n                                                <a href=\"#\"><i class=\"fa fa-fw fa-plus\"></i>{{getWord(\'Expand\')}}</a>\r\n                                                <ul>\r\n                                                    <li>\r\n                                                        <a href=\"#\"><i class=\"fa fa-fw fa-file-text\"></i>\r\n                                                            {{getWord(\'File\')}}</a>\r\n                                                    </li>\r\n                                                    <li>\r\n                                                        <a href=\"#\"><i class=\"fa fa-fw fa-trash-o\"></i>\r\n                                                            {{getWord(\'Delete\')}}</a></li>\r\n                                                </ul>\r\n                                            </li>\r\n                                        </ul>\r\n                                    </li>\r\n                                </ul>\r\n                            </li>\r\n                            <li data-menu-collapse>\r\n                                <a href=\"#\"><i class=\"fa fa-fw fa-folder-open\"></i> {{getWord(\'Item #3\')}}</a>\r\n\r\n                                <ul>\r\n                                    <li data-menu-collapse>\r\n                                        <a href=\"#\"><i class=\"fa fa-fw fa-folder-open\"></i> {{getWord(\'3ed Level\')}}\r\n                                        </a>\r\n                                        <ul>\r\n                                            <li>\r\n                                                <a href=\"#\"><i class=\"fa fa-fw fa-file-text\"></i>\r\n                                                    {{getWord(\'File\')}}</a>\r\n                                            </li>\r\n                                            <li>\r\n                                                <a href=\"#\"><i class=\"fa fa-fw fa-file-text\"></i>\r\n                                                    {{getWord(\'File\')}}</a>\r\n                                            </li>\r\n                                        </ul>\r\n                                    </li>\r\n                                </ul>\r\n\r\n                            </li>\r\n                        </ul>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n\r\n            <li data-ui-sref-active=\"active\">\r\n                <a data-ui-sref=\"app.widgets\" title=\"Widgets\"><i class=\"fa fa-lg fa-fw fa-list-alt\"></i> <span class=\"menu-item-parent\">{{getWord(\'Widgets\')}}</span></a>\r\n            </li>\r\n\r\n\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\">\r\n                    <i class=\"fa fa-lg fa-fw fa-cloud\"><em>3</em></i> <span class=\"menu-item-parent\">{{getWord(\'Cool Features\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.calendar\" title=\"Calendar\"><i\r\n                                class=\"fa fa-lg fa-fw fa-calendar\"></i> <span\r\n                                class=\"menu-item-parent\">{{getWord(\'Calendar\')}}</span></a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.maps\"><i class=\"fa fa-lg fa-fw fa-map-marker\"></i> <span class=\"menu-item-parent\">{{getWord(\'GMap Skins\')}}</span><span\r\n                                class=\"badge bg-color-greenLight pull-right inbox-badge\">9</span></a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\">\r\n                    <i class=\"fa fa-lg fa-fw fa-puzzle-piece\"></i> <span class=\"menu-item-parent\">{{getWord(\'App Views\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.appViews.projects\"><i class=\"fa fa-file-text-o\"></i>\r\n                            {{getWord(\'Projects\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.appViews.blogDemo\"><i class=\"fa fa-paragraph\"></i> {{getWord(\'Blog\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.appViews.galleryDemo\"><i class=\"fa fa-picture-o\"></i>\r\n                            {{getWord(\'Gallery\')}}</a>\r\n                    </li>\r\n\r\n                    <li data-menu-collapse>\r\n                        <a href=\"#\"><i class=\"fa fa-comments\"></i> {{getWord(\'Forum Layout\')}}</a>\r\n                        <ul>\r\n                            <li data-ui-sref-active=\"active\">\r\n                                <a data-ui-sref=\"app.appViews.forumDemo\"><i class=\"fa fa-picture-o\"></i>\r\n                                    {{getWord(\'General View\')}}</a>\r\n                            </li>\r\n                            <li data-ui-sref-active=\"active\">\r\n                                <a data-ui-sref=\"app.appViews.forumTopicDemo\"><i class=\"fa fa-picture-o\"></i>\r\n                                    {{getWord(\'Topic View\')}}</a>\r\n                            </li>\r\n                            <li data-ui-sref-active=\"active\">\r\n                                <a data-ui-sref=\"app.appViews.forumPostDemo\"><i class=\"fa fa-picture-o\"></i>\r\n                                    {{getWord(\'Post View\')}}</a>\r\n                            </li>\r\n                        </ul>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.appViews.profileDemo\"><i class=\"fa fa-group\"></i>\r\n                            {{getWord(\'Profile\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.appViews.timelineDemo\"><i class=\"fa fa-clock-o\"></i>\r\n                            {{getWord(\'Timeline\')}}</a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\">\r\n                    <i class=\"fa fa-lg fa-fw fa-shopping-cart\"></i> <span class=\"menu-item-parent\">{{getWord(\'E-Commerce\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.eCommerce.orders\" title=\"Orders\"> {{getWord(\'Orders\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.eCommerce.products\" title=\"Products View\"> {{getWord(\'Products View\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.eCommerce.detail\" title=\"Products Detail\"> {{getWord(\'Products Detail\')}}</a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\"><i class=\"fa fa-lg fa-fw fa-windows\"></i> <span class=\"menu-item-parent\">{{getWord(\'Miscellaneous\')}}</span></a>\r\n                <ul>\r\n                    <li>\r\n                        <a href=\"http://bootstraphunter.com/smartadmin-landing/\" target=\"_blank\">{{getWord(\'Landing\r\n                            Page\')}} <i class=\"fa fa-external-link\"></i></a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.misc.pricingTable\">{{getWord(\'Pricing Tables\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.misc.invoice\">{{getWord(\'Invoice\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"login\">{{getWord(\'Login\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"register\">{{getWord(\'Register\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"lock\">{{getWord(\'Locked Screen\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.misc.error404\">{{getWord(\'Error 404\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.misc.error500\">{{getWord(\'Error 500\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.misc.blank\">{{getWord(\'Blank Page\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.misc.emailTemplate\">{{getWord(\'Email Template\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.misc.search\">{{getWord(\'Search Page\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.misc.ckeditor\">{{getWord(\'CK Editor\')}}</a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse class=\"chat-users top-menu-invisible\">\r\n                <a href=\"#\"><i class=\"fa fa-lg fa-fw fa-comment-o\"><em class=\"bg-color-pink flash animated\">!</em></i>\r\n                    <span class=\"menu-item-parent\">{{getWord(\'Smart Chat API\')}} <sup>{{getWord(\'beta\')}}</sup></span></a>\r\n                <div aside-chat-widget></div>\r\n            </li>\r\n        </ul>\r\n\r\n        <!-- NOTE: This allows you to pull menu items from server -->\r\n        <!-- <ul data-smart-menu-items=\"/api/menu-items.json\"></ul> -->\r\n    </nav>\r\n\r\n  <span class=\"minifyme\" data-action=\"minifyMenu\" minify-menu>\r\n    <i class=\"fa fa-arrow-circle-left hit\"></i>\r\n  </span>\r\n\r\n</aside>");
+$templateCache.put("app/app/layout/partials/header.tpl.html","<header id=\"header\">\r\n    <div id=\"logo-group\">\r\n        <!-- PLACE YOUR LOGO HERE -->\r\n        <span id=\"logo\"> <img src=\"styles/img/ews/title_logo.png\" alt=\"東風管理系統\"> </span>\r\n        <!-- END LOGO PLACEHOLDER -->\r\n        <!-- Note: The activity badge color changes when clicked and resets the number to 0\r\n    Suggestion: You may want to set a flag when this happens to tick off all checked messages / notifications -->\r\n        <span id=\"activity\" class=\"activity-dropdown\" activities-dropdown-toggle> \r\n            <i class=\"fa fa-user\"></i> \r\n            <b class=\"badge bg-color-red\">21</b> \r\n        </span>\r\n        <div smart-include=\"app/dashboard/activities/activities.html\"></div>\r\n    </div>\r\n    <!-- <recent-projects></recent-projects> -->\r\n    <!-- pulled right: nav area -->\r\n    <div class=\"pull-right\">\r\n        <!-- collapse menu button -->\r\n        <div id=\"hide-menu\" class=\"btn-header pull-right\">\r\n            <span> <a toggle-menu title=\"Collapse Menu\"><i\r\n                class=\"fa fa-reorder\"></i></a> </span>\r\n        </div>\r\n        <!-- end collapse menu -->\r\n        <!-- #MOBILE -->\r\n        <!-- Top menu profile link : this shows only when top menu is active -->\r\n        <ul id=\"mobile-profile-img\" class=\"header-dropdown-list hidden-xs padding-5\">\r\n            <li class=\"\">\r\n                <a href=\"#\" class=\"dropdown-toggle no-margin userdropdown\" data-toggle=\"dropdown\">\r\n                    <img src=\"styles/img/avatars/sunny.png\" alt=\"John Doe\" class=\"online\" />\r\n                </a>\r\n                <ul class=\"dropdown-menu pull-right\">\r\n                    <li>\r\n                        <a href-void class=\"padding-10 padding-top-0 padding-bottom-0\"><i\r\n                            class=\"fa fa-cog\"></i> Setting</a>\r\n                    </li>\r\n                    <li class=\"divider\"></li>\r\n                    <li>\r\n                        <a ui-sref=\"app.appViews.profileDemo\" class=\"padding-10 padding-top-0 padding-bottom-0\"> <i class=\"fa fa-user\"></i>\r\n                            <u>P</u>rofile</a>\r\n                    </li>\r\n                    <li class=\"divider\"></li>\r\n                    <li>\r\n                        <a href-void class=\"padding-10 padding-top-0 padding-bottom-0\" data-action=\"toggleShortcut\"><i class=\"fa fa-arrow-down\"></i> <u>S</u>hortcut</a>\r\n                    </li>\r\n                    <li class=\"divider\"></li>\r\n                    <li>\r\n                        <a href-void class=\"padding-10 padding-top-0 padding-bottom-0\" data-action=\"launchFullscreen\"><i class=\"fa fa-arrows-alt\"></i> Full <u>S</u>creen</a>\r\n                    </li>\r\n                    <li class=\"divider\"></li>\r\n                    <li>\r\n                        <a href=\"#/login\" class=\"padding-10 padding-top-5 padding-bottom-5\" data-action=\"userLogout\"><i\r\n                            class=\"fa fa-sign-out fa-lg\"></i> <strong><u>L</u>ogout</strong></a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n        </ul>\r\n        <!-- logout button -->\r\n        <div id=\"logout\" class=\"btn-header transparent pull-right\">\r\n            <span> \r\n                <a ui-sref=\"login\" \r\n                   title=\"Sign Out\" \r\n                   data-action=\"userLogout\"\r\n                   data-logout-msg=\"You can improve your security further after logging out by closing this opened browser\">\r\n                   <i class=\"fa fa-sign-out\"></i>\r\n                </a> \r\n            </span>\r\n        </div>\r\n        <!-- end logout button -->\r\n        <!-- search mobile button (this is hidden till mobile view port) -->\r\n        <div id=\"search-mobile\" class=\"btn-header transparent pull-right\" data-search-mobile>\r\n            <span> <a href=\"#\" title=\"Search\"><i class=\"fa fa-search\"></i></a> </span>\r\n        </div>\r\n        <!-- end search mobile button -->\r\n        <!-- input: search field -->\r\n        <!-- <form action=\"#/search\" class=\"header-search pull-right\">\r\n            <input id=\"search-fld\" type=\"text\" name=\"param\" placeholder=\"Find reports and more\" data-autocomplete=\'[\r\n                    \"ActionScript\",\r\n                    \"AppleScript\",\r\n                    \"Asp\",\r\n                    \"BASIC\",\r\n                    \"C\",\r\n                    \"C++\",\r\n                    \"Clojure\",\r\n                    \"COBOL\",\r\n                    \"ColdFusion\",\r\n                    \"Erlang\",\r\n                    \"Fortran\",\r\n                    \"Groovy\",\r\n                    \"Haskell\",\r\n                    \"Java\",\r\n                    \"JavaScript\",\r\n                    \"Lisp\",\r\n                    \"Perl\",\r\n                    \"PHP\",\r\n                    \"Python\",\r\n                    \"Ruby\",\r\n                    \"Scala\",\r\n                    \"Scheme\"]\'>\r\n            <button type=\"submit\">\r\n                <i class=\"fa fa-search\"></i>\r\n            </button>\r\n            <a href=\"$\" id=\"cancel-search-js\" title=\"Cancel Search\"><i class=\"fa fa-times\"></i></a>\r\n        </form> -->\r\n        <!-- end input: search field -->\r\n        <!-- fullscreen button -->\r\n        <div id=\"fullscreen\" class=\"btn-header transparent pull-right\">\r\n            <span> <a full-screen title=\"Full Screen\"><i\r\n                class=\"fa fa-arrows-alt\"></i></a> </span>\r\n        </div>\r\n        <!-- end fullscreen button -->\r\n        <!-- #Voice Command: Start Speech -->\r\n        <!-- <div id=\"speech-btn\" class=\"btn-header transparent pull-right hidden-sm hidden-xs\">\r\n            <div>\r\n                <a title=\"Voice Command\" id=\"voice-command-btn\" speech-recognition><i class=\"fa fa-microphone\"></i></a>\r\n                <div class=\"popover bottom\">\r\n                    <div class=\"arrow\"></div>\r\n                    <div class=\"popover-content\">\r\n                        <h4 class=\"vc-title\">Voice command activated <br>\r\n                        <small>Please speak clearly into the mic</small>\r\n                    </h4>\r\n                        <h4 class=\"vc-title-error text-center\">\r\n                        <i class=\"fa fa-microphone-slash\"></i> Voice command failed\r\n                        <br>\r\n                        <small class=\"txt-color-red\">Must <strong>\"Allow\"</strong> Microphone</small>\r\n                        <br>\r\n                        <small class=\"txt-color-red\">Must have <strong>Internet Connection</strong></small>\r\n                    </h4>\r\n                        <a href-void class=\"btn btn-success\" id=\"speech-help-btn\">See Commands</a>\r\n                        <a href-void class=\"btn bg-color-purple txt-color-white\" onclick=\"$(\'#speech-btn .popover\').fadeOut(50);\">Close Popup</a>\r\n                    </div>\r\n                </div>\r\n            </div>\r\n        </div> -->\r\n        <!-- end voice command -->\r\n        \r\n        <!-- multiple lang dropdown : find all flags in the flags page -->\r\n        <language-selector></language-selector>\r\n        <!-- end multiple lang -->\r\n    </div>\r\n    <!-- end pulled right: nav area -->\r\n</header>\r\n");
+$templateCache.put("app/app/layout/partials/navigation.tpl.html","<aside id=\"left-panel\">\r\n\r\n    <!-- User info -->\r\n    <div login-info></div>\r\n    <!-- end user info -->\r\n\r\n    <!-- <nav data-smart-menu-items=\"/api/menu-items.json\"> -->\r\n    <nav>\r\n        <!-- NOTE: Notice the gaps after each icon usage <i></i>..\r\n        Please note that these links work a bit different than\r\n        traditional href=\"\" links. See documentation for details.\r\n        -->\r\n\r\n        <ul data-smart-menu>\r\n            <li data-menu-collapse>\r\n                <a href=\"#\" title=\"Dashboard\"><i class=\"fa fa-lg fa-fw fa-home\"></i> <span\r\n                        class=\"menu-item-parent\">{{getWord(\'Dashboard\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.dashboard\">{{getWord(\'Analytics Dashboard\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.dashboard-social\">{{getWord(\'Social Wall\')}}</a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\" title=\"Restful\">\r\n                    <i class=\"fa fa-lg fa-fw fa-home\"></i> \r\n                    <span class=\"menu-item-parent\">{{getWord(\'Restful\')}}</span>\r\n                </a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.restful.alantest\">{{getWord(\'AlanTest\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.restful.gridtest\">{{getWord(\'GridTest\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.restful.exceltest\">{{getWord(\'ExcelTest\')}}</a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-ui-sref-active=\"active\">\r\n                <a data-ui-sref=\"app.mainwork\" title=\"MainWork\">\r\n                    <i class=\"fa fa-lg fa-fw fa-newspaper-o\"></i> \r\n                    <span class=\"menu-item-parent\">{{getWord(\'MainWork\')}}</span>\r\n                </a>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\" title=\"SelfWork\">\r\n                    <i class=\"fa fa-lg fa-fw fa-truck\"></i> \r\n                    <span class=\"menu-item-parent\">{{getWord(\'SelfWork\')}}</span>\r\n                </a>\r\n                <ul>\r\n                    <li data-menu-collapse>\r\n                        <a href=\"#\"><i class=\"fa fa-fw fa-folder-open\"></i> {{getWord(\'LeaderOption\')}} </a>\r\n                        <ul>\r\n                            <li data-ui-sref-active=\"active\">\r\n                                <a data-ui-sref=\"app.selfwork.compydistribution\"><i class=\"fa fa-building-o\"></i> {{getWord(\'CompyDistribution\')}}</a>\r\n                            </li>\r\n                            <li data-ui-sref-active=\"active\">\r\n                                <a data-ui-sref=\"app.selfwork.compydistribution\"><i class=\"fa fa-braille\"></i> {{getWord(\'AgentSetting\')}}</a>\r\n                            </li>\r\n                        </ul>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.selfwork.leaderjobs\"><i class=\"fa fa-cubes\"></i> {{getWord(\'LeaderJobs\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.selfwork.employeejobs\"><i class=\"fa fa-cube\"></i> {{getWord(\'EmployeeJobs\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.selfwork.historysearch\"><i class=\"fa fa-history\"></i> {{getWord(\'HistorySearch\')}}</a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\" title=\"Concerns\"><i class=\"fa fa-lg fa-fw fa-address-book-o\"></i> <span\r\n                        class=\"menu-item-parent\">{{getWord(\'Concerns\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.concerns.ban\"><i class=\"fa fa-ban\"></i> {{getWord(\'Ban\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.concerns.dailyalert\"><i class=\"fa fa-bell-o\"></i> {{getWord(\'DailyAlert\')}}</a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\" title=\"Settings\"><i class=\"fa fa-lg fa-fw fa-cog\"></i> <span\r\n                        class=\"menu-item-parent\">{{getWord(\'Settings\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.settings.profile\"><i class=\"fa fa-user\"></i> {{getWord(\'Profile\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.settings.accountmanagement\"><i class=\"fa fa-sitemap\"></i> {{getWord(\'Account Management\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.settings.billboardeditor\"><i class=\"fa fa-newspaper-o\"></i> {{getWord(\'Billboard Editor\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.settings.externalmanagement\"><i class=\"fa fa-external-link\"></i> {{getWord(\'External Management\')}}</a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse class=\"top-menu-invisible\">\r\n                <a href=\"#\"><i class=\"fa fa-lg fa-fw fa-cube txt-color-blue\"></i> <span class=\"menu-item-parent\">{{getWord(\'SmartAdmin Intel\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.smartAdmin.appLayouts\"><i class=\"fa fa-gear\"></i>\r\n                            {{getWord(\'App Layouts\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.smartAdmin.prebuiltSkins\"><i class=\"fa fa-picture-o\"></i>\r\n                            {{getWord(\'Prebuilt Skins\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.smartAdmin.appLayout\"><i class=\"fa fa-cube\"></i> {{getWord(\'App Settings\')}}</a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-ui-sref-active=\"active\">\r\n                <a data-ui-sref=\"app.inbox.folder\" title=\"Outlook\">\r\n                    <i class=\"fa fa-lg fa-fw fa-inbox\"></i> <span class=\"menu-item-parent\">{{getWord(\'Outlook\')}}</span><span\r\n                        unread-messages-count class=\"badge pull-right inbox-badge\"></span></a>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\"><i class=\"fa fa-lg fa-fw fa-bar-chart-o\"></i> <span class=\"menu-item-parent\">{{getWord(\'Graphs\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.graphs.flot\">{{getWord(\'Flot Chart\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.graphs.morris\">{{getWord(\'Morris Charts\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.graphs.sparkline\">{{getWord(\'Sparkline\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.graphs.easyPieCharts\">{{getWord(\'Easy Pie Charts\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.graphs.dygraphs\">{{getWord(\'Dygraphs\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.graphs.chartjs\">Chart.js</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.graphs.highchartTables\">Highchart Tables <span\r\n                                class=\"badge pull-right inbox-badge bg-color-yellow\">new</span></a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\"><i class=\"fa fa-lg fa-fw fa-table\"></i> <span\r\n                        class=\"menu-item-parent\">{{getWord(\'Tables\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.tables.normal\">{{getWord(\'Normal Tables\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.tables.datatables\">{{getWord(\'Data Tables\')}} <span\r\n                                class=\"badge inbox-badge bg-color-greenLight\">v1.10</span></a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.tables.jqgrid\">{{getWord(\'Jquery Grid\')}}</a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\"><i class=\"fa fa-lg fa-fw fa-pencil-square-o\"></i> <span class=\"menu-item-parent\">{{getWord(\'Forms\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.form.elements\">{{getWord(\'Smart Form Elements\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.form.layouts\">{{getWord(\'Smart Form Layouts\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.form.validation\">{{getWord(\'Smart Form Validation\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.form.bootstrapForms\">{{getWord(\'Bootstrap Form Elements\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.form.bootstrapValidation\">{{getWord(\'Bootstrap Form Validation\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.form.plugins\">{{getWord(\'Form Plugins\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.form.wizards\">{{getWord(\'Wizards\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.form.editors\">{{getWord(\'Bootstrap Editors\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.form.dropzone\">{{getWord(\'Dropzone\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.form.imageEditor\">{{getWord(\'Image Cropping\')}} <span\r\n                                class=\"badge pull-right inbox-badge bg-color-yellow\">new</span></a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\"><i class=\"fa fa-lg fa-fw fa-desktop\"></i> <span class=\"menu-item-parent\">{{getWord(\'UI Elements\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.ui.general\">{{getWord(\'General Elements\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.ui.buttons\">{{getWord(\'Buttons\')}}</a>\r\n                    </li>\r\n                    <li data-menu-collapse>\r\n                        <a href=\"#\">{{getWord(\'Icons\')}}</a>\r\n                        <ul>\r\n                            <li data-ui-sref-active=\"active\">\r\n                                <a data-ui-sref=\"app.ui.iconsFa\"><i class=\"fa fa-plane\"></i> {{getWord(\'Font Awesome\')}}</a>\r\n                            </li>\r\n                            <li data-ui-sref-active=\"active\">\r\n                                <a data-ui-sref=\"app.ui.iconsGlyph\"><i class=\"glyphicon glyphicon-plane\"></i>\r\n                                    {{getWord(\'Glyph Icons\')}}</a>\r\n                            </li>\r\n                            <li data-ui-sref-active=\"active\">\r\n                                <a data-ui-sref=\"app.ui.iconsFlags\"><i class=\"fa fa-flag\"></i> {{getWord(\'Flags\')}}</a>\r\n                            </li>\r\n                        </ul>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.ui.grid\">{{getWord(\'Grid\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.ui.treeView\">{{getWord(\'Tree View\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.ui.nestableLists\">{{getWord(\'Nestable Lists\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.ui.jqueryUi\">{{getWord(\'JQuery UI\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.ui.typography\">{{getWord(\'Typography\')}}</a>\r\n                    </li>\r\n                    <li data-menu-collapse>\r\n                        <a href=\"#\">{{getWord(\'Six Level Menu\')}}</a>\r\n                        <ul>\r\n                            <li data-menu-collapse>\r\n                                <a href=\"#\"><i class=\"fa fa-fw fa-folder-open\"></i> {{getWord(\'Item #2\')}}</a>\r\n                                <ul>\r\n                                    <li data-menu-collapse>\r\n                                        <a href=\"#\"><i class=\"fa fa-fw fa-folder-open\"></i> {{getWord(\'Sub #2.1\')}} </a>\r\n                                        <ul>\r\n                                            <li>\r\n                                                <a href=\"#\"><i class=\"fa fa-fw fa-file-text\"></i> {{getWord(\'Item\r\n                                                    #2.1.1\')}}</a>\r\n                                            </li>\r\n                                            <li data-menu-collapse>\r\n                                                <a href=\"#\"><i class=\"fa fa-fw fa-plus\"></i>{{getWord(\'Expand\')}}</a>\r\n                                                <ul>\r\n                                                    <li>\r\n                                                        <a href=\"#\"><i class=\"fa fa-fw fa-file-text\"></i>\r\n                                                            {{getWord(\'File\')}}</a>\r\n                                                    </li>\r\n                                                    <li>\r\n                                                        <a href=\"#\"><i class=\"fa fa-fw fa-trash-o\"></i>\r\n                                                            {{getWord(\'Delete\')}}</a></li>\r\n                                                </ul>\r\n                                            </li>\r\n                                        </ul>\r\n                                    </li>\r\n                                </ul>\r\n                            </li>\r\n                            <li data-menu-collapse>\r\n                                <a href=\"#\"><i class=\"fa fa-fw fa-folder-open\"></i> {{getWord(\'Item #3\')}}</a>\r\n\r\n                                <ul>\r\n                                    <li data-menu-collapse>\r\n                                        <a href=\"#\"><i class=\"fa fa-fw fa-folder-open\"></i> {{getWord(\'3ed Level\')}}\r\n                                        </a>\r\n                                        <ul>\r\n                                            <li>\r\n                                                <a href=\"#\"><i class=\"fa fa-fw fa-file-text\"></i>\r\n                                                    {{getWord(\'File\')}}</a>\r\n                                            </li>\r\n                                            <li>\r\n                                                <a href=\"#\"><i class=\"fa fa-fw fa-file-text\"></i>\r\n                                                    {{getWord(\'File\')}}</a>\r\n                                            </li>\r\n                                        </ul>\r\n                                    </li>\r\n                                </ul>\r\n\r\n                            </li>\r\n                        </ul>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n\r\n            <li data-ui-sref-active=\"active\">\r\n                <a data-ui-sref=\"app.widgets\" title=\"Widgets\"><i class=\"fa fa-lg fa-fw fa-list-alt\"></i> <span class=\"menu-item-parent\">{{getWord(\'Widgets\')}}</span></a>\r\n            </li>\r\n\r\n\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\">\r\n                    <i class=\"fa fa-lg fa-fw fa-cloud\"><em>3</em></i> <span class=\"menu-item-parent\">{{getWord(\'Cool Features\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.calendar\" title=\"Calendar\"><i\r\n                                class=\"fa fa-lg fa-fw fa-calendar\"></i> <span\r\n                                class=\"menu-item-parent\">{{getWord(\'Calendar\')}}</span></a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.maps\"><i class=\"fa fa-lg fa-fw fa-map-marker\"></i> <span class=\"menu-item-parent\">{{getWord(\'GMap Skins\')}}</span><span\r\n                                class=\"badge bg-color-greenLight pull-right inbox-badge\">9</span></a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\">\r\n                    <i class=\"fa fa-lg fa-fw fa-puzzle-piece\"></i> <span class=\"menu-item-parent\">{{getWord(\'App Views\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.appViews.projects\"><i class=\"fa fa-file-text-o\"></i>\r\n                            {{getWord(\'Projects\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.appViews.blogDemo\"><i class=\"fa fa-paragraph\"></i> {{getWord(\'Blog\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.appViews.galleryDemo\"><i class=\"fa fa-picture-o\"></i>\r\n                            {{getWord(\'Gallery\')}}</a>\r\n                    </li>\r\n\r\n                    <li data-menu-collapse>\r\n                        <a href=\"#\"><i class=\"fa fa-comments\"></i> {{getWord(\'Forum Layout\')}}</a>\r\n                        <ul>\r\n                            <li data-ui-sref-active=\"active\">\r\n                                <a data-ui-sref=\"app.appViews.forumDemo\"><i class=\"fa fa-picture-o\"></i>\r\n                                    {{getWord(\'General View\')}}</a>\r\n                            </li>\r\n                            <li data-ui-sref-active=\"active\">\r\n                                <a data-ui-sref=\"app.appViews.forumTopicDemo\"><i class=\"fa fa-picture-o\"></i>\r\n                                    {{getWord(\'Topic View\')}}</a>\r\n                            </li>\r\n                            <li data-ui-sref-active=\"active\">\r\n                                <a data-ui-sref=\"app.appViews.forumPostDemo\"><i class=\"fa fa-picture-o\"></i>\r\n                                    {{getWord(\'Post View\')}}</a>\r\n                            </li>\r\n                        </ul>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.appViews.profileDemo\"><i class=\"fa fa-group\"></i>\r\n                            {{getWord(\'Profile\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.appViews.timelineDemo\"><i class=\"fa fa-clock-o\"></i>\r\n                            {{getWord(\'Timeline\')}}</a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\">\r\n                    <i class=\"fa fa-lg fa-fw fa-shopping-cart\"></i> <span class=\"menu-item-parent\">{{getWord(\'E-Commerce\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.eCommerce.orders\" title=\"Orders\"> {{getWord(\'Orders\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.eCommerce.products\" title=\"Products View\"> {{getWord(\'Products View\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.eCommerce.detail\" title=\"Products Detail\"> {{getWord(\'Products Detail\')}}</a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\"><i class=\"fa fa-lg fa-fw fa-windows\"></i> <span class=\"menu-item-parent\">{{getWord(\'Miscellaneous\')}}</span></a>\r\n                <ul>\r\n                    <li>\r\n                        <a href=\"http://bootstraphunter.com/smartadmin-landing/\" target=\"_blank\">{{getWord(\'Landing\r\n                            Page\')}} <i class=\"fa fa-external-link\"></i></a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.misc.pricingTable\">{{getWord(\'Pricing Tables\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.misc.invoice\">{{getWord(\'Invoice\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"login\">{{getWord(\'Login\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"register\">{{getWord(\'Register\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"lock\">{{getWord(\'Locked Screen\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.misc.error404\">{{getWord(\'Error 404\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.misc.error500\">{{getWord(\'Error 500\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.misc.blank\">{{getWord(\'Blank Page\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.misc.emailTemplate\">{{getWord(\'Email Template\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.misc.search\">{{getWord(\'Search Page\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.misc.ckeditor\">{{getWord(\'CK Editor\')}}</a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse class=\"chat-users top-menu-invisible\">\r\n                <a href=\"#\"><i class=\"fa fa-lg fa-fw fa-comment-o\"><em class=\"bg-color-pink flash animated\">!</em></i>\r\n                    <span class=\"menu-item-parent\">{{getWord(\'Smart Chat API\')}} <sup>{{getWord(\'beta\')}}</sup></span></a>\r\n                <div aside-chat-widget></div>\r\n            </li>\r\n        </ul>\r\n\r\n        <!-- NOTE: This allows you to pull menu items from server -->\r\n        <!-- <ul data-smart-menu-items=\"/api/menu-items.json\"></ul> -->\r\n    </nav>\r\n\r\n  <span class=\"minifyme\" data-action=\"minifyMenu\" minify-menu>\r\n    <i class=\"fa fa-arrow-circle-left hit\"></i>\r\n  </span>\r\n\r\n</aside>");
 $templateCache.put("app/app/layout/partials/sub-header.tpl.html","<div class=\"col-xs-12 col-sm-5 col-md-5 col-lg-8\" data-sparkline-container>\r\n    <ul id=\"sparks\" class=\"\">\r\n        <li class=\"sparks-info\">\r\n            <h5> My Income <span class=\"txt-color-blue\">$47,171</span></h5>\r\n            <div class=\"sparkline txt-color-blue hidden-mobile hidden-md hidden-sm\">\r\n                1300, 1877, 2500, 2577, 2000, 2100, 3000, 2700, 3631, 2471, 2700, 3631, 2471\r\n            </div>\r\n        </li>\r\n        <li class=\"sparks-info\">\r\n            <h5> Site Traffic <span class=\"txt-color-purple\"><i class=\"fa fa-arrow-circle-up\"></i>&nbsp;45%</span></h5>\r\n            <div class=\"sparkline txt-color-purple hidden-mobile hidden-md hidden-sm\">\r\n                110,150,300,130,400,240,220,310,220,300, 270, 210\r\n            </div>\r\n        </li>\r\n        <li class=\"sparks-info\">\r\n            <h5> Site Orders <span class=\"txt-color-greenDark\"><i class=\"fa fa-shopping-cart\"></i>&nbsp;2447</span></h5>\r\n            <div class=\"sparkline txt-color-greenDark hidden-mobile hidden-md hidden-sm\">\r\n                110,150,300,130,400,240,220,310,220,300, 270, 210\r\n            </div>\r\n        </li>\r\n    </ul>\r\n</div>\r\n			");
 $templateCache.put("app/app/layout/partials/voice-commands.tpl.html","<!-- TRIGGER BUTTON:\r\n<a href=\"/my-ajax-page.html\" data-toggle=\"modal\" data-target=\"#remoteModal\" class=\"btn btn-default\">Open Modal</a>  -->\r\n\r\n<!-- MODAL PLACE HOLDER\r\n<div class=\"modal fade\" id=\"remoteModal\" tabindex=\"-1\" role=\"dialog\" aria-labelledby=\"remoteModalLabel\" aria-hidden=\"true\">\r\n<div class=\"modal-dialog\">\r\n<div class=\"modal-content\"></div>\r\n</div>\r\n</div>   -->\r\n<!--////////////////////////////////////-->\r\n\r\n<!--<div class=\"modal-header\">\r\n<button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-hidden=\"true\">\r\n&times;\r\n</button>\r\n<h4 class=\"modal-title\" id=\"myModalLabel\">Command List</h4>\r\n</div>-->\r\n<div class=\"modal-body\">\r\n\r\n	<h1><i class=\"fa fa-microphone text-muted\"></i>&nbsp;&nbsp; SmartAdmin Voice Command</h1>\r\n	<hr class=\"simple\">\r\n	<h5>Instruction</h5>\r\n\r\n	Click <span class=\"text-success\">\"Allow\"</span> to access your microphone and activate Voice Command.\r\n	You will notice a <span class=\"text-primary\"><strong>BLUE</strong> Flash</span> on the microphone icon indicating activation.\r\n	The icon will appear <span class=\"text-danger\"><strong>RED</strong></span> <span class=\"label label-danger\"><i class=\"fa fa-microphone fa-lg\"></i></span> if you <span class=\"text-danger\">\"Deny\"</span> access or don\'t have any microphone installed.\r\n	<br>\r\n	<br>\r\n	As a security precaution, your browser will disconnect the microphone every 60 to 120 seconds (sooner if not being used). In which case Voice Command will prompt you again to <span class=\"text-success\">\"Allow\"</span> or <span class=\"text-danger\">\"Deny\"</span> access to your microphone.\r\n	<br>\r\n	<br>\r\n	If you host your page over <strong>http<span class=\"text-success\">s</span></strong> (secure socket layer) protocol you can wave this security measure and have an unintrupted Voice Command.\r\n	<br>\r\n	<br>\r\n	<h5>Commands</h5>\r\n	<ul>\r\n		<li>\r\n			<strong>\'show\' </strong> then say the <strong>*page*</strong> you want to go to. For example <strong>\"show inbox\"</strong> or <strong>\"show calendar\"</strong>\r\n		</li>\r\n		<li>\r\n			<strong>\'mute\' </strong> - mutes all sound effects for the theme.\r\n		</li>\r\n		<li>\r\n			<strong>\'sound on\'</strong> - unmutes all sound effects for the theme.\r\n		</li>\r\n		<li>\r\n			<span class=\"text-danger\"><strong>\'stop\'</strong></span> - deactivates voice command.\r\n		</li>\r\n		<li>\r\n			<span class=\"text-primary\"><strong>\'help\'</strong></span> - brings up the command list\r\n		</li>\r\n		<li>\r\n			<span class=\"text-danger\"><strong>\'got it\'</strong></span> - closes help modal\r\n		</li>\r\n		<li>\r\n			<strong>\'hide navigation\'</strong> - toggle navigation collapse\r\n		</li>\r\n		<li>\r\n			<strong>\'show navigation\'</strong> - toggle navigation to open (can be used again to close)\r\n		</li>\r\n		<li>\r\n			<strong>\'scroll up\'</strong> - scrolls to the top of the page\r\n		</li>\r\n		<li>\r\n			<strong>\'scroll down\'</strong> - scrollts to the bottom of the page\r\n		</li>\r\n		<li>\r\n			<strong>\'go back\' </strong> - goes back in history (history -1 click)\r\n		</li>\r\n		<li>\r\n			<strong>\'logout\'</strong> - logs you out\r\n		</li>\r\n	</ul>\r\n	<br>\r\n	<h5>Adding your own commands</h5>\r\n	Voice Command supports up to 80 languages. Adding your own commands is extreamly easy. All commands are stored inside <strong>app.config.js</strong> file under the <code>var commands = {...}</code>. \r\n\r\n	<hr class=\"simple\">\r\n	<div class=\"text-right\">\r\n		<button type=\"button\" class=\"btn btn-success btn-lg\" data-dismiss=\"modal\">\r\n			Got it!\r\n		</button>\r\n	</div>\r\n\r\n</div>\r\n<!--<div class=\"modal-footer\">\r\n<button type=\"button\" class=\"btn btn-primary\" data-dismiss=\"modal\">Got it!</button>\r\n</div> -->");
 $templateCache.put("app/app/layout/shortcut/shortcut.tpl.html","<div id=\"shortcut\">\r\n	<ul>\r\n		<li>\r\n			<a href=\"#/inbox/\" class=\"jarvismetro-tile big-cubes bg-color-blue\"> <span class=\"iconbox\"> <i class=\"fa fa-envelope fa-4x\"></i> <span>Mail <span class=\"label pull-right bg-color-darken\">14</span></span> </span> </a>\r\n		</li>\r\n		<li>\r\n			<a href=\"#/calendar\" class=\"jarvismetro-tile big-cubes bg-color-orangeDark\"> <span class=\"iconbox\"> <i class=\"fa fa-calendar fa-4x\"></i> <span>Calendar</span> </span> </a>\r\n		</li>\r\n		<li>\r\n			<a href=\"#/maps\" class=\"jarvismetro-tile big-cubes bg-color-purple\"> <span class=\"iconbox\"> <i class=\"fa fa-map-marker fa-4x\"></i> <span>Maps</span> </span> </a>\r\n		</li>\r\n		<li>\r\n			<a href=\"#/invoice\" class=\"jarvismetro-tile big-cubes bg-color-blueDark\"> <span class=\"iconbox\"> <i class=\"fa fa-book fa-4x\"></i> <span>Invoice <span class=\"label pull-right bg-color-darken\">99</span></span> </span> </a>\r\n		</li>\r\n		<li>\r\n			<a href=\"#/gallery\" class=\"jarvismetro-tile big-cubes bg-color-greenLight\"> <span class=\"iconbox\"> <i class=\"fa fa-picture-o fa-4x\"></i> <span>Gallery </span> </span> </a>\r\n		</li>\r\n		<li>\r\n			<a href=\"#/profile\" class=\"jarvismetro-tile big-cubes selected bg-color-pinkDark\"> <span class=\"iconbox\"> <i class=\"fa fa-user fa-4x\"></i> <span>My Profile </span> </span> </a>\r\n		</li>\r\n	</ul>\r\n</div>");
@@ -4895,8 +5470,8 @@ $templateCache.put("app/public/app/dashboard/projects/recent-projects.tpl.html",
 $templateCache.put("app/public/app/dashboard/todo/todo-widget.tpl.html","<div id=\"todo-widget\" jarvis-widget data-widget-editbutton=\"false\" data-widget-color=\"blue\"\r\n     ng-controller=\"TodoCtrl\">\r\n    <header>\r\n        <span class=\"widget-icon\"> <i class=\"fa fa-check txt-color-white\"></i> </span>\r\n\r\n        <h2> ToDo\'s </h2>\r\n\r\n        <div class=\"widget-toolbar\">\r\n            <!-- add: non-hidden - to disable auto hide -->\r\n            <button class=\"btn btn-xs btn-default\" ng-class=\"{active: newTodo}\" ng-click=\"toggleAdd()\"><i ng-class=\"{ \'fa fa-plus\': !newTodo, \'fa fa-times\': newTodo}\"></i> Add</button>\r\n\r\n        </div>\r\n    </header>\r\n    <!-- widget div-->\r\n    <div>\r\n        <div class=\"widget-body no-padding smart-form\">\r\n            <!-- content goes here -->\r\n            <div ng-show=\"newTodo\">\r\n                <h5 class=\"todo-group-title\"><i class=\"fa fa-plus-circle\"></i> New Todo</h5>\r\n\r\n                <form name=\"newTodoForm\" class=\"smart-form\">\r\n                    <fieldset>\r\n                        <section>\r\n                            <label class=\"input\">\r\n                                <input type=\"text\" required class=\"input-lg\" ng-model=\"newTodo.title\"\r\n                                       placeholder=\"What needs to be done?\">\r\n                            </label>\r\n                        </section>\r\n                        <section>\r\n                            <div class=\"col-xs-6\">\r\n                                <label class=\"select\">\r\n                                    <select class=\"input-sm\" ng-model=\"newTodo.state\"\r\n                                            ng-options=\"state as state for state in states\"></select> <i></i> </label>\r\n                            </div>\r\n                        </section>\r\n                    </fieldset>\r\n                    <footer>\r\n                        <button ng-disabled=\"newTodoForm.$invalid\" type=\"button\" class=\"btn btn-primary\"\r\n                                ng-click=\"createTodo()\">\r\n                            Add\r\n                        </button>\r\n                        <button type=\"button\" class=\"btn btn-default\" ng-click=\"toggleAdd()\">\r\n                            Cancel\r\n                        </button>\r\n                    </footer>\r\n                </form>\r\n            </div>\r\n\r\n            <todo-list state=\"Critical\"  title=\"Critical Tasks\" icon=\"warning\" todos=\"todos\"></todo-list>\r\n\r\n            <todo-list state=\"Important\" title=\"Important Tasks\" icon=\"exclamation\" todos=\"todos\"></todo-list>\r\n\r\n            <todo-list state=\"Completed\" title=\"Completed Tasks\" icon=\"check\" todos=\"todos\"></todo-list>\r\n\r\n            <!-- end content -->\r\n        </div>\r\n\r\n    </div>\r\n    <!-- end widget div -->\r\n</div>");
 $templateCache.put("app/public/app/layout/language/language-selector.tpl.html","<ul class=\"header-dropdown-list hidden-xs ng-cloak\" ng-controller=\"LanguagesCtrl\">\r\n    <li class=\"dropdown\" dropdown>\r\n        <a class=\"dropdown-toggle\" data-toggle=\"dropdown\" href> <img src=\"styles/img/blank.gif\" class=\"flag flag-{{currentLanguage.key}}\" alt=\"{{currentLanguage.alt}}\"> <span> {{currentLanguage.title}} </span>\r\n            <i class=\"fa fa-angle-down\"></i> </a>\r\n        <ul class=\"dropdown-menu pull-right\">\r\n            <li ng-class=\"{active: language==currentLanguage}\" ng-repeat=\"language in languages\">\r\n                <a ng-click=\"selectLanguage(language)\"><img src=\"styles/img/blank.gif\" class=\"flag flag-{{language.key}}\" alt=\"{{language.alt}}\"> {{language.title}}</a>\r\n            </li>\r\n        </ul>\r\n    </li>\r\n</ul>\r\n");
 $templateCache.put("app/public/app/layout/partials/footer.tpl.html","<div class=\"page-footer\">\r\n    <div class=\"row\">\r\n        <div class=\"col-xs-12 col-sm-6\">\r\n            <span class=\"txt-color-white\">SmartAdmin WebApp © 2016</span>\r\n        </div>\r\n\r\n        <div class=\"col-xs-6 col-sm-6 text-right hidden-xs\">\r\n            <div class=\"txt-color-white inline-block\">\r\n                <i class=\"txt-color-blueLight hidden-mobile\">Last account activity <i class=\"fa fa-clock-o\"></i>\r\n                    <strong>52 mins ago &nbsp;</strong> </i>\r\n\r\n                <div class=\"btn-group dropup\">\r\n                    <button class=\"btn btn-xs dropdown-toggle bg-color-blue txt-color-white\" data-toggle=\"dropdown\">\r\n                        <i class=\"fa fa-link\"></i> <span class=\"caret\"></span>\r\n                    </button>\r\n                    <ul class=\"dropdown-menu pull-right text-left\">\r\n                        <li>\r\n                            <div class=\"padding-5\">\r\n                                <p class=\"txt-color-darken font-sm no-margin\">Download Progress</p>\r\n\r\n                                <div class=\"progress progress-micro no-margin\">\r\n                                    <div class=\"progress-bar progress-bar-success\" style=\"width: 50%;\"></div>\r\n                                </div>\r\n                            </div>\r\n                        </li>\r\n                        <li class=\"divider\"></li>\r\n                        <li>\r\n                            <div class=\"padding-5\">\r\n                                <p class=\"txt-color-darken font-sm no-margin\">Server Load</p>\r\n\r\n                                <div class=\"progress progress-micro no-margin\">\r\n                                    <div class=\"progress-bar progress-bar-success\" style=\"width: 20%;\"></div>\r\n                                </div>\r\n                            </div>\r\n                        </li>\r\n                        <li class=\"divider\"></li>\r\n                        <li>\r\n                            <div class=\"padding-5\">\r\n                                <p class=\"txt-color-darken font-sm no-margin\">Memory Load <span class=\"text-danger\">*critical*</span>\r\n                                </p>\r\n\r\n                                <div class=\"progress progress-micro no-margin\">\r\n                                    <div class=\"progress-bar progress-bar-danger\" style=\"width: 70%;\"></div>\r\n                                </div>\r\n                            </div>\r\n                        </li>\r\n                        <li class=\"divider\"></li>\r\n                        <li>\r\n                            <div class=\"padding-5\">\r\n                                <button class=\"btn btn-block btn-default\">refresh</button>\r\n                            </div>\r\n                        </li>\r\n                    </ul>\r\n                </div>\r\n            </div>\r\n        </div>\r\n    </div>\r\n</div>");
-$templateCache.put("app/public/app/layout/partials/header.tpl.html","<header id=\"header\">\r\n    <div id=\"logo-group\">\r\n        <!-- PLACE YOUR LOGO HERE -->\r\n        <span id=\"logo\"> <img src=\"styles/img/logo.png\" alt=\"SmartAdmin\"> </span>\r\n        <!-- END LOGO PLACEHOLDER -->\r\n        <!-- Note: The activity badge color changes when clicked and resets the number to 0\r\n    Suggestion: You may want to set a flag when this happens to tick off all checked messages / notifications -->\r\n        <span id=\"activity\" class=\"activity-dropdown\" activities-dropdown-toggle> \r\n        <i class=\"fa fa-user\"></i> \r\n        <b class=\"badge bg-color-red\">21</b> \r\n    </span>\r\n        <div smart-include=\"app/dashboard/activities/activities.html\"></div>\r\n    </div>\r\n    <recent-projects></recent-projects>\r\n    <!-- pulled right: nav area -->\r\n    <div class=\"pull-right\">\r\n        <!-- collapse menu button -->\r\n        <div id=\"hide-menu\" class=\"btn-header pull-right\">\r\n            <span> <a toggle-menu title=\"Collapse Menu\"><i\r\n                class=\"fa fa-reorder\"></i></a> </span>\r\n        </div>\r\n        <!-- end collapse menu -->\r\n        <!-- #MOBILE -->\r\n        <!-- Top menu profile link : this shows only when top menu is active -->\r\n        <ul id=\"mobile-profile-img\" class=\"header-dropdown-list hidden-xs padding-5\">\r\n            <li class=\"\">\r\n                <a href=\"#\" class=\"dropdown-toggle no-margin userdropdown\" data-toggle=\"dropdown\">\r\n                    <img src=\"styles/img/avatars/sunny.png\" alt=\"John Doe\" class=\"online\" />\r\n                </a>\r\n                <ul class=\"dropdown-menu pull-right\">\r\n                    <li>\r\n                        <a href-void class=\"padding-10 padding-top-0 padding-bottom-0\"><i\r\n                            class=\"fa fa-cog\"></i> Setting</a>\r\n                    </li>\r\n                    <li class=\"divider\"></li>\r\n                    <li>\r\n                        <a ui-sref=\"app.appViews.profileDemo\" class=\"padding-10 padding-top-0 padding-bottom-0\"> <i class=\"fa fa-user\"></i>\r\n                            <u>P</u>rofile</a>\r\n                    </li>\r\n                    <li class=\"divider\"></li>\r\n                    <li>\r\n                        <a href-void class=\"padding-10 padding-top-0 padding-bottom-0\" data-action=\"toggleShortcut\"><i class=\"fa fa-arrow-down\"></i> <u>S</u>hortcut</a>\r\n                    </li>\r\n                    <li class=\"divider\"></li>\r\n                    <li>\r\n                        <a href-void class=\"padding-10 padding-top-0 padding-bottom-0\" data-action=\"launchFullscreen\"><i class=\"fa fa-arrows-alt\"></i> Full <u>S</u>creen</a>\r\n                    </li>\r\n                    <li class=\"divider\"></li>\r\n                    <li>\r\n                        <a href=\"#/login\" class=\"padding-10 padding-top-5 padding-bottom-5\" data-action=\"userLogout\"><i\r\n                            class=\"fa fa-sign-out fa-lg\"></i> <strong><u>L</u>ogout</strong></a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n        </ul>\r\n        <!-- logout button -->\r\n        <div id=\"logout\" class=\"btn-header transparent pull-right\">\r\n            <span> \r\n                <a ui-sref=\"login\" \r\n                   title=\"Sign Out\" \r\n                   data-action=\"userLogout\"\r\n                   data-logout-msg=\"You can improve your security further after logging out by closing this opened browser\">\r\n                   <i class=\"fa fa-sign-out\"></i>\r\n                </a> \r\n            </span>\r\n        </div>\r\n        <!-- end logout button -->\r\n        <!-- search mobile button (this is hidden till mobile view port) -->\r\n        <div id=\"search-mobile\" class=\"btn-header transparent pull-right\" data-search-mobile>\r\n            <span> <a href=\"#\" title=\"Search\"><i class=\"fa fa-search\"></i></a> </span>\r\n        </div>\r\n        <!-- end search mobile button -->\r\n        <!-- input: search field -->\r\n        <form action=\"#/search\" class=\"header-search pull-right\">\r\n            <input id=\"search-fld\" type=\"text\" name=\"param\" placeholder=\"Find reports and more\" data-autocomplete=\'[\r\n                    \"ActionScript\",\r\n                    \"AppleScript\",\r\n                    \"Asp\",\r\n                    \"BASIC\",\r\n                    \"C\",\r\n                    \"C++\",\r\n                    \"Clojure\",\r\n                    \"COBOL\",\r\n                    \"ColdFusion\",\r\n                    \"Erlang\",\r\n                    \"Fortran\",\r\n                    \"Groovy\",\r\n                    \"Haskell\",\r\n                    \"Java\",\r\n                    \"JavaScript\",\r\n                    \"Lisp\",\r\n                    \"Perl\",\r\n                    \"PHP\",\r\n                    \"Python\",\r\n                    \"Ruby\",\r\n                    \"Scala\",\r\n                    \"Scheme\"]\'>\r\n            <button type=\"submit\">\r\n                <i class=\"fa fa-search\"></i>\r\n            </button>\r\n            <a href=\"$\" id=\"cancel-search-js\" title=\"Cancel Search\"><i class=\"fa fa-times\"></i></a>\r\n        </form>\r\n        <!-- end input: search field -->\r\n        <!-- fullscreen button -->\r\n        <div id=\"fullscreen\" class=\"btn-header transparent pull-right\">\r\n            <span> <a full-screen title=\"Full Screen\"><i\r\n                class=\"fa fa-arrows-alt\"></i></a> </span>\r\n        </div>\r\n        <!-- end fullscreen button -->\r\n        <!-- #Voice Command: Start Speech -->\r\n        <div id=\"speech-btn\" class=\"btn-header transparent pull-right hidden-sm hidden-xs\">\r\n            <div>\r\n                <a title=\"Voice Command\" id=\"voice-command-btn\" speech-recognition><i class=\"fa fa-microphone\"></i></a>\r\n                <div class=\"popover bottom\">\r\n                    <div class=\"arrow\"></div>\r\n                    <div class=\"popover-content\">\r\n                        <h4 class=\"vc-title\">Voice command activated <br>\r\n                        <small>Please speak clearly into the mic</small>\r\n                    </h4>\r\n                        <h4 class=\"vc-title-error text-center\">\r\n                        <i class=\"fa fa-microphone-slash\"></i> Voice command failed\r\n                        <br>\r\n                        <small class=\"txt-color-red\">Must <strong>\"Allow\"</strong> Microphone</small>\r\n                        <br>\r\n                        <small class=\"txt-color-red\">Must have <strong>Internet Connection</strong></small>\r\n                    </h4>\r\n                        <a href-void class=\"btn btn-success\" id=\"speech-help-btn\">See Commands</a>\r\n                        <a href-void class=\"btn bg-color-purple txt-color-white\" onclick=\"$(\'#speech-btn .popover\').fadeOut(50);\">Close Popup</a>\r\n                    </div>\r\n                </div>\r\n            </div>\r\n        </div>\r\n        <!-- end voice command -->\r\n        <!-- multiple lang dropdown : find all flags in the flags page -->\r\n        <language-selector></language-selector>\r\n        <!-- end multiple lang -->\r\n    </div>\r\n    <!-- end pulled right: nav area -->\r\n</header>\r\n");
-$templateCache.put("app/public/app/layout/partials/navigation.tpl.html","<aside id=\"left-panel\">\r\n\r\n    <!-- User info -->\r\n    <div login-info></div>\r\n    <!-- end user info -->\r\n\r\n    <!-- <nav data-smart-menu-items=\"/api/menu-items.json\"> -->\r\n    <nav>\r\n        <!-- NOTE: Notice the gaps after each icon usage <i></i>..\r\n        Please note that these links work a bit different than\r\n        traditional href=\"\" links. See documentation for details.\r\n        -->\r\n\r\n        <ul data-smart-menu>\r\n            <li data-menu-collapse>\r\n                <a href=\"#\" title=\"Dashboard\"><i class=\"fa fa-lg fa-fw fa-home\"></i> <span\r\n                        class=\"menu-item-parent\">{{getWord(\'Dashboard\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.dashboard\">{{getWord(\'Analytics Dashboard\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.dashboard-social\">{{getWord(\'Social Wall\')}}</a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\" title=\"Restful\">\r\n                    <i class=\"fa fa-lg fa-fw fa-home\"></i> \r\n                    <span class=\"menu-item-parent\">{{getWord(\'Restful\')}}</span>\r\n                </a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.restful.alantest\">{{getWord(\'AlanTest\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.restful.gridtest\">{{getWord(\'GridTest\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.restful.exceltest\">{{getWord(\'ExcelTest\')}}</a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-ui-sref-active=\"active\">\r\n                <a data-ui-sref=\"app.mainwork\" title=\"MainWork\">\r\n                    <i class=\"fa fa-lg fa-fw fa-newspaper-o\"></i> \r\n                    <span class=\"menu-item-parent\">{{getWord(\'MainWork\')}}</span>\r\n                </a>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\" title=\"SelfWork\">\r\n                    <i class=\"fa fa-lg fa-fw fa-truck\"></i> \r\n                    <span class=\"menu-item-parent\">{{getWord(\'SelfWork\')}}</span>\r\n                </a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a href=\"#\"><i class=\"fa fa-cubes\"></i> {{getWord(\'LeaderJobs\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.selfwork.employeejobs\"><i class=\"fa fa-cube\"></i> {{getWord(\'EmployeeJobs\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.selfwork.historysearch\"><i class=\"fa fa-history\"></i> {{getWord(\'HistorySearch\')}}</a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\" title=\"Concerns\"><i class=\"fa fa-lg fa-fw fa-address-book-o\"></i> <span\r\n                        class=\"menu-item-parent\">{{getWord(\'Concerns\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.concerns.ban\"><i class=\"fa fa-ban\"></i> {{getWord(\'Ban\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.concerns.dailyalert\"><i class=\"fa fa-bell-o\"></i> {{getWord(\'DailyAlert\')}}</a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\" title=\"Settings\"><i class=\"fa fa-lg fa-fw fa-cog\"></i> <span\r\n                        class=\"menu-item-parent\">{{getWord(\'Settings\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.settings.profile\"><i class=\"fa fa-user\"></i> {{getWord(\'Profile\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.settings.accountmanagement\"><i class=\"fa fa-sitemap\"></i> {{getWord(\'Account Management\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.settings.billboardeditor\"><i class=\"fa fa-newspaper-o\"></i> {{getWord(\'Billboard Editor\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.settings.externalmanagement\"><i class=\"fa fa-external-link\"></i> {{getWord(\'External Management\')}}</a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse class=\"top-menu-invisible\">\r\n                <a href=\"#\"><i class=\"fa fa-lg fa-fw fa-cube txt-color-blue\"></i> <span class=\"menu-item-parent\">{{getWord(\'SmartAdmin Intel\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.smartAdmin.appLayouts\"><i class=\"fa fa-gear\"></i>\r\n                            {{getWord(\'App Layouts\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.smartAdmin.prebuiltSkins\"><i class=\"fa fa-picture-o\"></i>\r\n                            {{getWord(\'Prebuilt Skins\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.smartAdmin.appLayout\"><i class=\"fa fa-cube\"></i> {{getWord(\'App Settings\')}}</a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-ui-sref-active=\"active\">\r\n                <a data-ui-sref=\"app.inbox.folder\" title=\"Outlook\">\r\n                    <i class=\"fa fa-lg fa-fw fa-inbox\"></i> <span class=\"menu-item-parent\">{{getWord(\'Outlook\')}}</span><span\r\n                        unread-messages-count class=\"badge pull-right inbox-badge\"></span></a>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\"><i class=\"fa fa-lg fa-fw fa-bar-chart-o\"></i> <span class=\"menu-item-parent\">{{getWord(\'Graphs\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.graphs.flot\">{{getWord(\'Flot Chart\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.graphs.morris\">{{getWord(\'Morris Charts\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.graphs.sparkline\">{{getWord(\'Sparkline\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.graphs.easyPieCharts\">{{getWord(\'Easy Pie Charts\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.graphs.dygraphs\">{{getWord(\'Dygraphs\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.graphs.chartjs\">Chart.js</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.graphs.highchartTables\">Highchart Tables <span\r\n                                class=\"badge pull-right inbox-badge bg-color-yellow\">new</span></a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\"><i class=\"fa fa-lg fa-fw fa-table\"></i> <span\r\n                        class=\"menu-item-parent\">{{getWord(\'Tables\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.tables.normal\">{{getWord(\'Normal Tables\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.tables.datatables\">{{getWord(\'Data Tables\')}} <span\r\n                                class=\"badge inbox-badge bg-color-greenLight\">v1.10</span></a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.tables.jqgrid\">{{getWord(\'Jquery Grid\')}}</a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\"><i class=\"fa fa-lg fa-fw fa-pencil-square-o\"></i> <span class=\"menu-item-parent\">{{getWord(\'Forms\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.form.elements\">{{getWord(\'Smart Form Elements\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.form.layouts\">{{getWord(\'Smart Form Layouts\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.form.validation\">{{getWord(\'Smart Form Validation\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.form.bootstrapForms\">{{getWord(\'Bootstrap Form Elements\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.form.bootstrapValidation\">{{getWord(\'Bootstrap Form Validation\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.form.plugins\">{{getWord(\'Form Plugins\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.form.wizards\">{{getWord(\'Wizards\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.form.editors\">{{getWord(\'Bootstrap Editors\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.form.dropzone\">{{getWord(\'Dropzone\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.form.imageEditor\">{{getWord(\'Image Cropping\')}} <span\r\n                                class=\"badge pull-right inbox-badge bg-color-yellow\">new</span></a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\"><i class=\"fa fa-lg fa-fw fa-desktop\"></i> <span class=\"menu-item-parent\">{{getWord(\'UI Elements\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.ui.general\">{{getWord(\'General Elements\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.ui.buttons\">{{getWord(\'Buttons\')}}</a>\r\n                    </li>\r\n                    <li data-menu-collapse>\r\n                        <a href=\"#\">{{getWord(\'Icons\')}}</a>\r\n                        <ul>\r\n                            <li data-ui-sref-active=\"active\">\r\n                                <a data-ui-sref=\"app.ui.iconsFa\"><i class=\"fa fa-plane\"></i> {{getWord(\'Font Awesome\')}}</a>\r\n                            </li>\r\n                            <li data-ui-sref-active=\"active\">\r\n                                <a data-ui-sref=\"app.ui.iconsGlyph\"><i class=\"glyphicon glyphicon-plane\"></i>\r\n                                    {{getWord(\'Glyph Icons\')}}</a>\r\n                            </li>\r\n                            <li data-ui-sref-active=\"active\">\r\n                                <a data-ui-sref=\"app.ui.iconsFlags\"><i class=\"fa fa-flag\"></i> {{getWord(\'Flags\')}}</a>\r\n                            </li>\r\n                        </ul>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.ui.grid\">{{getWord(\'Grid\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.ui.treeView\">{{getWord(\'Tree View\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.ui.nestableLists\">{{getWord(\'Nestable Lists\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.ui.jqueryUi\">{{getWord(\'JQuery UI\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.ui.typography\">{{getWord(\'Typography\')}}</a>\r\n                    </li>\r\n                    <li data-menu-collapse>\r\n                        <a href=\"#\">{{getWord(\'Six Level Menu\')}}</a>\r\n                        <ul>\r\n                            <li data-menu-collapse>\r\n                                <a href=\"#\"><i class=\"fa fa-fw fa-folder-open\"></i> {{getWord(\'Item #2\')}}</a>\r\n                                <ul>\r\n                                    <li data-menu-collapse>\r\n                                        <a href=\"#\"><i class=\"fa fa-fw fa-folder-open\"></i> {{getWord(\'Sub #2.1\')}} </a>\r\n                                        <ul>\r\n                                            <li>\r\n                                                <a href=\"#\"><i class=\"fa fa-fw fa-file-text\"></i> {{getWord(\'Item\r\n                                                    #2.1.1\')}}</a>\r\n                                            </li>\r\n                                            <li data-menu-collapse>\r\n                                                <a href=\"#\"><i class=\"fa fa-fw fa-plus\"></i>{{getWord(\'Expand\')}}</a>\r\n                                                <ul>\r\n                                                    <li>\r\n                                                        <a href=\"#\"><i class=\"fa fa-fw fa-file-text\"></i>\r\n                                                            {{getWord(\'File\')}}</a>\r\n                                                    </li>\r\n                                                    <li>\r\n                                                        <a href=\"#\"><i class=\"fa fa-fw fa-trash-o\"></i>\r\n                                                            {{getWord(\'Delete\')}}</a></li>\r\n                                                </ul>\r\n                                            </li>\r\n                                        </ul>\r\n                                    </li>\r\n                                </ul>\r\n                            </li>\r\n                            <li data-menu-collapse>\r\n                                <a href=\"#\"><i class=\"fa fa-fw fa-folder-open\"></i> {{getWord(\'Item #3\')}}</a>\r\n\r\n                                <ul>\r\n                                    <li data-menu-collapse>\r\n                                        <a href=\"#\"><i class=\"fa fa-fw fa-folder-open\"></i> {{getWord(\'3ed Level\')}}\r\n                                        </a>\r\n                                        <ul>\r\n                                            <li>\r\n                                                <a href=\"#\"><i class=\"fa fa-fw fa-file-text\"></i>\r\n                                                    {{getWord(\'File\')}}</a>\r\n                                            </li>\r\n                                            <li>\r\n                                                <a href=\"#\"><i class=\"fa fa-fw fa-file-text\"></i>\r\n                                                    {{getWord(\'File\')}}</a>\r\n                                            </li>\r\n                                        </ul>\r\n                                    </li>\r\n                                </ul>\r\n\r\n                            </li>\r\n                        </ul>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n\r\n            <li data-ui-sref-active=\"active\">\r\n                <a data-ui-sref=\"app.widgets\" title=\"Widgets\"><i class=\"fa fa-lg fa-fw fa-list-alt\"></i> <span class=\"menu-item-parent\">{{getWord(\'Widgets\')}}</span></a>\r\n            </li>\r\n\r\n\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\">\r\n                    <i class=\"fa fa-lg fa-fw fa-cloud\"><em>3</em></i> <span class=\"menu-item-parent\">{{getWord(\'Cool Features\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.calendar\" title=\"Calendar\"><i\r\n                                class=\"fa fa-lg fa-fw fa-calendar\"></i> <span\r\n                                class=\"menu-item-parent\">{{getWord(\'Calendar\')}}</span></a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.maps\"><i class=\"fa fa-lg fa-fw fa-map-marker\"></i> <span class=\"menu-item-parent\">{{getWord(\'GMap Skins\')}}</span><span\r\n                                class=\"badge bg-color-greenLight pull-right inbox-badge\">9</span></a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\">\r\n                    <i class=\"fa fa-lg fa-fw fa-puzzle-piece\"></i> <span class=\"menu-item-parent\">{{getWord(\'App Views\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.appViews.projects\"><i class=\"fa fa-file-text-o\"></i>\r\n                            {{getWord(\'Projects\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.appViews.blogDemo\"><i class=\"fa fa-paragraph\"></i> {{getWord(\'Blog\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.appViews.galleryDemo\"><i class=\"fa fa-picture-o\"></i>\r\n                            {{getWord(\'Gallery\')}}</a>\r\n                    </li>\r\n\r\n                    <li data-menu-collapse>\r\n                        <a href=\"#\"><i class=\"fa fa-comments\"></i> {{getWord(\'Forum Layout\')}}</a>\r\n                        <ul>\r\n                            <li data-ui-sref-active=\"active\">\r\n                                <a data-ui-sref=\"app.appViews.forumDemo\"><i class=\"fa fa-picture-o\"></i>\r\n                                    {{getWord(\'General View\')}}</a>\r\n                            </li>\r\n                            <li data-ui-sref-active=\"active\">\r\n                                <a data-ui-sref=\"app.appViews.forumTopicDemo\"><i class=\"fa fa-picture-o\"></i>\r\n                                    {{getWord(\'Topic View\')}}</a>\r\n                            </li>\r\n                            <li data-ui-sref-active=\"active\">\r\n                                <a data-ui-sref=\"app.appViews.forumPostDemo\"><i class=\"fa fa-picture-o\"></i>\r\n                                    {{getWord(\'Post View\')}}</a>\r\n                            </li>\r\n                        </ul>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.appViews.profileDemo\"><i class=\"fa fa-group\"></i>\r\n                            {{getWord(\'Profile\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.appViews.timelineDemo\"><i class=\"fa fa-clock-o\"></i>\r\n                            {{getWord(\'Timeline\')}}</a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\">\r\n                    <i class=\"fa fa-lg fa-fw fa-shopping-cart\"></i> <span class=\"menu-item-parent\">{{getWord(\'E-Commerce\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.eCommerce.orders\" title=\"Orders\"> {{getWord(\'Orders\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.eCommerce.products\" title=\"Products View\"> {{getWord(\'Products View\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.eCommerce.detail\" title=\"Products Detail\"> {{getWord(\'Products Detail\')}}</a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\"><i class=\"fa fa-lg fa-fw fa-windows\"></i> <span class=\"menu-item-parent\">{{getWord(\'Miscellaneous\')}}</span></a>\r\n                <ul>\r\n                    <li>\r\n                        <a href=\"http://bootstraphunter.com/smartadmin-landing/\" target=\"_blank\">{{getWord(\'Landing\r\n                            Page\')}} <i class=\"fa fa-external-link\"></i></a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.misc.pricingTable\">{{getWord(\'Pricing Tables\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.misc.invoice\">{{getWord(\'Invoice\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"login\">{{getWord(\'Login\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"register\">{{getWord(\'Register\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"lock\">{{getWord(\'Locked Screen\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.misc.error404\">{{getWord(\'Error 404\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.misc.error500\">{{getWord(\'Error 500\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.misc.blank\">{{getWord(\'Blank Page\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.misc.emailTemplate\">{{getWord(\'Email Template\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.misc.search\">{{getWord(\'Search Page\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.misc.ckeditor\">{{getWord(\'CK Editor\')}}</a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse class=\"chat-users top-menu-invisible\">\r\n                <a href=\"#\"><i class=\"fa fa-lg fa-fw fa-comment-o\"><em class=\"bg-color-pink flash animated\">!</em></i>\r\n                    <span class=\"menu-item-parent\">{{getWord(\'Smart Chat API\')}} <sup>{{getWord(\'beta\')}}</sup></span></a>\r\n                <div aside-chat-widget></div>\r\n            </li>\r\n        </ul>\r\n\r\n        <!-- NOTE: This allows you to pull menu items from server -->\r\n        <!-- <ul data-smart-menu-items=\"/api/menu-items.json\"></ul> -->\r\n    </nav>\r\n\r\n  <span class=\"minifyme\" data-action=\"minifyMenu\" minify-menu>\r\n    <i class=\"fa fa-arrow-circle-left hit\"></i>\r\n  </span>\r\n\r\n</aside>");
+$templateCache.put("app/public/app/layout/partials/header.tpl.html","<header id=\"header\">\r\n    <div id=\"logo-group\">\r\n        <!-- PLACE YOUR LOGO HERE -->\r\n        <span id=\"logo\"> <img src=\"styles/img/ews/title_logo.png\" alt=\"東風管理系統\"> </span>\r\n        <!-- END LOGO PLACEHOLDER -->\r\n        <!-- Note: The activity badge color changes when clicked and resets the number to 0\r\n    Suggestion: You may want to set a flag when this happens to tick off all checked messages / notifications -->\r\n        <span id=\"activity\" class=\"activity-dropdown\" activities-dropdown-toggle> \r\n            <i class=\"fa fa-user\"></i> \r\n            <b class=\"badge bg-color-red\">21</b> \r\n        </span>\r\n        <div smart-include=\"app/dashboard/activities/activities.html\"></div>\r\n    </div>\r\n    <!-- <recent-projects></recent-projects> -->\r\n    <!-- pulled right: nav area -->\r\n    <div class=\"pull-right\">\r\n        <!-- collapse menu button -->\r\n        <div id=\"hide-menu\" class=\"btn-header pull-right\">\r\n            <span> <a toggle-menu title=\"Collapse Menu\"><i\r\n                class=\"fa fa-reorder\"></i></a> </span>\r\n        </div>\r\n        <!-- end collapse menu -->\r\n        <!-- #MOBILE -->\r\n        <!-- Top menu profile link : this shows only when top menu is active -->\r\n        <ul id=\"mobile-profile-img\" class=\"header-dropdown-list hidden-xs padding-5\">\r\n            <li class=\"\">\r\n                <a href=\"#\" class=\"dropdown-toggle no-margin userdropdown\" data-toggle=\"dropdown\">\r\n                    <img src=\"styles/img/avatars/sunny.png\" alt=\"John Doe\" class=\"online\" />\r\n                </a>\r\n                <ul class=\"dropdown-menu pull-right\">\r\n                    <li>\r\n                        <a href-void class=\"padding-10 padding-top-0 padding-bottom-0\"><i\r\n                            class=\"fa fa-cog\"></i> Setting</a>\r\n                    </li>\r\n                    <li class=\"divider\"></li>\r\n                    <li>\r\n                        <a ui-sref=\"app.appViews.profileDemo\" class=\"padding-10 padding-top-0 padding-bottom-0\"> <i class=\"fa fa-user\"></i>\r\n                            <u>P</u>rofile</a>\r\n                    </li>\r\n                    <li class=\"divider\"></li>\r\n                    <li>\r\n                        <a href-void class=\"padding-10 padding-top-0 padding-bottom-0\" data-action=\"toggleShortcut\"><i class=\"fa fa-arrow-down\"></i> <u>S</u>hortcut</a>\r\n                    </li>\r\n                    <li class=\"divider\"></li>\r\n                    <li>\r\n                        <a href-void class=\"padding-10 padding-top-0 padding-bottom-0\" data-action=\"launchFullscreen\"><i class=\"fa fa-arrows-alt\"></i> Full <u>S</u>creen</a>\r\n                    </li>\r\n                    <li class=\"divider\"></li>\r\n                    <li>\r\n                        <a href=\"#/login\" class=\"padding-10 padding-top-5 padding-bottom-5\" data-action=\"userLogout\"><i\r\n                            class=\"fa fa-sign-out fa-lg\"></i> <strong><u>L</u>ogout</strong></a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n        </ul>\r\n        <!-- logout button -->\r\n        <div id=\"logout\" class=\"btn-header transparent pull-right\">\r\n            <span> \r\n                <a ui-sref=\"login\" \r\n                   title=\"Sign Out\" \r\n                   data-action=\"userLogout\"\r\n                   data-logout-msg=\"You can improve your security further after logging out by closing this opened browser\">\r\n                   <i class=\"fa fa-sign-out\"></i>\r\n                </a> \r\n            </span>\r\n        </div>\r\n        <!-- end logout button -->\r\n        <!-- search mobile button (this is hidden till mobile view port) -->\r\n        <div id=\"search-mobile\" class=\"btn-header transparent pull-right\" data-search-mobile>\r\n            <span> <a href=\"#\" title=\"Search\"><i class=\"fa fa-search\"></i></a> </span>\r\n        </div>\r\n        <!-- end search mobile button -->\r\n        <!-- input: search field -->\r\n        <!-- <form action=\"#/search\" class=\"header-search pull-right\">\r\n            <input id=\"search-fld\" type=\"text\" name=\"param\" placeholder=\"Find reports and more\" data-autocomplete=\'[\r\n                    \"ActionScript\",\r\n                    \"AppleScript\",\r\n                    \"Asp\",\r\n                    \"BASIC\",\r\n                    \"C\",\r\n                    \"C++\",\r\n                    \"Clojure\",\r\n                    \"COBOL\",\r\n                    \"ColdFusion\",\r\n                    \"Erlang\",\r\n                    \"Fortran\",\r\n                    \"Groovy\",\r\n                    \"Haskell\",\r\n                    \"Java\",\r\n                    \"JavaScript\",\r\n                    \"Lisp\",\r\n                    \"Perl\",\r\n                    \"PHP\",\r\n                    \"Python\",\r\n                    \"Ruby\",\r\n                    \"Scala\",\r\n                    \"Scheme\"]\'>\r\n            <button type=\"submit\">\r\n                <i class=\"fa fa-search\"></i>\r\n            </button>\r\n            <a href=\"$\" id=\"cancel-search-js\" title=\"Cancel Search\"><i class=\"fa fa-times\"></i></a>\r\n        </form> -->\r\n        <!-- end input: search field -->\r\n        <!-- fullscreen button -->\r\n        <div id=\"fullscreen\" class=\"btn-header transparent pull-right\">\r\n            <span> <a full-screen title=\"Full Screen\"><i\r\n                class=\"fa fa-arrows-alt\"></i></a> </span>\r\n        </div>\r\n        <!-- end fullscreen button -->\r\n        <!-- #Voice Command: Start Speech -->\r\n        <!-- <div id=\"speech-btn\" class=\"btn-header transparent pull-right hidden-sm hidden-xs\">\r\n            <div>\r\n                <a title=\"Voice Command\" id=\"voice-command-btn\" speech-recognition><i class=\"fa fa-microphone\"></i></a>\r\n                <div class=\"popover bottom\">\r\n                    <div class=\"arrow\"></div>\r\n                    <div class=\"popover-content\">\r\n                        <h4 class=\"vc-title\">Voice command activated <br>\r\n                        <small>Please speak clearly into the mic</small>\r\n                    </h4>\r\n                        <h4 class=\"vc-title-error text-center\">\r\n                        <i class=\"fa fa-microphone-slash\"></i> Voice command failed\r\n                        <br>\r\n                        <small class=\"txt-color-red\">Must <strong>\"Allow\"</strong> Microphone</small>\r\n                        <br>\r\n                        <small class=\"txt-color-red\">Must have <strong>Internet Connection</strong></small>\r\n                    </h4>\r\n                        <a href-void class=\"btn btn-success\" id=\"speech-help-btn\">See Commands</a>\r\n                        <a href-void class=\"btn bg-color-purple txt-color-white\" onclick=\"$(\'#speech-btn .popover\').fadeOut(50);\">Close Popup</a>\r\n                    </div>\r\n                </div>\r\n            </div>\r\n        </div> -->\r\n        <!-- end voice command -->\r\n        \r\n        <!-- multiple lang dropdown : find all flags in the flags page -->\r\n        <language-selector></language-selector>\r\n        <!-- end multiple lang -->\r\n    </div>\r\n    <!-- end pulled right: nav area -->\r\n</header>\r\n");
+$templateCache.put("app/public/app/layout/partials/navigation.tpl.html","<aside id=\"left-panel\">\r\n\r\n    <!-- User info -->\r\n    <div login-info></div>\r\n    <!-- end user info -->\r\n\r\n    <nav data-smart-menu-items=\"/api/menu-items.json\">\r\n    <!-- <nav> -->\r\n        <!-- NOTE: Notice the gaps after each icon usage <i></i>..\r\n        Please note that these links work a bit different than\r\n        traditional href=\"\" links. See documentation for details.\r\n        -->\r\n\r\n        <!-- <ul data-smart-menu>\r\n            <li data-menu-collapse>\r\n                <a href=\"#\" title=\"Dashboard\"><i class=\"fa fa-lg fa-fw fa-home\"></i> <span\r\n                        class=\"menu-item-parent\">{{getWord(\'Dashboard\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.dashboard\">{{getWord(\'Analytics Dashboard\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.dashboard-social\">{{getWord(\'Social Wall\')}}</a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\" title=\"Restful\">\r\n                    <i class=\"fa fa-lg fa-fw fa-home\"></i> \r\n                    <span class=\"menu-item-parent\">{{getWord(\'Restful\')}}</span>\r\n                </a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.restful.alantest\">{{getWord(\'AlanTest\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.restful.gridtest\">{{getWord(\'GridTest\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.restful.exceltest\">{{getWord(\'ExcelTest\')}}</a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-ui-sref-active=\"active\">\r\n                <a data-ui-sref=\"app.mainwork\" title=\"MainWork\">\r\n                    <i class=\"fa fa-lg fa-fw fa-newspaper-o\"></i> \r\n                    <span class=\"menu-item-parent\">{{getWord(\'MainWork\')}}</span>\r\n                </a>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\" title=\"SelfWork\">\r\n                    <i class=\"fa fa-lg fa-fw fa-truck\"></i> \r\n                    <span class=\"menu-item-parent\">{{getWord(\'SelfWork\')}}</span>\r\n                </a>\r\n                <ul>\r\n                    <li data-menu-collapse>\r\n                        <a href=\"#\"><i class=\"fa fa-fw fa-folder-open\"></i> {{getWord(\'LeaderOption\')}} </a>\r\n                        <ul>\r\n                            <li data-ui-sref-active=\"active\">\r\n                                <a data-ui-sref=\"app.selfwork.compydistribution\"><i class=\"fa fa-building-o\"></i> {{getWord(\'CompyDistribution\')}}</a>\r\n                            </li>\r\n                            <li data-ui-sref-active=\"active\">\r\n                                <a data-ui-sref=\"app.selfwork.compydistribution\"><i class=\"fa fa-braille\"></i> {{getWord(\'AgentSetting\')}}</a>\r\n                            </li>\r\n                        </ul>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.selfwork.leaderjobs\"><i class=\"fa fa-cubes\"></i> {{getWord(\'LeaderJobs\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.selfwork.employeejobs\"><i class=\"fa fa-cube\"></i> {{getWord(\'EmployeeJobs\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.selfwork.historysearch\"><i class=\"fa fa-history\"></i> {{getWord(\'HistorySearch\')}}</a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\" title=\"Concerns\"><i class=\"fa fa-lg fa-fw fa-address-book-o\"></i> <span\r\n                        class=\"menu-item-parent\">{{getWord(\'Concerns\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.concerns.ban\"><i class=\"fa fa-ban\"></i> {{getWord(\'Ban\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.concerns.dailyalert\"><i class=\"fa fa-bell-o\"></i> {{getWord(\'DailyAlert\')}}</a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\" title=\"Settings\"><i class=\"fa fa-lg fa-fw fa-cog\"></i> <span\r\n                        class=\"menu-item-parent\">{{getWord(\'Settings\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.settings.profile\"><i class=\"fa fa-user\"></i> {{getWord(\'Profile\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.settings.accountmanagement\"><i class=\"fa fa-sitemap\"></i> {{getWord(\'Account Management\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.settings.billboardeditor\"><i class=\"fa fa-newspaper-o\"></i> {{getWord(\'Billboard Editor\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.settings.externalmanagement\"><i class=\"fa fa-external-link\"></i> {{getWord(\'External Management\')}}</a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse class=\"top-menu-invisible\">\r\n                <a href=\"#\"><i class=\"fa fa-lg fa-fw fa-cube txt-color-blue\"></i> <span class=\"menu-item-parent\">{{getWord(\'SmartAdmin Intel\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.smartAdmin.appLayouts\"><i class=\"fa fa-gear\"></i>\r\n                            {{getWord(\'App Layouts\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.smartAdmin.prebuiltSkins\"><i class=\"fa fa-picture-o\"></i>\r\n                            {{getWord(\'Prebuilt Skins\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.smartAdmin.appLayout\"><i class=\"fa fa-cube\"></i> {{getWord(\'App Settings\')}}</a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-ui-sref-active=\"active\">\r\n                <a data-ui-sref=\"app.inbox.folder\" title=\"Outlook\">\r\n                    <i class=\"fa fa-lg fa-fw fa-inbox\"></i> <span class=\"menu-item-parent\">{{getWord(\'Outlook\')}}</span><span\r\n                        unread-messages-count class=\"badge pull-right inbox-badge\"></span></a>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\"><i class=\"fa fa-lg fa-fw fa-bar-chart-o\"></i> <span class=\"menu-item-parent\">{{getWord(\'Graphs\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.graphs.flot\">{{getWord(\'Flot Chart\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.graphs.morris\">{{getWord(\'Morris Charts\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.graphs.sparkline\">{{getWord(\'Sparkline\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.graphs.easyPieCharts\">{{getWord(\'Easy Pie Charts\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.graphs.dygraphs\">{{getWord(\'Dygraphs\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.graphs.chartjs\">Chart.js</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.graphs.highchartTables\">Highchart Tables <span\r\n                                class=\"badge pull-right inbox-badge bg-color-yellow\">new</span></a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\"><i class=\"fa fa-lg fa-fw fa-table\"></i> <span\r\n                        class=\"menu-item-parent\">{{getWord(\'Tables\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.tables.normal\">{{getWord(\'Normal Tables\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.tables.datatables\">{{getWord(\'Data Tables\')}} <span\r\n                                class=\"badge inbox-badge bg-color-greenLight\">v1.10</span></a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.tables.jqgrid\">{{getWord(\'Jquery Grid\')}}</a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\"><i class=\"fa fa-lg fa-fw fa-pencil-square-o\"></i> <span class=\"menu-item-parent\">{{getWord(\'Forms\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.form.elements\">{{getWord(\'Smart Form Elements\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.form.layouts\">{{getWord(\'Smart Form Layouts\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.form.validation\">{{getWord(\'Smart Form Validation\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.form.bootstrapForms\">{{getWord(\'Bootstrap Form Elements\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.form.bootstrapValidation\">{{getWord(\'Bootstrap Form Validation\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.form.plugins\">{{getWord(\'Form Plugins\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.form.wizards\">{{getWord(\'Wizards\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.form.editors\">{{getWord(\'Bootstrap Editors\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.form.dropzone\">{{getWord(\'Dropzone\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.form.imageEditor\">{{getWord(\'Image Cropping\')}} <span\r\n                                class=\"badge pull-right inbox-badge bg-color-yellow\">new</span></a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\"><i class=\"fa fa-lg fa-fw fa-desktop\"></i> <span class=\"menu-item-parent\">{{getWord(\'UI Elements\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.ui.general\">{{getWord(\'General Elements\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.ui.buttons\">{{getWord(\'Buttons\')}}</a>\r\n                    </li>\r\n                    <li data-menu-collapse>\r\n                        <a href=\"#\">{{getWord(\'Icons\')}}</a>\r\n                        <ul>\r\n                            <li data-ui-sref-active=\"active\">\r\n                                <a data-ui-sref=\"app.ui.iconsFa\"><i class=\"fa fa-plane\"></i> {{getWord(\'Font Awesome\')}}</a>\r\n                            </li>\r\n                            <li data-ui-sref-active=\"active\">\r\n                                <a data-ui-sref=\"app.ui.iconsGlyph\"><i class=\"glyphicon glyphicon-plane\"></i>\r\n                                    {{getWord(\'Glyph Icons\')}}</a>\r\n                            </li>\r\n                            <li data-ui-sref-active=\"active\">\r\n                                <a data-ui-sref=\"app.ui.iconsFlags\"><i class=\"fa fa-flag\"></i> {{getWord(\'Flags\')}}</a>\r\n                            </li>\r\n                        </ul>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.ui.grid\">{{getWord(\'Grid\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.ui.treeView\">{{getWord(\'Tree View\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.ui.nestableLists\">{{getWord(\'Nestable Lists\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.ui.jqueryUi\">{{getWord(\'JQuery UI\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.ui.typography\">{{getWord(\'Typography\')}}</a>\r\n                    </li>\r\n                    <li data-menu-collapse>\r\n                        <a href=\"#\">{{getWord(\'Six Level Menu\')}}</a>\r\n                        <ul>\r\n                            <li data-menu-collapse>\r\n                                <a href=\"#\"><i class=\"fa fa-fw fa-folder-open\"></i> {{getWord(\'Item #2\')}}</a>\r\n                                <ul>\r\n                                    <li data-menu-collapse>\r\n                                        <a href=\"#\"><i class=\"fa fa-fw fa-folder-open\"></i> {{getWord(\'Sub #2.1\')}} </a>\r\n                                        <ul>\r\n                                            <li>\r\n                                                <a href=\"#\"><i class=\"fa fa-fw fa-file-text\"></i> {{getWord(\'Item\r\n                                                    #2.1.1\')}}</a>\r\n                                            </li>\r\n                                            <li data-menu-collapse>\r\n                                                <a href=\"#\"><i class=\"fa fa-fw fa-plus\"></i>{{getWord(\'Expand\')}}</a>\r\n                                                <ul>\r\n                                                    <li>\r\n                                                        <a href=\"#\"><i class=\"fa fa-fw fa-file-text\"></i>\r\n                                                            {{getWord(\'File\')}}</a>\r\n                                                    </li>\r\n                                                    <li>\r\n                                                        <a href=\"#\"><i class=\"fa fa-fw fa-trash-o\"></i>\r\n                                                            {{getWord(\'Delete\')}}</a></li>\r\n                                                </ul>\r\n                                            </li>\r\n                                        </ul>\r\n                                    </li>\r\n                                </ul>\r\n                            </li>\r\n                            <li data-menu-collapse>\r\n                                <a href=\"#\"><i class=\"fa fa-fw fa-folder-open\"></i> {{getWord(\'Item #3\')}}</a>\r\n\r\n                                <ul>\r\n                                    <li data-menu-collapse>\r\n                                        <a href=\"#\"><i class=\"fa fa-fw fa-folder-open\"></i> {{getWord(\'3ed Level\')}}\r\n                                        </a>\r\n                                        <ul>\r\n                                            <li>\r\n                                                <a href=\"#\"><i class=\"fa fa-fw fa-file-text\"></i>\r\n                                                    {{getWord(\'File\')}}</a>\r\n                                            </li>\r\n                                            <li>\r\n                                                <a href=\"#\"><i class=\"fa fa-fw fa-file-text\"></i>\r\n                                                    {{getWord(\'File\')}}</a>\r\n                                            </li>\r\n                                        </ul>\r\n                                    </li>\r\n                                </ul>\r\n\r\n                            </li>\r\n                        </ul>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n\r\n            <li data-ui-sref-active=\"active\">\r\n                <a data-ui-sref=\"app.widgets\" title=\"Widgets\"><i class=\"fa fa-lg fa-fw fa-list-alt\"></i> <span class=\"menu-item-parent\">{{getWord(\'Widgets\')}}</span></a>\r\n            </li>\r\n\r\n\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\">\r\n                    <i class=\"fa fa-lg fa-fw fa-cloud\"><em>3</em></i> <span class=\"menu-item-parent\">{{getWord(\'Cool Features\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.calendar\" title=\"Calendar\"><i\r\n                                class=\"fa fa-lg fa-fw fa-calendar\"></i> <span\r\n                                class=\"menu-item-parent\">{{getWord(\'Calendar\')}}</span></a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.maps\"><i class=\"fa fa-lg fa-fw fa-map-marker\"></i> <span class=\"menu-item-parent\">{{getWord(\'GMap Skins\')}}</span><span\r\n                                class=\"badge bg-color-greenLight pull-right inbox-badge\">9</span></a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\">\r\n                    <i class=\"fa fa-lg fa-fw fa-puzzle-piece\"></i> <span class=\"menu-item-parent\">{{getWord(\'App Views\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.appViews.projects\"><i class=\"fa fa-file-text-o\"></i>\r\n                            {{getWord(\'Projects\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.appViews.blogDemo\"><i class=\"fa fa-paragraph\"></i> {{getWord(\'Blog\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.appViews.galleryDemo\"><i class=\"fa fa-picture-o\"></i>\r\n                            {{getWord(\'Gallery\')}}</a>\r\n                    </li>\r\n\r\n                    <li data-menu-collapse>\r\n                        <a href=\"#\"><i class=\"fa fa-comments\"></i> {{getWord(\'Forum Layout\')}}</a>\r\n                        <ul>\r\n                            <li data-ui-sref-active=\"active\">\r\n                                <a data-ui-sref=\"app.appViews.forumDemo\"><i class=\"fa fa-picture-o\"></i>\r\n                                    {{getWord(\'General View\')}}</a>\r\n                            </li>\r\n                            <li data-ui-sref-active=\"active\">\r\n                                <a data-ui-sref=\"app.appViews.forumTopicDemo\"><i class=\"fa fa-picture-o\"></i>\r\n                                    {{getWord(\'Topic View\')}}</a>\r\n                            </li>\r\n                            <li data-ui-sref-active=\"active\">\r\n                                <a data-ui-sref=\"app.appViews.forumPostDemo\"><i class=\"fa fa-picture-o\"></i>\r\n                                    {{getWord(\'Post View\')}}</a>\r\n                            </li>\r\n                        </ul>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.appViews.profileDemo\"><i class=\"fa fa-group\"></i>\r\n                            {{getWord(\'Profile\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.appViews.timelineDemo\"><i class=\"fa fa-clock-o\"></i>\r\n                            {{getWord(\'Timeline\')}}</a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\">\r\n                    <i class=\"fa fa-lg fa-fw fa-shopping-cart\"></i> <span class=\"menu-item-parent\">{{getWord(\'E-Commerce\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.eCommerce.orders\" title=\"Orders\"> {{getWord(\'Orders\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.eCommerce.products\" title=\"Products View\"> {{getWord(\'Products View\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.eCommerce.detail\" title=\"Products Detail\"> {{getWord(\'Products Detail\')}}</a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\"><i class=\"fa fa-lg fa-fw fa-windows\"></i> <span class=\"menu-item-parent\">{{getWord(\'Miscellaneous\')}}</span></a>\r\n                <ul>\r\n                    <li>\r\n                        <a href=\"http://bootstraphunter.com/smartadmin-landing/\" target=\"_blank\">{{getWord(\'Landing\r\n                            Page\')}} <i class=\"fa fa-external-link\"></i></a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.misc.pricingTable\">{{getWord(\'Pricing Tables\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.misc.invoice\">{{getWord(\'Invoice\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"login\">{{getWord(\'Login\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"register\">{{getWord(\'Register\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"lock\">{{getWord(\'Locked Screen\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.misc.error404\">{{getWord(\'Error 404\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.misc.error500\">{{getWord(\'Error 500\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.misc.blank\">{{getWord(\'Blank Page\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.misc.emailTemplate\">{{getWord(\'Email Template\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.misc.search\">{{getWord(\'Search Page\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.misc.ckeditor\">{{getWord(\'CK Editor\')}}</a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse class=\"chat-users top-menu-invisible\">\r\n                <a href=\"#\"><i class=\"fa fa-lg fa-fw fa-comment-o\"><em class=\"bg-color-pink flash animated\">!</em></i>\r\n                    <span class=\"menu-item-parent\">{{getWord(\'Smart Chat API\')}} <sup>{{getWord(\'beta\')}}</sup></span></a>\r\n                <div aside-chat-widget></div>\r\n            </li>\r\n        </ul> -->\r\n\r\n        <!-- NOTE: This allows you to pull menu items from server -->\r\n        <!-- <ul data-smart-menu-items=\"/api/menu-items.json\"></ul> -->\r\n    </nav>\r\n\r\n  <span class=\"minifyme\" data-action=\"minifyMenu\" minify-menu>\r\n    <i class=\"fa fa-arrow-circle-left hit\"></i>\r\n  </span>\r\n\r\n</aside>");
 $templateCache.put("app/public/app/layout/partials/sub-header.tpl.html","<div class=\"col-xs-12 col-sm-5 col-md-5 col-lg-8\" data-sparkline-container>\r\n    <ul id=\"sparks\" class=\"\">\r\n        <li class=\"sparks-info\">\r\n            <h5> My Income <span class=\"txt-color-blue\">$47,171</span></h5>\r\n            <div class=\"sparkline txt-color-blue hidden-mobile hidden-md hidden-sm\">\r\n                1300, 1877, 2500, 2577, 2000, 2100, 3000, 2700, 3631, 2471, 2700, 3631, 2471\r\n            </div>\r\n        </li>\r\n        <li class=\"sparks-info\">\r\n            <h5> Site Traffic <span class=\"txt-color-purple\"><i class=\"fa fa-arrow-circle-up\"></i>&nbsp;45%</span></h5>\r\n            <div class=\"sparkline txt-color-purple hidden-mobile hidden-md hidden-sm\">\r\n                110,150,300,130,400,240,220,310,220,300, 270, 210\r\n            </div>\r\n        </li>\r\n        <li class=\"sparks-info\">\r\n            <h5> Site Orders <span class=\"txt-color-greenDark\"><i class=\"fa fa-shopping-cart\"></i>&nbsp;2447</span></h5>\r\n            <div class=\"sparkline txt-color-greenDark hidden-mobile hidden-md hidden-sm\">\r\n                110,150,300,130,400,240,220,310,220,300, 270, 210\r\n            </div>\r\n        </li>\r\n    </ul>\r\n</div>\r\n			");
 $templateCache.put("app/public/app/layout/partials/voice-commands.tpl.html","<!-- TRIGGER BUTTON:\r\n<a href=\"/my-ajax-page.html\" data-toggle=\"modal\" data-target=\"#remoteModal\" class=\"btn btn-default\">Open Modal</a>  -->\r\n\r\n<!-- MODAL PLACE HOLDER\r\n<div class=\"modal fade\" id=\"remoteModal\" tabindex=\"-1\" role=\"dialog\" aria-labelledby=\"remoteModalLabel\" aria-hidden=\"true\">\r\n<div class=\"modal-dialog\">\r\n<div class=\"modal-content\"></div>\r\n</div>\r\n</div>   -->\r\n<!--////////////////////////////////////-->\r\n\r\n<!--<div class=\"modal-header\">\r\n<button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-hidden=\"true\">\r\n&times;\r\n</button>\r\n<h4 class=\"modal-title\" id=\"myModalLabel\">Command List</h4>\r\n</div>-->\r\n<div class=\"modal-body\">\r\n\r\n	<h1><i class=\"fa fa-microphone text-muted\"></i>&nbsp;&nbsp; SmartAdmin Voice Command</h1>\r\n	<hr class=\"simple\">\r\n	<h5>Instruction</h5>\r\n\r\n	Click <span class=\"text-success\">\"Allow\"</span> to access your microphone and activate Voice Command.\r\n	You will notice a <span class=\"text-primary\"><strong>BLUE</strong> Flash</span> on the microphone icon indicating activation.\r\n	The icon will appear <span class=\"text-danger\"><strong>RED</strong></span> <span class=\"label label-danger\"><i class=\"fa fa-microphone fa-lg\"></i></span> if you <span class=\"text-danger\">\"Deny\"</span> access or don\'t have any microphone installed.\r\n	<br>\r\n	<br>\r\n	As a security precaution, your browser will disconnect the microphone every 60 to 120 seconds (sooner if not being used). In which case Voice Command will prompt you again to <span class=\"text-success\">\"Allow\"</span> or <span class=\"text-danger\">\"Deny\"</span> access to your microphone.\r\n	<br>\r\n	<br>\r\n	If you host your page over <strong>http<span class=\"text-success\">s</span></strong> (secure socket layer) protocol you can wave this security measure and have an unintrupted Voice Command.\r\n	<br>\r\n	<br>\r\n	<h5>Commands</h5>\r\n	<ul>\r\n		<li>\r\n			<strong>\'show\' </strong> then say the <strong>*page*</strong> you want to go to. For example <strong>\"show inbox\"</strong> or <strong>\"show calendar\"</strong>\r\n		</li>\r\n		<li>\r\n			<strong>\'mute\' </strong> - mutes all sound effects for the theme.\r\n		</li>\r\n		<li>\r\n			<strong>\'sound on\'</strong> - unmutes all sound effects for the theme.\r\n		</li>\r\n		<li>\r\n			<span class=\"text-danger\"><strong>\'stop\'</strong></span> - deactivates voice command.\r\n		</li>\r\n		<li>\r\n			<span class=\"text-primary\"><strong>\'help\'</strong></span> - brings up the command list\r\n		</li>\r\n		<li>\r\n			<span class=\"text-danger\"><strong>\'got it\'</strong></span> - closes help modal\r\n		</li>\r\n		<li>\r\n			<strong>\'hide navigation\'</strong> - toggle navigation collapse\r\n		</li>\r\n		<li>\r\n			<strong>\'show navigation\'</strong> - toggle navigation to open (can be used again to close)\r\n		</li>\r\n		<li>\r\n			<strong>\'scroll up\'</strong> - scrolls to the top of the page\r\n		</li>\r\n		<li>\r\n			<strong>\'scroll down\'</strong> - scrollts to the bottom of the page\r\n		</li>\r\n		<li>\r\n			<strong>\'go back\' </strong> - goes back in history (history -1 click)\r\n		</li>\r\n		<li>\r\n			<strong>\'logout\'</strong> - logs you out\r\n		</li>\r\n	</ul>\r\n	<br>\r\n	<h5>Adding your own commands</h5>\r\n	Voice Command supports up to 80 languages. Adding your own commands is extreamly easy. All commands are stored inside <strong>app.config.js</strong> file under the <code>var commands = {...}</code>. \r\n\r\n	<hr class=\"simple\">\r\n	<div class=\"text-right\">\r\n		<button type=\"button\" class=\"btn btn-success btn-lg\" data-dismiss=\"modal\">\r\n			Got it!\r\n		</button>\r\n	</div>\r\n\r\n</div>\r\n<!--<div class=\"modal-footer\">\r\n<button type=\"button\" class=\"btn btn-primary\" data-dismiss=\"modal\">Got it!</button>\r\n</div> -->");
 $templateCache.put("app/public/app/layout/shortcut/shortcut.tpl.html","<div id=\"shortcut\">\r\n	<ul>\r\n		<li>\r\n			<a href=\"#/inbox/\" class=\"jarvismetro-tile big-cubes bg-color-blue\"> <span class=\"iconbox\"> <i class=\"fa fa-envelope fa-4x\"></i> <span>Mail <span class=\"label pull-right bg-color-darken\">14</span></span> </span> </a>\r\n		</li>\r\n		<li>\r\n			<a href=\"#/calendar\" class=\"jarvismetro-tile big-cubes bg-color-orangeDark\"> <span class=\"iconbox\"> <i class=\"fa fa-calendar fa-4x\"></i> <span>Calendar</span> </span> </a>\r\n		</li>\r\n		<li>\r\n			<a href=\"#/maps\" class=\"jarvismetro-tile big-cubes bg-color-purple\"> <span class=\"iconbox\"> <i class=\"fa fa-map-marker fa-4x\"></i> <span>Maps</span> </span> </a>\r\n		</li>\r\n		<li>\r\n			<a href=\"#/invoice\" class=\"jarvismetro-tile big-cubes bg-color-blueDark\"> <span class=\"iconbox\"> <i class=\"fa fa-book fa-4x\"></i> <span>Invoice <span class=\"label pull-right bg-color-darken\">99</span></span> </span> </a>\r\n		</li>\r\n		<li>\r\n			<a href=\"#/gallery\" class=\"jarvismetro-tile big-cubes bg-color-greenLight\"> <span class=\"iconbox\"> <i class=\"fa fa-picture-o fa-4x\"></i> <span>Gallery </span> </span> </a>\r\n		</li>\r\n		<li>\r\n			<a href=\"#/profile\" class=\"jarvismetro-tile big-cubes selected bg-color-pinkDark\"> <span class=\"iconbox\"> <i class=\"fa fa-user fa-4x\"></i> <span>My Profile </span> </span> </a>\r\n		</li>\r\n	</ul>\r\n</div>");
@@ -5738,12 +6313,27 @@ angular.module('app').directive('toggleShortcut', function($log,$timeout) {
 
 angular.module('app.mainwork').controller('MainWorkCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, RestfulApi, ToolboxApi) {
     
-    var $vm = this,
-        cellClass = function(grid, row, col, rowRenderIndex, colRenderIndex) {
-            if (row.entity.BB_STICK_TOP) {
-                return 'bg-color-lighten';
+    $scope.barChartData = _.range(2).map(function (barNum) {
+        return {
+            data: _.range(12).map(function (i) {
+                return [i+1, parseInt(Math.random() * 30)]
+            }),
+            bars: {
+                show: true,
+                barWidth: 0.2,
+                order: barNum + 1
             }
-        };
+        }
+    });
+
+    $scope.pieChartData = _.range(Math.floor(Math.random() * 10) + 3).map(function(i){
+        return {
+            label : "Series" + (i + 1),
+            data : Math.floor(Math.random() * 100) + 1
+        }
+    });
+
+    var $vm = this;
 
     angular.extend(this, {
         Init : function(){
@@ -5827,17 +6417,20 @@ angular.module('app.mainwork').controller('MainWorkCtrl', function ($scope, $sta
         billboardOptions : {
             data:  '$vm.billboardData',
             columnDefs: [
-                { name: 'BB_STICK_TOP', displayName: '置頂', cellClass: cellClass, cellTemplate: $templateCache.get('accessibilityIsTop'), width: '5%' },
-                { name: 'BB_POST_FROM', displayName: '開始公佈時間', cellFilter: 'dateFilter', cellClass: cellClass },
-                { name: 'BB_POST_TOXX', displayName: '結束公佈時間', cellFilter: 'dateFilter', cellClass: cellClass },
-                { name: 'BB_TITLE',     displayName: '標題', cellClass: cellClass, cellTemplate: $templateCache.get('accessibilityTitleURL') },
-                { name: 'BB_CONTENT',   displayName: '內容', visible: false, cellClass: cellClass },
+                { name: 'BB_STICK_TOP', displayName: '置頂', cellTemplate: $templateCache.get('accessibilityIsTop'), width: '5%' },
+                { name: 'BB_POST_FROM', displayName: '開始公佈時間', cellFilter: 'dateFilter' },
+                { name: 'BB_POST_TOXX', displayName: '結束公佈時間', cellFilter: 'dateFilter' },
+                { name: 'BB_TITLE',     displayName: '標題', cellTemplate: $templateCache.get('accessibilityTitleURL') },
+                { name: 'BB_CONTENT',   displayName: '內容', visible: false },
                 { name: 'BB_CR_USER',   visible: false },
                 { name: 'BB_CR_DATETIME',   visible: false },
-                { name: 'BBAF_COUNTS',  displayName: '附件', width: '5%', cellClass: cellClass, cellTemplate: $templateCache.get('accessibilityFileCounts') },
-                { name: 'U_NAME',       displayName: '公佈人員名稱', visible: false, cellClass: cellClass },
-                { name: 'Options'     , displayName: '下載', width: '7%', enableFiltering: false, cellClass: cellClass, cellTemplate: $templateCache.get('accessibilityToOnceDownload') }
+                { name: 'BBAF_COUNTS',  displayName: '附件', width: '5%', cellTemplate: $templateCache.get('accessibilityFileCounts') },
+                { name: 'U_NAME',       displayName: '公佈人員名稱', visible: false },
+                { name: 'Options'     , displayName: '下載', width: '7%', enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToOnceDownload') }
             ],
+            rowTemplate: '<div> \
+                            <div ng-repeat="(colRenderIndex, col) in colContainer.renderedColumns track by col.colDef.name" class="ui-grid-cell" ng-class="row.entity.BB_STICK_TOP ? \'bg-color-lighten\' : \'\'" ui-grid-cell></div> \
+                          </div>',
             enableFiltering: false,
             enableSorting: false,
             enableColumnMenus: false,
@@ -6171,6 +6764,80 @@ angular.module('app.selfwork').controller('EmployeeJobsCtrl', function ($scope, 
 })
 "use strict";
 
+angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache) {
+    
+    var $vm = this;
+
+	angular.extend(this, {
+        profile : Session.Get(),
+        searchCondition : {
+        	startDate : new Date(),
+        	endDate : new Date(),
+        },
+        defaultChoice : 'Left',
+        gridMethod : {
+            //退件
+            rejectData : function(row){
+                console.log(row);
+            },
+            //編輯
+            modifyData : function(row){
+                console.log(row);
+                $state.transitionTo("app.selfwork.jobs.editorjob", {
+                    data: {
+                      id: 5,
+                      blue: '#0000FF'
+                    }
+                });
+            },
+            //結單
+            closeData : function(row){
+                console.log(row);
+            }
+        },
+        historySearchOptions : {
+            data:  [
+                {
+                    a : '2017-02-09',
+                    b : '297-64659291',
+                    c : '2017-01-15',
+                    d : 'CI5822',
+                    e : 'HK',
+                    f : '新桥供应链',
+                    g : true
+                },
+                {
+                    a : '2017-02-09',
+                    b : '297-64659292',
+                    c : '2017-01-15',
+                    d : 'CI5822',
+                    e : 'HK',
+                    f : '新桥供应链',
+                    g : true
+                },
+            ],
+            columnDefs: [
+                { name: 'a',        displayName: '提單日期' },
+                { name: 'b',        displayName: '主號' },
+                { name: 'c',        displayName: '進口日期' },
+                { name: 'd',        displayName: '班機' },
+                { name: 'e',        displayName: '啟運國別' },
+                { name: 'f',        displayName: '寄件人或公司' },
+                { name: 'g',        displayName: '狀態', cellTemplate: $templateCache.get('accessibilityLightStatus') },
+                { name: 'Options',  displayName: '操作', cellTemplate: $templateCache.get('accessibilityToDMC') }
+            ],
+            enableFiltering: false,
+            enableSorting: false,
+            enableColumnMenus: false,
+            // enableVerticalScrollbar: false,
+            paginationPageSizes: [10, 25, 50],
+            paginationPageSize: 10
+        }
+    });
+
+})
+"use strict";
+
 angular.module('app.selfwork').controller('SelfWorkHistorySearchCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache) {
     
     var $vm = this;
@@ -6245,7 +6912,7 @@ angular.module('app.selfwork').controller('SelfWorkHistorySearchCtrl', function 
 })
 "use strict";
 
-angular.module('app.settings').controller('AccountManagementCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, $filter, SysCode, RestfulApi, uiGridConstants, boolFilter, jobFilter, departFilter, roleFilter) {
+angular.module('app.settings').controller('AccountManagementCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, $filter, SysCode, RestfulApi, uiGridConstants, boolFilter, gradeFilter, departFilter, roleFilter) {
 
 	var $vm = this;
     // console.log(Account.get());
@@ -6338,11 +7005,11 @@ angular.module('app.settings').controller('AccountManagementCtrl', function ($sc
                 { name: 'U_NAME'   ,  displayName: '名稱' },
                 { name: 'U_EMAIL'  ,  displayName: '信箱' },
                 { name: 'U_PHONE'  ,  displayName: '電話' },
-                { name: 'U_JOB'    ,  displayName: '職稱', cellFilter: 'jobFilter', filter: 
+                { name: 'U_GRADE'  ,  displayName: '職稱', cellFilter: 'gradeFilter', filter: 
                     {
                         term: null,
                         type: uiGridConstants.filter.SELECT,
-                        selectOptions: jobFilter
+                        selectOptions: gradeFilter
                     }
                 },
                 { name: 'U_ROLE'   ,  displayName: '角色', cellFilter: 'roleFilter', filter: 
@@ -6350,13 +7017,6 @@ angular.module('app.settings').controller('AccountManagementCtrl', function ($sc
                         term: null,
                         type: uiGridConstants.filter.SELECT,
                         selectOptions: roleFilter
-                    }
-                },
-                { name: 'U_DEPART' ,  displayName: '單位', cellFilter: 'departFilter', filter: 
-                    {
-                        term: null,
-                        type: uiGridConstants.filter.SELECT,
-                        selectOptions: departFilter
                     }
                 },
                 { name: 'Options'  ,  displayName: '操作', enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToMDForAccount') }
@@ -7559,14 +8219,14 @@ angular.module('app.settings').controller('NewsCtrl', function ($scope, $statePa
 });
 "use strict";
 
-angular.module('app.settings').controller('ProfileCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal) {
+angular.module('app.settings').controller('ProfileCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, RestfulApi, $filter) {
 
     var $vm = this;
 
     angular.extend(this, {
         profile : Session.Get(),
-        Editor : function (pProfile){
-            console.log(pProfile);
+        Editor : function (){
+
             var modalInstance = $uibModal.open({
                 animation: true,
                 ariaLabelledBy: 'modal-title',
@@ -7577,14 +8237,37 @@ angular.module('app.settings').controller('ProfileCtrl', function ($scope, $stat
                 size: 'lg',
                 // appendTo: parentElem,
                 resolve: {
-                    items: function() {
-                        return pProfile;
+                    profile: function() {
+                        return $vm.profile;
                     }
                 }
             });
 
             modalInstance.result.then(function(selectedItem) {
                 // $ctrl.selected = selectedItem;
+                // console.log(selectedItem);
+
+                RestfulApi.UpdateMSSQLData({
+                    updatename: 'UpdateByEncrypt',
+                    table: 0,
+                    params: {
+                        U_PW          : selectedItem.C_PW,
+                        U_EMAIL       : selectedItem.U_EMAIL,
+                        U_UP_USER     : $vm.profile.U_ID,
+                        U_UP_DATETIME : $filter('date')(new Date, 'yyyy-MM-dd HH:mm:ss')
+                    },
+                    condition: {
+                        U_ID          : selectedItem.U_ID
+                    }
+                }).then(function (res) {
+
+                    toaster.success("狀態", "更新成功並重新登入", 3000);
+
+                    Session.Destroy();
+                    $state.transitionTo("login");
+                }, function (err) {
+
+                });
             }, function() {
                 // $log.info('Modal dismissed at: ' + new Date());
             });
@@ -7592,34 +8275,35 @@ angular.module('app.settings').controller('ProfileCtrl', function ($scope, $stat
         }
     });
 
-    // $scope.Login = function(mlVM){
-    //     console.log(mlVM);
-    //     AuthApi.Login({
-    //         queryname: 'SelectAllUserInfo',
-    //         params: {
-    //             U_ID : mlVM.userid,
-    //             U_PW : mlVM.password
-    //         }
-    //     }).then(function(res) {
-    //         // console.log(res);
-    //         if(res.data["returnData"] && res.data["returnData"].length > 0){
-    //             toaster.success("狀態", "登入成功", 3000);
-    //             $state.transitionTo("app.dashboard");
-    //         }else{                
-    //             toaster.error("狀態", "帳號密碼錯誤", 3000);
-    //         }
-    //     });
-    // }
 })
-.controller('ModalInstanceCtrl', function ($uibModalInstance, items) {
+.controller('ModalInstanceCtrl', function ($uibModalInstance, profile) {
     var $ctrl = this;
-    $ctrl.items = items;
-    $ctrl.selected = {
-        item: $ctrl.items[0]
+    $ctrl.mdData = profile;
+
+    /**
+     * [CheckPW description]
+     * N_PW : 當前密碼
+     * M_PW : 更改密碼
+     * C_PW : 確認密碼
+     */
+    $ctrl.CheckPW = function(){
+        var _check = true;
+
+        // N_PW必須輸入且正確
+        if(!angular.isUndefined($ctrl.mdData['N_PW']) && $ctrl.mdData['N_PW'] == profile.U_PW){
+            if(!angular.isUndefined($ctrl.mdData['M_PW']) && !angular.isUndefined($ctrl.mdData['C_PW'])){
+                // 更改密碼 等於 確認密碼
+                if($ctrl.mdData['M_PW'] == $ctrl.mdData['C_PW']){
+                    _check = false;
+                }
+            }
+        }
+
+        return _check;
     };
 
     $ctrl.ok = function() {
-        $uibModalInstance.close($ctrl.selected.item);
+        $uibModalInstance.close($ctrl.mdData);
     };
 
     $ctrl.cancel = function() {
@@ -11665,7 +12349,7 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                 // 測試用
                 // if($vm.vmData == null){
                 //     $vm.vmData = {
-                //         OL_SEQ : 'AdminTest20170419101047'
+                //         OL_SEQ : 'AdminTest20170418195141'
                 //     };
                 // }
                 
@@ -11685,13 +12369,13 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                     animation: true,
                     ariaLabelledBy: 'modal-title',
                     ariaDescribedBy: 'modal-body',
-                    templateUrl: 'myModalContent.html',
-                    controller: 'ModalInstanceCtrl',
+                    templateUrl: 'opAddBanModalContent.html',
+                    controller: 'OPAddBanModalInstanceCtrl',
                     controllerAs: '$ctrl',
                     // size: 'lg',
                     // appendTo: parentElem,
                     resolve: {
-                        items: function() {
+                        vmData: function() {
                             return row.entity;
                         }
                     }
@@ -11699,6 +12383,23 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
 
                 modalInstance.result.then(function(selectedItem) {
                     // $ctrl.selected = selectedItem;
+                    console.log(selectedItem);
+                    RestfulApi.InsertMSSQLData({
+                        insertname: 'Insert',
+                        table: 13,
+                        params: {
+                            BLFO_SEQ         : selectedItem.IL_SEQ,
+                            BLFO_NEWBAGNO    : selectedItem.IL_NEWBAGNO,
+                            BLFO_NEWSMALLNO  : selectedItem.IL_NEWSMALLNO,
+                            BLFO_ORDERINDEX  : selectedItem.IL_ORDERINDEX,
+                            BLFO_CR_USER     : $vm.profile.U_ID,
+                            BLFO_CR_DATETIME : $filter('date')(new Date, 'yyyy-MM-dd HH:mm:ss')
+                        }
+                    }).then(function(res) {
+                        // 加入後需要Disabled
+                        row.entity.BLFO_TRACK = true;
+                    });
+
                 }, function() {
                     // $log.info('Modal dismissed at: ' + new Date());
                 });
@@ -11731,6 +12432,9 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                 { name: 'IL_TRCOM'      , displayName: '派送公司', width: 115 },
                 { name: 'Options'       , displayName: '操作', width: 160, enableCellEdit: false, enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToCB'), pinnedRight:true }
             ],
+            rowTemplate: '<div> \
+                            <div ng-repeat="(colRenderIndex, col) in colContainer.renderedColumns track by col.colDef.name" class="ui-grid-cell" ng-class="row.entity.BLFO_TRACK != null ? \'cell-class-ban\' : \'\'" ui-grid-cell></div> \
+                          </div>',
             enableFiltering: true,
             enableSorting: true,
             enableColumnMenus: false,
@@ -11931,15 +12635,12 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
         $uibModalInstance.dismiss('cancel');
     };
 })
-.controller('ModalInstanceCtrl', function ($uibModalInstance, items) {
+.controller('OPAddBanModalInstanceCtrl', function ($uibModalInstance, vmData) {
     var $ctrl = this;
-    $ctrl.items = items;
-    $ctrl.selected = {
-        item: $ctrl.items[0]
-    };
+    $ctrl.mdData = vmData;
 
     $ctrl.ok = function() {
-        $uibModalInstance.close($ctrl.selected.item);
+        $uibModalInstance.close($ctrl.mdData);
     };
 
     $ctrl.cancel = function() {
@@ -11955,10 +12656,6 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
         // console.log($ctrl.job001DataHaveMergeNo);
         // console.log($ctrl.job001DataNotMergeNo);
     };
-
-    $ctrl.HandleWindowResize = function(pGridApi){
-        HandleWindowResize(pGridApi);
-    }
 
     $ctrl.job001DataHaveMergeNoOption = {
         data: '$ctrl.job001DataHaveMergeNo',
@@ -12249,16 +12946,90 @@ angular.module('app.selfwork').controller('Job003Ctrl', function ($scope, $state
 });
 "use strict";
 
-angular.module('app.settings').controller('AccountCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, RestfulApi, $filter, bool, depart, role, job) {
-
+angular.module('app.selfwork').controller('CompyDistributionCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache) {
+    
     var $vm = this;
+
+	angular.extend(this, {
+        profile : Session.Get(),
+        searchCondition : {
+        	startDate : new Date(),
+        	endDate : new Date(),
+        },
+        defaultChoice : 'Left',
+        gridMethod : {
+            //退件
+            rejectData : function(row){
+                console.log(row);
+            },
+            //編輯
+            modifyData : function(row){
+                console.log(row);
+                $state.transitionTo("app.selfwork.jobs.editorjob", {
+                    data: {
+                      id: 5,
+                      blue: '#0000FF'
+                    }
+                });
+            },
+            //結單
+            closeData : function(row){
+                console.log(row);
+            }
+        },
+        historySearchOptions : {
+            data:  [
+                {
+                    a : '2017-02-09',
+                    b : '297-64659291',
+                    c : '2017-01-15',
+                    d : 'CI5822',
+                    e : 'HK',
+                    f : '新桥供应链',
+                    g : true
+                },
+                {
+                    a : '2017-02-09',
+                    b : '297-64659292',
+                    c : '2017-01-15',
+                    d : 'CI5822',
+                    e : 'HK',
+                    f : '新桥供应链',
+                    g : true
+                },
+            ],
+            columnDefs: [
+                { name: 'a',        displayName: '提單日期' },
+                { name: 'b',        displayName: '主號' },
+                { name: 'c',        displayName: '進口日期' },
+                { name: 'd',        displayName: '班機' },
+                { name: 'e',        displayName: '啟運國別' },
+                { name: 'f',        displayName: '寄件人或公司' },
+                { name: 'g',        displayName: '狀態', cellTemplate: $templateCache.get('accessibilityLightStatus') },
+                { name: 'Options',  displayName: '操作', cellTemplate: $templateCache.get('accessibilityToDMC') }
+            ],
+            enableFiltering: false,
+            enableSorting: false,
+            enableColumnMenus: false,
+            // enableVerticalScrollbar: false,
+            paginationPageSizes: [10, 25, 50],
+            paginationPageSize: 10
+        }
+    });
+
+})
+"use strict";
+
+angular.module('app.settings').controller('AccountCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, RestfulApi, $filter, bool, role, grade) {
+
+    var $vm = this,
+        _tasks = [];
 
     angular.extend(this, {
     	Init : function(){
     		if($stateParams.data == null){
                 $vm.vmData = {
                 	U_ROLE : "SUser",
-                	U_DEPART : "001",
                 	U_STS : false,
                 	U_CHECK : true,
                     IU : "Add"
@@ -12267,14 +13038,15 @@ angular.module('app.settings').controller('AccountCtrl', function ($scope, $stat
                 $vm.vmData = $stateParams.data;
                 $vm.vmData["IU"] = "Update";
 
+                LoadUserDept();
+
                 console.log($vm.vmData);
             }
     	},
         profile : Session.Get(),
         boolData : bool,
-        departData : depart,
         roleData : role,
-        jobData : job,
+        gradeData : grade,
         ModifyPW : function(){
         	var modalInstance = $uibModal.open({
                 animation: true,
@@ -12305,7 +13077,10 @@ angular.module('app.settings').controller('AccountCtrl', function ($scope, $stat
         },
         Add : function(){
         	console.log($vm.vmData);
-        	RestfulApi.InsertMSSQLData({
+
+            // Insert此人Info
+            _tasks.push({
+                crudType: 'Insert',
                 insertname: 'InsertByEncrypt',
                 table: 0,
                 params: {
@@ -12315,26 +13090,29 @@ angular.module('app.settings').controller('AccountCtrl', function ($scope, $stat
                     U_PHONE       : $vm.vmData.U_PHONE,
                     U_ROLE        : $vm.vmData.U_ROLE,
                     U_EMAIL       : $vm.vmData.U_EMAIL,
-                    U_JOB         : $vm.vmData.U_JOB,
+                    U_GRADE       : $vm.vmData.U_GRADE,
                     U_JOB_AGENT   : $vm.vmData.U_JOB_AGENT,
-                    U_DEPART      : $vm.vmData.U_DEPART,
                     U_STS         : $vm.vmData.U_STS,
                     U_CHECK       : $vm.vmData.U_CHECK,
                     U_CR_USER     : $vm.profile.U_ID,
                     U_CR_DATETIME : $filter('date')(new Date, 'yyyy-MM-dd HH:mm:ss')
                 }
-            }).then(function(res) {
-                // console.log(res);
+            });
 
-    			ReturnToAccountManagementPage();
+            RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res) {
 
-                // $state.reload()
+                ReturnToAccountManagementPage();
+
+            }, function (err) {
+
             });
         },
         Update : function(){
         	console.log($vm.vmData);
 
-        	RestfulApi.UpdateMSSQLData({
+            // Update此人Info
+            _tasks.push({
+                crudType: 'Update',
                 updatename: 'UpdateByEncrypt',
                 table: 0,
                 params: {
@@ -12343,9 +13121,8 @@ angular.module('app.settings').controller('AccountCtrl', function ($scope, $stat
                     U_PHONE       : $vm.vmData.U_PHONE,
                     U_ROLE        : $vm.vmData.U_ROLE,
                     U_EMAIL       : $vm.vmData.U_EMAIL,
-                    U_JOB         : $vm.vmData.U_JOB,
+                    U_GRADE       : $vm.vmData.U_GRADE,
                     U_JOB_AGENT   : $vm.vmData.U_JOB_AGENT,
-                    U_DEPART      : $vm.vmData.U_DEPART,
                     U_STS         : $vm.vmData.U_STS,
                     U_CHECK       : $vm.vmData.U_CHECK,
                     U_UP_USER     : $vm.profile.U_ID,
@@ -12354,15 +13131,79 @@ angular.module('app.settings').controller('AccountCtrl', function ($scope, $stat
                 condition: {
                     U_ID          : $vm.vmData.U_ID
                 }
-            }).then(function (res) {
+            });
+            
+        	RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res) {
 
     			ReturnToAccountManagementPage();
 
             }, function (err) {
 
             });
+        },
+        AddUserDept : function(){
+            var modalInstance = $uibModal.open({
+                animation: true,
+                ariaLabelledBy: 'modal-title',
+                ariaDescribedBy: 'modal-body',
+                templateUrl: 'addUserDept.html',
+                controller: 'AddUserDeptModalInstanceCtrl',
+                controllerAs: '$ctrl',
+                size: 'lg',
+                resolve: {
+                    vmData: function () {
+                        return $vm.vmData;
+                    }
+                }
+            });
+
+            modalInstance.result.then(function(selectedItem) {
+                console.log(selectedItem);
+
+                $vm.vmData.UserDept = angular.copy(selectedItem);
+
+                // 初始化
+                _tasks = [];
+
+                // Delete此部門相關人員
+                _tasks.push({
+                    crudType: 'Delete',
+                    table: 14,
+                    params: {
+                        UD_ID : $vm.vmData.U_ID
+                    }
+                });
+
+                // Insert此部門相關人員
+                for(var i in selectedItem){
+                    _tasks.push({
+                        crudType: 'Insert',
+                        table: 14,
+                        params: {
+                            UD_ID : $vm.vmData.U_ID,
+                            UD_DEPT : selectedItem[i].SUD_DEPT
+                        }
+                    });
+                }
+
+            }, function() {
+                // $log.info('Modal dismissed at: ' + new Date());
+            });
         }
     });
+
+    function LoadUserDept(){
+        RestfulApi.SearchMSSQLData({
+            querymain: 'account',
+            queryname: 'SelectUserDept',
+            params: {
+                UD_ID : $vm.vmData.U_ID
+            }
+        }).then(function (res){
+            console.log(res["returnData"]);
+            $vm.vmData.UserDept = res["returnData"];
+        });
+    };
 
     function ReturnToAccountManagementPage(){
         // if(_tasks.length > 0){
@@ -12400,6 +13241,64 @@ angular.module('app.settings').controller('AccountCtrl', function ($scope, $stat
 
     $ctrl.ok = function() {
         $uibModalInstance.close($ctrl.mdData.C_PW);
+    };
+
+    $ctrl.cancel = function() {
+        $uibModalInstance.dismiss('cancel');
+    };
+})
+.controller('AddUserDeptModalInstanceCtrl', function ($uibModalInstance, RestfulApi, $filter, $timeout, vmData) {
+    var $ctrl = this;
+    $ctrl.vmData = vmData;
+    $ctrl.mdData = [];
+
+    $ctrl.MdInit = function(){
+        RestfulApi.SearchMSSQLData({
+            querymain: 'account',
+            queryname: 'SelectSysUserDept',
+            params: {
+                SUD_STS : false
+            }
+        }).then(function (res){
+            console.log(res["returnData"]);
+            // console.log(res);
+            // 顯示所有帳號
+            $ctrl.mdData = res["returnData"];
+            // 把已被選取的帳號打勾
+            $timeout(function() {
+                if($ctrl.mdDataGridApi.selection.selectRow){
+                    // console.log($ctrl.vmData["UserGroup"]);
+                    for(var i in $ctrl.vmData["UserDept"]){
+                        $ctrl.mdDataGridApi.selection.selectRow($filter('filter')($ctrl.mdData, {SUD_DEPT: $ctrl.vmData["UserDept"][i].SUD_DEPT})[0]);
+                    }
+                }
+            });
+        });
+    }
+
+    $ctrl.mdDataOptions = {
+        data:  '$ctrl.mdData',
+        columnDefs: [
+            { name: 'SUD_DEPT'  ,  displayName: '部門代號'},
+            { name: 'SUD_DLVL'  ,  displayName: '部門層級'},
+            { name: 'SUD_DPATH' ,  displayName: '層級路徑'},
+            { name: 'SUD_NAME'  ,  displayName: '部門名稱'}
+        ],
+        enableSorting: false,
+        enableColumnMenus: false,
+        enableFiltering: true,
+        enableRowSelection: true,
+        enableSelectAll: true,
+        selectionRowHeaderWidth: 35,
+        paginationPageSizes: [10, 25, 50],
+        paginationPageSize: 10,
+        onRegisterApi: function(gridApi){ 
+            $ctrl.mdDataGridApi = gridApi;
+        } 
+    };
+
+    $ctrl.ok = function() {
+        $uibModalInstance.close($ctrl.mdDataGridApi.selection.getSelectedRows());
     };
 
     $ctrl.cancel = function() {
@@ -12545,7 +13444,6 @@ angular.module('app.settings').controller('GroupCtrl', function ($scope, $stateP
 
     $ctrl.MdInit = function(){
         RestfulApi.SearchMSSQLData({
-            crudType: 'Select',
             querymain: 'group',
             queryname: 'SelectAllUserInfoNotWithAdmin'
         }).then(function (res){
@@ -13681,21 +14579,45 @@ angular.module('SmartAdmin.Layout').directive('smartLayout', function ($rootScop
 angular.module('SmartAdmin.Layout').directive('smartPageTitle', function ($rootScope, $timeout) {
     return {
         restrict: 'A',
-        compile: function (element, attributes) {
-            element.removeAttr('smart-page-title data-smart-page-title');
+        // compile: function (element, attributes) {
+        //     element.removeAttr('smart-page-title data-smart-page-title');
 
-            var defaultTitle = attributes.smartPageTitle;
-            var listener = function(event, toState, toParams, fromState, fromParams) {
-                var title = defaultTitle;
-                if (toState.data && toState.data.title) title = toState.data.title + ' | ' + title;
-                // Set asynchronously so page changes before title does
-                $timeout(function() {
-                    $('html head title').text(title);
-                });
-            };
+        //     var defaultTitle = attributes.smartPageTitle;
+        //     var listener = function(event, toState, toParams, fromState, fromParams) {
+        //         var title = defaultTitle;
+        //         if (toState.data && toState.data.title) title = $rootScope.getWord(toState.data.title) + ' | ' + title;
+        //         // Set asynchronously so page changes before title does
+        //         $timeout(function() {
+        //             $('html head title').text(title);
+        //         });
+        //     };
 
-            $rootScope.$on('$stateChangeStart', listener);
+        //     $rootScope.$on('$stateChangeStart', listener);
 
+        // },
+        link: function(scope, element, attributes){
+            
+            function DoTitle(){
+                element.removeAttr('smart-page-title data-smart-page-title');
+
+                var defaultTitle = attributes.smartPageTitle;
+                var listener = function(event, toState, toParams, fromState, fromParams) {
+                    var title = defaultTitle;
+                    if (toState.data && toState.data.title) title = $rootScope.getWord(toState.data.title) + ' | ' + title;
+                    // Set asynchronously so page changes before title does
+                    $timeout(function() {
+                        $('html head title').text(title);
+                    });
+                };
+
+                $rootScope.$on('$stateChangeStart', listener);
+            }
+
+            $rootScope.$watch('lang', function(newVal, oldVal){
+                if(!angular.equals(newVal, {}) && !angular.isUndefined(newVal)){
+                    DoTitle();
+                }
+            }, true);
         }
     }
 });

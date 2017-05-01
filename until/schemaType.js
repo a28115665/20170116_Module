@@ -70,6 +70,9 @@ function GiveSchemaType(pType, pSql, pSchema, key){
 			case "bit":
 				pType = pSql.Bit;
 				break;
+			case "smallint":
+				pType = pSql.SmallInt;
+				break;
 			case "varchar":
 				pType = pSql.VarChar(_length);
 				break;

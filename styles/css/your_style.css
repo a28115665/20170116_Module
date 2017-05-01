@@ -11,6 +11,65 @@
  */
 
 /*
+    Login Style
+ */
+.txt-east-style {
+    color: #006137!important;
+    font-weight:bold;
+}
+.txt-wind-style {
+    color: #b5b5b5!important;
+    font-weight:bold;
+}
+.txt-express-style {
+    color: #e37e12!important;
+    font-weight:bold;
+    position: relative;
+    left: 50px;
+}
+
+.login-form {
+    box-shadow: 4px 4px 12px 4px rgba(20%,20%,40%,0.5);
+}
+.bg-color-ews-green {
+    background-color: #abcc04!important;
+}
+
+.shine-style {
+    position: relative;
+}
+.shine-style::before {
+    position: absolute;
+    top: 0;
+    left: -75%;
+    z-index: 2;
+    display: block;
+    content: '';
+    width: 50%;
+    height: 100%;
+    background: -webkit-linear-gradient(left, rgba(255,255,255,0) 0%, rgba(255,255,255,.3) 100%);
+    background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,.3) 100%);
+    -webkit-transform: skewX(-25deg);
+    transform: skewX(-25deg);
+    
+    -webkit-animation: shine 2s;
+    -webkit-animation-iteration-count: infinite;
+    animation: shine 2s;
+    animation-iteration-count: infinite;
+}
+
+@-webkit-keyframes shine {
+    100% {
+        left: 40%;
+    }
+}
+@keyframes shine {
+    100% {
+        left: 40%;
+    }
+}
+
+/*
  * INDEX
  * 
  * - HTML
@@ -26,6 +85,39 @@
 .my-ui-grid-350 {
     height: 350px;
 }
+
+.cell-class-ban {
+    /*position: relative;*/
+    background-color: #F99D9D !important; 
+    color: #000 !important;
+
+    /*opacity: 1;
+    -webkit-animation: flash 1.5s;
+    -webkit-animation-iteration-count: infinite;
+    animation: flash 1.5s;
+    animation-iteration-count: infinite;*/
+}
+@-webkit-keyframes flash {
+    0% {
+        /*opacity: .7;*/
+        background-color:rgba(249, 157, 157, 0.8);
+    }
+    100% {
+        /*opacity: 1;*/
+        background-color:rgba(249, 157, 157, 1);
+    }
+}
+@keyframes flash {
+    0% {
+        /*opacity: .7;*/
+        background-color:rgba(249, 157, 157, 0.8);
+    }
+    100% {
+        /*opacity: 1;*/
+        background-color:rgba(249, 157, 157, 1);
+    }
+}
+
 .cell-class-editabled {
     background-color: red !important; 
     color: #000 !important;

@@ -3,8 +3,14 @@ module.exports = function(pQueryname, pParams){
 
 	switch(pQueryname){
 		case "SelectItemList":
-			_SQLCommand += "SELECT * \
-							FROM ITEM_LIST \
+			_SQLCommand += "SELECT BLFO.BLFO_TRACK, \
+								   IL.* \
+							FROM ITEM_LIST IL \
+							LEFT JOIN BLACK_LIST_FROM_OP BLFO ON \
+							IL.IL_SEQ = BLFO.BLFO_SEQ AND \
+							IL.IL_NEWBAGNO = BLFO.BLFO_NEWBAGNO AND \
+							IL.IL_NEWSMALLNO = BLFO.BLFO_NEWSMALLNO AND \
+							IL.IL_ORDERINDEX = BLFO.BLFO_ORDERINDEX \
 							WHERE 1=1";
 							
 			if(pParams["IL_SEQ"] !== undefined){

@@ -39,11 +39,11 @@ angular.module('app.auth', [
             root: {
                 templateUrl: 'app/auth/views/login.html',
                 controller: 'MainLoginCtrl',
-                controllerAs: 'mlVM'
+                controllerAs: '$vm'
             }
         },
         data: {
-            title: 'Login',
+            title: '登入',
             htmlId: 'extr-page'
         },
         resolve: {

@@ -1,17 +1,17 @@
 <header id="header">
     <div id="logo-group">
         <!-- PLACE YOUR LOGO HERE -->
-        <span id="logo"> <img src="styles/img/logo.png" alt="SmartAdmin"> </span>
+        <span id="logo"> <img src="styles/img/ews/title_logo.png" alt="東風管理系統"> </span>
         <!-- END LOGO PLACEHOLDER -->
         <!-- Note: The activity badge color changes when clicked and resets the number to 0
     Suggestion: You may want to set a flag when this happens to tick off all checked messages / notifications -->
         <span id="activity" class="activity-dropdown" activities-dropdown-toggle> 
-        <i class="fa fa-user"></i> 
-        <b class="badge bg-color-red">21</b> 
-    </span>
+            <i class="fa fa-user"></i> 
+            <b class="badge bg-color-red">21</b> 
+        </span>
         <div smart-include="app/dashboard/activities/activities.html"></div>
     </div>
-    <recent-projects></recent-projects>
+    <!-- <recent-projects></recent-projects> -->
     <!-- pulled right: nav area -->
     <div class="pull-right">
         <!-- collapse menu button -->
@@ -71,7 +71,7 @@
         </div>
         <!-- end search mobile button -->
         <!-- input: search field -->
-        <form action="#/search" class="header-search pull-right">
+        <!-- <form action="#/search" class="header-search pull-right">
             <input id="search-fld" type="text" name="param" placeholder="Find reports and more" data-autocomplete='[
                     "ActionScript",
                     "AppleScript",
@@ -99,7 +99,7 @@
                 <i class="fa fa-search"></i>
             </button>
             <a href="$" id="cancel-search-js" title="Cancel Search"><i class="fa fa-times"></i></a>
-        </form>
+        </form> -->
         <!-- end input: search field -->
         <!-- fullscreen button -->
         <div id="fullscreen" class="btn-header transparent pull-right">
@@ -108,7 +108,7 @@
         </div>
         <!-- end fullscreen button -->
         <!-- #Voice Command: Start Speech -->
-        <div id="speech-btn" class="btn-header transparent pull-right hidden-sm hidden-xs">
+        <!-- <div id="speech-btn" class="btn-header transparent pull-right hidden-sm hidden-xs">
             <div>
                 <a title="Voice Command" id="voice-command-btn" speech-recognition><i class="fa fa-microphone"></i></a>
                 <div class="popover bottom">
@@ -129,8 +129,9 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </div> -->
         <!-- end voice command -->
+        
         <!-- multiple lang dropdown : find all flags in the flags page -->
         <language-selector></language-selector>
         <!-- end multiple lang -->

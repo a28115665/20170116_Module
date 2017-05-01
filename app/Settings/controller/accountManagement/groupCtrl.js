@@ -137,7 +137,6 @@ angular.module('app.settings').controller('GroupCtrl', function ($scope, $stateP
 
     $ctrl.MdInit = function(){
         RestfulApi.SearchMSSQLData({
-            crudType: 'Select',
             querymain: 'group',
             queryname: 'SelectAllUserInfoNotWithAdmin'
         }).then(function (res){

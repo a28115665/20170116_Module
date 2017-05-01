@@ -82,12 +82,45 @@ var InsertRequestWithTransaction = function(task, args, callback) {
 
 	schemaType.SchemaType2(task.params, request, sql);
 
-	for(var key in task.params){
-		Schema.push(key);
-		Values.push(task.params[key]);
-	}
+	switch(task.insertname){
+		case "Insert":
+			for(var key in task.params){
+				Schema.push(key);
+				Values.push(task.params[key]);
+			}
 
-	SQLCommand += "INSERT INTO " + tables[task.table] + " ("+Schema.join()+") VALUES (@"+Schema.join(",@")+")";
+			SQLCommand += "INSERT INTO " + tables[task.table] + " ("+Schema.join()+") VALUES (@"+Schema.join(",@")+")";
+			
+			break;
+		// Insert時密碼需要加金鑰
+		// 參考 https://dotblogs.com.tw/dc690216/2009/09/10/10558
+		case "InsertByEncrypt":
+			for(var key in task.params){
+				Schema.push(key);
+				Values.push(task.params[key]);
+			}
+			SQLCommand += "EXEC OpenKeys;";
+
+			SQLCommand += "INSERT INTO " + tables[task.table] + " ("+Schema.join()+") VALUES (@"+Schema.join(",@")+")";
+			
+			if(SQLCommand.match(/@U_PW/gi)){
+				SQLCommand = SQLCommand.replace(/@U_PW/gi, 'dbo.Encrypt(@U_PW)');
+			}
+			if(SQLCommand.match(/@CI_PW/gi)){
+				SQLCommand = SQLCommand.replace(/@CI_PW/gi, 'dbo.Encrypt(@CI_PW)');
+			}
+			
+			break;
+		default:
+			for(var key in task.params){
+				Schema.push(key);
+				Values.push(task.params[key]);
+			}
+
+			SQLCommand += "INSERT INTO " + tables[task.table] + " ("+Schema.join()+") VALUES (@"+Schema.join(",@")+")";
+			
+			break;
+	}	 
 
 	requestSql(request, SQLCommand, function(err, ret) {
 		args.result.push(ret);
@@ -112,14 +145,53 @@ var UpdateRequestWithTransaction = function(task, args, callback) {
 
 	schemaType.SchemaType2(psParams, request, sql);
 
-	for(var key in task.params){
-		Schema.push(key + "=@" + key);
-	}
-	for(var key in task.condition){
-		Condition.push(" AND "+key + "=@" + key);
-	}
+	switch(task.updatename){
+		case "Update":
+			for(var key in task.params){
+				Schema.push(key + "=@" + key);
+			}
+			for(var key in task.condition){
+				Condition.push(" AND "+key + "=@" + key);
+			}
 
-	SQLCommand += "UPDATE " + tables[task.table] + " SET "+Schema.join()+" WHERE 1=1 "+Condition.join(" ");
+			SQLCommand += "UPDATE " + tables[task.table] + " SET "+Schema.join()+" WHERE 1=1 "+Condition.join(" ");
+			
+			break;
+		// Update時密碼需要加金鑰
+		case "UpdateByEncrypt":
+			for(var key in task.params){
+				switch(key){
+					case 'U_PW':
+						Schema.push(key + "=dbo.Encrypt(@" + key + ")");
+						break;
+					case 'CI_PW':
+						Schema.push(key + "=dbo.Encrypt(@" + key + ")");
+						break;
+					default:
+						Schema.push(key + "=@" + key);
+						break;
+				}
+			}
+			for(var key in task.condition){
+				Condition.push(" AND "+key + "=@" + key);
+			}
+			SQLCommand += "EXEC OpenKeys;";
+
+			SQLCommand += "UPDATE " + tables[task.table] + " SET "+Schema.join()+" WHERE 1=1 "+Condition.join(" ");
+			
+			break;
+		default:
+			for(var key in task.params){
+				Schema.push(key + "=@" + key);
+			}
+			for(var key in task.condition){
+				Condition.push(" AND "+key + "=@" + key);
+			}
+
+			SQLCommand += "UPDATE " + tables[task.table] + " SET "+Schema.join()+" WHERE 1=1 "+Condition.join(" ");
+			
+			break;
+	}	
 	
 	requestSql(request, SQLCommand, function(err, ret) {
 		args.result.push(ret);
@@ -220,7 +292,7 @@ function requestSql(request, sql, callback) {
     });
 
     request.on('done', function(returnValue) {
-        // console.log(returnValue);
+        // console.log(errors.length, result.length);
         // Always emitted as the last one
         if (errors.length == 0) {
         	// 如果returnValue為0 表示delete

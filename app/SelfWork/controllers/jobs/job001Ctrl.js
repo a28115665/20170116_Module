@@ -17,7 +17,7 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                 // 測試用
                 // if($vm.vmData == null){
                 //     $vm.vmData = {
-                //         OL_SEQ : 'AdminTest20170419101047'
+                //         OL_SEQ : 'AdminTest20170418195141'
                 //     };
                 // }
                 
@@ -37,13 +37,13 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                     animation: true,
                     ariaLabelledBy: 'modal-title',
                     ariaDescribedBy: 'modal-body',
-                    templateUrl: 'myModalContent.html',
-                    controller: 'ModalInstanceCtrl',
+                    templateUrl: 'opAddBanModalContent.html',
+                    controller: 'OPAddBanModalInstanceCtrl',
                     controllerAs: '$ctrl',
                     // size: 'lg',
                     // appendTo: parentElem,
                     resolve: {
-                        items: function() {
+                        vmData: function() {
                             return row.entity;
                         }
                     }
@@ -51,6 +51,23 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
 
                 modalInstance.result.then(function(selectedItem) {
                     // $ctrl.selected = selectedItem;
+                    console.log(selectedItem);
+                    RestfulApi.InsertMSSQLData({
+                        insertname: 'Insert',
+                        table: 13,
+                        params: {
+                            BLFO_SEQ         : selectedItem.IL_SEQ,
+                            BLFO_NEWBAGNO    : selectedItem.IL_NEWBAGNO,
+                            BLFO_NEWSMALLNO  : selectedItem.IL_NEWSMALLNO,
+                            BLFO_ORDERINDEX  : selectedItem.IL_ORDERINDEX,
+                            BLFO_CR_USER     : $vm.profile.U_ID,
+                            BLFO_CR_DATETIME : $filter('date')(new Date, 'yyyy-MM-dd HH:mm:ss')
+                        }
+                    }).then(function(res) {
+                        // 加入後需要Disabled
+                        row.entity.BLFO_TRACK = true;
+                    });
+
                 }, function() {
                     // $log.info('Modal dismissed at: ' + new Date());
                 });
@@ -83,6 +100,9 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                 { name: 'IL_TRCOM'      , displayName: '派送公司', width: 115 },
                 { name: 'Options'       , displayName: '操作', width: 160, enableCellEdit: false, enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToCB'), pinnedRight:true }
             ],
+            rowTemplate: '<div> \
+                            <div ng-repeat="(colRenderIndex, col) in colContainer.renderedColumns track by col.colDef.name" class="ui-grid-cell" ng-class="row.entity.BLFO_TRACK != null ? \'cell-class-ban\' : \'\'" ui-grid-cell></div> \
+                          </div>',
             enableFiltering: true,
             enableSorting: true,
             enableColumnMenus: false,
@@ -283,15 +303,12 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
         $uibModalInstance.dismiss('cancel');
     };
 })
-.controller('ModalInstanceCtrl', function ($uibModalInstance, items) {
+.controller('OPAddBanModalInstanceCtrl', function ($uibModalInstance, vmData) {
     var $ctrl = this;
-    $ctrl.items = items;
-    $ctrl.selected = {
-        item: $ctrl.items[0]
-    };
+    $ctrl.mdData = vmData;
 
     $ctrl.ok = function() {
-        $uibModalInstance.close($ctrl.selected.item);
+        $uibModalInstance.close($ctrl.mdData);
     };
 
     $ctrl.cancel = function() {
@@ -307,10 +324,6 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
         // console.log($ctrl.job001DataHaveMergeNo);
         // console.log($ctrl.job001DataNotMergeNo);
     };
-
-    $ctrl.HandleWindowResize = function(pGridApi){
-        HandleWindowResize(pGridApi);
-    }
 
     $ctrl.job001DataHaveMergeNoOption = {
         data: '$ctrl.job001DataHaveMergeNo',

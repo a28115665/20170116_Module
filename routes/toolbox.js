@@ -4,6 +4,7 @@ var mkdirp = require('mkdirp');
 var dbCommand = require('../until/dbCommand.js');
 var tmpXlsObj = require('../until/tmpXlsObj.js');
 var archiver = require('archiver');
+const querystring = require('querystring');
 
 var dateFormat = require('dateformat');
 
@@ -11,6 +12,76 @@ const path = require('path');
 const fs = require('fs');
 var fsExtra = require('fs-extra');
 var busboy = require('connect-busboy');
+
+/**
+ * ChangeTest 改單測試
+ */
+router.get('/changeTest', function(req, res) {
+
+    try{
+        // request({
+        //     url: "http://10.1.21.22/EWSWS/WebServiceImport.asmx",
+        //     json: true,
+        //     body:  {     
+        //         "UserId": "Admin",     
+        //         "UserPW": "Admin#1",  
+        //         "Nature": "電熱毯,服飾"  
+        //     }
+        // }, function (error, response, body) {
+        //     if (!error && response.statusCode === 200) {
+        //         // body['SendDateFromServer'] = new Date();
+        //         console.log(response, body);
+        //         // socket.emit('plan arrival by server', body); 
+        //     }
+        // })
+        
+        // Build the post string from an object
+        var post_data = querystring.stringify({
+            'strJson' : '[{"UserId": "Admin","UserPW": "Admin#1","Nature": "電熱毯,服飾"}]'
+        });
+
+        // An object of options to indicate where to post to
+        var post_options = {
+          host: '10.1.21.20',
+          port: '3000',
+          path: '/restful/crud',
+          method: 'POST',
+          headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'Content-Length': Buffer.byteLength(post_data)
+          }
+        };
+
+        // Set up the request
+        var http = require('http');
+        var post_req = http.request(post_options, function(_res) {
+            console.log("statusCode: ", _res.statusCode);
+            //console.log("headers: ", _res.headers);
+            var msg = '';
+
+            _res.setEncoding('utf8');
+            _res.on('data', function(chunk) {
+                msg += chunk;
+            });
+            _res.on('end', function() {
+                console.log(msg);
+                // res.json({
+                //     BODY: msg
+                // });
+                res.end(msg);
+            });
+        });
+        console.log(post_data);
+        // post the data
+        post_req.write(post_data);
+        post_req.end();
+
+    } catch(err) {
+        console.log(err);
+        res.status(500).send('改單失敗');
+    }
+
+});
 
 /**
  * ExportExcelByVar 經由前端參數匯出Excel

@@ -26,6 +26,7 @@ angular.module('app', [
     'ui.grid.pagination',
     'ui.grid.grouping',
     'ui.grid.pinning',
+    'ui.grid.autoResize',
     'ui.mask',
     'ui.tinymce',
     'angularFileUpload',

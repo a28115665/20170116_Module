@@ -108,11 +108,35 @@ angular.module('app')
 	return FilterFunction;
 
 })
-.filter('compyFilter', function (CompyFilter) {
+.filter('compyFilter', function (Compy) {
 
 	var resData = {};
 
-	CompyFilter.get().then(function (res){
+	Compy.get().then(function (res){
+		resData = res
+	});
+
+	var FilterFunction = function (input){
+
+		if (!input) {
+		    return '';
+		} else {
+		    return resData[input];
+		}
+
+	}
+
+	// 持續偵測
+	FilterFunction.$stateful = true;
+
+	return FilterFunction;
+
+})
+.filter('gradeFilter', function (UserGrade) {
+
+	var resData = {};
+
+	UserGrade.get().then(function (res){
 		resData = res
 	});
 

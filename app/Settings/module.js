@@ -39,6 +39,7 @@ angular.module('app.settings').config(function ($stateProvider){
                 controller: 'AccountManagementCtrl',
                 controllerAs: '$vm',
                 resolve: {
+                    // Grid的篩選條件
                     boolFilter: function (SysCodeFilter){
                         return SysCodeFilter.get('Boolean');
                     },
@@ -48,8 +49,8 @@ angular.module('app.settings').config(function ($stateProvider){
                     roleFilter: function (SysCodeFilter){
                         return SysCodeFilter.get('Role');
                     },
-                    jobFilter: function (SysCodeFilter){
-                        return SysCodeFilter.get('Job');
+                    gradeFilter: function (UserGradeFilter){
+                        return UserGradeFilter.get();
                     }
                 }
             }
@@ -89,14 +90,36 @@ angular.module('app.settings').config(function ($stateProvider){
 
                         return deferred.promise;
                     },
-                    depart: function (SysCode){
-                        return SysCode.get('Depart');
+                    depart: function (RestfulApi, $q){
+
+                        var deferred = $q.defer();
+            
+                        RestfulApi.SearchMSSQLData({
+                            querymain: 'account',
+                            queryname: 'SelectSysUserDept',
+                            params: {
+                                SUD_STS : false
+                            }
+                        }).then(function (res){
+                            var data = res["returnData"] || [],
+                                finalData = {};
+
+                            for(var i in data){
+                                finalData[data[i].SUD_DEPT] = data[i].SUD_NAME
+                            }
+                            
+                            deferred.resolve(finalData);
+                        }, function (err){
+                            deferred.reject({});
+                        });
+                        
+                        return deferred.promise;
                     },
                     role : function (SysCode){
                         return SysCode.get('Role');
                     },
-                    job : function (SysCode){
-                        return SysCode.get('Job');
+                    grade : function (UserGrade){
+                        return UserGrade.get();
                     }
                 }
             }
