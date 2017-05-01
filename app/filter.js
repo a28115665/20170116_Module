@@ -108,11 +108,11 @@ angular.module('app')
 	return FilterFunction;
 
 })
-.filter('compyFilter', function (CompyFilter) {
+.filter('compyFilter', function (Compy) {
 
 	var resData = {};
 
-	CompyFilter.get().then(function (res){
+	Compy.get().then(function (res){
 		resData = res
 	});
 
@@ -132,32 +132,11 @@ angular.module('app')
 	return FilterFunction;
 
 })
-.filter('gradeFilter', function (RestfulApi, $q) {
+.filter('gradeFilter', function (UserGrade) {
 
 	var resData = {};
 
-	var deferred = $q.defer();
-            
-    RestfulApi.SearchMSSQLData({
-        querymain: 'account',
-        queryname: 'SelectSysUserGrade',
-        params: {
-            SUG_STS : false
-        }
-    }).then(function (res){
-        var data = res["returnData"] || [],
-            finalData = {};
-
-        for(var i in data){
-            finalData[data[i].SUG_GRADE] = data[i].SUG_NAME
-        }
-        
-        deferred.resolve(finalData);
-    }, function (err){
-        deferred.reject({});
-    });
-
-	deferred.promise.then(function (res){
+	UserGrade.get().then(function (res){
 		resData = res
 	});
 

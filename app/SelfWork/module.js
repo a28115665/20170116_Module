@@ -12,6 +12,40 @@ angular.module('app.selfwork').config(function ($stateProvider){
         }
     })
 
+    .state('app.selfwork.compydistribution', {
+        url: '/selfwork/compydistribution',
+        data: {
+            title: 'CompyDistribution'
+        },
+        views: {
+            "content@app" : {
+                templateUrl: 'app/SelfWork/views/leaderOption/compyDistribution.html',
+                controller: 'CompyDistributionCtrl',
+                controllerAs: '$vm',
+                resolve: {
+                    
+                }
+            }
+        }
+    })
+
+    .state('app.selfwork.leaderjobs', {
+        url: '/selfwork/leaderjobs',
+        data: {
+            title: 'LeaderJobs'
+        },
+        views: {
+            "content@app" : {
+                templateUrl: 'app/SelfWork/views/LeaderJobs.html',
+                controller: 'LeaderJobsCtrl',
+                controllerAs: '$vm',
+                resolve: {
+                    
+                }
+            }
+        }
+    })
+
     .state('app.selfwork.employeejobs', {
         url: '/selfwork/employeejobs',
         data: {

@@ -39,6 +39,7 @@ angular.module('app.settings').config(function ($stateProvider){
                 controller: 'AccountManagementCtrl',
                 controllerAs: '$vm',
                 resolve: {
+                    // Grid的篩選條件
                     boolFilter: function (SysCodeFilter){
                         return SysCodeFilter.get('Boolean');
                     },
@@ -48,31 +49,8 @@ angular.module('app.settings').config(function ($stateProvider){
                     roleFilter: function (SysCodeFilter){
                         return SysCodeFilter.get('Role');
                     },
-                    gradeFilter: function (RestfulApi, $q){
-                        var deferred = $q.defer();
-
-                        RestfulApi.SearchMSSQLData({
-                            querymain: 'account',
-                            queryname: 'SelectSysUserGrade',
-                            params: {
-                                SUG_STS : false
-                            }
-                        }).then(function (res){
-                            var data = res["returnData"] || [],
-                                finalData = [];
-                                console.log(data);
-
-                            for(var i in data){
-                                finalData.push({
-                                    value: data[i].SUG_GRADE,
-                                    label: data[i].SUG_NAME
-                                });
-                            }
-
-                            deferred.resolve(finalData);
-                        })
-
-                        return deferred.promise;
+                    gradeFilter: function (UserGradeFilter){
+                        return UserGradeFilter.get();
                     }
                 }
             }
@@ -140,30 +118,8 @@ angular.module('app.settings').config(function ($stateProvider){
                     role : function (SysCode){
                         return SysCode.get('Role');
                     },
-                    grade : function (RestfulApi, $q){
-
-                        var deferred = $q.defer();
-            
-                        RestfulApi.SearchMSSQLData({
-                            querymain: 'account',
-                            queryname: 'SelectSysUserGrade',
-                            params: {
-                                SUG_STS : false
-                            }
-                        }).then(function (res){
-                            var data = res["returnData"] || [],
-                                finalData = {};
-
-                            for(var i in data){
-                                finalData[data[i].SUG_GRADE] = data[i].SUG_NAME
-                            }
-                            
-                            deferred.resolve(finalData);
-                        }, function (err){
-                            deferred.reject({});
-                        });
-                        
-                        return deferred.promise;
+                    grade : function (UserGrade){
+                        return UserGrade.get();
                     }
                 }
             }
