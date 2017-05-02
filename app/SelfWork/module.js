@@ -29,6 +29,23 @@ angular.module('app.selfwork').config(function ($stateProvider){
         }
     })
 
+    .state('app.selfwork.agentsetting', {
+        url: '/selfwork/agentsetting',
+        data: {
+            title: 'AgentSetting'
+        },
+        views: {
+            "content@app" : {
+                templateUrl: 'app/SelfWork/views/leaderOption/agentSetting.html',
+                controller: 'AgentSettingCtrl',
+                controllerAs: '$vm',
+                resolve: {
+                    
+                }
+            }
+        }
+    })
+
     .state('app.selfwork.leaderjobs', {
         url: '/selfwork/leaderjobs',
         data: {

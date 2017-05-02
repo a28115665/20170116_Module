@@ -11,8 +11,25 @@
         "icon":"truck",
         "items": [
             {
+                "title":"LeaderOption",
+                "href":"#",
+                "icon":"folder-open",
+                "items": [
+                    {
+                        "title":"CompyDistribution",
+                        "sref": "app.selfwork.compydistribution",
+                        "icon":"building-o"
+                    },
+                    {
+                        "title":"AgentSetting",
+                        "sref": "app.selfwork.compydistribution",
+                        "icon":"braille"
+                    }
+                ]
+            },
+            {
                 "title":"LeaderJobs",
-                "sref": "",
+                "sref": "app.selfwork.leaderjobs",
                 "icon":"cubes"
             },
             {

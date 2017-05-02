@@ -1,16 +1,14 @@
 "use strict";
 
-angular.module('app.selfwork').controller('CompyDistributionCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache) {
+angular.module('app.selfwork').controller('CompyDistributionCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, RestfulApi) {
     
     var $vm = this;
 
 	angular.extend(this, {
-        profile : Session.Get(),
-        searchCondition : {
-        	startDate : new Date(),
-        	endDate : new Date(),
+        Init : function(){
+            LoadCompyDistribution();
         },
-        defaultChoice : 'Left',
+        profile : Session.Get(),
         gridMethod : {
             //退件
             rejectData : function(row){
@@ -31,44 +29,57 @@ angular.module('app.selfwork').controller('CompyDistributionCtrl', function ($sc
                 console.log(row);
             }
         },
-        historySearchOptions : {
-            data:  [
-                {
-                    a : '2017-02-09',
-                    b : '297-64659291',
-                    c : '2017-01-15',
-                    d : 'CI5822',
-                    e : 'HK',
-                    f : '新桥供应链',
-                    g : true
-                },
-                {
-                    a : '2017-02-09',
-                    b : '297-64659292',
-                    c : '2017-01-15',
-                    d : 'CI5822',
-                    e : 'HK',
-                    f : '新桥供应链',
-                    g : true
-                },
-            ],
+        compyDistributionOptions : {
+            data:  '$vm.compyDistributionData',
             columnDefs: [
-                { name: 'a',        displayName: '提單日期' },
-                { name: 'b',        displayName: '主號' },
-                { name: 'c',        displayName: '進口日期' },
-                { name: 'd',        displayName: '班機' },
-                { name: 'e',        displayName: '啟運國別' },
-                { name: 'f',        displayName: '寄件人或公司' },
-                { name: 'g',        displayName: '狀態', cellTemplate: $templateCache.get('accessibilityLightStatus') },
-                { name: 'Options',  displayName: '操作', cellTemplate: $templateCache.get('accessibilityToDMC') }
+                { name: 'CO_NUMBER'    ,  displayName: '公司統編' },
+                { name: 'CO_NAME'      ,  displayName: '公司名稱' },
+                { name: 'CO_ADDR'      ,  displayName: '公司地址' },
+                { name: 'COD_PRINCIPAL',  displayName: '負責人' }
             ],
-            enableFiltering: false,
+            enableFiltering: true,
             enableSorting: false,
             enableColumnMenus: false,
             // enableVerticalScrollbar: false,
             paginationPageSizes: [10, 25, 50],
-            paginationPageSize: 10
+            paginationPageSize: 10,
+            onRegisterApi: function(gridApi){
+                $vm.compyDistributionGridApi = gridApi;
+            }
+        },
+        AssignPrincipal : function(){
+            console.log($vm.selectAssignPrincipal);
         }
     });
 
+    function LoadCompyDistribution(){
+        // RestfulApi.SearchMSSQLData({
+        //     querymain: 'compyDistribution',
+        //     queryname: 'SelectCompy'
+        // }).then(function (res){
+        //     console.log(res["returnData"]);
+        //     $vm.compyDistributionData = res["returnData"];
+        // });    
+
+        RestfulApi.CRUDMSSQLDataByTask([
+            {
+                crudType: 'Select',
+                querymain: 'compyDistribution',
+                queryname: 'SelectCompy'
+            },
+            {
+                crudType: 'Select',
+                querymain: 'compyDistribution',
+                queryname: 'SelectUserbyGrade',
+                params: {
+                    U_ID : $vm.profile.U_ID,
+                    U_GRADE : $vm.profile.U_GRADE
+                }
+            }
+        ]).then(function (res){
+            console.log(res["returnData"]);
+            $vm.compyDistributionData = res["returnData"][0];
+            $vm.assignPrincipalData = res["returnData"][1];
+        });    
+    }
 })
