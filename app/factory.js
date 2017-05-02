@@ -53,7 +53,8 @@ angular.module('app')
                     }
                 }
             }
-        )
+        ),
+        CHANGENATURE : $resource('/toolbox/changeNature')
     };
 })
 .factory('SysCode', SysCodeResolve)
