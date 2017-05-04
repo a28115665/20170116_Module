@@ -156,6 +156,30 @@ angular.module('app')
 	return FilterFunction;
 
 })
+.filter('userInfoByGradeFilter', function (UserInfoByGrade, Session) {
+
+	var resData = {};
+
+	UserInfoByGrade.get(Session.Get().U_ID, Session.Get().U_GRADE).then(function (res){
+		resData = res
+	});
+
+	var FilterFunction = function (input){
+
+		if (!input) {
+		    return '';
+		} else {
+		    return resData[input];
+		}
+
+	}
+
+	// 持續偵測
+	FilterFunction.$stateful = true;
+
+	return FilterFunction;
+
+})
 .filter('dateFilter', function ($filter) {
 
 	return function (input){

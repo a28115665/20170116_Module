@@ -65,13 +65,13 @@
 							        	<form class="form-inline" role="form">
 							                <fieldset>
 							                    <div class="form-group">
-													<select class="form-control" ng-model="$vm.selectAssignPrincipal" ng-options="data.U_ID as data.U_NAME for data in $vm.assignPrincipalData">
+													<select class="form-control" ng-model="$vm.selectAssignPrincipal" ng-options="key as value for (key, value) in $vm.assignPrincipalData">
 	  													<option value="">-- 請選擇 --</option>
 	  												</select>
 							                    </div>
 							                    <div class="form-group">
 										            <button class="btn btn-primary"
-										            		ng-disabled="$vm.compyDistributionGridApi.selection.getSelectedRows() == 0 || $vm.selectAssignPrincipal == undefined"
+										            		ng-disabled="$vm.compyDistributionGridApi.selection.getSelectedRows().length == 0 || $vm.selectAssignPrincipal == undefined"
 										            		ng-click="$vm.AssignPrincipal()">
 										                指派負責人
 										            </button>
@@ -87,6 +87,15 @@
 								<div id="grid1" ui-grid="$vm.compyDistributionOptions" class="my-ui-grid" ui-grid-pagination ui-grid-resize-columns ui-grid-selection ui-grid-auto-resize></div>
 
 							</div>
+
+							<!-- widget footer -->
+							<div class="widget-footer">
+								<button class="btn btn-sm btn-warning" type="button" ng-click="$vm.Save()">
+					                <i class="fa fa-save"></i>
+									儲存
+								</button>	
+							</div>
+							<!-- end widget footer -->
 
 						</div>
 						<!-- end widget content -->

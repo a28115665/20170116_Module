@@ -1,6 +1,6 @@
 "use strict";
 
-angular.module('app.selfwork').controller('CompyDistributionCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, RestfulApi) {
+angular.module('app.selfwork').controller('CompyDistributionCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, RestfulApi, uiGridConstants, userInfoByGrade, userInfoByGradeFilter) {
     
     var $vm = this;
 
@@ -9,6 +9,7 @@ angular.module('app.selfwork').controller('CompyDistributionCtrl', function ($sc
             LoadCompyDistribution();
         },
         profile : Session.Get(),
+        assignPrincipalData : userInfoByGrade,
         gridMethod : {
             //退件
             rejectData : function(row){
@@ -35,7 +36,13 @@ angular.module('app.selfwork').controller('CompyDistributionCtrl', function ($sc
                 { name: 'CO_NUMBER'    ,  displayName: '公司統編' },
                 { name: 'CO_NAME'      ,  displayName: '公司名稱' },
                 { name: 'CO_ADDR'      ,  displayName: '公司地址' },
-                { name: 'COD_PRINCIPAL',  displayName: '負責人' }
+                { name: 'COD_PRINCIPAL',  displayName: '負責人' , cellFilter: 'userInfoByGradeFilter', filter: 
+                    {
+                        term: null,
+                        type: uiGridConstants.filter.SELECT,
+                        selectOptions: userInfoByGradeFilter
+                    }
+                }
             ],
             enableFiltering: true,
             enableSorting: false,
@@ -48,7 +55,16 @@ angular.module('app.selfwork').controller('CompyDistributionCtrl', function ($sc
             }
         },
         AssignPrincipal : function(){
-            console.log($vm.selectAssignPrincipal);
+            // console.log($vm.selectAssignPrincipal);
+            if($vm.compyDistributionGridApi.selection.getSelectedRows().length > 0){
+                var _getSelectedRows = $vm.compyDistributionGridApi.selection.getSelectedRows();
+                for(var i in _getSelectedRows){
+                    _getSelectedRows[i].COD_PRINCIPAL = $vm.selectAssignPrincipal;
+                }
+            }
+        },
+        Save : function(){
+
         }
     });
 
@@ -79,7 +95,7 @@ angular.module('app.selfwork').controller('CompyDistributionCtrl', function ($sc
         ]).then(function (res){
             console.log(res["returnData"]);
             $vm.compyDistributionData = res["returnData"][0];
-            $vm.assignPrincipalData = res["returnData"][1];
+            // $vm.assignPrincipalData = res["returnData"][1];
         });    
     }
 })

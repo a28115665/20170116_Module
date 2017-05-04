@@ -1938,7 +1938,12 @@ angular.module('app.selfwork').config(function ($stateProvider){
                 controller: 'CompyDistributionCtrl',
                 controllerAs: '$vm',
                 resolve: {
-                    
+                    userInfoByGrade : function(UserInfoByGrade, Session){
+                        return UserInfoByGrade.get(Session.Get().U_ID, Session.Get().U_GRADE);
+                    },
+                    userInfoByGradeFilter : function(UserInfoByGradeFilter, Session){
+                        return UserInfoByGradeFilter.get(Session.Get().U_ID, Session.Get().U_GRADE);
+                    }
                 }
             }
         }
@@ -3120,6 +3125,8 @@ angular.module('app')
 .factory('Compy', CompyResolve)
 .factory('UserGrade', UserGradeResolve)
 .factory('UserGradeFilter', UserGradeFilterResolve)
+.factory('UserInfoByGrade', UserInfoByGradeResolve)
+.factory('UserInfoByGradeFilter', UserInfoByGradeFilterResolve)
 
 angular.module('app')
 .filter('booleanFilter', function (SysCode) {
@@ -3260,6 +3267,30 @@ angular.module('app')
 	var resData = {};
 
 	UserGrade.get().then(function (res){
+		resData = res
+	});
+
+	var FilterFunction = function (input){
+
+		if (!input) {
+		    return '';
+		} else {
+		    return resData[input];
+		}
+
+	}
+
+	// 持續偵測
+	FilterFunction.$stateful = true;
+
+	return FilterFunction;
+
+})
+.filter('userInfoByGradeFilter', function (UserInfoByGrade, Session) {
+
+	var resData = {};
+
+	UserInfoByGrade.get(Session.Get().U_ID, Session.Get().U_GRADE).then(function (res){
 		resData = res
 	});
 
@@ -3447,6 +3478,67 @@ function UserGradeFilterResolve (RestfulApi, $q){
                     finalData.push({
                         value: data[i].SUG_GRADE,
                         label: data[i].SUG_NAME
+                    });
+                }
+
+                deferred.resolve(finalData);
+            }, function (err){
+                deferred.reject({});
+            });
+            
+            return deferred.promise;
+        }
+    };
+};
+function UserInfoByGradeResolve (RestfulApi, $q){
+    return {
+        get : function(pID, pGRADE){
+            var deferred = $q.defer();
+            
+            RestfulApi.SearchMSSQLData({
+                querymain: 'compyDistribution',
+                queryname: 'SelectUserbyGrade',
+                params: {
+                    U_ID : pID,
+                    U_GRADE : pGRADE
+                }
+            }).then(function (res){
+                var data = res["returnData"] || [],
+                    finalData = {};
+
+                for(var i in data){
+                    finalData[data[i].U_ID] = data[i].U_NAME
+                }
+                
+                deferred.resolve(finalData);
+            }, function (err){
+                deferred.reject({});
+            });
+            
+            return deferred.promise;
+        }
+    };
+};
+function UserInfoByGradeFilterResolve (RestfulApi, $q){
+    return {
+        get : function(pID, pGRADE){
+            var deferred = $q.defer();
+            
+            RestfulApi.SearchMSSQLData({
+                querymain: 'compyDistribution',
+                queryname: 'SelectUserbyGrade',
+                params: {
+                    U_ID : pID,
+                    U_GRADE : pGRADE
+                }
+            }).then(function (res){
+                var data = res["returnData"] || [],
+                    finalData = [];
+
+                for(var i in data){
+                    finalData.push({
+                        value: data[i].U_ID,
+                        label: data[i].U_NAME
                     });
                 }
 
@@ -13070,7 +13162,7 @@ angular.module('app.selfwork').controller('AgentSettingCtrl', function ($scope, 
 })
 "use strict";
 
-angular.module('app.selfwork').controller('CompyDistributionCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, RestfulApi) {
+angular.module('app.selfwork').controller('CompyDistributionCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, RestfulApi, uiGridConstants, userInfoByGrade, userInfoByGradeFilter) {
     
     var $vm = this;
 
@@ -13079,6 +13171,7 @@ angular.module('app.selfwork').controller('CompyDistributionCtrl', function ($sc
             LoadCompyDistribution();
         },
         profile : Session.Get(),
+        assignPrincipalData : userInfoByGrade,
         gridMethod : {
             //退件
             rejectData : function(row){
@@ -13105,7 +13198,13 @@ angular.module('app.selfwork').controller('CompyDistributionCtrl', function ($sc
                 { name: 'CO_NUMBER'    ,  displayName: '公司統編' },
                 { name: 'CO_NAME'      ,  displayName: '公司名稱' },
                 { name: 'CO_ADDR'      ,  displayName: '公司地址' },
-                { name: 'COD_PRINCIPAL',  displayName: '負責人' }
+                { name: 'COD_PRINCIPAL',  displayName: '負責人' , cellFilter: 'userInfoByGradeFilter', filter: 
+                    {
+                        term: null,
+                        type: uiGridConstants.filter.SELECT,
+                        selectOptions: userInfoByGradeFilter
+                    }
+                }
             ],
             enableFiltering: true,
             enableSorting: false,
@@ -13118,7 +13217,16 @@ angular.module('app.selfwork').controller('CompyDistributionCtrl', function ($sc
             }
         },
         AssignPrincipal : function(){
-            console.log($vm.selectAssignPrincipal);
+            // console.log($vm.selectAssignPrincipal);
+            if($vm.compyDistributionGridApi.selection.getSelectedRows().length > 0){
+                var _getSelectedRows = $vm.compyDistributionGridApi.selection.getSelectedRows();
+                for(var i in _getSelectedRows){
+                    _getSelectedRows[i].COD_PRINCIPAL = $vm.selectAssignPrincipal;
+                }
+            }
+        },
+        Save : function(){
+
         }
     });
 
@@ -13149,7 +13257,7 @@ angular.module('app.selfwork').controller('CompyDistributionCtrl', function ($sc
         ]).then(function (res){
             console.log(res["returnData"]);
             $vm.compyDistributionData = res["returnData"][0];
-            $vm.assignPrincipalData = res["returnData"][1];
+            // $vm.assignPrincipalData = res["returnData"][1];
         });    
     }
 })

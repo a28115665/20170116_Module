@@ -147,6 +147,67 @@ function UserGradeFilterResolve (RestfulApi, $q){
         }
     };
 };
+function UserInfoByGradeResolve (RestfulApi, $q){
+    return {
+        get : function(pID, pGRADE){
+            var deferred = $q.defer();
+            
+            RestfulApi.SearchMSSQLData({
+                querymain: 'compyDistribution',
+                queryname: 'SelectUserbyGrade',
+                params: {
+                    U_ID : pID,
+                    U_GRADE : pGRADE
+                }
+            }).then(function (res){
+                var data = res["returnData"] || [],
+                    finalData = {};
+
+                for(var i in data){
+                    finalData[data[i].U_ID] = data[i].U_NAME
+                }
+                
+                deferred.resolve(finalData);
+            }, function (err){
+                deferred.reject({});
+            });
+            
+            return deferred.promise;
+        }
+    };
+};
+function UserInfoByGradeFilterResolve (RestfulApi, $q){
+    return {
+        get : function(pID, pGRADE){
+            var deferred = $q.defer();
+            
+            RestfulApi.SearchMSSQLData({
+                querymain: 'compyDistribution',
+                queryname: 'SelectUserbyGrade',
+                params: {
+                    U_ID : pID,
+                    U_GRADE : pGRADE
+                }
+            }).then(function (res){
+                var data = res["returnData"] || [],
+                    finalData = [];
+
+                for(var i in data){
+                    finalData.push({
+                        value: data[i].U_ID,
+                        label: data[i].U_NAME
+                    });
+                }
+
+                deferred.resolve(finalData);
+            }, function (err){
+                deferred.reject({});
+            });
+            
+            return deferred.promise;
+        }
+    };
+};
 
 /*
     Some Function

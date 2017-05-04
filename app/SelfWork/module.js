@@ -23,7 +23,12 @@ angular.module('app.selfwork').config(function ($stateProvider){
                 controller: 'CompyDistributionCtrl',
                 controllerAs: '$vm',
                 resolve: {
-                    
+                    userInfoByGrade : function(UserInfoByGrade, Session){
+                        return UserInfoByGrade.get(Session.Get().U_ID, Session.Get().U_GRADE);
+                    },
+                    userInfoByGradeFilter : function(UserInfoByGradeFilter, Session){
+                        return UserInfoByGradeFilter.get(Session.Get().U_ID, Session.Get().U_GRADE);
+                    }
                 }
             }
         }
