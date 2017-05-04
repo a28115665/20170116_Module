@@ -1,6 +1,6 @@
 "use strict";
 
-angular.module('app.selfwork').controller('CompyDistributionCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, RestfulApi, uiGridConstants, userInfoByGrade, userInfoByGradeFilter) {
+angular.module('app.selfwork').controller('CompyDistributionCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, $filter, RestfulApi, uiGridConstants, userInfoByGrade, userInfoByGradeFilter) {
     
     var $vm = this;
 
@@ -10,26 +10,6 @@ angular.module('app.selfwork').controller('CompyDistributionCtrl', function ($sc
         },
         profile : Session.Get(),
         assignPrincipalData : userInfoByGrade,
-        gridMethod : {
-            //退件
-            rejectData : function(row){
-                console.log(row);
-            },
-            //編輯
-            modifyData : function(row){
-                console.log(row);
-                $state.transitionTo("app.selfwork.jobs.editorjob", {
-                    data: {
-                      id: 5,
-                      blue: '#0000FF'
-                    }
-                });
-            },
-            //結單
-            closeData : function(row){
-                console.log(row);
-            }
-        },
         compyDistributionOptions : {
             data:  '$vm.compyDistributionData',
             columnDefs: [
@@ -65,37 +45,48 @@ angular.module('app.selfwork').controller('CompyDistributionCtrl', function ($sc
         },
         Save : function(){
 
+            var _tasks = [],
+                _d = new Date();
+
+            // Delete此Leader的行家分配
+            _tasks.push({
+                crudType: 'Delete',
+                table: 15,
+                params: {
+                    COD_CR_USER : $vm.profile.U_ID
+                }
+            });
+
+            // Insert此Leader的行家分配
+            for(var i in $vm.compyDistributionData){
+                if($vm.compyDistributionData[i].COD_PRINCIPAL != null){
+                    _tasks.push({
+                        crudType: 'Insert',
+                        table: 15,
+                        params: {
+                            COD_CODE : $vm.compyDistributionData[i].CO_CODE,
+                            COD_PRINCIPAL : $vm.compyDistributionData[i].COD_PRINCIPAL,
+                            COD_CR_USER : $vm.profile.U_ID,
+                            COD_CR_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss')
+                        }
+                    });
+                }
+            }
+
+            RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res){
+                console.log(res["returnData"]);
+                toaster.pop('success', '訊息', '行家分配儲存成功', 3000);
+            });    
         }
     });
 
     function LoadCompyDistribution(){
-        // RestfulApi.SearchMSSQLData({
-        //     querymain: 'compyDistribution',
-        //     queryname: 'SelectCompy'
-        // }).then(function (res){
-        //     console.log(res["returnData"]);
-        //     $vm.compyDistributionData = res["returnData"];
-        // });    
-
-        RestfulApi.CRUDMSSQLDataByTask([
-            {
-                crudType: 'Select',
-                querymain: 'compyDistribution',
-                queryname: 'SelectCompy'
-            },
-            {
-                crudType: 'Select',
-                querymain: 'compyDistribution',
-                queryname: 'SelectUserbyGrade',
-                params: {
-                    U_ID : $vm.profile.U_ID,
-                    U_GRADE : $vm.profile.U_GRADE
-                }
-            }
-        ]).then(function (res){
+        RestfulApi.SearchMSSQLData({
+            querymain: 'compyDistribution',
+            queryname: 'SelectCompy'
+        }).then(function (res){
             console.log(res["returnData"]);
-            $vm.compyDistributionData = res["returnData"][0];
-            // $vm.assignPrincipalData = res["returnData"][1];
+            $vm.compyDistributionData = res["returnData"];
         });    
     }
 })
