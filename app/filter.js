@@ -112,11 +112,12 @@ angular.module('app')
 
 	var resData = {};
 
-	Compy.get().then(function (res){
-		resData = res
-	});
-
-	var FilterFunction = function (input){
+	var FilterFunction = function (input, isLoad){
+		if(isLoad){
+			Compy.get().then(function (res){
+				resData = res
+			});
+		}
 
 		if (!input) {
 		    return '';
@@ -160,11 +161,12 @@ angular.module('app')
 
 	var resData = {};
 
-	UserInfoByGrade.get(Session.Get().U_ID, Session.Get().U_GRADE).then(function (res){
-		resData = res
-	});
-
-	var FilterFunction = function (input){
+	var FilterFunction = function (input, isLoad){
+		if(isLoad){
+			UserInfoByGrade.get(Session.Get().U_ID, Session.Get().U_GRADE).then(function (res){
+				resData = res
+			});
+		}
 
 		if (!input) {
 		    return '';

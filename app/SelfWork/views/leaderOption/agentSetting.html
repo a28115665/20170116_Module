@@ -26,7 +26,7 @@
 				        data-widget-sortable="false"
 				    -->
 				    <header>
-				        <h2>作業區 </h2>
+				        <h2>代理人設定 </h2>
 				        
 				        <!-- <div class="widget-toolbar smart-form" role="menu">
 				            <a href-void="" class="btn btn-primary" href="#">重新讀取個人領單</a>
@@ -57,11 +57,45 @@
 				        <!-- widget content -->
 						<div class="widget-body no-padding">
 
+							<div class="widget-body-toolbar">
+							    <div class="row">
+							        <div class="col-xs-9 col-sm-5 col-md-5 col-lg-5">
+							        </div>
+							        <div class="col-xs-3 col-sm-7 col-md-7 col-lg-7 text-right">
+							        	<form class="form-inline" role="form">
+							                <fieldset>
+							                    <div class="form-group">
+													<select class="form-control" ng-model="$vm.selectAssignAgent" ng-options="key as value for (key, value) in $vm.assignAgentData">
+	  													<option value="">-- 請選擇 --</option>
+	  												</select>
+							                    </div>
+							                    <div class="form-group">
+										            <button class="btn btn-primary"
+										            		ng-disabled="$vm.agentSettingGridApi.selection.getSelectedRows().length == 0 || $vm.selectAssignAgent == undefined"
+										            		ng-click="$vm.AssignAgent()">
+										                指派代理人
+										            </button>
+							                    </div>
+							                </fieldset>
+							            </form>
+							        </div>
+							    </div>
+							</div>
+
 							<div class="table-responsive">
 
-								<!-- <div id="grid1" ui-grid="$vm.orderListOptions" class="my-ui-grid" ui-grid-pagination ui-grid-resize-columns></div> -->
+								<div id="grid1" ui-grid="$vm.agentSettingOptions" class="my-ui-grid" ui-grid-pagination ui-grid-resize-columns ui-grid-selection></div>
 
 							</div>
+
+							<!-- widget footer -->
+							<div class="widget-footer">
+								<button class="btn btn-sm btn-primary" type="button" ng-click="$vm.Save()">
+					                <i class="fa fa-save"></i>
+									儲存
+								</button>	
+							</div>
+							<!-- end widget footer -->
 
 						</div>
 						<!-- end widget content -->

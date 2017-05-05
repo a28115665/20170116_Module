@@ -45,7 +45,62 @@ angular.module('app.selfwork').config(function ($stateProvider){
                 controller: 'AgentSettingCtrl',
                 controllerAs: '$vm',
                 resolve: {
+                    userInfoByCompyDistribution : function (RestfulApi, $q, Session){
 
+                        var deferred = $q.defer();
+            
+                        RestfulApi.SearchMSSQLData({
+                            querymain: 'agentSetting',
+                            queryname: 'SelectUserInfoByCompyDistribution',
+                            params: {
+                                COD_CR_USER : Session.Get().U_ID
+                            }
+                        }).then(function (res){
+                            var data = res["returnData"] || [],
+                                finalData = {};
+
+                            for(var i in data){
+                                finalData[data[i].COD_PRINCIPAL] = data[i].U_NAME
+                            }
+                            
+                            deferred.resolve(finalData);
+                        }, function (err){
+                            deferred.reject({});
+                        });
+                        
+                        return deferred.promise;
+                    },
+                    userInfoByCompyDistributionFilter : function (RestfulApi, $q, Session){
+
+                        var deferred = $q.defer();
+            
+                        RestfulApi.SearchMSSQLData({
+                            querymain: 'agentSetting',
+                            queryname: 'SelectUserInfoByCompyDistribution',
+                            params: {
+                                COD_CR_USER : Session.Get().U_ID
+                            }
+                        }).then(function (res){
+                            var data = res["returnData"] || [],
+                                finalData = [];
+
+                            for(var i in data){
+                                finalData.push({
+                                    value: data[i].COD_PRINCIPAL,
+                                    label: data[i].U_NAME
+                                });
+                            }
+
+                            deferred.resolve(finalData);
+                        }, function (err){
+                            deferred.reject({});
+                        });
+                        
+                        return deferred.promise;
+                    },
+                    userInfoByGradeFilter : function(UserInfoByGradeFilter, Session){
+                        return UserInfoByGradeFilter.get(Session.Get().U_ID, Session.Get().U_GRADE);
+                    }
                 }
             }
         }

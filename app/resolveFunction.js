@@ -198,7 +198,7 @@ function UserInfoByGradeFilterResolve (RestfulApi, $q){
                         label: data[i].U_NAME
                     });
                 }
-
+                
                 deferred.resolve(finalData);
             }, function (err){
                 deferred.reject({});
