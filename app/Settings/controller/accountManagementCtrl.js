@@ -233,6 +233,7 @@ angular.module('app.settings').controller('AccountManagementCtrl', function ($sc
             querymain: 'accountManagement',
             queryname: 'SelectAllUserInfoNotWithAdmin'
         }).then(function (res){
+            console.log(res["returnData"]);
             $vm.accountData = res["returnData"];
         }).finally(function() {
             HandleWindowResize($vm.accountManagementGridApi);

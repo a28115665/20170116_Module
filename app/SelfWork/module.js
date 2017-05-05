@@ -45,7 +45,45 @@ angular.module('app.selfwork').config(function ($stateProvider){
                 controller: 'AgentSettingCtrl',
                 controllerAs: '$vm',
                 resolve: {
-                    
+
+                }
+            }
+        }
+    })
+
+    .state('app.selfwork.dailyleave', {
+        url: '/selfwork/dailyleave',
+        data: {
+            title: 'DailyLeave'
+        },
+        views: {
+            "content@app" : {
+                templateUrl: 'app/SelfWork/views/leaderOption/dailyleave.html',
+                controller: 'DailyLeaveCtrl',
+                controllerAs: '$vm',
+                resolve: {
+                    bool: function (SysCode, $q){
+
+                        var deferred = $q.defer();
+
+                        SysCode.get('Boolean').then(function (res){
+                            var finalData = [];
+
+                            for(var i in res){
+                                finalData.push({
+                                    value: (i == 'true'), 
+                                    key: res[i]
+                                });
+                            }
+
+                            deferred.resolve(finalData);
+                        });
+
+                        return deferred.promise;
+                    },
+                    boolFilter : function(SysCodeFilter){
+                        return SysCodeFilter.get('Boolean');
+                    }
                 }
             }
         }
