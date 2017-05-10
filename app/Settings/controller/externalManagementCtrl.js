@@ -8,8 +8,6 @@ angular.module('app.settings').controller('ExternalManagementCtrl', function ($s
         Init : function(){
             $scope.ShowTabs = true;
             $vm.LoadData();
-
-            $filter('compyFilter')({}, true)
         },
         profile : Session.Get(),
         defaultTab : 'hr1',

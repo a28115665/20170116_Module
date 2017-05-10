@@ -1,6 +1,9 @@
 var express = require('express');
 var router = express.Router();
 var dbcommand = require('../until/dbCommand.js');
+var setting = require('../app.setting.json');
+var http = require('http');
+var querystring = require('querystring');
 
 /**
  * 重新讀取Session
@@ -44,39 +47,88 @@ router.get('/login', function(req, res) {
     //     console.log(err);
     // });
 
-    // res.redirect('/#/dashboard');
+    try{        
+        // console.log(res.statusCode, req.query);
 
-    // var query = {
-    //     queryname: "SelectAllUserInfo",
-    //     params: {
-    //         U_ID: req.body.userid,
-    //         U_PW: req.body.password
-    //     }
-    // }
+        // Build the post string from an object
+        var post_data = querystring.stringify([
+            JSON.stringify({
+                crudType : 'Select',
+                querymain : 'login',
+                queryname : 'SelectAllUserInfo',
+                params : {
+                    U_ID : req.query.U_ID,
+                    U_PW : req.query.U_PW
+                }
+            }),
+            JSON.stringify({
+                crudType : 'Select',
+                querymain : 'login',
+                queryname : 'SelectUserDept',
+                params : {
+                    UD_ID : req.query.U_ID
+                }
+            })
+        ]);
 
-    dbcommand.SelectMethod(req.query["querymain"], req.query["queryname"], req.query["params"], function(err, recordset) {
-        if (err) {
-            console.log(err);
-            // Do something with your error...
-            res.status(500).send('查詢失敗');
-        } else {
-            console.log(recordset);
-            if(recordset.length > 0){
-                req.session.key = recordset[0]
+        // An object of options to indicate where to post to
+        var post_options = {
+            host: '127.0.0.1',
+            port: setting.NodeJs.port,
+            path: '/restful/crudByTask?'+post_data,
+            method: 'GET'
+        };
 
-                req.session.save(function(err) {
-                    // session saved
-                    if(err) console.log(err);
+        // Set up the request
+        var post_req = http.request(post_options, function (post_res) {
+
+            // console.log("statusCode: ", post_res.statusCode);
+            //console.log("headers: ", post_res.headers);
+            
+            if(post_res.statusCode == 200){
+                var content = '';
+
+                post_res.setEncoding('utf8');
+
+                post_res.on('data', function(chunk) {
+                    content += chunk;
                 });
 
-            }
+                post_res.on('end', function() {
+                    var _content = JSON.parse(content);
+                    // console.log(_content.returnData[0]);
+                    // console.log(_content.returnData[1]);
 
-            // res.redirect('/#/dashboard');
-            res.json({
-                "returnData": recordset
-            });
-        }
-    })
+                    if(_content.returnData[0].length > 0){
+                        // 塞入部門資訊
+                        _content.returnData[0][0]["DEPTS"] = _content.returnData[1];
+
+                        // 資料塞入Session
+                        req.session.key = _content.returnData[0][0]
+
+                        req.session.save(function(err) {
+                            // session saved
+                            if(err) console.log(err);
+                        });
+
+                    }
+
+                    // res.redirect('/#/dashboard');
+                    res.json({
+                        "returnData": _content.returnData[0]
+                    });
+                });
+            }else{
+                res.status(500).send('登入失敗');
+            }
+        });
+
+        post_req.end(); 
+
+    } catch(err) {
+        console.log(err);
+        res.status(500).send('登入失敗');
+    }
 });
 
 

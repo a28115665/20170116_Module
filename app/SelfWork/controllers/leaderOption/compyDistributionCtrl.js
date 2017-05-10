@@ -7,9 +7,6 @@ angular.module('app.selfwork').controller('CompyDistributionCtrl', function ($sc
 	angular.extend(this, {
         Init : function(){
             LoadCompyDistribution();
-
-            // 更新userInfoByGradeFilter
-            $filter('userInfoByGradeFilter')({}, true);
         },
         profile : Session.Get(),
         assignPrincipalData : userInfoByGrade,

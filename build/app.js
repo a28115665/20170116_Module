@@ -3226,12 +3226,20 @@ angular.module('app')
 
 	var resData = {};
 
-	SysCode.get('Boolean').then(function (res){
-		resData = res
-	});
+	LoadData()
 
-	var FilterFunction = function (input){
+	var FilterFunction = function (input, isLoad){
+		if(isLoad){
+			LoadData();
+		}
+
 		return angular.isUndefined(resData[input]) ? '' : resData[input];
+	};
+	
+	function LoadData(){
+		SysCode.get('Boolean').then(function (res){
+			resData = res
+		});
 	}
 
 	// 持續偵測
@@ -3243,17 +3251,25 @@ angular.module('app')
 
 	var resData = {};
 
-	SysCode.get('Role').then(function (res){
-		resData = res
-	});
+	LoadData();
 
-	var FilterFunction = function (input){
+	var FilterFunction = function (input, isLoad){
+		if(isLoad){
+			LoadData();
+		}
+
 		if (!input) {
 		    return '';
 		} else {
 		    return resData[input];
 		}
 
+	};
+	
+	function LoadData(){
+		SysCode.get('Role').then(function (res){
+			resData = res
+		});
 	}
 
 	// 持續偵測
@@ -3266,17 +3282,25 @@ angular.module('app')
 
 	var resData = {};
 
-	SysCode.get('Depart').then(function (res){
-		resData = res
-	});
+	LoadData();
 
-	var FilterFunction = function (input){
+	var FilterFunction = function (input, isLoad){
+		if(isLoad){
+			LoadData();
+		}
+
 		if (!input) {
 		    return '';
 		} else {
 		    return resData[input];
 		}
 
+	};
+	
+	function LoadData(){
+		SysCode.get('Depart').then(function (res){
+			resData = res
+		});
 	}
 
 	// 持續偵測
@@ -3289,40 +3313,25 @@ angular.module('app')
 
 	var resData = {};
 
-	SysCode.get('IOType').then(function (res){
-		resData = res
-	});
+	LoadData();
 
-	var FilterFunction = function (input){
+	var FilterFunction = function (input, isLoad){
+		if(isLoad){
+			LoadData();
+		}
+
 		if (!input) {
 		    return '';
 		} else {
 		    return resData[input];
 		}
 
-	}
-
-	// 持續偵測
-	FilterFunction.$stateful = true;
-
-	return FilterFunction;
-
-})
-.filter('jobFilter', function (SysCode) {
-
-	var resData = {};
-
-	SysCode.get('Job').then(function (res){
-		resData = res
-	});
-
-	var FilterFunction = function (input){
-		if (!input) {
-		    return '';
-		} else {
-		    return resData[input];
-		}
-
+	};
+	
+	function LoadData(){
+		SysCode.get('IOType').then(function (res){
+			resData = res
+		});
 	}
 
 	// 持續偵測
@@ -3335,11 +3344,11 @@ angular.module('app')
 
 	var resData = {};
 
+	LoadData();
+
 	var FilterFunction = function (input, isLoad){
 		if(isLoad){
-			Compy.get().then(function (res){
-				resData = res
-			});
+			LoadData();
 		}
 
 		if (!input) {
@@ -3348,6 +3357,12 @@ angular.module('app')
 		    return resData[input];
 		}
 
+	};
+	
+	function LoadData(){
+		Compy.get().then(function (res){
+			resData = res
+		});
 	}
 
 	// 持續偵測
@@ -3360,11 +3375,12 @@ angular.module('app')
 
 	var resData = {};
 
-	UserGrade.get().then(function (res){
-		resData = res
-	});
+	LoadData();
 
-	var FilterFunction = function (input){
+	var FilterFunction = function (input, isLoad){
+		if(isLoad){
+			LoadData();
+		}
 
 		if (!input) {
 		    return '';
@@ -3372,6 +3388,12 @@ angular.module('app')
 		    return resData[input];
 		}
 
+	};
+	
+	function LoadData(){
+		UserGrade.get().then(function (res){
+			resData = res
+		});
 	}
 
 	// 持續偵測
@@ -3384,11 +3406,11 @@ angular.module('app')
 
 	var resData = {};
 
+	LoadData();
+
 	var FilterFunction = function (input, isLoad){
 		if(isLoad){
-			UserInfoByGrade.get(Session.Get().U_ID, Session.Get().U_GRADE).then(function (res){
-				resData = res
-			});
+			LoadData();
 		}
 
 		if (!input) {
@@ -3397,6 +3419,12 @@ angular.module('app')
 		    return resData[input];
 		}
 
+	};
+
+	function LoadData(){
+		UserInfoByGrade.get(Session.Get().U_ID, Session.Get().U_GRADE).then(function (res){
+			resData = res
+		});
 	}
 
 	// 持續偵測
@@ -4529,12 +4557,8 @@ angular.module('app.auth').controller('MainLoginCtrl', function ($scope, $stateP
     $scope.Login = function($vm){
         // console.log($vm);
         AuthApi.Login({
-            querymain: 'accountManagement',
-            queryname: 'SelectAllUserInfo',
-            params: {
-                U_ID : $vm.userid,
-                U_PW : $vm.password
-            }
+            U_ID : $vm.userid,
+            U_PW : $vm.password
         }).then(function(res) {
             console.log(res);
             if(res["returnData"] && res["returnData"].length > 0){
@@ -7146,6 +7170,7 @@ angular.module('app.settings').controller('AccountManagementCtrl', function ($sc
 	angular.extend(this, {
         Init : function(){
             $scope.ShowTabs = true;
+            
             $vm.LoadData();
         },
         profile : Session.Get(),
@@ -7645,8 +7670,6 @@ angular.module('app.settings').controller('ExternalManagementCtrl', function ($s
         Init : function(){
             $scope.ShowTabs = true;
             $vm.LoadData();
-
-            $filter('compyFilter')({}, true)
         },
         profile : Session.Get(),
         defaultTab : 'hr1',
@@ -13296,9 +13319,6 @@ angular.module('app.selfwork').controller('CompyDistributionCtrl', function ($sc
 	angular.extend(this, {
         Init : function(){
             LoadCompyDistribution();
-
-            // 更新userInfoByGradeFilter
-            $filter('userInfoByGradeFilter')({}, true);
         },
         profile : Session.Get(),
         assignPrincipalData : userInfoByGrade,
@@ -13766,7 +13786,7 @@ angular.module('app.settings').controller('AccountCtrl', function ($scope, $stat
 });
 "use strict";
 
-angular.module('app.settings').controller('GroupCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, $filter, SysCodeFilter, RestfulApi, bool) {
+angular.module('app.settings').controller('GroupCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, $filter, SysCodeFilter, UserGradeFilter, RestfulApi, bool) {
     // console.log($stateParams);
     
 	var $vm = this,
@@ -13800,8 +13820,8 @@ angular.module('app.settings').controller('GroupCtrl', function ($scope, $stateP
                     depart: function() {
                         return SysCodeFilter.get('Depart');
                     },
-                    job: function(){
-                        return SysCodeFilter.get('Job');
+                    gradeFilter: function(){
+                        return UserGradeFilter.get();
                     }
                 }
             });
@@ -13893,10 +13913,10 @@ angular.module('app.settings').controller('GroupCtrl', function ($scope, $stateP
     };
 
 })
-.controller('AddGroupPeopleModalInstanceCtrl', function ($uibModalInstance, RestfulApi, vmData, $filter, $timeout, uiGridConstants, depart, job) {
+.controller('AddGroupPeopleModalInstanceCtrl', function ($uibModalInstance, RestfulApi, vmData, $filter, $timeout, uiGridConstants, depart, gradeFilter) {
     var $ctrl = this;
     $ctrl.vmData = vmData;
-    $ctrl.job = job;
+    $ctrl.gradeFilter = gradeFilter;
     $ctrl.depart = depart;
 
     $ctrl.mdData = [];
@@ -13927,11 +13947,11 @@ angular.module('app.settings').controller('GroupCtrl', function ($scope, $stateP
         columnDefs: [
             { name: 'U_ID'     ,  displayName: '帳號' },
             { name: 'U_NAME'   ,  displayName: '名稱' },
-            { name: 'U_JOB'    ,  displayName: '職稱', cellFilter: 'jobFilter', filter: 
+            { name: 'U_JOB'    ,  displayName: '職稱', cellFilter: 'gradeFilter', filter: 
                 {
                     term: null,
                     type: uiGridConstants.filter.SELECT,
-                    selectOptions: $ctrl.job
+                    selectOptions: $ctrl.gradeFilter
                 }
             },
             { name: 'U_DEPART' ,  displayName: '單位', cellFilter: 'departFilter', filter: 
@@ -15944,6 +15964,97 @@ angular.module('SmartAdmin.UI').directive('smartTooltipHtml', function () {
     }
 );
 
+'use strict';
+
+angular.module('SmartAdmin.Forms').directive('smartCkEditor', function () {
+    return {
+        restrict: 'A',
+        compile: function ( tElement) {
+            tElement.removeAttr('smart-ck-editor data-smart-ck-editor');
+            //CKEDITOR.basePath = 'bower_components/ckeditor/';
+
+            CKEDITOR.replace( tElement.attr('name'), { height: '380px', startupFocus : true} );
+        }
+    }
+});
+'use strict';
+
+angular.module('SmartAdmin.Forms').directive('smartDestroySummernote', function () {
+    return {
+        restrict: 'A',
+        compile: function (tElement, tAttributes) {
+            tElement.removeAttr('smart-destroy-summernote data-smart-destroy-summernote')
+            tElement.on('click', function() {
+                angular.element(tAttributes.smartDestroySummernote).destroy();
+            })
+        }
+    }
+});
+
+'use strict';
+
+angular.module('SmartAdmin.Forms').directive('smartEditSummernote', function () {
+    return {
+        restrict: 'A',
+        compile: function (tElement, tAttributes) {
+            tElement.removeAttr('smart-edit-summernote data-smart-edit-summernote');
+            tElement.on('click', function(){
+                angular.element(tAttributes.smartEditSummernote).summernote({
+                    focus : true
+                });  
+            });
+        }
+    }
+});
+
+'use strict';
+
+angular.module('SmartAdmin.Forms').directive('smartMarkdownEditor', function () {
+    return {
+        restrict: 'A',
+        compile: function (element, attributes) {
+            element.removeAttr('smart-markdown-editor data-smart-markdown-editor')
+
+            var options = {
+                autofocus:false,
+                savable:true,
+                fullscreen: {
+                    enable: false
+                }
+            };
+
+            if(attributes.height){
+                options.height = parseInt(attributes.height);
+            }
+
+            element.markdown(options);
+        }
+    }
+});
+
+'use strict';
+
+angular.module('SmartAdmin.Forms').directive('smartSummernoteEditor', function (lazyScript) {
+    return {
+        restrict: 'A',
+        compile: function (tElement, tAttributes) {
+            tElement.removeAttr('smart-summernote-editor data-smart-summernote-editor');
+
+            var options = {
+                focus : true,
+                tabsize : 2
+            };
+
+            if(tAttributes.height){
+                options.height = tAttributes.height;
+            }
+
+            lazyScript.register('build/vendor.ui.js').then(function(){
+                tElement.summernote(options);                
+            });
+        }
+    }
+});
 "use strict";
 
 
@@ -16381,97 +16492,6 @@ angular.module('SmartAdmin.Forms').directive('bootstrapTogglingForm', function()
 
 
 
-});
-'use strict';
-
-angular.module('SmartAdmin.Forms').directive('smartCkEditor', function () {
-    return {
-        restrict: 'A',
-        compile: function ( tElement) {
-            tElement.removeAttr('smart-ck-editor data-smart-ck-editor');
-            //CKEDITOR.basePath = 'bower_components/ckeditor/';
-
-            CKEDITOR.replace( tElement.attr('name'), { height: '380px', startupFocus : true} );
-        }
-    }
-});
-'use strict';
-
-angular.module('SmartAdmin.Forms').directive('smartDestroySummernote', function () {
-    return {
-        restrict: 'A',
-        compile: function (tElement, tAttributes) {
-            tElement.removeAttr('smart-destroy-summernote data-smart-destroy-summernote')
-            tElement.on('click', function() {
-                angular.element(tAttributes.smartDestroySummernote).destroy();
-            })
-        }
-    }
-});
-
-'use strict';
-
-angular.module('SmartAdmin.Forms').directive('smartEditSummernote', function () {
-    return {
-        restrict: 'A',
-        compile: function (tElement, tAttributes) {
-            tElement.removeAttr('smart-edit-summernote data-smart-edit-summernote');
-            tElement.on('click', function(){
-                angular.element(tAttributes.smartEditSummernote).summernote({
-                    focus : true
-                });  
-            });
-        }
-    }
-});
-
-'use strict';
-
-angular.module('SmartAdmin.Forms').directive('smartMarkdownEditor', function () {
-    return {
-        restrict: 'A',
-        compile: function (element, attributes) {
-            element.removeAttr('smart-markdown-editor data-smart-markdown-editor')
-
-            var options = {
-                autofocus:false,
-                savable:true,
-                fullscreen: {
-                    enable: false
-                }
-            };
-
-            if(attributes.height){
-                options.height = parseInt(attributes.height);
-            }
-
-            element.markdown(options);
-        }
-    }
-});
-
-'use strict';
-
-angular.module('SmartAdmin.Forms').directive('smartSummernoteEditor', function (lazyScript) {
-    return {
-        restrict: 'A',
-        compile: function (tElement, tAttributes) {
-            tElement.removeAttr('smart-summernote-editor data-smart-summernote-editor');
-
-            var options = {
-                focus : true,
-                tabsize : 2
-            };
-
-            if(tAttributes.height){
-                options.height = tAttributes.height;
-            }
-
-            lazyScript.register('build/vendor.ui.js').then(function(){
-                tElement.summernote(options);                
-            });
-        }
-    }
 });
 'use strict';
 

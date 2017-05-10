@@ -8,6 +8,7 @@ angular.module('app.settings').controller('AccountManagementCtrl', function ($sc
 	angular.extend(this, {
         Init : function(){
             $scope.ShowTabs = true;
+            
             $vm.LoadData();
         },
         profile : Session.Get(),

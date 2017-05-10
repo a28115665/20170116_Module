@@ -5,12 +5,8 @@ angular.module('app.auth').controller('MainLoginCtrl', function ($scope, $stateP
     $scope.Login = function($vm){
         // console.log($vm);
         AuthApi.Login({
-            querymain: 'accountManagement',
-            queryname: 'SelectAllUserInfo',
-            params: {
-                U_ID : $vm.userid,
-                U_PW : $vm.password
-            }
+            U_ID : $vm.userid,
+            U_PW : $vm.password
         }).then(function(res) {
             console.log(res);
             if(res["returnData"] && res["returnData"].length > 0){
