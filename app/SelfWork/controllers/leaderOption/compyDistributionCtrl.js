@@ -1,31 +1,33 @@
 "use strict";
 
-angular.module('app.selfwork').controller('CompyDistributionCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, $filter, RestfulApi, uiGridConstants, userInfoByGrade, userInfoByGradeFilter) {
+angular.module('app.selfwork').controller('CompyDistributionCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, $filter, RestfulApi, uiGridConstants, userInfoByGrade) {
     
     var $vm = this;
 
 	angular.extend(this, {
         Init : function(){
+            $vm.selectAssignDept = userInfoByGrade[0][0].value;
             LoadCompyDistribution();
         },
         profile : Session.Get(),
-        assignPrincipalData : userInfoByGrade,
+        assignGradeData : userInfoByGrade[0],
+        assignPrincipalData : userInfoByGrade[1],
         compyDistributionOptions : {
             data:  '$vm.compyDistributionData',
             columnDefs: [
                 { name: 'CO_NUMBER'    ,  displayName: '公司統編' },
                 { name: 'CO_NAME'      ,  displayName: '公司名稱' },
                 { name: 'CO_ADDR'      ,  displayName: '公司地址' },
-                { name: 'COD_PRINCIPAL',  displayName: '負責人' , cellFilter: 'userInfoByGradeFilter', filter: 
+                { name: 'COD_PRINCIPAL',  displayName: '負責人' , cellFilter: 'userInfoFilter', filter: 
                     {
                         term: null,
                         type: uiGridConstants.filter.SELECT,
-                        selectOptions: userInfoByGradeFilter
+                        selectOptions: userInfoByGrade[1][userInfoByGrade[0][0].value]
                     }
                 }
             ],
             enableFiltering: true,
-            enableSorting: false,
+            enableSorting: true,
             enableColumnMenus: false,
             // enableVerticalScrollbar: false,
             paginationPageSizes: [10, 25, 50],
@@ -39,6 +41,7 @@ angular.module('app.selfwork').controller('CompyDistributionCtrl', function ($sc
             if($vm.compyDistributionGridApi.selection.getSelectedRows().length > 0){
                 var _getSelectedRows = $vm.compyDistributionGridApi.selection.getSelectedRows();
                 for(var i in _getSelectedRows){
+                    _getSelectedRows[i].COD_DEPT = $vm.selectAssignDept;
                     _getSelectedRows[i].COD_PRINCIPAL = $vm.selectAssignPrincipal;
                 }
             }
@@ -53,6 +56,7 @@ angular.module('app.selfwork').controller('CompyDistributionCtrl', function ($sc
                 crudType: 'Delete',
                 table: 15,
                 params: {
+                    COD_DEPT : $vm.selectAssignDept,
                     COD_CR_USER : $vm.profile.U_ID
                 }
             });
@@ -65,6 +69,7 @@ angular.module('app.selfwork').controller('CompyDistributionCtrl', function ($sc
                         table: 15,
                         params: {
                             COD_CODE : $vm.compyDistributionData[i].CO_CODE,
+                            COD_DEPT : $vm.selectAssignDept,
                             COD_PRINCIPAL : $vm.compyDistributionData[i].COD_PRINCIPAL,
                             COD_CR_USER : $vm.profile.U_ID,
                             COD_CR_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss')
@@ -77,16 +82,26 @@ angular.module('app.selfwork').controller('CompyDistributionCtrl', function ($sc
                 console.log(res["returnData"]);
                 toaster.pop('success', '訊息', '行家分配儲存成功', 3000);
             });    
+        },
+        LoadCompyDistribution : function(){
+            LoadCompyDistribution();   
         }
     });
 
     function LoadCompyDistribution(){
         RestfulApi.SearchMSSQLData({
             querymain: 'compyDistribution',
-            queryname: 'SelectCompy'
+            queryname: 'SelectCompy',
+            params: {
+                COD_DEPT : $vm.selectAssignDept
+            }
         }).then(function (res){
             console.log(res["returnData"]);
             $vm.compyDistributionData = res["returnData"];
+        }).finally(function() {
+            // 更新filter selectOptions的值
+            $vm.compyDistributionGridApi.grid.columns[4].filter.selectOptions = userInfoByGrade[1][$vm.selectAssignDept];
+            // console.log($vm.compyDistributionGridApi.grid.columns[4].filter.selectOptions);
         });    
     }
 })

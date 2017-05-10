@@ -24,10 +24,7 @@ angular.module('app.selfwork').config(function ($stateProvider){
                 controllerAs: '$vm',
                 resolve: {
                     userInfoByGrade : function(UserInfoByGrade, Session){
-                        return UserInfoByGrade.get(Session.Get().U_ID, Session.Get().U_GRADE);
-                    },
-                    userInfoByGradeFilter : function(UserInfoByGradeFilter, Session){
-                        return UserInfoByGradeFilter.get(Session.Get().U_ID, Session.Get().U_GRADE);
+                        return UserInfoByGrade.get(Session.Get().U_ID, Session.Get().U_GRADE, Session.Get().DEPTS);
                     }
                 }
             }
@@ -117,27 +114,30 @@ angular.module('app.selfwork').config(function ($stateProvider){
                 controller: 'DailyLeaveCtrl',
                 controllerAs: '$vm',
                 resolve: {
-                    bool: function (SysCode, $q){
-
-                        var deferred = $q.defer();
-
-                        SysCode.get('Boolean').then(function (res){
-                            var finalData = [];
-
-                            for(var i in res){
-                                finalData.push({
-                                    value: (i == 'true'), 
-                                    key: res[i]
-                                });
-                            }
-
-                            deferred.resolve(finalData);
-                        });
-
-                        return deferred.promise;
+                    userInfoByGrade : function(UserInfoByGrade, Session){
+                        return UserInfoByGrade.get(Session.Get().U_ID, Session.Get().U_GRADE, Session.Get().DEPTS);
                     },
-                    boolFilter : function(SysCodeFilter){
-                        return SysCodeFilter.get('Boolean');
+                    // bool: function (SysCode, $q){
+
+                    //     var deferred = $q.defer();
+
+                    //     SysCode.get('Boolean').then(function (res){
+                    //         var finalData = [];
+
+                    //         for(var i in res){
+                    //             finalData.push({
+                    //                 value: (i == 'true'), 
+                    //                 key: res[i]
+                    //             });
+                    //         }
+
+                    //         deferred.resolve(finalData);
+                    //     });
+
+                    //     return deferred.promise;
+                    // },
+                    bool : function(SysCode){
+                        return SysCode.get('Boolean');
                     }
                 }
             }

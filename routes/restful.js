@@ -138,7 +138,6 @@ router.get('/crudByTask', function(req, res) {
 
     for(var i in req.query){
         var _task = JSON.parse(req.query[i]);
-        console.log(_task);
         switch(_task.crudType){
             case "Select":
                 tasks.push(async.apply(dbCommandByTask.SelectRequestWithTransaction, _task));

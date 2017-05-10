@@ -65,7 +65,11 @@
 							        	<form class="form-inline" role="form">
 							                <fieldset>
 							                    <div class="form-group">
-													<select class="form-control" ng-model="$vm.isLeave" ng-options="bool.value as bool.key for bool in $vm.boolData">
+													<select class="form-control" ng-model="$vm.selectAssignDept" ng-change="$vm.LoadDailyLeave()" ng-options="data.value as data.label for data in $vm.assignGradeData">
+	  												</select>
+							                    </div>
+							                    <div class="form-group">
+													<select class="form-control" ng-model="$vm.isLeave" ng-options="bool.value as bool.label for bool in $vm.boolData">
 	  												</select>
 							                    </div>
 							                    <div class="form-group">

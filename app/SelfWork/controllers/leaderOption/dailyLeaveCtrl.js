@@ -1,15 +1,17 @@
 "use strict";
 
-angular.module('app.selfwork').controller('DailyLeaveCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, $filter, uiGridConstants, RestfulApi, bool, boolFilter) {
+angular.module('app.selfwork').controller('DailyLeaveCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, $filter, uiGridConstants, RestfulApi, userInfoByGrade, bool) {
     
     var $vm = this;
 
 	angular.extend(this, {
         Init : function(){
-            $vm.isLeave = true;
+            $vm.selectAssignDept = userInfoByGrade[0][0].value;
+            $vm.isLeave = bool[0].value;
             LoadDailyLeave();
         },
         profile : Session.Get(),
+        assignGradeData : userInfoByGrade[0],
         boolData : bool,
         dailyLeaveOptions : {
             data:  '$vm.vmData',
@@ -19,7 +21,7 @@ angular.module('app.selfwork').controller('DailyLeaveCtrl', function ($scope, $s
                     {
                         term: null,
                         type: uiGridConstants.filter.SELECT,
-                        selectOptions: boolFilter
+                        selectOptions: bool
                     }
                 }
             ],
@@ -51,6 +53,7 @@ angular.module('app.selfwork').controller('DailyLeaveCtrl', function ($scope, $s
                 crudType: 'Delete',
                 table: 16,
                 params: {
+                    DL_DEPT : $vm.selectAssignDept,
                     DL_CR_USER : $vm.profile.U_ID
                 }
             });
@@ -64,6 +67,7 @@ angular.module('app.selfwork').controller('DailyLeaveCtrl', function ($scope, $s
                         table: 16,
                         params: {
                             DL_ID : $vm.vmData[i].U_ID,
+                            DL_DEPT : $vm.selectAssignDept,
                             DL_CR_USER : $vm.profile.U_ID,
                             DL_CR_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss')
                         }
@@ -75,6 +79,9 @@ angular.module('app.selfwork').controller('DailyLeaveCtrl', function ($scope, $s
                 console.log(res["returnData"]);
                 toaster.pop('success', '訊息', '請假設定儲存成功', 3000);
             });    
+        },
+        LoadDailyLeave : function(){
+            LoadDailyLeave();
         }
     });
 
@@ -83,8 +90,9 @@ angular.module('app.selfwork').controller('DailyLeaveCtrl', function ($scope, $s
             querymain: 'dailyLeave',
             queryname: 'SelectUserLeavebyGrade',
             params: {
-                U_ID : $vm.profile.U_ID,
-                U_GRADE : $vm.profile.U_GRADE
+                U_GRADE : $vm.profile.U_GRADE,
+                DEPTS : $vm.profile.DEPTS,
+                UD_DEPT : $vm.selectAssignDept
             }
         }).then(function (res){
             console.log(res["returnData"]);

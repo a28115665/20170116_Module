@@ -3,27 +3,35 @@ module.exports = function(pQueryname, pParams){
 
 	switch(pQueryname){
 		case "SelectUserLeavebyGrade":
-			_SQLCommand += "SELECT DISTINCT U.U_ID, \
-								   U.U_NAME, \
-								   U.U_GRADE, \
+			_SQLCommand += "SELECT U_ID, \
+								   U_NAME, \
+								   U_GRADE, \
+								   UD_DEPT, \
 								   CASE WHEN DL.DL_ID IS NOT NULL THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT) END AS 'DL_IS_LEAVE' \
-							FROM USER_DEPT UD \
-							JOIN USER_INFO U ON U.U_ID = UD.UD_ID \
-							LEFT JOIN DAILY_LEAVE DL ON DL.DL_ID = UD.UD_ID \
-							WHERE U.U_STS = 0 ";
+							FROM USER_DEPT \
+							JOIN USER_INFO ON U_ID = UD_ID \
+							LEFT JOIN DAILY_LEAVE DL ON DL.DL_ID = UD_ID AND DL_DEPT = UD_DEPT \
+							WHERE U_STS = 0 ";
 							
-			if(pParams["U_ID"] !== undefined){
-				_SQLCommand += " AND UD_DEPT IN ( \
-									SELECT UD_DEPT \
-									FROM USER_DEPT \
-									WHERE UD_ID = @U_ID \
-								) ";
+			if(pParams["DEPTS"] !== undefined){
+				var _Content = [];
+				for(var i in pParams["DEPTS"]){
+					_Content.push("SELECT SUD_DEPT \
+								   FROM SYS_USER_DEPT \
+								   WHERE SUD_DPATH LIKE '%"+pParams["DEPTS"][i].SUD_DEPT+"%' and SUD_DLVL >= "+pParams["DEPTS"][i].SUD_DLVL);
+				}
+
+				_SQLCommand += " AND UD_DEPT IN ( "+_Content.join(" Union ")+" ) ";
+				
+				// 避免PrepareStatement載入非DB裡的Schema
+				delete pParams["DEPTS"];
+			}				
+			if(pParams["UD_DEPT"] !== undefined){
+				_SQLCommand += " AND UD_DEPT = @UD_DEPT";
 			}							
 			if(pParams["U_GRADE"] !== undefined){
 				_SQLCommand += " AND U_GRADE > @U_GRADE";
 			}
-
-			_SQLCommand += " GROUP BY U.U_ID, U.U_NAME, U.U_GRADE, DL.DL_ID ";
 
 			break;
 	}

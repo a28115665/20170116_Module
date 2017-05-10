@@ -15,7 +15,9 @@ angular.module('app')
 	
 	function LoadData(){
 		SysCode.get('Boolean').then(function (res){
-			resData = res
+			for(var i in res){
+				resData[res[i].value] = res[i].label;
+			}
 		});
 	}
 
@@ -169,7 +171,9 @@ angular.module('app')
 	
 	function LoadData(){
 		UserGrade.get().then(function (res){
-			resData = res
+			for(var i in res){
+				resData[res[i].value] = res[i].label;
+			}
 		});
 	}
 
@@ -179,7 +183,7 @@ angular.module('app')
 	return FilterFunction;
 
 })
-.filter('userInfoByGradeFilter', function (UserInfoByGrade, Session) {
+.filter('userInfoFilter', function (UserInfo, Session) {
 
 	var resData = {};
 
@@ -199,8 +203,10 @@ angular.module('app')
 	};
 
 	function LoadData(){
-		UserInfoByGrade.get(Session.Get().U_ID, Session.Get().U_GRADE).then(function (res){
-			resData = res
+		UserInfo.get().then(function (res){
+			for(var i in res){
+				resData[res[i].value] = res[i].label;
+			}
 		});
 	}
 
