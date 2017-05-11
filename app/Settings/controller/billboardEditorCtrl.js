@@ -1,6 +1,6 @@
 "use strict";
 
-angular.module('app.settings').controller('BillboardEditorCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, RestfulApi, boolFilter, ioTypeFilter, uiGridConstants) {
+angular.module('app.settings').controller('BillboardEditorCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, RestfulApi, bool, ioType, uiGridConstants) {
 
     var $vm = this;
 
@@ -40,7 +40,7 @@ angular.module('app.settings').controller('BillboardEditorCtrl', function ($scop
                     {
                         term: null,
                         type: uiGridConstants.filter.SELECT,
-                        selectOptions: boolFilter
+                        selectOptions: bool
                     }
                 },
                 { name: 'BB_POST_FROM'   , displayName: '開始日期', cellFilter: 'dateFilter' },
@@ -51,7 +51,7 @@ angular.module('app.settings').controller('BillboardEditorCtrl', function ($scop
                     {
                         term: null,
                         type: uiGridConstants.filter.SELECT,
-                        selectOptions: ioTypeFilter
+                        selectOptions: ioType
                     }
                 },
                 { name: 'BB_CR_USER'     , visible: false},
@@ -126,7 +126,7 @@ angular.module('app.settings').controller('BillboardEditorCtrl', function ($scop
                     {
                         term: null,
                         type: uiGridConstants.filter.SELECT,
-                        selectOptions: boolFilter
+                        selectOptions: bool
                     }
                 },
                 { name: 'BB_POST_FROM'   , displayName: '開始日期', cellFilter: 'dateFilter' },
@@ -136,7 +136,7 @@ angular.module('app.settings').controller('BillboardEditorCtrl', function ($scop
                     {
                         term: null,
                         type: uiGridConstants.filter.SELECT,
-                        selectOptions: ioTypeFilter
+                        selectOptions: ioType
                     }
                 },
                 { name: 'BB_CR_USER'     , visible: false},

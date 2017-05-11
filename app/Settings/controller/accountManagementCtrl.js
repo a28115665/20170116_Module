@@ -1,6 +1,6 @@
 "use strict";
 
-angular.module('app.settings').controller('AccountManagementCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, $filter, SysCode, RestfulApi, uiGridConstants, boolFilter, gradeFilter, departFilter, roleFilter) {
+angular.module('app.settings').controller('AccountManagementCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, $filter, SysCode, RestfulApi, uiGridConstants, bool, role, userGrade) {
 
 	var $vm = this;
     // console.log(Account.get());
@@ -80,14 +80,14 @@ angular.module('app.settings').controller('AccountManagementCtrl', function ($sc
                     {
                         term: null,
                         type: uiGridConstants.filter.SELECT,
-                        selectOptions: boolFilter
+                        selectOptions: bool
                     }
                 },
                 { name: 'U_CHECK'  ,  displayName: '認證', cellFilter: 'booleanFilter', filter: 
                     {
                         term: null,
                         type: uiGridConstants.filter.SELECT,
-                        selectOptions: boolFilter
+                        selectOptions: bool
                     }
                 },
                 { name: 'U_ID'     ,  displayName: '帳號' },
@@ -98,14 +98,14 @@ angular.module('app.settings').controller('AccountManagementCtrl', function ($sc
                     {
                         term: null,
                         type: uiGridConstants.filter.SELECT,
-                        selectOptions: gradeFilter
+                        selectOptions: userGrade
                     }
                 },
                 { name: 'U_ROLE'   ,  displayName: '角色', cellFilter: 'roleFilter', filter: 
                     {
                         term: null,
                         type: uiGridConstants.filter.SELECT,
-                        selectOptions: roleFilter
+                        selectOptions: role
                     }
                 },
                 { name: 'Options'  ,  displayName: '操作', enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToMDForAccount') }
@@ -174,7 +174,7 @@ angular.module('app.settings').controller('AccountManagementCtrl', function ($sc
                     {
                         term: null,
                         type: uiGridConstants.filter.SELECT,
-                        selectOptions: boolFilter
+                        selectOptions: bool
                     }
                 },
                 { name: 'Options'  ,  displayName: '操作', enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToMDForGroup') }

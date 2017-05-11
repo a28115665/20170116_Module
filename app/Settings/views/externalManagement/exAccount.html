@@ -74,7 +74,7 @@
 								        <div class="col-md-2">
 											<select class="form-control" 
 													ng-model="$vm.vmData.CI_COMPY"
-													ng-options="compy.value as compy.key for compy in $vm.compyData">
+													ng-options="data.value as data.label for data in $vm.compyData">
 													<option value="">-- 請選擇 --</option>
 											</select>
 								        </div>
@@ -82,7 +82,7 @@
 								        <div class="col-md-2">
 											<select class="form-control" 
 													ng-model="$vm.vmData.CI_STS"
-													ng-options="bool.value as bool.key for bool in $vm.boolData">
+													ng-options="data.value as data.label for data in $vm.boolData">
 											</select>
 								        </div>
 								    </div>

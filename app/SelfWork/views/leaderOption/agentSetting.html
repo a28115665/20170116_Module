@@ -65,8 +65,12 @@
 							        	<form class="form-inline" role="form">
 							                <fieldset>
 							                    <div class="form-group">
-													<select class="form-control" ng-model="$vm.selectAssignAgent" ng-options="key as value for (key, value) in $vm.assignAgentData">
-	  													<option value="">-- 請選擇 --</option>
+													<select class="form-control" ng-model="$vm.selectAssignDept" ng-change="$vm.LoadCompyAgent()" ng-options="data.value as data.label for data in $vm.assignGradeData">
+	  												</select>
+							                    </div>
+							                    <div class="form-group">
+													<select class="form-control" ng-model="$vm.selectAssignAgent" ng-options="data.value as data.label for data in $vm.assignAgentData[$vm.selectAssignDept]">
+	  													<option value="">-- 請選擇代理人 --</option>
 	  												</select>
 							                    </div>
 							                    <div class="form-group">

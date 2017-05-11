@@ -5,8 +5,7 @@ module.exports = function(pQueryname, pParams){
 		case "SelectAllUserInfoNotWithAdmin":
 			_SQLCommand += "SELECT U_ID, \
 								   U_NAME, \
-								   U_JOB, \
-								   U_DEPART \
+								   U_GRADE \
 						   FROM USER_INFO \
 						   WHERE U_ID != 'Administrator' AND U_CHECK = 1 AND U_STS = 0 \
 						   ORDER BY U_CR_DATETIME Desc";

@@ -1,6 +1,6 @@
 "use strict";
 
-angular.module('app.concerns').controller('BanCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, RestfulApi, $filter, uiGridConstants, bool, boolFilter, compy) {
+angular.module('app.concerns').controller('BanCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, RestfulApi, $filter, uiGridConstants, bool, compy) {
     
     var $vm = this;
 
@@ -90,7 +90,7 @@ angular.module('app.concerns').controller('BanCtrl', function ($scope, $statePar
                     {
                         term: null,
                         type: uiGridConstants.filter.SELECT,
-                        selectOptions: boolFilter
+                        selectOptions: bool
                     }
                 },
                 { name: 'Options',  displayName: '操作', width: '100', enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToMForBLFO') }
@@ -215,7 +215,7 @@ angular.module('app.concerns').controller('BanCtrl', function ($scope, $statePar
                     {
                         term: null,
                         type: uiGridConstants.filter.SELECT,
-                        selectOptions: boolFilter
+                        selectOptions: bool
                     }
                 },
                 { name: 'options',  displayName: '操作', width: '100', enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToMForBLFL') }

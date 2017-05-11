@@ -1,33 +1,35 @@
 "use strict";
 
-angular.module('app.selfwork').controller('AgentSettingCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, $filter, uiGridConstants, RestfulApi, userInfoByCompyDistribution, userInfoByCompyDistributionFilter) {
+angular.module('app.selfwork').controller('AgentSettingCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, $filter, uiGridConstants, RestfulApi, userInfoByCompyDistribution) {
     
     var $vm = this;
 
 	angular.extend(this, {
         Init : function(){
+            $vm.selectAssignDept = userInfoByCompyDistribution[0][0].value;
             LoadCompyAgent();
         },
         profile : Session.Get(),
-        assignAgentData : userInfoByCompyDistribution,
+        assignGradeData : userInfoByCompyDistribution[0],
+        assignAgentData : userInfoByCompyDistribution[1],
         agentSettingOptions : {
             data:  '$vm.vmData',
             columnDefs: [
-                { name: 'COD_PRINCIPAL',  displayName: '公司負責人', cellFilter: 'userInfoByGradeFilter', filter: 
+                { name: 'COD_PRINCIPAL',  displayName: '公司負責人', cellFilter: 'userInfoFilter', filter: 
                     {
                         term: null,
                         type: uiGridConstants.filter.SELECT,
-                        selectOptions: userInfoByCompyDistributionFilter
+                        selectOptions: userInfoByCompyDistribution[1][userInfoByCompyDistribution[0][0].value]
                     }
                 },
-                { name: 'CO_NAME'      ,  displayName: '公司名稱' },
-                { name: 'AS_AGENT'     ,  displayName: '職務代理人', cellFilter: 'userInfoByGradeFilter', filter: 
+                { name: 'AS_AGENT'     ,  displayName: '職務代理人', cellFilter: 'userInfoFilter', filter: 
                     {
                         term: null,
                         type: uiGridConstants.filter.SELECT,
-                        selectOptions: userInfoByCompyDistributionFilter
+                        selectOptions: userInfoByCompyDistribution[1][userInfoByCompyDistribution[0][0].value]
                     }
-                }
+                },
+                { name: 'CO_NAME'      ,  displayName: '公司名稱' }
             ],
             enableFiltering: true,
             enableSorting: false,
@@ -60,6 +62,7 @@ angular.module('app.selfwork').controller('AgentSettingCtrl', function ($scope, 
                 crudType: 'Delete',
                 table: 17,
                 params: {
+                    AS_DEPT : $vm.selectAssignDept,
                     AS_CR_USER : $vm.profile.U_ID
                 }
             });
@@ -72,6 +75,7 @@ angular.module('app.selfwork').controller('AgentSettingCtrl', function ($scope, 
                         table: 17,
                         params: {
                             AS_CODE : $vm.vmData[i].COD_CODE,
+                            AS_DEPT : $vm.selectAssignDept,
                             AS_AGENT : $vm.vmData[i].AS_AGENT,
                             AS_CR_USER : $vm.profile.U_ID,
                             AS_CR_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss')
@@ -84,6 +88,9 @@ angular.module('app.selfwork').controller('AgentSettingCtrl', function ($scope, 
                 console.log(res["returnData"]);
                 toaster.pop('success', '訊息', '代理人設定儲存成功', 3000);
             });    
+        },
+        LoadCompyAgent : function(){
+            LoadCompyAgent();
         }
     });
 
@@ -92,11 +99,16 @@ angular.module('app.selfwork').controller('AgentSettingCtrl', function ($scope, 
             querymain: 'agentSetting',
             queryname: 'SelectCompyAgent',
             params: {
-                COD_CR_USER : $vm.profile.U_ID
+                COD_CR_USER : $vm.profile.U_ID,
+                COD_DEPT : $vm.selectAssignDept
             }
         }).then(function (res){
             console.log(res["returnData"]);
             $vm.vmData = res["returnData"];
+        }).finally(function() {
+            // 更新filter selectOptions的值
+            $vm.agentSettingGridApi.grid.columns[1].filter.selectOptions = userInfoByCompyDistribution[1][$vm.selectAssignDept];
+            $vm.agentSettingGridApi.grid.columns[3].filter.selectOptions = userInfoByCompyDistribution[1][$vm.selectAssignDept];
         });    
     }
 

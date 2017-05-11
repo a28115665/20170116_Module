@@ -71,8 +71,8 @@ angular.module('app.settings').controller('NewsCtrl', function ($scope, $statePa
                     vmData: function(){
                         return $vm.vmData;
                     },
-                    ioTypeFilter: function(SysCodeFilter){
-                        return SysCodeFilter.get('IOType');
+                    ioType: function(SysCode){
+                        return SysCode.get('IOType');
                     }
                 }
             });
@@ -438,13 +438,13 @@ angular.module('app.settings').controller('NewsCtrl', function ($scope, $statePa
         $state.transitionTo("app.settings.billboardeditor");
     };
 })
-.controller('AddPostGoalModalInstanceCtrl', function ($uibModalInstance, vmData, RestfulApi, $timeout, $filter, ioTypeFilter, uiGridConstants) {
+.controller('AddPostGoalModalInstanceCtrl', function ($uibModalInstance, vmData, RestfulApi, $timeout, $filter, ioType, uiGridConstants) {
     var $ctrl = this;
     $ctrl.mdData = [];
 
     $ctrl.MdInit = function (){
         // 拿掉All
-        ioTypeFilter.shift();
+        ioType.shift();
 
         var _request = null;
 
@@ -496,7 +496,7 @@ angular.module('app.settings').controller('NewsCtrl', function ($scope, $statePa
                 {
                     term: null,
                     type: uiGridConstants.filter.SELECT,
-                    selectOptions: ioTypeFilter
+                    selectOptions: ioType
                 }
             }
         ],

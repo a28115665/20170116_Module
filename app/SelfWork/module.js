@@ -42,61 +42,8 @@ angular.module('app.selfwork').config(function ($stateProvider){
                 controller: 'AgentSettingCtrl',
                 controllerAs: '$vm',
                 resolve: {
-                    userInfoByCompyDistribution : function (RestfulApi, $q, Session){
-
-                        var deferred = $q.defer();
-            
-                        RestfulApi.SearchMSSQLData({
-                            querymain: 'agentSetting',
-                            queryname: 'SelectUserInfoByCompyDistribution',
-                            params: {
-                                COD_CR_USER : Session.Get().U_ID
-                            }
-                        }).then(function (res){
-                            var data = res["returnData"] || [],
-                                finalData = {};
-
-                            for(var i in data){
-                                finalData[data[i].COD_PRINCIPAL] = data[i].U_NAME
-                            }
-                            
-                            deferred.resolve(finalData);
-                        }, function (err){
-                            deferred.reject({});
-                        });
-                        
-                        return deferred.promise;
-                    },
-                    userInfoByCompyDistributionFilter : function (RestfulApi, $q, Session){
-
-                        var deferred = $q.defer();
-            
-                        RestfulApi.SearchMSSQLData({
-                            querymain: 'agentSetting',
-                            queryname: 'SelectUserInfoByCompyDistribution',
-                            params: {
-                                COD_CR_USER : Session.Get().U_ID
-                            }
-                        }).then(function (res){
-                            var data = res["returnData"] || [],
-                                finalData = [];
-
-                            for(var i in data){
-                                finalData.push({
-                                    value: data[i].COD_PRINCIPAL,
-                                    label: data[i].U_NAME
-                                });
-                            }
-
-                            deferred.resolve(finalData);
-                        }, function (err){
-                            deferred.reject({});
-                        });
-                        
-                        return deferred.promise;
-                    },
-                    userInfoByGradeFilter : function(UserInfoByGradeFilter, Session){
-                        return UserInfoByGradeFilter.get(Session.Get().U_ID, Session.Get().U_GRADE);
+                    userInfoByCompyDistribution : function (UserInfoByCompyDistribution, Session){
+                        return UserInfoByCompyDistribution.get(Session.Get().U_ID);
                     }
                 }
             }
@@ -117,25 +64,6 @@ angular.module('app.selfwork').config(function ($stateProvider){
                     userInfoByGrade : function(UserInfoByGrade, Session){
                         return UserInfoByGrade.get(Session.Get().U_ID, Session.Get().U_GRADE, Session.Get().DEPTS);
                     },
-                    // bool: function (SysCode, $q){
-
-                    //     var deferred = $q.defer();
-
-                    //     SysCode.get('Boolean').then(function (res){
-                    //         var finalData = [];
-
-                    //         for(var i in res){
-                    //             finalData.push({
-                    //                 value: (i == 'true'), 
-                    //                 key: res[i]
-                    //             });
-                    //         }
-
-                    //         deferred.resolve(finalData);
-                    //     });
-
-                    //     return deferred.promise;
-                    // },
                     bool : function(SysCode){
                         return SysCode.get('Boolean');
                     }

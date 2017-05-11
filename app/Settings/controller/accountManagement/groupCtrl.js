@@ -1,6 +1,6 @@
 "use strict";
 
-angular.module('app.settings').controller('GroupCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, $filter, SysCodeFilter, UserGradeFilter, RestfulApi, bool) {
+angular.module('app.settings').controller('GroupCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, $filter, SysCode, UserGrade, RestfulApi, bool) {
     // console.log($stateParams);
     
 	var $vm = this,
@@ -32,10 +32,10 @@ angular.module('app.settings').controller('GroupCtrl', function ($scope, $stateP
                         return $vm.vmData;
                     },
                     depart: function() {
-                        return SysCodeFilter.get('Depart');
+                        return SysCode.get('Depart');
                     },
-                    gradeFilter: function(){
-                        return UserGradeFilter.get();
+                    userGrade: function(){
+                        return UserGrade.get();
                     }
                 }
             });
@@ -127,10 +127,10 @@ angular.module('app.settings').controller('GroupCtrl', function ($scope, $stateP
     };
 
 })
-.controller('AddGroupPeopleModalInstanceCtrl', function ($uibModalInstance, RestfulApi, vmData, $filter, $timeout, uiGridConstants, depart, gradeFilter) {
+.controller('AddGroupPeopleModalInstanceCtrl', function ($uibModalInstance, RestfulApi, vmData, $filter, $timeout, uiGridConstants, depart, userGrade) {
     var $ctrl = this;
     $ctrl.vmData = vmData;
-    $ctrl.gradeFilter = gradeFilter;
+    $ctrl.gradeFilter = userGrade;
     $ctrl.depart = depart;
 
     $ctrl.mdData = [];
@@ -161,18 +161,11 @@ angular.module('app.settings').controller('GroupCtrl', function ($scope, $stateP
         columnDefs: [
             { name: 'U_ID'     ,  displayName: '帳號' },
             { name: 'U_NAME'   ,  displayName: '名稱' },
-            { name: 'U_JOB'    ,  displayName: '職稱', cellFilter: 'gradeFilter', filter: 
+            { name: 'U_GRADE'  ,  displayName: '職稱', cellFilter: 'gradeFilter', filter: 
                 {
                     term: null,
                     type: uiGridConstants.filter.SELECT,
                     selectOptions: $ctrl.gradeFilter
-                }
-            },
-            { name: 'U_DEPART' ,  displayName: '單位', cellFilter: 'departFilter', filter: 
-                {
-                    term: null,
-                    type: uiGridConstants.filter.SELECT,
-                    selectOptions: $ctrl.depart
                 }
             }
         ],

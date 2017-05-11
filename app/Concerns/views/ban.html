@@ -145,7 +145,7 @@
 			        <div class="col-md-9">
 						<select class="form-control" 
 								ng-model="$ctrl.mdData['BLFO_TRACK']"
-								ng-options="bool.value as bool.key for bool in $ctrl.bool"
+								ng-options="data.value as data.label for data in $ctrl.bool"
 								required>
 						</select>
 			        </div>
@@ -195,7 +195,7 @@
 			        <div class="col-md-9">
 						<select class="form-control" 
 								ng-model="$ctrl.mdData['BLFL_TRACK']"
-								ng-options="bool.value as bool.key for bool in $ctrl.bool"
+								ng-options="data.value as data.label for data in $ctrl.bool"
 								required>
 						</select>
 			        </div>

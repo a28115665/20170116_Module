@@ -47,7 +47,9 @@ angular.module('app')
 	
 	function LoadData(){
 		SysCode.get('Role').then(function (res){
-			resData = res
+			for(var i in res){
+				resData[res[i].value] = res[i].label;
+			}
 		});
 	}
 
@@ -78,7 +80,9 @@ angular.module('app')
 	
 	function LoadData(){
 		SysCode.get('Depart').then(function (res){
-			resData = res
+			for(var i in res){
+				resData[res[i].value] = res[i].label;
+			}
 		});
 	}
 
@@ -109,7 +113,9 @@ angular.module('app')
 	
 	function LoadData(){
 		SysCode.get('IOType').then(function (res){
-			resData = res
+			for(var i in res){
+				resData[res[i].value] = res[i].label;
+			}
 		});
 	}
 
@@ -140,7 +146,9 @@ angular.module('app')
 	
 	function LoadData(){
 		Compy.get().then(function (res){
-			resData = res
+			for(var i in res){
+				resData[res[i].value] = res[i].label;
+			}
 		});
 	}
 
