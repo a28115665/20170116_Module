@@ -3,12 +3,22 @@ angular.module('app')
 
 	var resData = {};
 
-	SysCode.get('Boolean').then(function (res){
-		resData = res
-	});
+	LoadData()
 
-	var FilterFunction = function (input){
+	var FilterFunction = function (input, isLoad){
+		if(isLoad){
+			LoadData();
+		}
+
 		return angular.isUndefined(resData[input]) ? '' : resData[input];
+	};
+	
+	function LoadData(){
+		SysCode.get('Boolean').then(function (res){
+			for(var i in res){
+				resData[res[i].value] = res[i].label;
+			}
+		});
 	}
 
 	// 持續偵測
@@ -20,17 +30,27 @@ angular.module('app')
 
 	var resData = {};
 
-	SysCode.get('Role').then(function (res){
-		resData = res
-	});
+	LoadData();
 
-	var FilterFunction = function (input){
+	var FilterFunction = function (input, isLoad){
+		if(isLoad){
+			LoadData();
+		}
+
 		if (!input) {
 		    return '';
 		} else {
 		    return resData[input];
 		}
 
+	};
+	
+	function LoadData(){
+		SysCode.get('Role').then(function (res){
+			for(var i in res){
+				resData[res[i].value] = res[i].label;
+			}
+		});
 	}
 
 	// 持續偵測
@@ -43,17 +63,27 @@ angular.module('app')
 
 	var resData = {};
 
-	SysCode.get('Depart').then(function (res){
-		resData = res
-	});
+	LoadData();
 
-	var FilterFunction = function (input){
+	var FilterFunction = function (input, isLoad){
+		if(isLoad){
+			LoadData();
+		}
+
 		if (!input) {
 		    return '';
 		} else {
 		    return resData[input];
 		}
 
+	};
+	
+	function LoadData(){
+		SysCode.get('Depart').then(function (res){
+			for(var i in res){
+				resData[res[i].value] = res[i].label;
+			}
+		});
 	}
 
 	// 持續偵測
@@ -66,40 +96,27 @@ angular.module('app')
 
 	var resData = {};
 
-	SysCode.get('IOType').then(function (res){
-		resData = res
-	});
+	LoadData();
 
-	var FilterFunction = function (input){
+	var FilterFunction = function (input, isLoad){
+		if(isLoad){
+			LoadData();
+		}
+
 		if (!input) {
 		    return '';
 		} else {
 		    return resData[input];
 		}
 
-	}
-
-	// 持續偵測
-	FilterFunction.$stateful = true;
-
-	return FilterFunction;
-
-})
-.filter('jobFilter', function (SysCode) {
-
-	var resData = {};
-
-	SysCode.get('Job').then(function (res){
-		resData = res
-	});
-
-	var FilterFunction = function (input){
-		if (!input) {
-		    return '';
-		} else {
-		    return resData[input];
-		}
-
+	};
+	
+	function LoadData(){
+		SysCode.get('IOType').then(function (res){
+			for(var i in res){
+				resData[res[i].value] = res[i].label;
+			}
+		});
 	}
 
 	// 持續偵測
@@ -112,11 +129,12 @@ angular.module('app')
 
 	var resData = {};
 
-	Compy.get().then(function (res){
-		resData = res
-	});
+	LoadData();
 
-	var FilterFunction = function (input){
+	var FilterFunction = function (input, isLoad){
+		if(isLoad){
+			LoadData();
+		}
 
 		if (!input) {
 		    return '';
@@ -124,6 +142,14 @@ angular.module('app')
 		    return resData[input];
 		}
 
+	};
+	
+	function LoadData(){
+		Compy.get().then(function (res){
+			for(var i in res){
+				resData[res[i].value] = res[i].label;
+			}
+		});
 	}
 
 	// 持續偵測
@@ -136,11 +162,12 @@ angular.module('app')
 
 	var resData = {};
 
-	UserGrade.get().then(function (res){
-		resData = res
-	});
+	LoadData();
 
-	var FilterFunction = function (input){
+	var FilterFunction = function (input, isLoad){
+		if(isLoad){
+			LoadData();
+		}
 
 		if (!input) {
 		    return '';
@@ -148,6 +175,47 @@ angular.module('app')
 		    return resData[input];
 		}
 
+	};
+	
+	function LoadData(){
+		UserGrade.get().then(function (res){
+			for(var i in res){
+				resData[res[i].value] = res[i].label;
+			}
+		});
+	}
+
+	// 持續偵測
+	FilterFunction.$stateful = true;
+
+	return FilterFunction;
+
+})
+.filter('userInfoFilter', function (UserInfo, Session) {
+
+	var resData = {};
+
+	LoadData();
+
+	var FilterFunction = function (input, isLoad){
+		if(isLoad){
+			LoadData();
+		}
+
+		if (!input) {
+		    return '';
+		} else {
+		    return resData[input];
+		}
+
+	};
+
+	function LoadData(){
+		UserInfo.get().then(function (res){
+			for(var i in res){
+				resData[res[i].value] = res[i].label;
+			}
+		});
 	}
 
 	// 持續偵測

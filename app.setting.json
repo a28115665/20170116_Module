@@ -10,13 +10,20 @@
 	},
 	"MSSQL" : {
 		"user": "sa",
-		"password": "p@ssw0rd",
-		"server": "192.168.1.9",
+		"password": "P@ssw0rd",
+		"server": "127.0.0.1",
 		"database": "EWS",
 		"pool": {
 	        "max": 10,
 	        "min": 0,
 	        "idleTimeoutMillis": 15000
 	    }
+	},
+	"WebService" : {
+		"changeNature" : {
+			"host" : "10.1.21.22",
+			"port" : "80",
+			"url" : "/EWSWS/WebServiceChangeNature.asmx/GetNewNature"
+		}
 	}
 }

@@ -40,29 +40,6 @@
                             </p>
                             <div class="table-responsive">
 
-                                <form action="http://10.1.21.22/EWSWS/WebServiceImport.asmx/GetNewNature" method="POST">
-                                    <table cellspacing="0" cellpadding="4" frame="box" bordercolor="#dcdcdc" rules="none" style="border-collapse: collapse;">
-                                        <tbody>
-                                            <tr>
-                                                <td class="frmHeader" background="#dcdcdc" style="border-right: 2px solid white;">參數</td>
-                                                <td class="frmHeader" background="#dcdcdc">值</td>
-                                            </tr>
-                                            <tr>
-                                                <td class="frmText" style="color: #000000; font-weight: normal;">strJson:</td>
-                                                <td>
-                                                    <input class="frmInput" type="text" size="50" name="strJson">
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td></td>
-                                                <td align="right">
-                                                    <input type="submit" value="叫用" class="button">
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </form>
-
                                 <table class="table table-bordered">
                                     <thead>
                                         <tr>
@@ -214,6 +191,26 @@
                                             <td>
                                                 <h6>{{$vm.restful.queryTestByTask.status}}</h6>
                                                 <p>{{$vm.restful.queryTestByTask.result}}</p>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td><a class="btn btn-primary" href-void ng-click="$vm.ChangeNatureTest()">改單</a></td>
+                                            <td>
+                                                <form class="form-horizontal">
+                                                    <fieldset>
+                                                        <legend>Change Nature Test</legend>
+                                                        <div class="form-group">
+                                                            <label class="col-md-2 control-label">Nature</label>
+                                                            <div class="col-md-10">
+                                                                <input type="text" class="form-control" placeholder="Enter Identity" ng-model="$vm.testData.Nature">
+                                                            </div>
+                                                        </div>
+                                                    </fieldset>
+                                                </form>
+                                            </td>
+                                            <td>
+                                                <h6>{{$vm.restful.changeNatureTest.status}}</h6>
+                                                <p>{{$vm.restful.changeNatureTest.result}}</p>
                                             </td>
                                         </tr>
                                     </tbody>

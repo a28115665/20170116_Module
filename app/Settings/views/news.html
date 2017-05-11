@@ -57,14 +57,14 @@
 								        <div class="col-md-2">
 											<select class="form-control" 
 													ng-model="$vm.vmData.BB_STICK_TOP"
-													ng-options="bool.value as bool.key for bool in $vm.boolData" required>
+													ng-options="data.value as data.label for data in $vm.boolData" required>
 											</select>
 								        </div>
 								        <label class="col-md-2 control-label">公佈類型</label>
 								        <div class="col-md-2">
 											<select class="form-control" 
 													ng-model="$vm.vmData.BB_IO_TYPE"
-													ng-options="key as value for (key, value) in $vm.ioTypeData" required>
+													ng-options="data.value as data.label for data in $vm.ioTypeData" required>
 											</select>
 								        </div>
 								        <label class="col-md-2 control-label">公佈對象</label>

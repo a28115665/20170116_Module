@@ -2,7 +2,7 @@
 <div id="content" ng-init="$vm.Init()">
 
 	<div class="row">
-		<big-breadcrumbs items="['SelfWork', 'CompyDistribution']" icon="building-o" class="col-xs-12 col-sm-7 col-md-7 col-lg-4"></big-breadcrumbs>
+		<big-breadcrumbs items="['SelfWork', 'AgentSetting']" icon="braille" class="col-xs-12 col-sm-7 col-md-7 col-lg-4"></big-breadcrumbs>
 	</div>
 
 	<!-- widget grid -->
@@ -26,7 +26,7 @@
 				        data-widget-sortable="false"
 				    -->
 				    <header>
-				        <h2>行家設定 </h2>
+				        <h2>代理人設定 </h2>
 				        
 				        <!-- <div class="widget-toolbar smart-form" role="menu">
 				            <a href-void="" class="btn btn-primary" href="#">重新讀取個人領單</a>
@@ -59,25 +59,25 @@
 
 							<div class="widget-body-toolbar">
 							    <div class="row">
-							        <!-- <div class="col-xs-9 col-sm-5 col-md-5 col-lg-5">
-							        </div> -->
-							        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 text-right">
+							        <div class="col-xs-9 col-sm-5 col-md-5 col-lg-5">
+							        </div>
+							        <div class="col-xs-3 col-sm-7 col-md-7 col-lg-7 text-right">
 							        	<form class="form-inline" role="form">
 							                <fieldset>
 							                    <div class="form-group">
-													<select class="form-control" ng-model="$vm.selectAssignDept" ng-change="$vm.LoadCompyDistribution()" ng-options="data.value as data.label for data in $vm.assignGradeData">
+													<select class="form-control" ng-model="$vm.selectAssignDept" ng-change="$vm.LoadCompyAgent()" ng-options="data.value as data.label for data in $vm.assignGradeData">
 	  												</select>
 							                    </div>
 							                    <div class="form-group">
-													<select class="form-control" ng-model="$vm.selectAssignPrincipal" ng-options="data.value as data.label for data in $vm.assignPrincipalData[$vm.selectAssignDept]">
-	  													<option value="">-- 請選擇負責人 --</option>
+													<select class="form-control" ng-model="$vm.selectAssignAgent" ng-options="data.value as data.label for data in $vm.assignAgentData[$vm.selectAssignDept]">
+	  													<option value="">-- 請選擇代理人 --</option>
 	  												</select>
 							                    </div>
 							                    <div class="form-group">
 										            <button class="btn btn-primary"
-										            		ng-disabled="$vm.compyDistributionGridApi.selection.getSelectedRows().length == 0 || $vm.selectAssignPrincipal == undefined"
-										            		ng-click="$vm.AssignPrincipal()">
-										                指派負責人
+										            		ng-disabled="$vm.agentSettingGridApi.selection.getSelectedRows().length == 0 || $vm.selectAssignAgent == undefined"
+										            		ng-click="$vm.AssignAgent()">
+										                指派代理人
 										            </button>
 							                    </div>
 							                </fieldset>
@@ -88,7 +88,7 @@
 
 							<div class="table-responsive">
 
-								<div id="grid1" ui-grid="$vm.compyDistributionOptions" class="my-ui-grid" ui-grid-pagination ui-grid-resize-columns ui-grid-selection ui-grid-auto-resize></div>
+								<div id="grid1" ui-grid="$vm.agentSettingOptions" class="my-ui-grid" ui-grid-pagination ui-grid-resize-columns ui-grid-selection></div>
 
 							</div>
 

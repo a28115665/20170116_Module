@@ -53,11 +53,13 @@ angular.module('app')
                     }
                 }
             }
-        )
+        ),
+        CHANGENATURE : $resource('/toolbox/changeNature')
     };
 })
 .factory('SysCode', SysCodeResolve)
-.factory('SysCodeFilter', SysCodeFilterResolve)
 .factory('Compy', CompyResolve)
 .factory('UserGrade', UserGradeResolve)
-.factory('UserGradeFilter', UserGradeFilterResolve)
+.factory('UserInfoByGrade', UserInfoByGradeResolve)
+.factory('UserInfoByCompyDistribution', UserInfoByCompyDistributionResolve)
+.factory('UserInfo', UserInfoResolve)

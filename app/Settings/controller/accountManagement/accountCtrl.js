@@ -1,6 +1,6 @@
 "use strict";
 
-angular.module('app.settings').controller('AccountCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, RestfulApi, $filter, bool, role, grade) {
+angular.module('app.settings').controller('AccountCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, RestfulApi, $filter, bool, role, userGrade) {
 
     var $vm = this,
         _tasks = [];
@@ -10,8 +10,8 @@ angular.module('app.settings').controller('AccountCtrl', function ($scope, $stat
     		if($stateParams.data == null){
                 $vm.vmData = {
                 	U_ROLE : "SUser",
-                	U_STS : false,
-                	U_CHECK : true,
+                	U_STS : bool[0].value,
+                	U_CHECK : bool[0].value,
                     IU : "Add"
                 }
             }else{
@@ -26,7 +26,7 @@ angular.module('app.settings').controller('AccountCtrl', function ($scope, $stat
         profile : Session.Get(),
         boolData : bool,
         roleData : role,
-        gradeData : grade,
+        gradeData : userGrade,
         ModifyPW : function(){
         	var modalInstance = $uibModal.open({
                 animation: true,

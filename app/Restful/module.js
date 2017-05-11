@@ -20,24 +20,7 @@ angular.module('app.restful').config(function ($stateProvider){
 			views: {
 				"content@app" : {
 					templateUrl: 'app/Restful/views/test.html',
-                    controller: function ($scope, config, RestfulApi, ToolboxApi, Session, $filter, $http) {
-                        // $http({
-                        //     method: 'GET',
-                        //     url: 'http://10.1.21.22/EWSWS/WebServiceImport.asmx',
-                        //     params: [{ 
-                        //         "UserId": "Admin",
-                        //         "UserPW": "Admin#1",  
-                        //         "Nature": "電熱毯,服飾"
-                        //     }]
-                        // }).then(function successCallback(response) {
-                        //     // this callback will be called asynchronously
-                        //     // when the response is available
-                        //     console.log(response);
-                        // }, function errorCallback(response) {
-                        //     // called asynchronously if an error occurs
-                        //     // or server returns response with an error status.
-                        // });
-
+                    controller: function ($scope, config, RestfulApi, ToolboxApi, Session, $filter) {
 
                         var $vm = this;
 
@@ -46,7 +29,8 @@ angular.module('app.restful').config(function ($stateProvider){
                             testData : {
                                 ID : "",
                                 Name : "",
-                                Filename : ""
+                                Filename : "",
+                                Nature : ""
                             },
                             restful : {
                                 queryTest : {
@@ -70,6 +54,10 @@ angular.module('app.restful').config(function ($stateProvider){
                                     result : ""
                                 },
                                 queryTestByTask : {
+                                    status : "",
+                                    result : ""
+                                },
+                                changeNatureTest : {
                                     status : "",
                                     result : ""
                                 }
@@ -222,6 +210,23 @@ angular.module('app.restful').config(function ($stateProvider){
                             }, function (err){
                                 $vm.restful.queryTestByTask.status = "失敗";
                                 $vm.restful.queryTestByTask.result = err;
+                            });
+                        };
+
+                        /**
+                         * Change Nature Sample
+                         */
+                        $vm.ChangeNatureTest = function(){
+                            ToolboxApi.ChangeNature({
+                                ID : "Administrator",
+                                PW : "Admin#1",
+                                NATURE : $vm.testData.Nature
+                            }).then(function (res) {
+                                $vm.restful.changeNatureTest.status = "成功";
+                                $vm.restful.changeNatureTest.result = res["returnData"];
+                            }, function (err) {
+                                $vm.restful.changeNatureTest.status = "失敗";
+                                $vm.restful.changeNatureTest.result = err;
                             });
                         };
 

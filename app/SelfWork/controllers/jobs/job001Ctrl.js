@@ -1,6 +1,6 @@
 "use strict";
 
-angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, RestfulApi, uiGridConstants, $filter) {
+angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, RestfulApi, ToolboxApi, uiGridConstants, $filter) {
     // console.log($stateParams, $state);
 
     var $vm = this,
@@ -29,6 +29,17 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
         gridMethod : {
             changeNature : function(row){
                 console.log(row);
+                
+                row.entity.loading = true;
+                ToolboxApi.ChangeNature({
+                    ID : $vm.profile.U_ID,
+                    PW : $vm.profile.U_PW,
+                    NATURE : row.entity.IL_NATURE
+                }).then(function (res) {
+                    row.entity.IL_NATURE_NEW = res["returnData"];
+                }).finally(function() {
+                    row.entity.loading = false;
+                });
             },
             //加入黑名單
             banData : function(row){

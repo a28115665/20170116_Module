@@ -44,6 +44,13 @@ module.exports = function(pQueryname, pParams){
 						   WHERE U_ID != 'Administrator' \
 						   ORDER BY U_CR_DATETIME Desc";
 			break;
+		case "SelectUserInfoForFilter":
+			_SQLCommand += "SELECT U_ID, \
+								   U_NAME \
+						   FROM USER_INFO \
+						   WHERE U_ID != 'Administrator' \
+						   ORDER BY U_CR_DATETIME Desc";
+			break;
 		case "SelectAllSysCode":
 			_SQLCommand += "SELECT * \
 						   FROM SYS_CODE \

@@ -3,7 +3,9 @@ var router = express.Router();
 var mkdirp = require('mkdirp');
 var dbCommand = require('../until/dbCommand.js');
 var tmpXlsObj = require('../until/tmpXlsObj.js');
+var setting = require('../app.setting.json');
 var archiver = require('archiver');
+var http = require('http');
 const querystring = require('querystring');
 
 var dateFormat = require('dateformat');
@@ -12,76 +14,6 @@ const path = require('path');
 const fs = require('fs');
 var fsExtra = require('fs-extra');
 var busboy = require('connect-busboy');
-
-/**
- * ChangeTest 改單測試
- */
-router.get('/changeTest', function(req, res) {
-
-    try{
-        // request({
-        //     url: "http://10.1.21.22/EWSWS/WebServiceImport.asmx",
-        //     json: true,
-        //     body:  {     
-        //         "UserId": "Admin",     
-        //         "UserPW": "Admin#1",  
-        //         "Nature": "電熱毯,服飾"  
-        //     }
-        // }, function (error, response, body) {
-        //     if (!error && response.statusCode === 200) {
-        //         // body['SendDateFromServer'] = new Date();
-        //         console.log(response, body);
-        //         // socket.emit('plan arrival by server', body); 
-        //     }
-        // })
-        
-        // Build the post string from an object
-        var post_data = querystring.stringify({
-            'strJson' : '[{"UserId": "Admin","UserPW": "Admin#1","Nature": "電熱毯,服飾"}]'
-        });
-
-        // An object of options to indicate where to post to
-        var post_options = {
-          host: '10.1.21.20',
-          port: '3000',
-          path: '/restful/crud',
-          method: 'POST',
-          headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-                'Content-Length': Buffer.byteLength(post_data)
-          }
-        };
-
-        // Set up the request
-        var http = require('http');
-        var post_req = http.request(post_options, function(_res) {
-            console.log("statusCode: ", _res.statusCode);
-            //console.log("headers: ", _res.headers);
-            var msg = '';
-
-            _res.setEncoding('utf8');
-            _res.on('data', function(chunk) {
-                msg += chunk;
-            });
-            _res.on('end', function() {
-                console.log(msg);
-                // res.json({
-                //     BODY: msg
-                // });
-                res.end(msg);
-            });
-        });
-        console.log(post_data);
-        // post the data
-        post_req.write(post_data);
-        post_req.end();
-
-    } catch(err) {
-        console.log(err);
-        res.status(500).send('改單失敗');
-    }
-
-});
 
 /**
  * ExportExcelByVar 經由前端參數匯出Excel
@@ -222,6 +154,75 @@ router.get('/downloadFiles', function(req, res) {
     } catch(err) {
         console.log(err);
         res.status(500).send('下載失敗');
+    }
+
+});
+
+/**
+ * ChangeNature 改單
+ */
+router.get('/changeNature', function(req, res) {
+
+    try{        
+        // console.log(res.statusCode, req.query);
+
+        // Build the post string from an object
+        var post_data = querystring.stringify({
+            'strJson' : JSON.stringify([
+                {
+                    "UserId": req.query.ID,
+                    "UserPW": req.query.PW,
+                    "Nature": req.query.NATURE
+                }
+            ])
+        });
+
+        // An object of options to indicate where to post to
+        var post_options = {
+            host: setting.WebService.changeNature.host,
+            port: setting.WebService.changeNature.port,
+            path: setting.WebService.changeNature.url,
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'Content-Length': Buffer.byteLength(post_data)
+            }
+        };
+
+        // Set up the request
+        var post_req = http.request(post_options, function (post_res) {
+
+            // console.log("statusCode: ", post_res.statusCode);
+            //console.log("headers: ", post_res.headers);
+            if(post_res.statusCode == 200){
+                var content = '';
+
+                post_res.setEncoding('utf8');
+
+                post_res.on('data', function(chunk) {
+                    content += chunk;
+                });
+
+                post_res.on('end', function() {
+                    // console.log(content);
+
+                    res.json({
+                        "returnData": content
+                    });
+                });
+            }else{
+                res.status(post_res.statusCode).send('改單失敗');
+            }
+        });
+
+        // console.log(post_data);
+        // post the data
+        post_req.write(post_data);
+
+        post_req.end(); 
+
+    } catch(err) {
+        res.status(500).send('改單失敗');
     }
 
 });

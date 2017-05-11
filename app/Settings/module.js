@@ -40,17 +40,14 @@ angular.module('app.settings').config(function ($stateProvider){
                 controllerAs: '$vm',
                 resolve: {
                     // Grid的篩選條件
-                    boolFilter: function (SysCodeFilter){
-                        return SysCodeFilter.get('Boolean');
+                    bool: function (SysCode){
+                        return SysCode.get('Boolean');
                     },
-                    departFilter: function (SysCodeFilter){
-                        return SysCodeFilter.get('Depart');
+                    role: function (SysCode){
+                        return SysCode.get('Role');
                     },
-                    roleFilter: function (SysCodeFilter){
-                        return SysCodeFilter.get('Role');
-                    },
-                    gradeFilter: function (UserGradeFilter){
-                        return UserGradeFilter.get();
+                    userGrade: function (UserGrade){
+                        return UserGrade.get();
                     }
                 }
             }
@@ -72,53 +69,12 @@ angular.module('app.settings').config(function ($stateProvider){
                 controllerAs: '$vm',
                 resolve: {
                     bool: function (SysCode, $q){
-
-                        var deferred = $q.defer();
-
-                        SysCode.get('Boolean').then(function (res){
-                            var finalData = [];
-
-                            for(var i in res){
-                                finalData.push({
-                                    value: (i == 'true'), 
-                                    key: res[i]
-                                });
-                            }
-
-                            deferred.resolve(finalData);
-                        });
-
-                        return deferred.promise;
-                    },
-                    depart: function (RestfulApi, $q){
-
-                        var deferred = $q.defer();
-            
-                        RestfulApi.SearchMSSQLData({
-                            querymain: 'account',
-                            queryname: 'SelectSysUserDept',
-                            params: {
-                                SUD_STS : false
-                            }
-                        }).then(function (res){
-                            var data = res["returnData"] || [],
-                                finalData = {};
-
-                            for(var i in data){
-                                finalData[data[i].SUD_DEPT] = data[i].SUD_NAME
-                            }
-                            
-                            deferred.resolve(finalData);
-                        }, function (err){
-                            deferred.reject({});
-                        });
-                        
-                        return deferred.promise;
+                        return SysCode.get('Boolean');
                     },
                     role : function (SysCode){
                         return SysCode.get('Role');
                     },
-                    grade : function (UserGrade){
+                    userGrade : function (UserGrade){
                         return UserGrade.get();
                     }
                 }
@@ -141,23 +97,7 @@ angular.module('app.settings').config(function ($stateProvider){
                 controllerAs: '$vm',
                 resolve: {
                     bool: function (SysCode, $q){
-
-                        var deferred = $q.defer();
-
-                        SysCode.get('Boolean').then(function (res){
-                            var finalData = [];
-
-                            for(var i in res){
-                                finalData.push({
-                                    value: (i == 'true'), 
-                                    key: res[i]
-                                });
-                            }
-
-                            deferred.resolve(finalData);
-                        });
-
-                        return deferred.promise;
+                        return SysCode.get('Boolean');
                     }
                 }
             }
@@ -175,11 +115,11 @@ angular.module('app.settings').config(function ($stateProvider){
                 controller: 'BillboardEditorCtrl',
                 controllerAs: '$vm',
                 resolve: {
-                    boolFilter: function (SysCodeFilter){
-                        return SysCodeFilter.get('Boolean');
+                    bool: function (SysCode){
+                        return SysCode.get('Boolean');
                     },
-                    ioTypeFilter: function (SysCodeFilter){
-                        return SysCodeFilter.get('IOType');
+                    ioType: function (SysCode){
+                        return SysCode.get('IOType');
                     }
                 }
             }
@@ -201,23 +141,7 @@ angular.module('app.settings').config(function ($stateProvider){
                 controllerAs: '$vm',
                 resolve: {
                     bool: function (SysCode, $q){
-
-                        var deferred = $q.defer();
-
-                        SysCode.get('Boolean').then(function (res){
-                            var finalData = [];
-
-                            for(var i in res){
-                                finalData.push({
-                                    value: (i == 'true'), 
-                                    key: res[i]
-                                });
-                            }
-
-                            deferred.resolve(finalData);
-                        });
-
-                        return deferred.promise;
+                        return SysCode.get('Boolean');
                     },
                     ioType: function (SysCode){
                         return SysCode.get('IOType');
@@ -238,34 +162,11 @@ angular.module('app.settings').config(function ($stateProvider){
                 controller: 'ExternalManagementCtrl',
                 controllerAs: '$vm',
                 resolve: {
-                    boolFilter: function (SysCodeFilter){
-                        return SysCodeFilter.get('Boolean');
+                    bool: function (SysCode){
+                        return SysCode.get('Boolean');
                     },
-                    compyFilter: function(RestfulApi, $q){
-
-                        var deferred = $q.defer();
-
-                        RestfulApi.SearchMSSQLData({
-                            querymain: 'externalManagement',
-                            queryname: 'SelectCompyInfo',
-                            params: {
-                                CO_STS : false
-                            }
-                        }).then(function (res){
-                            var data = res["returnData"] || [],
-                                finalData = [];
-
-                            for(var i in data){
-                                finalData.push({
-                                    value: data[i].CO_CODE,
-                                    label: data[i].CO_NAME == null ? '' : data[i].CO_NAME
-                                });
-                            }
-
-                            deferred.resolve(finalData);
-                        })
-
-                        return deferred.promise;
+                    compy: function(Compy){
+                        return Compy.get();
                     }
                 }
             }
@@ -287,52 +188,10 @@ angular.module('app.settings').config(function ($stateProvider){
                 controllerAs: '$vm',
                 resolve: {
                     bool: function (SysCode, $q){
-
-                        var deferred = $q.defer();
-
-                        SysCode.get('Boolean').then(function (res){
-                            var finalData = [];
-
-                            for(var i in res){
-                                finalData.push({
-                                    value: (i == 'true'), 
-                                    key: res[i]
-                                });
-                            }
-
-                            deferred.resolve(finalData);
-                        });
-
-                        return deferred.promise;
+                        return SysCode.get('Boolean');
                     },
-                    compy: function(RestfulApi, $q){
-
-                        var deferred = $q.defer();
-
-                        RestfulApi.SearchMSSQLData({
-                            querymain: 'externalManagement',
-                            queryname: 'SelectCompyInfo',
-                            params: {
-                                CO_STS : false
-                            }
-                        }).then(function (res){
-                            var data = res["returnData"],
-                                finalData = [];
-
-                            for(var i in data){
-                                // console.log(data[i]);
-                                var _name = data[i].CO_NAME == null ? '' : data[i].CO_NAME,
-                                    _addr = data[i].CO_ADDR == null ? '' : data[i].CO_ADDR;
-                                finalData.push({
-                                    value: data[i].CO_CODE, 
-                                    key: _name + ' - ' + _addr
-                                });
-                            }
-
-                            deferred.resolve(finalData);
-                        })
-
-                        return deferred.promise;
+                    compy: function(Compy){
+                        return Compy.get();
                     }
                 }
             }
@@ -354,24 +213,8 @@ angular.module('app.settings').config(function ($stateProvider){
                 controllerAs: '$vm',
                 resolve: {
                     bool: function (SysCode, $q){
-
-                        var deferred = $q.defer();
-
-                        SysCode.get('Boolean').then(function (res){
-                            var finalData = [];
-
-                            for(var i in res){
-                                finalData.push({
-                                    value: (i == 'true'), 
-                                    key: res[i]
-                                });
-                            }
-
-                            deferred.resolve(finalData);
-                        });
-
-                        return deferred.promise;
-                    }
+                        return SysCode.get('Boolean');
+                    },
                 }
             }
         }

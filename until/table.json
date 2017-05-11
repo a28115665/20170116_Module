@@ -13,5 +13,8 @@
 	"11" : "Delivery_Item_List",
 	"12" : "BLACK_LIST_FROM_LEADER",
 	"13" : "BLACK_LIST_FROM_OP",
-	"14" : "USER_DEPT"
+	"14" : "USER_DEPT",
+	"15" : "COMPY_DISTRIBUTION",
+	"16" : "DAILY_LEAVE",
+	"17" : "AGENT_SETTING"
 }

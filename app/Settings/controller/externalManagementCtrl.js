@@ -1,6 +1,6 @@
 "use strict";
 
-angular.module('app.settings').controller('ExternalManagementCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, RestfulApi, uiGridConstants, $templateCache, $filter, boolFilter, compyFilter) {
+angular.module('app.settings').controller('ExternalManagementCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, RestfulApi, uiGridConstants, $templateCache, $filter, bool, compy) {
 
     var $vm = this;
 
@@ -78,7 +78,7 @@ angular.module('app.settings').controller('ExternalManagementCtrl', function ($s
                     {
                         term: null,
                         type: uiGridConstants.filter.SELECT,
-                        selectOptions: boolFilter
+                        selectOptions: bool
                     }
                 },
                 { name: 'CI_ID'    ,  displayName: '帳號' },
@@ -87,7 +87,7 @@ angular.module('app.settings').controller('ExternalManagementCtrl', function ($s
                     {
                         term: null,
                         type: uiGridConstants.filter.SELECT,
-                        selectOptions: compyFilter
+                        selectOptions: compy
                     }
                 },
                 { name: 'Options'  ,  displayName: '操作', enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToMDForCustInfo') }
@@ -155,7 +155,7 @@ angular.module('app.settings').controller('ExternalManagementCtrl', function ($s
                     {
                         term: null,
                         type: uiGridConstants.filter.SELECT,
-                        selectOptions: boolFilter
+                        selectOptions: bool
                     }
                 },
                 { name: 'CO_CODE'   ,  displayName: '公司代號' },
