@@ -157,3 +157,9 @@
     filter: alpha(opacity=0);
 }
  
+/**
+ * modal
+ */
+.modal-dialog {
+    margin: 15% auto;
+}

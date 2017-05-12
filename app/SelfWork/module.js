@@ -105,31 +105,8 @@ angular.module('app.selfwork').config(function ($stateProvider){
                 controller: 'EmployeeJobsCtrl',
                 controllerAs: '$vm',
                 resolve: {
-                    compyFilter: function(RestfulApi, $q){
-
-                        var deferred = $q.defer();
-
-                        RestfulApi.SearchMSSQLData({
-                            querymain: 'externalManagement',
-                            queryname: 'SelectCompyInfo',
-                            params: {
-                                CO_STS : false
-                            }
-                        }).then(function (res){
-                            var data = res["returnData"] || [],
-                                finalData = [];
-
-                            for(var i in data){
-                                finalData.push({
-                                    value: data[i].CO_CODE,
-                                    label: data[i].CO_NAME == null ? '' : data[i].CO_NAME
-                                });
-                            }
-
-                            deferred.resolve(finalData);
-                        })
-
-                        return deferred.promise;
+                    compy: function(Compy){
+                        return Compy.get();
                     }
                 }
             }

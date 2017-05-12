@@ -2,7 +2,8 @@
 
 angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, uiGridConstants, RestfulApi, compy, userInfoByGrade) {
     
-    var $vm = this;
+    var $vm = this,
+        _tasks = [];
 
 	angular.extend(this, {
         Init : function(){
@@ -27,9 +28,9 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
                 { name: 'OL_FLIGHTNO' ,  displayName: '航班' },
                 { name: 'OL_MASTER'   ,  displayName: '主號' },
                 { name: 'OL_COUNTRY'  ,  displayName: '起運國別' },
-                { name: 'W2'          ,  displayName: '報機單', cellFilter: 'userInfoFilter' },
-                { name: 'W3'          ,  displayName: '銷艙單', cellFilter: 'userInfoFilter' },
-                { name: 'W1'          ,  displayName: '派送單', cellFilter: 'userInfoFilter' }
+                { name: 'W2'          ,  displayName: '報機單', cellFilter: 'userInfoFilter', cellTemplate: $templateCache.get('accessibilityToForW2') },
+                { name: 'W3'          ,  displayName: '銷艙單', cellFilter: 'userInfoFilter', cellTemplate: $templateCache.get('accessibilityToForW3') },
+                { name: 'W1'          ,  displayName: '派送單', cellFilter: 'userInfoFilter', cellTemplate: $templateCache.get('accessibilityToForW1') }
             ],
             enableFiltering: true,
             enableSorting: true,
@@ -46,7 +47,25 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
                 var _getSelectedRows = $vm.orderListGridApi.selection.getSelectedRows();
                 for(var i in _getSelectedRows){
                     _getSelectedRows[i][$vm.selectAssignDept] = $vm.selectAssignPrincipal;
+
+                    var _params = {};
+                    _params["OL_"+$vm.selectAssignDept+"_PRINCIPAL"] = _getSelectedRows[i][$vm.selectAssignDept];
+                    // _params["OL_"+$vm.selectAssignDept+"_EDIT_DATETIME"] = null;
+                    // _params["OL_"+$vm.selectAssignDept+"_OK_DATETIME"] = null;
+
+                    _tasks.push({
+                        crudType: 'Update',
+                        updatename: 'Update',
+                        table: 18,
+                        params: _params,
+                        condition: {
+                            OL_SEQ : _getSelectedRows[i].OL_SEQ,
+                            OL_CR_USER : _getSelectedRows[i].OL_CR_USER
+                        }
+                    });
                 }
+
+                $vm.Save();
             }
         },
         AutoAssign : function(){
@@ -59,8 +78,26 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
                 for(var i in $vm.vmData){
                     if(!angular.isUndefined(_principalData[$vm.vmData[i].OL_CO_CODE])){
                         $vm.vmData[i][$vm.selectAssignDept] = _principalData[$vm.vmData[i].OL_CO_CODE];
+
+                        var _params = {};
+                        _params["OL_"+$vm.selectAssignDept+"_PRINCIPAL"] = $vm.vmData[i][$vm.selectAssignDept];
+                        // _params["OL_"+$vm.selectAssignDept+"_EDIT_DATETIME"] = null;
+                        // _params["OL_"+$vm.selectAssignDept+"_OK_DATETIME"] = null;
+
+                        _tasks.push({
+                            crudType: 'Update',
+                            updatename: 'Update',
+                            table: 18,
+                            params: _params,
+                            condition: {
+                                OL_SEQ : $vm.vmData[i].OL_SEQ,
+                                OL_CR_USER : $vm.vmData[i].OL_CR_USER
+                            }
+                        });
                     }
                 }
+
+                $vm.Save();
             }
         },
         CancelPrincipal : function(){
@@ -68,8 +105,40 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
                 var _getSelectedRows = $vm.orderListGridApi.selection.getSelectedRows();
                 for(var i in _getSelectedRows){
                     _getSelectedRows[i][$vm.selectAssignDept] = null;
+
+                    var _params = {};
+                    _params["OL_"+$vm.selectAssignDept+"_PRINCIPAL"] = _getSelectedRows[i][$vm.selectAssignDept];
+                    // _params["OL_"+$vm.selectAssignDept+"_EDIT_DATETIME"] = null;
+                    // _params["OL_"+$vm.selectAssignDept+"_OK_DATETIME"] = null;
+
+                    _tasks.push({
+                        crudType: 'Update',
+                        updatename: 'Update',
+                        table: 18,
+                        params: _params,
+                        condition: {
+                            OL_SEQ : _getSelectedRows[i].OL_SEQ,
+                            OL_CR_USER : _getSelectedRows[i].OL_CR_USER
+                        }
+                    });
                 }
+
+                $vm.Save();
             }
+        },
+        Save : function(){
+            console.log($vm.vmData);
+
+            RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res) {
+                console.log(res["returnData"]);
+                
+                LoadOrderList();
+                // toaster.pop('success', '訊息', '派單完成', 3000);
+            }, function (err) {
+
+            }).finally(function() {
+                _tasks = [];
+            });
         },
         LoadPrincipal : function(){
             LoadPrincipal()

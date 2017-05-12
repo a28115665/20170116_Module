@@ -70,8 +70,39 @@ angular.module('app')
     $templateCache.put('accessibilityToM', '<div class="ui-grid-cell-contents text-center">\
                                             <a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethod.modifyData(row)"> {{$parent.$root.getWord(\'Modify\')}}</a>\
                                           </div>');
+    $templateCache.put('accessibilityToForW2', '<div class="ui-grid-cell-contents text-center">\
+                                            <span ng-if="row.entity.W2 != null && row.entity.OL_W2_EDIT_DATETIME == null && row.entity.OL_W2_OK_DATETIME == null"><i class="fa fa-circle-o"> </i> {{row.entity.W2 | userInfoFilter}}</span>\
+                                            <span ng-if="row.entity.W2 != null && row.entity.OL_W2_EDIT_DATETIME != null && row.entity.OL_W2_OK_DATETIME == null"><i class="fa fa-circle text-warning"> </i> {{row.entity.W2 | userInfoFilter}}</span>\
+                                            <span ng-if="row.entity.W2 != null && row.entity.OL_W2_EDIT_DATETIME != null && row.entity.OL_W2_OK_DATETIME != null"><i class="fa fa-circle text-success"> </i> {{row.entity.W2 | userInfoFilter}}</span>\
+                                          </div>');
+    $templateCache.put('accessibilityToForW3', '<div class="ui-grid-cell-contents text-center">\
+                                            <span ng-if="row.entity.W3 != null && row.entity.OL_W3_EDIT_DATETIME == null && row.entity.OL_W3_OK_DATETIME == null"><i class="fa fa-circle-o"> </i> {{row.entity.W3 | userInfoFilter}}</span>\
+                                            <span ng-if="row.entity.W3 != null && row.entity.OL_W3_EDIT_DATETIME != null && row.entity.OL_W3_OK_DATETIME == null"><i class="fa fa-circle text-warning"> </i> {{row.entity.W3 | userInfoFilter}}</span>\
+                                            <span ng-if="row.entity.W3 != null && row.entity.OL_W3_EDIT_DATETIME != null && row.entity.OL_W3_OK_DATETIME != null"><i class="fa fa-circle text-success"> </i> {{row.entity.W3 | userInfoFilter}}</span>\
+                                          </div>');
+    $templateCache.put('accessibilityToForW1', '<div class="ui-grid-cell-contents text-center">\
+                                            <span ng-if="row.entity.W1 != null && row.entity.OL_W1_EDIT_DATETIME == null && row.entity.OL_W1_OK_DATETIME == null"><i class="fa fa-circle-o"> </i> {{row.entity.W1 | userInfoFilter}}</span>\
+                                            <span ng-if="row.entity.W1 != null && row.entity.OL_W1_EDIT_DATETIME != null && row.entity.OL_W1_OK_DATETIME == null"><i class="fa fa-circle text-warning"> </i> {{row.entity.W1 | userInfoFilter}}</span>\
+                                            <span ng-if="row.entity.W1 != null && row.entity.OL_W1_EDIT_DATETIME != null && row.entity.OL_W1_OK_DATETIME != null"><i class="fa fa-circle text-success"> </i> {{row.entity.W1 | userInfoFilter}}</span>\
+                                          </div>');
+
+    $templateCache.put('isChecked', '<div class="modal-footer text-center"> \
+                            <button class="btn btn-primary" type="button" ng-click="$ctrl.ok()">{{getWord(\'OK\')}}</button> \
+                            <button class="btn btn-default" type="button" ng-click="$ctrl.cancel()">{{getWord(\'Cancel\')}}</button> \
+                        </div>');
 })
 .controller('IsDeleteModalInstanceCtrl', function ($uibModalInstance, items) {
+    var $ctrl = this;
+    
+    $ctrl.ok = function() {
+        $uibModalInstance.close(items);
+    };
+
+    $ctrl.cancel = function() {
+        $uibModalInstance.dismiss('cancel');
+    };
+})
+.controller('IsCheckedModalInstanceCtrl', function ($uibModalInstance, items) {
     var $ctrl = this;
     
     $ctrl.ok = function() {
