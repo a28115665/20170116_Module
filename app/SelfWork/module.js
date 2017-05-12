@@ -83,7 +83,12 @@ angular.module('app.selfwork').config(function ($stateProvider){
                 controller: 'LeaderJobsCtrl',
                 controllerAs: '$vm',
                 resolve: {
-                    
+                    userInfoByGrade : function(UserInfoByGrade, Session){
+                        return UserInfoByGrade.get(Session.Get().U_ID, Session.Get().U_GRADE, Session.Get().DEPTS);
+                    },
+                    compy : function(Compy){
+                        return Compy.get();
+                    }
                 }
             }
         }

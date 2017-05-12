@@ -57,11 +57,62 @@
 				        <!-- widget content -->
 						<div class="widget-body no-padding">
 
+							<div class="widget-body-toolbar">
+							    <div class="row">
+							        <!-- <div class="col-xs-9 col-sm-5 col-md-5 col-lg-5">
+							        </div> -->
+							        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 text-right">
+							        	<form class="form-inline" role="form">
+							                <fieldset>
+							                    <div class="form-group">
+													<select class="form-control" ng-model="$vm.selectAssignDept" ng-change="$vm.LoadPrincipal()" ng-options="data.value as data.label for data in $vm.assignGradeData">
+	  												</select>
+							                    </div>
+							                    <div class="form-group">
+													<select class="form-control" ng-model="$vm.selectAssignPrincipal" ng-options="data.value as data.label for data in $vm.assignPrincipalData[$vm.selectAssignDept]">
+	  													<option value="">-- 請選擇負責人 --</option>
+	  												</select>
+							                    </div>
+							                    <div class="form-group">
+										            <button class="btn btn-primary"
+										            		ng-disabled="$vm.orderListGridApi.selection.getSelectedRows().length == 0 || $vm.selectAssignPrincipal == undefined"
+										            		ng-click="$vm.CustomizeAssign()">
+										                自訂指派
+										            </button>
+							                    </div>
+							                    <div class="form-group">
+										            <button class="btn btn-primary"
+										            		ng-click="$vm.AutoAssign()">
+										                自動分派
+										            </button>
+							                    </div>
+							                    <div class="form-group">
+										            <button class="btn btn-danger"
+										            		ng-disabled="$vm.orderListGridApi.selection.getSelectedRows().length == 0"
+										            		ng-click="$vm.CancelPrincipal()">
+										                取消/取回
+										            </button>
+							                    </div>
+							                </fieldset>
+							            </form>
+							        </div>
+							    </div>
+							</div>
+
 							<div class="table-responsive">
 
-								<!-- <div id="grid1" ui-grid="$vm.orderListOptions" class="my-ui-grid" ui-grid-pagination ui-grid-resize-columns></div> -->
+								<div id="grid1" ui-grid="$vm.orderListOptions" class="my-ui-grid" ui-grid-pagination ui-grid-resize-columns ui-grid-selection ui-grid-auto-resize></div>
 
 							</div>
+
+							<!-- widget footer -->
+							<div class="widget-footer">
+								<button class="btn btn-sm btn-primary" type="button" ng-click="$vm.Save()">
+					                <i class="fa fa-save"></i>
+									儲存
+								</button>	
+							</div>
+							<!-- end widget footer -->
 
 						</div>
 						<!-- end widget content -->

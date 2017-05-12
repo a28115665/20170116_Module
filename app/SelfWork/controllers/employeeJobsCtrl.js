@@ -93,7 +93,7 @@ angular.module('app.selfwork').controller('EmployeeJobsCtrl', function ($scope, 
 
     function LoadOrderList(){
         RestfulApi.SearchMSSQLData({
-            querymain: 'selfWork',
+            querymain: 'employeeJobs',
             queryname: 'SelectOrderList'
         }).then(function (res){
             console.log(res["returnData"]);
