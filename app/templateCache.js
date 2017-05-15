@@ -70,23 +70,32 @@ angular.module('app')
     $templateCache.put('accessibilityToM', '<div class="ui-grid-cell-contents text-center">\
                                             <a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethod.modifyData(row)"> {{$parent.$root.getWord(\'Modify\')}}</a>\
                                           </div>');
-    $templateCache.put('accessibilityToForW2', '<div class="ui-grid-cell-contents text-center">\
-                                            <span ng-if="row.entity.W2 != null && row.entity.OL_W2_EDIT_DATETIME == null && row.entity.OL_W2_OK_DATETIME == null"><i class="fa fa-circle-o"> </i> {{row.entity.W2 | userInfoFilter}}</span>\
-                                            <span ng-if="row.entity.W2 != null && row.entity.OL_W2_EDIT_DATETIME != null && row.entity.OL_W2_OK_DATETIME == null"><i class="fa fa-circle text-warning"> </i> {{row.entity.W2 | userInfoFilter}}</span>\
-                                            <span ng-if="row.entity.W2 != null && row.entity.OL_W2_EDIT_DATETIME != null && row.entity.OL_W2_OK_DATETIME != null"><i class="fa fa-circle text-success"> </i> {{row.entity.W2 | userInfoFilter}}</span>\
-                                          </div>');
-    $templateCache.put('accessibilityToForW3', '<div class="ui-grid-cell-contents text-center">\
-                                            <span ng-if="row.entity.W3 != null && row.entity.OL_W3_EDIT_DATETIME == null && row.entity.OL_W3_OK_DATETIME == null"><i class="fa fa-circle-o"> </i> {{row.entity.W3 | userInfoFilter}}</span>\
-                                            <span ng-if="row.entity.W3 != null && row.entity.OL_W3_EDIT_DATETIME != null && row.entity.OL_W3_OK_DATETIME == null"><i class="fa fa-circle text-warning"> </i> {{row.entity.W3 | userInfoFilter}}</span>\
-                                            <span ng-if="row.entity.W3 != null && row.entity.OL_W3_EDIT_DATETIME != null && row.entity.OL_W3_OK_DATETIME != null"><i class="fa fa-circle text-success"> </i> {{row.entity.W3 | userInfoFilter}}</span>\
-                                          </div>');
-    $templateCache.put('accessibilityToForW1', '<div class="ui-grid-cell-contents text-center">\
-                                            <span ng-if="row.entity.W1 != null && row.entity.OL_W1_EDIT_DATETIME == null && row.entity.OL_W1_OK_DATETIME == null"><i class="fa fa-circle-o"> </i> {{row.entity.W1 | userInfoFilter}}</span>\
-                                            <span ng-if="row.entity.W1 != null && row.entity.OL_W1_EDIT_DATETIME != null && row.entity.OL_W1_OK_DATETIME == null"><i class="fa fa-circle text-warning"> </i> {{row.entity.W1 | userInfoFilter}}</span>\
-                                            <span ng-if="row.entity.W1 != null && row.entity.OL_W1_EDIT_DATETIME != null && row.entity.OL_W1_OK_DATETIME != null"><i class="fa fa-circle text-success"> </i> {{row.entity.W1 | userInfoFilter}}</span>\
-                                          </div>');
+    $templateCache.put('accessibilityToForW2', '\
+                        <div class="ui-grid-cell-contents text-center">\
+                            <i class="fa fa-circle-o" ng-if="row.entity.W2_STATUS == \'0\'"> </i> \
+                            <i class="fa fa-circle text-warning" ng-if="row.entity.W2_STATUS == \'1\'"> </i> \
+                            <i class="fa fa-circle text-success" ng-if="row.entity.W2_STATUS == \'2\'"> </i> \
+                        </div>');
+    $templateCache.put('accessibilityToForW3', '\
+                        <div class="ui-grid-cell-contents text-center">\
+                            <i class="fa fa-circle-o" ng-if="row.entity.W3_STATUS == \'0\'"> </i> \
+                            <i class="fa fa-circle text-warning" ng-if="row.entity.W3_STATUS == \'1\'"> </i> \
+                            <i class="fa fa-circle text-success" ng-if="row.entity.W3_STATUS == \'2\'"> </i> \
+                        </div>');
+    $templateCache.put('accessibilityToForW1', '\
+                        <div class="ui-grid-cell-contents text-center">\
+                            <i class="fa fa-circle-o" ng-if="row.entity.W1_STATUS == \'0\'"> </i> \
+                            <i class="fa fa-circle text-warning" ng-if="row.entity.W1_STATUS == \'1\'"> </i> \
+                            <i class="fa fa-circle text-success" ng-if="row.entity.W1_STATUS == \'2\'"> </i> \
+                        </div>');
 
-    $templateCache.put('isChecked', '<div class="modal-footer text-center"> \
+    $templateCache.put('isChecked', '\
+                        <div class="modal-header bg-color-blueLight">\
+                            <h3 class="modal-title text-center">\
+                                <strong class=" txt-color-white">操作提示</strong>\
+                            </h3>\
+                        </div>\
+                        <div class="modal-footer text-center"> \
                             <button class="btn btn-primary" type="button" ng-click="$ctrl.ok()">{{getWord(\'OK\')}}</button> \
                             <button class="btn btn-default" type="button" ng-click="$ctrl.cancel()">{{getWord(\'Cancel\')}}</button> \
                         </div>');

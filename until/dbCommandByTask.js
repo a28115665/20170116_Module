@@ -151,7 +151,11 @@ var UpdateRequestWithTransaction = function(task, args, callback) {
 				Schema.push(key + "=@" + key);
 			}
 			for(var key in task.condition){
-				Condition.push(" AND "+key + "=@" + key);
+				if(task.condition[key] == null){
+					Condition.push(" AND "+key + " is null");
+				}else{
+					Condition.push(" AND "+key + "=@" + key);
+				}
 			}
 
 			SQLCommand += "UPDATE " + tables[task.table] + " SET "+Schema.join()+" WHERE 1=1 "+Condition.join(" ");
@@ -173,7 +177,11 @@ var UpdateRequestWithTransaction = function(task, args, callback) {
 				}
 			}
 			for(var key in task.condition){
-				Condition.push(" AND "+key + "=@" + key);
+				if(task.condition[key] == null){
+					Condition.push(" AND "+key + " is null");
+				}else{
+					Condition.push(" AND "+key + "=@" + key);
+				}
 			}
 			SQLCommand += "EXEC OpenKeys;";
 
@@ -185,7 +193,11 @@ var UpdateRequestWithTransaction = function(task, args, callback) {
 				Schema.push(key + "=@" + key);
 			}
 			for(var key in task.condition){
-				Condition.push(" AND "+key + "=@" + key);
+				if(task.condition[key] == null){
+					Condition.push(" AND "+key + " is null");
+				}else{
+					Condition.push(" AND "+key + "=@" + key);
+				}
 			}
 
 			SQLCommand += "UPDATE " + tables[task.table] + " SET "+Schema.join()+" WHERE 1=1 "+Condition.join(" ");

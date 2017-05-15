@@ -50,7 +50,8 @@ module.exports = function(pQueryname, pParams){
 										   AS_AGENT, \
 										   CASE WHEN DL_ID IS NOT NULL THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT) END AS 'AS_IS_LEAVE' \
 									FROM AGENT_SETTING \
-									LEFT JOIN DAILY_LEAVE ON DL_ID = AS_AGENT AND AS_DEPT = @AS_DEPT \
+									LEFT JOIN DAILY_LEAVE ON DL_ID = AS_AGENT \
+									WHERE AS_DEPT = @AS_DEPT \
 								) A ON COD_CODE = A.AS_CODE \
 								WHERE COD_DEPT = @AS_DEPT \
 							) B"; 

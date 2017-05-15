@@ -1,6 +1,6 @@
 "use strict";
 
-angular.module('app.selfwork').controller('EmployeeJobsCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, uiGridConstants, RestfulApi, compy) {
+angular.module('app.selfwork').controller('EmployeeJobsCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, $filter, uiGridConstants, RestfulApi, compy) {
     
     var $vm = this;
 
@@ -23,7 +23,7 @@ angular.module('app.selfwork').controller('EmployeeJobsCtrl', function ($scope, 
                     controller: 'IsCheckedModalInstanceCtrl',
                     controllerAs: '$ctrl',
                     size: 'sm',
-                    windowClass: 'center-modal'
+                    windowClass: 'center-modal',
                     // appendTo: parentElem,
                     resolve: {
                         items: function() {
@@ -58,7 +58,7 @@ angular.module('app.selfwork').controller('EmployeeJobsCtrl', function ($scope, 
             modifyData : function(row){
                 console.log(row);
 
-                if(row.entity.OL_W2_EDIT_DATETIME != null){
+                if(row.entity.OL_W2_EDIT_DATETIME == null){
                     RestfulApi.UpdateMSSQLData({
                         updatename: 'Update',
                         table: 18,
@@ -118,7 +118,7 @@ angular.module('app.selfwork').controller('EmployeeJobsCtrl', function ($scope, 
             modifyData : function(row){
                 console.log(row);
 
-                if(row.entity.OL_W3_EDIT_DATETIME != null){
+                if(row.entity.OL_W3_EDIT_DATETIME == null){
                     RestfulApi.UpdateMSSQLData({
                         updatename: 'Update',
                         table: 18,
@@ -178,7 +178,7 @@ angular.module('app.selfwork').controller('EmployeeJobsCtrl', function ($scope, 
             modifyData : function(row){
                 console.log(row);
 
-                if(row.entity.OL_W1_EDIT_DATETIME != null){
+                if(row.entity.OL_W1_EDIT_DATETIME == null){
                     RestfulApi.UpdateMSSQLData({
                         updatename: 'Update',
                         table: 18,

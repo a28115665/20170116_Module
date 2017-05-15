@@ -28,9 +28,42 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
                 { name: 'OL_FLIGHTNO' ,  displayName: '航班' },
                 { name: 'OL_MASTER'   ,  displayName: '主號' },
                 { name: 'OL_COUNTRY'  ,  displayName: '起運國別' },
-                { name: 'W2'          ,  displayName: '報機單', cellFilter: 'userInfoFilter', cellTemplate: $templateCache.get('accessibilityToForW2') },
-                { name: 'W3'          ,  displayName: '銷艙單', cellFilter: 'userInfoFilter', cellTemplate: $templateCache.get('accessibilityToForW3') },
-                { name: 'W1'          ,  displayName: '派送單', cellFilter: 'userInfoFilter', cellTemplate: $templateCache.get('accessibilityToForW1') }
+                { name: 'W2_STATUS'   ,  displayName: '報機單狀態', cellTemplate: $templateCache.get('accessibilityToForW2'), filter: 
+                    {
+                        term: null,
+                        type: uiGridConstants.filter.SELECT,
+                        selectOptions: [
+                            {label:'已派單', value: '0'},
+                            {label:'已編輯', value: '1'},
+                            {label:'已完成', value: '2'},
+                        ]
+                    }
+                },
+                { name: 'W2'          ,  displayName: '報機單負責人', cellFilter: 'userInfoFilter' },
+                { name: 'W3_STATUS'   ,  displayName: '銷艙單狀態', cellTemplate: $templateCache.get('accessibilityToForW3'), filter: 
+                    {
+                        term: null,
+                        type: uiGridConstants.filter.SELECT,
+                        selectOptions: [
+                            {label:'已派單', value: '0'},
+                            {label:'已編輯', value: '1'},
+                            {label:'已完成', value: '2'},
+                        ]
+                    }
+                },
+                { name: 'W3'          ,  displayName: '銷艙單負責人', cellFilter: 'userInfoFilter' },
+                { name: 'W1_STATUS'   ,  displayName: '派送單狀態', cellTemplate: $templateCache.get('accessibilityToForW1'), filter: 
+                    {
+                        term: null,
+                        type: uiGridConstants.filter.SELECT,
+                        selectOptions: [
+                            {label:'已派單', value: '0'},
+                            {label:'已編輯', value: '1'},
+                            {label:'已完成', value: '2'},
+                        ]
+                    }
+                },
+                { name: 'W1'          ,  displayName: '派送單負責人', cellFilter: 'userInfoFilter' },
             ],
             enableFiltering: true,
             enableSorting: true,
@@ -46,7 +79,7 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
             if($vm.orderListGridApi.selection.getSelectedRows().length > 0){
                 var _getSelectedRows = $vm.orderListGridApi.selection.getSelectedRows();
                 for(var i in _getSelectedRows){
-                    _getSelectedRows[i][$vm.selectAssignDept] = $vm.selectAssignPrincipal;
+                    // _getSelectedRows[i][$vm.selectAssignDept] = $vm.selectAssignPrincipal;
 
                     var _params = {};
                     _params["OL_"+$vm.selectAssignDept+"_PRINCIPAL"] = _getSelectedRows[i][$vm.selectAssignDept];
@@ -59,6 +92,8 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
                         table: 18,
                         params: _params,
                         condition: {
+                            // 規則:如果已經被編輯的單就不可以再給別人
+                            OL_W2_EDIT_DATETIME : null,
                             OL_SEQ : _getSelectedRows[i].OL_SEQ,
                             OL_CR_USER : _getSelectedRows[i].OL_CR_USER
                         }
@@ -71,13 +106,16 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
         AutoAssign : function(){
             if($vm.principalData.length > 0){
                 var _principalData = {};
+                // 找出行家與符合的人
                 for(var i in $vm.principalData){
                     _principalData[$vm.principalData[i].COD_CODE] = $vm.principalData[i].WHO_PRINCIPAL;
                 }
 
+                // 每筆資料塞入負責人
                 for(var i in $vm.vmData){
+                    // 是否有符合行家的人
                     if(!angular.isUndefined(_principalData[$vm.vmData[i].OL_CO_CODE])){
-                        $vm.vmData[i][$vm.selectAssignDept] = _principalData[$vm.vmData[i].OL_CO_CODE];
+                        // $vm.vmData[i][$vm.selectAssignDept] = _principalData[$vm.vmData[i].OL_CO_CODE];
 
                         var _params = {};
                         _params["OL_"+$vm.selectAssignDept+"_PRINCIPAL"] = $vm.vmData[i][$vm.selectAssignDept];
@@ -90,6 +128,8 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
                             table: 18,
                             params: _params,
                             condition: {
+                                // 規則:如果已經被編輯的單就不可以再給別人
+                                OL_W2_EDIT_DATETIME : null,
                                 OL_SEQ : $vm.vmData[i].OL_SEQ,
                                 OL_CR_USER : $vm.vmData[i].OL_CR_USER
                             }
@@ -131,7 +171,7 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
 
             RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res) {
                 console.log(res["returnData"]);
-                
+
                 LoadOrderList();
                 // toaster.pop('success', '訊息', '派單完成', 3000);
             }, function (err) {
@@ -151,31 +191,37 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
             queryname: 'SelectOrderList'
         }).then(function (res){
             console.log(res["returnData"]);
+
+            for(var i in res["returnData"]){
+                res["returnData"][i]["W2_STATUS"] = ChangeStatus(res["returnData"][i]['W2'], res["returnData"][i]['OL_W2_EDIT_DATETIME'], res["returnData"][i]['OL_W2_OK_DATETIME']);
+                res["returnData"][i]["W3_STATUS"] = ChangeStatus(res["returnData"][i]['W3'], res["returnData"][i]['OL_W3_EDIT_DATETIME'], res["returnData"][i]['OL_W3_OK_DATETIME']);
+                res["returnData"][i]["W1_STATUS"] = ChangeStatus(res["returnData"][i]['W1'], res["returnData"][i]['OL_W1_EDIT_DATETIME'], res["returnData"][i]['OL_W1_OK_DATETIME']);
+            }
+
             $vm.vmData = res["returnData"];
         });  
+    };
 
-        // RestfulApi.CRUDMSSQLDataByTask([
-        //     {
-        //         crudType: 'Select',
-        //         querymain: 'leaderJobs',
-        //         queryname: 'SelectOrderList'
-        //     },
-        //     {
-        //         crudType: 'Select',
-        //         querymain: 'leaderJobs',
-        //         queryname: 'WhoPrincipal',
-        //         params: {
-        //             AS_DEPT : $vm.selectAssignPrincipal
-        //         }
-        //     }
-        // ]).then(function (res) {
-        //     console.log(res["returnData"]);
+    /**
+     * [ChangeStatus description] 各單負責人狀態
+     * @param {[type]} pPrincipal    [description]
+     * @param {[type]} pEditDatetime [description]
+     * @param {[type]} pOkDatetime   [description]
+     */
+    function ChangeStatus(pPrincipal, pEditDatetime, pOkDatetime){
+        var _value = null;
 
-        //     $vm.vmData = res["returnData"][0];
-        //     $vm.vmData = res["returnData"][1];
-        // }, function (err) {
+        if(pPrincipal != null && pEditDatetime == null && pOkDatetime == null){
+            _value = "0";
+        }
+        else if(pPrincipal != null && pEditDatetime != null && pOkDatetime == null){
+            _value = "1";
+        }
+        else if(pPrincipal != null && pEditDatetime != null && pOkDatetime != null){
+            _value = "2";
+        }
 
-        // });
+        return _value;
     };
 
     function LoadPrincipal(){

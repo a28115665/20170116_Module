@@ -46,6 +46,15 @@ angular.module('app.selfwork').controller('CompyDistributionCtrl', function ($sc
                 }
             }
         },
+        CancelPrincipal : function(){
+            if($vm.compyDistributionGridApi.selection.getSelectedRows().length > 0){
+                var _getSelectedRows = $vm.compyDistributionGridApi.selection.getSelectedRows();
+                for(var i in _getSelectedRows){
+                    _getSelectedRows[i].COD_DEPT = null;
+                    _getSelectedRows[i].COD_PRINCIPAL = null;
+                }
+            }
+        },
         Save : function(){
 
             var _tasks = [],

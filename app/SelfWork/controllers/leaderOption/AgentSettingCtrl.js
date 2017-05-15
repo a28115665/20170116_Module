@@ -52,6 +52,14 @@ angular.module('app.selfwork').controller('AgentSettingCtrl', function ($scope, 
                 }
             }
         },
+        CancelAgent : function(){
+            if($vm.agentSettingGridApi.selection.getSelectedRows().length > 0){
+                var _getSelectedRows = $vm.agentSettingGridApi.selection.getSelectedRows();
+                for(var i in _getSelectedRows){
+                    _getSelectedRows[i].AS_AGENT = null;
+                }
+            }
+        },
         Save : function(){
 
             var _tasks = [],

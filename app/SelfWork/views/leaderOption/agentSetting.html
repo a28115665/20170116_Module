@@ -80,6 +80,13 @@
 										                指派代理人
 										            </button>
 							                    </div>
+							                    <div class="form-group">
+										            <button class="btn btn-danger"
+										            		ng-disabled="$vm.agentSettingGridApi.selection.getSelectedRows().length == 0"
+										            		ng-click="$vm.CancelAgent()">
+										                取消代理人
+										            </button>
+							                    </div>
 							                </fieldset>
 							            </form>
 							        </div>

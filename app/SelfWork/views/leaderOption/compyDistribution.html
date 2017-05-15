@@ -80,6 +80,13 @@
 										                指派負責人
 										            </button>
 							                    </div>
+							                    <div class="form-group">
+										            <button class="btn btn-danger"
+										            		ng-disabled="$vm.compyDistributionGridApi.selection.getSelectedRows().length == 0"
+										            		ng-click="$vm.CancelPrincipal()">
+										                取消負責人
+										            </button>
+							                    </div>
 							                </fieldset>
 							            </form>
 							        </div>
