@@ -7,11 +7,28 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
 
 	angular.extend(this, {
         Init : function(){
-            $vm.selectAssignDept = userInfoByGrade[0][0].value;
-            LoadOrderList();
-            LoadPrincipal();
+            $scope.ShowTabs = true;
+            
+            $vm.LoadData();
         },
         profile : Session.Get(),
+        defaultTab : 'hr1',
+        TabSwitch : function(pTabID){
+            return pTabID == $vm.defaultTab ? 'active' : '';
+        },
+        LoadData : function(){
+            console.log($vm.defaultTab);
+            switch($vm.defaultTab){
+                case 'hr1':
+                    $vm.selectAssignDept = userInfoByGrade[0][0].value;
+                    LoadOrderList();
+                    LoadPrincipal();
+                    break;
+                case 'hr2':
+                    LoadStatistics();
+                    break;
+            }
+        },
         assignGradeData : userInfoByGrade[0],
         assignPrincipalData : userInfoByGrade[1],
         orderListOptions : {
@@ -182,6 +199,27 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
         },
         LoadPrincipal : function(){
             LoadPrincipal()
+        },
+        compyStatisticsOptions : {
+            data:  '$vm.compyStatisticsData',
+            columnDefs: [
+                { name: 'CO_NAME'  ,  displayName: '行家' },
+                { name: 'W2_COUNT' ,  displayName: '報機單', enableFiltering: false },
+                { name: 'W3_COUNT' ,  displayName: '銷艙單', enableFiltering: false },
+                { name: 'W1_COUNT' ,  displayName: '派件單', enableFiltering: false }
+            ],
+            enableFiltering: true,
+            enableSorting: true,
+            enableColumnMenus: false,
+            // enableVerticalScrollbar: false,
+            paginationPageSizes: [10, 25, 50],
+            paginationPageSize: 10,
+            onRegisterApi: function(gridApi){
+                $vm.compyStatisticsGridApi = gridApi;
+            }
+        },
+        ExportExcel : function(){
+            
         }
     });
 
@@ -234,6 +272,16 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
         }).then(function (res){
             console.log(res["returnData"]);
             $vm.principalData = res["returnData"];
+        });  
+    };
+
+    function LoadStatistics(){
+        RestfulApi.SearchMSSQLData({
+            querymain: 'leaderJobs',
+            queryname: 'SelectCompyStatistics'
+        }).then(function (res){
+            console.log(res["returnData"]);
+            $vm.compyStatisticsData = res["returnData"];
         });  
     };
 

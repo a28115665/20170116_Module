@@ -18,7 +18,12 @@ module.exports = function(pQueryname, pParams){
 								   OL_W3_OK_DATETIME, \
 								   OL_W1_PRINCIPAL AS 'W1', \
 								   OL_W1_EDIT_DATETIME, \
-								   OL_W1_OK_DATETIME \
+								   OL_W1_OK_DATETIME, \
+								   ( \
+										SELECT COUNT(1) \
+										FROM ITEM_LIST \
+										WHERE IL_SEQ = OL_SEQ \
+									) AS 'OL_COUNT' \
 							FROM ORDER_LIST \
 							WHERE 1=1 ";
 							

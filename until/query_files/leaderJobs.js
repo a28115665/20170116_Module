@@ -56,6 +56,25 @@ module.exports = function(pQueryname, pParams){
 								WHERE COD_DEPT = @AS_DEPT \
 							) B"; 
 			break;
+		case "SelectCompyStatistics":
+			_SQLCommand += "SELECT CO_NAME, \
+								( \
+									SELECT COUNT(1) \
+									FROM ITEM_LIST \
+									JOIN ORDER_LIST ON OL_SEQ = IL_SEQ AND OL_CO_CODE = CO_CODE \
+								) AS 'W2_COUNT', \
+								( \
+									SELECT COUNT(1) \
+									FROM FLIGHT_ITEM_LIST \
+									JOIN ORDER_LIST ON OL_SEQ = FLL_SEQ AND OL_CO_CODE = CO_CODE \
+								) AS 'W3_COUNT', \
+								( \
+									SELECT COUNT(1) \
+									FROM Delivery_Item_List \
+									JOIN ORDER_LIST ON OL_SEQ = DIL_SEQ AND OL_CO_CODE = CO_CODE \
+								) AS 'W1_COUNT' \
+							FROM COMPY_INFO";
+			break;
 	}
 
 	return _SQLCommand;

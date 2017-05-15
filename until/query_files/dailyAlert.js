@@ -115,16 +115,16 @@ module.exports = function(pQueryname, pParams){
 							WHERE 1 = 1 ";
 			break;
 		case "SelectCaseA":
-			_SQLCommand += _CaseA;
+			_SQLCommand += _CaseA + " ORDER BY IL_GETNAME DESC ";
 			break;
 		case "SelectCaseB":
-			_SQLCommand += _CaseB;
+			_SQLCommand += _CaseB + " ORDER BY IL_GETNAME DESC ";
 			break;
 		case "SelectCaseC":
-			_SQLCommand += _CaseC;
+			_SQLCommand += _CaseC + " ORDER BY IL_GETNAME DESC ";
 			break;
 		case "SelectCaseD":
-			_SQLCommand += _CaseD;
+			_SQLCommand += _CaseD + " ORDER BY IL_GETNAME DESC ";
 			break;
 			
 	}

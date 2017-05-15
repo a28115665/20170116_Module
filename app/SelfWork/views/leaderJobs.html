@@ -27,29 +27,15 @@
 				    -->
 				    <header>
 				        <h2>組長作業區 </h2>
-				        
-				        <!-- <div class="widget-toolbar smart-form" role="menu">
-				            <a href-void="" class="btn btn-primary" href="#">重新讀取個人領單</a>
-				        </div> -->
 
-				        <!-- <div class="widget-toolbar smart-form" role="menu">
-				            <label class="input"> 
-				            	<i class="icon-append fa fa-search"></i>
-				                <input type="text" placeholder="篩選內容" ng-enter="$vm.Filter()" ng-model="$vm.filterValue">
-				                <b class="tooltip tooltip-top-right">
-				                    <i class="fa fa-warning txt-color-teal"></i>
-				                    按下確認鍵後篩選
-				                </b>
-				            </label>
-				        </div> -->
-
-				        <!-- <div class="widget-toolbar" role="menu">
-					        <div class="btn-group">
-						        <label class="btn btn-success btn-xs" ng-model="$vm.defaultChoice" uib-btn-radio="'Left'">近七天</label>
-						        <label class="btn btn-success btn-xs" ng-model="$vm.defaultChoice" uib-btn-radio="'Middle'">近一月</label>
-						        <label class="btn btn-success btn-xs" ng-model="$vm.defaultChoice" uib-btn-radio="'Right'">近三月</label>
-				            </div>
-				        </div> -->
+				        <ul id="widget-tab-1" class="nav pull-right" ng-class="{'nav-tabs' : !!ShowTabs, 'nav-pills': !ShowTabs }">
+				            <li ng-class="$vm.TabSwitch('hr1')" ng-click="$vm.defaultTab='hr1';$vm.LoadData()">
+				                <a data-toggle="tab" href="#hr1"> <i class="fa fa-lg fa-hand-o-down"></i> <span class="hidden-mobile hidden-tablet"> 派單 </span> </a>
+				            </li>
+				            <li ng-class="$vm.TabSwitch('hr2')" ng-click="$vm.defaultTab='hr2';$vm.LoadData()">
+				                <a data-toggle="tab" href="#hr2"> <i class="glyphicon glyphicon-stats"></i> <span class="hidden-mobile hidden-tablet"> 統計 </span></a>
+				            </li>
+				        </ul>
 
 				    </header>
 				    <!-- widget div-->
@@ -57,62 +43,89 @@
 				        <!-- widget content -->
 						<div class="widget-body no-padding">
 
-							<div class="widget-body-toolbar">
-							    <div class="row">
-							        <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
-							        	<form class="form-inline" role="form">
-							                <fieldset>
-							                    <div class="form-group">
-													<i class="fa fa-circle-o"> 已派單</i>
-													<i class="fa fa-circle text-warning"> 已編輯</i>
-													<i class="fa fa-circle text-success"> 已完成</i>
-							                    </div>
-							                </fieldset>
-							            </form>
-							        </div>
-							        <div class="col-xs-12 col-sm-12 col-md-9 col-lg-9 text-right">
-							        	<form class="form-inline" role="form">
-							                <fieldset>
-							                    <div class="form-group">
-													<select class="form-control" ng-model="$vm.selectAssignDept" ng-change="$vm.LoadPrincipal()" ng-options="data.value as data.label for data in $vm.assignGradeData">
-	  												</select>
-							                    </div>
-							                    <div class="form-group">
-													<select class="form-control" ng-model="$vm.selectAssignPrincipal" ng-options="data.value as data.label for data in $vm.assignPrincipalData[$vm.selectAssignDept]">
-	  													<option value="">-- 請選擇負責人 --</option>
-	  												</select>
-							                    </div>
-							                    <div class="form-group">
-										            <button class="btn btn-primary"
-										            		ng-disabled="$vm.orderListGridApi.selection.getSelectedRows().length == 0 || $vm.selectAssignPrincipal == undefined"
-										            		ng-click="$vm.CustomizeAssign()">
-										                自訂指派
-										            </button>
-							                    </div>
-							                    <div class="form-group">
-										            <button class="btn btn-primary"
-										            		ng-click="$vm.AutoAssign()">
-										                自動分派
-										            </button>
-							                    </div>
-							                    <div class="form-group">
-										            <button class="btn btn-danger"
-										            		ng-disabled="$vm.orderListGridApi.selection.getSelectedRows().length == 0"
-										            		ng-click="$vm.CancelPrincipal()">
-										                取消/取回
-										            </button>
-							                    </div>
-							                </fieldset>
-							            </form>
-							        </div>
-							    </div>
-							</div>
+							<!-- widget body text-->
+				            <div class="tab-content no-padding">
+				                <div class="tab-pane fade in " ng-class="$vm.TabSwitch('hr1')" id="hr1">
 
-							<div class="table-responsive">
+									<div class="widget-body-toolbar">
+									    <div class="row">
+									        <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+									        	<form class="form-inline" role="form">
+									                <fieldset>
+									                    <div class="form-group">
+															<i class="fa fa-circle-o"> 已派單</i>
+															<i class="fa fa-circle text-warning"> 已編輯</i>
+															<i class="fa fa-circle text-success"> 已完成</i>
+									                    </div>
+									                </fieldset>
+									            </form>
+									        </div>
+									        <div class="col-xs-12 col-sm-12 col-md-9 col-lg-9 text-right">
+									        	<form class="form-inline" role="form">
+									                <fieldset>
+									                    <div class="form-group">
+															<select class="form-control" ng-model="$vm.selectAssignDept" ng-change="$vm.LoadPrincipal()" ng-options="data.value as data.label for data in $vm.assignGradeData">
+			  												</select>
+									                    </div>
+									                    <div class="form-group">
+															<select class="form-control" ng-model="$vm.selectAssignPrincipal" ng-options="data.value as data.label for data in $vm.assignPrincipalData[$vm.selectAssignDept]">
+			  													<option value="">-- 請選擇負責人 --</option>
+			  												</select>
+									                    </div>
+									                    <div class="form-group">
+												            <button class="btn btn-primary"
+												            		ng-disabled="$vm.orderListGridApi.selection.getSelectedRows().length == 0 || $vm.selectAssignPrincipal == undefined"
+												            		ng-click="$vm.CustomizeAssign()">
+												                自訂指派
+												            </button>
+									                    </div>
+									                    <div class="form-group">
+												            <button class="btn btn-primary"
+												            		ng-click="$vm.AutoAssign()">
+												                自動分派
+												            </button>
+									                    </div>
+									                    <div class="form-group">
+												            <button class="btn btn-danger"
+												            		ng-disabled="$vm.orderListGridApi.selection.getSelectedRows().length == 0"
+												            		ng-click="$vm.CancelPrincipal()">
+												                取消/取回
+												            </button>
+									                    </div>
+									                </fieldset>
+									            </form>
+									        </div>
+									    </div>
+									</div>
 
-								<div id="grid1" ui-grid="$vm.orderListOptions" class="my-ui-grid" ui-grid-pagination ui-grid-resize-columns ui-grid-selection ui-grid-auto-resize></div>
+									<div id="grid1" ui-grid="$vm.orderListOptions" class="my-ui-grid" ui-grid-pagination ui-grid-resize-columns ui-grid-selection ui-grid-auto-resize></div>
 
-							</div>
+				                </div>
+				                <div class="tab-pane fade in " ng-class="$vm.TabSwitch('hr2')" id="hr2">
+
+									<div class="widget-body-toolbar">
+									    <div class="row">
+									        <!-- <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+									        </div> -->
+									        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 text-right">
+									        	<form class="form-inline" role="form">
+									                <fieldset>
+									                    <div class="form-group">
+												            <button class="btn btn-success"
+												            		ng-disabled="$vm.compyStatisticsData.length == 0"
+												            		ng-click="$vm.ExportExcel()">
+												                匯出Excel
+												            </button>
+									                    </div>
+									                </fieldset>
+									            </form>
+									        </div>
+									    </div>
+									</div>
+
+									<div id="grid1" ui-grid="$vm.compyStatisticsOptions" class="my-ui-grid" ui-grid-pagination ui-grid-resize-columns ui-grid-auto-resize></div>
+				                </div>
+				            </div>
 
 							<!-- widget footer -->
 							<!-- <div class="widget-footer">
