@@ -6782,6 +6782,7 @@ angular.module('app.selfwork').controller('EmployeeJobsCtrl', function ($scope, 
             modifyData : function(row){
                 console.log(row);
 
+                // 如果是第一次編輯 會先記錄編輯時間
                 if(row.entity.OL_W2_EDIT_DATETIME == null){
                     RestfulApi.UpdateMSSQLData({
                         updatename: 'Update',
@@ -6797,6 +6798,10 @@ angular.module('app.selfwork').controller('EmployeeJobsCtrl', function ($scope, 
                         $state.transitionTo("app.selfwork.employeejobs.job001", {
                             data: row.entity
                         });
+                    });
+                }else{
+                    $state.transitionTo("app.selfwork.employeejobs.job001", {
+                        data: row.entity
                     });
                 }
             },
@@ -6858,6 +6863,10 @@ angular.module('app.selfwork').controller('EmployeeJobsCtrl', function ($scope, 
                             data: row.entity
                         });
                     });
+                }else{
+                    $state.transitionTo("app.selfwork.employeejobs.job002", {
+                        data: row.entity
+                    });
                 }
             },
             //結單
@@ -6917,6 +6926,10 @@ angular.module('app.selfwork').controller('EmployeeJobsCtrl', function ($scope, 
                         $state.transitionTo("app.selfwork.employeejobs.job003", {
                             data: row.entity
                         });
+                    });
+                }else{
+                    $state.transitionTo("app.selfwork.employeejobs.job003", {
+                        data: row.entity
                     });
                 }
             },
@@ -12898,70 +12911,6 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
             paginationPageSize: 50,
             onRegisterApi: function(gridApi){
                 $vm.job001GridApi = gridApi;
-                // $vm.editorOrderGridApi.grid.registerRowsProcessor(function ( renderableRows ){
-                //     var matcher = new RegExp($vm.filterValue);
-                //     renderableRows.forEach(function(row) {
-                //         var match = false;
-                //         ['b', 'c', 'm', 'n', 'o'].forEach(function(field) {
-                //             if (row.entity[field].match(matcher)) {
-                //                 match = true;
-                //             }
-                //         });
-                //         if (!match) {
-                //             row.visible = false;
-                //         }
-                //     });
-                //     return renderableRows;
-                // }, 200);
-                
-                // gridApi.edit.on.afterCellEdit($scope, function(rowEntity, colDef, newValue, oldValue){
-                   
-                //     colDef.cellClass = function(grid, row, col, rowRenderIndex, colRenderIndex) {
-            
-                //         var _class = "";
-                //         if (rowEntity.Index === row.entity.Index && newValue !== oldValue) {
-                //             // 檢查有沒有重複
-                //             if($filter('filter')(cellClassEditabled, {
-                //                 rowRenderIndex: row.entity.Index - 1,
-                //                 colRenderIndex: colRenderIndex
-                //             }).length == 0){
-                //                 // 沒有就塞入
-                //                 cellClassEditabled.push({
-                //                     rowRenderIndex: row.entity.Index - 1,
-                //                     colRenderIndex: colRenderIndex
-                //                 });
-                //             }
-                //             _class = "cell-class-editabled";
-                //         }
-
-                //         // console.log(cellClassEditabled)
-                //         for (var i in cellClassEditabled) {
-                //             if (cellClassEditabled[i].rowRenderIndex == rowRenderIndex && cellClassEditabled[i].colRenderIndex == colRenderIndex) {
-                //                 _class = "cell-class-editabled";
-                //                 break;
-                //             } else {
-                //                 _class = "";
-                //             }
-                //         }
-
-                //         return _class;
-
-                //     };
-
-                //     gridApi.core.notifyDataChange(uiGridConstants.dataChange.COLUMN);
-    
-                // });
-            }
-        },
-        ExportExcel: function(){
-
-        },
-        CancelNo: function(){
-            if($vm.job001GridApi.selection.getSelectedRows().length > 0){
-                for(var i in $vm.job001GridApi.selection.getSelectedRows()){
-                    var _index = $vm.job001GridApi.selection.getSelectedRows()[i].Index;
-                    $vm.job001Data[_index-1].IL_MERGENO = null;
-                }
             }
         },
         MergeNo: function(){
@@ -13013,11 +12962,16 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                 });
             }
         },
-        Return : function(){
-            ReturnToEmployeejobsPage();
-        },
-        Update : function(){
+        ExportExcel: function(){
 
+        },
+        CancelNo: function(){
+            if($vm.job001GridApi.selection.getSelectedRows().length > 0){
+                for(var i in $vm.job001GridApi.selection.getSelectedRows()){
+                    var _index = $vm.job001GridApi.selection.getSelectedRows()[i].Index;
+                    $vm.job001Data[_index-1].IL_MERGENO = null;
+                }
+            }
         },
         MergeNoResult : function(){
             var modalInstance = $uibModal.open({
@@ -13041,6 +12995,48 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
             }, function() {
                 // $log.info('Modal dismissed at: ' + new Date());
             });
+        },
+        RepeatName : function(){
+            RestfulApi.SearchMSSQLData({
+                querymain: 'job001',
+                queryname: 'SelectRepeatName',
+                params: {
+                    IL_SEQ: $vm.vmData.OL_SEQ
+                }
+            }).then(function (res){
+                // console.log(res["returnData"]);
+                if(res["returnData"].length > 0){
+                    var modalInstance = $uibModal.open({
+                        animation: true,
+                        ariaLabelledBy: 'modal-title',
+                        ariaDescribedBy: 'modal-body',
+                        templateUrl: 'repeatNameModalContent.html',
+                        controller: 'RepeatNameModalInstanceCtrl',
+                        controllerAs: '$ctrl',
+                        size: 'lg',
+                        // appendTo: parentElem,
+                        resolve: {
+                            repeatNameData: function() {
+                                return res["returnData"];
+                            }
+                        }
+                    });
+
+                    modalInstance.result.then(function(selectedItem) {
+                        // $ctrl.selected = selectedItem;
+                    }, function() {
+                        // $log.info('Modal dismissed at: ' + new Date());
+                    });
+                }else{
+                    toaster.pop('info', '訊息', '無重複收件者名稱', 3000);
+                }
+            }); 
+        },
+        Return : function(){
+            ReturnToEmployeejobsPage();
+        },
+        Update : function(){
+
         }
     });
 
@@ -13158,7 +13154,7 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
         paginationPageSize: 50,
         onRegisterApi: function(gridApi){
             $ctrl.job001DataHaveMergeNoGridApi = gridApi;
-            HandleWindowResize($ctrl.job001DataHaveMergeNoGridApi);
+            // HandleWindowResize($ctrl.job001DataHaveMergeNoGridApi);
         }
     };
 
@@ -13196,7 +13192,7 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
         paginationPageSize: 50,
         onRegisterApi: function(gridApi){
             $ctrl.job001DataNotMergeNoGridApi = gridApi;
-            HandleWindowResize($ctrl.job001DataNotMergeNoGridApi);
+            // HandleWindowResize($ctrl.job001DataNotMergeNoGridApi);
         }
     }
 
@@ -13215,6 +13211,55 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
 
     $ctrl.ok = function() {
         $uibModalInstance.close($ctrl.selected.item);
+    };
+
+    $ctrl.cancel = function() {
+        $uibModalInstance.dismiss('cancel');
+    };
+})
+.controller('RepeatNameModalInstanceCtrl', function ($uibModalInstance, repeatNameData) {
+    var $ctrl = this;
+    $ctrl.mdData = repeatNameData;
+
+    $ctrl.repeatNameOption = {
+        data: '$ctrl.mdData',
+        columnDefs: [
+            { name: 'Index',        displayName: '序列', width: 50},
+            { name: 'IL_G1',        displayName: '報關種類', width: 154 },
+            { name: 'IL_MERGENO',        displayName: '併票號', width: 129 },
+            { name: 'IL_BAGNO',        displayName: '袋號', width: 129 },
+            { name: 'IL_SMALLNO',        displayName: '小號', width: 115 },
+            { name: 'IL_NATURE',        displayName: '品名', width: 115 },
+            { name: 'IL_NATURE_NEW',        displayName: '新品名', width: 115 },
+            { name: 'IL_CTN',        displayName: '件數', width: 115 },
+            { name: 'IL_PLACE',        displayName: '產地', width: 115 },
+            { name: 'IL_WEIGHT',        displayName: '重量', width: 115 },
+            { name: 'IL_WEIGHT_NEW',        displayName: '更改後重量', width: 115 },
+            { name: 'IL_PCS',        displayName: '數量', width: 115 },
+            { name: 'IL_UNIT',        displayName: '單位', width: 115 },
+            { name: 'IL_GETNO',        displayName: '收件者統編', width: 115 },
+            { name: 'IL_SENDNAME',        displayName: '寄件人或公司', width: 115 },
+            { name: 'IL_GETNAME',        displayName: '收件人公司', width: 115 },
+            { name: 'IL_GETADDRESS',        displayName: '收件地址', width: 300 },
+            { name: 'IL_GETTEL',        displayName: '收件電話', width: 115 },
+            { name: 'IL_UNIVALENT',        displayName: '單價', width: 115 },
+            { name: 'IL_FINALCOST',        displayName: '完稅價格', width: 115 },
+            { name: 'IL_TAX',        displayName: '稅則', width: 115 },
+            { name: 'IL_TRCOM',        displayName: '派送公司', width: 115 }
+        ],
+        enableFiltering: false,
+        enableSorting: true,
+        enableColumnMenus: false,
+        // enableVerticalScrollbar: false,
+        paginationPageSizes: [50, 100, 150, 200, 250, 300],
+        paginationPageSize: 50,
+        onRegisterApi: function(gridApi){
+            $ctrl.repeatNameGridApi = gridApi;
+        }
+    }
+
+    $ctrl.ok = function() {
+        $uibModalInstance.close($ctrl.mdData);
     };
 
     $ctrl.cancel = function() {

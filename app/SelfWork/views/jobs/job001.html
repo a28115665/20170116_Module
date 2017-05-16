@@ -64,10 +64,13 @@
 				        data-widget-sortable="false"
 				    -->
 				    <header>
+				        <h2>編輯 </h2>
+				        <div class="widget-toolbar smart-form" role="menu">
+				            <a href-void="" class="btn btn-warning" href="#" ng-click="$vm.RepeatName()">收件者相同</a>
+				        </div>
 				        <div class="widget-toolbar smart-form" role="menu">
 				            <a href-void="" class="btn btn-warning" href="#" ng-click="$vm.MergeNoResult()">併票結果</a>
 				        </div>
-				        <h2>編輯 </h2>
 				        <div class="widget-toolbar smart-form" role="menu">
 				            <a href-void="" class="btn btn-success" href="#" ng-click="$vm.ExportExcel()">匯出Excel</a>
 				        </div>
@@ -85,7 +88,7 @@
 
 							<div class="table-responsive">
 
-								<div id="grid1" ui-grid="$vm.job001Options" class="my-ui-grid-job" ui-grid-pagination ui-grid-resize-columns ui-grid-selection ui-grid-pinning ui-grid-edit></div>
+								<div id="grid1" ui-grid="$vm.job001Options" class="my-ui-grid-job" ui-grid-pagination ui-grid-resize-columns ui-grid-selection ui-grid-pinning ui-grid-edit ui-grid-auto-resize></div>
 
 							</div>
 
@@ -232,6 +235,19 @@
                 <div id="grid1" ui-grid="$ctrl.job001DataNotMergeNoOption" class="my-ui-grid" ui-grid-pagination ui-grid-resize-columns ui-grid-auto-resize></div>
             </div>
         </div>
+	</div>
+	<div class="modal-footer">
+	    <button class="btn btn-primary" type="button" ng-click="$ctrl.ok()">{{getWord('OK')}}</button>
+	    <button class="btn btn-default" type="button" ng-click="$ctrl.cancel()">{{getWord('Cancel')}}</button>
+	</div>
+</script>
+
+<script type="text/ng-template" id="repeatNameModalContent.html">
+    <div class="modal-header" ng-Init="$ctrl.MdInit()">
+	    <h3 class="modal-title" id="modal-title">收件者相同</h3>
+	</div>
+	<div class="modal-body no-padding" id="modal-body">
+        <div id="grid1" ui-grid="$ctrl.repeatNameOption" class="my-ui-grid" ui-grid-pagination ui-grid-resize-columns ui-grid-auto-resize></div>
 	</div>
 	<div class="modal-footer">
 	    <button class="btn btn-primary" type="button" ng-click="$ctrl.ok()">{{getWord('OK')}}</button>

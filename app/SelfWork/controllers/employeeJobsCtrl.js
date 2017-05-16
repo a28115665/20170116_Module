@@ -58,6 +58,7 @@ angular.module('app.selfwork').controller('EmployeeJobsCtrl', function ($scope, 
             modifyData : function(row){
                 console.log(row);
 
+                // 如果是第一次編輯 會先記錄編輯時間
                 if(row.entity.OL_W2_EDIT_DATETIME == null){
                     RestfulApi.UpdateMSSQLData({
                         updatename: 'Update',
@@ -73,6 +74,10 @@ angular.module('app.selfwork').controller('EmployeeJobsCtrl', function ($scope, 
                         $state.transitionTo("app.selfwork.employeejobs.job001", {
                             data: row.entity
                         });
+                    });
+                }else{
+                    $state.transitionTo("app.selfwork.employeejobs.job001", {
+                        data: row.entity
                     });
                 }
             },
@@ -134,6 +139,10 @@ angular.module('app.selfwork').controller('EmployeeJobsCtrl', function ($scope, 
                             data: row.entity
                         });
                     });
+                }else{
+                    $state.transitionTo("app.selfwork.employeejobs.job002", {
+                        data: row.entity
+                    });
                 }
             },
             //結單
@@ -193,6 +202,10 @@ angular.module('app.selfwork').controller('EmployeeJobsCtrl', function ($scope, 
                         $state.transitionTo("app.selfwork.employeejobs.job003", {
                             data: row.entity
                         });
+                    });
+                }else{
+                    $state.transitionTo("app.selfwork.employeejobs.job003", {
+                        data: row.entity
                     });
                 }
             },
