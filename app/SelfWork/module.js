@@ -79,7 +79,7 @@ angular.module('app.selfwork').config(function ($stateProvider){
         },
         views: {
             "content@app" : {
-                templateUrl: 'app/SelfWork/views/LeaderJobs.html',
+                templateUrl: 'app/SelfWork/views/leaderJobs.html',
                 controller: 'LeaderJobsCtrl',
                 controllerAs: '$vm',
                 resolve: {
@@ -89,6 +89,23 @@ angular.module('app.selfwork').config(function ($stateProvider){
                     compy : function(Compy){
                         return Compy.get();
                     }
+                }
+            }
+        }
+    })
+
+    .state('app.selfwork.assistantjobs', {
+        url: '/selfwork/assistantjobs',
+        data: {
+            title: 'AssistantJobs'
+        },
+        views: {
+            "content@app" : {
+                templateUrl: 'app/SelfWork/views/assistantJobs.html',
+                controller: 'AssistantJobsCtrl',
+                controllerAs: '$vm',
+                resolve: {
+                    
                 }
             }
         }
