@@ -122,6 +122,7 @@ router.get('/ComposeMenuFile', function(req, res) {
         var http = require('http');
         var querystring = require('querystring');
 
+
         var post_data = querystring.stringify([
             JSON.stringify({
                 crudType : 'Select',
@@ -265,6 +266,18 @@ router.get('/ComposeMenuFile', function(req, res) {
                         finalObj = { "items":sysItem.items[0].items};
                      }
 
+                     //6.output 至 menu-items.js
+                     var path = require("path");
+                     var menuPath = path.resolve(__dirname, '../public/api/menu-items.json');
+                     //寫檔
+                     var fs = require('fs');
+                     fs.writeFile(menuPath, JSON.stringify(finalObj), function(err) {
+                        if(err) {
+                            console.log(err);
+                        } else {
+                            console.log("The file was saved!");
+                        }
+                     });
 
                     res.json(finalObj);
                 });
@@ -274,6 +287,7 @@ router.get('/ComposeMenuFile', function(req, res) {
         });
 
         post_req.end();
+
     } catch(err){
         res.status(500).send('err');
     }
