@@ -119,7 +119,7 @@ angular.module('app', [
 })
 .constant('APP_CONFIG', window.appConfig)
 
-.run(function ($rootScope, $state, $stateParams, Session, $http) {
+.run(function ($rootScope, $state, $stateParams, Session, $http, AuthApi) {
     // $rootScope.$state = $state;
     // $rootScope.$stateParams = $stateParams;
     // editableOptions.theme = 'bs3';
@@ -129,37 +129,47 @@ angular.module('app', [
         // authorization service needs this
 
         console.log(toState, toParams, fromState, fromParams);
-        $http.get('auth/reLoadSession')
-        .success(function(data, status, headers, config) {
-            // console.log(data, status, headers, config);
-            if(status == 200 && data != ""){
-                Session.Set(data);
-                switch(toState.name){
-                    // block some key url.
-                    case "app.selfwork.jobs.editorjob":
-                        // if(!angular.isObject(toParams['data'])){
-                        //     $state.transitionTo("app.selfwork.jobs");
-                        // }
-                        break;
-                }
-            }else{
-                Session.Destroy();
-                switch(toState.name){
-                    case "login":
-                    case "register":
-                    case "forgotPassword":
-                        $state.transitionTo(toState.name);
-                        break;
-                    default:
-                        $state.transitionTo("login");
-                }
-            }
-            event.preventDefault(); 
-        })
-        .error(function(data, status, headers, config) {
+
+        AuthApi.ReLoadSession().then(function(res){
+            // 成功
+        }, function(err){
+            // 失敗
             $state.transitionTo("login");
-            event.preventDefault(); 
         });
+
+        // $http.get('auth/reLoadSession')
+        // .success(function(data, status, headers, config) {
+        //     // console.log(data, status, headers, config);
+        //     if(status == 200 && data != ""){
+        //         console.log('Set');
+        //         Session.Set(data);
+        //         switch(toState.name){
+        //             // block some key url.
+        //             case "app.selfwork.jobs.editorjob":
+        //                 // if(!angular.isObject(toParams['data'])){
+        //                 //     $state.transitionTo("app.selfwork.jobs");
+        //                 // }
+        //                 break;
+        //         }
+        //     }else{
+        //         console.log('Destroy');
+        //         Session.Destroy();
+        //         switch(toState.name){
+        //             case "login":
+        //             case "register":
+        //             case "forgotPassword":
+        //                 $state.transitionTo(toState.name);
+        //                 break;
+        //             default:
+        //                 $state.transitionTo("login");
+        //         }
+        //     }
+        //     event.preventDefault(); 
+        // })
+        // .error(function(data, status, headers, config) {
+        //     $state.transitionTo("login");
+        //     event.preventDefault(); 
+        // });
     });
 
 });

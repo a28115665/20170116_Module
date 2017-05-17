@@ -21,8 +21,10 @@ angular.module('app')
                         if (ButtonPressed == "是") {
                             // $.root_.addClass('animated fadeOutUp');
                             // setTimeout(logout, 1000);
-                            $state.transitionTo("login");
-                            AuthApi.Logout();
+                            AuthApi.Logout().then(function (res){
+                                // console.log(res);
+                                $state.transitionTo("login");
+                            });
                         }
                     });
 
