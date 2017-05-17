@@ -8,8 +8,13 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
 	angular.extend(this, {
         Init : function(){
             $scope.ShowTabs = true;
-            
-            $vm.LoadData();
+            if(userInfoByGrade[0].length == 0){
+                toaster.pop('info', '訊息', '無員工管理', 3000);
+                $vm.vmData = [];
+                $vm.compyStatisticsData = [];
+            }else{
+                $vm.LoadData();
+            }
         },
         profile : Session.Get(),
         defaultTab : 'hr1',
@@ -31,6 +36,14 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
         },
         assignGradeData : userInfoByGrade[0],
         assignPrincipalData : userInfoByGrade[1],
+        gridMethod : {
+            modifyData : function(row){
+
+            },
+            deleteData : function(row){
+
+            }
+        },
         orderListOptions : {
             data:  '$vm.vmData',
             columnDefs: [
@@ -81,6 +94,7 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
                     }
                 },
                 { name: 'W1'          ,  displayName: '派送單負責人', cellFilter: 'userInfoFilter' },
+                { name: 'Options'     ,  displayName: '功能', enableFiltering: false, width: '9%', cellTemplate: $templateCache.get('accessibilityToMD') }
             ],
             enableFiltering: true,
             enableSorting: true,
@@ -98,22 +112,21 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
                 for(var i in _getSelectedRows){
                     // _getSelectedRows[i][$vm.selectAssignDept] = $vm.selectAssignPrincipal;
 
-                    var _params = {};
-                    _params["OL_"+$vm.selectAssignDept+"_PRINCIPAL"] = _getSelectedRows[i][$vm.selectAssignDept];
-                    // _params["OL_"+$vm.selectAssignDept+"_EDIT_DATETIME"] = null;
-                    // _params["OL_"+$vm.selectAssignDept+"_OK_DATETIME"] = null;
+                    var _params = {},
+                        _condition = {};
+                    _params["OL_"+$vm.selectAssignDept+"_PRINCIPAL"] = $vm.selectAssignPrincipal;
+
+                    // 規則:如果已經被編輯的單就不可以再給別人
+                    _condition["OL_"+$vm.selectAssignDept+"_EDIT_DATETIME"] = null;
+                    _condition["OL_SEQ"] = _getSelectedRows[i].OL_SEQ;
+                    _condition["OL_CR_USER"] = _getSelectedRows[i].OL_CR_USER;
 
                     _tasks.push({
                         crudType: 'Update',
                         updatename: 'Update',
                         table: 18,
                         params: _params,
-                        condition: {
-                            // 規則:如果已經被編輯的單就不可以再給別人
-                            OL_W2_EDIT_DATETIME : null,
-                            OL_SEQ : _getSelectedRows[i].OL_SEQ,
-                            OL_CR_USER : _getSelectedRows[i].OL_CR_USER
-                        }
+                        condition: _condition
                     });
                 }
 
@@ -134,22 +147,21 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
                     if(!angular.isUndefined(_principalData[$vm.vmData[i].OL_CO_CODE])){
                         // $vm.vmData[i][$vm.selectAssignDept] = _principalData[$vm.vmData[i].OL_CO_CODE];
 
-                        var _params = {};
-                        _params["OL_"+$vm.selectAssignDept+"_PRINCIPAL"] = $vm.vmData[i][$vm.selectAssignDept];
-                        // _params["OL_"+$vm.selectAssignDept+"_EDIT_DATETIME"] = null;
-                        // _params["OL_"+$vm.selectAssignDept+"_OK_DATETIME"] = null;
+                        var _params = {},
+                            _condition = {};
+                        _params["OL_"+$vm.selectAssignDept+"_PRINCIPAL"] = _principalData[$vm.vmData[i].OL_CO_CODE];
+
+                        // 規則:如果已經被編輯的單就不可以再給別人
+                        _condition["OL_"+$vm.selectAssignDept+"_EDIT_DATETIME"] = null;
+                        _condition["OL_SEQ"] = $vm.vmData[i].OL_SEQ;
+                        _condition["OL_CR_USER"] = $vm.vmData[i].OL_CR_USER;
 
                         _tasks.push({
                             crudType: 'Update',
                             updatename: 'Update',
                             table: 18,
                             params: _params,
-                            condition: {
-                                // 規則:如果已經被編輯的單就不可以再給別人
-                                OL_W2_EDIT_DATETIME : null,
-                                OL_SEQ : $vm.vmData[i].OL_SEQ,
-                                OL_CR_USER : $vm.vmData[i].OL_CR_USER
-                            }
+                            condition: _condition
                         });
                     }
                 }
@@ -163,20 +175,21 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
                 for(var i in _getSelectedRows){
                     _getSelectedRows[i][$vm.selectAssignDept] = null;
 
-                    var _params = {};
+                    var _params = {},
+                        _condition = {};
                     _params["OL_"+$vm.selectAssignDept+"_PRINCIPAL"] = _getSelectedRows[i][$vm.selectAssignDept];
-                    // _params["OL_"+$vm.selectAssignDept+"_EDIT_DATETIME"] = null;
-                    // _params["OL_"+$vm.selectAssignDept+"_OK_DATETIME"] = null;
+                    
+                    // 規則:如果已經被編輯的單就不可以再取回
+                    _condition["OL_"+$vm.selectAssignDept+"_EDIT_DATETIME"] = null;
+                    _condition["OL_SEQ"] = _getSelectedRows[i].OL_SEQ;
+                    _condition["OL_CR_USER"] = _getSelectedRows[i].OL_CR_USER;
 
                     _tasks.push({
                         crudType: 'Update',
                         updatename: 'Update',
                         table: 18,
                         params: _params,
-                        condition: {
-                            OL_SEQ : _getSelectedRows[i].OL_SEQ,
-                            OL_CR_USER : _getSelectedRows[i].OL_CR_USER
-                        }
+                        condition: _condition
                     });
                 }
 

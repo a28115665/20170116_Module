@@ -101,7 +101,7 @@
 
 							<!-- widget footer -->
 							<div class="widget-footer">
-								<button class="btn btn-sm btn-primary" type="button" ng-click="$vm.Save()">
+								<button class="btn btn-sm btn-primary" type="button" ng-click="$vm.Save()" ng-disabled="$vm.vmData.length == 0">
 					                <i class="fa fa-save"></i>
 									儲存
 								</button>	

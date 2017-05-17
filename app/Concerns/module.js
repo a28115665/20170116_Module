@@ -50,4 +50,21 @@ angular.module('app.concerns').config(function ($stateProvider){
             }
         }
     })
+
+    .state('app.concerns.banhistorysearch', {
+        url: '/concerns/banhistorysearch',
+        data: {
+            title: 'HistorySearch'
+        },
+        views: {
+            "content@app" : {
+                templateUrl: 'app/Concerns/views/banHistorySearch.html',
+                controller: 'BanHistorySearchCtrl',
+                controllerAs: '$vm',
+                resolve: {
+                    
+                }
+            }
+        }
+    })
 })

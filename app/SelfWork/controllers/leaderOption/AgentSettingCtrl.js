@@ -6,8 +6,13 @@ angular.module('app.selfwork').controller('AgentSettingCtrl', function ($scope, 
 
 	angular.extend(this, {
         Init : function(){
-            $vm.selectAssignDept = userInfoByCompyDistribution[0][0].value;
-            LoadCompyAgent();
+            if(userInfoByCompyDistribution[0].length == 0){
+                toaster.pop('info', '訊息', '請先設定行家分配', 3000);
+                $vm.vmData = [];
+            }else{
+                $vm.selectAssignDept = userInfoByCompyDistribution[0][0].value;
+                LoadCompyAgent();
+            }
         },
         profile : Session.Get(),
         assignGradeData : userInfoByCompyDistribution[0],
@@ -19,14 +24,14 @@ angular.module('app.selfwork').controller('AgentSettingCtrl', function ($scope, 
                     {
                         term: null,
                         type: uiGridConstants.filter.SELECT,
-                        selectOptions: userInfoByCompyDistribution[1][userInfoByCompyDistribution[0][0].value]
+                        selectOptions: userInfoByCompyDistribution[0].length == 0 ? [] : userInfoByCompyDistribution[1][userInfoByCompyDistribution[0][0].value]
                     }
                 },
                 { name: 'AS_AGENT'     ,  displayName: '職務代理人', cellFilter: 'userInfoFilter', filter: 
                     {
                         term: null,
                         type: uiGridConstants.filter.SELECT,
-                        selectOptions: userInfoByCompyDistribution[1][userInfoByCompyDistribution[0][0].value]
+                        selectOptions: userInfoByCompyDistribution[0].length == 0 ? [] : userInfoByCompyDistribution[1][userInfoByCompyDistribution[0][0].value]
                     }
                 },
                 { name: 'CO_NAME'      ,  displayName: '公司名稱' }
@@ -50,6 +55,8 @@ angular.module('app.selfwork').controller('AgentSettingCtrl', function ($scope, 
                         _getSelectedRows[i].AS_AGENT = $vm.selectAssignAgent;
                     }
                 }
+                
+                $vm.agentSettingGridApi.selection.clearSelectedRows();
             }
         },
         CancelAgent : function(){
@@ -58,6 +65,8 @@ angular.module('app.selfwork').controller('AgentSettingCtrl', function ($scope, 
                 for(var i in _getSelectedRows){
                     _getSelectedRows[i].AS_AGENT = null;
                 }
+                
+                $vm.agentSettingGridApi.selection.clearSelectedRows();
             }
         },
         Save : function(){

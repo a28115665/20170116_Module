@@ -98,6 +98,10 @@ angular.module('app.selfwork').controller('EmployeeJobsCtrl', function ($scope, 
                 }).then(function (res) {
                     LoadOrderList();
                 });
+            },
+            // 刪除報機單
+            deleteData : function(row){
+
             }
         },
         gridMethodForJob002 : {
@@ -162,6 +166,10 @@ angular.module('app.selfwork').controller('EmployeeJobsCtrl', function ($scope, 
                 }).then(function (res) {
                     LoadOrderList();
                 });
+            },
+            // 刪除銷艙單
+            deleteData : function(row){
+
             }
         },
         gridMethodForJob003 : {
@@ -226,6 +234,15 @@ angular.module('app.selfwork').controller('EmployeeJobsCtrl', function ($scope, 
                 }).then(function (res) {
                     LoadOrderList();
                 });
+            },
+            // 刪除派送單
+            deleteData : function(row){
+
+            }
+        },
+        gridMethod : {
+            modifyData : function(row){
+
             }
         },
         orderListOptions : {
@@ -241,11 +258,12 @@ angular.module('app.selfwork').controller('EmployeeJobsCtrl', function ($scope, 
                 },
                 { name: 'OL_FLIGHTNO' ,  displayName: '航班' },
                 { name: 'OL_MASTER'   ,  displayName: '主號' },
-                { name: 'OL_COUNT'    ,  displayName: '袋數' },
+                { name: 'OL_COUNT'    ,  displayName: '報機單(袋數)' },
                 { name: 'OL_COUNTRY'  ,  displayName: '起運國別' },
-                { name: 'ITEM_LIST'          ,  displayName: '報機單', enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToDMCForJob001') },
-                { name: 'FLIGHT_ITEM_LIST'   ,  displayName: '銷艙單', enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToDMCForJob002') },
-                { name: 'DELIVERY_ITEM_LIST' ,  displayName: '派送單', enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToDMCForJob003') }
+                { name: 'ITEM_LIST'          ,  displayName: '報機單', enableFiltering: false, width: '16%', cellTemplate: $templateCache.get('accessibilityToDMCForJob001') },
+                { name: 'FLIGHT_ITEM_LIST'   ,  displayName: '銷艙單', enableFiltering: false, width: '16%', cellTemplate: $templateCache.get('accessibilityToDMCForJob002') },
+                { name: 'DELIVERY_ITEM_LIST' ,  displayName: '派送單', enableFiltering: false, width: '16%', cellTemplate: $templateCache.get('accessibilityToDMCForJob003') },
+                { name: 'Options'     ,  displayName: '功能', enableFiltering: false, width: '5%', cellTemplate: $templateCache.get('accessibilityToM') }
             ],
             enableFiltering: true,
             enableSorting: false,

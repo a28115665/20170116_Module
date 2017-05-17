@@ -1,31 +1,16 @@
 "use strict";
 
-angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache) {
+angular.module('app.concerns').controller('BanHistorySearchCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache) {
     
     var $vm = this;
 
 	angular.extend(this, {
-        Init : function(){
-            $scope.ShowTabs = true;
-            
-            $vm.LoadData();
-        },
         profile : Session.Get(),
-        defaultTab : 'hr1',
-        TabSwitch : function(pTabID){
-            return pTabID == $vm.defaultTab ? 'active' : '';
+        searchCondition : {
+        	startDate : new Date(),
+        	endDate : new Date(),
         },
-        LoadData : function(){
-            console.log($vm.defaultTab);
-            switch($vm.defaultTab){
-                case 'hr1':
-                    // LoadPrincipal();
-                    break;
-                case 'hr2':
-                    // LoadStatistics();
-                    break;
-            }
-        },
+        defaultChoice : 'Left',
         gridMethod : {
             //退件
             rejectData : function(row){

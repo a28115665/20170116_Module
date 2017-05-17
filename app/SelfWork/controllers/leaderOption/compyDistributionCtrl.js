@@ -44,6 +44,8 @@ angular.module('app.selfwork').controller('CompyDistributionCtrl', function ($sc
                     _getSelectedRows[i].COD_DEPT = $vm.selectAssignDept;
                     _getSelectedRows[i].COD_PRINCIPAL = $vm.selectAssignPrincipal;
                 }
+
+                $vm.compyDistributionGridApi.selection.clearSelectedRows();
             }
         },
         CancelPrincipal : function(){
@@ -53,6 +55,8 @@ angular.module('app.selfwork').controller('CompyDistributionCtrl', function ($sc
                     _getSelectedRows[i].COD_DEPT = null;
                     _getSelectedRows[i].COD_PRINCIPAL = null;
                 }
+
+                $vm.compyDistributionGridApi.selection.clearSelectedRows();
             }
         },
         Save : function(){

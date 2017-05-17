@@ -25,21 +25,27 @@ angular.module('app')
                                     				<a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethod.modifyData(row)"> 編輯</a>\
                                     				<a href="javascript:void(0);" class="btn btn-primary btn-xs" ng-click="grid.appScope.$vm.gridMethod.closeData(row)" ng-disabled="row.entity.g"> 完成</a>\
                                		  		  </div>');
-  $templateCache.put('accessibilityToDMCForJob001', '<div class="ui-grid-cell-contents text-center">\
-                                            <a href="javascript:void(0);" class="btn btn-danger btn-xs" ng-click="grid.appScope.$vm.gridMethodForJob001.rejectData(row)" ng-disabled="row.entity.g"> 退單</a>\
-                                            <a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethodForJob001.modifyData(row)"> 編輯</a>\
-                                            <a href="javascript:void(0);" class="btn btn-primary btn-xs" ng-click="grid.appScope.$vm.gridMethodForJob001.closeData(row)" ng-disabled="row.entity.g"> 完成</a>\
-                                          </div>');
-  $templateCache.put('accessibilityToDMCForJob002', '<div class="ui-grid-cell-contents text-center">\
-                                            <a href="javascript:void(0);" class="btn btn-danger btn-xs" ng-click="grid.appScope.$vm.gridMethodForJob002.rejectData(row)" ng-disabled="row.entity.g"> 退單</a>\
-                                            <a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethodForJob002.modifyData(row)"> 編輯</a>\
-                                            <a href="javascript:void(0);" class="btn btn-primary btn-xs" ng-click="grid.appScope.$vm.gridMethodForJob002.closeData(row)" ng-disabled="row.entity.g"> 完成</a>\
-                                          </div>');
-  $templateCache.put('accessibilityToDMCForJob003', '<div class="ui-grid-cell-contents text-center">\
-                                            <a href="javascript:void(0);" class="btn btn-danger btn-xs" ng-click="grid.appScope.$vm.gridMethodForJob003.rejectData(row)" ng-disabled="row.entity.g"> 退單</a>\
-                                            <a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethodForJob003.modifyData(row)"> 編輯</a>\
-                                            <a href="javascript:void(0);" class="btn btn-primary btn-xs" ng-click="grid.appScope.$vm.gridMethodForJob003.closeData(row)" ng-disabled="row.entity.g"> 完成</a>\
-                                          </div>');
+  $templateCache.put('accessibilityToDMCForJob001', '\
+                    <div class="ui-grid-cell-contents text-center">\
+                        <a href="javascript:void(0);" class="btn btn-danger btn-xs" ng-click="grid.appScope.$vm.gridMethodForJob001.rejectData(row)" ng-disabled="row.entity.g"> 退單</a>\
+                        <a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethodForJob001.modifyData(row)"> 編輯</a>\
+                        <a href="javascript:void(0);" class="btn btn-primary btn-xs" ng-click="grid.appScope.$vm.gridMethodForJob001.closeData(row)" ng-disabled="row.entity.g"> 完成</a>\
+                        <a href="javascript:void(0);" class="btn btn-danger btn-xs" ng-click="grid.appScope.$vm.gridMethodForJob001.deleteData(row)" ng-disabled="row.entity.g"> 刪除</a>\
+                    </div>');
+  $templateCache.put('accessibilityToDMCForJob002', '\
+                    <div class="ui-grid-cell-contents text-center">\
+                        <a href="javascript:void(0);" class="btn btn-danger btn-xs" ng-click="grid.appScope.$vm.gridMethodForJob002.rejectData(row)" ng-disabled="row.entity.g"> 退單</a>\
+                        <a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethodForJob002.modifyData(row)"> 編輯</a>\
+                        <a href="javascript:void(0);" class="btn btn-primary btn-xs" ng-click="grid.appScope.$vm.gridMethodForJob002.closeData(row)" ng-disabled="row.entity.g"> 完成</a>\
+                        <a href="javascript:void(0);" class="btn btn-danger btn-xs" ng-click="grid.appScope.$vm.gridMethodForJob002.deleteData(row)" ng-disabled="row.entity.g"> 刪除</a>\
+                    </div>');
+  $templateCache.put('accessibilityToDMCForJob003', '\
+                    <div class="ui-grid-cell-contents text-center">\
+                        <a href="javascript:void(0);" class="btn btn-danger btn-xs" ng-click="grid.appScope.$vm.gridMethodForJob003.rejectData(row)" ng-disabled="row.entity.g"> 退單</a>\
+                        <a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethodForJob003.modifyData(row)"> 編輯</a>\
+                        <a href="javascript:void(0);" class="btn btn-primary btn-xs" ng-click="grid.appScope.$vm.gridMethodForJob003.closeData(row)" ng-disabled="row.entity.g"> 完成</a>\
+                        <a href="javascript:void(0);" class="btn btn-danger btn-xs" ng-click="grid.appScope.$vm.gridMethodForJob003.deleteData(row)" ng-disabled="row.entity.g"> 刪除</a>\
+                    </div>');
 	$templateCache.put('accessibilityToCB', '<div class="ui-grid-cell-contents text-center">\
                                             <a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethod.changeNature(row)" ng-hide="row.entity[\'loading\']"> 改單</a>\
                                             <a href="javascript:void(0);" class="btn btn-warning btn-xs disabled" ng-show="row.entity[\'loading\']"> <i class="fa fa-refresh fa-spin"></i></a>\
@@ -67,9 +73,15 @@ angular.module('app')
                                             <a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridCompyInfoMethod.modifyData(row)"> {{$parent.$root.getWord(\'Modify\')}}</a>\
                                             <a href="javascript:void(0);" class="btn btn-danger btn-xs" ng-click="grid.appScope.$vm.gridCompyInfoMethod.deleteData(row)"> {{$parent.$root.getWord(\'Delete\')}}</a>\
                                           </div>');
-    $templateCache.put('accessibilityToM', '<div class="ui-grid-cell-contents text-center">\
-                                            <a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethod.modifyData(row)"> {{$parent.$root.getWord(\'Modify\')}}</a>\
-                                          </div>');
+    $templateCache.put('accessibilityToMD', '\
+                        <div class="ui-grid-cell-contents text-center">\
+                            <a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethod.modifyData(row)"> {{$parent.$root.getWord(\'Modify\')}}</a>\
+                            <a href="javascript:void(0);" class="btn btn-danger btn-xs" ng-click="grid.appScope.$vm.gridMethod.deleteData(row)"> {{$parent.$root.getWord(\'Delete\')}}</a>\
+                        </div>');
+    $templateCache.put('accessibilityToM', '\
+                        <div class="ui-grid-cell-contents text-center">\
+                            <a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethod.modifyData(row)"> {{$parent.$root.getWord(\'Modify\')}}</a>\
+                        </div>');
     $templateCache.put('accessibilityToForW2', '\
                         <div class="ui-grid-cell-contents text-center">\
                             <i class="fa fa-circle-o" ng-if="row.entity.W2_STATUS == \'0\'"> </i> \
@@ -87,6 +99,10 @@ angular.module('app')
                             <i class="fa fa-circle-o" ng-if="row.entity.W1_STATUS == \'0\'"> </i> \
                             <i class="fa fa-circle text-warning" ng-if="row.entity.W1_STATUS == \'1\'"> </i> \
                             <i class="fa fa-circle text-success" ng-if="row.entity.W1_STATUS == \'2\'"> </i> \
+                        </div>');
+    $templateCache.put('accessibilityToHistoryCount', '\
+                        <div class="ui-grid-cell-contents text-center">\
+                            <a href-void="" class="btn btn-danger btn-xs" href="#">{{row.entity.IL_COUNT}}</a> \
                         </div>');
 
     $templateCache.put('isChecked', '\

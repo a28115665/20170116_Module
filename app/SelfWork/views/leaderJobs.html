@@ -92,6 +92,13 @@
 												                取消/取回
 												            </button>
 									                    </div>
+									                    <div class="form-group">
+												            <button class="btn btn-success"
+												            		ng-disabled="$vm.vmData.length == 0"
+												            		ng-click="$vm.ExportExcel()">
+												                匯出Excel
+												            </button>
+									                    </div>
 									                </fieldset>
 									            </form>
 									        </div>

@@ -28,14 +28,24 @@ module.exports = function(pQueryname, pParams){
 							WHERE 1=1 ";
 							
 			if(pParams["DEPTS"] !== undefined && pParams["U_ID"] !== undefined){
-				var _Content = [];
+				var _Content = [],
+					// 早中晚班的Level
+					_Lvl = 4,
+					// 如果小於早中晚班的部門層級都可以看到資料
+					_isSupervisor = false;
 
 				for(var i in pParams["DEPTS"]){
+					if(pParams["DEPTS"][i].SUD_DLVL < _Lvl){
+						_isSupervisor = true;
+					}
 					_Content.push("OL_"+pParams["DEPTS"][i].SUD_DEPT+"_PRINCIPAL = '" + pParams["U_ID"] + "'");
 				}
 
-				_SQLCommand += " AND ( "+_Content.join(" OR ")+" ) ";
-				
+				// 不是主管則組SQL
+				if(!_isSupervisor){
+					_SQLCommand += " AND ( "+_Content.join(" OR ")+" ) ";
+				}
+
 				// 避免PrepareStatement載入非DB裡的Schema
 				delete pParams["DEPTS"];
 			}
