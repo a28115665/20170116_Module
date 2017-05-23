@@ -1,6 +1,9 @@
 "use strict";
 
-angular.module('app.selfwork', ['ui.router']);
+angular.module('app.selfwork', [
+        'ui.router',
+        'app.selfwork.leaderoption'
+    ]);
 
 angular.module('app.selfwork').config(function ($stateProvider){
 
@@ -9,66 +12,6 @@ angular.module('app.selfwork').config(function ($stateProvider){
         abstract: true,
         data: {
             title: 'SelfWork'
-        }
-    })
-
-    .state('app.selfwork.compydistribution', {
-        url: '/selfwork/compydistribution',
-        data: {
-            title: 'CompyDistribution'
-        },
-        views: {
-            "content@app" : {
-                templateUrl: 'app/SelfWork/views/leaderOption/compyDistribution.html',
-                controller: 'CompyDistributionCtrl',
-                controllerAs: '$vm',
-                resolve: {
-                    userInfoByGrade : function(UserInfoByGrade, Session){
-                        return UserInfoByGrade.get(Session.Get().U_ID, Session.Get().U_GRADE, Session.Get().DEPTS);
-                    }
-                }
-            }
-        }
-    })
-
-    .state('app.selfwork.agentsetting', {
-        url: '/selfwork/agentsetting',
-        data: {
-            title: 'AgentSetting'
-        },
-        views: {
-            "content@app" : {
-                templateUrl: 'app/SelfWork/views/leaderOption/agentSetting.html',
-                controller: 'AgentSettingCtrl',
-                controllerAs: '$vm',
-                resolve: {
-                    userInfoByCompyDistribution : function (UserInfoByCompyDistribution, Session){
-                        return UserInfoByCompyDistribution.get(Session.Get().U_ID);
-                    }
-                }
-            }
-        }
-    })
-
-    .state('app.selfwork.dailyleave', {
-        url: '/selfwork/dailyleave',
-        data: {
-            title: 'DailyLeave'
-        },
-        views: {
-            "content@app" : {
-                templateUrl: 'app/SelfWork/views/leaderOption/dailyleave.html',
-                controller: 'DailyLeaveCtrl',
-                controllerAs: '$vm',
-                resolve: {
-                    userInfoByGrade : function(UserInfoByGrade, Session){
-                        return UserInfoByGrade.get(Session.Get().U_ID, Session.Get().U_GRADE, Session.Get().DEPTS);
-                    },
-                    bool : function(SysCode){
-                        return SysCode.get('Boolean');
-                    }
-                }
-            }
         }
     })
 
@@ -211,4 +154,4 @@ angular.module('app.selfwork').config(function ($stateProvider){
             }
         }
     })
-})
+});

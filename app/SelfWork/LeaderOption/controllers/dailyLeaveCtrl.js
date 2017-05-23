@@ -1,6 +1,6 @@
 "use strict";
 
-angular.module('app.selfwork').controller('DailyLeaveCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, $filter, uiGridConstants, RestfulApi, userInfoByGrade, bool) {
+angular.module('app.selfwork.leaderoption').controller('DailyLeaveCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, $filter, uiGridConstants, RestfulApi, userInfoByGrade, bool) {
     
     var $vm = this;
 

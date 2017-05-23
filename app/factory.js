@@ -55,7 +55,8 @@ angular.module('app')
                 }
             }
         ),
-        CHANGENATURE : $resource('/toolbox/changeNature')
+        CHANGENATURE : $resource('/toolbox/changeNature'),
+        COMPOSEMENU : $resource('/toolbox/composeMenu')
     };
 })
 .factory('SysCode', SysCodeResolve)

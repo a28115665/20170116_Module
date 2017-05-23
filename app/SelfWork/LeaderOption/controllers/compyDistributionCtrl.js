@@ -1,6 +1,6 @@
 "use strict";
 
-angular.module('app.selfwork').controller('CompyDistributionCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, $filter, RestfulApi, uiGridConstants, userInfoByGrade) {
+angular.module('app.selfwork.leaderoption').controller('CompyDistributionCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, $filter, RestfulApi, uiGridConstants, userInfoByGrade) {
     
     var $vm = this;
 

@@ -131,7 +131,10 @@ angular.module('app', [
         console.log(toState, toParams, fromState, fromParams);
 
         AuthApi.ReLoadSession().then(function(res){
-            // 成功
+            // 表示逾時
+            if(res["returnData"].length == 0){
+                $state.transitionTo("login");
+            }
         }, function(err){
             // 失敗
             $state.transitionTo("login");

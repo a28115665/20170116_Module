@@ -10,7 +10,7 @@ angular.module('app.auth').directive('loginInfo', function(User, Session){
             //     scope.user = User
             // });
             
-			scope.user = Session.Get();
+			scope.user = angular.copy(Session.Get());
 			scope.user["picture"] = 'styles/img/avatars/sunny.png';
         }
     }

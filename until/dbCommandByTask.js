@@ -10,6 +10,7 @@ var schemaType = require('./schemaType.js');
 var Connect = function(callback) {
 	var args = {};
   	sql.connect(setting.MSSQL, function(err) {
+  		console.log(err);
 		if(err) callback(err, {});
 		else callback(null, args);
 	});

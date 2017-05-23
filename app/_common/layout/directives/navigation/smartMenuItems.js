@@ -1,7 +1,7 @@
 (function(){
     "use strict";
 
-    angular.module('SmartAdmin.Layout').directive('smartMenuItems', function ($http, $rootScope, $compile) {
+    angular.module('SmartAdmin.Layout').directive('smartMenuItems', function ($http, $rootScope, $compile, ToolboxApi) {
     return {
         restrict: 'A',
         // compile: function (element, attrs) {
@@ -102,12 +102,12 @@
 
 
             function DoMenu(){
-                $http.get(attrs.smartMenuItems).then(function(res){
+                ToolboxApi.ComposeMenu().then(function(res){
                     console.log(res);
                     var ul = $('<ul />', {
                         'smart-menu': ''
                     })
-                    _.forEach(res.data.items, function(item) {
+                    _.forEach(res.items, function(item) {
                         createItem(item, ul, 1);
                     })
                     
@@ -119,8 +119,8 @@
                     // console.log(_element);
                     // element.replaceWith(_element);
                     
-                    element.html(_element);           
-                })
+                    element.html(_element);   
+                })        
             }
 
             $rootScope.$watch('lang', function(newVal, oldVal){

@@ -10,7 +10,9 @@ var querystring = require('querystring');
  */
 router.get('/reLoadSession', function(req, res) {
     if(req.session != undefined){
-        res.json(req.session.key);
+        res.json({
+            "returnData" : req.session.key
+        });
     }else{
         res.status(500).send('Session未開啟');
     }
@@ -74,7 +76,7 @@ router.get('/login', function(req, res) {
                 }
             })
         ]);
-
+        
         // An object of options to indicate where to post to
         var post_options = {
             host: '127.0.0.1',

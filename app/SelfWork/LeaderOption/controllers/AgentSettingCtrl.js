@@ -1,6 +1,6 @@
 "use strict";
 
-angular.module('app.selfwork').controller('AgentSettingCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, $filter, uiGridConstants, RestfulApi, userInfoByCompyDistribution) {
+angular.module('app.selfwork.leaderoption').controller('AgentSettingCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, $filter, uiGridConstants, RestfulApi, userInfoByCompyDistribution) {
     
     var $vm = this;
 
