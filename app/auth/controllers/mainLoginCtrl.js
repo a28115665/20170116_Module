@@ -13,7 +13,7 @@ angular.module('app.auth').controller('MainLoginCtrl', function ($scope, $stateP
                 toaster.success("狀態", "登入成功", 3000);
 
                 AuthApi.ReLoadSession().then(function(res){
-                    $state.transitionTo("app.mainwork");
+                    $state.transitionTo("app.default");
                 });
 
             }else{                
