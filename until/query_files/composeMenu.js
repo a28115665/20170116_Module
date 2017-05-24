@@ -27,6 +27,9 @@ module.exports = function(pQueryname, pParams){
 							JOIN SYS_SUBSYS ON TMP.SP_PSYSID = SS_SYSID AND SS_STS = 0 \
 							ORDER BY SS_LVL, SS_SEQ ASC; ";
 			break;
+		case "GetUserRight":
+			_SQLCommand += "EXEC GetUserRight @U_ID";
+			break;
 	}
 
 	return _SQLCommand;

@@ -142,8 +142,10 @@ angular.module('app.settings').controller('GroupCtrl', function ($scope, $stateP
 
     // 產生GroupMenu
     function DoGroupMenu(){
-        _.forEach(Menu.Get(), function(item) {
-            CreateItem(item, $vm.groupMenu[0], 1);
+        ToolboxApi.ComposeMenu().then(function(res){ 
+            _.forEach(res, function(item) {
+                CreateItem(item, $vm.groupMenu[0], 1);
+            })    
         })    
     }
 

@@ -17,20 +17,6 @@ angular.module('app')
     }
 
 })
-.factory('Menu', function () {
-    var menu = {};
-
-    return {
-        Set: function(pMenu) {
-            menu = pMenu;
-        },
-
-        Get: function() {
-            return menu;
-        }
-    }
-
-})
 .factory('Resource', function ($resource){
     return {
         CRUD : $resource('/restful/crud', null,

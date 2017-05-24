@@ -229,15 +229,12 @@ router.get('/changeNature', function(req, res) {
 
 /*
  * 組成menu
+ * 當有U_ID時會產生該ID的menu，如果沒有就產生所有menu
  */
 router.get('/composeMenu', function(req, res) {
     
     try{
-        var http = require('http');
-        var querystring = require('querystring');
-
-
-        var post_data = querystring.stringify([
+        var conditions = [
             JSON.stringify({
                 crudType : 'Select',
                 querymain : 'composeMenu',
@@ -253,9 +250,21 @@ router.get('/composeMenu', function(req, res) {
                 querymain : 'composeMenu',
                 queryname : 'SelectProgm'
             })
-        ]);
-        
+        ];
 
+        if(req.query["U_ID"] != undefined){
+            conditions.push(JSON.stringify({
+                crudType : 'Select',
+                querymain : 'composeMenu',
+                queryname : 'GetUserRight',
+                params : {
+                    U_ID : req.query["U_ID"]
+                }
+            }));
+        }
+
+        var post_data = querystring.stringify(conditions);
+        
         var post_options = {
             host: '127.0.0.1',
             port: setting.NodeJs.port,
@@ -279,6 +288,7 @@ router.get('/composeMenu', function(req, res) {
                     var maxLvlObj = sqlData[0];
                     var subsysObj = sqlData[1];
                     var progmObj = sqlData[2];
+                    var gRight = req.query["U_ID"] != undefined ? sqlData[3] : null;
 
                     var finalObj;
 
@@ -293,6 +303,26 @@ router.get('/composeMenu', function(req, res) {
                         var progItem = { items:[] };
                         var sysItem = { items:[] };
                         var tempItem ;
+                        //權限
+                        var gRightItem = {};
+
+                        //權限轉換物件
+                        for(var igRight in gRight){
+                            gRightItem[gRight[igRight].PROG_PATH] = (gRight[igRight].USER_RIGHT == 'true');
+                        }
+
+                        //是否有包含權限功能    
+                        if(req.query["U_ID"] != undefined){
+                            var tempProgmObj = [];
+                            for(var iProgmObj in progmObj){
+                                // 如果有就新增到temp
+                                if(gRightItem[progmObj[iProgmObj].PROG_PATH]){
+                                    tempProgmObj.push(progmObj[iProgmObj]);
+                                }
+                            }
+                            progmObj = tempProgmObj
+                            progmCount = progmObj.length;
+                        }
                         
                         //1.取得程式Array
                         for(var iProgm = 0 ; iProgm < progmCount; iProgm++){
@@ -304,9 +334,9 @@ router.get('/composeMenu', function(req, res) {
                                             "lvl": progmObj[iProgm].SP_LVL,
                                             "exsysId": progmObj[iProgm].SS_SYSID
                                         };
-                            
                             progItem.items.push(tempItem);
                         }
+                        
                         //2.取得系統Array
                         var tmpExSubsys = '';
                         for(var iSys = 0 ; iSys < sysCount; iSys++){
@@ -359,8 +389,8 @@ router.get('/composeMenu', function(req, res) {
                         for(var iLvl = iMaxLvl ; iLvl >= 1 ; iLvl--){
                             for(var iSys = 0 ; iSys < sysCount; iSys++){
                                 for(var iSubsys = 0 ; iSubsys < sysCount; iSubsys++){
-                                    //從最小的開始往上塞
-                                    if(sysItem.items[iSubsys].lvl == iLvl){
+                                    //從最小的開始往上塞 和 此資料夾下要有資料
+                                    if(sysItem.items[iSubsys].lvl == iLvl && sysItem.items[iSubsys].items.length > 0){
                                         if((sysItem.items[iSubsys].lvl - 1) == sysItem.items[iSys].lvl &&
                                             sysItem.items[iSubsys].exsysId == sysItem.items[iSys].sysId){
                                                 var tmpObj = {
