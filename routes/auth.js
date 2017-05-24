@@ -9,7 +9,13 @@ var querystring = require('querystring');
  * 重新讀取Session
  */
 router.get('/reLoadSession', function(req, res) {
-    res.json(req.session.key);
+    if(req.session != undefined){
+        res.json({
+            "returnData" : req.session.key
+        });
+    }else{
+        res.status(500).send('Session未開啟');
+    }
 });
 
 
@@ -70,7 +76,7 @@ router.get('/login', function(req, res) {
                 }
             })
         ]);
-
+        
         // An object of options to indicate where to post to
         var post_options = {
             host: '127.0.0.1',
@@ -99,24 +105,30 @@ router.get('/login', function(req, res) {
                     // console.log(_content.returnData[0]);
                     // console.log(_content.returnData[1]);
 
-                    if(_content.returnData[0].length > 0){
-                        // 塞入部門資訊
-                        _content.returnData[0][0]["DEPTS"] = _content.returnData[1];
+                    if(req.session != undefined){
+                        
+                        if(_content.returnData[0].length > 0){
+                            // 塞入部門資訊
+                            _content.returnData[0][0]["DEPTS"] = _content.returnData[1];
 
-                        // 資料塞入Session
-                        req.session.key = _content.returnData[0][0]
+                            // 資料塞入Session
+                            req.session.key = _content.returnData[0][0]
 
-                        req.session.save(function(err) {
-                            // session saved
-                            if(err) console.log(err);
+                            req.session.save(function(err) {
+                                // session saved
+                                if(err) console.log(err);
+                            });
+
+                        }
+
+                        // res.redirect('/#/dashboard');
+                        res.json({
+                            "returnData": _content.returnData[0]
                         });
 
+                    }else{
+                        res.status(500).send('Session未開啟');
                     }
-
-                    // res.redirect('/#/dashboard');
-                    res.json({
-                        "returnData": _content.returnData[0]
-                    });
                 });
             }else{
                 res.status(500).send('登入失敗');
@@ -140,10 +152,14 @@ router.get('/logout', function(req, res) {
 
     req.session.destroy(function(err) {
         // session saved
-        console.log(err);
+        console.log("LogoutError: "+err);
     });
 
-    res.redirect('/#/login');
+    res.json({
+        "returnData": "登出成功"
+    });
+
+    // res.redirect('/#/login');
 });
 
 module.exports = router;

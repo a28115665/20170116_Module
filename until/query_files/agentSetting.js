@@ -6,17 +6,12 @@ module.exports = function(pQueryname, pParams){
 			_SQLCommand += "SELECT COD.COD_PRINCIPAL, \
 								   COD.COD_CODE, \
 								   CO.CO_NAME, \
-								   AS_AGENT \
+								   CASE WHEN COD_PRINCIPAL = AS_AGENT THEN NULL ELSE AS_AGENT END AS 'AS_AGENT' \
 							FROM COMPY_DISTRIBUTION COD \
 							LEFT JOIN COMPY_INFO CO ON COD.COD_CODE = CO.CO_CODE \
-							LEFT JOIN AGENT_SETTING ON COD.COD_CODE = AS_CODE  ";
+							LEFT JOIN AGENT_SETTING ON COD.COD_CODE = AS_CODE AND AS_DEPT = @COD_DEPT \
+							WHERE 1=1 ";
 
-			if(pParams["COD_DEPT"] !== undefined){
-				_SQLCommand += " AND AS_DEPT = @COD_DEPT ";
-			}
-
-			_SQLCommand += "WHERE 1=1 ";
-											
 			if(pParams["COD_CR_USER"] !== undefined){
 				_SQLCommand += " AND COD.COD_CR_USER = @COD_CR_USER";
 			}

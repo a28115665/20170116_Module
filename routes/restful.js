@@ -162,10 +162,13 @@ router.get('/crudByTask', function(req, res) {
 
     async.waterfall(tasks, function (err, args) {
         if (err) {
-            dbCommandByTask.TransactionRollback(args, function (err, result){
-                
-            });
-            console.log(err);
+            // 如果連線失敗就不做Rollback
+            if(Object.keys(args).length !== 0){
+                dbCommandByTask.TransactionRollback(args, function (err, result){
+                    
+                });
+            }
+            console.log("任務失敗錯誤訊息:", err);
 
             res.status(500).send('任務失敗');
             // process.exit();

@@ -2,7 +2,7 @@
 <div id="content" ng-init="$vm.Init()">
 
 	<div class="row">
-		<big-breadcrumbs items="['SelfWork', 'LeaderJobs']" icon="cubes" class="col-xs-12 col-sm-7 col-md-7 col-lg-4"></big-breadcrumbs>
+		<big-breadcrumbs items="['SelfWork', 'AssistantJobs']" icon="cube" class="col-xs-12 col-sm-7 col-md-7 col-lg-4"></big-breadcrumbs>
 	</div>
 
 	<!-- widget grid -->
@@ -30,10 +30,10 @@
 
 				        <ul id="widget-tab-1" class="nav pull-right" ng-class="{'nav-tabs' : !!ShowTabs, 'nav-pills': !ShowTabs }">
 				            <li ng-class="$vm.TabSwitch('hr1')" ng-click="$vm.defaultTab='hr1';$vm.LoadData()">
-				                <a data-toggle="tab" href="#hr1"> <i class="fa fa-lg fa-hand-o-down"></i> <span class="hidden-mobile hidden-tablet"> 派單 </span> </a>
+				                <a data-toggle="tab" href="#hr1"> <i class="fa fa-lg fa-hand-o-down"></i> <span class="hidden-mobile hidden-tablet"> 主號待補 </span> </a>
 				            </li>
 				            <li ng-class="$vm.TabSwitch('hr2')" ng-click="$vm.defaultTab='hr2';$vm.LoadData()">
-				                <a data-toggle="tab" href="#hr2"> <i class="glyphicon glyphicon-stats"></i> <span class="hidden-mobile hidden-tablet"> 統計 </span></a>
+				                <a data-toggle="tab" href="#hr2"> <i class="glyphicon glyphicon-stats"></i> <span class="hidden-mobile hidden-tablet"> 拉貨 </span></a>
 				            </li>
 				        </ul>
 
@@ -47,7 +47,7 @@
 				            <div class="tab-content no-padding">
 				                <div class="tab-pane fade in " ng-class="$vm.TabSwitch('hr1')" id="hr1">
 
-									<div class="widget-body-toolbar">
+									<!-- <div class="widget-body-toolbar">
 									    <div class="row">
 									        <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
 									        	<form class="form-inline" role="form">
@@ -92,28 +92,21 @@
 												                取消/取回
 												            </button>
 									                    </div>
-									                    <div class="form-group">
-												            <button class="btn btn-success"
-												            		ng-disabled="$vm.vmData.length == 0"
-												            		ng-click="$vm.ExportExcel()">
-												                匯出Excel
-												            </button>
-									                    </div>
 									                </fieldset>
 									            </form>
 									        </div>
 									    </div>
-									</div>
+									</div> -->
 
-									<div id="grid1" ui-grid="$vm.orderListOptions" class="my-ui-grid" ui-grid-pagination ui-grid-resize-columns ui-grid-selection ui-grid-auto-resize></div>
+									<!-- <div id="grid1" ui-grid="$vm.orderListOptions" class="my-ui-grid" ui-grid-pagination ui-grid-resize-columns ui-grid-selection ui-grid-auto-resize></div> -->
 
 				                </div>
 				                <div class="tab-pane fade in " ng-class="$vm.TabSwitch('hr2')" id="hr2">
 
-									<div class="widget-body-toolbar">
+									<!-- <div class="widget-body-toolbar">
 									    <div class="row">
-									        <!-- <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
-									        </div> -->
+									        <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+									        </div>
 									        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 text-right">
 									        	<form class="form-inline" role="form">
 									                <fieldset>
@@ -128,21 +121,11 @@
 									            </form>
 									        </div>
 									    </div>
-									</div>
+									</div> -->
 
-									<div id="grid1" ui-grid="$vm.compyStatisticsOptions" class="my-ui-grid" ui-grid-pagination ui-grid-resize-columns ui-grid-auto-resize></div>
+									<!-- <div id="grid1" ui-grid="$vm.compyStatisticsOptions" class="my-ui-grid" ui-grid-pagination ui-grid-resize-columns ui-grid-auto-resize></div> -->
 				                </div>
 				            </div>
-
-							<!-- widget footer -->
-							<!-- <div class="widget-footer">
-								<button class="btn btn-sm btn-primary" type="button" ng-click="$vm.Save()">
-					                <i class="fa fa-save"></i>
-									儲存
-								</button>	
-							</div> -->
-							<!-- end widget footer -->
-
 						</div>
 						<!-- end widget content -->
 				    </div>

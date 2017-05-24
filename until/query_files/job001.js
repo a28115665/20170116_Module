@@ -18,6 +18,18 @@ module.exports = function(pQueryname, pParams){
 			}
 		
 			break;
+		case "SelectRepeatName":
+			_SQLCommand += "SELECT ITEM_LIST.* \
+							FROM ITEM_LIST \
+							JOIN ( \
+								SELECT IL_GETNAME \
+								FROM ITEM_LIST \
+								WHERE IL_SEQ = @IL_SEQ \
+								GROUP BY IL_GETNAME \
+								HAVING COUNT(*) > 1 \
+							) REPEAT_NAME ON REPEAT_NAME.IL_GETNAME = ITEM_LIST.IL_GETNAME \
+							WHERE ITEM_LIST.IL_SEQ = @IL_SEQ";
+			break;
 	}
 
 	return _SQLCommand;

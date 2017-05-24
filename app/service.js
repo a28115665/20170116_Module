@@ -76,7 +76,7 @@ angular.module('app')
 	    return deferred.promise
 	};
 })
-.service('AuthApi', function ($http, $q, Resource){
+.service('AuthApi', function ($http, $q, Resource, Session){
 
 	this.Login = function (dataSrc) {
 	    // console.log(dataSrc);
@@ -94,7 +94,33 @@ angular.module('app')
 	},
 
 	this.Logout = function () {
-	    Resource.LOGOUT.get();
+	    var deferred = $q.defer();
+	    
+	    Resource.LOGOUT.get({},
+	    	function (pSResponse){
+				deferred.resolve(pSResponse);
+			},
+	    	function (pFResponse){
+	    		deferred.reject(pFResponse.data);
+	    	});
+
+	    return deferred.promise
+	},
+
+	this.ReLoadSession = function () {
+	    var deferred = $q.defer();
+	    
+	    Resource.RELOADSESSION.get({},
+	    	function (pSResponse){
+                Session.Set(pSResponse["returnData"]);
+				deferred.resolve(pSResponse);
+			},
+	    	function (pFResponse){
+	    		Session.Destroy();
+	    		deferred.reject(pFResponse.data);
+	    	});
+
+	    return deferred.promise
 	}
 })
 .service('ToolboxApi', function ($http, $q, Resource){
@@ -164,6 +190,21 @@ angular.module('app')
 	    var deferred = $q.defer();
 
 	    Resource.CHANGENATURE.get(dataSrc,
+	    	function (pSResponse){
+				deferred.resolve(pSResponse);
+			},
+	    	function (pFResponse){
+	    		deferred.reject(pFResponse.data);
+	    	});
+
+	    return deferred.promise
+	},
+
+	this.ComposeMenu = function (dataSrc) {
+	    // console.log(dataSrc);
+	    var deferred = $q.defer();
+
+	    Resource.COMPOSEMENU.get(dataSrc,
 	    	function (pSResponse){
 				deferred.resolve(pSResponse);
 			},

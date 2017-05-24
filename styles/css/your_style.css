@@ -157,3 +157,9 @@
     filter: alpha(opacity=0);
 }
  
+/**
+ * modal
+ */
+.center-modal {
+    margin: 15% auto;
+}

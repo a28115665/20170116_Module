@@ -207,7 +207,11 @@ var UpdateMethod = function (updatetname, table, params, condition, callback){
 						Schema.push(key + "=@" + key);
 					}
 					for(var key in _condition){
-						Condition.push(" AND "+key + "=@" + key);
+						if(_condition[key] == null){
+							Condition.push(" AND "+key + "is @" + key);
+						}else{
+							Condition.push(" AND "+key + "=@" + key);
+						}
 					}
 
 					SQLCommand += "UPDATE " + tables[table] + " SET "+Schema.join()+" WHERE 1=1 "+Condition.join(" ");
@@ -229,7 +233,11 @@ var UpdateMethod = function (updatetname, table, params, condition, callback){
 						}
 					}
 					for(var key in _condition){
-						Condition.push(" AND "+key + "=@" + key);
+						if(_condition[key] == null){
+							Condition.push(" AND "+key + "is @" + key);
+						}else{
+							Condition.push(" AND "+key + "=@" + key);
+						}
 					}
 					SQLCommand += "EXEC OpenKeys;";
 

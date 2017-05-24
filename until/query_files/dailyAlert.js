@@ -115,16 +115,48 @@ module.exports = function(pQueryname, pParams){
 							WHERE 1 = 1 ";
 			break;
 		case "SelectCaseA":
-			_SQLCommand += _CaseA;
+			_SQLCommand += "SELECT \
+									( \
+										SELECT COUNT(1) \
+										FROM ITEM_LIST IN_IL \
+										WHERE IN_IL.IL_GETNAME = OUT_IL.IL_GETNAME AND IN_IL.IL_GETADDRESS = OUT_IL.IL_GETADDRESS \
+									) AS 'IL_COUNT', \
+									OUT_IL.* \
+							FROM ( " + _CaseA + " ) OUT_IL \
+							ORDER BY OUT_IL.IL_GETNAME DESC ";
 			break;
 		case "SelectCaseB":
-			_SQLCommand += _CaseB;
+			_SQLCommand += "SELECT \
+									( \
+										SELECT COUNT(1) \
+										FROM ITEM_LIST IN_IL \
+										WHERE IN_IL.IL_GETADDRESS = OUT_IL.IL_GETADDRESS AND IN_IL.IL_GETTEL = OUT_IL.IL_GETTEL \
+									) AS 'IL_COUNT', \
+									OUT_IL.* \
+							FROM ( " + _CaseB + " ) OUT_IL \
+							ORDER BY OUT_IL.IL_GETNAME DESC ";
 			break;
 		case "SelectCaseC":
-			_SQLCommand += _CaseC;
+			_SQLCommand += "SELECT \
+									( \
+										SELECT COUNT(1) \
+										FROM ITEM_LIST IN_IL \
+										WHERE IN_IL.IL_GETNAME = OUT_IL.IL_GETNAME AND IN_IL.IL_GETTEL = OUT_IL.IL_GETTEL \
+									) AS 'IL_COUNT', \
+									OUT_IL.* \
+							FROM ( " + _CaseC + " ) OUT_IL \
+							ORDER BY OUT_IL.IL_GETNAME DESC ";
 			break;
 		case "SelectCaseD":
-			_SQLCommand += _CaseD;
+			_SQLCommand += "SELECT \
+									( \
+										SELECT COUNT(1) \
+										FROM ITEM_LIST IN_IL \
+										WHERE IN_IL.IL_GETNAME = OUT_IL.IL_GETNAME AND IN_IL.IL_GETADDRESS = OUT_IL.IL_GETADDRESS AND IN_IL.IL_GETTEL = OUT_IL.IL_GETTEL \
+									) AS 'IL_COUNT', \
+									OUT_IL.* \
+							FROM ( " + _CaseD + " ) OUT_IL \
+							ORDER BY OUT_IL.IL_GETNAME DESC ";
 			break;
 			
 	}

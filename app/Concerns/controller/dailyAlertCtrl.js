@@ -1,10 +1,20 @@
 "use strict";
 
-angular.module('app.concerns').controller('DailyAlertCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, $timeout, RestfulApi) {
+angular.module('app.concerns').controller('DailyAlertCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, $timeout, uiGridConstants, RestfulApi) {
     
     var $vm = this,
         columnDefs = [
-            { name: 'BAN_TYPE'      , displayName: '名單類型', width: 100 },
+            { name: 'IL_COUNT'      , displayName: '歷史歷程', width: 75, enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToHistoryCount') },
+            { name: 'BAN_TYPE'      , displayName: '名單類型', width: 100, filter: 
+                {
+                    term: "通報",
+                    type: uiGridConstants.filter.SELECT,
+                    selectOptions: [
+                        {label:"通報", value:"通報"},
+                        {label:"自訂", value:"自訂"}
+                    ]
+                }
+            },
             { name: 'IL_G1'         , displayName: '報關種類', width: 154 },
             { name: 'IL_MERGENO'    , displayName: '併票號', width: 129 },
             { name: 'IL_BAGNO'      , displayName: '袋號', width: 129 },

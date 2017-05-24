@@ -18,6 +18,14 @@ module.exports = function(pQueryname, pParams){
 				_SQLCommand += " AND UG_GROUP = @UG_GROUP ";
 			}
 			break;
+		case "SelectUserGRight":
+			_SQLCommand += "SELECT * \
+							FROM USER_GRIGHT \
+						   	WHERE 1=1 ";
+			if(pParams["UR_GROUP"] !== undefined){
+				_SQLCommand += " AND UR_GROUP = @UR_GROUP ";
+			}
+			break;
 	}
 
 	return _SQLCommand;

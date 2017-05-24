@@ -1,5 +1,5 @@
 angular.module('app')
-.factory('Session', function ($rootScope, $http) {
+.factory('Session', function () {
     var session = {};
 
     return {
@@ -28,6 +28,7 @@ angular.module('app')
         CRUDBYTASK : $resource('/restful/crudByTask'),
         LOGIN : $resource('/auth/login'),
         LOGOUT : $resource('/auth/logout'),
+        RELOADSESSION : $resource('/auth/reLoadSession'),
         EXPORTEXCELBYVAR : $resource('/toolbox/exportExcelByVar', null, 
             {
                 'postByArraybuffer': { 
@@ -54,7 +55,8 @@ angular.module('app')
                 }
             }
         ),
-        CHANGENATURE : $resource('/toolbox/changeNature')
+        CHANGENATURE : $resource('/toolbox/changeNature'),
+        COMPOSEMENU : $resource('/toolbox/composeMenu')
     };
 })
 .factory('SysCode', SysCodeResolve)

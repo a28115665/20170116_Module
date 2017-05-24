@@ -1,6 +1,6 @@
 "use strict";
 
-angular.module('app.selfwork').controller('CompyDistributionCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, $filter, RestfulApi, uiGridConstants, userInfoByGrade) {
+angular.module('app.selfwork.leaderoption').controller('CompyDistributionCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, $filter, RestfulApi, uiGridConstants, userInfoByGrade) {
     
     var $vm = this;
 
@@ -44,6 +44,19 @@ angular.module('app.selfwork').controller('CompyDistributionCtrl', function ($sc
                     _getSelectedRows[i].COD_DEPT = $vm.selectAssignDept;
                     _getSelectedRows[i].COD_PRINCIPAL = $vm.selectAssignPrincipal;
                 }
+
+                $vm.compyDistributionGridApi.selection.clearSelectedRows();
+            }
+        },
+        CancelPrincipal : function(){
+            if($vm.compyDistributionGridApi.selection.getSelectedRows().length > 0){
+                var _getSelectedRows = $vm.compyDistributionGridApi.selection.getSelectedRows();
+                for(var i in _getSelectedRows){
+                    _getSelectedRows[i].COD_DEPT = null;
+                    _getSelectedRows[i].COD_PRINCIPAL = null;
+                }
+
+                $vm.compyDistributionGridApi.selection.clearSelectedRows();
             }
         },
         Save : function(){

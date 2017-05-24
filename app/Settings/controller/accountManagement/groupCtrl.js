@@ -1,8 +1,8 @@
 "use strict";
 
-angular.module('app.settings').controller('GroupCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, $filter, SysCode, UserGrade, RestfulApi, bool) {
+angular.module('app.settings').controller('GroupCtrl', function ($scope, $stateParams, $state, AuthApi, Session, Menu, toaster, $uibModal, $templateCache, $filter, SysCode, UserGrade, RestfulApi, bool) {
     // console.log($stateParams);
-    
+
 	var $vm = this,
         _task = [];
 
@@ -18,6 +18,10 @@ angular.module('app.settings').controller('GroupCtrl', function ($scope, $stateP
         profile : Session.Get(),
         boolData : bool,
         vmData : $stateParams.data,
+        groupMenu : [
+            {"content": "<span><i class=\"fa fa-lg fa-folder-open\"></i> 根目錄</span>", "expanded": true, "children": []}
+        ],
+        checkedData : [],
         AddGroupPeople : function(){
             var modalInstance = $uibModal.open({
                 animation: true,
@@ -77,6 +81,12 @@ angular.module('app.settings').controller('GroupCtrl', function ($scope, $stateP
             ReturnToBillboardEditorPage();
         },
         Update : function(){
+
+            // 找出GroupMenu已被Checked
+            _.forEach($vm.groupMenu, function(item){
+                FindChecked(item, 1);
+            })
+
             var _tasks = [];
 
             _tasks.push({
@@ -98,6 +108,27 @@ angular.module('app.settings').controller('GroupCtrl', function ($scope, $stateP
                 _tasks.push(_task[i]);
             }
 
+            _tasks.push({
+                crudType: 'Delete',
+                table: 5,
+                params: {
+                    UR_GROUP : $vm.vmData.SG_GCODE
+                }
+            });
+
+            // 把GroupMenu Checked塞入
+            for(var i in $vm.checkedData){
+                _tasks.push({
+                    crudType: 'Insert',
+                    table: 5,
+                    params: {
+                        UR_GROUP : $vm.vmData.SG_GCODE,
+                        UR_SYSID : $vm.checkedData[i].sysId,
+                        UR_PROG  : $vm.checkedData[i].name.toLowerCase()
+                    }
+                });
+            }
+
             RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res){
                 console.log(res);
 
@@ -109,16 +140,96 @@ angular.module('app.settings').controller('GroupCtrl', function ($scope, $stateP
         }
 	})
 
-    function LoadUserGroup(){
-        RestfulApi.SearchMSSQLData({
-            querymain: 'group',
-            queryname: 'SelectUserGroup',
-            params: {
-                UG_GROUP : $vm.vmData.SG_GCODE
+    // 產生GroupMenu
+    function DoGroupMenu(){
+        ToolboxApi.ComposeMenu().then(function(res){ 
+            _.forEach(res, function(item) {
+                CreateItem(item, $vm.groupMenu[0], 1);
+            })    
+        })    
+    }
+
+    // 遞迴的方式產生GroupMenu的Item
+    function CreateItem(item, parent, level){
+        var rowData = null;
+
+        // 當為子目錄時
+        if(item.items){
+            rowData = {
+                "content": "<span><i class=\"fa fa-lg fa-plus-circle\"></i> "+$scope.getWord(item.title)+"</span>", 
+                "expanded": true, 
+                "children": []
+            };
+
+            _.forEach(item.items, function(child) {
+                CreateItem(child, rowData, level+1);
+            })
+        }
+        // 當為子項目時
+        else{
+            // 是否在DB資料庫有這筆資料
+            if(($filter('filter')($vm.groupMenuData, {"UR_PROG" : item.title})).length > 0){
+                rowData = {
+                    "content": "<span> <label class=\"checkbox inline-block\"><input type=\"checkbox\" checked=\"checked\" name=\"checkbox-inline\"><i></i>"+$scope.getWord(item.title)+"</label> </span>",
+                    "isChecked": true,
+                    "name": item.title,
+                    "sysId": item.sysId
+                };
+            }else{
+                rowData = {
+                    "content": "<span> <label class=\"checkbox inline-block\"><input type=\"checkbox\" name=\"checkbox-inline\"><i></i>"+$scope.getWord(item.title)+"</label> </span>",
+                    "isChecked": false,
+                    "name": item.title,
+                    "sysId": item.sysId
+                };
             }
-        }).then(function (res){
-            console.log(res["returnData"]);
-            $vm.vmData.UserGroup = res["returnData"];
+        } 
+
+        parent.children.push(rowData);
+    }
+
+    // 找出已經被Checked的item
+    function FindChecked(item, level){
+        if(item.children){
+            _.forEach(item.children, function(child) {
+                FindChecked(child, level+1);
+            })
+        }else{
+            if(item.isChecked){
+                $vm.checkedData.push(item);
+            }
+        }
+    }
+
+    function LoadUserGroup(){
+
+        RestfulApi.CRUDMSSQLDataByTask([
+            {
+                crudType: 'Select',
+                querymain: 'group',
+                queryname: 'SelectUserGroup',
+                params: {
+                    UG_GROUP : $vm.vmData.SG_GCODE
+                }
+            },
+            {
+                crudType: 'Select',
+                querymain: 'group',
+                queryname: 'SelectUserGRight',
+                params: {
+                    UR_GROUP : $vm.vmData.SG_GCODE
+                }
+            }
+        ]).then(function (res){
+            console.log(res);
+
+            $vm.vmData.UserGroup = res["returnData"][0];
+            $vm.groupMenuData = res["returnData"][1];
+
+            DoGroupMenu();
+
+        }, function (err){
+            
         });
     };
 

@@ -1,6 +1,9 @@
 "use strict";
 
-angular.module('app.selfwork', ['ui.router']);
+angular.module('app.selfwork', [
+        'ui.router',
+        'app.selfwork.leaderoption'
+    ]);
 
 angular.module('app.selfwork').config(function ($stateProvider){
 
@@ -12,66 +15,6 @@ angular.module('app.selfwork').config(function ($stateProvider){
         }
     })
 
-    .state('app.selfwork.compydistribution', {
-        url: '/selfwork/compydistribution',
-        data: {
-            title: 'CompyDistribution'
-        },
-        views: {
-            "content@app" : {
-                templateUrl: 'app/SelfWork/views/leaderOption/compyDistribution.html',
-                controller: 'CompyDistributionCtrl',
-                controllerAs: '$vm',
-                resolve: {
-                    userInfoByGrade : function(UserInfoByGrade, Session){
-                        return UserInfoByGrade.get(Session.Get().U_ID, Session.Get().U_GRADE, Session.Get().DEPTS);
-                    }
-                }
-            }
-        }
-    })
-
-    .state('app.selfwork.agentsetting', {
-        url: '/selfwork/agentsetting',
-        data: {
-            title: 'AgentSetting'
-        },
-        views: {
-            "content@app" : {
-                templateUrl: 'app/SelfWork/views/leaderOption/agentSetting.html',
-                controller: 'AgentSettingCtrl',
-                controllerAs: '$vm',
-                resolve: {
-                    userInfoByCompyDistribution : function (UserInfoByCompyDistribution, Session){
-                        return UserInfoByCompyDistribution.get(Session.Get().U_ID);
-                    }
-                }
-            }
-        }
-    })
-
-    .state('app.selfwork.dailyleave', {
-        url: '/selfwork/dailyleave',
-        data: {
-            title: 'DailyLeave'
-        },
-        views: {
-            "content@app" : {
-                templateUrl: 'app/SelfWork/views/leaderOption/dailyleave.html',
-                controller: 'DailyLeaveCtrl',
-                controllerAs: '$vm',
-                resolve: {
-                    userInfoByGrade : function(UserInfoByGrade, Session){
-                        return UserInfoByGrade.get(Session.Get().U_ID, Session.Get().U_GRADE, Session.Get().DEPTS);
-                    },
-                    bool : function(SysCode){
-                        return SysCode.get('Boolean');
-                    }
-                }
-            }
-        }
-    })
-
     .state('app.selfwork.leaderjobs', {
         url: '/selfwork/leaderjobs',
         data: {
@@ -79,8 +22,30 @@ angular.module('app.selfwork').config(function ($stateProvider){
         },
         views: {
             "content@app" : {
-                templateUrl: 'app/SelfWork/views/LeaderJobs.html',
+                templateUrl: 'app/SelfWork/views/leaderJobs.html',
                 controller: 'LeaderJobsCtrl',
+                controllerAs: '$vm',
+                resolve: {
+                    userInfoByGrade : function(UserInfoByGrade, Session){
+                        return UserInfoByGrade.get(Session.Get().U_ID, Session.Get().U_GRADE, Session.Get().DEPTS);
+                    },
+                    compy : function(Compy){
+                        return Compy.get();
+                    }
+                }
+            }
+        }
+    })
+
+    .state('app.selfwork.assistantjobs', {
+        url: '/selfwork/assistantjobs',
+        data: {
+            title: 'AssistantJobs'
+        },
+        views: {
+            "content@app" : {
+                templateUrl: 'app/SelfWork/views/assistantJobs.html',
+                controller: 'AssistantJobsCtrl',
                 controllerAs: '$vm',
                 resolve: {
                     
@@ -100,31 +65,8 @@ angular.module('app.selfwork').config(function ($stateProvider){
                 controller: 'EmployeeJobsCtrl',
                 controllerAs: '$vm',
                 resolve: {
-                    compyFilter: function(RestfulApi, $q){
-
-                        var deferred = $q.defer();
-
-                        RestfulApi.SearchMSSQLData({
-                            querymain: 'externalManagement',
-                            queryname: 'SelectCompyInfo',
-                            params: {
-                                CO_STS : false
-                            }
-                        }).then(function (res){
-                            var data = res["returnData"] || [],
-                                finalData = [];
-
-                            for(var i in data){
-                                finalData.push({
-                                    value: data[i].CO_CODE,
-                                    label: data[i].CO_NAME == null ? '' : data[i].CO_NAME
-                                });
-                            }
-
-                            deferred.resolve(finalData);
-                        })
-
-                        return deferred.promise;
+                    compy: function(Compy){
+                        return Compy.get();
                     }
                 }
             }
@@ -212,4 +154,4 @@ angular.module('app.selfwork').config(function ($stateProvider){
             }
         }
     })
-})
+});
