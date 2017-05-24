@@ -1,8 +1,8 @@
 "use strict";
 
-angular.module('app.settings').controller('GroupCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, $filter, SysCode, UserGrade, RestfulApi, bool) {
+angular.module('app.settings').controller('GroupCtrl', function ($scope, $stateParams, $state, AuthApi, Session, Menu, toaster, $uibModal, $templateCache, $filter, SysCode, UserGrade, RestfulApi, bool) {
     // console.log($stateParams);
-    
+
 	var $vm = this,
         _task = [];
 
@@ -12,12 +12,16 @@ angular.module('app.settings').controller('GroupCtrl', function ($scope, $stateP
             if($stateParams.data == null) ReturnToBillboardEditorPage();
             // 撈UserGroup資料
             else {
+                DoGroupMenu();
                 LoadUserGroup();
             }
         },
         profile : Session.Get(),
         boolData : bool,
         vmData : $stateParams.data,
+        groupMenuData : [
+            {"content": "<span><i class=\"fa fa-lg fa-folder-open\"></i> 根目錄</span>", "expanded": true, "children": []}
+        ],
         AddGroupPeople : function(){
             var modalInstance = $uibModal.open({
                 animation: true,
@@ -108,6 +112,35 @@ angular.module('app.settings').controller('GroupCtrl', function ($scope, $stateP
             });
         }
 	})
+
+    function DoGroupMenu(){
+        _.forEach(Menu.Get(), function(item) {
+            CreateItem(item, $vm.groupMenuData[0], 1);
+        })    
+    }
+
+    function CreateItem(item, parent, level){
+        var rowData = null;
+
+        // 當為子目錄時
+        if(item.items){
+            rowData = {
+                "content": "<span><i class=\"fa fa-lg fa-plus-circle\"></i> "+$scope.getWord(item.title)+"</span>", 
+                "expanded": true, 
+                "children": []
+            };
+
+            _.forEach(item.items, function(child) {
+                CreateItem(child, rowData, level+1);
+            })
+        }
+        // 當為子項目時
+        else{
+            rowData = {"content": "<span> <label class=\"checkbox inline-block\"><input type=\"checkbox\" name=\"checkbox-inline\"><i></i>"+$scope.getWord(item.title)+"</label> </span>"};
+        } 
+
+        parent.children.push(rowData);
+    }
 
     function LoadUserGroup(){
         RestfulApi.SearchMSSQLData({

@@ -1,7 +1,7 @@
 (function(){
     "use strict";
 
-    angular.module('SmartAdmin.Layout').directive('smartMenuItems', function ($http, $rootScope, $compile, ToolboxApi) {
+    angular.module('SmartAdmin.Layout').directive('smartMenuItems', function ($http, $rootScope, $compile, ToolboxApi, Menu) {
     return {
         restrict: 'A',
         // compile: function (element, attrs) {
@@ -104,6 +104,9 @@
             function DoMenu(){
                 ToolboxApi.ComposeMenu().then(function(res){
                     console.log(res);
+
+                    Menu.Set(res.items);
+
                     var ul = $('<ul />', {
                         'smart-menu': ''
                     })

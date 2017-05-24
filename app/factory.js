@@ -1,5 +1,5 @@
 angular.module('app')
-.factory('Session', function ($rootScope, $http) {
+.factory('Session', function () {
     var session = {};
 
     return {
@@ -13,6 +13,20 @@ angular.module('app')
 
         Destroy: function() {
             session = {};
+        }
+    }
+
+})
+.factory('Menu', function () {
+    var menu = {};
+
+    return {
+        Set: function(pMenu) {
+            menu = pMenu;
+        },
+
+        Get: function() {
+            return menu;
         }
     }
 

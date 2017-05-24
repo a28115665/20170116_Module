@@ -9,8 +9,43 @@
 	    <!-- row -->
 	    <div class="row">
 
+			<!-- NEW WIDGET START -->
+	        <article class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
+			    <!-- Widget ID (each widget will need unique ID)-->
+			    <div id="simple-view-widget" data-widget-editbutton="false" data-widget-color="blue" data-jarvis-widget>
+			        <!-- widget options:
+			        usage: <div data-jarvis-widget id="wid-id-0" data-widget-editbutton="false">
+			        data-widget-colorbutton="false"
+			        data-widget-editbutton="false"
+			        data-widget-togglebutton="false"
+			        data-widget-deletebutton="false"
+			        data-widget-fullscreenbutton="false"
+			        data-widget-custombutton="false"
+			        data-widget-collapsed="true"
+			        data-widget-sortable="false"
+			        -->
+			        <header>
+			            <span class="widget-icon"> <i class="fa fa-sitemap"></i> </span>
+			            <h2>選單 </h2>
+			        </header>
+			        <!-- widget div-->
+			        <div>            
+			        	<!-- widget content -->
+			            <div class="widget-body">
+			                <div class="tree smart-form">
+			                   <ul data-alan-treeview data-items="$vm.groupMenuData" role="tree"></ul>
+			                </div>
+			            </div>
+			            <!-- end widget content -->
+			        </div>
+			        <!-- end widget div -->
+			    </div>
+			    <!-- end widget -->
+			</article>
+			<!-- WIDGET END -->
+
 	        <!-- NEW WIDGET START -->
-	        <article class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+	        <article class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
 	        	<!-- Widget ID (each widget will need unique ID)-->
 				<div id="group" data-widget-sortable="false" data-widget-colorbutton="false" data-widget-togglebutton="false" data-widget-editbutton="false" data-widget-fullscreenbutton="false" data-widget-deletebutton="false" data-widget-color="blue" data-jarvis-widget ng-init="ShowTabs = true">
 				    <!-- widget options:

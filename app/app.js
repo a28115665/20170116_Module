@@ -132,7 +132,7 @@ angular.module('app', [
 
         AuthApi.ReLoadSession().then(function(res){
             // 表示逾時
-            if(res["returnData"].length == 0){
+            if(angular.isUndefined(res["returnData"])){
                 $state.transitionTo("login");
             }
         }, function(err){
