@@ -254,81 +254,17 @@ angular.module('app')
                         scope.item.expanded = !scope.item.expanded;
                         handleExpanded();
                     });
-
-
                 });
                 handleExpanded();
+            } else{
+                $content.on('change', function(){
+                    scope.$apply(function(){
+                        scope.item.isChecked = !scope.item.isChecked;
+                    });
+                });
             }
 
             element.replaceWith($content);
-
-            // function createItem(item, parent, level){
-            //     var li = $('<li />' ,{'ui-sref-active': "active"})
-            //     var a = $('<a />');
-            //     var i = $('<i />');
-
-            //     li.append(a);
-
-            //     if(item.sref)
-            //         a.attr('ui-sref', item.sref);
-            //     if(item.href)
-            //         a.attr('href', item.href);
-            //     if(item.icon){
-            //         i.attr('class', 'fa fa-lg fa-fw fa-'+item.icon);
-            //         a.append(i);
-            //     }
-            //     if(item.title){
-            //         a.attr('title', $rootScope.getWord(item.title));
-            //         if(level == 1){ 
-            //             a.append(' <span class="menu-item-parent">' + $rootScope.getWord(item.title) + '</span>');
-            //         } else {
-            //             a.append(' ' + $rootScope.getWord(item.title));
-
-            //         }
-            //     }
-
-            //     if(item.items){
-            //         var ul = $('<ul />');
-            //         li.append(ul);
-            //         li.attr('data-menu-collapse', '');
-            //         _.forEach(item.items, function(child) {
-            //             createItem(child, ul, level+1);
-            //         })
-            //     } 
-
-            //     parent.append(li); 
-            // }
-
-
-            // function DoMenu(){
-            //     ToolboxApi.ComposeMenu().then(function(res){
-            //         console.log(res);
-
-            //         var ul = $('<ul />', {
-            //             'smart-menu': ''
-            //         })
-            //         _.forEach(res.items, function(item) {
-            //             createItem(item, ul, 1);
-            //         })
-                    
-            //         var $scope = $rootScope.$new();
-            //         var html = $('<div>').append(ul).html(); 
-            //         var linkingFunction = $compile(html);
-                    
-            //         var _element = linkingFunction($scope);
-            //         // console.log(_element);
-            //         // element.replaceWith(_element);
-                    
-            //         element.html(_element);   
-            //     })        
-            // }
-
-            // $rootScope.$watch('lang', function(newVal, oldVal){
-            //     if(!angular.equals(newVal, {}) && !angular.isUndefined(newVal)){
-            //         DoMenu();
-            //     }
-            // }, true);
-
         }
     }
 })
@@ -340,7 +276,7 @@ angular.module('app')
         },
         template: '<li ng-class="{parent_li: item.children.length}" ng-repeat="item in items" role="treeitem">' +
             '<alan-treeview-content></alan-treeview-content>' +
-            '<ul ng-if="item.children.length" alan-treeview ng-show="item.expanded"  items="item.children" role="group" class="alan-treeview-group" ></ul>' +
+            '<ul ng-if="item.children.length" alan-treeview ng-show="item.expanded"  items="item.children" role="group" class="smart-treeview-group" ></ul>' +
             '</li>',
         compile: function (element) {
             // Break the recursion loop by removing the contents

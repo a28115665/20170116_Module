@@ -345,7 +345,8 @@ router.get('/composeMenu', function(req, res) {
                                                 var tmpObj = {
                                                         "title": progItem.items[iProg].title,
                                                         "sref": progItem.items[iProg].sref,
-                                                        "icon": progItem.items[iProg].icon                                                            
+                                                        "icon": progItem.items[iProg].icon,
+                                                        "sysId": progItem.items[iProg].exsysId                                                          
                                                     };
                                                 sysItem.items[iSys].items.push(tmpObj);
                                             }

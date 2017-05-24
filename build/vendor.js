@@ -16404,6 +16404,9 @@ module.filter('px', function() {
           pinRight: '右側固定',
           unpin: '取消固定'
         },
+        columnMenu: {
+          close: '關閉'
+        },
         gridMenu: {
           columns: '列：',
           importerTitle: '導入文件',
@@ -16423,8 +16426,27 @@ module.filter('px', function() {
           jsonNotArray: '導入的文件不是JSON數組！'
         },
         pagination: {
+          aria: {
+            pageToFirst: '第一頁',
+            pageBack: '上一頁',
+            pageSelected: '當前頁',
+            pageForward: '下一頁',
+            pageToLast: '最後一頁'
+          },
           sizes: '行每頁',
-          totalItems: '行'
+          totalItems: '行',
+          through: '至',
+          of: '共'
+        },
+        grouping: {
+          group: '分組',
+          ungroup: '取消分組',
+          aggregate_count: '合計: 計數',
+          aggregate_sum: '合計: 總和',
+          aggregate_max: '合計: 最大',
+          aggregate_min: '合計: 最小',
+          aggregate_avg: '合計: 平均',
+          aggregate_remove: '合計: 移除'
         }
       });
       return $delegate;
