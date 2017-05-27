@@ -98,6 +98,7 @@
     height: 350px;
 }
 
+/*黑名單加入*/
 .cell-class-ban {
     /*position: relative;*/
     /*background-color: #F99D9D !important; */
@@ -131,9 +132,10 @@
     }
 }
 
+/*拉貨*/
 .cell-class-pull {
     /*position: relative;*/
-    background-color: #9df9f9 !important; 
+    background-color: #d4d4d4 !important; 
     /*color: #a90329 !important;*/
 
     /*opacity: 1;
@@ -141,6 +143,11 @@
     -webkit-animation-iteration-count: infinite;
     animation: flash 1.5s;
     animation-iteration-count: infinite;*/
+}
+
+/*ui-grid 異動資料*/
+.ui-grid-row-dirty .ui-grid-cell {
+    color: #8e1da9;
 }
 
 .cell-class-editabled {

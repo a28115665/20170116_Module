@@ -67,6 +67,9 @@ function GiveSchemaType(pType, pSql, pSchema, key){
 			case "int":
 				pType = pSql.Int;
 				break;
+			case "float":
+				pType = pSql.Float;
+				break;
 			case "bit":
 				pType = pSql.Bit;
 				break;

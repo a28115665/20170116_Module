@@ -88,19 +88,22 @@
 
 							<div class="table-responsive">
 
-								<div id="grid1" ui-grid="$vm.job001Options" class="my-ui-grid" ui-grid-pagination ui-grid-resize-columns ui-grid-selection ui-grid-pinning ui-grid-edit ui-grid-auto-resize></div>
+								<div id="grid1" ui-grid="$vm.job001Options" class="my-ui-grid" ui-grid-pagination ui-grid-resize-columns ui-grid-selection ui-grid-pinning ui-grid-edit ui-grid-row-edit ui-grid-auto-resize></div>
 
 							</div>
 
 							<!-- widget footer -->
 							<div class="widget-footer">
+								<!-- <a href-void class="btn bg-color-purple txt-color-white btn-circle" href="#" data-tooltip-placement="left" data-uib-tooltip="異動筆數">
+									{{$vm.job001GridApi.rowEdit.getDirtyRows($vm.job001GridApi.grid).length}}
+								</a> -->								
 								<button class="btn btn-default" type="button" ng-click="$vm.Return()">
 									返回
 								</button>
-								<button class="btn btn-sm btn-warning" type="button" ng-click="$vm.Update()">
+								<!-- <button class="btn btn-sm btn-warning" type="button" ng-click="$vm.Update()">
 					                <i class="fa fa-save"></i>
 									更新
-								</button>	
+								</button>	 -->
 							</div>
 							<!-- end widget footer -->
 

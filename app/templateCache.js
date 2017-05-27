@@ -52,7 +52,7 @@ angular.module('app')
                         <a href="javascript:void(0);" class="btn btn-warning btn-xs disabled" ng-show="row.entity[\'loading\']"> <i class="fa fa-refresh fa-spin"></i></a>\
         				<a href="javascript:void(0);" class="btn btn-danger btn-xs" ng-click="grid.appScope.$vm.gridMethod.banData(row)" ng-class="row.entity.BLFO_TRACK != null ? \'disabled\' : \'\'"> 加入黑名單</a>\
                         <a href="javascript:void(0);" class="btn btn-primary btn-xs" ng-click="grid.appScope.$vm.gridMethod.pullGoods(row)" ng-hide="row.entity.PG_PULLGOODS"> 拉貨</a>\
-                        <a href="javascript:void(0);" class="btn btn-primary btn-xs" ng-click="grid.appScope.$vm.gridMethod.cancelPullGoods(row)" ng-show="row.entity.PG_PULLGOODS && !row.entity.PG_MOVED"> 恢復</a>\
+                        <!--<a href="javascript:void(0);" class="btn btn-primary btn-xs" ng-click="grid.appScope.$vm.gridMethod.cancelPullGoods(row)" ng-show="row.entity.PG_PULLGOODS && !row.entity.PG_MOVED"> 恢復</a>-->\
    		  		    </div>');
     $templateCache.put('accessibilityToMForBLFO', '<div class="ui-grid-cell-contents text-center">\
                                             <a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethodForBLFO.modifyData(row)"> {{$parent.$root.getWord(\'Modify\')}}</a>\
@@ -111,7 +111,7 @@ angular.module('app')
     $templateCache.put('isChecked', '\
                         <div class="modal-header bg-color-blueLight">\
                             <h3 class="modal-title text-center">\
-                                <strong class=" txt-color-white">操作提示</strong>\
+                                <strong class=" txt-color-white">{{$ctrl.data.title}}</strong>\
                             </h3>\
                         </div>\
                         <div class="modal-footer text-center"> \
@@ -130,8 +130,12 @@ angular.module('app')
         $uibModalInstance.dismiss('cancel');
     };
 })
-.controller('IsCheckedModalInstanceCtrl', function ($uibModalInstance, items) {
+.controller('IsCheckedModalInstanceCtrl', function ($uibModalInstance, items, show) {
     var $ctrl = this;
+
+    show['title'] = angular.isUndefined(show['title']) ? "操作提示" : show['title'];
+
+    $ctrl.data = show;
     
     $ctrl.ok = function() {
         $uibModalInstance.close(items);
