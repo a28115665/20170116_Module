@@ -10,6 +10,8 @@ module.exports = function(pQueryname, pParams){
 			if(pParams["DIL_SEQ"] !== undefined){
 				_SQLCommand += " AND DIL_SEQ = @DIL_SEQ";
 			}
+			
+			_SQLCommand += " ORDER BY DIL_BAGNO, DIL_DRIVER ";
 		
 			break;
 	}

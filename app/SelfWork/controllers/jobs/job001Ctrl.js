@@ -9,20 +9,20 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
     angular.extend(this, {
         Init : function(){
             // 不正常登入此頁面
-            // if($stateParams.data == null){
-            //     ReturnToEmployeejobsPage();
-            // }else{
-            //     $vm.vmData = $stateParams.data;
+            if($stateParams.data == null){
+                ReturnToEmployeejobsPage();
+            }else{
+                $vm.vmData = $stateParams.data;
 
                 // 測試用
-                if($vm.vmData == null){
-                    $vm.vmData = {
-                        OL_SEQ : 'AdminTest20170525190758'
-                    };
-                }
+                // if($vm.vmData == null){
+                //     $vm.vmData = {
+                //         OL_SEQ : 'AdminTest20170525190758'
+                //     };
+                // }
                 
                 LoadItemList();
-            // }
+            }
         },
         profile : Session.Get(),
         defaultChoice : 'Left',
@@ -181,8 +181,8 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
         job001Options : {
             data: '$vm.job001Data',
             columnDefs: [
-                { name: 'Index'         , displayName: '序列', width: 50, enableFiltering: false, enableCellEdit: false},
-                { name: 'IL_G1'         , displayName: '報關種類', width: 154, enableCellEdit: false },
+                { name: 'Index'         , displayName: '序列', width: 50, enableFiltering: false, enableCellEdit: false, headerCellClass: 'text-muted' },
+                { name: 'IL_G1'         , displayName: '報關種類', width: 154, enableCellEdit: false, headerCellClass: 'text-muted' },
                 { name: 'IL_MERGENO'    , displayName: '併票號', width: 129, enableCellEdit: false },
                 { name: 'IL_BAGNO'      , displayName: '袋號', width: 129 },
                 { name: 'IL_SMALLNO'    , displayName: '小號', width: 115 },
@@ -409,6 +409,7 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
             }).then(function (res) {
                 promise.resolve();
             }, function (err) {
+                toaster.pop('danger', '錯誤', '更新失敗', 3000);
                 promise.reject();
             });
         }

@@ -51,7 +51,7 @@ angular.module('app')
                         <a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethod.changeNature(row)" ng-hide="row.entity[\'loading\']"> 改單</a>\
                         <a href="javascript:void(0);" class="btn btn-warning btn-xs disabled" ng-show="row.entity[\'loading\']"> <i class="fa fa-refresh fa-spin"></i></a>\
         				<a href="javascript:void(0);" class="btn btn-danger btn-xs" ng-click="grid.appScope.$vm.gridMethod.banData(row)" ng-class="row.entity.BLFO_TRACK != null ? \'disabled\' : \'\'"> 加入黑名單</a>\
-                        <a href="javascript:void(0);" class="btn btn-primary btn-xs" ng-click="grid.appScope.$vm.gridMethod.pullGoods(row)" ng-hide="row.entity.PG_PULLGOODS"> 拉貨</a>\
+                        <a href="javascript:void(0);" class="btn btn-primary btn-xs" ng-click="grid.appScope.$vm.gridMethod.pullGoods(row)" ng-class="row.entity.PG_PULLGOODS ? \'disabled\' : \'\'"> 拉貨</a>\
                         <!--<a href="javascript:void(0);" class="btn btn-primary btn-xs" ng-click="grid.appScope.$vm.gridMethod.cancelPullGoods(row)" ng-show="row.entity.PG_PULLGOODS && !row.entity.PG_MOVED"> 恢復</a>-->\
    		  		    </div>');
     $templateCache.put('accessibilityToMForBLFO', '<div class="ui-grid-cell-contents text-center">\

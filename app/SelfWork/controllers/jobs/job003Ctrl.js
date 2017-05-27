@@ -1,6 +1,6 @@
 "use strict";
 
-angular.module('app.selfwork').controller('Job003Ctrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, RestfulApi, uiGridConstants, $filter) {
+angular.module('app.selfwork').controller('Job003Ctrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, RestfulApi, uiGridConstants, $filter, $q) {
     // console.log($stateParams, $state);
 
     var $vm = this,
@@ -30,17 +30,17 @@ angular.module('app.selfwork').controller('Job003Ctrl', function ($scope, $state
             data: '$vm.job003Data',
             columnDefs: [
                 { name: 'Index'         , displayName: '序列', width: 50, enableCellEdit: false, enableFiltering: false},
-                { name: 'DIL_DRIVER'         , displayName: '司機' },
-                { name: 'DIL_BAGNO'    , displayName: '袋號' },
-                { name: 'DIL_ORDERNO'    , displayName: '提單號' },
-                { name: 'DIL_BARCODE'     , displayName: '條碼號' },
-                { name: 'DIL_CTN' , displayName: '件數' },
-                { name: 'DIL_WEIGHT'        , displayName: '重量' },
-                { name: 'DIL_GETNAME'      , displayName: '收件人公司' },
-                { name: 'DIL_GETADDRESS'     , displayName: '收件地址' },
-                { name: 'DIL_GETTEL' , displayName: '收件人電話' },
-                { name: 'DIL_INCOME'        , displayName: '代收款' },
-                { name: 'DIL_REMARK'      , displayName: '備註' }
+                { name: 'DIL_DRIVER'    , displayName: '司機' },
+                { name: 'DIL_BAGNO'     , displayName: '袋號' },
+                { name: 'DIL_ORDERNO'   , displayName: '提單號' },
+                { name: 'DIL_BARCODE'   , displayName: '條碼號' },
+                { name: 'DIL_CTN'       , displayName: '件數' },
+                { name: 'DIL_WEIGHT'    , displayName: '重量' },
+                { name: 'DIL_GETNAME'   , displayName: '收件人公司' },
+                { name: 'DIL_GETADDRESS', displayName: '收件地址' },
+                { name: 'DIL_GETTEL'    , displayName: '收件人電話' },
+                { name: 'DIL_INCOME'    , displayName: '代收款' },
+                { name: 'DIL_REMARK'    , displayName: '備註' }
             ],
             enableFiltering: true,
             enableSorting: true,
@@ -52,6 +52,8 @@ angular.module('app.selfwork').controller('Job003Ctrl', function ($scope, $state
             paginationPageSize: 50,
             onRegisterApi: function(gridApi){
                 $vm.job003GridApi = gridApi;
+
+                gridApi.rowEdit.on.saveRow($scope, $vm.Update);
             }
         },
         ExportExcel: function(){
@@ -60,8 +62,38 @@ angular.module('app.selfwork').controller('Job003Ctrl', function ($scope, $state
         Return : function(){
             ReturnToEmployeejobsPage();
         },
-        Update : function(){
-
+        Update : function(entity){
+            // create a fake promise - normally you'd use the promise returned by $http or $resource
+            var promise = $q.defer();
+            $vm.job003GridApi.rowEdit.setSavePromise( entity, promise.promise );
+         
+            RestfulApi.UpdateMSSQLData({
+                updatename: 'Update',
+                table: 11,
+                params: {
+                    DIL_DRIVER : entity.DIL_DRIVER,
+                    DIL_BAGNO : entity.DIL_BAGNO,
+                    DIL_ORDERNO : entity.DIL_ORDERNO,
+                    DIL_BARCODE : entity.DIL_BARCODE,
+                    DIL_CTN : entity.DIL_CTN,
+                    DIL_WEIGHT : entity.DIL_WEIGHT,
+                    DIL_GETNAME : entity.DIL_GETNAME,
+                    DIL_GETADDRESS : entity.DIL_GETADDRESS,
+                    DIL_GETTEL : entity.DIL_GETTEL,
+                    DIL_INCOME : entity.DIL_INCOME,
+                    DIL_REMARK : entity.DIL_REMARK
+                },
+                condition: {
+                    DIL_SEQ           : entity.DIL_SEQ,
+                    DIL_IL_NEWBAGNO   : entity.DIL_IL_NEWBAGNO,
+                    DIL_IL_NEWSMALLNO : entity.DIL_IL_NEWSMALLNO
+                }
+            }).then(function (res) {
+                promise.resolve();
+            }, function (err) {
+                toaster.pop('danger', '錯誤', '更新失敗', 3000);
+                promise.reject();
+            });
         }
     });
 
