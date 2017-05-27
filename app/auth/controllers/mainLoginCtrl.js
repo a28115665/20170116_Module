@@ -1,7 +1,7 @@
 "use strict";
 
 angular.module('app.auth').controller('MainLoginCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, RestfulApi) {
-    console.log(Session.Get());
+    // console.log(Session.Get());
     $scope.Login = function($vm){
         // console.log($vm);
         AuthApi.Login({
