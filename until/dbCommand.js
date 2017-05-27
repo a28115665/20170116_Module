@@ -142,7 +142,7 @@ var InsertMethod = function (insertname, table, params, callback){
 					
 					break;
 				default:
-					return callback(null, {});
+					return callback("無此InsertName", null);
 					break;
 			}	    
 			schemaType.SchemaType(_params, ps, sql);
@@ -245,7 +245,7 @@ var UpdateMethod = function (updatetname, table, params, condition, callback){
 					
 					break;
 				default:
-					callback(null, {});
+					return callback("無此UpdateName", null);
 					break;
 			}	    
 			schemaType.SchemaType(_psParams, ps, sql);
@@ -310,7 +310,7 @@ var DeleteMethod = function (deletename, table, params, callback){
 					
 					break;
 				default:
-					callback(null, {});
+					return callback("無此DeleteName", null);
 					break;
 			}	    
 			schemaType.SchemaType(_params, ps, sql);

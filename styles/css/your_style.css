@@ -100,8 +100,9 @@
 
 .cell-class-ban {
     /*position: relative;*/
-    background-color: #F99D9D !important; 
-    color: #000 !important;
+    /*background-color: #F99D9D !important; */
+    color: #a90329 !important;
+    font-weight: bold;
 
     /*opacity: 1;
     -webkit-animation: flash 1.5s;
@@ -128,6 +129,18 @@
         /*opacity: 1;*/
         background-color:rgba(249, 157, 157, 1);
     }
+}
+
+.cell-class-pull {
+    /*position: relative;*/
+    background-color: #9df9f9 !important; 
+    /*color: #a90329 !important;*/
+
+    /*opacity: 1;
+    -webkit-animation: flash 1.5s;
+    -webkit-animation-iteration-count: infinite;
+    animation: flash 1.5s;
+    animation-iteration-count: infinite;*/
 }
 
 .cell-class-editabled {

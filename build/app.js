@@ -474,9 +474,11 @@ angular.module('app', [
         // 檢視此頁是否有權限進入
         // 無權限就導到default頁面
         // console.log(Session.Get().GRIGHT[toState.name], toState.name);
-        if(!Session.Get().GRIGHT[toState.name]){
-            // event.preventDefault();
-            $state.transitionTo("app.default");
+        if(!angular.isUndefined(Session.Get())){
+            if(!Session.Get().GRIGHT[toState.name]){
+                // event.preventDefault();
+                $state.transitionTo("app.default");
+            }
         }
     });
 
@@ -3877,11 +3879,14 @@ angular.module('app')
                         <a href="javascript:void(0);" class="btn btn-primary btn-xs" ng-click="grid.appScope.$vm.gridMethodForJob003.closeData(row)" ng-disabled="row.entity.g"> 完成</a>\
                         <a href="javascript:void(0);" class="btn btn-danger btn-xs" ng-click="grid.appScope.$vm.gridMethodForJob003.deleteData(row)" ng-disabled="row.entity.g"> 刪除</a>\
                     </div>');
-	$templateCache.put('accessibilityToCB', '<div class="ui-grid-cell-contents text-center">\
-                                            <a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethod.changeNature(row)" ng-hide="row.entity[\'loading\']"> 改單</a>\
-                                            <a href="javascript:void(0);" class="btn btn-warning btn-xs disabled" ng-show="row.entity[\'loading\']"> <i class="fa fa-refresh fa-spin"></i></a>\
-                                    				<a href="javascript:void(0);" class="btn btn-primary btn-xs" ng-click="grid.appScope.$vm.gridMethod.banData(row)" ng-class="row.entity.BLFO_TRACK != null ? \'disabled\' : \'\'"> 加入黑名單</a>\
-                               		  		  </div>');
+	$templateCache.put('accessibilityToCB', '\
+                    <div class="ui-grid-cell-contents text-center">\
+                        <a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethod.changeNature(row)" ng-hide="row.entity[\'loading\']"> 改單</a>\
+                        <a href="javascript:void(0);" class="btn btn-warning btn-xs disabled" ng-show="row.entity[\'loading\']"> <i class="fa fa-refresh fa-spin"></i></a>\
+        				<a href="javascript:void(0);" class="btn btn-danger btn-xs" ng-click="grid.appScope.$vm.gridMethod.banData(row)" ng-class="row.entity.BLFO_TRACK != null ? \'disabled\' : \'\'"> 加入黑名單</a>\
+                        <a href="javascript:void(0);" class="btn btn-primary btn-xs" ng-click="grid.appScope.$vm.gridMethod.pullGoods(row)" ng-hide="row.entity.PG_PULLGOODS"> 拉貨</a>\
+                        <a href="javascript:void(0);" class="btn btn-primary btn-xs" ng-click="grid.appScope.$vm.gridMethod.cancelPullGoods(row)" ng-show="row.entity.PG_PULLGOODS && !row.entity.PG_MOVED"> 恢復</a>\
+   		  		    </div>');
     $templateCache.put('accessibilityToMForBLFO', '<div class="ui-grid-cell-contents text-center">\
                                             <a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethodForBLFO.modifyData(row)"> {{$parent.$root.getWord(\'Modify\')}}</a>\
                                           </div>');
@@ -13217,24 +13222,25 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
     angular.extend(this, {
         Init : function(){
             // 不正常登入此頁面
-            if($stateParams.data == null){
-                ReturnToEmployeejobsPage();
-            }else{
-                $vm.vmData = $stateParams.data;
+            // if($stateParams.data == null){
+            //     ReturnToEmployeejobsPage();
+            // }else{
+            //     $vm.vmData = $stateParams.data;
 
                 // 測試用
-                // if($vm.vmData == null){
-                //     $vm.vmData = {
-                //         OL_SEQ : 'AdminTest20170418195141'
-                //     };
-                // }
+                if($vm.vmData == null){
+                    $vm.vmData = {
+                        OL_SEQ : 'AdminTest20170525190758'
+                    };
+                }
                 
                 LoadItemList();
-            }
+            // }
         },
         profile : Session.Get(),
         defaultChoice : 'Left',
         gridMethod : {
+            // 改單
             changeNature : function(row){
                 console.log(row);
                 
@@ -13249,7 +13255,7 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                     row.entity.loading = false;
                 });
             },
-            //加入黑名單
+            // 加入黑名單
             banData : function(row){
                 console.log(row);
                 var modalInstance = $uibModal.open({
@@ -13290,6 +13296,86 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                 }, function() {
                     // $log.info('Modal dismissed at: ' + new Date());
                 });
+            },
+            // 拉貨
+            pullGoods : function(row){
+                console.log(row.entity);
+                var modalInstance = $uibModal.open({
+                    animation: true,
+                    ariaLabelledBy: 'modal-title',
+                    ariaDescribedBy: 'modal-body',
+                    template: $templateCache.get('isChecked'),
+                    controller: 'IsCheckedModalInstanceCtrl',
+                    controllerAs: '$ctrl',
+                    size: 'sm',
+                    windowClass: 'center-modal',
+                    // appendTo: parentElem,
+                    resolve: {
+                        items: function() {
+                            return row.entity;
+                        }
+                    }
+                });
+
+                modalInstance.result.then(function(selectedItem) {
+                    // $ctrl.selected = selectedItem;
+                    console.log(selectedItem);
+                    
+                    RestfulApi.InsertMSSQLData({
+                        insertname: 'Insert',
+                        table: 19,
+                        params: {
+                            PG_SEQ         : selectedItem.IL_SEQ,
+                            PG_BAGNO       : selectedItem.IL_BAGNO,
+                            PG_CR_USER     : $vm.profile.U_ID,
+                            PG_CR_DATETIME : $filter('date')(new Date, 'yyyy-MM-dd HH:mm:ss')
+                        }
+                    }).then(function (res) {
+                        LoadItemList();
+                    });
+
+                }, function() {
+                    // $log.info('Modal dismissed at: ' + new Date());
+                });
+            },
+            // 取消拉貨
+            cancelPullGoods : function(row){
+                console.log(row.entity);
+                var modalInstance = $uibModal.open({
+                    animation: true,
+                    ariaLabelledBy: 'modal-title',
+                    ariaDescribedBy: 'modal-body',
+                    template: $templateCache.get('isChecked'),
+                    controller: 'IsCheckedModalInstanceCtrl',
+                    controllerAs: '$ctrl',
+                    size: 'sm',
+                    windowClass: 'center-modal',
+                    // appendTo: parentElem,
+                    resolve: {
+                        items: function() {
+                            return row.entity;
+                        }
+                    }
+                });
+
+                modalInstance.result.then(function(selectedItem) {
+                    // $ctrl.selected = selectedItem;
+                    console.log(selectedItem);
+                    
+                    RestfulApi.DeleteMSSQLData({
+                        deletename: 'Delete',
+                        table: 19,
+                        params: {
+                            PG_SEQ         : selectedItem.IL_SEQ,
+                            PG_BAGNO       : selectedItem.IL_BAGNO
+                        }
+                    }).then(function (res) {
+                        LoadItemList();
+                    });
+
+                }, function() {
+                    // $log.info('Modal dismissed at: ' + new Date());
+                });
             }
         },
         job001Options : {
@@ -13304,12 +13390,16 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                 { name: 'IL_NATURE_NEW' , displayName: '新品名', width: 115 },
                 { name: 'IL_CTN'        , displayName: '件數', width: 115 },
                 { name: 'IL_PLACE'      , displayName: '產地', width: 115 },
+                { name: 'IL_NEWPLACE'   , displayName: '新產地', width: 115 },
                 { name: 'IL_WEIGHT'     , displayName: '重量', width: 115 },
                 { name: 'IL_WEIGHT_NEW' , displayName: '更改後重量', width: 115 },
                 { name: 'IL_PCS'        , displayName: '數量', width: 115 },
+                { name: 'IL_NEWPCS'     , displayName: '新數量', width: 115 },
                 { name: 'IL_UNIT'       , displayName: '單位', width: 115 },
+                { name: 'IL_NEWUNIT'    , displayName: '新單位', width: 115 },
                 { name: 'IL_GETNO'      , displayName: '收件者統編', width: 115 },
                 { name: 'IL_SENDNAME'   , displayName: '寄件人或公司', width: 115 },
+                { name: 'IL_NEWSENDNAME', displayName: '新寄件人或公司', width: 115 },
                 { name: 'IL_GETNAME'    , displayName: '收件人公司', width: 115 },
                 { name: 'IL_GETADDRESS' , displayName: '收件地址', width: 300 },
                 { name: 'IL_GETTEL'     , displayName: '收件電話', width: 115 },
@@ -13317,10 +13407,13 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                 { name: 'IL_FINALCOST'  , displayName: '完稅價格', width: 115 },
                 { name: 'IL_TAX'        , displayName: '稅則', width: 115 },
                 { name: 'IL_TRCOM'      , displayName: '派送公司', width: 115 },
-                { name: 'Options'       , displayName: '操作', width: 160, enableCellEdit: false, enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToCB'), pinnedRight:true }
+                { name: 'Options'       , displayName: '操作', width: 190, enableCellEdit: false, enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToCB'), pinnedRight:true }
             ],
+            // rowTemplate: '<div> \
+            //                 <div ng-repeat="(colRenderIndex, col) in colContainer.renderedColumns track by col.colDef.name" class="ui-grid-cell" ng-class="row.entity.BLFO_TRACK != null ? \'cell-class-pull cell-class-ban\' : \'\'" ui-grid-cell></div> \
+            //               </div>',
             rowTemplate: '<div> \
-                            <div ng-repeat="(colRenderIndex, col) in colContainer.renderedColumns track by col.colDef.name" class="ui-grid-cell" ng-class="row.entity.BLFO_TRACK != null ? \'cell-class-ban\' : \'\'" ui-grid-cell></div> \
+                            <div ng-repeat="(colRenderIndex, col) in colContainer.renderedColumns track by col.colDef.name" class="ui-grid-cell" ng-class="{\'cell-class-ban\' : row.entity.BLFO_TRACK != null, \'cell-class-pull\' : row.entity.PG_PULLGOODS == true}" ui-grid-cell></div> \
                           </div>',
             enableFiltering: true,
             enableSorting: true,
@@ -13391,6 +13484,7 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                 for(var i in $vm.job001GridApi.selection.getSelectedRows()){
                     var _index = $vm.job001GridApi.selection.getSelectedRows()[i].Index;
                     $vm.job001Data[_index-1].IL_MERGENO = null;
+                    $vm.job001Data[_index-1].IL_NATURE_NEW = null;
                 }
             }
         },

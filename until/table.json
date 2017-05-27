@@ -17,5 +17,6 @@
 	"15" : "COMPY_DISTRIBUTION",
 	"16" : "DAILY_LEAVE",
 	"17" : "AGENT_SETTING",
-	"18" : "ORDER_LIST"
+	"18" : "ORDER_LIST",
+	"19" : "PULL_GOODS"
 }
