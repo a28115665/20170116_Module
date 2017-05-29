@@ -20,6 +20,7 @@ angular.module('app.selfwork.leaderoption').controller('AgentSettingCtrl', funct
         agentSettingOptions : {
             data:  '$vm.vmData',
             columnDefs: [
+                { name: 'CO_NAME'      ,  displayName: '公司名稱' },
                 { name: 'COD_PRINCIPAL',  displayName: '公司負責人', cellFilter: 'userInfoFilter', filter: 
                     {
                         term: null,
@@ -33,8 +34,7 @@ angular.module('app.selfwork.leaderoption').controller('AgentSettingCtrl', funct
                         type: uiGridConstants.filter.SELECT,
                         selectOptions: userInfoByCompyDistribution[0].length == 0 ? [] : userInfoByCompyDistribution[1][userInfoByCompyDistribution[0][0].value]
                     }
-                },
-                { name: 'CO_NAME'      ,  displayName: '公司名稱' }
+                }
             ],
             enableFiltering: true,
             enableSorting: false,
@@ -48,12 +48,21 @@ angular.module('app.selfwork.leaderoption').controller('AgentSettingCtrl', funct
         },
         AssignAgent : function(){
             if($vm.agentSettingGridApi.selection.getSelectedRows().length > 0){
-                var _getSelectedRows = $vm.agentSettingGridApi.selection.getSelectedRows();
+                var _getSelectedRows = $vm.agentSettingGridApi.selection.getSelectedRows(),
+                    _replicaPrincipal = false;
                 for(var i in _getSelectedRows){
                     // 負責人 不等於 代理人
                     if(_getSelectedRows[i].COD_PRINCIPAL != $vm.selectAssignAgent){
                         _getSelectedRows[i].AS_AGENT = $vm.selectAssignAgent;
                     }
+                    // 負責人 等於 代理人 跳出提示訊息
+                    if(_getSelectedRows[i].COD_PRINCIPAL == $vm.selectAssignAgent){
+                       _replicaPrincipal = true; 
+                    }
+                }
+
+                if(_replicaPrincipal){
+                    toaster.pop('info', '訊息', '負責人與代理人重複設定', 3000);
                 }
                 
                 $vm.agentSettingGridApi.selection.clearSelectedRows();
@@ -80,7 +89,7 @@ angular.module('app.selfwork.leaderoption').controller('AgentSettingCtrl', funct
                 table: 17,
                 params: {
                     AS_DEPT : $vm.selectAssignDept,
-                    AS_CR_USER : $vm.profile.U_ID
+                    // AS_CR_USER : $vm.profile.U_ID
                 }
             });
 
@@ -116,7 +125,7 @@ angular.module('app.selfwork.leaderoption').controller('AgentSettingCtrl', funct
             querymain: 'agentSetting',
             queryname: 'SelectCompyAgent',
             params: {
-                COD_CR_USER : $vm.profile.U_ID,
+                // COD_CR_USER : $vm.profile.U_ID,
                 COD_DEPT : $vm.selectAssignDept
             }
         }).then(function (res){
@@ -124,7 +133,7 @@ angular.module('app.selfwork.leaderoption').controller('AgentSettingCtrl', funct
             $vm.vmData = res["returnData"];
         }).finally(function() {
             // 更新filter selectOptions的值
-            $vm.agentSettingGridApi.grid.columns[1].filter.selectOptions = userInfoByCompyDistribution[1][$vm.selectAssignDept];
+            $vm.agentSettingGridApi.grid.columns[2].filter.selectOptions = userInfoByCompyDistribution[1][$vm.selectAssignDept];
             $vm.agentSettingGridApi.grid.columns[3].filter.selectOptions = userInfoByCompyDistribution[1][$vm.selectAssignDept];
         });    
     }

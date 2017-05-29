@@ -177,6 +177,54 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
             //         // $log.info('Modal dismissed at: ' + new Date());
             //     });
             // }
+            // 特貨
+            specialGoods : function(row){
+                console.log(row);
+                var modalInstance = $uibModal.open({
+                    animation: true,
+                    ariaLabelledBy: 'modal-title',
+                    ariaDescribedBy: 'modal-body',
+                    template: $templateCache.get('isChecked'),
+                    controller: 'IsCheckedModalInstanceCtrl',
+                    controllerAs: '$ctrl',
+                    size: 'sm',
+                    windowClass: 'center-modal',
+                    // appendTo: parentElem,
+                    resolve: {
+                        items: function() {
+                            return row.entity;
+                        },
+                        show: function(){
+                            return {
+                                title : "是否特貨"
+                            };
+                        }
+                    }
+                });
+
+                modalInstance.result.then(function(selectedItem) {
+                    // $ctrl.selected = selectedItem;
+                    console.log(selectedItem);
+                    RestfulApi.InsertMSSQLData({
+                        insertname: 'Insert',
+                        table: 20,
+                        params: {
+                            SPG_SEQ         : selectedItem.IL_SEQ,
+                            SPG_NEWBAGNO    : selectedItem.IL_NEWBAGNO,
+                            SPG_NEWSMALLNO  : selectedItem.IL_NEWSMALLNO,
+                            SPG_ORDERINDEX  : selectedItem.IL_ORDERINDEX,
+                            SPG_CR_USER     : $vm.profile.U_ID,
+                            SPG_CR_DATETIME : $filter('date')(new Date, 'yyyy-MM-dd HH:mm:ss')
+                        }
+                    }).then(function(res) {
+                        // 加入後需要Disabled
+                        row.entity.SPG_SPECIALGOODS = true;
+                    });
+
+                }, function() {
+                    // $log.info('Modal dismissed at: ' + new Date());
+                });
+            }
         },
         job001Options : {
             data: '$vm.job001Data',
@@ -207,13 +255,13 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                 { name: 'IL_FINALCOST'  , displayName: '完稅價格', width: 115 },
                 { name: 'IL_TAX'        , displayName: '稅則', width: 115 },
                 { name: 'IL_TRCOM'      , displayName: '派送公司', width: 115 },
-                { name: 'Options'       , displayName: '操作', width: 190, enableCellEdit: false, enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToCB'), pinnedRight:true }
+                { name: 'Options'       , displayName: '操作', width: 230, enableCellEdit: false, enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToCB'), pinnedRight:true, cellClass: 'cell-class-no-style' }
             ],
             // rowTemplate: '<div> \
             //                 <div ng-repeat="(colRenderIndex, col) in colContainer.renderedColumns track by col.colDef.name" class="ui-grid-cell" ng-class="row.entity.BLFO_TRACK != null ? \'cell-class-pull cell-class-ban\' : \'\'" ui-grid-cell></div> \
             //               </div>',
             rowTemplate: '<div> \
-                            <div ng-repeat="(colRenderIndex, col) in colContainer.renderedColumns track by col.colDef.name" class="ui-grid-cell" ng-class="{\'cell-class-ban\' : row.entity.BLFO_TRACK != null, \'cell-class-pull\' : row.entity.PG_PULLGOODS == true}" ui-grid-cell></div> \
+                            <div ng-repeat="(colRenderIndex, col) in colContainer.renderedColumns track by col.colDef.name" class="ui-grid-cell" ng-class="{\'cell-class-ban\' : row.entity.BLFO_TRACK != null, \'cell-class-pull\' : row.entity.PG_PULLGOODS == true, \'cell-class-special\' : row.entity.SPG_SPECIALGOODS == true}" ui-grid-cell></div> \
                           </div>',
             enableFiltering: true,
             enableSorting: true,
@@ -423,7 +471,7 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                 IL_SEQ: $vm.vmData.OL_SEQ
             }
         }).then(function (res){
-            // console.log(res["returnData"]);
+            console.log(res["returnData"]);
             for(var i=0;i<res["returnData"].length;i++){
                 res["returnData"][i]["Index"] = i+1;
             }

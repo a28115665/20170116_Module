@@ -33,9 +33,9 @@ module.exports = function(pQueryname, pParams){
 							LEFT JOIN USER_INFO ON U_ID = COD_PRINCIPAL \
 							WHERE 1=1 ";
 											
-			if(pParams["COD_CR_USER"] !== undefined){
-				_SQLCommand += " AND COD_CR_USER = @COD_CR_USER";
-			}
+			// if(pParams["COD_CR_USER"] !== undefined){
+			// 	_SQLCommand += " AND COD_CR_USER = @COD_CR_USER";
+			// }
 			if(pParams["COD_DEPT"] !== undefined){
 				_SQLCommand += " AND COD_DEPT = @COD_DEPT";
 			}

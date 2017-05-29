@@ -18,5 +18,6 @@
 	"16" : "DAILY_LEAVE",
 	"17" : "AGENT_SETTING",
 	"18" : "ORDER_LIST",
-	"19" : "PULL_GOODS"
+	"19" : "PULL_GOODS",
+	"20" : "SPECIAL_GOODS"
 }

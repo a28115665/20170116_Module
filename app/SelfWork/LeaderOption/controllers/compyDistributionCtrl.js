@@ -15,9 +15,9 @@ angular.module('app.selfwork.leaderoption').controller('CompyDistributionCtrl', 
         compyDistributionOptions : {
             data:  '$vm.compyDistributionData',
             columnDefs: [
-                { name: 'CO_NUMBER'    ,  displayName: '公司統編' },
+                // { name: 'CO_NUMBER'    ,  displayName: '公司統編' },
                 { name: 'CO_NAME'      ,  displayName: '公司名稱' },
-                { name: 'CO_ADDR'      ,  displayName: '公司地址' },
+                // { name: 'CO_ADDR'      ,  displayName: '公司地址' },
                 { name: 'COD_PRINCIPAL',  displayName: '負責人' , cellFilter: 'userInfoFilter', filter: 
                     {
                         term: null,
@@ -70,7 +70,7 @@ angular.module('app.selfwork.leaderoption').controller('CompyDistributionCtrl', 
                 table: 15,
                 params: {
                     COD_DEPT : $vm.selectAssignDept,
-                    COD_CR_USER : $vm.profile.U_ID
+                    // COD_CR_USER : $vm.profile.U_ID
                 }
             });
 
@@ -113,7 +113,7 @@ angular.module('app.selfwork.leaderoption').controller('CompyDistributionCtrl', 
             $vm.compyDistributionData = res["returnData"];
         }).finally(function() {
             // 更新filter selectOptions的值
-            $vm.compyDistributionGridApi.grid.columns[4].filter.selectOptions = userInfoByGrade[1][$vm.selectAssignDept];
+            $vm.compyDistributionGridApi.grid.columns[2].filter.selectOptions = userInfoByGrade[1][$vm.selectAssignDept];
             // console.log($vm.compyDistributionGridApi.grid.columns[4].filter.selectOptions);
         });    
     }

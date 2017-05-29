@@ -1,6 +1,6 @@
 "use strict";
 
-angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache) {
+angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, RestfulApi) {
     
     var $vm = this;
 
@@ -11,7 +11,7 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
             $vm.LoadData();
         },
         profile : Session.Get(),
-        defaultTab : 'hr1',
+        defaultTab : 'hr2',
         TabSwitch : function(pTabID){
             return pTabID == $vm.defaultTab ? 'active' : '';
         },
@@ -22,7 +22,7 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
                     // LoadPrincipal();
                     break;
                 case 'hr2':
-                    // LoadStatistics();
+                    LoadPullGoods();
                     break;
             }
         },
@@ -46,35 +46,18 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
                 console.log(row);
             }
         },
-        historySearchOptions : {
-            data:  [
-                {
-                    a : '2017-02-09',
-                    b : '297-64659291',
-                    c : '2017-01-15',
-                    d : 'CI5822',
-                    e : 'HK',
-                    f : '新桥供应链',
-                    g : true
-                },
-                {
-                    a : '2017-02-09',
-                    b : '297-64659292',
-                    c : '2017-01-15',
-                    d : 'CI5822',
-                    e : 'HK',
-                    f : '新桥供应链',
-                    g : true
-                },
-            ],
+        pullGoodsOptions : {
+            data:  '$vm.pullGoodsData',
             columnDefs: [
-                { name: 'a',        displayName: '提單日期' },
-                { name: 'b',        displayName: '主號' },
-                { name: 'c',        displayName: '進口日期' },
-                { name: 'd',        displayName: '班機' },
-                { name: 'e',        displayName: '啟運國別' },
-                { name: 'f',        displayName: '寄件人或公司' },
-                { name: 'g',        displayName: '狀態', cellTemplate: $templateCache.get('accessibilityLightStatus') },
+                { name: 'OL_IMPORTDT'   , displayName: '進口日期', cellFilter: 'dateFilter' },
+                { name: 'OL_CO_CODE'    , displayName: '行家', cellFilter: 'compyFilter' },
+                { name: 'OL_FLIGHTNO'   , displayName: '航班' },
+                { name: 'OL_MASTER'     , displayName: '主號' },
+                { name: 'OL_COUNTRY'    , displayName: '起運國別' },
+                { name: 'PG_BAGNO'      , displayName: '袋號' },
+                { name: 'PG_MOVED'      , displayName: '移機', cellFilter: 'booleanFilter' },
+                { name: 'PG_FLIGHTNO'   , displayName: '航班(改)' },
+                { name: 'PG_MASTER'     , displayName: '主號(改)' },
                 { name: 'Options',  displayName: '操作', cellTemplate: $templateCache.get('accessibilityToDMC') }
             ],
             enableFiltering: false,
@@ -82,8 +65,21 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
             enableColumnMenus: false,
             // enableVerticalScrollbar: false,
             paginationPageSizes: [10, 25, 50],
-            paginationPageSize: 10
+            paginationPageSize: 10,
+            onRegisterApi: function(gridApi){
+                $vm.pullGoodsGridApi = gridApi;
+            }
         }
     });
+
+    function LoadPullGoods(){
+        RestfulApi.SearchMSSQLData({
+            querymain: 'assistantJobs',
+            queryname: 'SelectPullGoods'
+        }).then(function (res){
+            console.log(res["returnData"]);
+            $vm.pullGoodsData = res["returnData"];
+        }); 
+    };
 
 })

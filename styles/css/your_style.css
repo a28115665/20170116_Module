@@ -145,6 +145,16 @@
     animation-iteration-count: infinite;*/
 }
 
+/*特貨*/
+.cell-class-special {
+    font-style: italic;
+    text-decoration: underline;
+}
+.cell-class-no-style {
+    font-style: normal;
+    text-decoration: none;
+}
+
 /*ui-grid 異動資料*/
 .ui-grid-row-dirty .ui-grid-cell {
     color: #8e1da9;

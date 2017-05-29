@@ -25,27 +25,39 @@ angular.module('app')
                                     				<a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethod.modifyData(row)"> 編輯</a>\
                                     				<a href="javascript:void(0);" class="btn btn-primary btn-xs" ng-click="grid.appScope.$vm.gridMethod.closeData(row)" ng-disabled="row.entity.g"> 完成</a>\
                                		  		  </div>');
-  $templateCache.put('accessibilityToDMCForJob001', '\
+  $templateCache.put('accessibilityToOperaForJob001', '\
                     <div class="ui-grid-cell-contents text-center">\
-                        <a href="javascript:void(0);" class="btn btn-danger btn-xs" ng-click="grid.appScope.$vm.gridMethodForJob001.rejectData(row)" ng-disabled="row.entity.g"> 退單</a>\
-                        <a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethodForJob001.modifyData(row)"> 編輯</a>\
-                        <a href="javascript:void(0);" class="btn btn-primary btn-xs" ng-click="grid.appScope.$vm.gridMethodForJob001.closeData(row)" ng-disabled="row.entity.g"> 完成</a>\
-                        <a href="javascript:void(0);" class="btn btn-danger btn-xs" ng-click="grid.appScope.$vm.gridMethodForJob001.deleteData(row)" ng-disabled="row.entity.g"> 刪除</a>\
+                        <a href="javascript:void(0);" class="btn btn-success btn-xs" ng-click="grid.appScope.$vm.gridOperation(row, \'報機單\')"> 工作選項</a>\
                     </div>');
-  $templateCache.put('accessibilityToDMCForJob002', '\
+  $templateCache.put('accessibilityToOperaForJob002', '\
                     <div class="ui-grid-cell-contents text-center">\
-                        <a href="javascript:void(0);" class="btn btn-danger btn-xs" ng-click="grid.appScope.$vm.gridMethodForJob002.rejectData(row)" ng-disabled="row.entity.g"> 退單</a>\
-                        <a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethodForJob002.modifyData(row)"> 編輯</a>\
-                        <a href="javascript:void(0);" class="btn btn-primary btn-xs" ng-click="grid.appScope.$vm.gridMethodForJob002.closeData(row)" ng-disabled="row.entity.g"> 完成</a>\
-                        <a href="javascript:void(0);" class="btn btn-danger btn-xs" ng-click="grid.appScope.$vm.gridMethodForJob002.deleteData(row)" ng-disabled="row.entity.g"> 刪除</a>\
+                        <a href="javascript:void(0);" class="btn btn-success btn-xs" ng-click="grid.appScope.$vm.gridOperation(row, \'銷艙單\')"> 工作選項</a>\
                     </div>');
-  $templateCache.put('accessibilityToDMCForJob003', '\
+  $templateCache.put('accessibilityToOperaForJob003', '\
                     <div class="ui-grid-cell-contents text-center">\
-                        <a href="javascript:void(0);" class="btn btn-danger btn-xs" ng-click="grid.appScope.$vm.gridMethodForJob003.rejectData(row)" ng-disabled="row.entity.g"> 退單</a>\
-                        <a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethodForJob003.modifyData(row)"> 編輯</a>\
-                        <a href="javascript:void(0);" class="btn btn-primary btn-xs" ng-click="grid.appScope.$vm.gridMethodForJob003.closeData(row)" ng-disabled="row.entity.g"> 完成</a>\
-                        <a href="javascript:void(0);" class="btn btn-danger btn-xs" ng-click="grid.appScope.$vm.gridMethodForJob003.deleteData(row)" ng-disabled="row.entity.g"> 刪除</a>\
+                        <a href="javascript:void(0);" class="btn btn-success btn-xs" ng-click="grid.appScope.$vm.gridOperation(row, \'派送單\')"> 工作選項</a>\
                     </div>');
+  // $templateCache.put('accessibilityToDMCForJob001', '\
+  //                   <div class="ui-grid-cell-contents text-center">\
+  //                       <a href="javascript:void(0);" class="btn btn-danger btn-xs" ng-click="grid.appScope.$vm.gridMethodForJob001.rejectData(row)" ng-disabled="row.entity.g"> 退單</a>\
+  //                       <a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethodForJob001.modifyData(row)"> 編輯</a>\
+  //                       <a href="javascript:void(0);" class="btn btn-primary btn-xs" ng-click="grid.appScope.$vm.gridMethodForJob001.closeData(row)" ng-disabled="row.entity.g"> 完成</a>\
+  //                       <a href="javascript:void(0);" class="btn btn-danger btn-xs" ng-click="grid.appScope.$vm.gridMethodForJob001.deleteData(row)" ng-disabled="row.entity.g"> 刪除</a>\
+  //                   </div>');
+  // $templateCache.put('accessibilityToDMCForJob002', '\
+  //                   <div class="ui-grid-cell-contents text-center">\
+  //                       <a href="javascript:void(0);" class="btn btn-danger btn-xs" ng-click="grid.appScope.$vm.gridMethodForJob002.rejectData(row)" ng-disabled="row.entity.g"> 退單</a>\
+  //                       <a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethodForJob002.modifyData(row)"> 編輯</a>\
+  //                       <a href="javascript:void(0);" class="btn btn-primary btn-xs" ng-click="grid.appScope.$vm.gridMethodForJob002.closeData(row)" ng-disabled="row.entity.g"> 完成</a>\
+  //                       <a href="javascript:void(0);" class="btn btn-danger btn-xs" ng-click="grid.appScope.$vm.gridMethodForJob002.deleteData(row)" ng-disabled="row.entity.g"> 刪除</a>\
+  //                   </div>');
+  // $templateCache.put('accessibilityToDMCForJob003', '\
+  //                   <div class="ui-grid-cell-contents text-center">\
+  //                       <a href="javascript:void(0);" class="btn btn-danger btn-xs" ng-click="grid.appScope.$vm.gridMethodForJob003.rejectData(row)" ng-disabled="row.entity.g"> 退單</a>\
+  //                       <a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethodForJob003.modifyData(row)"> 編輯</a>\
+  //                       <a href="javascript:void(0);" class="btn btn-primary btn-xs" ng-click="grid.appScope.$vm.gridMethodForJob003.closeData(row)" ng-disabled="row.entity.g"> 完成</a>\
+  //                       <a href="javascript:void(0);" class="btn btn-danger btn-xs" ng-click="grid.appScope.$vm.gridMethodForJob003.deleteData(row)" ng-disabled="row.entity.g"> 刪除</a>\
+  //                   </div>');
 	$templateCache.put('accessibilityToCB', '\
                     <div class="ui-grid-cell-contents text-center">\
                         <a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethod.changeNature(row)" ng-hide="row.entity[\'loading\']"> 改單</a>\
@@ -53,6 +65,7 @@ angular.module('app')
         				<a href="javascript:void(0);" class="btn btn-danger btn-xs" ng-click="grid.appScope.$vm.gridMethod.banData(row)" ng-class="row.entity.BLFO_TRACK != null ? \'disabled\' : \'\'"> 加入黑名單</a>\
                         <a href="javascript:void(0);" class="btn btn-primary btn-xs" ng-click="grid.appScope.$vm.gridMethod.pullGoods(row)" ng-class="row.entity.PG_PULLGOODS ? \'disabled\' : \'\'"> 拉貨</a>\
                         <!--<a href="javascript:void(0);" class="btn btn-primary btn-xs" ng-click="grid.appScope.$vm.gridMethod.cancelPullGoods(row)" ng-show="row.entity.PG_PULLGOODS && !row.entity.PG_MOVED"> 恢復</a>-->\
+                        <a href="javascript:void(0);" class="btn btn-success btn-xs" ng-click="grid.appScope.$vm.gridMethod.specialGoods(row)" ng-class="row.entity.SPG_SPECIALGOODS ? \'disabled\' : \'\'"> 特貨</a>\
    		  		    </div>');
     $templateCache.put('accessibilityToMForBLFO', '<div class="ui-grid-cell-contents text-center">\
                                             <a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethodForBLFO.modifyData(row)"> {{$parent.$root.getWord(\'Modify\')}}</a>\
@@ -118,6 +131,57 @@ angular.module('app')
                             <button class="btn btn-primary" type="button" ng-click="$ctrl.ok()">{{getWord(\'OK\')}}</button> \
                             <button class="btn btn-default" type="button" ng-click="$ctrl.cancel()">{{getWord(\'Cancel\')}}</button> \
                         </div>');
+
+    $templateCache.put('opWorkMenu', '\
+                        <div class="modal-header bg-color-green">\
+                            <h3 class="modal-title text-center">\
+                                <strong class=" txt-color-white">{{$ctrl.row.entity.name}}</strong>\
+                            </h3>\
+                        </div>\
+                        <div class="modal-body text-center"> \
+                            <div class="row" ng-if="$ctrl.row.entity.name == \'報機單\'"> \
+                                <button type="button" class="btn btn-danger btn-lg btn-block" ng-click="$ctrl.appScope.gridMethodForJob001.rejectData($ctrl.row);$ctrl.cancel()"> \
+                                    退單 \
+                                </button> \
+                                <button type="button" class="btn btn-warning btn-lg btn-block" ng-click="$ctrl.appScope.gridMethodForJob001.modifyData($ctrl.row);$ctrl.cancel()"> \
+                                    編輯 \
+                                </button> \
+                                <button type="button" class="btn btn-primary btn-lg btn-block" ng-click="$ctrl.appScope.gridMethodForJob001.closeData($ctrl.row);$ctrl.cancel()"> \
+                                    完成 \
+                                </button> \
+                                <button type="button" class="btn btn-danger btn-lg btn-block" ng-click="$ctrl.appScope.gridMethodForJob001.rejectData($ctrl.row);$ctrl.cancel()"> \
+                                    刪除 \
+                                </button> \
+                            </div> \
+                            <div class="row" ng-if="$ctrl.row.entity.name == \'銷艙單\'"> \
+                                <button type="button" class="btn btn-danger btn-lg btn-block" ng-click="$ctrl.appScope.gridMethodForJob002.rejectData($ctrl.row);$ctrl.cancel()"> \
+                                    退單 \
+                                </button> \
+                                <button type="button" class="btn btn-warning btn-lg btn-block" ng-click="$ctrl.appScope.gridMethodForJob002.modifyData($ctrl.row);$ctrl.cancel()"> \
+                                    編輯 \
+                                </button> \
+                                <button type="button" class="btn btn-primary btn-lg btn-block" ng-click="$ctrl.appScope.gridMethodForJob002.closeData($ctrl.row);$ctrl.cancel()"> \
+                                    完成 \
+                                </button> \
+                                <button type="button" class="btn btn-danger btn-lg btn-block" ng-click="$ctrl.appScope.gridMethodForJob002.rejectData($ctrl.row);$ctrl.cancel()"> \
+                                    刪除 \
+                                </button> \
+                            </div> \
+                            <div class="row" ng-if="$ctrl.row.entity.name == \'派送單\'"> \
+                                <button type="button" class="btn btn-danger btn-lg btn-block" ng-click="$ctrl.appScope.gridMethodForJob003.rejectData($ctrl.row);$ctrl.cancel()"> \
+                                    退單 \
+                                </button> \
+                                <button type="button" class="btn btn-warning btn-lg btn-block" ng-click="$ctrl.appScope.gridMethodForJob003.modifyData($ctrl.row);$ctrl.cancel()"> \
+                                    編輯 \
+                                </button> \
+                                <button type="button" class="btn btn-primary btn-lg btn-block" ng-click="$ctrl.appScope.gridMethodForJob003.closeData($ctrl.row);$ctrl.cancel()"> \
+                                    完成 \
+                                </button> \
+                                <button type="button" class="btn btn-danger btn-lg btn-block" ng-click="$ctrl.appScope.gridMethodForJob003.rejectData($ctrl.row);$ctrl.cancel()"> \
+                                    刪除 \
+                                </button> \
+                            </div> \
+                        </div>');
 })
 .controller('IsDeleteModalInstanceCtrl', function ($uibModalInstance, items) {
     var $ctrl = this;
@@ -136,6 +200,20 @@ angular.module('app')
     show['title'] = angular.isUndefined(show['title']) ? "操作提示" : show['title'];
 
     $ctrl.data = show;
+    
+    $ctrl.ok = function() {
+        $uibModalInstance.close(items);
+    };
+
+    $ctrl.cancel = function() {
+        $uibModalInstance.dismiss('cancel');
+    };
+})
+.controller('OpWorkMenuModalInstanceCtrl', function ($scope, $uibModalInstance, items) {
+    var $ctrl = this;
+    $ctrl.appScope = $scope.$parent.$vm;
+    $ctrl.row = items;
+    console.log($ctrl);
     
     $ctrl.ok = function() {
         $uibModalInstance.close(items);

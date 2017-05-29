@@ -10,6 +10,36 @@ angular.module('app.selfwork').controller('EmployeeJobsCtrl', function ($scope, 
         },
         profile : Session.Get(),
         defaultChoice : 'Left',
+        gridOperation : function(row, name){
+            // 給modal知道目前是哪個欄位操作
+            row.entity['name'] = name;
+
+            var modalInstance = $uibModal.open({
+                animation: true,
+                ariaLabelledBy: 'modal-title',
+                ariaDescribedBy: 'modal-body',
+                template: $templateCache.get('opWorkMenu'),
+                controller: 'OpWorkMenuModalInstanceCtrl',
+                controllerAs: '$ctrl',
+                scope: $scope,
+                size: 'sm',
+                // windowClass: 'center-modal',
+                // appendTo: parentElem,
+                resolve: {
+                    items: function() {
+                        return row;
+                    }
+                }
+            });
+
+            modalInstance.result.then(function(selectedItem) {
+                // $ctrl.selected = selectedItem;
+                console.log(selectedItem);
+
+            }, function() {
+                // $log.info('Modal dismissed at: ' + new Date());
+            });
+        },
         gridMethodForJob001 : {
             //退件
             rejectData : function(row){
@@ -28,6 +58,11 @@ angular.module('app.selfwork').controller('EmployeeJobsCtrl', function ($scope, 
                     resolve: {
                         items: function() {
                             return row.entity;
+                        },
+                        show: function(){
+                            return {
+                                title : "是否退單"
+                            }
                         }
                     }
                 });
@@ -54,7 +89,7 @@ angular.module('app.selfwork').controller('EmployeeJobsCtrl', function ($scope, 
                     // $log.info('Modal dismissed at: ' + new Date());
                 });
             },
-            //編輯
+            // 編輯
             modifyData : function(row){
                 console.log(row);
 
@@ -81,7 +116,7 @@ angular.module('app.selfwork').controller('EmployeeJobsCtrl', function ($scope, 
                     });
                 }
             },
-            //結單
+            // 完成
             closeData : function(row){
                 console.log(row);
 
@@ -101,7 +136,6 @@ angular.module('app.selfwork').controller('EmployeeJobsCtrl', function ($scope, 
             },
             // 刪除報機單
             deleteData : function(row){
-
             }
         },
         gridMethodForJob002 : {
@@ -260,9 +294,9 @@ angular.module('app.selfwork').controller('EmployeeJobsCtrl', function ($scope, 
                 { name: 'OL_MASTER'   ,  displayName: '主號' },
                 { name: 'OL_COUNT'    ,  displayName: '報機單(袋數)' },
                 { name: 'OL_COUNTRY'  ,  displayName: '起運國別' },
-                { name: 'ITEM_LIST'          ,  displayName: '報機單', enableFiltering: false, width: '16%', cellTemplate: $templateCache.get('accessibilityToDMCForJob001') },
-                { name: 'FLIGHT_ITEM_LIST'   ,  displayName: '銷艙單', enableFiltering: false, width: '16%', cellTemplate: $templateCache.get('accessibilityToDMCForJob002') },
-                { name: 'DELIVERY_ITEM_LIST' ,  displayName: '派送單', enableFiltering: false, width: '16%', cellTemplate: $templateCache.get('accessibilityToDMCForJob003') },
+                { name: 'ITEM_LIST'          ,  displayName: '報機單', enableFiltering: false, width: '8%', cellTemplate: $templateCache.get('accessibilityToOperaForJob001') },
+                { name: 'FLIGHT_ITEM_LIST'   ,  displayName: '銷艙單', enableFiltering: false, width: '8%', cellTemplate: $templateCache.get('accessibilityToOperaForJob002') },
+                { name: 'DELIVERY_ITEM_LIST' ,  displayName: '派送單', enableFiltering: false, width: '8%', cellTemplate: $templateCache.get('accessibilityToOperaForJob003') },
                 { name: 'Options'     ,  displayName: '功能', enableFiltering: false, width: '5%', cellTemplate: $templateCache.get('accessibilityToM') }
             ],
             enableFiltering: true,
