@@ -38,7 +38,50 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
         assignPrincipalData : userInfoByGrade[1],
         gridMethod : {
             modifyData : function(row){
+                var modalInstance = $uibModal.open({
+                    animation: true,
+                    ariaLabelledBy: 'modal-title',
+                    ariaDescribedBy: 'modal-body',
+                    template: $templateCache.get('modifyOrderList'),
+                    controller: 'ModifyOrderListModalInstanceCtrl',
+                    controllerAs: '$ctrl',
+                    // size: 'sm',
+                    // windowClass: 'center-modal',
+                    // appendTo: parentElem,
+                    resolve: {
+                        vmData: function() {
+                            return row.entity;
+                        },
+                        compy: function() {
+                            return compy;
+                        }
+                    }
+                });
 
+                modalInstance.result.then(function(selectedItem) {
+                    // $ctrl.selected = selectedItem;
+                    console.log(selectedItem);
+
+                    RestfulApi.UpdateMSSQLData({
+                        updatename: 'Update',
+                        table: 18,
+                        params: {
+                            OL_IMPORTDT : selectedItem.OL_IMPORTDT,
+                            OL_CO_CODE  : selectedItem.OL_CO_CODE,
+                            OL_FLIGHTNO : selectedItem.OL_FLIGHTNO,
+                            OL_MASTER   : selectedItem.OL_MASTER,
+                            OL_COUNTRY  : selectedItem.OL_COUNTRY
+                        },
+                        condition: {
+                            OL_SEQ : selectedItem.OL_SEQ
+                        }
+                    }).then(function (res) {
+                        LoadOrderList();
+                    });
+
+                }, function() {
+                    // $log.info('Modal dismissed at: ' + new Date());
+                });
             },
             deleteData : function(row){
 
