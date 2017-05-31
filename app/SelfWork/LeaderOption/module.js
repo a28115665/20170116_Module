@@ -47,6 +47,9 @@ angular.module('app.selfwork.leaderoption').config(function ($stateProvider){
                 resolve: {
                     userInfoByCompyDistribution : function (UserInfoByCompyDistribution, Session){
                         return UserInfoByCompyDistribution.get(Session.Get().U_ID);
+                    },
+                    compy : function(Compy){
+                        return Compy.get();
                     }
                 }
             }

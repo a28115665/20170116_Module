@@ -10,12 +10,6 @@ var pool = null;
  */
 var Connect = function(callback) {
 	var args = {};
-	// pool = new sql.ConnectionPool(setting.MSSQL);
-
-	// pool.connect(function(err) {
-	// 	if(err) callback(err, {});
-	// 	else callback(null, args);
-	// })
 
   	sql.connect(setting.MSSQL, function(err) {
 		if(err) callback(err, {});
