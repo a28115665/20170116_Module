@@ -157,8 +157,8 @@ router.get('/crudByTask', function(req, res) {
     }
 
     tasks.push(dbCommandByTask.TransactionCommit);
-    tasks.push(dbCommandByTask.DisConnect);
-    // console.log(tasks);
+    // tasks.push(dbCommandByTask.DisConnect);
+    console.log(tasks);
 
     async.waterfall(tasks, function (err, args) {
         if (err) {

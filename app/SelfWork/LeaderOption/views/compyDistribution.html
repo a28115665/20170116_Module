@@ -95,17 +95,17 @@
 
 							<div class="table-responsive">
 
-								<div id="grid1" ui-grid="$vm.compyDistributionOptions" class="my-ui-grid" ui-grid-pagination ui-grid-resize-columns ui-grid-selection ui-grid-auto-resize></div>
+								<div id="grid1" ui-grid="$vm.compyDistributionOptions" class="my-ui-grid" ui-grid-pagination ui-grid-resize-columns ui-grid-selection ui-grid-edit ui-grid-row-edit ui-grid-expandable ui-grid-auto-resize></div>
 
 							</div>
 
 							<!-- widget footer -->
-							<div class="widget-footer">
+							<!-- <div class="widget-footer">
 								<button class="btn btn-sm btn-primary" type="button" ng-click="$vm.Save()">
 					                <i class="fa fa-save"></i>
 									儲存
 								</button>	
-							</div>
+							</div> -->
 							<!-- end widget footer -->
 
 						</div>
@@ -121,3 +121,7 @@
 	</section>
 
 </div>
+
+<script type="text/ng-template" id="expandableRowTemplate.html">
+	<div ui-grid="row.entity.subGridOptions" style="height:150px;"></div>
+</script>

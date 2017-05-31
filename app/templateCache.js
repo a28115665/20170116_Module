@@ -98,6 +98,10 @@ angular.module('app')
                         <div class="ui-grid-cell-contents text-center">\
                             <a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethod.modifyData(row)"> {{$parent.$root.getWord(\'Modify\')}}</a>\
                         </div>');
+    $templateCache.put('accessibilityToD', '\
+                        <div class="ui-grid-cell-contents text-center">\
+                            <a href="javascript:void(0);" class="btn btn-danger btn-xs" ng-click="grid.appScope.$vm.gridMethod.deleteData(row)"> {{$parent.$root.getWord(\'Delete\')}}</a>\
+                        </div>');
     $templateCache.put('accessibilityToForW2', '\
                         <div class="ui-grid-cell-contents text-center">\
                             <i class="fa fa-circle-o" ng-if="row.entity.W2_STATUS == \'0\'"> </i> \

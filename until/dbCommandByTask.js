@@ -2,6 +2,7 @@ var sql = require('mssql');
 var setting = require('../app.setting.json');
 var tables = require('./table.json');
 var schemaType = require('./schemaType.js');
+var pool = null;
 
 /**
  * [Connect description] SQL連線
@@ -9,8 +10,14 @@ var schemaType = require('./schemaType.js');
  */
 var Connect = function(callback) {
 	var args = {};
+	// pool = new sql.ConnectionPool(setting.MSSQL);
+
+	// pool.connect(function(err) {
+	// 	if(err) callback(err, {});
+	// 	else callback(null, args);
+	// })
+
   	sql.connect(setting.MSSQL, function(err) {
-  		console.log(err);
 		if(err) callback(err, {});
 		else callback(null, args);
 	});
@@ -315,6 +322,7 @@ function requestSql(request, sql, callback) {
             	callback(null, result[0].records);
         	}
         } else {
+    		console.log("SQL錯誤:", errors);
             callback(errors, {});
         }
     });

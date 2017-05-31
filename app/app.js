@@ -25,6 +25,7 @@ angular.module('app', [
     'ui.grid.exporter',
     'ui.grid.pagination',
     'ui.grid.grouping',
+    'ui.grid.expandable',
     'ui.grid.pinning',
     'ui.grid.autoResize',
     'ui.mask',
