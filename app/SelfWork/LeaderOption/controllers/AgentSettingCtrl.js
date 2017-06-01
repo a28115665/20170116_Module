@@ -58,10 +58,96 @@ angular.module('app.selfwork.leaderoption').controller('AgentSettingCtrl', funct
             expandableRowHeight: 150,
             enableCellEdit: false,
             enableGroupHeaderSelection: true,
+            expandableRowScope: {
+                $vm : {
+                    gridMethod : {
+                        deleteData : function(row){
+                            console.log(row);
+
+                            var modalInstance = $uibModal.open({
+                                animation: true,
+                                ariaLabelledBy: 'modal-title',
+                                ariaDescribedBy: 'modal-body',
+                                template: $templateCache.get('isChecked'),
+                                controller: 'IsCheckedModalInstanceCtrl',
+                                controllerAs: '$ctrl',
+                                size: 'sm',
+                                windowClass: 'center-modal',
+                                // appendTo: parentElem,
+                                resolve: {
+                                    items: function() {
+                                        return row.entity;
+                                    },
+                                    show: function(){
+                                        return {
+                                            title : "是否刪除"
+                                        };
+                                    }
+                                }
+                            });
+
+                            modalInstance.result.then(function(selectedItem) {
+                                // $ctrl.selected = selectedItem;
+                                console.log(selectedItem);
+
+                                RestfulApi.DeleteMSSQLData({
+                                    deletename: 'Delete',
+                                    table: 17,
+                                    params: {
+                                        AS_CODE : row.entity.AS_CODE,
+                                        AS_DEPT : row.entity.AS_DEPT,
+                                        AS_AGENT : row.entity.AS_AGENT,
+                                        AS_PRINCIPAL : row.entity.AS_PRINCIPAL
+                                    }
+                                }).then(function (res) {
+                                    for(var i in $vm.vmData){
+                                        if($vm.vmData[i].COD_PRINCIPAL == row.entity.AS_PRINCIPAL && 
+                                            $vm.vmData[i].COD_CODE == row.entity.AS_CODE){
+                                            $vm.vmData[i].AGENT_COUNT -= 1;
+
+                                            var foundItem = $filter('filter')($vm.vmData[i].subGridOptions.data, {
+                                                AS_CODE : row.entity.AS_CODE,
+                                                AS_DEPT : row.entity.AS_DEPT,
+                                                AS_AGENT : row.entity.AS_AGENT,
+                                                AS_PRINCIPAL : row.entity.AS_PRINCIPAL
+                                            })[0];
+
+                                            var itemIndex = $vm.vmData[i].subGridOptions.data.indexOf(foundItem);
+
+                                            $vm.vmData[i].subGridOptions.data.splice(itemIndex, 1);
+
+                                            $vm.agentSettingGridApi.grid.refresh();
+                                            break;
+                                        }
+                                    }
+
+                                });
+
+                            }, function() {
+                                // $log.info('Modal dismissed at: ' + new Date());
+                            });
+                        }
+                    }
+                }
+            },
             onRegisterApi: function(gridApi){
                 $vm.agentSettingGridApi = gridApi;
 
                 gridApi.rowEdit.on.saveRow($scope, $vm.Update);
+
+                gridApi.selection.on.rowSelectionChanged( $scope, function ( rowChanged ) {
+                    if ( typeof(rowChanged.treeLevel) !== 'undefined' && rowChanged.treeLevel > -1 ) {
+                      // this is a group header
+                      children = $scope.gridApi.treeBase.getRowChildren( rowChanged );
+                      children.forEach( function ( child ) {
+                        if ( rowChanged.isSelected ) {
+                          $scope.gridApi.selection.selectRow( child.entity );
+                        } else {
+                          $scope.gridApi.selection.unSelectRow( child.entity );
+                        }
+                      });
+                    }
+                });
             }
         },
         AssignAgent : function(){
@@ -115,6 +201,7 @@ angular.module('app.selfwork.leaderoption').controller('AgentSettingCtrl', funct
                     _getSelectedRows[i].AGENT_COUNT = _getSelectedRows[i].subGridOptions.data.length;
                 }
                 
+                $vm.agentSettingGridApi.grid.refresh();
                 $vm.agentSettingGridApi.rowEdit.setRowsDirty(_getDirtyData);
                 $vm.agentSettingGridApi.selection.clearSelectedRows();
             }
@@ -241,20 +328,31 @@ angular.module('app.selfwork.leaderoption').controller('AgentSettingCtrl', funct
                 res["returnData"][0][i].subGridOptions = {
                     data: _data,
                     columnDefs: [ 
-                        {field: "AS_AGENT", name: "代理人", cellFilter: 'userInfoFilter' },
+                        {field: "AS_AGENT", name: "代理人", cellFilter: 'userInfoFilter', filter: 
+                            {
+                                term: null,
+                                type: uiGridConstants.filter.SELECT,
+                                selectOptions: userInfoByCompyDistribution[0].length == 0 ? [] : userInfoByCompyDistribution[1][userInfoByCompyDistribution[0][0].value]
+                            }
+                        },
                         { name: 'Options'     , displayName: '操作', width: '5%', enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToD') }
                     ],
                     enableFiltering: true,
                     enableSorting: true,
                     enableColumnMenus: false
-                }
+                };
                 res["returnData"][0][i]["AGENT_COUNT"] = _data.length;
             }
 
             $vm.vmData = res["returnData"][0];
 
         }).finally(function() {
-
+            console.log($vm.agentSettingOptions);
+            // 更新filter selectOptions的值
+            $vm.agentSettingOptions.columnDefs[0].filter.selectOptions = userInfoByCompyDistribution[1][$vm.selectAssignDept];
+            for(var i in $vm.vmData){
+                $vm.vmData[i].subGridOptions.columnDefs[0].filter.selectOptions = userInfoByCompyDistribution[1][$vm.selectAssignDept];
+            }
         });
 
         // RestfulApi.SearchMSSQLData({

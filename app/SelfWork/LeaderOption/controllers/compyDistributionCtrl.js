@@ -95,6 +95,8 @@ angular.module('app.selfwork.leaderoption').controller('CompyDistributionCtrl', 
                                             var itemIndex = $vm.compyDistributionData[i].subGridOptions.data.indexOf(foundItem);
 
                                             $vm.compyDistributionData[i].subGridOptions.data.splice(itemIndex, 1);
+
+                                            break;
                                         }
                                     }
 
