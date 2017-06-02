@@ -141,15 +141,15 @@ angular.module('app.selfwork.leaderoption').controller('AgentSettingCtrl', funct
 
                 gridApi.selection.on.rowSelectionChanged( $scope, function ( rowChanged ) {
                     if ( typeof(rowChanged.treeLevel) !== 'undefined' && rowChanged.treeLevel > -1 ) {
-                      // this is a group header
-                      children = $scope.gridApi.treeBase.getRowChildren( rowChanged );
-                      children.forEach( function ( child ) {
-                        if ( rowChanged.isSelected ) {
-                          $scope.gridApi.selection.selectRow( child.entity );
-                        } else {
-                          $scope.gridApi.selection.unSelectRow( child.entity );
-                        }
-                      });
+                        // this is a group header
+                        var children = $vm.agentSettingGridApi.treeBase.getRowChildren( rowChanged );
+                        children.forEach( function ( child ) {
+                            if ( rowChanged.isSelected ) {
+                                $vm.agentSettingGridApi.selection.selectRow( child.entity );
+                            } else {
+                                $vm.agentSettingGridApi.selection.unSelectRow( child.entity );
+                            }
+                        });
                     }
                 });
             }
@@ -157,14 +157,13 @@ angular.module('app.selfwork.leaderoption').controller('AgentSettingCtrl', funct
         AssignAgent : function(){
             if($vm.agentSettingGridApi.selection.getSelectedRows().length > 0){
                 var _getSelectedRows = $vm.agentSettingGridApi.selection.getSelectedRows(),
-                    _getDirtyData = [],
-                    _getDirty = false;
-                    
-                for(var i in _getSelectedRows){
+                    _getDirtyData = [];
 
+                for(var i in _getSelectedRows){
                     // 負責人不等於代理人 和 沒有相同代理人才塞入
                     if((_getSelectedRows[i].COD_PRINCIPAL != $vm.selectAssignAgent) && 
-                        $filter('filter')(_getSelectedRows[i].subGridOptions.data, { COD_PRINCIPAL : $vm.selectAssignAgent }).length == 0){
+                        $filter('filter')(_getSelectedRows[i].subGridOptions.data, { AS_AGENT : $vm.selectAssignAgent }).length == 0 && 
+                        $filter('filter')(_getSelectedRows[i].subGridOptions.data, { AS_PRINCIPAL : $vm.selectAssignAgent }).length == 0){
                         
                         _getSelectedRows[i].subGridOptions.data.push({
                             AS_CODE : _getSelectedRows[i].COD_CODE,
@@ -173,21 +172,25 @@ angular.module('app.selfwork.leaderoption').controller('AgentSettingCtrl', funct
                             AS_PRINCIPAL : _getSelectedRows[i].COD_PRINCIPAL
                         });
 
-                        _getSelectedRows[i].AGENT_COUNT = _getSelectedRows[i].subGridOptions.data.length;
+                        // _getSelectedRows[i].AGENT_COUNT = _getSelectedRows[i].subGridOptions.data.length;
                         _getDirtyData.push(_getSelectedRows[i]);
 
                         // 表示需要更新
-                        _getDirty = true;
+                        // _getDirty = true;
                     }
                 }
 
-                if(_getDirty){
+                if(_getDirtyData.length > 0){
                     $vm.agentSettingGridApi.rowEdit.setRowsDirty(_getDirtyData);
                 }else{
-                    toaster.pop('info', '訊息', '負責人與代理人重複', 3000);
+                    toaster.pop('info', '訊息', '負責人或代理人重複', 3000);
                 }
                 
                 $vm.agentSettingGridApi.selection.clearSelectedRows();
+                // 清除group的Select
+                $vm.agentSettingGridApi.grid.treeBase.tree.forEach(function(entity){
+                    entity.row.isSelected = false;
+                });
             }
         },
         CancelAgent : function(){
@@ -202,11 +205,13 @@ angular.module('app.selfwork.leaderoption').controller('AgentSettingCtrl', funct
                     // 把代理人清空
                     _getSelectedRows[i].subGridOptions.data = [];
 
-                    _getSelectedRows[i].AGENT_COUNT = _getSelectedRows[i].subGridOptions.data.length;
+                    // _getSelectedRows[i].AGENT_COUNT = _getSelectedRows[i].subGridOptions.data.length;
                 }
                 
-                $vm.agentSettingGridApi.grid.refresh();
-                $vm.agentSettingGridApi.rowEdit.setRowsDirty(_getDirtyData);
+                // $vm.agentSettingGridApi.grid.refresh();
+                if(_getDirtyData.length > 0){
+                    $vm.agentSettingGridApi.rowEdit.setRowsDirty(_getDirtyData);
+                }
                 $vm.agentSettingGridApi.selection.clearSelectedRows();
             }
         },
@@ -289,6 +294,10 @@ angular.module('app.selfwork.leaderoption').controller('AgentSettingCtrl', funct
             }, function (err) {
                 toaster.pop('danger', '錯誤', '更新失敗', 3000);
                 promise.reject();
+            }).finally(function(){
+                if($vm.agentSettingGridApi.rowEdit.getDirtyRows().length == 0){
+                    LoadCompyAgent();
+                }
             });    
         },
         LoadCompyAgent : function(){

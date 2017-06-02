@@ -120,9 +120,8 @@ angular.module('app.selfwork.leaderoption').controller('CompyDistributionCtrl', 
             // console.log($vm.selectAssignPrincipal);
             if($vm.compyDistributionGridApi.selection.getSelectedRows().length > 0){
                 var _getSelectedRows = $vm.compyDistributionGridApi.selection.getSelectedRows(),
-                    _getDirtyData = [],
-                    _getDirty = false;
-                    
+                    _getDirtyData = [];
+
                 for(var i in _getSelectedRows){
 
                     // 如果沒有此負責人才塞入
@@ -133,16 +132,16 @@ angular.module('app.selfwork.leaderoption').controller('CompyDistributionCtrl', 
                             COD_PRINCIPAL : $vm.selectAssignPrincipal
                         });
 
-                        _getSelectedRows[i].PRINCIPAL_COUNT = _getSelectedRows[i].subGridOptions.data.length;
+                        // _getSelectedRows[i].PRINCIPAL_COUNT = _getSelectedRows[i].subGridOptions.data.length;
                         _getDirtyData.push(_getSelectedRows[i]);
 
                         // 表示需要更新
-                        _getDirty = true;
+                        // _getDirty = true;
                     }
 
                 }
 
-                if(_getDirty){
+                if(_getDirtyData.length > 0){
                     $vm.compyDistributionGridApi.rowEdit.setRowsDirty(_getDirtyData);
                 }else{
                     toaster.pop('info', '訊息', '行家負責人被重複指派', 3000);
@@ -163,7 +162,7 @@ angular.module('app.selfwork.leaderoption').controller('CompyDistributionCtrl', 
                     // 把負責人清空
                     _getSelectedRows[i].subGridOptions.data = [];
 
-                    _getSelectedRows[i].PRINCIPAL_COUNT = _getSelectedRows[i].subGridOptions.data.length;
+                    // _getSelectedRows[i].PRINCIPAL_COUNT = _getSelectedRows[i].subGridOptions.data.length;
 
                 }
 
@@ -250,6 +249,10 @@ angular.module('app.selfwork.leaderoption').controller('CompyDistributionCtrl', 
             }, function (err) {
                 toaster.pop('danger', '錯誤', '更新失敗', 3000);
                 promise.reject();
+            }).finally(function(){
+                if($vm.compyDistributionGridApi.rowEdit.getDirtyRows().length == 0){
+                    LoadCompyDistribution();
+                }
             });    
 
             // RestfulApi.UpdateMSSQLData({
