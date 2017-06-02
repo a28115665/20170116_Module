@@ -4,25 +4,97 @@ module.exports = function(pQueryname, pParams){
 	switch(pQueryname){
 		case "SelectOrderList":
 			_SQLCommand += "SELECT OL_SEQ, \
-								   OL_CO_CODE, \
-								   OL_MASTER, \
-								   OL_FLIGHTNO, \
-								   OL_IMPORTDT, \
-								   OL_COUNTRY, \
-								   OL_CR_USER, \
-								   OL_W2_PRINCIPAL AS 'W2', \
-								   OL_W2_EDIT_DATETIME, \
-								   OL_W2_OK_DATETIME, \
-								   OL_W3_PRINCIPAL AS 'W3', \
-								   OL_W3_EDIT_DATETIME, \
-								   OL_W3_OK_DATETIME, \
-								   OL_W1_PRINCIPAL AS 'W1', \
-								   OL_W1_EDIT_DATETIME, \
-								   OL_W1_OK_DATETIME \
+									OL_CO_CODE, \
+									OL_MASTER, \
+									OL_FLIGHTNO, \
+									OL_IMPORTDT, \
+									OL_COUNTRY, \
+									OL_CR_USER, \
+									( \
+										CASE WHEN ( \
+											/*表示已有完成者*/ \
+											SELECT COUNT(1) \
+											FROM ORDER_PRINPL \
+											WHERE OP_SEQ = OL_SEQ AND OP_DEPT = 'W2' AND OP_FDATETIME IS NOT NULL \
+										) > 0 THEN '3' \
+										WHEN ( \
+											/*表示未有完成者，但有編輯者*/ \
+											SELECT COUNT(1) \
+											FROM ORDER_PRINPL \
+											WHERE OP_SEQ = OL_SEQ AND OP_DEPT = 'W2' AND OP_EDATETIME IS NOT NULL \
+										) > 0 THEN '2' \
+										WHEN ( \
+											/*表示未有完成者，未有編輯者，但有負責人(已派單)*/ \
+											SELECT COUNT(1) \
+											FROM ORDER_PRINPL \
+											WHERE OP_SEQ = OL_SEQ AND OP_DEPT = 'W2' \
+										) > 0 THEN '1' \
+										/*表示尚未派單*/ \
+										ELSE '0' END \
+									) AS 'W2_STATUS', \
+									( \
+										CASE WHEN ( \
+											/*表示已有完成者*/ \
+											SELECT COUNT(1) \
+											FROM ORDER_PRINPL \
+											WHERE OP_SEQ = OL_SEQ AND OP_DEPT = 'W3' AND OP_FDATETIME IS NOT NULL \
+										) > 0 THEN '3' \
+										WHEN ( \
+											/*表示未有完成者，但有編輯者*/ \
+											SELECT COUNT(1) \
+											FROM ORDER_PRINPL \
+											WHERE OP_SEQ = OL_SEQ AND OP_DEPT = 'W3' AND OP_EDATETIME IS NOT NULL \
+										) > 0 THEN '2' \
+										WHEN ( \
+											/*表示未有完成者，未有編輯者，但有負責人(已派單)*/ \
+											SELECT COUNT(1) \
+											FROM ORDER_PRINPL \
+											WHERE OP_SEQ = OL_SEQ AND OP_DEPT = 'W3' \
+										) > 0 THEN '1' \
+										/*表示尚未派單*/ \
+										ELSE '0' END \
+									) AS 'W3_STATUS', \
+									( \
+										CASE WHEN ( \
+											/*表示已有完成者*/ \
+											SELECT COUNT(1) \
+											FROM ORDER_PRINPL \
+											WHERE OP_SEQ = OL_SEQ AND OP_DEPT = 'W1' AND OP_FDATETIME IS NOT NULL \
+										) > 0 THEN '3' \
+										WHEN ( \
+											/*表示未有完成者，但有編輯者*/ \
+											SELECT COUNT(1) \
+											FROM ORDER_PRINPL \
+											WHERE OP_SEQ = OL_SEQ AND OP_DEPT = 'W1' AND OP_EDATETIME IS NOT NULL \
+										) > 0 THEN '2' \
+										WHEN ( \
+											/*表示未有完成者，未有編輯者，但有負責人(已派單)*/ \
+											SELECT COUNT(1) \
+											FROM ORDER_PRINPL \
+											WHERE OP_SEQ = OL_SEQ AND OP_DEPT = 'W1' \
+										) > 0 THEN '1' \
+										/*表示尚未派單*/ \
+										ELSE '0' END \
+									) AS 'W1_STATUS' \
 							FROM ORDER_LIST \
 							ORDER BY OL_CR_DATETIME DESC";
+			break;
+
+		case "SelectOrderPrinpl":
+			_SQLCommand += "SELECT OP_SEQ, \
+								   OP_DEPT, \
+								   OP_TYPE, \
+								   OP_PRINCIPAL, \
+								   OP_EDATETIME \
+							FROM ORDER_PRINPL \
+							WHERE 1=1 ";
+							
+			if(pParams["OP_DEPT"] !== undefined){
+				_SQLCommand += " AND OP_DEPT = @OP_DEPT";
+			}
 		
 			break;
+
 		case "WhoPrincipal":
 			_SQLCommand += "SELECT CO_NAME, \
 								   COD_CODE, \
@@ -46,13 +118,14 @@ module.exports = function(pQueryname, pParams){
 								LEFT JOIN COMPY_INFO ON COD_CODE = CO_CODE \
 								LEFT JOIN ( \
 									/*代理人是否有請假*/ \
-									SELECT AS_CODE, \
+									SELECT AS_PRINCIPAL, \
+										   AS_CODE, \
 										   AS_AGENT, \
 										   CASE WHEN DL_ID IS NOT NULL THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT) END AS 'AS_IS_LEAVE' \
 									FROM AGENT_SETTING \
 									LEFT JOIN DAILY_LEAVE ON DL_ID = AS_AGENT \
 									WHERE AS_DEPT = @AS_DEPT \
-								) A ON COD_CODE = A.AS_CODE \
+								) A ON COD_CODE = A.AS_CODE AND COD_PRINCIPAL = A.AS_PRINCIPAL \
 								WHERE COD_DEPT = @AS_DEPT \
 							) B"; 
 			break;

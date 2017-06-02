@@ -32,6 +32,10 @@ angular.module('app.selfwork.leaderoption').controller('AgentSettingCtrl', funct
                         term: null,
                         type: uiGridConstants.filter.SELECT,
                         selectOptions: compy
+                    }, 
+                    treeAggregationType: uiGridGroupingConstants.aggregation.COUNT, 
+                    customTreeAggregationFinalizerFn: function( aggregation ) {
+                        aggregation.rendered = aggregation.value;
                     }
                 },
                 { name: 'AGENT_COUNT'   ,  displayName: '代理人數' , treeAggregationType: uiGridGroupingConstants.aggregation.SUM, 
@@ -153,10 +157,10 @@ angular.module('app.selfwork.leaderoption').controller('AgentSettingCtrl', funct
         AssignAgent : function(){
             if($vm.agentSettingGridApi.selection.getSelectedRows().length > 0){
                 var _getSelectedRows = $vm.agentSettingGridApi.selection.getSelectedRows(),
-                    _getDirtyData = [];
+                    _getDirtyData = [],
+                    _getDirty = false;
+                    
                 for(var i in _getSelectedRows){
-
-                    var _getDirty = false;
 
                     // 負責人不等於代理人 和 沒有相同代理人才塞入
                     if((_getSelectedRows[i].COD_PRINCIPAL != $vm.selectAssignAgent) && 

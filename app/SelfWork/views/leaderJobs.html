@@ -53,9 +53,12 @@
 									        	<form class="form-inline" role="form">
 									                <fieldset>
 									                    <div class="form-group">
-															<i class="fa fa-circle-o"> 已派單</i>
-															<i class="fa fa-circle text-warning"> 已編輯</i>
-															<i class="fa fa-circle text-success"> 已完成</i>
+													        <label class="control-label">標籤說明：</label>
+										                    <div class="form-group">
+																<i class="fa fa-circle-o"> 已派單</i>
+																<i class="fa fa-circle text-warning"> 已編輯</i>
+																<i class="fa fa-circle text-success"> 已完成</i>
+										                    </div>
 									                    </div>
 									                </fieldset>
 									            </form>
@@ -64,7 +67,11 @@
 									        	<form class="form-inline" role="form">
 									                <fieldset>
 									                    <div class="form-group">
-															<select class="form-control" ng-model="$vm.selectAssignDept" ng-change="$vm.LoadPrincipal()" ng-options="data.value as data.label for data in $vm.assignGradeData">
+															<select class="form-control" ng-model="$vm.selectAssignOptype" ng-options="data.value as data.label for data in $vm.opType" ng-disabled="true">
+			  												</select>
+									                    </div>
+									                    <div class="form-group">
+															<select class="form-control" ng-model="$vm.selectAssignDept" ng-change="$vm.ChangeDept()" ng-options="data.value as data.label for data in $vm.assignGradeData">
 			  												</select>
 									                    </div>
 									                    <div class="form-group">
@@ -105,7 +112,7 @@
 									    </div>
 									</div>
 
-									<div id="grid1" ui-grid="$vm.orderListOptions" class="my-ui-grid" ui-grid-pagination ui-grid-resize-columns ui-grid-selection ui-grid-auto-resize></div>
+									<div id="grid1" ui-grid="$vm.orderListOptions" class="my-ui-grid" ui-grid-pagination ui-grid-resize-columns ui-grid-edit ui-grid-row-edit ui-grid-expandable ui-grid-selection ui-grid-auto-resize></div>
 
 				                </div>
 				                <div class="tab-pane fade in " ng-class="$vm.TabSwitch('hr2')" id="hr2">
@@ -156,3 +163,7 @@
 	</section>
 
 </div>
+
+<script type="text/ng-template" id="expandableRowTemplate.html">
+	<div ui-grid="row.entity.subGridOptions" style="height:150px;"></div>
+</script>

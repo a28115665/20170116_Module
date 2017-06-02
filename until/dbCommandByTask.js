@@ -229,7 +229,12 @@ var DeleteRequestWithTransaction = function(task, args, callback) {
 	schemaType.SchemaType2(task.params, request, sql);
 
 	for(var key in task.params){
-		Condition.push(" AND "+key + "=@" + key);
+		console.log();
+		if(task.params[key] == null){
+			Condition.push(" AND "+key + " is null");
+		}else{
+			Condition.push(" AND "+key + "=@" + key);
+		}
 	}
 
 	SQLCommand += "DELETE FROM " + tables[task.table] + " WHERE 1=1 "+Condition.join("");

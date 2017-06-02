@@ -104,21 +104,25 @@ angular.module('app')
                         </div>');
     $templateCache.put('accessibilityToForW2', '\
                         <div class="ui-grid-cell-contents text-center">\
-                            <i class="fa fa-circle-o" ng-if="row.entity.W2_STATUS == \'0\'"> </i> \
-                            <i class="fa fa-circle text-warning" ng-if="row.entity.W2_STATUS == \'1\'"> </i> \
-                            <i class="fa fa-circle text-success" ng-if="row.entity.W2_STATUS == \'2\'"> </i> \
+                            <i class="fa fa-circle-o" ng-if="row.entity.W2_STATUS == \'1\'"> </i> \
+                            <i class="fa fa-circle text-warning" ng-if="row.entity.W2_STATUS == \'2\'"> </i> \
+                            <i class="fa fa-circle text-success" ng-if="row.entity.W2_STATUS == \'3\'"> </i> \
                         </div>');
     $templateCache.put('accessibilityToForW3', '\
                         <div class="ui-grid-cell-contents text-center">\
-                            <i class="fa fa-circle-o" ng-if="row.entity.W3_STATUS == \'0\'"> </i> \
-                            <i class="fa fa-circle text-warning" ng-if="row.entity.W3_STATUS == \'1\'"> </i> \
-                            <i class="fa fa-circle text-success" ng-if="row.entity.W3_STATUS == \'2\'"> </i> \
+                            <i class="fa fa-circle-o" ng-if="row.entity.W3_STATUS == \'1\'"> </i> \
+                            <i class="fa fa-circle text-warning" ng-if="row.entity.W3_STATUS == \'2\'"> </i> \
+                            <i class="fa fa-circle text-success" ng-if="row.entity.W3_STATUS == \'3\'"> </i> \
                         </div>');
     $templateCache.put('accessibilityToForW1', '\
                         <div class="ui-grid-cell-contents text-center">\
-                            <i class="fa fa-circle-o" ng-if="row.entity.W1_STATUS == \'0\'"> </i> \
-                            <i class="fa fa-circle text-warning" ng-if="row.entity.W1_STATUS == \'1\'"> </i> \
-                            <i class="fa fa-circle text-success" ng-if="row.entity.W1_STATUS == \'2\'"> </i> \
+                            <i class="fa fa-circle-o" ng-if="row.entity.W1_STATUS == \'1\'"> </i> \
+                            <i class="fa fa-circle text-warning" ng-if="row.entity.W1_STATUS == \'2\'"> </i> \
+                            <i class="fa fa-circle text-success" ng-if="row.entity.W1_STATUS == \'3\'"> </i> \
+                        </div>');
+    $templateCache.put('accessibilityToEdited', '\
+                        <div class="ui-grid-cell-contents text-center">\
+                            <i class="fa fa-check text-primary" ng-if="row.entity.OP_EDATETIME != null"> </i> \
                         </div>');
     $templateCache.put('accessibilityToHistoryCount', '\
                         <div class="ui-grid-cell-contents text-center">\

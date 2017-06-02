@@ -120,10 +120,10 @@ angular.module('app.selfwork.leaderoption').controller('CompyDistributionCtrl', 
             // console.log($vm.selectAssignPrincipal);
             if($vm.compyDistributionGridApi.selection.getSelectedRows().length > 0){
                 var _getSelectedRows = $vm.compyDistributionGridApi.selection.getSelectedRows(),
-                    _getDirtyData = [];
+                    _getDirtyData = [],
+                    _getDirty = false;
+                    
                 for(var i in _getSelectedRows){
-
-                    var _getDirty = false;
 
                     // 如果沒有此負責人才塞入
                     if($filter('filter')(_getSelectedRows[i].subGridOptions.data, { COD_PRINCIPAL : $vm.selectAssignPrincipal }).length == 0){

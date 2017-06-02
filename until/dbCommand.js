@@ -234,7 +234,7 @@ var UpdateMethod = function (updatetname, table, params, condition, callback){
 					}
 					for(var key in _condition){
 						if(_condition[key] == null){
-							Condition.push(" AND "+key + "is @" + key);
+							Condition.push(" AND "+key + " is null");
 						}else{
 							Condition.push(" AND "+key + "=@" + key);
 						}
@@ -303,7 +303,11 @@ var DeleteMethod = function (deletename, table, params, callback){
 		    switch(deletename){
 				case "Delete":
 					for(var key in _params){
-						Condition.push(" AND "+key + "=@" + key);
+						if(_params[key] == null){
+							Condition.push(" AND "+key + " is null");
+						}else{
+							Condition.push(" AND "+key + "=@" + key);
+						}
 					}
 
 					SQLCommand += "DELETE FROM " + tables[table] + " WHERE 1=1 "+Condition.join("");
