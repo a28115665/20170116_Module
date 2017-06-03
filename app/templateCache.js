@@ -20,7 +20,7 @@ angular.module('app')
 	                                          			<i class="fa fa-circle text-warning" ng-if="!row.entity.g"> 作業中</i>\
 	                                          			<i class="fa fa-circle text-success" ng-if="row.entity.g"> 完成</i>\
 	                                       		    </div>');
-	$templateCache.put('accessibilityToDMC', '<div class="ui-grid-cell-contents text-center">\
+	$templateCache.put('accessibilityToRMC', '<div class="ui-grid-cell-contents text-center">\
                                     				<a href="javascript:void(0);" class="btn btn-danger btn-xs" ng-click="grid.appScope.$vm.gridMethod.rejectData(row)" ng-disabled="row.entity.g"> 退單</a>\
                                     				<a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethod.modifyData(row)"> 編輯</a>\
                                     				<a href="javascript:void(0);" class="btn btn-primary btn-xs" ng-click="grid.appScope.$vm.gridMethod.closeData(row)" ng-disabled="row.entity.g"> 完成</a>\
@@ -120,13 +120,19 @@ angular.module('app')
                             <i class="fa fa-circle text-warning" ng-if="row.entity.W1_STATUS == \'2\'"> </i> \
                             <i class="fa fa-circle text-success" ng-if="row.entity.W1_STATUS == \'3\'"> </i> \
                         </div>');
+    $templateCache.put('accessibilityToDMCForLeader', '\
+                        <div class="ui-grid-cell-contents text-center">\
+                            <a href="javascript:void(0);" class="btn btn-danger btn-xs" ng-click="grid.appScope.$vm.gridMethod.deleteData(row)" ng-disabled="row.entity.g"> 刪除</a>\
+                            <a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethod.modifyData(row)"> 編輯</a>\
+                            <a href="javascript:void(0);" class="btn btn-primary btn-xs" ng-click="grid.appScope.$vm.gridMethod.closeData(row)" ng-class="(row.entity.W1_STATUS == \'3\' && row.entity.W2_STATUS == \'3\' && row.entity.W3_STATUS == \'3\') ? \'\' : \'disabled\'"> 結單</a>\
+                        </div>');
     $templateCache.put('accessibilityToEdited', '\
                         <div class="ui-grid-cell-contents text-center">\
                             <i class="fa fa-check text-primary" ng-if="row.entity.OP_EDATETIME != null"> </i> \
                         </div>');
     $templateCache.put('accessibilityToHistoryCount', '\
                         <div class="ui-grid-cell-contents text-center">\
-                            <a href-void="" class="btn btn-danger btn-xs" href="#">{{row.entity.IL_COUNT}}</a> \
+                            <a href-void="" class="btn btn-danger btn-xs" href="#" ng-class="row.entity.IL_COUNT > 0 ? \'\' : \'disabled\'" ng-click="grid.appScope.$vm.gridMethod.showHistoryCount(row)">{{row.entity.IL_COUNT}}</a> \
                         </div>');
 
     $templateCache.put('isChecked', '\

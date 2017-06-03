@@ -40,6 +40,10 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
         assignPrincipalData : userInfoByGrade[1],
         opType : opType,
         gridMethod : {
+            deleteData : function(row){
+
+            },
+            // 編輯
             modifyData : function(row){
                 var modalInstance = $uibModal.open({
                     animation: true,
@@ -86,7 +90,8 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
                     // $log.info('Modal dismissed at: ' + new Date());
                 });
             },
-            deleteData : function(row){
+            // 結單
+            closeData : function(row){
 
             }
         },
@@ -143,7 +148,7 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
                     }
                 },
                 // { name: 'W1'          ,  displayName: '派送單負責人', cellFilter: 'userInfoFilter' },
-                { name: 'Options'     ,  displayName: '功能', enableFiltering: false, width: '9%', cellTemplate: $templateCache.get('accessibilityToMD') }
+                { name: 'Options'     ,  displayName: '功能', enableFiltering: false, width: '12%', cellTemplate: $templateCache.get('accessibilityToDMCForLeader') }
             ],
             enableFiltering: true,
             enableSorting: true,

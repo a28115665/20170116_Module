@@ -277,3 +277,17 @@
 	</section>
 
 </div>
+
+
+<script type="text/ng-template" id="showHistoryCountModalContent.html">
+    <div class="modal-header" ng-init="$ctrl.Init()">
+	    <h3 class="modal-title" id="modal-title">歷史歷程</h3>
+	</div>
+	<div class="modal-body no-padding" id="modal-body">
+		<div id="grid1" ui-grid="$ctrl.mdDataOption" class="my-ui-grid" ui-grid-pagination ui-grid-resize-columns ui-grid-auto-resize></div>
+	</div>
+	<div class="modal-footer">
+	    <button class="btn btn-primary" type="button" ng-click="$ctrl.ok()">{{getWord('OK')}}</button>
+	    <button class="btn btn-default" type="button" ng-click="$ctrl.cancel()">{{getWord('Cancel')}}</button>
+	</div>
+</script>

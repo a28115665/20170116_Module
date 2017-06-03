@@ -66,6 +66,38 @@ angular.module('app.concerns').controller('DailyAlertCtrl', function ($scope, $s
                     break;
             }
         },
+        gridMethod : {
+            // 顯示歷史黑名單
+            showHistoryCount : function(row){
+                console.log(row);
+                var modalInstance = $uibModal.open({
+                    animation: true,
+                    ariaLabelledBy: 'modal-title',
+                    ariaDescribedBy: 'modal-body',
+                    templateUrl: 'showHistoryCountModalContent.html',
+                    controller: 'ShowHistoryCountModalInstanceCtrl',
+                    controllerAs: '$ctrl',
+                    size: 'lg',
+                    // appendTo: parentElem,
+                    resolve: {
+                        item: function() {
+                            return row.entity;
+                        },
+                        type: function(){
+                            return $vm.defaultTab;   
+                        }
+                    }
+                });
+
+                modalInstance.result.then(function(selectedItem) {
+                    // $ctrl.selected = selectedItem;
+                    console.log(selectedItem);
+
+                }, function() {
+                    // $log.info('Modal dismissed at: ' + new Date());
+                });
+            }
+        },
         caseAOptions : {
             data:  '$vm.caseAData',
             columnDefs: columnDefs,
@@ -199,3 +231,95 @@ angular.module('app.concerns').controller('DailyAlertCtrl', function ($scope, $s
         }); 
     }
 })
+.controller('ShowHistoryCountModalInstanceCtrl', function ($uibModalInstance, item, type, RestfulApi) {
+    var $ctrl = this;
+
+    $ctrl.Init = function(){
+        LoadHistoryCount(type);
+    };
+
+    $ctrl.mdDataOption = {
+        data:  '$ctrl.mdData',
+        columnDefs: [
+            { name: 'IL_G1'         , displayName: '報關種類', width: 154 },
+            { name: 'IL_MERGENO'    , displayName: '併票號', width: 129 },
+            { name: 'IL_BAGNO'      , displayName: '袋號', width: 129 },
+            { name: 'IL_SMALLNO'    , displayName: '小號', width: 115 },
+            { name: 'IL_NATURE'     , displayName: '品名', width: 115 },
+            { name: 'IL_NATURE_NEW' , displayName: '新品名', width: 115 },
+            { name: 'IL_CTN'        , displayName: '件數', width: 115 },
+            { name: 'IL_PLACE'      , displayName: '產地', width: 115 },
+            { name: 'IL_WEIGHT'     , displayName: '重量', width: 115 },
+            { name: 'IL_WEIGHT_NEW' , displayName: '更改後重量', width: 115 },
+            { name: 'IL_PCS'        , displayName: '數量', width: 115 },
+            { name: 'IL_UNIT'       , displayName: '單位', width: 115 },
+            { name: 'IL_GETNO'      , displayName: '收件者統編', width: 115 },
+            { name: 'IL_SENDNAME'   , displayName: '寄件人或公司', width: 115 },
+            { name: 'IL_GETNAME'    , displayName: '收件人公司', width: 115 },
+            { name: 'IL_GETADDRESS' , displayName: '收件地址', width: 300 },
+            { name: 'IL_GETTEL'     , displayName: '收件電話', width: 115 },
+            { name: 'IL_UNIVALENT'  , displayName: '單價', width: 115 },
+            { name: 'IL_FINALCOST'  , displayName: '完稅價格', width: 115 },
+            { name: 'IL_TAX'        , displayName: '稅則', width: 115 },
+            { name: 'IL_TRCOM'      , displayName: '派送公司', width: 115 }
+        ],
+        enableFiltering: true,
+        enableSorting: true,
+        enableColumnMenus: false,
+        // enableVerticalScrollbar: false,
+        paginationPageSizes: [10, 25, 50],
+        paginationPageSize: 10,
+        onRegisterApi: function(gridApi){
+            $ctrl.mdDataGridApi = gridApi;
+        }
+    }
+
+    function LoadHistoryCount(pType){
+        var _params = {};
+
+        switch(pType){
+            case 'hr1':
+                _params = {
+                    IL_GETNAME : item.IL_GETNAME,
+                    IL_GETADDRESS : item.IL_GETADDRESS
+                };
+                break;
+            case 'hr2':
+                _params = {
+                    IL_GETADDRESS : item.IL_GETADDRESS,
+                    IL_GETTEL : item.IL_GETTEL
+                };
+                break;
+            case 'hr3':
+                _params = {
+                    IL_GETNAME : item.IL_GETNAME,
+                    IL_GETTEL : item.IL_GETTEL
+                };
+                break;
+            case 'hr4':
+                _params = {
+                    IL_GETNAME : item.IL_GETNAME,
+                    IL_GETADDRESS : item.IL_GETADDRESS,
+                    IL_GETTEL : item.IL_GETTEL
+                };
+                break;
+        }
+
+        RestfulApi.SearchMSSQLData({
+            querymain: 'dailyAlert',
+            queryname: 'SelectItemList',
+            params: _params
+        }).then(function (res){
+            console.log(res["returnData"]);
+            $ctrl.mdData = res["returnData"];
+        }); 
+    }
+
+    $ctrl.ok = function() {
+        $uibModalInstance.close($ctrl.mdData);
+    };
+
+    $ctrl.cancel = function() {
+        $uibModalInstance.dismiss('cancel');
+    };
+});
