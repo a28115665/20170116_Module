@@ -25,6 +25,7 @@ angular.module('app', [
     'ui.grid.exporter',
     'ui.grid.pagination',
     'ui.grid.grouping',
+    'ui.grid.expandable',
     'ui.grid.pinning',
     'ui.grid.autoResize',
     'ui.mask',
@@ -173,6 +174,18 @@ angular.module('app', [
         //     $state.transitionTo("login");
         //     event.preventDefault(); 
         // });
+    });
+
+    $rootScope.$on('$stateChangeSuccess', function(event, toState, roParams, fromState, fromParams) {
+        // 檢視此頁是否有權限進入
+        // 無權限就導到default頁面
+        // console.log(Session.Get().GRIGHT[toState.name], toState.name);
+        if(!angular.isUndefined(Session.Get())){
+            if(!Session.Get().GRIGHT[toState.name]){
+                // event.preventDefault();
+                $state.transitionTo("app.default");
+            }
+        }
     });
 
 });

@@ -14,9 +14,9 @@
 		"server": "127.0.0.1",
 		"database": "EWS",
 		"pool": {
-	        "max": 10,
+	        "max": 50,
 	        "min": 0,
-	        "idleTimeoutMillis": 15000
+	        "idleTimeoutMillis": 2000
 	    }
 	},
 	"WebService" : {

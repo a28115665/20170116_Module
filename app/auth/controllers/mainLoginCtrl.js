@@ -1,7 +1,7 @@
 "use strict";
 
 angular.module('app.auth').controller('MainLoginCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, RestfulApi) {
-    console.log(Session.Get());
+    // console.log(Session.Get());
     $scope.Login = function($vm){
         // console.log($vm);
         AuthApi.Login({
@@ -13,7 +13,7 @@ angular.module('app.auth').controller('MainLoginCtrl', function ($scope, $stateP
                 toaster.success("狀態", "登入成功", 3000);
 
                 AuthApi.ReLoadSession().then(function(res){
-                    $state.transitionTo("app.mainwork");
+                    $state.transitionTo("app.default");
                 });
 
             }else{                

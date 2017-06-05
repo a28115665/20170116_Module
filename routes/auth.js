@@ -74,6 +74,14 @@ router.get('/login', function(req, res) {
                 params : {
                     UD_ID : req.query.U_ID
                 }
+            }),
+            JSON.stringify({
+                crudType : 'Select',
+                querymain : 'composeMenu',
+                queryname : 'GetUserRight',
+                params : {
+                    U_ID : req.query.U_ID
+                }
             })
         ]);
         
@@ -110,6 +118,20 @@ router.get('/login', function(req, res) {
                         if(_content.returnData[0].length > 0){
                             // 塞入部門資訊
                             _content.returnData[0][0]["DEPTS"] = _content.returnData[1];
+
+                            // 權限
+                            var gRight = _content.returnData[2],
+                                gRightItem = {
+                                    "app.default" : true // 前端預設頁面
+                                };
+
+                            // 權限轉換物件
+                            for(var igRight in gRight){
+                                gRightItem[gRight[igRight].PROG_PATH] = (gRight[igRight].USER_RIGHT == 'true');
+                            }
+
+                            // 塞入個人Menu權限
+                            _content.returnData[0][0]["GRIGHT"] = gRightItem;
 
                             // 資料塞入Session
                             req.session.key = _content.returnData[0][0]

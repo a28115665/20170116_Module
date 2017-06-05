@@ -110,18 +110,26 @@ angular.module('app.concerns').controller('BanCtrl', function ($scope, $statePar
                 animation: true,
                 ariaLabelledBy: 'modal-title',
                 ariaDescribedBy: 'modal-body',
-                templateUrl: 'isDelete.html',
-                controller: 'IsDeleteModalInstanceCtrl',
+                template: $templateCache.get('isChecked'),
+                controller: 'IsCheckedModalInstanceCtrl',
                 controllerAs: '$ctrl',
                 size: 'sm',
+                windowClass: 'center-modal',
+                // appendTo: parentElem,
                 resolve: {
-                    items: function () {
+                    items: function() {
                         return $vm.blfoGridApi.selection.getSelectedRows();
+                    },
+                    show: function(){
+                        return {
+                            title : "是否刪除"
+                        };
                     }
                 }
             });
 
             modalInstance.result.then(function(selectedItem) {
+                // $ctrl.selected = selectedItem;
                 console.log(selectedItem);
 
                 var _tasks = [];
@@ -145,9 +153,53 @@ angular.module('app.concerns').controller('BanCtrl', function ($scope, $statePar
                 }, function (err) {
 
                 });
+
             }, function() {
                 // $log.info('Modal dismissed at: ' + new Date());
             });
+
+            // var modalInstance = $uibModal.open({
+            //     animation: true,
+            //     ariaLabelledBy: 'modal-title',
+            //     ariaDescribedBy: 'modal-body',
+            //     templateUrl: 'isDelete.html',
+            //     controller: 'IsDeleteModalInstanceCtrl',
+            //     controllerAs: '$ctrl',
+            //     size: 'sm',
+            //     resolve: {
+            //         items: function () {
+            //             return $vm.blfoGridApi.selection.getSelectedRows();
+            //         }
+            //     }
+            // });
+
+            // modalInstance.result.then(function(selectedItem) {
+            //     console.log(selectedItem);
+
+            //     var _tasks = [];
+
+            //     for(var i in selectedItem){
+            //         _tasks.push({
+            //             crudType: 'Delete',
+            //             table: 13,
+            //             params: {
+            //                 BLFO_SEQ : selectedItem[i].BLFO_SEQ,
+            //                 BLFO_NEWBAGNO : selectedItem[i].BLFO_NEWBAGNO,
+            //                 BLFO_NEWSMALLNO : selectedItem[i].BLFO_NEWSMALLNO,
+            //                 BLFO_ORDERINDEX : selectedItem[i].BLFO_ORDERINDEX
+            //             }
+            //         });
+            //     }
+
+            //     RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res) {
+            //         toaster.pop('success', '訊息', '名單成員刪除成功', 3000);
+            //         LoadBLFO();
+            //     }, function (err) {
+
+            //     });
+            // }, function() {
+            //     // $log.info('Modal dismissed at: ' + new Date());
+            // });
         },
         gridMethodForBLFL : {
             // 編輯
@@ -280,24 +332,33 @@ angular.module('app.concerns').controller('BanCtrl', function ($scope, $statePar
             });
         },
         DeleteBLFL : function(){
-            console.log($vm.blflGridApi.selection.getSelectedRows());
+            // console.log($vm.blflGridApi.selection.getSelectedRows());
+
 
             var modalInstance = $uibModal.open({
                 animation: true,
                 ariaLabelledBy: 'modal-title',
                 ariaDescribedBy: 'modal-body',
-                templateUrl: 'isDelete.html',
-                controller: 'IsDeleteModalInstanceCtrl',
+                template: $templateCache.get('isChecked'),
+                controller: 'IsCheckedModalInstanceCtrl',
                 controllerAs: '$ctrl',
                 size: 'sm',
+                windowClass: 'center-modal',
+                // appendTo: parentElem,
                 resolve: {
-                    items: function () {
+                    items: function() {
                         return $vm.blflGridApi.selection.getSelectedRows();
+                    },
+                    show: function(){
+                        return {
+                            title : "是否刪除"
+                        };
                     }
                 }
             });
 
             modalInstance.result.then(function(selectedItem) {
+                // $ctrl.selected = selectedItem;
                 console.log(selectedItem);
 
                 var _tasks = [];
@@ -318,9 +379,50 @@ angular.module('app.concerns').controller('BanCtrl', function ($scope, $statePar
                 }, function (err) {
 
                 });
+
             }, function() {
                 // $log.info('Modal dismissed at: ' + new Date());
             });
+
+            // var modalInstance = $uibModal.open({
+            //     animation: true,
+            //     ariaLabelledBy: 'modal-title',
+            //     ariaDescribedBy: 'modal-body',
+            //     templateUrl: 'isDelete.html',
+            //     controller: 'IsDeleteModalInstanceCtrl',
+            //     controllerAs: '$ctrl',
+            //     size: 'sm',
+            //     resolve: {
+            //         items: function () {
+            //             return $vm.blflGridApi.selection.getSelectedRows();
+            //         }
+            //     }
+            // });
+
+            // modalInstance.result.then(function(selectedItem) {
+            //     console.log(selectedItem);
+
+            //     var _tasks = [];
+
+            //     for(var i in selectedItem){
+            //         _tasks.push({
+            //             crudType: 'Delete',
+            //             table: 12,
+            //             params: {
+            //                 BLFL_ID : selectedItem[i].BLFL_ID
+            //             }
+            //         });
+            //     }
+
+            //     RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res) {
+            //         toaster.pop('success', '訊息', '名單成員刪除成功', 3000);
+            //         LoadBLFL();
+            //     }, function (err) {
+
+            //     });
+            // }, function() {
+            //     // $log.info('Modal dismissed at: ' + new Date());
+            // });
         }
     });
 

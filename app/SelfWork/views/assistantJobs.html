@@ -30,10 +30,10 @@
 
 				        <ul id="widget-tab-1" class="nav pull-right" ng-class="{'nav-tabs' : !!ShowTabs, 'nav-pills': !ShowTabs }">
 				            <li ng-class="$vm.TabSwitch('hr1')" ng-click="$vm.defaultTab='hr1';$vm.LoadData()">
-				                <a data-toggle="tab" href="#hr1"> <i class="fa fa-lg fa-hand-o-down"></i> <span class="hidden-mobile hidden-tablet"> 主號待補 </span> </a>
+				                <a data-toggle="tab" href="#hr1"> <i class="fa fa-lg fa-hand-o-down"></i> <span class="hidden-mobile hidden-tablet"> 改走 </span> </a>
 				            </li>
 				            <li ng-class="$vm.TabSwitch('hr2')" ng-click="$vm.defaultTab='hr2';$vm.LoadData()">
-				                <a data-toggle="tab" href="#hr2"> <i class="glyphicon glyphicon-stats"></i> <span class="hidden-mobile hidden-tablet"> 拉貨 </span></a>
+				                <a data-toggle="tab" href="#hr2"> <i class="fa fa-lg fa-puzzle-piece"></i> <span class="hidden-mobile hidden-tablet"> 拉貨 </span></a>
 				            </li>
 				        </ul>
 
@@ -123,7 +123,7 @@
 									    </div>
 									</div> -->
 
-									<!-- <div id="grid1" ui-grid="$vm.compyStatisticsOptions" class="my-ui-grid" ui-grid-pagination ui-grid-resize-columns ui-grid-auto-resize></div> -->
+									<div id="grid1" ui-grid="$vm.pullGoodsOptions" class="my-ui-grid" ui-grid-pagination ui-grid-resize-columns ui-grid-auto-resize></div>
 				                </div>
 				            </div>
 						</div>
@@ -139,3 +139,31 @@
 	</section>
 
 </div>
+
+<script type="text/ng-template" id="modifyModalContent.html">
+    <div class="modal-header">
+	    <h3 class="modal-title" id="modal-title">編輯</h3>
+	</div>
+	<div class="modal-body" id="modal-body">
+	    <form class="form-horizontal" name="modifyForm">
+			<fieldset>
+				<div class="form-group">
+			        <label class="col-md-2 control-label">航班</label>
+			        <div class="col-md-10">
+			            <input class="form-control" name="OL_FLIGHTNO" placeholder="請輸入航班(改)" ng-model="$ctrl.mdData.PG_FLIGHTNO" type="text" required>
+			        </div>
+			    </div>
+				<div class="form-group">
+			        <label class="col-md-2 control-label">主號</label>
+			        <div class="col-md-10">
+			            <input class="form-control" name="OL_MASTER" placeholder="請輸入主號(改)" ng-model="$ctrl.mdData.PG_MASTER" type="text" required>
+			        </div>
+			    </div>
+			</fieldset>
+	    </form>
+	</div>
+	<div class="modal-footer">
+	    <button class="btn btn-primary" type="button" ng-click="$ctrl.ok()" ng-disabled="!modifyForm.$valid">{{getWord('OK')}}</button>
+	    <button class="btn btn-default" type="button" ng-click="$ctrl.cancel()">{{getWord('Cancel')}}</button>
+	</div>
+</script>

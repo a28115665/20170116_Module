@@ -25,6 +25,9 @@ angular.module('app.selfwork.leaderoption').config(function ($stateProvider){
                 resolve: {
                     userInfoByGrade : function(UserInfoByGrade, Session){
                         return UserInfoByGrade.get(Session.Get().U_ID, Session.Get().U_GRADE, Session.Get().DEPTS);
+                    },
+                    compy : function(Compy){
+                        return Compy.get();
                     }
                 }
             }
@@ -44,6 +47,9 @@ angular.module('app.selfwork.leaderoption').config(function ($stateProvider){
                 resolve: {
                     userInfoByCompyDistribution : function (UserInfoByCompyDistribution, Session){
                         return UserInfoByCompyDistribution.get(Session.Get().U_ID);
+                    },
+                    compy : function(Compy){
+                        return Compy.get();
                     }
                 }
             }

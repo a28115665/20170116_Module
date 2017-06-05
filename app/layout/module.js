@@ -17,8 +17,21 @@ angular.module('app.layout', ['ui.router'])
                     }
                 }
             }
+        })
+
+        .state('app.default', {
+            url: '/',
+            data: {
+                title: ''
+            },
+            views: {
+                "content@app" : {
+                    templateUrl: 'app/Template/views/default.html'
+                }
+            }
         });
-    $urlRouterProvider.otherwise('/mainwork');
+
+    $urlRouterProvider.otherwise('/');
 
 })
 

@@ -320,6 +320,7 @@ angular.module('app', [
     'ui.grid.exporter',
     'ui.grid.pagination',
     'ui.grid.grouping',
+    'ui.grid.expandable',
     'ui.grid.pinning',
     'ui.grid.autoResize',
     'ui.mask',
@@ -468,6 +469,18 @@ angular.module('app', [
         //     $state.transitionTo("login");
         //     event.preventDefault(); 
         // });
+    });
+
+    $rootScope.$on('$stateChangeSuccess', function(event, toState, roParams, fromState, fromParams) {
+        // 檢視此頁是否有權限進入
+        // 無權限就導到default頁面
+        // console.log(Session.Get().GRIGHT[toState.name], toState.name);
+        if(!angular.isUndefined(Session.Get())){
+            if(!Session.Get().GRIGHT[toState.name]){
+                // event.preventDefault();
+                $state.transitionTo("app.default");
+            }
+        }
     });
 
 });
@@ -1360,8 +1373,21 @@ angular.module('app.layout', ['ui.router'])
                     }
                 }
             }
+        })
+
+        .state('app.default', {
+            url: '/',
+            data: {
+                title: ''
+            },
+            views: {
+                "content@app" : {
+                    templateUrl: 'app/Template/views/default.html'
+                }
+            }
         });
-    $urlRouterProvider.otherwise('/mainwork');
+
+    $urlRouterProvider.otherwise('/');
 
 })
 
@@ -1929,6 +1955,9 @@ angular.module('app.selfwork').config(function ($stateProvider){
                     },
                     compy : function(Compy){
                         return Compy.get();
+                    },
+                    opType : function (SysCode){
+                        return SysCode.get('OpType');
                     }
                 }
             }
@@ -2628,6 +2657,9 @@ angular.module('app.selfwork.leaderoption').config(function ($stateProvider){
                 resolve: {
                     userInfoByGrade : function(UserInfoByGrade, Session){
                         return UserInfoByGrade.get(Session.Get().U_ID, Session.Get().U_GRADE, Session.Get().DEPTS);
+                    },
+                    compy : function(Compy){
+                        return Compy.get();
                     }
                 }
             }
@@ -2647,6 +2679,9 @@ angular.module('app.selfwork.leaderoption').config(function ($stateProvider){
                 resolve: {
                     userInfoByCompyDistribution : function (UserInfoByCompyDistribution, Session){
                         return UserInfoByCompyDistribution.get(Session.Get().U_ID);
+                    },
+                    compy : function(Compy){
+                        return Compy.get();
                     }
                 }
             }
@@ -3099,13 +3134,46 @@ angular.module('app')
 		if (!input) {
 		    return '';
 		} else {
-		    return resData[input];
+		    return angular.isUndefined(resData[input]) ? input : resData[input];
 		}
 
 	};
 	
 	function LoadData(){
 		SysCode.get('Role').then(function (res){
+			for(var i in res){
+				resData[res[i].value] = res[i].label;
+			}
+		});
+	}
+
+	// 持續偵測
+	FilterFunction.$stateful = true;
+
+	return FilterFunction;
+
+})
+.filter('opTypeFilter', function (SysCode) {
+
+	var resData = {};
+
+	LoadData();
+
+	var FilterFunction = function (input, isLoad){
+		if(isLoad){
+			LoadData();
+		}
+
+		if (!input) {
+		    return '';
+		} else {
+		    return angular.isUndefined(resData[input]) ? input : resData[input];
+		}
+
+	};
+	
+	function LoadData(){
+		SysCode.get('OpType').then(function (res){
 			for(var i in res){
 				resData[res[i].value] = res[i].label;
 			}
@@ -3132,7 +3200,7 @@ angular.module('app')
 		if (!input) {
 		    return '';
 		} else {
-		    return resData[input];
+		    return angular.isUndefined(resData[input]) ? input : resData[input];
 		}
 
 	};
@@ -3165,7 +3233,7 @@ angular.module('app')
 		if (!input) {
 		    return '';
 		} else {
-		    return resData[input];
+		    return angular.isUndefined(resData[input]) ? input : resData[input];
 		}
 
 	};
@@ -3198,7 +3266,7 @@ angular.module('app')
 		if (!input) {
 		    return '';
 		} else {
-		    return resData[input];
+		    return angular.isUndefined(resData[input]) ? input : resData[input];
 		}
 
 	};
@@ -3231,7 +3299,7 @@ angular.module('app')
 		if (!input) {
 		    return '';
 		} else {
-		    return resData[input];
+		    return angular.isUndefined(resData[input]) ? input : resData[input];
 		}
 
 	};
@@ -3264,7 +3332,7 @@ angular.module('app')
 		if (!input) {
 		    return '';
 		} else {
-		    return resData[input];
+		    return angular.isUndefined(resData[input]) ? input : resData[input];
 		}
 
 	};
@@ -3828,37 +3896,57 @@ angular.module('app')
 	                                          			<i class="fa fa-circle text-warning" ng-if="!row.entity.g"> 作業中</i>\
 	                                          			<i class="fa fa-circle text-success" ng-if="row.entity.g"> 完成</i>\
 	                                       		    </div>');
-	$templateCache.put('accessibilityToDMC', '<div class="ui-grid-cell-contents text-center">\
+    $templateCache.put('accessibilityToMC', '<div class="ui-grid-cell-contents text-center">\
+                                                    <a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethod.modifyData(row)"> 編輯</a>\
+                                                    <a href="javascript:void(0);" class="btn btn-danger btn-xs" ng-click="grid.appScope.$vm.gridMethod.cancelData(row)"> 取消</a>\
+                                              </div>');
+	$templateCache.put('accessibilityToRMC', '<div class="ui-grid-cell-contents text-center">\
                                     				<a href="javascript:void(0);" class="btn btn-danger btn-xs" ng-click="grid.appScope.$vm.gridMethod.rejectData(row)" ng-disabled="row.entity.g"> 退單</a>\
                                     				<a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethod.modifyData(row)"> 編輯</a>\
                                     				<a href="javascript:void(0);" class="btn btn-primary btn-xs" ng-click="grid.appScope.$vm.gridMethod.closeData(row)" ng-disabled="row.entity.g"> 完成</a>\
                                		  		  </div>');
-  $templateCache.put('accessibilityToDMCForJob001', '\
+  $templateCache.put('accessibilityToOperaForJob001', '\
                     <div class="ui-grid-cell-contents text-center">\
-                        <a href="javascript:void(0);" class="btn btn-danger btn-xs" ng-click="grid.appScope.$vm.gridMethodForJob001.rejectData(row)" ng-disabled="row.entity.g"> 退單</a>\
-                        <a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethodForJob001.modifyData(row)"> 編輯</a>\
-                        <a href="javascript:void(0);" class="btn btn-primary btn-xs" ng-click="grid.appScope.$vm.gridMethodForJob001.closeData(row)" ng-disabled="row.entity.g"> 完成</a>\
-                        <a href="javascript:void(0);" class="btn btn-danger btn-xs" ng-click="grid.appScope.$vm.gridMethodForJob001.deleteData(row)" ng-disabled="row.entity.g"> 刪除</a>\
+                        <a href="javascript:void(0);" class="btn btn-success btn-xs" ng-click="grid.appScope.$vm.gridMethod.gridOperation(row, \'報機單\')"> 工作選項</a>\
                     </div>');
-  $templateCache.put('accessibilityToDMCForJob002', '\
+  $templateCache.put('accessibilityToOperaForJob002', '\
                     <div class="ui-grid-cell-contents text-center">\
-                        <a href="javascript:void(0);" class="btn btn-danger btn-xs" ng-click="grid.appScope.$vm.gridMethodForJob002.rejectData(row)" ng-disabled="row.entity.g"> 退單</a>\
-                        <a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethodForJob002.modifyData(row)"> 編輯</a>\
-                        <a href="javascript:void(0);" class="btn btn-primary btn-xs" ng-click="grid.appScope.$vm.gridMethodForJob002.closeData(row)" ng-disabled="row.entity.g"> 完成</a>\
-                        <a href="javascript:void(0);" class="btn btn-danger btn-xs" ng-click="grid.appScope.$vm.gridMethodForJob002.deleteData(row)" ng-disabled="row.entity.g"> 刪除</a>\
+                        <a href="javascript:void(0);" class="btn btn-success btn-xs" ng-click="grid.appScope.$vm.gridMethod.gridOperation(row, \'銷艙單\')"> 工作選項</a>\
                     </div>');
-  $templateCache.put('accessibilityToDMCForJob003', '\
+  $templateCache.put('accessibilityToOperaForJob003', '\
                     <div class="ui-grid-cell-contents text-center">\
-                        <a href="javascript:void(0);" class="btn btn-danger btn-xs" ng-click="grid.appScope.$vm.gridMethodForJob003.rejectData(row)" ng-disabled="row.entity.g"> 退單</a>\
-                        <a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethodForJob003.modifyData(row)"> 編輯</a>\
-                        <a href="javascript:void(0);" class="btn btn-primary btn-xs" ng-click="grid.appScope.$vm.gridMethodForJob003.closeData(row)" ng-disabled="row.entity.g"> 完成</a>\
-                        <a href="javascript:void(0);" class="btn btn-danger btn-xs" ng-click="grid.appScope.$vm.gridMethodForJob003.deleteData(row)" ng-disabled="row.entity.g"> 刪除</a>\
+                        <a href="javascript:void(0);" class="btn btn-success btn-xs" ng-click="grid.appScope.$vm.gridMethod.gridOperation(row, \'派送單\')"> 工作選項</a>\
                     </div>');
-	$templateCache.put('accessibilityToCB', '<div class="ui-grid-cell-contents text-center">\
-                                            <a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethod.changeNature(row)" ng-hide="row.entity[\'loading\']"> 改單</a>\
-                                            <a href="javascript:void(0);" class="btn btn-warning btn-xs disabled" ng-show="row.entity[\'loading\']"> <i class="fa fa-refresh fa-spin"></i></a>\
-                                    				<a href="javascript:void(0);" class="btn btn-primary btn-xs" ng-click="grid.appScope.$vm.gridMethod.banData(row)" ng-class="row.entity.BLFO_TRACK != null ? \'disabled\' : \'\'"> 加入黑名單</a>\
-                               		  		  </div>');
+  // $templateCache.put('accessibilityToDMCForJob001', '\
+  //                   <div class="ui-grid-cell-contents text-center">\
+  //                       <a href="javascript:void(0);" class="btn btn-danger btn-xs" ng-click="grid.appScope.$vm.gridMethodForJob001.rejectData(row)" ng-disabled="row.entity.g"> 退單</a>\
+  //                       <a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethodForJob001.modifyData(row)"> 編輯</a>\
+  //                       <a href="javascript:void(0);" class="btn btn-primary btn-xs" ng-click="grid.appScope.$vm.gridMethodForJob001.closeData(row)" ng-disabled="row.entity.g"> 完成</a>\
+  //                       <a href="javascript:void(0);" class="btn btn-danger btn-xs" ng-click="grid.appScope.$vm.gridMethodForJob001.deleteData(row)" ng-disabled="row.entity.g"> 刪除</a>\
+  //                   </div>');
+  // $templateCache.put('accessibilityToDMCForJob002', '\
+  //                   <div class="ui-grid-cell-contents text-center">\
+  //                       <a href="javascript:void(0);" class="btn btn-danger btn-xs" ng-click="grid.appScope.$vm.gridMethodForJob002.rejectData(row)" ng-disabled="row.entity.g"> 退單</a>\
+  //                       <a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethodForJob002.modifyData(row)"> 編輯</a>\
+  //                       <a href="javascript:void(0);" class="btn btn-primary btn-xs" ng-click="grid.appScope.$vm.gridMethodForJob002.closeData(row)" ng-disabled="row.entity.g"> 完成</a>\
+  //                       <a href="javascript:void(0);" class="btn btn-danger btn-xs" ng-click="grid.appScope.$vm.gridMethodForJob002.deleteData(row)" ng-disabled="row.entity.g"> 刪除</a>\
+  //                   </div>');
+  // $templateCache.put('accessibilityToDMCForJob003', '\
+  //                   <div class="ui-grid-cell-contents text-center">\
+  //                       <a href="javascript:void(0);" class="btn btn-danger btn-xs" ng-click="grid.appScope.$vm.gridMethodForJob003.rejectData(row)" ng-disabled="row.entity.g"> 退單</a>\
+  //                       <a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethodForJob003.modifyData(row)"> 編輯</a>\
+  //                       <a href="javascript:void(0);" class="btn btn-primary btn-xs" ng-click="grid.appScope.$vm.gridMethodForJob003.closeData(row)" ng-disabled="row.entity.g"> 完成</a>\
+  //                       <a href="javascript:void(0);" class="btn btn-danger btn-xs" ng-click="grid.appScope.$vm.gridMethodForJob003.deleteData(row)" ng-disabled="row.entity.g"> 刪除</a>\
+  //                   </div>');
+	$templateCache.put('accessibilityToCB', '\
+                    <div class="ui-grid-cell-contents text-center">\
+                        <a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethod.changeNature(row)" ng-hide="row.entity[\'loading\']"> 改單</a>\
+                        <a href="javascript:void(0);" class="btn btn-warning btn-xs disabled" ng-show="row.entity[\'loading\']"> <i class="fa fa-refresh fa-spin"></i></a>\
+        				<a href="javascript:void(0);" class="btn btn-danger btn-xs" ng-click="grid.appScope.$vm.gridMethod.banData(row)" ng-class="row.entity.BLFO_TRACK != null ? \'disabled\' : \'\'"> 加入黑名單</a>\
+                        <a href="javascript:void(0);" class="btn btn-primary btn-xs" ng-click="grid.appScope.$vm.gridMethod.pullGoods(row)" ng-class="row.entity.PG_PULLGOODS ? \'disabled\' : \'\'"> 拉貨</a>\
+                        <!--<a href="javascript:void(0);" class="btn btn-primary btn-xs" ng-click="grid.appScope.$vm.gridMethod.cancelPullGoods(row)" ng-show="row.entity.PG_PULLGOODS && !row.entity.PG_MOVED"> 恢復</a>-->\
+                        <a href="javascript:void(0);" class="btn btn-success btn-xs" ng-click="grid.appScope.$vm.gridMethod.specialGoods(row)" ng-class="row.entity.SPG_SPECIALGOODS ? \'disabled\' : \'\'"> 特貨</a>\
+   		  		    </div>');
     $templateCache.put('accessibilityToMForBLFO', '<div class="ui-grid-cell-contents text-center">\
                                             <a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethodForBLFO.modifyData(row)"> {{$parent.$root.getWord(\'Modify\')}}</a>\
                                           </div>');
@@ -3890,37 +3978,97 @@ angular.module('app')
                         <div class="ui-grid-cell-contents text-center">\
                             <a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethod.modifyData(row)"> {{$parent.$root.getWord(\'Modify\')}}</a>\
                         </div>');
+    $templateCache.put('accessibilityToD', '\
+                        <div class="ui-grid-cell-contents text-center">\
+                            <a href="javascript:void(0);" class="btn btn-danger btn-xs" ng-click="grid.appScope.$vm.gridMethod.deleteData(row)"> {{$parent.$root.getWord(\'Delete\')}}</a>\
+                        </div>');
     $templateCache.put('accessibilityToForW2', '\
                         <div class="ui-grid-cell-contents text-center">\
-                            <i class="fa fa-circle-o" ng-if="row.entity.W2_STATUS == \'0\'"> </i> \
-                            <i class="fa fa-circle text-warning" ng-if="row.entity.W2_STATUS == \'1\'"> </i> \
-                            <i class="fa fa-circle text-success" ng-if="row.entity.W2_STATUS == \'2\'"> </i> \
+                            <i class="fa fa-circle-o" ng-if="row.entity.W2_STATUS == \'1\'"> </i> \
+                            <i class="fa fa-circle text-warning" ng-if="row.entity.W2_STATUS == \'2\'"> </i> \
+                            <i class="fa fa-circle text-success" ng-if="row.entity.W2_STATUS == \'3\'"> </i> \
                         </div>');
     $templateCache.put('accessibilityToForW3', '\
                         <div class="ui-grid-cell-contents text-center">\
-                            <i class="fa fa-circle-o" ng-if="row.entity.W3_STATUS == \'0\'"> </i> \
-                            <i class="fa fa-circle text-warning" ng-if="row.entity.W3_STATUS == \'1\'"> </i> \
-                            <i class="fa fa-circle text-success" ng-if="row.entity.W3_STATUS == \'2\'"> </i> \
+                            <i class="fa fa-circle-o" ng-if="row.entity.W3_STATUS == \'1\'"> </i> \
+                            <i class="fa fa-circle text-warning" ng-if="row.entity.W3_STATUS == \'2\'"> </i> \
+                            <i class="fa fa-circle text-success" ng-if="row.entity.W3_STATUS == \'3\'"> </i> \
                         </div>');
     $templateCache.put('accessibilityToForW1', '\
                         <div class="ui-grid-cell-contents text-center">\
-                            <i class="fa fa-circle-o" ng-if="row.entity.W1_STATUS == \'0\'"> </i> \
-                            <i class="fa fa-circle text-warning" ng-if="row.entity.W1_STATUS == \'1\'"> </i> \
-                            <i class="fa fa-circle text-success" ng-if="row.entity.W1_STATUS == \'2\'"> </i> \
+                            <i class="fa fa-circle-o" ng-if="row.entity.W1_STATUS == \'1\'"> </i> \
+                            <i class="fa fa-circle text-warning" ng-if="row.entity.W1_STATUS == \'2\'"> </i> \
+                            <i class="fa fa-circle text-success" ng-if="row.entity.W1_STATUS == \'3\'"> </i> \
+                        </div>');
+    $templateCache.put('accessibilityToDMCForLeader', '\
+                        <div class="ui-grid-cell-contents text-center">\
+                            <a href="javascript:void(0);" class="btn btn-danger btn-xs" ng-click="grid.appScope.$vm.gridMethod.deleteData(row)" ng-disabled="row.entity.g"> 刪除</a>\
+                            <a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethod.modifyData(row)"> 編輯</a>\
+                            <a href="javascript:void(0);" class="btn btn-primary btn-xs" ng-click="grid.appScope.$vm.gridMethod.closeData(row)" ng-class="(row.entity.W1_STATUS == \'3\' && row.entity.W2_STATUS == \'3\' && row.entity.W3_STATUS == \'3\') ? \'\' : \'disabled\'"> 結單</a>\
+                        </div>');
+    $templateCache.put('accessibilityToEdited', '\
+                        <div class="ui-grid-cell-contents text-center">\
+                            <i class="fa fa-check text-primary" ng-if="row.entity.OP_EDATETIME != null"> </i> \
                         </div>');
     $templateCache.put('accessibilityToHistoryCount', '\
                         <div class="ui-grid-cell-contents text-center">\
-                            <a href-void="" class="btn btn-danger btn-xs" href="#">{{row.entity.IL_COUNT}}</a> \
+                            <a href-void="" class="btn btn-danger btn-xs" href="#" ng-class="row.entity.IL_COUNT > 0 ? \'\' : \'disabled\'" ng-click="grid.appScope.$vm.gridMethod.showHistoryCount(row)">{{row.entity.IL_COUNT}}</a> \
                         </div>');
 
     $templateCache.put('isChecked', '\
                         <div class="modal-header bg-color-blueLight">\
                             <h3 class="modal-title text-center">\
-                                <strong class=" txt-color-white">操作提示</strong>\
+                                <strong class=" txt-color-white">{{$ctrl.data.title}}</strong>\
                             </h3>\
                         </div>\
                         <div class="modal-footer text-center"> \
                             <button class="btn btn-primary" type="button" ng-click="$ctrl.ok()">{{getWord(\'OK\')}}</button> \
+                            <button class="btn btn-default" type="button" ng-click="$ctrl.cancel()">{{getWord(\'Cancel\')}}</button> \
+                        </div>');
+
+    $templateCache.put('modifyOrderList', '\
+                        <div class="modal-header"> \
+                            <h3 class="modal-title" id="modal-title">修改</h3> \
+                        </div> \
+                        <div class="modal-body" id="modal-body"> \
+                            <form class="form-horizontal" name="modifyForm"> \
+                                <fieldset> \
+                                    <div class="form-group"> \
+                                        <label class="col-md-2 control-label">進口日期</label> \
+                                        <div class="col-md-10"> \
+                                            <input class="form-control" name="OL_IMPORTDT" type="text" ng-model="$ctrl.mdData.OL_IMPORTDT" ui-mask="9999-99-99" ui-mask-placeholder ui-mask-placeholder-char="_" placeholder="請輸入公佈日期 (西元 年-月-日)" model-view-value="true" is-date required/> \
+                                        </div> \
+                                    </div> \
+                                    <div class="form-group"> \
+                                        <label class="col-md-2 control-label">行家</label> \
+                                        <div class="col-md-10"> \
+                                            <select class="form-control" name="OL_CO_CODE" ng-model="$ctrl.mdData.OL_CO_CODE" ng-options="data.value as data.label for data in $ctrl.compy" ng-disabled="$ctrl.compy.length == 0" required> \
+                                            </select> \
+                                        </div> \
+                                    </div> \
+                                    <div class="form-group"> \
+                                        <label class="col-md-2 control-label">航班</label> \
+                                        <div class="col-md-10"> \
+                                            <input class="form-control" name="OL_FLIGHTNO" placeholder="請輸入航班" ng-model="$ctrl.mdData.OL_FLIGHTNO" type="text" required> \
+                                        </div> \
+                                    </div> \
+                                    <div class="form-group"> \
+                                        <label class="col-md-2 control-label">主號</label> \
+                                        <div class="col-md-10"> \
+                                            <input class="form-control" name="OL_MASTER" placeholder="請輸入主號" ng-model="$ctrl.mdData.OL_MASTER" type="text" required> \
+                                        </div> \
+                                    </div> \
+                                    <div class="form-group"> \
+                                        <label class="col-md-2 control-label">起運國別</label> \
+                                        <div class="col-md-10"> \
+                                            <input class="form-control" name="OL_COUNTRY" placeholder="請輸入起運國別" ng-model="$ctrl.mdData.OL_COUNTRY" type="text" required> \
+                                        </div> \
+                                    </div> \
+                                </fieldset> \
+                            </form> \
+                        </div> \
+                        <div class="modal-footer"> \
+                            <button class="btn btn-primary" type="button" ng-click="$ctrl.ok()" ng-disabled="!modifyForm.$valid">{{getWord(\'OK\')}}</button> \
                             <button class="btn btn-default" type="button" ng-click="$ctrl.cancel()">{{getWord(\'Cancel\')}}</button> \
                         </div>');
 })
@@ -3935,11 +4083,28 @@ angular.module('app')
         $uibModalInstance.dismiss('cancel');
     };
 })
-.controller('IsCheckedModalInstanceCtrl', function ($uibModalInstance, items) {
+.controller('IsCheckedModalInstanceCtrl', function ($uibModalInstance, items, show) {
     var $ctrl = this;
+
+    show['title'] = angular.isUndefined(show['title']) ? "操作提示" : show['title'];
+
+    $ctrl.data = show;
     
     $ctrl.ok = function() {
         $uibModalInstance.close(items);
+    };
+
+    $ctrl.cancel = function() {
+        $uibModalInstance.dismiss('cancel');
+    };
+})
+.controller('ModifyOrderListModalInstanceCtrl', function ($uibModalInstance, vmData, compy) {
+    var $ctrl = this;
+    $ctrl.mdData = angular.copy(vmData);
+    $ctrl.compy = compy;
+    
+    $ctrl.ok = function() {
+        $uibModalInstance.close($ctrl.mdData);
     };
 
     $ctrl.cancel = function() {
@@ -4556,7 +4721,7 @@ angular.module('app.appViews').controller('ProjectsDemoCtrl', function ($scope, 
 "use strict";
 
 angular.module('app.auth').controller('MainLoginCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, RestfulApi) {
-    console.log(Session.Get());
+    // console.log(Session.Get());
     $scope.Login = function($vm){
         // console.log($vm);
         AuthApi.Login({
@@ -4568,7 +4733,7 @@ angular.module('app.auth').controller('MainLoginCtrl', function ($scope, $stateP
                 toaster.success("狀態", "登入成功", 3000);
 
                 AuthApi.ReLoadSession().then(function(res){
-                    $state.transitionTo("app.mainwork");
+                    $state.transitionTo("app.default");
                 });
 
             }else{                
@@ -4982,18 +5147,26 @@ angular.module('app.concerns').controller('BanCtrl', function ($scope, $statePar
                 animation: true,
                 ariaLabelledBy: 'modal-title',
                 ariaDescribedBy: 'modal-body',
-                templateUrl: 'isDelete.html',
-                controller: 'IsDeleteModalInstanceCtrl',
+                template: $templateCache.get('isChecked'),
+                controller: 'IsCheckedModalInstanceCtrl',
                 controllerAs: '$ctrl',
                 size: 'sm',
+                windowClass: 'center-modal',
+                // appendTo: parentElem,
                 resolve: {
-                    items: function () {
+                    items: function() {
                         return $vm.blfoGridApi.selection.getSelectedRows();
+                    },
+                    show: function(){
+                        return {
+                            title : "是否刪除"
+                        };
                     }
                 }
             });
 
             modalInstance.result.then(function(selectedItem) {
+                // $ctrl.selected = selectedItem;
                 console.log(selectedItem);
 
                 var _tasks = [];
@@ -5017,9 +5190,53 @@ angular.module('app.concerns').controller('BanCtrl', function ($scope, $statePar
                 }, function (err) {
 
                 });
+
             }, function() {
                 // $log.info('Modal dismissed at: ' + new Date());
             });
+
+            // var modalInstance = $uibModal.open({
+            //     animation: true,
+            //     ariaLabelledBy: 'modal-title',
+            //     ariaDescribedBy: 'modal-body',
+            //     templateUrl: 'isDelete.html',
+            //     controller: 'IsDeleteModalInstanceCtrl',
+            //     controllerAs: '$ctrl',
+            //     size: 'sm',
+            //     resolve: {
+            //         items: function () {
+            //             return $vm.blfoGridApi.selection.getSelectedRows();
+            //         }
+            //     }
+            // });
+
+            // modalInstance.result.then(function(selectedItem) {
+            //     console.log(selectedItem);
+
+            //     var _tasks = [];
+
+            //     for(var i in selectedItem){
+            //         _tasks.push({
+            //             crudType: 'Delete',
+            //             table: 13,
+            //             params: {
+            //                 BLFO_SEQ : selectedItem[i].BLFO_SEQ,
+            //                 BLFO_NEWBAGNO : selectedItem[i].BLFO_NEWBAGNO,
+            //                 BLFO_NEWSMALLNO : selectedItem[i].BLFO_NEWSMALLNO,
+            //                 BLFO_ORDERINDEX : selectedItem[i].BLFO_ORDERINDEX
+            //             }
+            //         });
+            //     }
+
+            //     RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res) {
+            //         toaster.pop('success', '訊息', '名單成員刪除成功', 3000);
+            //         LoadBLFO();
+            //     }, function (err) {
+
+            //     });
+            // }, function() {
+            //     // $log.info('Modal dismissed at: ' + new Date());
+            // });
         },
         gridMethodForBLFL : {
             // 編輯
@@ -5152,24 +5369,33 @@ angular.module('app.concerns').controller('BanCtrl', function ($scope, $statePar
             });
         },
         DeleteBLFL : function(){
-            console.log($vm.blflGridApi.selection.getSelectedRows());
+            // console.log($vm.blflGridApi.selection.getSelectedRows());
+
 
             var modalInstance = $uibModal.open({
                 animation: true,
                 ariaLabelledBy: 'modal-title',
                 ariaDescribedBy: 'modal-body',
-                templateUrl: 'isDelete.html',
-                controller: 'IsDeleteModalInstanceCtrl',
+                template: $templateCache.get('isChecked'),
+                controller: 'IsCheckedModalInstanceCtrl',
                 controllerAs: '$ctrl',
                 size: 'sm',
+                windowClass: 'center-modal',
+                // appendTo: parentElem,
                 resolve: {
-                    items: function () {
+                    items: function() {
                         return $vm.blflGridApi.selection.getSelectedRows();
+                    },
+                    show: function(){
+                        return {
+                            title : "是否刪除"
+                        };
                     }
                 }
             });
 
             modalInstance.result.then(function(selectedItem) {
+                // $ctrl.selected = selectedItem;
                 console.log(selectedItem);
 
                 var _tasks = [];
@@ -5190,9 +5416,50 @@ angular.module('app.concerns').controller('BanCtrl', function ($scope, $statePar
                 }, function (err) {
 
                 });
+
             }, function() {
                 // $log.info('Modal dismissed at: ' + new Date());
             });
+
+            // var modalInstance = $uibModal.open({
+            //     animation: true,
+            //     ariaLabelledBy: 'modal-title',
+            //     ariaDescribedBy: 'modal-body',
+            //     templateUrl: 'isDelete.html',
+            //     controller: 'IsDeleteModalInstanceCtrl',
+            //     controllerAs: '$ctrl',
+            //     size: 'sm',
+            //     resolve: {
+            //         items: function () {
+            //             return $vm.blflGridApi.selection.getSelectedRows();
+            //         }
+            //     }
+            // });
+
+            // modalInstance.result.then(function(selectedItem) {
+            //     console.log(selectedItem);
+
+            //     var _tasks = [];
+
+            //     for(var i in selectedItem){
+            //         _tasks.push({
+            //             crudType: 'Delete',
+            //             table: 12,
+            //             params: {
+            //                 BLFL_ID : selectedItem[i].BLFL_ID
+            //             }
+            //         });
+            //     }
+
+            //     RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res) {
+            //         toaster.pop('success', '訊息', '名單成員刪除成功', 3000);
+            //         LoadBLFL();
+            //     }, function (err) {
+
+            //     });
+            // }, function() {
+            //     // $log.info('Modal dismissed at: ' + new Date());
+            // });
         }
     });
 
@@ -5417,6 +5684,38 @@ angular.module('app.concerns').controller('DailyAlertCtrl', function ($scope, $s
                     break;
             }
         },
+        gridMethod : {
+            // 顯示歷史黑名單
+            showHistoryCount : function(row){
+                console.log(row);
+                var modalInstance = $uibModal.open({
+                    animation: true,
+                    ariaLabelledBy: 'modal-title',
+                    ariaDescribedBy: 'modal-body',
+                    templateUrl: 'showHistoryCountModalContent.html',
+                    controller: 'ShowHistoryCountModalInstanceCtrl',
+                    controllerAs: '$ctrl',
+                    size: 'lg',
+                    // appendTo: parentElem,
+                    resolve: {
+                        item: function() {
+                            return row.entity;
+                        },
+                        type: function(){
+                            return $vm.defaultTab;   
+                        }
+                    }
+                });
+
+                modalInstance.result.then(function(selectedItem) {
+                    // $ctrl.selected = selectedItem;
+                    console.log(selectedItem);
+
+                }, function() {
+                    // $log.info('Modal dismissed at: ' + new Date());
+                });
+            }
+        },
         caseAOptions : {
             data:  '$vm.caseAData',
             columnDefs: columnDefs,
@@ -5550,6 +5849,98 @@ angular.module('app.concerns').controller('DailyAlertCtrl', function ($scope, $s
         }); 
     }
 })
+.controller('ShowHistoryCountModalInstanceCtrl', function ($uibModalInstance, item, type, RestfulApi) {
+    var $ctrl = this;
+
+    $ctrl.Init = function(){
+        LoadHistoryCount(type);
+    };
+
+    $ctrl.mdDataOption = {
+        data:  '$ctrl.mdData',
+        columnDefs: [
+            { name: 'IL_G1'         , displayName: '報關種類', width: 154 },
+            { name: 'IL_MERGENO'    , displayName: '併票號', width: 129 },
+            { name: 'IL_BAGNO'      , displayName: '袋號', width: 129 },
+            { name: 'IL_SMALLNO'    , displayName: '小號', width: 115 },
+            { name: 'IL_NATURE'     , displayName: '品名', width: 115 },
+            { name: 'IL_NATURE_NEW' , displayName: '新品名', width: 115 },
+            { name: 'IL_CTN'        , displayName: '件數', width: 115 },
+            { name: 'IL_PLACE'      , displayName: '產地', width: 115 },
+            { name: 'IL_WEIGHT'     , displayName: '重量', width: 115 },
+            { name: 'IL_WEIGHT_NEW' , displayName: '更改後重量', width: 115 },
+            { name: 'IL_PCS'        , displayName: '數量', width: 115 },
+            { name: 'IL_UNIT'       , displayName: '單位', width: 115 },
+            { name: 'IL_GETNO'      , displayName: '收件者統編', width: 115 },
+            { name: 'IL_SENDNAME'   , displayName: '寄件人或公司', width: 115 },
+            { name: 'IL_GETNAME'    , displayName: '收件人公司', width: 115 },
+            { name: 'IL_GETADDRESS' , displayName: '收件地址', width: 300 },
+            { name: 'IL_GETTEL'     , displayName: '收件電話', width: 115 },
+            { name: 'IL_UNIVALENT'  , displayName: '單價', width: 115 },
+            { name: 'IL_FINALCOST'  , displayName: '完稅價格', width: 115 },
+            { name: 'IL_TAX'        , displayName: '稅則', width: 115 },
+            { name: 'IL_TRCOM'      , displayName: '派送公司', width: 115 }
+        ],
+        enableFiltering: true,
+        enableSorting: true,
+        enableColumnMenus: false,
+        // enableVerticalScrollbar: false,
+        paginationPageSizes: [10, 25, 50],
+        paginationPageSize: 10,
+        onRegisterApi: function(gridApi){
+            $ctrl.mdDataGridApi = gridApi;
+        }
+    }
+
+    function LoadHistoryCount(pType){
+        var _params = {};
+
+        switch(pType){
+            case 'hr1':
+                _params = {
+                    IL_GETNAME : item.IL_GETNAME,
+                    IL_GETADDRESS : item.IL_GETADDRESS
+                };
+                break;
+            case 'hr2':
+                _params = {
+                    IL_GETADDRESS : item.IL_GETADDRESS,
+                    IL_GETTEL : item.IL_GETTEL
+                };
+                break;
+            case 'hr3':
+                _params = {
+                    IL_GETNAME : item.IL_GETNAME,
+                    IL_GETTEL : item.IL_GETTEL
+                };
+                break;
+            case 'hr4':
+                _params = {
+                    IL_GETNAME : item.IL_GETNAME,
+                    IL_GETADDRESS : item.IL_GETADDRESS,
+                    IL_GETTEL : item.IL_GETTEL
+                };
+                break;
+        }
+
+        RestfulApi.SearchMSSQLData({
+            querymain: 'dailyAlert',
+            queryname: 'SelectItemList',
+            params: _params
+        }).then(function (res){
+            console.log(res["returnData"]);
+            $ctrl.mdData = res["returnData"];
+        }); 
+    }
+
+    $ctrl.ok = function() {
+        $uibModalInstance.close($ctrl.mdData);
+    };
+
+    $ctrl.cancel = function() {
+        $uibModalInstance.dismiss('cancel');
+    };
+});
 "use strict";	
 
 angular.module('app').controller("ActivitiesCtrl", function ActivitiesCtrl($scope, $log, activityService){
@@ -5698,43 +6089,6 @@ angular.module('app').directive('recentProjects', function(Project){
         }
     }
 });
-"use strict";
-
-angular.module('app').controller('TodoCtrl', function ($scope, $timeout, Todo) {
-    $scope.newTodo = undefined;
-
-    $scope.states = ['Critical', 'Important', 'Completed'];
-
-    $scope.todos = Todo.getList().$object;
-
-    // $scope.$watch('todos', function(){ }, true)
-
-    $scope.toggleAdd = function () {
-        if (!$scope.newTodo) {
-            $scope.newTodo = {
-                state: 'Important'
-            };
-        } else {
-            $scope.newTodo = undefined;
-        }
-    };
-
-    $scope.createTodo = function () {
-        $scope.todos.push(
-           Todo.normalize($scope.newTodo)
-        );
-        $scope.newTodo = undefined;
-
-    };
-
-    $scope.deleteTodo = function (todo) {
-        todo.remove().then(function () {
-            $scope.todos.splice($scope.todos.indexOf(todo), 1);
-        });
-
-    };
-
-});
 angular.module("app").run(["$templateCache", function($templateCache) {$templateCache.put("app/app/dashboard/live-feeds.tpl.html","<div jarvis-widget id=\"live-feeds-widget\" data-widget-togglebutton=\"false\" data-widget-editbutton=\"false\"\r\n     data-widget-fullscreenbutton=\"false\" data-widget-colorbutton=\"false\" data-widget-deletebutton=\"false\">\r\n<!-- widget options:\r\nusage: <div class=\"jarviswidget\" id=\"wid-id-0\" data-widget-editbutton=\"false\">\r\n\r\ndata-widget-colorbutton=\"false\"\r\ndata-widget-editbutton=\"false\"\r\ndata-widget-togglebutton=\"false\"\r\ndata-widget-deletebutton=\"false\"\r\ndata-widget-fullscreenbutton=\"false\"\r\ndata-widget-custombutton=\"false\"\r\ndata-widget-collapsed=\"true\"\r\ndata-widget-sortable=\"false\"\r\n\r\n-->\r\n<header>\r\n    <span class=\"widget-icon\"> <i class=\"glyphicon glyphicon-stats txt-color-darken\"></i> </span>\r\n\r\n    <h2>Live Feeds </h2>\r\n\r\n    <ul class=\"nav nav-tabs pull-right in\" id=\"myTab\">\r\n        <li class=\"active\">\r\n            <a data-toggle=\"tab\" href=\"#s1\"><i class=\"fa fa-clock-o\"></i> <span class=\"hidden-mobile hidden-tablet\">Live Stats</span></a>\r\n        </li>\r\n\r\n        <li>\r\n            <a data-toggle=\"tab\" href=\"#s2\"><i class=\"fa fa-facebook\"></i> <span class=\"hidden-mobile hidden-tablet\">Social Network</span></a>\r\n        </li>\r\n\r\n        <li>\r\n            <a data-toggle=\"tab\" href=\"#s3\"><i class=\"fa fa-dollar\"></i> <span class=\"hidden-mobile hidden-tablet\">Revenue</span></a>\r\n        </li>\r\n    </ul>\r\n\r\n</header>\r\n\r\n<!-- widget div-->\r\n<div class=\"no-padding\">\r\n\r\n    <div class=\"widget-body\">\r\n        <!-- content -->\r\n        <div id=\"myTabContent\" class=\"tab-content\">\r\n            <div class=\"tab-pane fade active in padding-10 no-padding-bottom\" id=\"s1\">\r\n                <div class=\"row no-space\">\r\n                    <div class=\"col-xs-12 col-sm-12 col-md-8 col-lg-8\">\r\n														<span class=\"demo-liveupdate-1\"> <span\r\n                                                                class=\"onoffswitch-title\">Live switch</span> <span\r\n                                                                class=\"onoffswitch\">\r\n																<input type=\"checkbox\" name=\"start_interval\" ng-model=\"autoUpdate\"\r\n                                                                       class=\"onoffswitch-checkbox\" id=\"start_interval\">\r\n																<label class=\"onoffswitch-label\" for=\"start_interval\">\r\n                                                                    <span class=\"onoffswitch-inner\"\r\n                                                                          data-swchon-text=\"ON\"\r\n                                                                          data-swchoff-text=\"OFF\"></span>\r\n                                                                    <span class=\"onoffswitch-switch\"></span>\r\n                                                                </label> </span> </span>\r\n\r\n                        <div id=\"updating-chart\" class=\"chart-large txt-color-blue\" flot-basic flot-data=\"liveStats\" flot-options=\"liveStatsOptions\"></div>\r\n\r\n                    </div>\r\n                    <div class=\"col-xs-12 col-sm-12 col-md-4 col-lg-4 show-stats\">\r\n\r\n                        <div class=\"row\">\r\n                            <div class=\"col-xs-6 col-sm-6 col-md-12 col-lg-12\"><span class=\"text\"> My Tasks <span\r\n                                    class=\"pull-right\">130/200</span> </span>\r\n\r\n                                <div class=\"progress\">\r\n                                    <div class=\"progress-bar bg-color-blueDark\" style=\"width: 65%;\"></div>\r\n                                </div>\r\n                            </div>\r\n                            <div class=\"col-xs-6 col-sm-6 col-md-12 col-lg-12\"><span class=\"text\"> Transfered <span\r\n                                    class=\"pull-right\">440 GB</span> </span>\r\n\r\n                                <div class=\"progress\">\r\n                                    <div class=\"progress-bar bg-color-blue\" style=\"width: 34%;\"></div>\r\n                                </div>\r\n                            </div>\r\n                            <div class=\"col-xs-6 col-sm-6 col-md-12 col-lg-12\"><span class=\"text\"> Bugs Squashed<span\r\n                                    class=\"pull-right\">77%</span> </span>\r\n\r\n                                <div class=\"progress\">\r\n                                    <div class=\"progress-bar bg-color-blue\" style=\"width: 77%;\"></div>\r\n                                </div>\r\n                            </div>\r\n                            <div class=\"col-xs-6 col-sm-6 col-md-12 col-lg-12\"><span class=\"text\"> User Testing <span\r\n                                    class=\"pull-right\">7 Days</span> </span>\r\n\r\n                                <div class=\"progress\">\r\n                                    <div class=\"progress-bar bg-color-greenLight\" style=\"width: 84%;\"></div>\r\n                                </div>\r\n                            </div>\r\n\r\n                            <span class=\"show-stat-buttons\"> <span class=\"col-xs-12 col-sm-6 col-md-6 col-lg-6\"> <a\r\n                                    href-void class=\"btn btn-default btn-block hidden-xs\">Generate PDF</a> </span> <span\r\n                                    class=\"col-xs-12 col-sm-6 col-md-6 col-lg-6\"> <a href-void\r\n                                                                                     class=\"btn btn-default btn-block hidden-xs\">Report\r\n                                a bug</a> </span> </span>\r\n\r\n                        </div>\r\n\r\n                    </div>\r\n                </div>\r\n\r\n                <div class=\"show-stat-microcharts\" data-sparkline-container data-easy-pie-chart-container>\r\n                    <div class=\"col-xs-12 col-sm-3 col-md-3 col-lg-3\">\r\n\r\n                        <div class=\"easy-pie-chart txt-color-orangeDark\" data-percent=\"33\" data-pie-size=\"50\">\r\n                            <span class=\"percent percent-sign\">35</span>\r\n                        </div>\r\n                        <span class=\"easy-pie-title\"> Server Load <i class=\"fa fa-caret-up icon-color-bad\"></i> </span>\r\n                        <ul class=\"smaller-stat hidden-sm pull-right\">\r\n                            <li>\r\n                                <span class=\"label bg-color-greenLight\"><i class=\"fa fa-caret-up\"></i> 97%</span>\r\n                            </li>\r\n                            <li>\r\n                                <span class=\"label bg-color-blueLight\"><i class=\"fa fa-caret-down\"></i> 44%</span>\r\n                            </li>\r\n                        </ul>\r\n                        <div class=\"sparkline txt-color-greenLight hidden-sm hidden-md pull-right\"\r\n                             data-sparkline-type=\"line\" data-sparkline-height=\"33px\" data-sparkline-width=\"70px\"\r\n                             data-fill-color=\"transparent\">\r\n                            130, 187, 250, 257, 200, 210, 300, 270, 363, 247, 270, 363, 247\r\n                        </div>\r\n                    </div>\r\n                    <div class=\"col-xs-12 col-sm-3 col-md-3 col-lg-3\">\r\n                        <div class=\"easy-pie-chart txt-color-greenLight\" data-percent=\"78.9\" data-pie-size=\"50\">\r\n                            <span class=\"percent percent-sign\">78.9 </span>\r\n                        </div>\r\n                        <span class=\"easy-pie-title\"> Disk Space <i class=\"fa fa-caret-down icon-color-good\"></i></span>\r\n                        <ul class=\"smaller-stat hidden-sm pull-right\">\r\n                            <li>\r\n                                <span class=\"label bg-color-blueDark\"><i class=\"fa fa-caret-up\"></i> 76%</span>\r\n                            </li>\r\n                            <li>\r\n                                <span class=\"label bg-color-blue\"><i class=\"fa fa-caret-down\"></i> 3%</span>\r\n                            </li>\r\n                        </ul>\r\n                        <div class=\"sparkline txt-color-blue hidden-sm hidden-md pull-right\" data-sparkline-type=\"line\"\r\n                             data-sparkline-height=\"33px\" data-sparkline-width=\"70px\" data-fill-color=\"transparent\">\r\n                            257, 200, 210, 300, 270, 363, 130, 187, 250, 247, 270, 363, 247\r\n                        </div>\r\n                    </div>\r\n                    <div class=\"col-xs-12 col-sm-3 col-md-3 col-lg-3\">\r\n                        <div class=\"easy-pie-chart txt-color-blue\" data-percent=\"23\" data-pie-size=\"50\">\r\n                            <span class=\"percent percent-sign\">23 </span>\r\n                        </div>\r\n                        <span class=\"easy-pie-title\"> Transfered <i class=\"fa fa-caret-up icon-color-good\"></i></span>\r\n                        <ul class=\"smaller-stat hidden-sm pull-right\">\r\n                            <li>\r\n                                <span class=\"label bg-color-darken\">10GB</span>\r\n                            </li>\r\n                            <li>\r\n                                <span class=\"label bg-color-blueDark\"><i class=\"fa fa-caret-up\"></i> 10%</span>\r\n                            </li>\r\n                        </ul>\r\n                        <div class=\"sparkline txt-color-darken hidden-sm hidden-md pull-right\"\r\n                             data-sparkline-type=\"line\" data-sparkline-height=\"33px\" data-sparkline-width=\"70px\"\r\n                             data-fill-color=\"transparent\">\r\n                            200, 210, 363, 247, 300, 270, 130, 187, 250, 257, 363, 247, 270\r\n                        </div>\r\n                    </div>\r\n                    <div class=\"col-xs-12 col-sm-3 col-md-3 col-lg-3\">\r\n                        <div class=\"easy-pie-chart txt-color-darken\" data-percent=\"36\" data-pie-size=\"50\">\r\n                            <span class=\"percent degree-sign\">36 <i class=\"fa fa-caret-up\"></i></span>\r\n                        </div>\r\n                        <span class=\"easy-pie-title\"> Temperature <i\r\n                                class=\"fa fa-caret-down icon-color-good\"></i></span>\r\n                        <ul class=\"smaller-stat hidden-sm pull-right\">\r\n                            <li>\r\n                                <span class=\"label bg-color-red\"><i class=\"fa fa-caret-up\"></i> 124</span>\r\n                            </li>\r\n                            <li>\r\n                                <span class=\"label bg-color-blue\"><i class=\"fa fa-caret-down\"></i> 40 F</span>\r\n                            </li>\r\n                        </ul>\r\n                        <div class=\"sparkline txt-color-red hidden-sm hidden-md pull-right\" data-sparkline-type=\"line\"\r\n                             data-sparkline-height=\"33px\" data-sparkline-width=\"70px\" data-fill-color=\"transparent\">\r\n                            2700, 3631, 2471, 2700, 3631, 2471, 1300, 1877, 2500, 2577, 2000, 2100, 3000\r\n                        </div>\r\n                    </div>\r\n                </div>\r\n\r\n            </div>\r\n            <!-- end s1 tab pane -->\r\n\r\n            <div class=\"tab-pane fade\" id=\"s2\">\r\n                <div class=\"widget-body-toolbar bg-color-white\">\r\n\r\n                    <form class=\"form-inline\" role=\"form\">\r\n\r\n                        <div class=\"form-group\">\r\n                            <label class=\"sr-only\" for=\"s123\">Show From</label>\r\n                            <input type=\"email\" class=\"form-control input-sm\" id=\"s123\" placeholder=\"Show From\">\r\n                        </div>\r\n                        <div class=\"form-group\">\r\n                            <input type=\"email\" class=\"form-control input-sm\" id=\"s124\" placeholder=\"To\">\r\n                        </div>\r\n\r\n                        <div class=\"btn-group hidden-phone pull-right\">\r\n                            <a class=\"btn dropdown-toggle btn-xs btn-default\" data-toggle=\"dropdown\"><i\r\n                                    class=\"fa fa-cog\"></i> More <span class=\"caret\"> </span> </a>\r\n                            <ul class=\"dropdown-menu pull-right\">\r\n                                <li>\r\n                                    <a href-void><i class=\"fa fa-file-text-alt\"></i> Export to PDF</a>\r\n                                </li>\r\n                                <li>\r\n                                    <a href-void><i class=\"fa fa-question-sign\"></i> Help</a>\r\n                                </li>\r\n                            </ul>\r\n                        </div>\r\n\r\n                    </form>\r\n\r\n                </div>\r\n                <div class=\"padding-10\">\r\n                    <div id=\"statsChart\" class=\"chart-large has-legend-unique\" flot-basic flot-data=\"statsData\" flot-options=\"statsDisplayOptions\"></div>\r\n                </div>\r\n\r\n            </div>\r\n            <!-- end s2 tab pane -->\r\n\r\n            <div class=\"tab-pane fade\" id=\"s3\">\r\n\r\n                <div class=\"widget-body-toolbar bg-color-white smart-form\" id=\"rev-toggles\">\r\n\r\n                    <div class=\"inline-group\">\r\n\r\n                        <label for=\"gra-0\" class=\"checkbox\">\r\n                            <input type=\"checkbox\" id=\"gra-0\" ng-model=\"targetsShow\">\r\n                            <i></i> Target </label>\r\n                        <label for=\"gra-1\" class=\"checkbox\">\r\n                            <input type=\"checkbox\" id=\"gra-1\" ng-model=\"actualsShow\">\r\n                            <i></i> Actual </label>\r\n                        <label for=\"gra-2\" class=\"checkbox\">\r\n                            <input type=\"checkbox\" id=\"gra-2\" ng-model=\"signupsShow\">\r\n                            <i></i> Signups </label>\r\n                    </div>\r\n\r\n                    <div class=\"btn-group hidden-phone pull-right\">\r\n                        <a class=\"btn dropdown-toggle btn-xs btn-default\" data-toggle=\"dropdown\"><i\r\n                                class=\"fa fa-cog\"></i> More <span class=\"caret\"> </span> </a>\r\n                        <ul class=\"dropdown-menu pull-right\">\r\n                            <li>\r\n                                <a href-void><i class=\"fa fa-file-text-alt\"></i> Export to PDF</a>\r\n                            </li>\r\n                            <li>\r\n                                <a href-void><i class=\"fa fa-question-sign\"></i> Help</a>\r\n                            </li>\r\n                        </ul>\r\n                    </div>\r\n\r\n                </div>\r\n\r\n                <div class=\"padding-10\">\r\n                    <div id=\"flotcontainer\" class=\"chart-large has-legend-unique\" flot-basic flot-data=\"revenewData\" flot-options=\"revenewDisplayOptions\" ></div>\r\n                </div>\r\n            </div>\r\n            <!-- end s3 tab pane -->\r\n        </div>\r\n\r\n        <!-- end content -->\r\n    </div>\r\n\r\n</div>\r\n<!-- end widget div -->\r\n</div>\r\n");
 $templateCache.put("app/app/layout/layout.tpl.html","<!-- HEADER -->\r\n<div data-smart-include=\"app/layout/partials/header.tpl.html\" class=\"placeholder-header\"></div>\r\n<!-- END HEADER -->\r\n\r\n\r\n<!-- Left panel : Navigation area -->\r\n<!-- Note: This width of the aside area can be adjusted through LESS variables -->\r\n<div data-smart-include=\"app/layout/partials/navigation.tpl.html\" class=\"placeholder-left-panel\"></div>\r\n\r\n<!-- END NAVIGATION -->\r\n\r\n<!-- MAIN PANEL -->\r\n<div id=\"main\" role=\"main\">\r\n    <demo-states></demo-states>\r\n\r\n    <!-- RIBBON -->\r\n    <div id=\"ribbon\">\r\n\r\n		<span class=\"ribbon-button-alignment\">\r\n			<span id=\"refresh\" class=\"btn btn-ribbon\" reset-widgets\r\n                  tooltip-placement=\"bottom\"\r\n                  smart-tooltip-html=\"<i class=\'text-warning fa fa-warning\'></i> Warning! This will reset all your widget settings.\">\r\n				<i class=\"fa fa-refresh\"></i>\r\n			</span>\r\n		</span>\r\n\r\n        <!-- breadcrumb -->\r\n        <state-breadcrumbs></state-breadcrumbs>\r\n        <!-- end breadcrumb -->\r\n\r\n\r\n    </div>\r\n    <!-- END RIBBON -->\r\n\r\n\r\n    <div data-smart-router-animation-wrap=\"content content@app\" data-wrap-for=\"#content\">\r\n        <div data-ui-view=\"content\" data-autoscroll=\"false\"></div>\r\n    </div>\r\n\r\n</div>\r\n<!-- END MAIN PANEL -->\r\n\r\n<!-- PAGE FOOTER -->\r\n<div data-smart-include=\"app/layout/partials/footer.tpl.html\"></div>\r\n\r\n<div data-smart-include=\"app/layout/shortcut/shortcut.tpl.html\"></div>\r\n\r\n<!-- END PAGE FOOTER -->\r\n\r\n\r\n");
 $templateCache.put("app/app/auth/directives/login-info.tpl.html","<div class=\"login-info ng-cloak\">\r\n    <span> <!-- User image size is adjusted inside CSS, it should stay as it -->\r\n        <!-- <a  href=\"\" toggle-shortcut>\r\n            <img ng-src=\"{{user.picture}}\" alt=\"me\" class=\"online\">\r\n                <span>{{user.U_NAME}}\r\n                </span>\r\n            <i class=\"fa fa-angle-down\"></i>\r\n        </a> -->\r\n        <a  href=\"\">\r\n            <img ng-src=\"{{user.picture}}\" alt=\"me\" class=\"online\">\r\n                <span>{{user.U_NAME}}\r\n                </span>\r\n        </a>\r\n     </span>\r\n</div>");
@@ -5749,7 +6103,6 @@ $templateCache.put("app/app/layout/partials/navigation.tpl.html","<aside id=\"le
 $templateCache.put("app/app/layout/partials/sub-header.tpl.html","<div class=\"col-xs-12 col-sm-5 col-md-5 col-lg-8\" data-sparkline-container>\r\n    <ul id=\"sparks\" class=\"\">\r\n        <li class=\"sparks-info\">\r\n            <h5> My Income <span class=\"txt-color-blue\">$47,171</span></h5>\r\n            <div class=\"sparkline txt-color-blue hidden-mobile hidden-md hidden-sm\">\r\n                1300, 1877, 2500, 2577, 2000, 2100, 3000, 2700, 3631, 2471, 2700, 3631, 2471\r\n            </div>\r\n        </li>\r\n        <li class=\"sparks-info\">\r\n            <h5> Site Traffic <span class=\"txt-color-purple\"><i class=\"fa fa-arrow-circle-up\"></i>&nbsp;45%</span></h5>\r\n            <div class=\"sparkline txt-color-purple hidden-mobile hidden-md hidden-sm\">\r\n                110,150,300,130,400,240,220,310,220,300, 270, 210\r\n            </div>\r\n        </li>\r\n        <li class=\"sparks-info\">\r\n            <h5> Site Orders <span class=\"txt-color-greenDark\"><i class=\"fa fa-shopping-cart\"></i>&nbsp;2447</span></h5>\r\n            <div class=\"sparkline txt-color-greenDark hidden-mobile hidden-md hidden-sm\">\r\n                110,150,300,130,400,240,220,310,220,300, 270, 210\r\n            </div>\r\n        </li>\r\n    </ul>\r\n</div>\r\n			");
 $templateCache.put("app/app/layout/partials/voice-commands.tpl.html","<!-- TRIGGER BUTTON:\r\n<a href=\"/my-ajax-page.html\" data-toggle=\"modal\" data-target=\"#remoteModal\" class=\"btn btn-default\">Open Modal</a>  -->\r\n\r\n<!-- MODAL PLACE HOLDER\r\n<div class=\"modal fade\" id=\"remoteModal\" tabindex=\"-1\" role=\"dialog\" aria-labelledby=\"remoteModalLabel\" aria-hidden=\"true\">\r\n<div class=\"modal-dialog\">\r\n<div class=\"modal-content\"></div>\r\n</div>\r\n</div>   -->\r\n<!--////////////////////////////////////-->\r\n\r\n<!--<div class=\"modal-header\">\r\n<button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-hidden=\"true\">\r\n&times;\r\n</button>\r\n<h4 class=\"modal-title\" id=\"myModalLabel\">Command List</h4>\r\n</div>-->\r\n<div class=\"modal-body\">\r\n\r\n	<h1><i class=\"fa fa-microphone text-muted\"></i>&nbsp;&nbsp; SmartAdmin Voice Command</h1>\r\n	<hr class=\"simple\">\r\n	<h5>Instruction</h5>\r\n\r\n	Click <span class=\"text-success\">\"Allow\"</span> to access your microphone and activate Voice Command.\r\n	You will notice a <span class=\"text-primary\"><strong>BLUE</strong> Flash</span> on the microphone icon indicating activation.\r\n	The icon will appear <span class=\"text-danger\"><strong>RED</strong></span> <span class=\"label label-danger\"><i class=\"fa fa-microphone fa-lg\"></i></span> if you <span class=\"text-danger\">\"Deny\"</span> access or don\'t have any microphone installed.\r\n	<br>\r\n	<br>\r\n	As a security precaution, your browser will disconnect the microphone every 60 to 120 seconds (sooner if not being used). In which case Voice Command will prompt you again to <span class=\"text-success\">\"Allow\"</span> or <span class=\"text-danger\">\"Deny\"</span> access to your microphone.\r\n	<br>\r\n	<br>\r\n	If you host your page over <strong>http<span class=\"text-success\">s</span></strong> (secure socket layer) protocol you can wave this security measure and have an unintrupted Voice Command.\r\n	<br>\r\n	<br>\r\n	<h5>Commands</h5>\r\n	<ul>\r\n		<li>\r\n			<strong>\'show\' </strong> then say the <strong>*page*</strong> you want to go to. For example <strong>\"show inbox\"</strong> or <strong>\"show calendar\"</strong>\r\n		</li>\r\n		<li>\r\n			<strong>\'mute\' </strong> - mutes all sound effects for the theme.\r\n		</li>\r\n		<li>\r\n			<strong>\'sound on\'</strong> - unmutes all sound effects for the theme.\r\n		</li>\r\n		<li>\r\n			<span class=\"text-danger\"><strong>\'stop\'</strong></span> - deactivates voice command.\r\n		</li>\r\n		<li>\r\n			<span class=\"text-primary\"><strong>\'help\'</strong></span> - brings up the command list\r\n		</li>\r\n		<li>\r\n			<span class=\"text-danger\"><strong>\'got it\'</strong></span> - closes help modal\r\n		</li>\r\n		<li>\r\n			<strong>\'hide navigation\'</strong> - toggle navigation collapse\r\n		</li>\r\n		<li>\r\n			<strong>\'show navigation\'</strong> - toggle navigation to open (can be used again to close)\r\n		</li>\r\n		<li>\r\n			<strong>\'scroll up\'</strong> - scrolls to the top of the page\r\n		</li>\r\n		<li>\r\n			<strong>\'scroll down\'</strong> - scrollts to the bottom of the page\r\n		</li>\r\n		<li>\r\n			<strong>\'go back\' </strong> - goes back in history (history -1 click)\r\n		</li>\r\n		<li>\r\n			<strong>\'logout\'</strong> - logs you out\r\n		</li>\r\n	</ul>\r\n	<br>\r\n	<h5>Adding your own commands</h5>\r\n	Voice Command supports up to 80 languages. Adding your own commands is extreamly easy. All commands are stored inside <strong>app.config.js</strong> file under the <code>var commands = {...}</code>. \r\n\r\n	<hr class=\"simple\">\r\n	<div class=\"text-right\">\r\n		<button type=\"button\" class=\"btn btn-success btn-lg\" data-dismiss=\"modal\">\r\n			Got it!\r\n		</button>\r\n	</div>\r\n\r\n</div>\r\n<!--<div class=\"modal-footer\">\r\n<button type=\"button\" class=\"btn btn-primary\" data-dismiss=\"modal\">Got it!</button>\r\n</div> -->");
 $templateCache.put("app/app/layout/shortcut/shortcut.tpl.html","<div id=\"shortcut\">\r\n	<ul>\r\n		<li>\r\n			<a href=\"#/inbox/\" class=\"jarvismetro-tile big-cubes bg-color-blue\"> <span class=\"iconbox\"> <i class=\"fa fa-envelope fa-4x\"></i> <span>Mail <span class=\"label pull-right bg-color-darken\">14</span></span> </span> </a>\r\n		</li>\r\n		<li>\r\n			<a href=\"#/calendar\" class=\"jarvismetro-tile big-cubes bg-color-orangeDark\"> <span class=\"iconbox\"> <i class=\"fa fa-calendar fa-4x\"></i> <span>Calendar</span> </span> </a>\r\n		</li>\r\n		<li>\r\n			<a href=\"#/maps\" class=\"jarvismetro-tile big-cubes bg-color-purple\"> <span class=\"iconbox\"> <i class=\"fa fa-map-marker fa-4x\"></i> <span>Maps</span> </span> </a>\r\n		</li>\r\n		<li>\r\n			<a href=\"#/invoice\" class=\"jarvismetro-tile big-cubes bg-color-blueDark\"> <span class=\"iconbox\"> <i class=\"fa fa-book fa-4x\"></i> <span>Invoice <span class=\"label pull-right bg-color-darken\">99</span></span> </span> </a>\r\n		</li>\r\n		<li>\r\n			<a href=\"#/gallery\" class=\"jarvismetro-tile big-cubes bg-color-greenLight\"> <span class=\"iconbox\"> <i class=\"fa fa-picture-o fa-4x\"></i> <span>Gallery </span> </span> </a>\r\n		</li>\r\n		<li>\r\n			<a href=\"#/profile\" class=\"jarvismetro-tile big-cubes selected bg-color-pinkDark\"> <span class=\"iconbox\"> <i class=\"fa fa-user fa-4x\"></i> <span>My Profile </span> </span> </a>\r\n		</li>\r\n	</ul>\r\n</div>");
-$templateCache.put("app/app/Template/views/isDelete.tpl.html","<!-- <div class=\"modal-header\">\r\n        <h3 class=\"modal-title\">\r\n            <strong class=\"label label-default\">案件概要</strong>\r\n        </h3>\r\n    </div> -->\r\n\r\n<div class=\"modal-body\" id=\"modal-body\">\r\n    <p>確定是否要刪除?</p>\r\n</div>\r\n<div class=\"modal-footer\">\r\n    <button class=\"btn btn-danger\" type=\"button\" ng-click=\"$ctrl.ok()\">{{getWord(\'OK\')}}</button>\r\n    <button class=\"btn btn-default\" type=\"button\" ng-click=\"$ctrl.cancel()\">{{getWord(\'Cancel\')}}</button>\r\n</div>\r\n");
 $templateCache.put("app/public/app/dashboard/live-feeds.tpl.html","<div jarvis-widget id=\"live-feeds-widget\" data-widget-togglebutton=\"false\" data-widget-editbutton=\"false\"\r\n     data-widget-fullscreenbutton=\"false\" data-widget-colorbutton=\"false\" data-widget-deletebutton=\"false\">\r\n<!-- widget options:\r\nusage: <div class=\"jarviswidget\" id=\"wid-id-0\" data-widget-editbutton=\"false\">\r\n\r\ndata-widget-colorbutton=\"false\"\r\ndata-widget-editbutton=\"false\"\r\ndata-widget-togglebutton=\"false\"\r\ndata-widget-deletebutton=\"false\"\r\ndata-widget-fullscreenbutton=\"false\"\r\ndata-widget-custombutton=\"false\"\r\ndata-widget-collapsed=\"true\"\r\ndata-widget-sortable=\"false\"\r\n\r\n-->\r\n<header>\r\n    <span class=\"widget-icon\"> <i class=\"glyphicon glyphicon-stats txt-color-darken\"></i> </span>\r\n\r\n    <h2>Live Feeds </h2>\r\n\r\n    <ul class=\"nav nav-tabs pull-right in\" id=\"myTab\">\r\n        <li class=\"active\">\r\n            <a data-toggle=\"tab\" href=\"#s1\"><i class=\"fa fa-clock-o\"></i> <span class=\"hidden-mobile hidden-tablet\">Live Stats</span></a>\r\n        </li>\r\n\r\n        <li>\r\n            <a data-toggle=\"tab\" href=\"#s2\"><i class=\"fa fa-facebook\"></i> <span class=\"hidden-mobile hidden-tablet\">Social Network</span></a>\r\n        </li>\r\n\r\n        <li>\r\n            <a data-toggle=\"tab\" href=\"#s3\"><i class=\"fa fa-dollar\"></i> <span class=\"hidden-mobile hidden-tablet\">Revenue</span></a>\r\n        </li>\r\n    </ul>\r\n\r\n</header>\r\n\r\n<!-- widget div-->\r\n<div class=\"no-padding\">\r\n\r\n    <div class=\"widget-body\">\r\n        <!-- content -->\r\n        <div id=\"myTabContent\" class=\"tab-content\">\r\n            <div class=\"tab-pane fade active in padding-10 no-padding-bottom\" id=\"s1\">\r\n                <div class=\"row no-space\">\r\n                    <div class=\"col-xs-12 col-sm-12 col-md-8 col-lg-8\">\r\n														<span class=\"demo-liveupdate-1\"> <span\r\n                                                                class=\"onoffswitch-title\">Live switch</span> <span\r\n                                                                class=\"onoffswitch\">\r\n																<input type=\"checkbox\" name=\"start_interval\" ng-model=\"autoUpdate\"\r\n                                                                       class=\"onoffswitch-checkbox\" id=\"start_interval\">\r\n																<label class=\"onoffswitch-label\" for=\"start_interval\">\r\n                                                                    <span class=\"onoffswitch-inner\"\r\n                                                                          data-swchon-text=\"ON\"\r\n                                                                          data-swchoff-text=\"OFF\"></span>\r\n                                                                    <span class=\"onoffswitch-switch\"></span>\r\n                                                                </label> </span> </span>\r\n\r\n                        <div id=\"updating-chart\" class=\"chart-large txt-color-blue\" flot-basic flot-data=\"liveStats\" flot-options=\"liveStatsOptions\"></div>\r\n\r\n                    </div>\r\n                    <div class=\"col-xs-12 col-sm-12 col-md-4 col-lg-4 show-stats\">\r\n\r\n                        <div class=\"row\">\r\n                            <div class=\"col-xs-6 col-sm-6 col-md-12 col-lg-12\"><span class=\"text\"> My Tasks <span\r\n                                    class=\"pull-right\">130/200</span> </span>\r\n\r\n                                <div class=\"progress\">\r\n                                    <div class=\"progress-bar bg-color-blueDark\" style=\"width: 65%;\"></div>\r\n                                </div>\r\n                            </div>\r\n                            <div class=\"col-xs-6 col-sm-6 col-md-12 col-lg-12\"><span class=\"text\"> Transfered <span\r\n                                    class=\"pull-right\">440 GB</span> </span>\r\n\r\n                                <div class=\"progress\">\r\n                                    <div class=\"progress-bar bg-color-blue\" style=\"width: 34%;\"></div>\r\n                                </div>\r\n                            </div>\r\n                            <div class=\"col-xs-6 col-sm-6 col-md-12 col-lg-12\"><span class=\"text\"> Bugs Squashed<span\r\n                                    class=\"pull-right\">77%</span> </span>\r\n\r\n                                <div class=\"progress\">\r\n                                    <div class=\"progress-bar bg-color-blue\" style=\"width: 77%;\"></div>\r\n                                </div>\r\n                            </div>\r\n                            <div class=\"col-xs-6 col-sm-6 col-md-12 col-lg-12\"><span class=\"text\"> User Testing <span\r\n                                    class=\"pull-right\">7 Days</span> </span>\r\n\r\n                                <div class=\"progress\">\r\n                                    <div class=\"progress-bar bg-color-greenLight\" style=\"width: 84%;\"></div>\r\n                                </div>\r\n                            </div>\r\n\r\n                            <span class=\"show-stat-buttons\"> <span class=\"col-xs-12 col-sm-6 col-md-6 col-lg-6\"> <a\r\n                                    href-void class=\"btn btn-default btn-block hidden-xs\">Generate PDF</a> </span> <span\r\n                                    class=\"col-xs-12 col-sm-6 col-md-6 col-lg-6\"> <a href-void\r\n                                                                                     class=\"btn btn-default btn-block hidden-xs\">Report\r\n                                a bug</a> </span> </span>\r\n\r\n                        </div>\r\n\r\n                    </div>\r\n                </div>\r\n\r\n                <div class=\"show-stat-microcharts\" data-sparkline-container data-easy-pie-chart-container>\r\n                    <div class=\"col-xs-12 col-sm-3 col-md-3 col-lg-3\">\r\n\r\n                        <div class=\"easy-pie-chart txt-color-orangeDark\" data-percent=\"33\" data-pie-size=\"50\">\r\n                            <span class=\"percent percent-sign\">35</span>\r\n                        </div>\r\n                        <span class=\"easy-pie-title\"> Server Load <i class=\"fa fa-caret-up icon-color-bad\"></i> </span>\r\n                        <ul class=\"smaller-stat hidden-sm pull-right\">\r\n                            <li>\r\n                                <span class=\"label bg-color-greenLight\"><i class=\"fa fa-caret-up\"></i> 97%</span>\r\n                            </li>\r\n                            <li>\r\n                                <span class=\"label bg-color-blueLight\"><i class=\"fa fa-caret-down\"></i> 44%</span>\r\n                            </li>\r\n                        </ul>\r\n                        <div class=\"sparkline txt-color-greenLight hidden-sm hidden-md pull-right\"\r\n                             data-sparkline-type=\"line\" data-sparkline-height=\"33px\" data-sparkline-width=\"70px\"\r\n                             data-fill-color=\"transparent\">\r\n                            130, 187, 250, 257, 200, 210, 300, 270, 363, 247, 270, 363, 247\r\n                        </div>\r\n                    </div>\r\n                    <div class=\"col-xs-12 col-sm-3 col-md-3 col-lg-3\">\r\n                        <div class=\"easy-pie-chart txt-color-greenLight\" data-percent=\"78.9\" data-pie-size=\"50\">\r\n                            <span class=\"percent percent-sign\">78.9 </span>\r\n                        </div>\r\n                        <span class=\"easy-pie-title\"> Disk Space <i class=\"fa fa-caret-down icon-color-good\"></i></span>\r\n                        <ul class=\"smaller-stat hidden-sm pull-right\">\r\n                            <li>\r\n                                <span class=\"label bg-color-blueDark\"><i class=\"fa fa-caret-up\"></i> 76%</span>\r\n                            </li>\r\n                            <li>\r\n                                <span class=\"label bg-color-blue\"><i class=\"fa fa-caret-down\"></i> 3%</span>\r\n                            </li>\r\n                        </ul>\r\n                        <div class=\"sparkline txt-color-blue hidden-sm hidden-md pull-right\" data-sparkline-type=\"line\"\r\n                             data-sparkline-height=\"33px\" data-sparkline-width=\"70px\" data-fill-color=\"transparent\">\r\n                            257, 200, 210, 300, 270, 363, 130, 187, 250, 247, 270, 363, 247\r\n                        </div>\r\n                    </div>\r\n                    <div class=\"col-xs-12 col-sm-3 col-md-3 col-lg-3\">\r\n                        <div class=\"easy-pie-chart txt-color-blue\" data-percent=\"23\" data-pie-size=\"50\">\r\n                            <span class=\"percent percent-sign\">23 </span>\r\n                        </div>\r\n                        <span class=\"easy-pie-title\"> Transfered <i class=\"fa fa-caret-up icon-color-good\"></i></span>\r\n                        <ul class=\"smaller-stat hidden-sm pull-right\">\r\n                            <li>\r\n                                <span class=\"label bg-color-darken\">10GB</span>\r\n                            </li>\r\n                            <li>\r\n                                <span class=\"label bg-color-blueDark\"><i class=\"fa fa-caret-up\"></i> 10%</span>\r\n                            </li>\r\n                        </ul>\r\n                        <div class=\"sparkline txt-color-darken hidden-sm hidden-md pull-right\"\r\n                             data-sparkline-type=\"line\" data-sparkline-height=\"33px\" data-sparkline-width=\"70px\"\r\n                             data-fill-color=\"transparent\">\r\n                            200, 210, 363, 247, 300, 270, 130, 187, 250, 257, 363, 247, 270\r\n                        </div>\r\n                    </div>\r\n                    <div class=\"col-xs-12 col-sm-3 col-md-3 col-lg-3\">\r\n                        <div class=\"easy-pie-chart txt-color-darken\" data-percent=\"36\" data-pie-size=\"50\">\r\n                            <span class=\"percent degree-sign\">36 <i class=\"fa fa-caret-up\"></i></span>\r\n                        </div>\r\n                        <span class=\"easy-pie-title\"> Temperature <i\r\n                                class=\"fa fa-caret-down icon-color-good\"></i></span>\r\n                        <ul class=\"smaller-stat hidden-sm pull-right\">\r\n                            <li>\r\n                                <span class=\"label bg-color-red\"><i class=\"fa fa-caret-up\"></i> 124</span>\r\n                            </li>\r\n                            <li>\r\n                                <span class=\"label bg-color-blue\"><i class=\"fa fa-caret-down\"></i> 40 F</span>\r\n                            </li>\r\n                        </ul>\r\n                        <div class=\"sparkline txt-color-red hidden-sm hidden-md pull-right\" data-sparkline-type=\"line\"\r\n                             data-sparkline-height=\"33px\" data-sparkline-width=\"70px\" data-fill-color=\"transparent\">\r\n                            2700, 3631, 2471, 2700, 3631, 2471, 1300, 1877, 2500, 2577, 2000, 2100, 3000\r\n                        </div>\r\n                    </div>\r\n                </div>\r\n\r\n            </div>\r\n            <!-- end s1 tab pane -->\r\n\r\n            <div class=\"tab-pane fade\" id=\"s2\">\r\n                <div class=\"widget-body-toolbar bg-color-white\">\r\n\r\n                    <form class=\"form-inline\" role=\"form\">\r\n\r\n                        <div class=\"form-group\">\r\n                            <label class=\"sr-only\" for=\"s123\">Show From</label>\r\n                            <input type=\"email\" class=\"form-control input-sm\" id=\"s123\" placeholder=\"Show From\">\r\n                        </div>\r\n                        <div class=\"form-group\">\r\n                            <input type=\"email\" class=\"form-control input-sm\" id=\"s124\" placeholder=\"To\">\r\n                        </div>\r\n\r\n                        <div class=\"btn-group hidden-phone pull-right\">\r\n                            <a class=\"btn dropdown-toggle btn-xs btn-default\" data-toggle=\"dropdown\"><i\r\n                                    class=\"fa fa-cog\"></i> More <span class=\"caret\"> </span> </a>\r\n                            <ul class=\"dropdown-menu pull-right\">\r\n                                <li>\r\n                                    <a href-void><i class=\"fa fa-file-text-alt\"></i> Export to PDF</a>\r\n                                </li>\r\n                                <li>\r\n                                    <a href-void><i class=\"fa fa-question-sign\"></i> Help</a>\r\n                                </li>\r\n                            </ul>\r\n                        </div>\r\n\r\n                    </form>\r\n\r\n                </div>\r\n                <div class=\"padding-10\">\r\n                    <div id=\"statsChart\" class=\"chart-large has-legend-unique\" flot-basic flot-data=\"statsData\" flot-options=\"statsDisplayOptions\"></div>\r\n                </div>\r\n\r\n            </div>\r\n            <!-- end s2 tab pane -->\r\n\r\n            <div class=\"tab-pane fade\" id=\"s3\">\r\n\r\n                <div class=\"widget-body-toolbar bg-color-white smart-form\" id=\"rev-toggles\">\r\n\r\n                    <div class=\"inline-group\">\r\n\r\n                        <label for=\"gra-0\" class=\"checkbox\">\r\n                            <input type=\"checkbox\" id=\"gra-0\" ng-model=\"targetsShow\">\r\n                            <i></i> Target </label>\r\n                        <label for=\"gra-1\" class=\"checkbox\">\r\n                            <input type=\"checkbox\" id=\"gra-1\" ng-model=\"actualsShow\">\r\n                            <i></i> Actual </label>\r\n                        <label for=\"gra-2\" class=\"checkbox\">\r\n                            <input type=\"checkbox\" id=\"gra-2\" ng-model=\"signupsShow\">\r\n                            <i></i> Signups </label>\r\n                    </div>\r\n\r\n                    <div class=\"btn-group hidden-phone pull-right\">\r\n                        <a class=\"btn dropdown-toggle btn-xs btn-default\" data-toggle=\"dropdown\"><i\r\n                                class=\"fa fa-cog\"></i> More <span class=\"caret\"> </span> </a>\r\n                        <ul class=\"dropdown-menu pull-right\">\r\n                            <li>\r\n                                <a href-void><i class=\"fa fa-file-text-alt\"></i> Export to PDF</a>\r\n                            </li>\r\n                            <li>\r\n                                <a href-void><i class=\"fa fa-question-sign\"></i> Help</a>\r\n                            </li>\r\n                        </ul>\r\n                    </div>\r\n\r\n                </div>\r\n\r\n                <div class=\"padding-10\">\r\n                    <div id=\"flotcontainer\" class=\"chart-large has-legend-unique\" flot-basic flot-data=\"revenewData\" flot-options=\"revenewDisplayOptions\" ></div>\r\n                </div>\r\n            </div>\r\n            <!-- end s3 tab pane -->\r\n        </div>\r\n\r\n        <!-- end content -->\r\n    </div>\r\n\r\n</div>\r\n<!-- end widget div -->\r\n</div>\r\n");
 $templateCache.put("app/public/app/layout/layout.tpl.html","<!-- HEADER -->\r\n<div data-smart-include=\"app/layout/partials/header.tpl.html\" class=\"placeholder-header\"></div>\r\n<!-- END HEADER -->\r\n\r\n\r\n<!-- Left panel : Navigation area -->\r\n<!-- Note: This width of the aside area can be adjusted through LESS variables -->\r\n<div data-smart-include=\"app/layout/partials/navigation.tpl.html\" class=\"placeholder-left-panel\"></div>\r\n\r\n<!-- END NAVIGATION -->\r\n\r\n<!-- MAIN PANEL -->\r\n<div id=\"main\" role=\"main\">\r\n    <demo-states></demo-states>\r\n\r\n    <!-- RIBBON -->\r\n    <div id=\"ribbon\">\r\n\r\n		<span class=\"ribbon-button-alignment\">\r\n			<span id=\"refresh\" class=\"btn btn-ribbon\" reset-widgets\r\n                  tooltip-placement=\"bottom\"\r\n                  smart-tooltip-html=\"<i class=\'text-warning fa fa-warning\'></i> Warning! This will reset all your widget settings.\">\r\n				<i class=\"fa fa-refresh\"></i>\r\n			</span>\r\n		</span>\r\n\r\n        <!-- breadcrumb -->\r\n        <state-breadcrumbs></state-breadcrumbs>\r\n        <!-- end breadcrumb -->\r\n\r\n\r\n    </div>\r\n    <!-- END RIBBON -->\r\n\r\n\r\n    <div data-smart-router-animation-wrap=\"content content@app\" data-wrap-for=\"#content\">\r\n        <div data-ui-view=\"content\" data-autoscroll=\"false\"></div>\r\n    </div>\r\n\r\n</div>\r\n<!-- END MAIN PANEL -->\r\n\r\n<!-- PAGE FOOTER -->\r\n<div data-smart-include=\"app/layout/partials/footer.tpl.html\"></div>\r\n\r\n<div data-smart-include=\"app/layout/shortcut/shortcut.tpl.html\"></div>\r\n\r\n<!-- END PAGE FOOTER -->\r\n\r\n\r\n");
 $templateCache.put("app/app/dashboard/chat/directives/aside-chat-widget.tpl.html","<ul>\r\n    <li>\r\n        <div class=\"display-users\">\r\n            <input class=\"form-control chat-user-filter\" placeholder=\"Filter\" type=\"text\">\r\n            <dl>\r\n                <dt>\r\n                    <a href=\"#\" class=\"usr\"\r\n                       data-chat-id=\"cha1\"\r\n                       data-chat-fname=\"Sadi\"\r\n                       data-chat-lname=\"Orlaf\"\r\n                       data-chat-status=\"busy\"\r\n                       data-chat-alertmsg=\"Sadi Orlaf is in a meeting. Please do not disturb!\"\r\n                       data-chat-alertshow=\"true\"\r\n                       popover-trigger=\"hover\"\r\n                       popover-placement=\"right\"\r\n                       smart-popover-html=\"\r\n										<div class=\'usr-card\'>\r\n											<img src=\'styles/img/avatars/5.png\' alt=\'Sadi Orlaf\'>\r\n											<div class=\'usr-card-content\'>\r\n												<h3>Sadi Orlaf</h3>\r\n												<p>Marketing Executive</p>\r\n											</div>\r\n										</div>\r\n									\">\r\n                        <i></i>Sadi Orlaf\r\n                    </a>\r\n                </dt>\r\n                <dt>\r\n                    <a href=\"#\" class=\"usr\"\r\n                       data-chat-id=\"cha2\"\r\n                       data-chat-fname=\"Jessica\"\r\n                       data-chat-lname=\"Dolof\"\r\n                       data-chat-status=\"online\"\r\n                       data-chat-alertmsg=\"\"\r\n                       data-chat-alertshow=\"false\"\r\n                       popover-trigger=\"hover\"\r\n                       popover-placement=\"right\"\r\n                       smart-popover-html=\"\r\n										<div class=\'usr-card\'>\r\n											<img src=\'styles/img/avatars/1.png\' alt=\'Jessica Dolof\'>\r\n											<div class=\'usr-card-content\'>\r\n												<h3>Jessica Dolof</h3>\r\n												<p>Sales Administrator</p>\r\n											</div>\r\n										</div>\r\n									\">\r\n                        <i></i>Jessica Dolof\r\n                    </a>\r\n                </dt>\r\n                <dt>\r\n                    <a href=\"#\" class=\"usr\"\r\n                       data-chat-id=\"cha3\"\r\n                       data-chat-fname=\"Zekarburg\"\r\n                       data-chat-lname=\"Almandalie\"\r\n                       data-chat-status=\"online\"\r\n                       popover-trigger=\"hover\"\r\n                       popover-placement=\"right\"\r\n                       smart-popover-html=\"\r\n										<div class=\'usr-card\'>\r\n											<img src=\'styles/img/avatars/3.png\' alt=\'Zekarburg Almandalie\'>\r\n											<div class=\'usr-card-content\'>\r\n												<h3>Zekarburg Almandalie</h3>\r\n												<p>Sales Admin</p>\r\n											</div>\r\n										</div>\r\n									\">\r\n                        <i></i>Zekarburg Almandalie\r\n                    </a>\r\n                </dt>\r\n                <dt>\r\n                    <a href=\"#\" class=\"usr\"\r\n                       data-chat-id=\"cha4\"\r\n                       data-chat-fname=\"Barley\"\r\n                       data-chat-lname=\"Krazurkth\"\r\n                       data-chat-status=\"away\"\r\n                       popover-trigger=\"hover\"\r\n                       popover-placement=\"right\"\r\n                       smart-popover-html=\"\r\n										<div class=\'usr-card\'>\r\n											<img src=\'styles/img/avatars/4.png\' alt=\'Barley Krazurkth\'>\r\n											<div class=\'usr-card-content\'>\r\n												<h3>Barley Krazurkth</h3>\r\n												<p>Sales Director</p>\r\n											</div>\r\n										</div>\r\n									\">\r\n                        <i></i>Barley Krazurkth\r\n                    </a>\r\n                </dt>\r\n                <dt>\r\n                    <a href=\"#\" class=\"usr offline\"\r\n                       data-chat-id=\"cha5\"\r\n                       data-chat-fname=\"Farhana\"\r\n                       data-chat-lname=\"Amrin\"\r\n                       data-chat-status=\"incognito\"\r\n                       popover-trigger=\"hover\"\r\n                       popover-placement=\"right\"\r\n                       smart-popover-html=\"\r\n										<div class=\'usr-card\'>\r\n											<img src=\'styles/img/avatars/female.png\' alt=\'Farhana Amrin\'>\r\n											<div class=\'usr-card-content\'>\r\n												<h3>Farhana Amrin</h3>\r\n												<p>Support Admin <small><i class=\'fa fa-music\'></i> Playing Beethoven Classics</small></p>\r\n											</div>\r\n										</div>\r\n									\">\r\n                        <i></i>Farhana Amrin (offline)\r\n                    </a>\r\n                </dt>\r\n                <dt>\r\n                    <a href=\"#\" class=\"usr offline\"\r\n                       data-chat-id=\"cha6\"\r\n                       data-chat-fname=\"Lezley\"\r\n                       data-chat-lname=\"Jacob\"\r\n                       data-chat-status=\"incognito\"\r\n                       popover-trigger=\"hover\"\r\n                       popover-placement=\"right\"\r\n                       smart-popover-html=\"\r\n										<div class=\'usr-card\'>\r\n											<img src=\'styles/img/avatars/male.png\' alt=\'Lezley Jacob\'>\r\n											<div class=\'usr-card-content\'>\r\n												<h3>Lezley Jacob</h3>\r\n												<p>Sales Director</p>\r\n											</div>\r\n										</div>\r\n									\">\r\n                        <i></i>Lezley Jacob (offline)\r\n                    </a>\r\n                </dt>\r\n            </dl>\r\n\r\n\r\n            <!--<a href=\"chat.html\" class=\"btn btn-xs btn-default btn-block sa-chat-learnmore-btn\">About the API</a>-->\r\n        </div>\r\n    </li>\r\n</ul>");
@@ -5789,6 +6142,43 @@ $templateCache.put("app/public/app/_common/forms/directives/bootstrap-validation
 $templateCache.put("app/public/app/_common/forms/directives/bootstrap-validation/bootstrap-profile-form.tpl.html","<form id=\"profileForm\">\r\n\r\n    <fieldset>\r\n        <legend>\r\n            Default Form Elements\r\n        </legend>\r\n        <div class=\"form-group\">\r\n            <label>Email address</label>\r\n            <input type=\"text\" class=\"form-control\" name=\"email\" />\r\n        </div>\r\n    </fieldset>\r\n    <fieldset>\r\n        <div class=\"form-group\">\r\n            <label>Password</label>\r\n            <input type=\"password\" class=\"form-control\" name=\"password\" />\r\n        </div>\r\n    </fieldset>\r\n\r\n    <div class=\"form-actions\">\r\n        <div class=\"row\">\r\n            <div class=\"col-md-12\">\r\n                <button class=\"btn btn-default\" type=\"submit\">\r\n                    <i class=\"fa fa-eye\"></i>\r\n                    Validate\r\n                </button>\r\n            </div>\r\n        </div>\r\n    </div>\r\n</form>\r\n");
 $templateCache.put("app/public/app/_common/forms/directives/bootstrap-validation/bootstrap-toggling-form.tpl.html","<form id=\"togglingForm\" method=\"post\" class=\"form-horizontal\">\r\n\r\n    <fieldset>\r\n        <legend>\r\n            Default Form Elements\r\n        </legend>\r\n        <div class=\"form-group\">\r\n            <label class=\"col-lg-3 control-label\">Full name <sup>*</sup></label>\r\n            <div class=\"col-lg-4\">\r\n                <input type=\"text\" class=\"form-control\" name=\"firstName\" placeholder=\"First name\" />\r\n            </div>\r\n            <div class=\"col-lg-4\">\r\n                <input type=\"text\" class=\"form-control\" name=\"lastName\" placeholder=\"Last name\" />\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n\r\n    <fieldset>\r\n        <div class=\"form-group\">\r\n            <label class=\"col-lg-3 control-label\">Company <sup>*</sup></label>\r\n            <div class=\"col-lg-5\">\r\n                <input type=\"text\" class=\"form-control\" name=\"company\"\r\n                       required data-bv-notempty-message=\"The company name is required\" />\r\n            </div>\r\n            <div class=\"col-lg-2\">\r\n                <button type=\"button\" class=\"btn btn-info btn-sm\" data-toggle=\"#jobInfo\">\r\n                    Add more info\r\n                </button>\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n\r\n    <!-- These fields will not be validated as long as they are not visible -->\r\n    <div id=\"jobInfo\" style=\"display: none;\">\r\n        <fieldset>\r\n            <div class=\"form-group\">\r\n                <label class=\"col-lg-3 control-label\">Job title <sup>*</sup></label>\r\n                <div class=\"col-lg-5\">\r\n                    <input type=\"text\" class=\"form-control\" name=\"job\" />\r\n                </div>\r\n            </div>\r\n        </fieldset>\r\n\r\n        <fieldset>\r\n            <div class=\"form-group\">\r\n                <label class=\"col-lg-3 control-label\">Department <sup>*</sup></label>\r\n                <div class=\"col-lg-5\">\r\n                    <input type=\"text\" class=\"form-control\" name=\"department\" />\r\n                </div>\r\n            </div>\r\n        </fieldset>\r\n    </div>\r\n\r\n    <fieldset>\r\n        <div class=\"form-group\">\r\n            <label class=\"col-lg-3 control-label\">Mobile phone <sup>*</sup></label>\r\n            <div class=\"col-lg-5\">\r\n                <input type=\"text\" class=\"form-control\" name=\"mobilePhone\" />\r\n            </div>\r\n            <div class=\"col-lg-2\">\r\n                <button type=\"button\" class=\"btn btn-info btn-sm\" data-toggle=\"#phoneInfo\">\r\n                    Add more phone numbers\r\n                </button>\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n    <!-- These fields will not be validated as long as they are not visible -->\r\n    <div id=\"phoneInfo\" style=\"display: none;\">\r\n\r\n        <fieldset>\r\n            <div class=\"form-group\">\r\n                <label class=\"col-lg-3 control-label\">Home phone</label>\r\n                <div class=\"col-lg-5\">\r\n                    <input type=\"text\" class=\"form-control\" name=\"homePhone\" />\r\n                </div>\r\n            </div>\r\n        </fieldset>\r\n        <fieldset>\r\n            <div class=\"form-group\">\r\n                <label class=\"col-lg-3 control-label\">Office phone</label>\r\n                <div class=\"col-lg-5\">\r\n                    <input type=\"text\" class=\"form-control\" name=\"officePhone\" />\r\n                </div>\r\n            </div>\r\n        </fieldset>\r\n    </div>\r\n\r\n    <div class=\"form-actions\">\r\n        <div class=\"row\">\r\n            <div class=\"col-md-12\">\r\n                <button class=\"btn btn-default\" type=\"submit\">\r\n                    <i class=\"fa fa-eye\"></i>\r\n                    Validate\r\n                </button>\r\n            </div>\r\n        </div>\r\n    </div>\r\n</form>");
 $templateCache.put("app/public/app/_common/layout/directives/demo/demo-states.tpl.html","<div class=\"demo\"><span id=\"demo-setting\"><i class=\"fa fa-cog txt-color-blueDark\"></i></span>\r\n\r\n    <form>\r\n        <legend class=\"no-padding margin-bottom-10\">Layout Options</legend>\r\n        <section>\r\n            <label><input type=\"checkbox\" ng-model=\"fixedHeader\"\r\n                          class=\"checkbox style-0\"><span>Fixed Header</span></label>\r\n            <label><input type=\"checkbox\"\r\n                          ng-model=\"fixedNavigation\"\r\n                          class=\"checkbox style-0\"><span>Fixed Navigation</span></label>\r\n            <label><input type=\"checkbox\"\r\n                          ng-model=\"fixedRibbon\"\r\n                          class=\"checkbox style-0\"><span>Fixed Ribbon</span></label>\r\n            <label><input type=\"checkbox\"\r\n                          ng-model=\"fixedPageFooter\"\r\n                          class=\"checkbox style-0\"><span>Fixed Footer</span></label>\r\n            <label><input type=\"checkbox\"\r\n                          ng-model=\"insideContainer\"\r\n                          class=\"checkbox style-0\"><span>Inside <b>.container</b></span></label>\r\n            <label><input type=\"checkbox\"\r\n                          ng-model=\"rtl\"\r\n                          class=\"checkbox style-0\"><span>RTL</span></label>\r\n            <label><input type=\"checkbox\"\r\n                          ng-model=\"menuOnTop\"\r\n                          class=\"checkbox style-0\"><span>Menu on <b>top</b></span></label>\r\n            <label><input type=\"checkbox\"\r\n                          ng-model=\"colorblindFriendly\"\r\n                          class=\"checkbox style-0\"><span>For Colorblind <div\r\n                    class=\"font-xs text-right\">(experimental)\r\n            </div></span>\r\n            </label><span id=\"smart-bgimages\"></span></section>\r\n        <section><h6 class=\"margin-top-10 semi-bold margin-bottom-5\">Clear Localstorage</h6><a\r\n                ng-click=\"factoryReset()\" class=\"btn btn-xs btn-block btn-primary\" id=\"reset-smart-widget\"><i\r\n                class=\"fa fa-refresh\"></i> Factory Reset</a></section>\r\n\r\n        <h6 class=\"margin-top-10 semi-bold margin-bottom-5\">SmartAdmin Skins</h6>\r\n\r\n\r\n        <section id=\"smart-styles\">\r\n            <a ng-repeat=\"skin in skins\" ng-click=\"setSkin(skin)\" class=\"{{skin.class}}\" style=\"{{skin.style}}\"><i ng-if=\"skin.name == $parent.smartSkin\" class=\"fa fa-check fa-fw\"></i> {{skin.label}} <sup ng-if=\"skin.beta\">beta</sup></a>\r\n        </section>\r\n    </form>\r\n</div>");}]);
+"use strict";
+
+angular.module('app').controller('TodoCtrl', function ($scope, $timeout, Todo) {
+    $scope.newTodo = undefined;
+
+    $scope.states = ['Critical', 'Important', 'Completed'];
+
+    $scope.todos = Todo.getList().$object;
+
+    // $scope.$watch('todos', function(){ }, true)
+
+    $scope.toggleAdd = function () {
+        if (!$scope.newTodo) {
+            $scope.newTodo = {
+                state: 'Important'
+            };
+        } else {
+            $scope.newTodo = undefined;
+        }
+    };
+
+    $scope.createTodo = function () {
+        $scope.todos.push(
+           Todo.normalize($scope.newTodo)
+        );
+        $scope.newTodo = undefined;
+
+    };
+
+    $scope.deleteTodo = function (todo) {
+        todo.remove().then(function () {
+            $scope.todos.splice($scope.todos.indexOf(todo), 1);
+        });
+
+    };
+
+});
 'use strict';
 
 angular.module('app.eCommerce').controller('OrdersDemoCtrl', function ($scope, orders) {
@@ -7002,7 +7392,7 @@ angular.module('app.restful').controller('ExcelTestCtrl', function ($scope, $sta
 
 "use strict";
 
-angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache) {
+angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, RestfulApi, $filter) {
     
     var $vm = this;
 
@@ -7013,7 +7403,7 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
             $vm.LoadData();
         },
         profile : Session.Get(),
-        defaultTab : 'hr1',
+        defaultTab : 'hr2',
         TabSwitch : function(pTabID){
             return pTabID == $vm.defaultTab ? 'active' : '';
         },
@@ -7024,74 +7414,155 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
                     // LoadPrincipal();
                     break;
                 case 'hr2':
-                    // LoadStatistics();
+                    LoadPullGoods();
                     break;
             }
         },
         gridMethod : {
-            //退件
-            rejectData : function(row){
-                console.log(row);
-            },
             //編輯
             modifyData : function(row){
                 console.log(row);
-                $state.transitionTo("app.selfwork.jobs.editorjob", {
-                    data: {
-                      id: 5,
-                      blue: '#0000FF'
+
+                var modalInstance = $uibModal.open({
+                    animation: true,
+                    ariaLabelledBy: 'modal-title',
+                    ariaDescribedBy: 'modal-body',
+                    templateUrl: 'modifyModalContent.html',
+                    controller: 'ModifyModalInstanceCtrl',
+                    controllerAs: '$ctrl',
+                    // size: 'lg',
+                    resolve: {
+                        items: function () {
+                            return row.entity;
+                        }
                     }
                 });
+
+                modalInstance.result.then(function(selectedItem) {
+                    console.log(selectedItem);
+
+                    var _d = new Date();
+
+                    RestfulApi.UpdateMSSQLData({
+                        updatename: 'Update',
+                        table: 19,
+                        params: {
+                            PG_MOVED : true,
+                            PG_MASTER : selectedItem.PG_MASTER,
+                            PG_FLIGHTNO : selectedItem.PG_FLIGHTNO,
+                            PG_UP_USER : $vm.profile.U_ID,
+                            PG_UP_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss')
+                        },
+                        condition: {
+                            PG_SEQ : selectedItem.PG_SEQ,
+                            PG_BAGNO : selectedItem.PG_BAGNO
+                        }
+                    }).then(function (res) {
+                        LoadPullGoods();
+                    });
+
+                }, function() {
+                    // $log.info('Modal dismissed at: ' + new Date());
+                });
             },
-            //結單
-            closeData : function(row){
+            //取消
+            cancelData : function(row){
                 console.log(row);
+
+                var modalInstance = $uibModal.open({
+                    animation: true,
+                    ariaLabelledBy: 'modal-title',
+                    ariaDescribedBy: 'modal-body',
+                    template: $templateCache.get('isChecked'),
+                    controller: 'IsCheckedModalInstanceCtrl',
+                    controllerAs: '$ctrl',
+                    size: 'sm',
+                    windowClass: 'center-modal',
+                    // appendTo: parentElem,
+                    resolve: {
+                        items: function() {
+                            return row.entity;
+                        },
+                        show: function(){
+                            return {
+                                title : "是否取消"
+                            };
+                        }
+                    }
+                });
+
+                modalInstance.result.then(function(selectedItem) {
+                    // $ctrl.selected = selectedItem;
+                    console.log(selectedItem);
+
+                    RestfulApi.DeleteMSSQLData({
+                        deletename: 'Delete',
+                        table: 19,
+                        params: {
+                            PG_SEQ : selectedItem.PG_SEQ,
+                            PG_BAGNO : selectedItem.PG_BAGNO
+                        }
+                    }).then(function (res) {
+                        LoadPullGoods();
+                    });
+
+                }, function() {
+                    // $log.info('Modal dismissed at: ' + new Date());
+                });
             }
         },
-        historySearchOptions : {
-            data:  [
-                {
-                    a : '2017-02-09',
-                    b : '297-64659291',
-                    c : '2017-01-15',
-                    d : 'CI5822',
-                    e : 'HK',
-                    f : '新桥供应链',
-                    g : true
-                },
-                {
-                    a : '2017-02-09',
-                    b : '297-64659292',
-                    c : '2017-01-15',
-                    d : 'CI5822',
-                    e : 'HK',
-                    f : '新桥供应链',
-                    g : true
-                },
-            ],
+        pullGoodsOptions : {
+            data:  '$vm.pullGoodsData',
             columnDefs: [
-                { name: 'a',        displayName: '提單日期' },
-                { name: 'b',        displayName: '主號' },
-                { name: 'c',        displayName: '進口日期' },
-                { name: 'd',        displayName: '班機' },
-                { name: 'e',        displayName: '啟運國別' },
-                { name: 'f',        displayName: '寄件人或公司' },
-                { name: 'g',        displayName: '狀態', cellTemplate: $templateCache.get('accessibilityLightStatus') },
-                { name: 'Options',  displayName: '操作', cellTemplate: $templateCache.get('accessibilityToDMC') }
+                { name: 'OL_IMPORTDT'   , displayName: '進口日期', cellFilter: 'dateFilter' },
+                { name: 'OL_CO_CODE'    , displayName: '行家', cellFilter: 'compyFilter' },
+                { name: 'OL_FLIGHTNO'   , displayName: '航班' },
+                { name: 'OL_MASTER'     , displayName: '主號' },
+                { name: 'OL_COUNTRY'    , displayName: '起運國別' },
+                { name: 'PG_BAGNO'      , displayName: '袋號' },
+                { name: 'PG_MOVED'      , displayName: '移機', cellFilter: 'booleanFilter' },
+                { name: 'PG_FLIGHTNO'   , displayName: '航班(改)' },
+                { name: 'PG_MASTER'     , displayName: '主號(改)' },
+                { name: 'Options'       , displayName: '操作', cellTemplate: $templateCache.get('accessibilityToMC') }
             ],
             enableFiltering: false,
             enableSorting: false,
             enableColumnMenus: false,
             // enableVerticalScrollbar: false,
             paginationPageSizes: [10, 25, 50],
-            paginationPageSize: 10
+            paginationPageSize: 10,
+            onRegisterApi: function(gridApi){
+                $vm.pullGoodsGridApi = gridApi;
+            }
         }
     });
 
+    function LoadPullGoods(){
+        RestfulApi.SearchMSSQLData({
+            querymain: 'assistantJobs',
+            queryname: 'SelectPullGoods'
+        }).then(function (res){
+            console.log(res["returnData"]);
+            $vm.pullGoodsData = res["returnData"];
+        }); 
+    };
+
 })
+.controller('ModifyModalInstanceCtrl', function ($uibModalInstance, items) {
+    var $ctrl = this;
+    $ctrl.mdData = angular.copy(items);
+
+    $ctrl.ok = function() {
+        $uibModalInstance.close($ctrl.mdData);
+    };
+
+    $ctrl.cancel = function() {
+        $uibModalInstance.dismiss('cancel');
+    };
+});
 "use strict";
 
-angular.module('app.selfwork').controller('EmployeeJobsCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, $filter, uiGridConstants, RestfulApi, compy) {
+angular.module('app.selfwork').controller('EmployeeJobsCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, $filter, uiGridConstants, RestfulApi, compy, $q) {
     
     var $vm = this;
 
@@ -7101,6 +7572,87 @@ angular.module('app.selfwork').controller('EmployeeJobsCtrl', function ($scope, 
         },
         profile : Session.Get(),
         defaultChoice : 'Left',
+        gridMethod : {
+            // 各單的工作選項
+            gridOperation : function(row, name){
+                // 給modal知道目前是哪個欄位操作
+                row.entity['name'] = name;
+
+                var modalInstance = $uibModal.open({
+                    animation: true,
+                    ariaLabelledBy: 'modal-title',
+                    ariaDescribedBy: 'modal-body',
+                    templateUrl: 'opWorkMenu.html',
+                    controller: 'OpWorkMenuModalInstanceCtrl',
+                    controllerAs: '$ctrl',
+                    scope: $scope,
+                    size: 'sm',
+                    // windowClass: 'center-modal',
+                    // appendTo: parentElem,
+                    resolve: {
+                        items: function() {
+                            return row;
+                        }
+                    }
+                });
+
+                modalInstance.result.then(function(selectedItem) {
+                    // $ctrl.selected = selectedItem;
+                    console.log(selectedItem);
+
+                }, function() {
+                    // $log.info('Modal dismissed at: ' + new Date());
+                });
+            },
+            // 各單的修改
+            modifyData : function(row){
+                console.log(row);
+                var modalInstance = $uibModal.open({
+                    animation: true,
+                    ariaLabelledBy: 'modal-title',
+                    ariaDescribedBy: 'modal-body',
+                    template: $templateCache.get('modifyOrderList'),
+                    controller: 'ModifyOrderListModalInstanceCtrl',
+                    controllerAs: '$ctrl',
+                    // size: 'sm',
+                    // windowClass: 'center-modal',
+                    // appendTo: parentElem,
+                    resolve: {
+                        vmData: function() {
+                            return row.entity;
+                        },
+                        compy: function() {
+                            return compy;
+                        }
+                    }
+                });
+
+                modalInstance.result.then(function(selectedItem) {
+                    // $ctrl.selected = selectedItem;
+                    console.log(selectedItem);
+
+                    RestfulApi.UpdateMSSQLData({
+                        updatename: 'Update',
+                        table: 18,
+                        params: {
+                            OL_IMPORTDT : selectedItem.OL_IMPORTDT,
+                            OL_CO_CODE  : selectedItem.OL_CO_CODE,
+                            OL_FLIGHTNO : selectedItem.OL_FLIGHTNO,
+                            OL_MASTER   : selectedItem.OL_MASTER,
+                            OL_COUNTRY  : selectedItem.OL_COUNTRY
+                        },
+                        condition: {
+                            OL_SEQ : selectedItem.OL_SEQ
+                        }
+                    }).then(function (res) {
+                        LoadOrderList();
+                    });
+
+                }, function() {
+                    // $log.info('Modal dismissed at: ' + new Date());
+                });
+            }
+        },
         gridMethodForJob001 : {
             //退件
             rejectData : function(row){
@@ -7119,6 +7671,11 @@ angular.module('app.selfwork').controller('EmployeeJobsCtrl', function ($scope, 
                     resolve: {
                         items: function() {
                             return row.entity;
+                        },
+                        show: function(){
+                            return {
+                                title : "是否退單"
+                            }
                         }
                     }
                 });
@@ -7127,68 +7684,68 @@ angular.module('app.selfwork').controller('EmployeeJobsCtrl', function ($scope, 
                     // $ctrl.selected = selectedItem;
                     console.log(selectedItem);
                     
-                    RestfulApi.UpdateMSSQLData({
-                        updatename: 'Update',
-                        table: 18,
-                        params: {
-                            OL_W2_PRINCIPAL : null
-                        },
-                        condition: {
-                            OL_SEQ : selectedItem.OL_SEQ,
-                            OL_CR_USER : selectedItem.OL_CR_USER
-                        }
-                    }).then(function (res) {
-                        LoadOrderList();
-                    });
+                    // RestfulApi.UpdateMSSQLData({
+                    //     updatename: 'Update',
+                    //     table: 18,
+                    //     params: {
+                    //         OL_W2_PRINCIPAL : null
+                    //     },
+                    //     condition: {
+                    //         OL_SEQ : selectedItem.OL_SEQ,
+                    //         OL_CR_USER : selectedItem.OL_CR_USER
+                    //     }
+                    // }).then(function (res) {
+                    //     LoadOrderList();
+                    // });
 
                 }, function() {
                     // $log.info('Modal dismissed at: ' + new Date());
                 });
             },
-            //編輯
+            // 編輯
             modifyData : function(row){
                 console.log(row);
 
                 // 如果是第一次編輯 會先記錄編輯時間
-                if(row.entity.OL_W2_EDIT_DATETIME == null){
-                    RestfulApi.UpdateMSSQLData({
-                        updatename: 'Update',
-                        table: 18,
-                        params: {
-                            OL_W2_EDIT_DATETIME : $filter('date')(new Date(), 'yyyy-MM-dd HH:mm:ss')
-                        },
-                        condition: {
-                            OL_SEQ : row.entity.OL_SEQ,
-                            OL_CR_USER : row.entity.OL_CR_USER
-                        }
-                    }).then(function (res) {
-                        $state.transitionTo("app.selfwork.employeejobs.job001", {
-                            data: row.entity
-                        });
-                    });
-                }else{
+                // if(row.entity.OL_W2_EDIT_DATETIME == null){
+                //     RestfulApi.UpdateMSSQLData({
+                //         updatename: 'Update',
+                //         table: 18,
+                //         params: {
+                //             OL_W2_EDIT_DATETIME : $filter('date')(new Date(), 'yyyy-MM-dd HH:mm:ss')
+                //         },
+                //         condition: {
+                //             OL_SEQ : row.entity.OL_SEQ,
+                //             OL_CR_USER : row.entity.OL_CR_USER
+                //         }
+                //     }).then(function (res) {
+                //         $state.transitionTo("app.selfwork.employeejobs.job001", {
+                //             data: row.entity
+                //         });
+                //     });
+                // }else{
                     $state.transitionTo("app.selfwork.employeejobs.job001", {
                         data: row.entity
                     });
-                }
+                // }
             },
-            //結單
+            // 完成
             closeData : function(row){
                 console.log(row);
 
-                RestfulApi.UpdateMSSQLData({
-                    updatename: 'Update',
-                    table: 18,
-                    params: {
-                        OL_W2_OK_DATETIME : $filter('date')(new Date(), 'yyyy-MM-dd HH:mm:ss')
-                    },
-                    condition: {
-                        OL_SEQ : row.entity.OL_SEQ,
-                        OL_CR_USER : row.entity.OL_CR_USER
-                    }
-                }).then(function (res) {
-                    LoadOrderList();
-                });
+                // RestfulApi.UpdateMSSQLData({
+                //     updatename: 'Update',
+                //     table: 18,
+                //     params: {
+                //         OL_W2_OK_DATETIME : $filter('date')(new Date(), 'yyyy-MM-dd HH:mm:ss')
+                //     },
+                //     condition: {
+                //         OL_SEQ : row.entity.OL_SEQ,
+                //         OL_CR_USER : row.entity.OL_CR_USER
+                //     }
+                // }).then(function (res) {
+                //     LoadOrderList();
+                // });
             },
             // 刪除報機單
             deleteData : function(row){
@@ -7196,67 +7753,67 @@ angular.module('app.selfwork').controller('EmployeeJobsCtrl', function ($scope, 
             }
         },
         gridMethodForJob002 : {
-            //退件
+            // 退件
             rejectData : function(row){
                 console.log(row);
 
-                RestfulApi.UpdateMSSQLData({
-                    updatename: 'Update',
-                    table: 18,
-                    params: {
-                        OL_W3_PRINCIPAL : null
-                    },
-                    condition: {
-                        OL_SEQ : row.entity.OL_SEQ,
-                        OL_CR_USER : row.entity.OL_CR_USER
-                    }
-                }).then(function (res) {
-                    LoadOrderList();
-                });
+                // RestfulApi.UpdateMSSQLData({
+                //     updatename: 'Update',
+                //     table: 18,
+                //     params: {
+                //         OL_W3_PRINCIPAL : null
+                //     },
+                //     condition: {
+                //         OL_SEQ : row.entity.OL_SEQ,
+                //         OL_CR_USER : row.entity.OL_CR_USER
+                //     }
+                // }).then(function (res) {
+                //     LoadOrderList();
+                // });
             },
-            //編輯
+            // 編輯
             modifyData : function(row){
                 console.log(row);
 
-                if(row.entity.OL_W3_EDIT_DATETIME == null){
-                    RestfulApi.UpdateMSSQLData({
-                        updatename: 'Update',
-                        table: 18,
-                        params: {
-                            OL_W3_EDIT_DATETIME : $filter('date')(new Date(), 'yyyy-MM-dd HH:mm:ss')
-                        },
-                        condition: {
-                            OL_SEQ : row.entity.OL_SEQ,
-                            OL_CR_USER : row.entity.OL_CR_USER
-                        }
-                    }).then(function (res) {
-                        $state.transitionTo("app.selfwork.employeejobs.job002", {
-                            data: row.entity
-                        });
-                    });
-                }else{
+                // if(row.entity.OL_W3_EDIT_DATETIME == null){
+                //     RestfulApi.UpdateMSSQLData({
+                //         updatename: 'Update',
+                //         table: 18,
+                //         params: {
+                //             OL_W3_EDIT_DATETIME : $filter('date')(new Date(), 'yyyy-MM-dd HH:mm:ss')
+                //         },
+                //         condition: {
+                //             OL_SEQ : row.entity.OL_SEQ,
+                //             OL_CR_USER : row.entity.OL_CR_USER
+                //         }
+                //     }).then(function (res) {
+                //         $state.transitionTo("app.selfwork.employeejobs.job002", {
+                //             data: row.entity
+                //         });
+                //     });
+                // }else{
                     $state.transitionTo("app.selfwork.employeejobs.job002", {
                         data: row.entity
                     });
-                }
+                // }
             },
-            //結單
+            // 結單
             closeData : function(row){
                 console.log(row);
 
-                RestfulApi.UpdateMSSQLData({
-                    updatename: 'Update',
-                    table: 18,
-                    params: {
-                        OL_W3_OK_DATETIME : $filter('date')(new Date(), 'yyyy-MM-dd HH:mm:ss')
-                    },
-                    condition: {
-                        OL_SEQ : row.entity.OL_SEQ,
-                        OL_CR_USER : row.entity.OL_CR_USER
-                    }
-                }).then(function (res) {
-                    LoadOrderList();
-                });
+                // RestfulApi.UpdateMSSQLData({
+                //     updatename: 'Update',
+                //     table: 18,
+                //     params: {
+                //         OL_W3_OK_DATETIME : $filter('date')(new Date(), 'yyyy-MM-dd HH:mm:ss')
+                //     },
+                //     condition: {
+                //         OL_SEQ : row.entity.OL_SEQ,
+                //         OL_CR_USER : row.entity.OL_CR_USER
+                //     }
+                // }).then(function (res) {
+                //     LoadOrderList();
+                // });
             },
             // 刪除銷艙單
             deleteData : function(row){
@@ -7264,75 +7821,70 @@ angular.module('app.selfwork').controller('EmployeeJobsCtrl', function ($scope, 
             }
         },
         gridMethodForJob003 : {
-            //退件
+            // 退件
             rejectData : function(row){
                 console.log(row);
 
-                RestfulApi.UpdateMSSQLData({
-                    updatename: 'Update',
-                    table: 18,
-                    params: {
-                        OL_W1_PRINCIPAL : null
-                    },
-                    condition: {
-                        OL_SEQ : row.entity.OL_SEQ,
-                        OL_CR_USER : row.entity.OL_CR_USER
-                    }
-                }).then(function (res) {
-                    LoadOrderList();
-                });
+                // RestfulApi.UpdateMSSQLData({
+                //     updatename: 'Update',
+                //     table: 18,
+                //     params: {
+                //         OL_W1_PRINCIPAL : null
+                //     },
+                //     condition: {
+                //         OL_SEQ : row.entity.OL_SEQ,
+                //         OL_CR_USER : row.entity.OL_CR_USER
+                //     }
+                // }).then(function (res) {
+                //     LoadOrderList();
+                // });
             },
-            //編輯
+            // 編輯
             modifyData : function(row){
                 console.log(row);
 
-                if(row.entity.OL_W1_EDIT_DATETIME == null){
-                    RestfulApi.UpdateMSSQLData({
-                        updatename: 'Update',
-                        table: 18,
-                        params: {
-                            OL_W1_EDIT_DATETIME : $filter('date')(new Date(), 'yyyy-MM-dd HH:mm:ss')
-                        },
-                        condition: {
-                            OL_SEQ : row.entity.OL_SEQ,
-                            OL_CR_USER : row.entity.OL_CR_USER
-                        }
-                    }).then(function (res) {
-                        $state.transitionTo("app.selfwork.employeejobs.job003", {
-                            data: row.entity
-                        });
-                    });
-                }else{
+                // if(row.entity.OL_W1_EDIT_DATETIME == null){
+                //     RestfulApi.UpdateMSSQLData({
+                //         updatename: 'Update',
+                //         table: 18,
+                //         params: {
+                //             OL_W1_EDIT_DATETIME : $filter('date')(new Date(), 'yyyy-MM-dd HH:mm:ss')
+                //         },
+                //         condition: {
+                //             OL_SEQ : row.entity.OL_SEQ,
+                //             OL_CR_USER : row.entity.OL_CR_USER
+                //         }
+                //     }).then(function (res) {
+                //         $state.transitionTo("app.selfwork.employeejobs.job003", {
+                //             data: row.entity
+                //         });
+                //     });
+                // }else{
                     $state.transitionTo("app.selfwork.employeejobs.job003", {
                         data: row.entity
                     });
-                }
+                // }
             },
-            //結單
+            // 結單
             closeData : function(row){
                 console.log(row);
 
-                RestfulApi.UpdateMSSQLData({
-                    updatename: 'Update',
-                    table: 18,
-                    params: {
-                        OL_W1_OK_DATETIME : $filter('date')(new Date(), 'yyyy-MM-dd HH:mm:ss')
-                    },
-                    condition: {
-                        OL_SEQ : row.entity.OL_SEQ,
-                        OL_CR_USER : row.entity.OL_CR_USER
-                    }
-                }).then(function (res) {
-                    LoadOrderList();
-                });
+                // RestfulApi.UpdateMSSQLData({
+                //     updatename: 'Update',
+                //     table: 18,
+                //     params: {
+                //         OL_W1_OK_DATETIME : $filter('date')(new Date(), 'yyyy-MM-dd HH:mm:ss')
+                //     },
+                //     condition: {
+                //         OL_SEQ : row.entity.OL_SEQ,
+                //         OL_CR_USER : row.entity.OL_CR_USER
+                //     }
+                // }).then(function (res) {
+                //     LoadOrderList();
+                // });
             },
             // 刪除派送單
             deleteData : function(row){
-
-            }
-        },
-        gridMethod : {
-            modifyData : function(row){
 
             }
         },
@@ -7349,12 +7901,12 @@ angular.module('app.selfwork').controller('EmployeeJobsCtrl', function ($scope, 
                 },
                 { name: 'OL_FLIGHTNO' ,  displayName: '航班' },
                 { name: 'OL_MASTER'   ,  displayName: '主號' },
-                { name: 'OL_COUNT'    ,  displayName: '報機單(袋數)' },
+                { name: 'OL_COUNT'    ,  displayName: '報機單(袋數)', enableCellEdit: false },
                 { name: 'OL_COUNTRY'  ,  displayName: '起運國別' },
-                { name: 'ITEM_LIST'          ,  displayName: '報機單', enableFiltering: false, width: '16%', cellTemplate: $templateCache.get('accessibilityToDMCForJob001') },
-                { name: 'FLIGHT_ITEM_LIST'   ,  displayName: '銷艙單', enableFiltering: false, width: '16%', cellTemplate: $templateCache.get('accessibilityToDMCForJob002') },
-                { name: 'DELIVERY_ITEM_LIST' ,  displayName: '派送單', enableFiltering: false, width: '16%', cellTemplate: $templateCache.get('accessibilityToDMCForJob003') },
-                { name: 'Options'     ,  displayName: '功能', enableFiltering: false, width: '5%', cellTemplate: $templateCache.get('accessibilityToM') }
+                { name: 'ITEM_LIST'          ,  displayName: '報機單', enableFiltering: false, width: '8%', cellTemplate: $templateCache.get('accessibilityToOperaForJob001') },
+                { name: 'FLIGHT_ITEM_LIST'   ,  displayName: '銷艙單', enableFiltering: false, width: '8%', cellTemplate: $templateCache.get('accessibilityToOperaForJob002') },
+                { name: 'DELIVERY_ITEM_LIST' ,  displayName: '派送單', enableFiltering: false, width: '8%', cellTemplate: $templateCache.get('accessibilityToOperaForJob003') },
+                { name: 'Options'       , displayName: '操作', width: '5%', enableCellEdit: false, enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToM') }
             ],
             enableFiltering: true,
             enableSorting: false,
@@ -7365,6 +7917,31 @@ angular.module('app.selfwork').controller('EmployeeJobsCtrl', function ($scope, 
             onRegisterApi: function(gridApi){
                 $vm.selfWorkGridApi = gridApi;
             }
+        },
+        Update : function(entity){
+            // create a fake promise - normally you'd use the promise returned by $http or $resource
+            var promise = $q.defer();
+            $vm.selfWorkGridApi.rowEdit.setSavePromise( entity, promise.promise );
+         
+            RestfulApi.UpdateMSSQLData({
+                updatename: 'Update',
+                table: 18,
+                params: {
+                    OL_IMPORTDT   : entity.OL_IMPORTDT,
+                    OL_CO_CODE    : entity.OL_CO_CODE,
+                    OL_FLIGHTNO   : entity.OL_FLIGHTNO,
+                    OL_MASTER     : entity.OL_MASTER,
+                    OL_COUNTRY    : entity.OL_COUNTRY
+                },
+                condition: {
+                    OL_SEQ        : entity.OL_SEQ
+                }
+            }).then(function (res) {
+                promise.resolve();
+            }, function (err) {
+                toaster.pop('danger', '錯誤', '更新失敗', 3000);
+                promise.reject();
+            });
         }
     });
 
@@ -7380,15 +7957,26 @@ angular.module('app.selfwork').controller('EmployeeJobsCtrl', function ($scope, 
         }).then(function (res){
             console.log(res["returnData"]);
             $vm.selfWorkData = res["returnData"];
-        }).finally(function() {
-            HandleWindowResize($vm.selfWorkGridApi);
         });    
     };
 
 })
+.controller('OpWorkMenuModalInstanceCtrl', function ($scope, $uibModalInstance, items) {
+    var $ctrl = this;
+    $ctrl.appScope = $scope.$parent.$vm;
+    $ctrl.row = items;
+    
+    $ctrl.ok = function() {
+        $uibModalInstance.close(items);
+    };
+
+    $ctrl.cancel = function() {
+        $uibModalInstance.dismiss('cancel');
+    };
+});
 "use strict";
 
-angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, uiGridConstants, RestfulApi, compy, userInfoByGrade) {
+angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, uiGridConstants, RestfulApi, compy, opType, userInfoByGrade, $filter, $q) {
     
     var $vm = this,
         _tasks = [];
@@ -7414,6 +8002,8 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
             switch($vm.defaultTab){
                 case 'hr1':
                     $vm.selectAssignDept = userInfoByGrade[0][0].value;
+
+                    AssignOptype();
                     LoadOrderList();
                     LoadPrincipal();
                     break;
@@ -7424,11 +8014,60 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
         },
         assignGradeData : userInfoByGrade[0],
         assignPrincipalData : userInfoByGrade[1],
+        opType : opType,
         gridMethod : {
-            modifyData : function(row){
+            deleteData : function(row){
 
             },
-            deleteData : function(row){
+            // 編輯
+            modifyData : function(row){
+                var modalInstance = $uibModal.open({
+                    animation: true,
+                    ariaLabelledBy: 'modal-title',
+                    ariaDescribedBy: 'modal-body',
+                    template: $templateCache.get('modifyOrderList'),
+                    controller: 'ModifyOrderListModalInstanceCtrl',
+                    controllerAs: '$ctrl',
+                    // size: 'sm',
+                    // windowClass: 'center-modal',
+                    // appendTo: parentElem,
+                    resolve: {
+                        vmData: function() {
+                            return row.entity;
+                        },
+                        compy: function() {
+                            return compy;
+                        }
+                    }
+                });
+
+                modalInstance.result.then(function(selectedItem) {
+                    // $ctrl.selected = selectedItem;
+                    console.log(selectedItem);
+
+                    RestfulApi.UpdateMSSQLData({
+                        updatename: 'Update',
+                        table: 18,
+                        params: {
+                            OL_IMPORTDT : selectedItem.OL_IMPORTDT,
+                            OL_CO_CODE  : selectedItem.OL_CO_CODE,
+                            OL_FLIGHTNO : selectedItem.OL_FLIGHTNO,
+                            OL_MASTER   : selectedItem.OL_MASTER,
+                            OL_COUNTRY  : selectedItem.OL_COUNTRY
+                        },
+                        condition: {
+                            OL_SEQ : selectedItem.OL_SEQ
+                        }
+                    }).then(function (res) {
+                        LoadOrderList();
+                    });
+
+                }, function() {
+                    // $log.info('Modal dismissed at: ' + new Date());
+                });
+            },
+            // 結單
+            closeData : function(row){
 
             }
         },
@@ -7451,38 +8090,41 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
                         term: null,
                         type: uiGridConstants.filter.SELECT,
                         selectOptions: [
-                            {label:'已派單', value: '0'},
-                            {label:'已編輯', value: '1'},
-                            {label:'已完成', value: '2'},
+                            {label:'未派單', value: '0'},
+                            {label:'已派單', value: '1'},
+                            {label:'已編輯', value: '2'},
+                            {label:'已完成', value: '3'},
                         ]
                     }
                 },
-                { name: 'W2'          ,  displayName: '報機單負責人', cellFilter: 'userInfoFilter' },
+                // { name: 'W2'          ,  displayName: '報機單負責人', cellFilter: 'userInfoFilter' },
                 { name: 'W3_STATUS'   ,  displayName: '銷艙單狀態', cellTemplate: $templateCache.get('accessibilityToForW3'), filter: 
                     {
                         term: null,
                         type: uiGridConstants.filter.SELECT,
                         selectOptions: [
-                            {label:'已派單', value: '0'},
-                            {label:'已編輯', value: '1'},
-                            {label:'已完成', value: '2'},
+                            {label:'未派單', value: '0'},
+                            {label:'已派單', value: '1'},
+                            {label:'已編輯', value: '2'},
+                            {label:'已完成', value: '3'},
                         ]
                     }
                 },
-                { name: 'W3'          ,  displayName: '銷艙單負責人', cellFilter: 'userInfoFilter' },
+                // { name: 'W3'          ,  displayName: '銷艙單負責人', cellFilter: 'userInfoFilter' },
                 { name: 'W1_STATUS'   ,  displayName: '派送單狀態', cellTemplate: $templateCache.get('accessibilityToForW1'), filter: 
                     {
                         term: null,
                         type: uiGridConstants.filter.SELECT,
                         selectOptions: [
-                            {label:'已派單', value: '0'},
-                            {label:'已編輯', value: '1'},
-                            {label:'已完成', value: '2'},
+                            {label:'未派單', value: '0'},
+                            {label:'已派單', value: '1'},
+                            {label:'已編輯', value: '2'},
+                            {label:'已完成', value: '3'},
                         ]
                     }
                 },
-                { name: 'W1'          ,  displayName: '派送單負責人', cellFilter: 'userInfoFilter' },
-                { name: 'Options'     ,  displayName: '功能', enableFiltering: false, width: '9%', cellTemplate: $templateCache.get('accessibilityToMD') }
+                // { name: 'W1'          ,  displayName: '派送單負責人', cellFilter: 'userInfoFilter' },
+                { name: 'Options'     ,  displayName: '功能', enableFiltering: false, width: '12%', cellTemplate: $templateCache.get('accessibilityToDMCForLeader') }
             ],
             enableFiltering: true,
             enableSorting: true,
@@ -7490,116 +8132,264 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
             // enableVerticalScrollbar: false,
             paginationPageSizes: [10, 25, 50],
             paginationPageSize: 10,
+            expandableRowTemplate: 'expandableRowTemplate.html',
+            expandableRowHeight: 150,
+            enableCellEdit: false,
             onRegisterApi: function(gridApi){
                 $vm.orderListGridApi = gridApi;
+
+                gridApi.rowEdit.on.saveRow($scope, $vm.Update);
             }
+        },
+        ChangeDept : function(){
+            AssignOptype();
+            LoadOrderList();
+            LoadPrincipal();
         },
         CustomizeAssign : function(){
             if($vm.orderListGridApi.selection.getSelectedRows().length > 0){
-                var _getSelectedRows = $vm.orderListGridApi.selection.getSelectedRows();
+                var _getSelectedRows = $vm.orderListGridApi.selection.getSelectedRows(),
+                    _getDirtyData = [],
+                    _getDirty = false;
+
                 for(var i in _getSelectedRows){
-                    // _getSelectedRows[i][$vm.selectAssignDept] = $vm.selectAssignPrincipal;
 
-                    var _params = {},
-                        _condition = {};
-                    _params["OL_"+$vm.selectAssignDept+"_PRINCIPAL"] = $vm.selectAssignPrincipal;
+                    // 沒有相同負責人才塞入
+                    if($filter('filter')(_getSelectedRows[i].subGridOptions.data, { OP_PRINCIPAL : $vm.selectAssignPrincipal }).length == 0){
+                        
+                        _getSelectedRows[i].subGridOptions.data.push({
+                            OP_SEQ : _getSelectedRows[i].OL_SEQ,
+                            OP_DEPT : $vm.selectAssignDept,
+                            OP_PRINCIPAL : $vm.selectAssignPrincipal,
+                            OP_TYPE : $vm.selectAssignOptype
+                        });
 
-                    // 規則:如果已經被編輯的單就不可以再給別人
-                    _condition["OL_"+$vm.selectAssignDept+"_EDIT_DATETIME"] = null;
-                    _condition["OL_SEQ"] = _getSelectedRows[i].OL_SEQ;
-                    _condition["OL_CR_USER"] = _getSelectedRows[i].OL_CR_USER;
+                        _getDirtyData.push(_getSelectedRows[i]);
 
-                    _tasks.push({
-                        crudType: 'Update',
-                        updatename: 'Update',
-                        table: 18,
-                        params: _params,
-                        condition: _condition
-                    });
+                        // 表示需要更新
+                        _getDirty = true;
+                    }
                 }
 
-                $vm.Save();
+                if(_getDirty){
+                    $vm.orderListGridApi.rowEdit.setRowsDirty(_getDirtyData);
+                }else{
+                    toaster.pop('info', '訊息', '負責人重複', 3000);
+                }
+                
+                $vm.orderListGridApi.selection.clearSelectedRows();
+
+                // for(var i in _getSelectedRows){
+                //     // _getSelectedRows[i][$vm.selectAssignDept] = $vm.selectAssignPrincipal;
+
+                //     var _params = {},
+                //         _condition = {};
+                //     _params["OL_"+$vm.selectAssignDept+"_PRINCIPAL"] = $vm.selectAssignPrincipal;
+
+                //     // 規則:如果已經被編輯的單就不可以再給別人
+                //     _condition["OL_"+$vm.selectAssignDept+"_EDIT_DATETIME"] = null;
+                //     _condition["OL_SEQ"] = _getSelectedRows[i].OL_SEQ;
+                //     _condition["OL_CR_USER"] = _getSelectedRows[i].OL_CR_USER;
+
+                //     _tasks.push({
+                //         crudType: 'Update',
+                //         updatename: 'Update',
+                //         table: 18,
+                //         params: _params,
+                //         condition: _condition
+                //     });
+                // }
+
+                // $vm.Save();
             }
         },
         AutoAssign : function(){
             if($vm.principalData.length > 0){
-                var _principalData = {};
-                // 找出行家與符合的人
-                for(var i in $vm.principalData){
-                    _principalData[$vm.principalData[i].COD_CODE] = $vm.principalData[i].WHO_PRINCIPAL;
-                }
+                console.log($vm.principalData);
 
-                // 每筆資料塞入負責人
+                var _getDirtyData = [];
+
                 for(var i in $vm.vmData){
-                    // 是否有符合行家的人
-                    if(!angular.isUndefined(_principalData[$vm.vmData[i].OL_CO_CODE])){
-                        // $vm.vmData[i][$vm.selectAssignDept] = _principalData[$vm.vmData[i].OL_CO_CODE];
 
-                        var _params = {},
-                            _condition = {};
-                        _params["OL_"+$vm.selectAssignDept+"_PRINCIPAL"] = _principalData[$vm.vmData[i].OL_CO_CODE];
-
-                        // 規則:如果已經被編輯的單就不可以再給別人
-                        _condition["OL_"+$vm.selectAssignDept+"_EDIT_DATETIME"] = null;
-                        _condition["OL_SEQ"] = $vm.vmData[i].OL_SEQ;
-                        _condition["OL_CR_USER"] = $vm.vmData[i].OL_CR_USER;
-
-                        _tasks.push({
-                            crudType: 'Update',
-                            updatename: 'Update',
-                            table: 18,
-                            params: _params,
-                            condition: _condition
-                        });
+                    // 此負責人編輯狀態為null則刪除
+                    var _data = angular.copy($vm.vmData[i].subGridOptions.data);
+                    for(var j in _data){
+                        if(_data[j].OP_EDATETIME == null){
+                            $vm.vmData[i].subGridOptions.data.splice(j, 1);
+                        }
                     }
+
+                    for(var j in $vm.principalData){
+                        if($vm.vmData[i].OL_CO_CODE == $vm.principalData[j].COD_CODE){
+                            // 有負責人和此data沒有此負責人就塞入資料
+                            if(($vm.principalData[j].WHO_PRINCIPAL != null) &&
+                                $filter('filter')($vm.vmData[i].subGridOptions.data, { OP_PRINCIPAL : $vm.principalData[j].WHO_PRINCIPAL }).length == 0){
+                                // console.log($vm.principalData[j]);
+                                $vm.vmData[i].subGridOptions.data.push({
+                                    OP_SEQ : $vm.vmData[i].OL_SEQ,
+                                    OP_DEPT : $vm.selectAssignDept,
+                                    OP_TYPE : $vm.selectAssignOptype,
+                                    OP_PRINCIPAL : $vm.principalData[j].WHO_PRINCIPAL
+                                });
+                            }
+                        }
+                    }
+
+                    // 自動分派所有單的負責人都會被更新
+                    _getDirtyData.push($vm.vmData[i]);
+
+                    // if($filter('filter')($vm.principalData, {
+                    //     COD_CODE : $vm.vmData[i].OL_CO_CODE,
+                    //     DL_IS_LEAVE : false
+                    // }).length != $vm.vmData[i].subGridOptions.data.length){
+
+                    // }
                 }
 
-                $vm.Save();
+                $vm.orderListGridApi.rowEdit.setRowsDirty(_getDirtyData);
+                $vm.orderListGridApi.selection.clearSelectedRows();
+
+
+                // var _principalData = {};
+                // // 找出行家與符合的人
+                // for(var i in $vm.principalData){
+                //     _principalData[$vm.principalData[i].COD_CODE] = $vm.principalData[i].WHO_PRINCIPAL;
+                // }
+
+                // // 每筆資料塞入負責人
+                // for(var i in $vm.vmData){
+                //     // 是否有符合行家的人
+                //     if(!angular.isUndefined(_principalData[$vm.vmData[i].OL_CO_CODE])){
+                //         // $vm.vmData[i][$vm.selectAssignDept] = _principalData[$vm.vmData[i].OL_CO_CODE];
+
+                //         var _params = {},
+                //             _condition = {};
+                //         _params["OL_"+$vm.selectAssignDept+"_PRINCIPAL"] = _principalData[$vm.vmData[i].OL_CO_CODE];
+
+                //         // 規則:如果已經被編輯的單就不可以再給別人
+                //         _condition["OL_"+$vm.selectAssignDept+"_EDIT_DATETIME"] = null;
+                //         _condition["OL_SEQ"] = $vm.vmData[i].OL_SEQ;
+                //         _condition["OL_CR_USER"] = $vm.vmData[i].OL_CR_USER;
+
+                //         _tasks.push({
+                //             crudType: 'Update',
+                //             updatename: 'Update',
+                //             table: 18,
+                //             params: _params,
+                //             condition: _condition
+                //         });
+                //     }
+                // }
+
+                // $vm.Save();
             }
         },
         CancelPrincipal : function(){
             if($vm.orderListGridApi.selection.getSelectedRows().length > 0){
-                var _getSelectedRows = $vm.orderListGridApi.selection.getSelectedRows();
+                var _getSelectedRows = $vm.orderListGridApi.selection.getSelectedRows(),
+                    _getDirtyData = [];
+
                 for(var i in _getSelectedRows){
-                    _getSelectedRows[i][$vm.selectAssignDept] = null;
+                    if(_getSelectedRows[i].subGridOptions.data.length > 0){
+                        _getDirtyData.push(_getSelectedRows[i]);
+                    }
 
-                    var _params = {},
-                        _condition = {};
-                    _params["OL_"+$vm.selectAssignDept+"_PRINCIPAL"] = _getSelectedRows[i][$vm.selectAssignDept];
-                    
-                    // 規則:如果已經被編輯的單就不可以再取回
-                    _condition["OL_"+$vm.selectAssignDept+"_EDIT_DATETIME"] = null;
-                    _condition["OL_SEQ"] = _getSelectedRows[i].OL_SEQ;
-                    _condition["OL_CR_USER"] = _getSelectedRows[i].OL_CR_USER;
-
-                    _tasks.push({
-                        crudType: 'Update',
-                        updatename: 'Update',
-                        table: 18,
-                        params: _params,
-                        condition: _condition
-                    });
+                    // 把負責人清空
+                    _getSelectedRows[i].subGridOptions.data = [];
                 }
+                
+                if(_getDirtyData.length > 0){
+                    $vm.orderListGridApi.rowEdit.setRowsDirty(_getDirtyData);
+                }
+                $vm.orderListGridApi.selection.clearSelectedRows();
 
-                $vm.Save();
+                // for(var i in _getSelectedRows){
+                //     _getSelectedRows[i][$vm.selectAssignDept] = null;
+
+                //     var _params = {},
+                //         _condition = {};
+                //     _params["OL_"+$vm.selectAssignDept+"_PRINCIPAL"] = _getSelectedRows[i][$vm.selectAssignDept];
+                    
+                //     // 規則:如果已經被編輯的單就不可以再取回
+                //     _condition["OL_"+$vm.selectAssignDept+"_EDIT_DATETIME"] = null;
+                //     _condition["OL_SEQ"] = _getSelectedRows[i].OL_SEQ;
+                //     _condition["OL_CR_USER"] = _getSelectedRows[i].OL_CR_USER;
+
+                //     _tasks.push({
+                //         crudType: 'Update',
+                //         updatename: 'Update',
+                //         table: 18,
+                //         params: _params,
+                //         condition: _condition
+                //     });
+                // }
+
+                // $vm.Save();
             }
         },
-        Save : function(){
-            console.log($vm.vmData);
+        // Save : function(){
+        //     console.log($vm.vmData);
 
-            RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res) {
-                console.log(res["returnData"]);
+        //     RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res) {
+        //         console.log(res["returnData"]);
 
-                LoadOrderList();
-                // toaster.pop('success', '訊息', '派單完成', 3000);
-            }, function (err) {
+        //         LoadOrderList();
+        //         // toaster.pop('success', '訊息', '派單完成', 3000);
+        //     }, function (err) {
 
-            }).finally(function() {
-                _tasks = [];
+        //     }).finally(function() {
+        //         _tasks = [];
+        //     });
+        // },
+        Update : function(entity){
+            console.log(entity);
+
+            // create a fake promise - normally you'd use the promise returned by $http or $resource
+            var promise = $q.defer();
+            $vm.orderListGridApi.rowEdit.setSavePromise( entity, promise.promise );
+        
+            var _tasks = [],
+                _d = new Date();
+
+            // Delete此單的負責人
+            _tasks.push({
+                crudType: 'Delete',
+                table: 21,
+                params: {
+                    OP_SEQ : entity.OL_SEQ,
+                    OP_DEPT : $vm.selectAssignDept,
+                    OP_EDATETIME :  null
+                },
+
             });
-        },
-        LoadPrincipal : function(){
-            LoadPrincipal()
+
+            // Insert此單的負責人
+            for(var i in entity.subGridOptions.data){
+                // 如果編輯狀態不是空值表示沒有被Delete，所以不重複Insert
+                if(entity.subGridOptions.data[i].OP_EDATETIME == null){
+                    _tasks.push({
+                        crudType: 'Insert',
+                        table: 21,
+                        params: {
+                            OP_SEQ : entity.subGridOptions.data[i].OP_SEQ,
+                            OP_DEPT : entity.subGridOptions.data[i].OP_DEPT,
+                            OP_TYPE : entity.subGridOptions.data[i].OP_TYPE,
+                            OP_PRINCIPAL : entity.subGridOptions.data[i].OP_PRINCIPAL
+                        }
+                    });
+                }
+            }
+
+            RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res){
+                promise.resolve();
+            }, function (err) {
+                toaster.pop('danger', '錯誤', '更新失敗', 3000);
+                promise.reject();
+            }).finally(function(){
+                if($vm.orderListGridApi.rowEdit.getDirtyRows().length == 0){
+                    LoadOrderList();
+                }
+            });  
         },
         compyStatisticsOptions : {
             data:  '$vm.compyStatisticsData',
@@ -7625,20 +8415,70 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
     });
 
     function LoadOrderList(){
-        RestfulApi.SearchMSSQLData({
-            querymain: 'leaderJobs',
-            queryname: 'SelectOrderList'
-        }).then(function (res){
+
+        RestfulApi.CRUDMSSQLDataByTask([
+            {  
+                crudType: 'Select',
+                querymain: 'leaderJobs',
+                queryname: 'SelectOrderList'
+            },
+            {
+                crudType: 'Select',
+                querymain: 'leaderJobs',
+                queryname: 'SelectOrderPrinpl',
+                params: {
+                    OP_DEPT : $vm.selectAssignDept
+                }
+            }
+        ]).then(function (res){
             console.log(res["returnData"]);
 
-            for(var i in res["returnData"]){
-                res["returnData"][i]["W2_STATUS"] = ChangeStatus(res["returnData"][i]['W2'], res["returnData"][i]['OL_W2_EDIT_DATETIME'], res["returnData"][i]['OL_W2_OK_DATETIME']);
-                res["returnData"][i]["W3_STATUS"] = ChangeStatus(res["returnData"][i]['W3'], res["returnData"][i]['OL_W3_EDIT_DATETIME'], res["returnData"][i]['OL_W3_OK_DATETIME']);
-                res["returnData"][i]["W1_STATUS"] = ChangeStatus(res["returnData"][i]['W1'], res["returnData"][i]['OL_W1_EDIT_DATETIME'], res["returnData"][i]['OL_W1_OK_DATETIME']);
+            for(var i in res["returnData"][0]){
+
+                var _data =[];
+
+                for(var j in res["returnData"][1]){
+                    if(res["returnData"][0][i].OL_SEQ == res["returnData"][1][j].OP_SEQ &&
+                        $vm.selectAssignOptype == res["returnData"][1][j].OP_TYPE){
+                        _data.push(res["returnData"][1][j]);
+                    }
+                }
+
+                res["returnData"][0][i].subGridOptions = {
+                    data: _data,
+                    columnDefs: [ 
+                        {field: "OP_TYPE", name: "類別", cellFilter: 'opTypeFilter' },
+                        {field: "OP_PRINCIPAL", name: "負責人", cellFilter: 'userInfoFilter' },
+                        {field: "OP_EDATETIME_STATUS", name: "編輯者", cellTemplate: $templateCache.get('accessibilityToEdited') }
+                    ],
+                    enableFiltering: false,
+                    enableSorting: true,
+                    enableColumnMenus: false
+                };
+                // res["returnData"][0][i]["AGENT_COUNT"] = _data.length;
             }
 
-            $vm.vmData = res["returnData"];
-        });  
+            $vm.vmData = res["returnData"][0];
+
+        }).finally(function() {
+            console.log($vm.vmData);
+            SetHeaderClass();
+        });
+
+        // RestfulApi.SearchMSSQLData({
+        //     querymain: 'leaderJobs',
+        //     queryname: 'SelectOrderList'
+        // }).then(function (res){
+        //     console.log(res["returnData"]);
+
+        //     for(var i in res["returnData"]){
+        //         res["returnData"][i]["W2_STATUS"] = ChangeStatus(res["returnData"][i]['W2'], res["returnData"][i]['OL_W2_EDIT_DATETIME'], res["returnData"][i]['OL_W2_OK_DATETIME']);
+        //         res["returnData"][i]["W3_STATUS"] = ChangeStatus(res["returnData"][i]['W3'], res["returnData"][i]['OL_W3_EDIT_DATETIME'], res["returnData"][i]['OL_W3_OK_DATETIME']);
+        //         res["returnData"][i]["W1_STATUS"] = ChangeStatus(res["returnData"][i]['W1'], res["returnData"][i]['OL_W1_EDIT_DATETIME'], res["returnData"][i]['OL_W1_OK_DATETIME']);
+        //     }
+
+        //     $vm.vmData = res["returnData"];
+        // });  
     };
 
     /**
@@ -7662,6 +8502,32 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
 
         return _value;
     };
+
+    function AssignOptype(){
+        // 指定何種單類
+        switch($vm.selectAssignDept){
+            case "W2":
+                $vm.selectAssignOptype = "R";
+                break;
+            case "W3":
+                $vm.selectAssignOptype = "W";
+                break;
+            case "W1":
+                $vm.selectAssignOptype = "D";
+                break;
+        }
+    };
+
+    function SetHeaderClass(){
+        for(var i in $vm.orderListOptions.columnDefs){
+            if($vm.selectAssignDept + "_STATUS" == $vm.orderListOptions.columnDefs[i].name){
+                $vm.orderListOptions.columnDefs[i]['headerCellClass'] = 'txt-color-pink';
+            }else{
+                $vm.orderListOptions.columnDefs[i]['headerCellClass'] = null;
+            }
+        }
+        $vm.orderListGridApi.core.notifyDataChange(uiGridConstants.dataChange.COLUMN);
+    }
 
     function LoadPrincipal(){
         RestfulApi.SearchMSSQLData({
@@ -7806,13 +8672,20 @@ angular.module('app.settings').controller('AccountManagementCtrl', function ($sc
                     animation: true,
                     ariaLabelledBy: 'modal-title',
                     ariaDescribedBy: 'modal-body',
-                    templateUrl: 'isDelete.html',
-                    controller: 'IsDeleteModalInstanceCtrl',
+                    template: $templateCache.get('isChecked'),
+                    controller: 'IsCheckedModalInstanceCtrl',
                     controllerAs: '$ctrl',
                     size: 'sm',
+                    windowClass: 'center-modal',
+                    // appendTo: parentElem,
                     resolve: {
-                        items: function () {
+                        items: function() {
                             return row.entity;
+                        },
+                        show: function(){
+                            return {
+                                title : "是否刪除"
+                            };
                         }
                     }
                 });
@@ -7898,13 +8771,20 @@ angular.module('app.settings').controller('AccountManagementCtrl', function ($sc
                     animation: true,
                     ariaLabelledBy: 'modal-title',
                     ariaDescribedBy: 'modal-body',
-                    templateUrl: 'isDelete.html',
-                    controller: 'IsDeleteModalInstanceCtrl',
+                    template: $templateCache.get('isChecked'),
+                    controller: 'IsCheckedModalInstanceCtrl',
                     controllerAs: '$ctrl',
                     size: 'sm',
+                    windowClass: 'center-modal',
+                    // appendTo: parentElem,
                     resolve: {
-                        items: function () {
+                        items: function() {
                             return row.entity;
+                        },
+                        show: function(){
+                            return {
+                                title : "是否刪除"
+                            };
                         }
                     }
                 });
@@ -8108,13 +8988,20 @@ angular.module('app.settings').controller('BillboardEditorCtrl', function ($scop
                 animation: true,
                 ariaLabelledBy: 'modal-title',
                 ariaDescribedBy: 'modal-body',
-                templateUrl: 'isDelete.html',
-                controller: 'IsDeleteModalInstanceCtrl',
+                template: $templateCache.get('isChecked'),
+                controller: 'IsCheckedModalInstanceCtrl',
                 controllerAs: '$ctrl',
                 size: 'sm',
+                windowClass: 'center-modal',
+                // appendTo: parentElem,
                 resolve: {
-                    items: function () {
+                    items: function() {
                         return $vm.billboardEditorGridApi.selection.getSelectedRows();
+                    },
+                    show: function(){
+                        return {
+                            title : "是否刪除"
+                        };
                     }
                 }
             });
@@ -8190,13 +9077,20 @@ angular.module('app.settings').controller('BillboardEditorCtrl', function ($scop
                 animation: true,
                 ariaLabelledBy: 'modal-title',
                 ariaDescribedBy: 'modal-body',
-                templateUrl: 'isDelete.html',
-                controller: 'IsDeleteModalInstanceCtrl',
+                template: $templateCache.get('isChecked'),
+                controller: 'IsCheckedModalInstanceCtrl',
                 controllerAs: '$ctrl',
                 size: 'sm',
+                windowClass: 'center-modal',
+                // appendTo: parentElem,
                 resolve: {
-                    items: function () {
+                    items: function() {
                         return $vm.billboardHistoryGridApi.selection.getSelectedRows();
+                    },
+                    show: function(){
+                        return {
+                            title : "是否刪除"
+                        };
                     }
                 }
             });
@@ -8304,13 +9198,20 @@ angular.module('app.settings').controller('ExternalManagementCtrl', function ($s
                     animation: true,
                     ariaLabelledBy: 'modal-title',
                     ariaDescribedBy: 'modal-body',
-                    templateUrl: 'isDelete.html',
-                    controller: 'IsDeleteModalInstanceCtrl',
+                    template: $templateCache.get('isChecked'),
+                    controller: 'IsCheckedModalInstanceCtrl',
                     controllerAs: '$ctrl',
                     size: 'sm',
+                    windowClass: 'center-modal',
+                    // appendTo: parentElem,
                     resolve: {
-                        items: function () {
+                        items: function() {
                             return row.entity;
+                        },
+                        show: function(){
+                            return {
+                                title : "是否刪除"
+                            };
                         }
                     }
                 });
@@ -8381,13 +9282,20 @@ angular.module('app.settings').controller('ExternalManagementCtrl', function ($s
                     animation: true,
                     ariaLabelledBy: 'modal-title',
                     ariaDescribedBy: 'modal-body',
-                    templateUrl: 'isDelete.html',
-                    controller: 'IsDeleteModalInstanceCtrl',
+                    template: $templateCache.get('isChecked'),
+                    controller: 'IsCheckedModalInstanceCtrl',
                     controllerAs: '$ctrl',
                     size: 'sm',
+                    windowClass: 'center-modal',
+                    // appendTo: parentElem,
                     resolve: {
-                        items: function () {
+                        items: function() {
                             return row.entity;
+                        },
+                        show: function(){
+                            return {
+                                title : "是否刪除"
+                            };
                         }
                     }
                 });
@@ -8645,13 +9553,20 @@ angular.module('app.settings').controller('NewsCtrl', function ($scope, $statePa
                 animation: true,
                 ariaLabelledBy: 'modal-title',
                 ariaDescribedBy: 'modal-body',
-                templateUrl: 'isDelete.html',
-                controller: 'IsDeleteModalInstanceCtrl',
+                template: $templateCache.get('isChecked'),
+                controller: 'IsCheckedModalInstanceCtrl',
                 controllerAs: '$ctrl',
                 size: 'sm',
+                windowClass: 'center-modal',
+                // appendTo: parentElem,
                 resolve: {
-                    items: function () {
+                    items: function() {
                         return pDeleteUploaded;
+                    },
+                    show: function(){
+                        return {
+                            title : "是否刪除"
+                        };
                     }
                 }
             });
@@ -13185,7 +14100,7 @@ angular.module('app.graphs').directive('vectorMap', function () {
 });
 "use strict";
 
-angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, RestfulApi, ToolboxApi, uiGridConstants, $filter) {
+angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, RestfulApi, ToolboxApi, uiGridConstants, $filter, $q) {
     // console.log($stateParams, $state);
 
     var $vm = this,
@@ -13202,7 +14117,7 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                 // 測試用
                 // if($vm.vmData == null){
                 //     $vm.vmData = {
-                //         OL_SEQ : 'AdminTest20170418195141'
+                //         OL_SEQ : 'AdminTest20170525190758'
                 //     };
                 // }
                 
@@ -13212,6 +14127,7 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
         profile : Session.Get(),
         defaultChoice : 'Left',
         gridMethod : {
+            // 改單
             changeNature : function(row){
                 console.log(row);
                 
@@ -13226,7 +14142,7 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                     row.entity.loading = false;
                 });
             },
-            //加入黑名單
+            // 加入黑名單
             banData : function(row){
                 console.log(row);
                 var modalInstance = $uibModal.open({
@@ -13267,13 +14183,154 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                 }, function() {
                     // $log.info('Modal dismissed at: ' + new Date());
                 });
+            },
+            // 拉貨
+            pullGoods : function(row){
+                console.log(row.entity);
+                var modalInstance = $uibModal.open({
+                    animation: true,
+                    ariaLabelledBy: 'modal-title',
+                    ariaDescribedBy: 'modal-body',
+                    template: $templateCache.get('isChecked'),
+                    controller: 'IsCheckedModalInstanceCtrl',
+                    controllerAs: '$ctrl',
+                    size: 'sm',
+                    windowClass: 'center-modal',
+                    // appendTo: parentElem,
+                    resolve: {
+                        items: function() {
+                            return row.entity;
+                        },
+                        show: function(){
+                            return {
+                                title : "是否拉貨"
+                            };
+                        }
+                    }
+                });
+
+                modalInstance.result.then(function(selectedItem) {
+                    // $ctrl.selected = selectedItem;
+                    console.log(selectedItem);
+                    
+                    RestfulApi.InsertMSSQLData({
+                        insertname: 'Insert',
+                        table: 19,
+                        params: {
+                            PG_SEQ         : selectedItem.IL_SEQ,
+                            PG_BAGNO       : selectedItem.IL_BAGNO,
+                            PG_CR_USER     : $vm.profile.U_ID,
+                            PG_CR_DATETIME : $filter('date')(new Date, 'yyyy-MM-dd HH:mm:ss')
+                        }
+                    }).then(function (res) {
+                        for(var i in $vm.job001Data){
+                            if($vm.job001Data[i].IL_BAGNO == selectedItem.IL_BAGNO){
+                                $vm.job001Data[i].PG_PULLGOODS = true;
+                            }
+                        }
+                        // LoadItemList();
+                    });
+
+                }, function() {
+                    // $log.info('Modal dismissed at: ' + new Date());
+                });
+            },
+            // // 取消拉貨
+            // cancelPullGoods : function(row){
+            //     console.log(row.entity);
+            //     var modalInstance = $uibModal.open({
+            //         animation: true,
+            //         ariaLabelledBy: 'modal-title',
+            //         ariaDescribedBy: 'modal-body',
+            //         template: $templateCache.get('isChecked'),
+            //         controller: 'IsCheckedModalInstanceCtrl',
+            //         controllerAs: '$ctrl',
+            //         size: 'sm',
+            //         windowClass: 'center-modal',
+            //         // appendTo: parentElem,
+            //         resolve: {
+            //             items: function() {
+            //                 return row.entity;
+            //             },
+            //             show: function(){
+            //                 return {};
+            //             }
+            //         }
+            //     });
+
+            //     modalInstance.result.then(function(selectedItem) {
+            //         // $ctrl.selected = selectedItem;
+            //         console.log(selectedItem);
+                    
+            //         RestfulApi.DeleteMSSQLData({
+            //             deletename: 'Delete',
+            //             table: 19,
+            //             params: {
+            //                 PG_SEQ         : selectedItem.IL_SEQ,
+            //                 PG_BAGNO       : selectedItem.IL_BAGNO
+            //             }
+            //         }).then(function (res) {
+            //             LoadItemList();
+            //         });
+
+            //     }, function() {
+            //         // $log.info('Modal dismissed at: ' + new Date());
+            //     });
+            // }
+            // 特貨
+            specialGoods : function(row){
+                console.log(row);
+                var modalInstance = $uibModal.open({
+                    animation: true,
+                    ariaLabelledBy: 'modal-title',
+                    ariaDescribedBy: 'modal-body',
+                    template: $templateCache.get('isChecked'),
+                    controller: 'IsCheckedModalInstanceCtrl',
+                    controllerAs: '$ctrl',
+                    size: 'sm',
+                    windowClass: 'center-modal',
+                    // appendTo: parentElem,
+                    resolve: {
+                        items: function() {
+                            return row.entity;
+                        },
+                        show: function(){
+                            return {
+                                title : "是否特貨"
+                            };
+                        }
+                    }
+                });
+
+                modalInstance.result.then(function(selectedItem) {
+                    // $ctrl.selected = selectedItem;
+                    console.log(selectedItem);
+                    RestfulApi.InsertMSSQLData({
+                        insertname: 'Insert',
+                        table: 20,
+                        params: {
+                            SPG_SEQ         : selectedItem.IL_SEQ,
+                            SPG_NEWBAGNO    : selectedItem.IL_NEWBAGNO,
+                            SPG_NEWSMALLNO  : selectedItem.IL_NEWSMALLNO,
+                            SPG_ORDERINDEX  : selectedItem.IL_ORDERINDEX,
+                            SPG_CR_USER     : $vm.profile.U_ID,
+                            SPG_CR_DATETIME : $filter('date')(new Date, 'yyyy-MM-dd HH:mm:ss')
+                        }
+                    }).then(function(res) {
+                        // 加入後需要Disabled
+                        row.entity.SPG_SPECIALGOODS = true;
+                    });
+
+                }, function() {
+                    // $log.info('Modal dismissed at: ' + new Date());
+                });
             }
         },
         job001Options : {
             data: '$vm.job001Data',
             columnDefs: [
-                { name: 'Index'         , displayName: '序列', width: 50, enableFiltering: false, enableCellEdit: false},
-                { name: 'IL_G1'         , displayName: '報關種類', width: 154 },
+                { name: 'Index'         , displayName: '序列', width: 50, enableFiltering: false, enableCellEdit: false, headerCellClass: 'text-muted' },
+                { name: 'IL_G1'         , displayName: '報關種類', width: 154, enableCellEdit: false, headerCellClass: 'text-muted' },
                 { name: 'IL_MERGENO'    , displayName: '併票號', width: 129, enableCellEdit: false },
                 { name: 'IL_BAGNO'      , displayName: '袋號', width: 129 },
                 { name: 'IL_SMALLNO'    , displayName: '小號', width: 115 },
@@ -13281,12 +14338,16 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                 { name: 'IL_NATURE_NEW' , displayName: '新品名', width: 115 },
                 { name: 'IL_CTN'        , displayName: '件數', width: 115 },
                 { name: 'IL_PLACE'      , displayName: '產地', width: 115 },
+                { name: 'IL_NEWPLACE'   , displayName: '新產地', width: 115 },
                 { name: 'IL_WEIGHT'     , displayName: '重量', width: 115 },
                 { name: 'IL_WEIGHT_NEW' , displayName: '更改後重量', width: 115 },
                 { name: 'IL_PCS'        , displayName: '數量', width: 115 },
+                { name: 'IL_NEWPCS'     , displayName: '新數量', width: 115 },
                 { name: 'IL_UNIT'       , displayName: '單位', width: 115 },
+                { name: 'IL_NEWUNIT'    , displayName: '新單位', width: 115 },
                 { name: 'IL_GETNO'      , displayName: '收件者統編', width: 115 },
                 { name: 'IL_SENDNAME'   , displayName: '寄件人或公司', width: 115 },
+                { name: 'IL_NEWSENDNAME', displayName: '新寄件人或公司', width: 115 },
                 { name: 'IL_GETNAME'    , displayName: '收件人公司', width: 115 },
                 { name: 'IL_GETADDRESS' , displayName: '收件地址', width: 300 },
                 { name: 'IL_GETTEL'     , displayName: '收件電話', width: 115 },
@@ -13294,10 +14355,13 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                 { name: 'IL_FINALCOST'  , displayName: '完稅價格', width: 115 },
                 { name: 'IL_TAX'        , displayName: '稅則', width: 115 },
                 { name: 'IL_TRCOM'      , displayName: '派送公司', width: 115 },
-                { name: 'Options'       , displayName: '操作', width: 160, enableCellEdit: false, enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToCB'), pinnedRight:true }
+                { name: 'Options'       , displayName: '操作', width: 230, enableCellEdit: false, enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToCB'), pinnedRight:true, cellClass: 'cell-class-no-style' }
             ],
+            // rowTemplate: '<div> \
+            //                 <div ng-repeat="(colRenderIndex, col) in colContainer.renderedColumns track by col.colDef.name" class="ui-grid-cell" ng-class="row.entity.BLFO_TRACK != null ? \'cell-class-pull cell-class-ban\' : \'\'" ui-grid-cell></div> \
+            //               </div>',
             rowTemplate: '<div> \
-                            <div ng-repeat="(colRenderIndex, col) in colContainer.renderedColumns track by col.colDef.name" class="ui-grid-cell" ng-class="row.entity.BLFO_TRACK != null ? \'cell-class-ban\' : \'\'" ui-grid-cell></div> \
+                            <div ng-repeat="(colRenderIndex, col) in colContainer.renderedColumns track by col.colDef.name" class="ui-grid-cell" ng-class="{\'cell-class-ban\' : row.entity.BLFO_TRACK != null, \'cell-class-pull\' : row.entity.PG_PULLGOODS == true, \'cell-class-special\' : row.entity.SPG_SPECIALGOODS == true}" ui-grid-cell></div> \
                           </div>',
             enableFiltering: true,
             enableSorting: true,
@@ -13307,10 +14371,14 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
     		enableSelectAll: true,
             paginationPageSizes: [50, 100, 150, 200, 250, 300],
             paginationPageSize: 50,
+            // rowEditWaitInterval: -1,
             onRegisterApi: function(gridApi){
                 $vm.job001GridApi = gridApi;
+
+                gridApi.rowEdit.on.saveRow($scope, $vm.Update);
             }
         },
+        // 併票
         MergeNo: function(){
             // console.log($vm.job001GridApi.selection.getSelectedRows());
             if($vm.job001GridApi.selection.getSelectedRows().length > 0){
@@ -13352,25 +14420,33 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                     for(var i in $vm.job001GridApi.selection.getSelectedRows()){
                         var _index = $vm.job001GridApi.selection.getSelectedRows()[i].Index;
                         $vm.job001Data[_index-1].IL_MERGENO = selectedItem.mergeNo;
-
                         $vm.job001Data[_index-1].IL_NATURE_NEW = selectedItem.natureNew;
                     }
+
+                    $vm.job001GridApi.rowEdit.setRowsDirty($vm.job001GridApi.selection.getSelectedRows());
+                    $vm.job001GridApi.selection.clearSelectedRows();
                 }, function() {
                     // $log.info('Modal dismissed at: ' + new Date());
                 });
             }
         },
-        ExportExcel: function(){
-
-        },
+        // 取消併票
         CancelNo: function(){
             if($vm.job001GridApi.selection.getSelectedRows().length > 0){
                 for(var i in $vm.job001GridApi.selection.getSelectedRows()){
                     var _index = $vm.job001GridApi.selection.getSelectedRows()[i].Index;
                     $vm.job001Data[_index-1].IL_MERGENO = null;
+                    // $vm.job001Data[_index-1].IL_NATURE_NEW = null;
                 }
+
+                $vm.job001GridApi.rowEdit.setRowsDirty($vm.job001GridApi.selection.getSelectedRows());
+                $vm.job001GridApi.selection.clearSelectedRows();
             }
         },
+        ExportExcel: function(){
+
+        },
+        // 顯示併票結果
         MergeNoResult : function(){
             var modalInstance = $uibModal.open({
                 animation: true,
@@ -13394,6 +14470,7 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                 // $log.info('Modal dismissed at: ' + new Date());
             });
         },
+        // 顯示收件者相同結果
         RepeatName : function(){
             RestfulApi.SearchMSSQLData({
                 querymain: 'job001',
@@ -13433,8 +14510,56 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
         Return : function(){
             ReturnToEmployeejobsPage();
         },
-        Update : function(){
+        Update : function(entity){
+            // console.log($vm.job001GridApi.rowEdit);
+            // console.log($vm.job001GridApi.rowEdit.getDirtyRows($vm.job001GridApi.grid));
 
+            // create a fake promise - normally you'd use the promise returned by $http or $resource
+            var promise = $q.defer();
+            $vm.job001GridApi.rowEdit.setSavePromise( entity, promise.promise );
+         
+            RestfulApi.UpdateMSSQLData({
+                updatename: 'Update',
+                table: 9,
+                params: {
+                    IL_G1          : entity.IL_G1,
+                    IL_MERGENO     : entity.IL_MERGENO,
+                    IL_BAGNO       : entity.IL_BAGNO,
+                    IL_SMALLNO     : entity.IL_SMALLNO,
+                    IL_NATURE      : entity.IL_NATURE,
+                    IL_NATURE_NEW  : entity.IL_NATURE_NEW,
+                    IL_CTN         : entity.IL_CTN,
+                    IL_PLACE       : entity.IL_PLACE,
+                    IL_NEWPLACE    : entity.IL_NEWPLACE,
+                    IL_WEIGHT      : entity.IL_WEIGHT,
+                    IL_WEIGHT_NEW  : entity.IL_WEIGHT_NEW,
+                    IL_PCS         : entity.IL_PCS,
+                    IL_NEWPCS      : entity.IL_NEWPCS,
+                    IL_UNIT        : entity.IL_UNIT,
+                    IL_NEWUNIT     : entity.IL_NEWUNIT,
+                    IL_GETNO       : entity.IL_GETNO,
+                    IL_SENDNAME    : entity.IL_SENDNAME,
+                    IL_NEWSENDNAME : entity.IL_NEWSENDNAME,
+                    IL_GETNAME     : entity.IL_GETNAME,
+                    IL_GETADDRESS  : entity.IL_GETADDRESS,
+                    IL_GETTEL      : entity.IL_GETTEL,
+                    IL_UNIVALENT   : entity.IL_UNIVALENT,
+                    IL_FINALCOST   : entity.IL_FINALCOST,
+                    IL_TAX         : entity.IL_TAX,
+                    IL_TRCOM       : entity.IL_TRCOM
+                },
+                condition: {
+                    IL_SEQ        : entity.IL_SEQ,
+                    IL_NEWBAGNO   : entity.IL_NEWBAGNO,
+                    IL_NEWSMALLNO : entity.IL_NEWSMALLNO,
+                    IL_ORDERINDEX : entity.IL_ORDERINDEX
+                }
+            }).then(function (res) {
+                promise.resolve();
+            }, function (err) {
+                toaster.pop('danger', '錯誤', '更新失敗', 3000);
+                promise.reject();
+            });
         }
     });
 
@@ -13446,7 +14571,7 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                 IL_SEQ: $vm.vmData.OL_SEQ
             }
         }).then(function (res){
-            // console.log(res["returnData"]);
+            console.log(res["returnData"]);
             for(var i=0;i<res["returnData"].length;i++){
                 res["returnData"][i]["Index"] = i+1;
             }
@@ -13666,7 +14791,7 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
 });
 "use strict";
 
-angular.module('app.selfwork').controller('Job002Ctrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, RestfulApi, uiGridConstants, $filter) {
+angular.module('app.selfwork').controller('Job002Ctrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, RestfulApi, uiGridConstants, $filter, $q) {
     // console.log($stateParams, $state);
 
     var $vm = this,
@@ -13695,13 +14820,13 @@ angular.module('app.selfwork').controller('Job002Ctrl', function ($scope, $state
         job002Options : {
             data: '$vm.job002Data',
             columnDefs: [
-                { name: 'Index'         , displayName: '序列', width: 50, enableCellEdit: false, enableFiltering: false},
-                { name: 'FLL_ITEM'         , displayName: '' },
-                { name: 'FLL_BAGNO'    , displayName: '袋號' },
-                { name: 'FLL_CTN'    , displayName: '件數' },
-                { name: 'FLL_WEIGHT'     , displayName: '重量' },
+                { name: 'Index'           , displayName: '序列', width: 50, enableCellEdit: false, enableFiltering: false, headerCellClass: 'text-muted'},
+                { name: 'FLL_ITEM'        , displayName: '序號' },
+                { name: 'FLL_BAGNO'       , displayName: '袋號' },
+                { name: 'FLL_CTN'         , displayName: '件數' },
+                { name: 'FLL_WEIGHT'      , displayName: '重量' },
                 { name: 'FLL_DESCRIPTION' , displayName: '品名' },
-                { name: 'FLL_DECLAREDNO'        , displayName: '宣告序號' },
+                { name: 'FLL_DECLAREDNO'  , displayName: '宣告序號' },
                 { name: 'FLL_REMARK'      , displayName: '備註' }
             ],
             enableFiltering: true,
@@ -13714,6 +14839,8 @@ angular.module('app.selfwork').controller('Job002Ctrl', function ($scope, $state
             paginationPageSize: 50,
             onRegisterApi: function(gridApi){
                 $vm.job002GridApi = gridApi;
+
+                gridApi.rowEdit.on.saveRow($scope, $vm.Update);
             }
         },
         ExportExcel: function(){
@@ -13722,8 +14849,33 @@ angular.module('app.selfwork').controller('Job002Ctrl', function ($scope, $state
         Return : function(){
             ReturnToEmployeejobsPage();
         },
-        Update : function(){
-
+        Update : function(entity){
+            // create a fake promise - normally you'd use the promise returned by $http or $resource
+            var promise = $q.defer();
+            $vm.job002GridApi.rowEdit.setSavePromise( entity, promise.promise );
+         
+            RestfulApi.UpdateMSSQLData({
+                updatename: 'Update',
+                table: 10,
+                params: {
+                    FLL_ITEM         : entity.FLL_ITEM,
+                    FLL_BAGNO        : entity.FLL_BAGNO,
+                    FLL_CTN          : entity.FLL_CTN,
+                    FLL_WEIGHT       : entity.FLL_WEIGHT,
+                    FLL_DESCRIPTION  : entity.FLL_DESCRIPTION,
+                    FLL_DECLAREDNO   : entity.FLL_DECLAREDNO,
+                    FLL_REMARK       : entity.FLL_REMARK
+                },
+                condition: {
+                    FLL_SEQ         : entity.FLL_SEQ,
+                    FLL_IL_NEWBAGNO : entity.FLL_IL_NEWBAGNO
+                }
+            }).then(function (res) {
+                promise.resolve();
+            }, function (err) {
+                toaster.pop('danger', '錯誤', '更新失敗', 3000);
+                promise.reject();
+            });
         }
     });
 
@@ -13752,7 +14904,7 @@ angular.module('app.selfwork').controller('Job002Ctrl', function ($scope, $state
 });
 "use strict";
 
-angular.module('app.selfwork').controller('Job003Ctrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, RestfulApi, uiGridConstants, $filter) {
+angular.module('app.selfwork').controller('Job003Ctrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, RestfulApi, uiGridConstants, $filter, $q) {
     // console.log($stateParams, $state);
 
     var $vm = this,
@@ -13782,17 +14934,17 @@ angular.module('app.selfwork').controller('Job003Ctrl', function ($scope, $state
             data: '$vm.job003Data',
             columnDefs: [
                 { name: 'Index'         , displayName: '序列', width: 50, enableCellEdit: false, enableFiltering: false},
-                { name: 'DIL_DRIVER'         , displayName: '司機' },
-                { name: 'DIL_BAGNO'    , displayName: '袋號' },
-                { name: 'DIL_ORDERNO'    , displayName: '提單號' },
-                { name: 'DIL_BARCODE'     , displayName: '條碼號' },
-                { name: 'DIL_CTN' , displayName: '件數' },
-                { name: 'DIL_WEIGHT'        , displayName: '重量' },
-                { name: 'DIL_GETNAME'      , displayName: '收件人公司' },
-                { name: 'DIL_GETADDRESS'     , displayName: '收件地址' },
-                { name: 'DIL_GETTEL' , displayName: '收件人電話' },
-                { name: 'DIL_INCOME'        , displayName: '代收款' },
-                { name: 'DIL_REMARK'      , displayName: '備註' }
+                { name: 'DIL_DRIVER'    , displayName: '司機' },
+                { name: 'DIL_BAGNO'     , displayName: '袋號' },
+                { name: 'DIL_ORDERNO'   , displayName: '提單號' },
+                { name: 'DIL_BARCODE'   , displayName: '條碼號' },
+                { name: 'DIL_CTN'       , displayName: '件數' },
+                { name: 'DIL_WEIGHT'    , displayName: '重量' },
+                { name: 'DIL_GETNAME'   , displayName: '收件人公司' },
+                { name: 'DIL_GETADDRESS', displayName: '收件地址' },
+                { name: 'DIL_GETTEL'    , displayName: '收件人電話' },
+                { name: 'DIL_INCOME'    , displayName: '代收款' },
+                { name: 'DIL_REMARK'    , displayName: '備註' }
             ],
             enableFiltering: true,
             enableSorting: true,
@@ -13804,6 +14956,8 @@ angular.module('app.selfwork').controller('Job003Ctrl', function ($scope, $state
             paginationPageSize: 50,
             onRegisterApi: function(gridApi){
                 $vm.job003GridApi = gridApi;
+
+                gridApi.rowEdit.on.saveRow($scope, $vm.Update);
             }
         },
         ExportExcel: function(){
@@ -13812,8 +14966,38 @@ angular.module('app.selfwork').controller('Job003Ctrl', function ($scope, $state
         Return : function(){
             ReturnToEmployeejobsPage();
         },
-        Update : function(){
-
+        Update : function(entity){
+            // create a fake promise - normally you'd use the promise returned by $http or $resource
+            var promise = $q.defer();
+            $vm.job003GridApi.rowEdit.setSavePromise( entity, promise.promise );
+         
+            RestfulApi.UpdateMSSQLData({
+                updatename: 'Update',
+                table: 11,
+                params: {
+                    DIL_DRIVER : entity.DIL_DRIVER,
+                    DIL_BAGNO : entity.DIL_BAGNO,
+                    DIL_ORDERNO : entity.DIL_ORDERNO,
+                    DIL_BARCODE : entity.DIL_BARCODE,
+                    DIL_CTN : entity.DIL_CTN,
+                    DIL_WEIGHT : entity.DIL_WEIGHT,
+                    DIL_GETNAME : entity.DIL_GETNAME,
+                    DIL_GETADDRESS : entity.DIL_GETADDRESS,
+                    DIL_GETTEL : entity.DIL_GETTEL,
+                    DIL_INCOME : entity.DIL_INCOME,
+                    DIL_REMARK : entity.DIL_REMARK
+                },
+                condition: {
+                    DIL_SEQ           : entity.DIL_SEQ,
+                    DIL_IL_NEWBAGNO   : entity.DIL_IL_NEWBAGNO,
+                    DIL_IL_NEWSMALLNO : entity.DIL_IL_NEWSMALLNO
+                }
+            }).then(function (res) {
+                promise.resolve();
+            }, function (err) {
+                toaster.pop('danger', '錯誤', '更新失敗', 3000);
+                promise.reject();
+            });
         }
     });
 
@@ -13842,7 +15026,7 @@ angular.module('app.selfwork').controller('Job003Ctrl', function ($scope, $state
 });
 "use strict";
 
-angular.module('app.selfwork.leaderoption').controller('AgentSettingCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, $filter, uiGridConstants, RestfulApi, userInfoByCompyDistribution) {
+angular.module('app.selfwork.leaderoption').controller('AgentSettingCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, $filter, uiGridConstants, RestfulApi, userInfoByCompyDistribution, compy, $q, uiGridGroupingConstants) {
     
     var $vm = this;
 
@@ -13862,90 +15046,284 @@ angular.module('app.selfwork.leaderoption').controller('AgentSettingCtrl', funct
         agentSettingOptions : {
             data:  '$vm.vmData',
             columnDefs: [
-                { name: 'COD_PRINCIPAL',  displayName: '公司負責人', cellFilter: 'userInfoFilter', filter: 
+                { name: 'COD_PRINCIPAL',  displayName: '負責人', cellFilter: 'userInfoFilter', grouping: { groupPriority: 0 }, filter: 
                     {
                         term: null,
                         type: uiGridConstants.filter.SELECT,
                         selectOptions: userInfoByCompyDistribution[0].length == 0 ? [] : userInfoByCompyDistribution[1][userInfoByCompyDistribution[0][0].value]
                     }
                 },
-                { name: 'AS_AGENT'     ,  displayName: '職務代理人', cellFilter: 'userInfoFilter', filter: 
+                { name: 'COD_CODE'      ,  displayName: '行家', cellFilter: 'compyFilter', filter: 
                     {
                         term: null,
                         type: uiGridConstants.filter.SELECT,
-                        selectOptions: userInfoByCompyDistribution[0].length == 0 ? [] : userInfoByCompyDistribution[1][userInfoByCompyDistribution[0][0].value]
+                        selectOptions: compy
+                    }, 
+                    treeAggregationType: uiGridGroupingConstants.aggregation.COUNT, 
+                    customTreeAggregationFinalizerFn: function( aggregation ) {
+                        aggregation.rendered = aggregation.value;
                     }
                 },
-                { name: 'CO_NAME'      ,  displayName: '公司名稱' }
+                { name: 'AGENT_COUNT'   ,  displayName: '代理人數' , treeAggregationType: uiGridGroupingConstants.aggregation.SUM, 
+                    customTreeAggregationFinalizerFn: function( aggregation ) {
+                        aggregation.rendered = aggregation.value;
+                    }
+                }
+                // { name: 'AS_AGENT'     ,  displayName: '職務代理人', cellFilter: 'userInfoFilter', filter: 
+                //     {
+                //         term: null,
+                //         type: uiGridConstants.filter.SELECT,
+                //         selectOptions: userInfoByCompyDistribution[0].length == 0 ? [] : userInfoByCompyDistribution[1][userInfoByCompyDistribution[0][0].value]
+                //     }
+                // }
             ],
             enableFiltering: true,
             enableSorting: false,
             enableColumnMenus: false,
+            groupingShowCounts: false,
             // enableVerticalScrollbar: false,
             paginationPageSizes: [10, 25, 50],
             paginationPageSize: 10,
+            expandableRowTemplate: 'expandableRowTemplate.html',
+            expandableRowHeight: 150,
+            enableCellEdit: false,
+            enableGroupHeaderSelection: true,
+            expandableRowScope: {
+                $vm : {
+                    gridMethod : {
+                        deleteData : function(row){
+                            console.log(row);
+
+                            var modalInstance = $uibModal.open({
+                                animation: true,
+                                ariaLabelledBy: 'modal-title',
+                                ariaDescribedBy: 'modal-body',
+                                template: $templateCache.get('isChecked'),
+                                controller: 'IsCheckedModalInstanceCtrl',
+                                controllerAs: '$ctrl',
+                                size: 'sm',
+                                windowClass: 'center-modal',
+                                // appendTo: parentElem,
+                                resolve: {
+                                    items: function() {
+                                        return row.entity;
+                                    },
+                                    show: function(){
+                                        return {
+                                            title : "是否刪除"
+                                        };
+                                    }
+                                }
+                            });
+
+                            modalInstance.result.then(function(selectedItem) {
+                                // $ctrl.selected = selectedItem;
+                                console.log(selectedItem);
+
+                                RestfulApi.DeleteMSSQLData({
+                                    deletename: 'Delete',
+                                    table: 17,
+                                    params: {
+                                        AS_CODE : row.entity.AS_CODE,
+                                        AS_DEPT : row.entity.AS_DEPT,
+                                        AS_AGENT : row.entity.AS_AGENT,
+                                        AS_PRINCIPAL : row.entity.AS_PRINCIPAL
+                                    }
+                                }).then(function (res) {
+                                    for(var i in $vm.vmData){
+                                        if($vm.vmData[i].COD_PRINCIPAL == row.entity.AS_PRINCIPAL && 
+                                            $vm.vmData[i].COD_CODE == row.entity.AS_CODE){
+                                            $vm.vmData[i].AGENT_COUNT -= 1;
+
+                                            var foundItem = $filter('filter')($vm.vmData[i].subGridOptions.data, {
+                                                AS_CODE : row.entity.AS_CODE,
+                                                AS_DEPT : row.entity.AS_DEPT,
+                                                AS_AGENT : row.entity.AS_AGENT,
+                                                AS_PRINCIPAL : row.entity.AS_PRINCIPAL
+                                            })[0];
+
+                                            var itemIndex = $vm.vmData[i].subGridOptions.data.indexOf(foundItem);
+
+                                            $vm.vmData[i].subGridOptions.data.splice(itemIndex, 1);
+
+                                            $vm.agentSettingGridApi.grid.refresh();
+                                            break;
+                                        }
+                                    }
+
+                                });
+
+                            }, function() {
+                                // $log.info('Modal dismissed at: ' + new Date());
+                            });
+                        }
+                    }
+                }
+            },
             onRegisterApi: function(gridApi){
                 $vm.agentSettingGridApi = gridApi;
+
+                gridApi.rowEdit.on.saveRow($scope, $vm.Update);
+
+                gridApi.selection.on.rowSelectionChanged( $scope, function ( rowChanged ) {
+                    if ( typeof(rowChanged.treeLevel) !== 'undefined' && rowChanged.treeLevel > -1 ) {
+                        // this is a group header
+                        var children = $vm.agentSettingGridApi.treeBase.getRowChildren( rowChanged );
+                        children.forEach( function ( child ) {
+                            if ( rowChanged.isSelected ) {
+                                $vm.agentSettingGridApi.selection.selectRow( child.entity );
+                            } else {
+                                $vm.agentSettingGridApi.selection.unSelectRow( child.entity );
+                            }
+                        });
+                    }
+                });
             }
         },
         AssignAgent : function(){
             if($vm.agentSettingGridApi.selection.getSelectedRows().length > 0){
-                var _getSelectedRows = $vm.agentSettingGridApi.selection.getSelectedRows();
+                var _getSelectedRows = $vm.agentSettingGridApi.selection.getSelectedRows(),
+                    _getDirtyData = [];
+
                 for(var i in _getSelectedRows){
-                    // 負責人 不等於 代理人
-                    if(_getSelectedRows[i].COD_PRINCIPAL != $vm.selectAssignAgent){
-                        _getSelectedRows[i].AS_AGENT = $vm.selectAssignAgent;
+                    // 負責人不等於代理人 和 沒有相同代理人才塞入
+                    if((_getSelectedRows[i].COD_PRINCIPAL != $vm.selectAssignAgent) && 
+                        $filter('filter')(_getSelectedRows[i].subGridOptions.data, { AS_AGENT : $vm.selectAssignAgent }).length == 0 && 
+                        $filter('filter')(_getSelectedRows[i].subGridOptions.data, { AS_PRINCIPAL : $vm.selectAssignAgent }).length == 0){
+                        
+                        _getSelectedRows[i].subGridOptions.data.push({
+                            AS_CODE : _getSelectedRows[i].COD_CODE,
+                            AS_DEPT : $vm.selectAssignDept,
+                            AS_AGENT : $vm.selectAssignAgent,
+                            AS_PRINCIPAL : _getSelectedRows[i].COD_PRINCIPAL
+                        });
+
+                        // _getSelectedRows[i].AGENT_COUNT = _getSelectedRows[i].subGridOptions.data.length;
+                        _getDirtyData.push(_getSelectedRows[i]);
+
+                        // 表示需要更新
+                        // _getDirty = true;
                     }
+                }
+
+                if(_getDirtyData.length > 0){
+                    $vm.agentSettingGridApi.rowEdit.setRowsDirty(_getDirtyData);
+                }else{
+                    toaster.pop('info', '訊息', '負責人或代理人重複', 3000);
                 }
                 
                 $vm.agentSettingGridApi.selection.clearSelectedRows();
+                // 清除group的Select
+                $vm.agentSettingGridApi.grid.treeBase.tree.forEach(function(entity){
+                    entity.row.isSelected = false;
+                });
             }
         },
         CancelAgent : function(){
             if($vm.agentSettingGridApi.selection.getSelectedRows().length > 0){
-                var _getSelectedRows = $vm.agentSettingGridApi.selection.getSelectedRows();
+                var _getSelectedRows = $vm.agentSettingGridApi.selection.getSelectedRows(),
+                    _getDirtyData = [];
                 for(var i in _getSelectedRows){
-                    _getSelectedRows[i].AS_AGENT = null;
+                    if(_getSelectedRows[i].subGridOptions.data.length > 0){
+                        _getDirtyData.push(_getSelectedRows[i]);
+                    }
+
+                    // 把代理人清空
+                    _getSelectedRows[i].subGridOptions.data = [];
+
+                    // _getSelectedRows[i].AGENT_COUNT = _getSelectedRows[i].subGridOptions.data.length;
                 }
                 
+                // $vm.agentSettingGridApi.grid.refresh();
+                if(_getDirtyData.length > 0){
+                    $vm.agentSettingGridApi.rowEdit.setRowsDirty(_getDirtyData);
+                }
                 $vm.agentSettingGridApi.selection.clearSelectedRows();
             }
         },
-        Save : function(){
+        // Save : function(){
 
+        //     var _tasks = [],
+        //         _d = new Date();
+
+        //     // Delete此Leader管理的行家代理人
+        //     _tasks.push({
+        //         crudType: 'Delete',
+        //         table: 17,
+        //         params: {
+        //             AS_DEPT : $vm.selectAssignDept,
+        //             // AS_CR_USER : $vm.profile.U_ID
+        //         }
+        //     });
+
+        //     // Insert此Leader管理的行家代理人
+        //     for(var i in $vm.vmData){
+        //         if($vm.vmData[i].AS_AGENT != null){
+        //             _tasks.push({
+        //                 crudType: 'Insert',
+        //                 table: 17,
+        //                 params: {
+        //                     AS_CODE : $vm.vmData[i].COD_CODE,
+        //                     AS_DEPT : $vm.selectAssignDept,
+        //                     AS_AGENT : $vm.vmData[i].AS_AGENT,
+        //                     AS_CR_USER : $vm.profile.U_ID,
+        //                     AS_CR_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss')
+        //                 }
+        //             });
+        //         }
+        //     }
+
+        //     RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res){
+        //         console.log(res["returnData"]);
+        //         toaster.pop('success', '訊息', '代理人設定儲存成功', 3000);
+        //     });    
+        // },
+        Update : function(entity){
+            // console.log(entity);
+
+            // create a fake promise - normally you'd use the promise returned by $http or $resource
+            var promise = $q.defer();
+            $vm.agentSettingGridApi.rowEdit.setSavePromise( entity, promise.promise );
+        
             var _tasks = [],
                 _d = new Date();
 
-            // Delete此Leader管理的行家代理人
+            // Delete此負責人的代理人
             _tasks.push({
                 crudType: 'Delete',
                 table: 17,
                 params: {
-                    AS_DEPT : $vm.selectAssignDept,
-                    AS_CR_USER : $vm.profile.U_ID
+                    AS_CODE : entity.COD_CODE,
+                    AS_DEPT : entity.COD_DEPT,
+                    AS_PRINCIPAL :  entity.COD_PRINCIPAL
                 }
             });
 
-            // Insert此Leader管理的行家代理人
-            for(var i in $vm.vmData){
-                if($vm.vmData[i].AS_AGENT != null){
-                    _tasks.push({
-                        crudType: 'Insert',
-                        table: 17,
-                        params: {
-                            AS_CODE : $vm.vmData[i].COD_CODE,
-                            AS_DEPT : $vm.selectAssignDept,
-                            AS_AGENT : $vm.vmData[i].AS_AGENT,
-                            AS_CR_USER : $vm.profile.U_ID,
-                            AS_CR_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss')
-                        }
-                    });
-                }
+            // Insert此負責人的代理人
+            for(var i in entity.subGridOptions.data){
+                _tasks.push({
+                    crudType: 'Insert',
+                    table: 17,
+                    params: {
+                        AS_CODE : entity.subGridOptions.data[i].AS_CODE,
+                        AS_DEPT : entity.subGridOptions.data[i].AS_DEPT,
+                        AS_AGENT : entity.subGridOptions.data[i].AS_AGENT,
+                        AS_PRINCIPAL : entity.subGridOptions.data[i].AS_PRINCIPAL,
+                        AS_CR_USER : $vm.profile.U_ID,
+                        AS_CR_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss')
+                    }
+                });
             }
 
             RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res){
-                console.log(res["returnData"]);
-                toaster.pop('success', '訊息', '代理人設定儲存成功', 3000);
+                promise.resolve();
+            }, function (err) {
+                toaster.pop('danger', '錯誤', '更新失敗', 3000);
+                promise.reject();
+            }).finally(function(){
+                if($vm.agentSettingGridApi.rowEdit.getDirtyRows().length == 0){
+                    LoadCompyAgent();
+                }
             });    
         },
         LoadCompyAgent : function(){
@@ -13954,27 +15332,88 @@ angular.module('app.selfwork.leaderoption').controller('AgentSettingCtrl', funct
     });
 
     function LoadCompyAgent(){
-        RestfulApi.SearchMSSQLData({
-            querymain: 'agentSetting',
-            queryname: 'SelectCompyAgent',
-            params: {
-                COD_CR_USER : $vm.profile.U_ID,
-                COD_DEPT : $vm.selectAssignDept
+
+        RestfulApi.CRUDMSSQLDataByTask([
+            {  
+                crudType: 'Select',
+                querymain: 'agentSetting',
+                queryname: 'SelectCompyDistribution',
+                params: {
+                    COD_DEPT : $vm.selectAssignDept
+                }
+            },
+            {
+                crudType: 'Select',
+                querymain: 'agentSetting',
+                queryname: 'SelectAgentSetting',
+                params: {
+                    COD_DEPT : $vm.selectAssignDept
+                }
             }
-        }).then(function (res){
+        ]).then(function (res){
             console.log(res["returnData"]);
-            $vm.vmData = res["returnData"];
+
+            for(var i in res["returnData"][0]){
+
+                var _data =[];
+
+                for(var j in res["returnData"][1]){
+                    if(res["returnData"][0][i].COD_PRINCIPAL == res["returnData"][1][j].AS_PRINCIPAL &&
+                        res["returnData"][0][i].COD_CODE == res["returnData"][1][j].AS_CODE){
+                        _data.push(res["returnData"][1][j]);
+                    }
+                }
+
+                res["returnData"][0][i].subGridOptions = {
+                    data: _data,
+                    columnDefs: [ 
+                        {field: "AS_AGENT", name: "代理人", cellFilter: 'userInfoFilter', filter: 
+                            {
+                                term: null,
+                                type: uiGridConstants.filter.SELECT,
+                                selectOptions: userInfoByCompyDistribution[0].length == 0 ? [] : userInfoByCompyDistribution[1][userInfoByCompyDistribution[0][0].value]
+                            }
+                        },
+                        { name: 'Options'     , displayName: '操作', width: '5%', enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToD') }
+                    ],
+                    enableFiltering: true,
+                    enableSorting: true,
+                    enableColumnMenus: false
+                };
+                res["returnData"][0][i]["AGENT_COUNT"] = _data.length;
+            }
+
+            $vm.vmData = res["returnData"][0];
+
         }).finally(function() {
+            console.log($vm.agentSettingOptions);
             // 更新filter selectOptions的值
-            $vm.agentSettingGridApi.grid.columns[1].filter.selectOptions = userInfoByCompyDistribution[1][$vm.selectAssignDept];
-            $vm.agentSettingGridApi.grid.columns[3].filter.selectOptions = userInfoByCompyDistribution[1][$vm.selectAssignDept];
-        });    
+            $vm.agentSettingOptions.columnDefs[0].filter.selectOptions = userInfoByCompyDistribution[1][$vm.selectAssignDept];
+            for(var i in $vm.vmData){
+                $vm.vmData[i].subGridOptions.columnDefs[0].filter.selectOptions = userInfoByCompyDistribution[1][$vm.selectAssignDept];
+            }
+        });
+
+        // RestfulApi.SearchMSSQLData({
+        //     querymain: 'agentSetting',
+        //     queryname: 'SelectCompyAgent',
+        //     params: {
+        //         COD_DEPT : $vm.selectAssignDept
+        //     }
+        // }).then(function (res){
+        //     console.log(res["returnData"]);
+        //     $vm.vmData = res["returnData"];
+        // }).finally(function() {
+        //     // 更新filter selectOptions的值
+        //     $vm.agentSettingGridApi.grid.columns[2].filter.selectOptions = userInfoByCompyDistribution[1][$vm.selectAssignDept];
+        //     $vm.agentSettingGridApi.grid.columns[3].filter.selectOptions = userInfoByCompyDistribution[1][$vm.selectAssignDept];
+        // });    
     }
 
 })
 "use strict";
 
-angular.module('app.selfwork.leaderoption').controller('CompyDistributionCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, $filter, RestfulApi, uiGridConstants, userInfoByGrade) {
+angular.module('app.selfwork.leaderoption').controller('CompyDistributionCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, $filter, $q, RestfulApi, uiGridConstants, userInfoByGrade, compy) {
     
     var $vm = this;
 
@@ -13989,16 +15428,23 @@ angular.module('app.selfwork.leaderoption').controller('CompyDistributionCtrl', 
         compyDistributionOptions : {
             data:  '$vm.compyDistributionData',
             columnDefs: [
-                { name: 'CO_NUMBER'    ,  displayName: '公司統編' },
-                { name: 'CO_NAME'      ,  displayName: '公司名稱' },
-                { name: 'CO_ADDR'      ,  displayName: '公司地址' },
-                { name: 'COD_PRINCIPAL',  displayName: '負責人' , cellFilter: 'userInfoFilter', filter: 
+                // { name: 'CO_NUMBER'    ,  displayName: '公司統編' },
+                { name: 'CO_CODE'       ,  displayName: '行家', cellFilter: 'compyFilter', filter: 
                     {
                         term: null,
                         type: uiGridConstants.filter.SELECT,
-                        selectOptions: userInfoByGrade[1][userInfoByGrade[0][0].value]
+                        selectOptions: compy
                     }
-                }
+                },
+                // { name: 'CO_ADDR'      ,  displayName: '公司地址' },
+                // { name: 'COD_PRINCIPAL',  displayName: '負責人' , cellFilter: 'userInfoFilter', filter: 
+                //     {
+                //         term: null,
+                //         type: uiGridConstants.filter.SELECT,
+                //         selectOptions: userInfoByGrade[1][userInfoByGrade[0][0].value]
+                //     }
+                // }
+                { name: 'PRINCIPAL_COUNT',  displayName: '負責人數' }
             ],
             enableFiltering: true,
             enableSorting: true,
@@ -14006,17 +15452,112 @@ angular.module('app.selfwork.leaderoption').controller('CompyDistributionCtrl', 
             // enableVerticalScrollbar: false,
             paginationPageSizes: [10, 25, 50],
             paginationPageSize: 10,
+            expandableRowTemplate: 'expandableRowTemplate.html',
+            expandableRowHeight: 150,
+            expandableRowScope: {
+                $vm : {
+                    gridMethod : {
+                        deleteData : function(row){
+                            console.log(row);
+
+                            var modalInstance = $uibModal.open({
+                                animation: true,
+                                ariaLabelledBy: 'modal-title',
+                                ariaDescribedBy: 'modal-body',
+                                template: $templateCache.get('isChecked'),
+                                controller: 'IsCheckedModalInstanceCtrl',
+                                controllerAs: '$ctrl',
+                                size: 'sm',
+                                windowClass: 'center-modal',
+                                // appendTo: parentElem,
+                                resolve: {
+                                    items: function() {
+                                        return row.entity;
+                                    },
+                                    show: function(){
+                                        return {
+                                            title : "是否刪除"
+                                        };
+                                    }
+                                }
+                            });
+
+                            modalInstance.result.then(function(selectedItem) {
+                                // $ctrl.selected = selectedItem;
+                                console.log(selectedItem);
+
+                                RestfulApi.DeleteMSSQLData({
+                                    deletename: 'Delete',
+                                    table: 15,
+                                    params: {
+                                        COD_CODE : row.entity.COD_CODE,
+                                        COD_DEPT : row.entity.COD_DEPT,
+                                        COD_PRINCIPAL : row.entity.COD_PRINCIPAL
+                                    }
+                                }).then(function (res) {
+                                    for(var i in $vm.compyDistributionData){
+                                        if($vm.compyDistributionData[i].CO_CODE == row.entity.COD_CODE){
+                                            $vm.compyDistributionData[i].PRINCIPAL_COUNT -= 1;
+
+                                            var foundItem = $filter('filter')($vm.compyDistributionData[i].subGridOptions.data, {
+                                                COD_CODE : row.entity.COD_CODE,
+                                                COD_DEPT : row.entity.COD_DEPT,
+                                                COD_PRINCIPAL : row.entity.COD_PRINCIPAL
+                                            })[0];
+
+                                            var itemIndex = $vm.compyDistributionData[i].subGridOptions.data.indexOf(foundItem);
+
+                                            $vm.compyDistributionData[i].subGridOptions.data.splice(itemIndex, 1);
+
+                                            break;
+                                        }
+                                    }
+
+                                });
+
+                            }, function() {
+                                // $log.info('Modal dismissed at: ' + new Date());
+                            });
+                        }
+                    }
+                }
+            },
+            enableCellEdit: false,
             onRegisterApi: function(gridApi){
                 $vm.compyDistributionGridApi = gridApi;
+
+                gridApi.rowEdit.on.saveRow($scope, $vm.Update);
             }
         },
         AssignPrincipal : function(){
             // console.log($vm.selectAssignPrincipal);
             if($vm.compyDistributionGridApi.selection.getSelectedRows().length > 0){
-                var _getSelectedRows = $vm.compyDistributionGridApi.selection.getSelectedRows();
+                var _getSelectedRows = $vm.compyDistributionGridApi.selection.getSelectedRows(),
+                    _getDirtyData = [];
+
                 for(var i in _getSelectedRows){
-                    _getSelectedRows[i].COD_DEPT = $vm.selectAssignDept;
-                    _getSelectedRows[i].COD_PRINCIPAL = $vm.selectAssignPrincipal;
+
+                    // 如果沒有此負責人才塞入
+                    if($filter('filter')(_getSelectedRows[i].subGridOptions.data, { COD_PRINCIPAL : $vm.selectAssignPrincipal }).length == 0){
+                        _getSelectedRows[i].subGridOptions.data.push({
+                            COD_CODE : _getSelectedRows[i].CO_CODE,
+                            COD_DEPT : $vm.selectAssignDept,
+                            COD_PRINCIPAL : $vm.selectAssignPrincipal
+                        });
+
+                        // _getSelectedRows[i].PRINCIPAL_COUNT = _getSelectedRows[i].subGridOptions.data.length;
+                        _getDirtyData.push(_getSelectedRows[i]);
+
+                        // 表示需要更新
+                        // _getDirty = true;
+                    }
+
+                }
+
+                if(_getDirtyData.length > 0){
+                    $vm.compyDistributionGridApi.rowEdit.setRowsDirty(_getDirtyData);
+                }else{
+                    toaster.pop('info', '訊息', '行家負責人被重複指派', 3000);
                 }
 
                 $vm.compyDistributionGridApi.selection.clearSelectedRows();
@@ -14024,51 +15565,125 @@ angular.module('app.selfwork.leaderoption').controller('CompyDistributionCtrl', 
         },
         CancelPrincipal : function(){
             if($vm.compyDistributionGridApi.selection.getSelectedRows().length > 0){
-                var _getSelectedRows = $vm.compyDistributionGridApi.selection.getSelectedRows();
+                var _getSelectedRows = $vm.compyDistributionGridApi.selection.getSelectedRows(),
+                    _getDirtyData = [];
                 for(var i in _getSelectedRows){
-                    _getSelectedRows[i].COD_DEPT = null;
-                    _getSelectedRows[i].COD_PRINCIPAL = null;
+                    if(_getSelectedRows[i].subGridOptions.data.length > 0){
+                        _getDirtyData.push(_getSelectedRows[i]);
+                    }
+
+                    // 把負責人清空
+                    _getSelectedRows[i].subGridOptions.data = [];
+
+                    // _getSelectedRows[i].PRINCIPAL_COUNT = _getSelectedRows[i].subGridOptions.data.length;
+
                 }
 
+                $vm.compyDistributionGridApi.rowEdit.setRowsDirty(_getDirtyData);
                 $vm.compyDistributionGridApi.selection.clearSelectedRows();
             }
         },
-        Save : function(){
+        // Save : function(){
 
+        //     var _tasks = [],
+        //         _d = new Date();
+
+        //     // Delete此Leader的行家分配
+        //     _tasks.push({
+        //         crudType: 'Delete',
+        //         table: 15,
+        //         params: {
+        //             COD_DEPT : $vm.selectAssignDept,
+        //             // COD_CR_USER : $vm.profile.U_ID
+        //         }
+        //     });
+
+        //     // Insert此Leader的行家分配
+        //     for(var i in $vm.compyDistributionData){
+        //         if($vm.compyDistributionData[i].COD_PRINCIPAL != null){
+        //             _tasks.push({
+        //                 crudType: 'Insert',
+        //                 table: 15,
+        //                 params: {
+        //                     COD_CODE : $vm.compyDistributionData[i].CO_CODE,
+        //                     COD_DEPT : $vm.selectAssignDept,
+        //                     COD_PRINCIPAL : $vm.compyDistributionData[i].COD_PRINCIPAL,
+        //                     COD_CR_USER : $vm.profile.U_ID,
+        //                     COD_CR_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss')
+        //                 }
+        //             });
+        //         }
+        //     }
+
+        //     RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res){
+        //         console.log(res["returnData"]);
+        //         toaster.pop('success', '訊息', '行家分配儲存成功', 3000);
+        //     });    
+        // },
+        Update : function(entity){
+            // console.log($vm.compyDistributionGridApi.rowEdit);
+            // console.log($vm.compyDistributionGridApi.rowEdit.getDirtyRows($vm.compyDistributionGridApi.grid));
+            // console.log(entity);
+
+            // create a fake promise - normally you'd use the promise returned by $http or $resource
+            var promise = $q.defer();
+            $vm.compyDistributionGridApi.rowEdit.setSavePromise( entity, promise.promise );
+        
             var _tasks = [],
                 _d = new Date();
 
-            // Delete此Leader的行家分配
+            // Delete此班的行家
             _tasks.push({
                 crudType: 'Delete',
                 table: 15,
                 params: {
-                    COD_DEPT : $vm.selectAssignDept,
-                    COD_CR_USER : $vm.profile.U_ID
+                    COD_CODE : entity.CO_CODE,
+                    COD_DEPT : $vm.selectAssignDept
                 }
             });
 
-            // Insert此Leader的行家分配
-            for(var i in $vm.compyDistributionData){
-                if($vm.compyDistributionData[i].COD_PRINCIPAL != null){
-                    _tasks.push({
-                        crudType: 'Insert',
-                        table: 15,
-                        params: {
-                            COD_CODE : $vm.compyDistributionData[i].CO_CODE,
-                            COD_DEPT : $vm.selectAssignDept,
-                            COD_PRINCIPAL : $vm.compyDistributionData[i].COD_PRINCIPAL,
-                            COD_CR_USER : $vm.profile.U_ID,
-                            COD_CR_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss')
-                        }
-                    });
-                }
+            // Insert此班的行家
+            for(var i in entity.subGridOptions.data){
+                _tasks.push({
+                    crudType: 'Insert',
+                    table: 15,
+                    params: {
+                        COD_CODE : entity.subGridOptions.data[i].COD_CODE,
+                        COD_DEPT : $vm.selectAssignDept,
+                        COD_PRINCIPAL : entity.subGridOptions.data[i].COD_PRINCIPAL,
+                        COD_CR_USER : $vm.profile.U_ID,
+                        COD_CR_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss')
+                    }
+                });
             }
 
             RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res){
-                console.log(res["returnData"]);
-                toaster.pop('success', '訊息', '行家分配儲存成功', 3000);
+                promise.resolve();
+            }, function (err) {
+                toaster.pop('danger', '錯誤', '更新失敗', 3000);
+                promise.reject();
+            }).finally(function(){
+                if($vm.compyDistributionGridApi.rowEdit.getDirtyRows().length == 0){
+                    LoadCompyDistribution();
+                }
             });    
+
+            // RestfulApi.UpdateMSSQLData({
+            //     insertname: 'Insert',
+            //     table: 15,
+            //     params: {
+            //         COD_CODE      : entity.COD_CODE,
+            //         COD_DEPT      : entity.COD_DEPT,
+            //         COD_PRINCIPAL : entity.COD_PRINCIPAL,
+            //         COD_CR_USER : $vm.profile.U_ID,
+            //         COD_CR_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss')
+            //     }
+            // }).then(function (res) {
+                // promise.resolve();
+            // }, function (err) {
+            //     toaster.pop('danger', '錯誤', '更新失敗', 3000);
+                // promise.reject();
+            // });
         },
         LoadCompyDistribution : function(){
             LoadCompyDistribution();   
@@ -14076,25 +15691,80 @@ angular.module('app.selfwork.leaderoption').controller('CompyDistributionCtrl', 
     });
 
     function LoadCompyDistribution(){
-        RestfulApi.SearchMSSQLData({
-            querymain: 'compyDistribution',
-            queryname: 'SelectCompy',
-            params: {
-                COD_DEPT : $vm.selectAssignDept
+
+        RestfulApi.CRUDMSSQLDataByTask([
+            {
+                crudType: 'Select',
+                querymain: 'compyDistribution',
+                queryname: 'SelectCompy'
+            },
+            {  
+                crudType: 'Select',
+                querymain: 'compyDistribution',
+                queryname: 'SelectCompyDistribution',
+                params: {
+                    COD_DEPT : $vm.selectAssignDept
+                }
             }
-        }).then(function (res){
+        ]).then(function (res){
             console.log(res["returnData"]);
-            $vm.compyDistributionData = res["returnData"];
+
+            for(var i in res["returnData"][0]){
+
+                var _data =[];
+
+                for(var j in res["returnData"][1]){
+                    if(res["returnData"][0][i].CO_CODE == res["returnData"][1][j].COD_CODE){
+                        _data.push(res["returnData"][1][j]);
+                    }
+                }
+
+                res["returnData"][0][i].subGridOptions = {
+                    data: _data,
+                    columnDefs: [ 
+                        {field: "COD_PRINCIPAL", name: "負責人", cellFilter: 'userInfoFilter', filter: 
+                            {
+                                term: null,
+                                type: uiGridConstants.filter.SELECT,
+                                selectOptions: userInfoByGrade[1][$vm.selectAssignDept]
+                            }
+                        },
+                        { name: 'Options'     , displayName: '操作', width: '5%', enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToD') }
+                    ],
+                    enableFiltering: true,
+                    enableSorting: true,
+                    enableColumnMenus: false
+                }
+                res["returnData"][0][i]["PRINCIPAL_COUNT"] = _data.length;
+            }
+
+            $vm.compyDistributionData = res["returnData"][0];
+
         }).finally(function() {
+            console.log($vm.compyDistributionGridApi);
             // 更新filter selectOptions的值
-            $vm.compyDistributionGridApi.grid.columns[4].filter.selectOptions = userInfoByGrade[1][$vm.selectAssignDept];
-            // console.log($vm.compyDistributionGridApi.grid.columns[4].filter.selectOptions);
-        });    
+            // $vm.compyDistributionGridApi.grid.columns[2].filter.selectOptions = userInfoByGrade[1][$vm.selectAssignDept];
+        });
+
+        // RestfulApi.SearchMSSQLData({
+        //     querymain: 'compyDistribution',
+        //     queryname: 'SelectCompyDistribution',
+        //     params: {
+        //         COD_DEPT : $vm.selectAssignDept
+        //     }
+        // }).then(function (res){
+        //     console.log(res["returnData"]);
+        //     $vm.compyDistributionData = res["returnData"];
+        // }).finally(function() {
+        //     // 更新filter selectOptions的值
+        //     $vm.compyDistributionGridApi.grid.columns[2].filter.selectOptions = userInfoByGrade[1][$vm.selectAssignDept];
+        //     // console.log($vm.compyDistributionGridApi.grid.columns[4].filter.selectOptions);
+        // });    
     }
 })
 "use strict";
 
-angular.module('app.selfwork.leaderoption').controller('DailyLeaveCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, $filter, uiGridConstants, RestfulApi, userInfoByGrade, bool) {
+angular.module('app.selfwork.leaderoption').controller('DailyLeaveCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, $filter, uiGridConstants, RestfulApi, userInfoByGrade, bool, $q) {
     
     var $vm = this;
 
@@ -14125,43 +15795,98 @@ angular.module('app.selfwork.leaderoption').controller('DailyLeaveCtrl', functio
             // enableVerticalScrollbar: false,
             paginationPageSizes: [10, 25, 50],
             paginationPageSize: 10,
+            enableCellEdit: false,
             onRegisterApi: function(gridApi){
                 $vm.dailyLeaveGridApi = gridApi;
+
+                gridApi.rowEdit.on.saveRow($scope, $vm.Update);
             }
         },
         ChangeLeave : function(){
             if($vm.dailyLeaveGridApi.selection.getSelectedRows().length > 0){
-                var _getSelectedRows = $vm.dailyLeaveGridApi.selection.getSelectedRows();
+                var _getSelectedRows = $vm.dailyLeaveGridApi.selection.getSelectedRows(),
+                    _getDirtyData = [];
+
                 for(var i in _getSelectedRows){
-                    _getSelectedRows[i].DL_IS_LEAVE = $vm.isLeave;
+                    // 表示假不一樣需要被更新
+                    if(_getSelectedRows[i].DL_IS_LEAVE != $vm.isLeave){
+                        _getDirtyData.push(_getSelectedRows[i]);
+                    }
+                    // _getSelectedRows[i].DL_IS_LEAVE = $vm.isLeave;
                 }
+
+                if(_getDirtyData.length > 0){
+                    $vm.dailyLeaveGridApi.rowEdit.setRowsDirty(_getDirtyData);
+                }else{
+                    toaster.pop('info', '訊息', '沒有資料需要被更新', 3000);
+                }
+                
+                $vm.dailyLeaveGridApi.selection.clearSelectedRows();
             }
         },
-        Save : function(){
+        // Save : function(){
 
+        //     var _tasks = [],
+        //         _d = new Date();
+
+        //     // Delete此Leader的每日請假
+        //     _tasks.push({
+        //         crudType: 'Delete',
+        //         table: 16,
+        //         params: {
+        //             DL_DEPT : $vm.selectAssignDept,
+        //             DL_CR_USER : $vm.profile.U_ID
+        //         }
+        //     });
+
+        //     // Insert此Leader的每日請假
+        //     for(var i in $vm.vmData){
+        //         console.log($vm.vmData[i]);
+        //         if($vm.vmData[i].DL_IS_LEAVE){
+        //             _tasks.push({
+        //                 crudType: 'Insert',
+        //                 table: 16,
+        //                 params: {
+        //                     DL_ID : $vm.vmData[i].U_ID,
+        //                     DL_DEPT : $vm.selectAssignDept,
+        //                     DL_CR_USER : $vm.profile.U_ID,
+        //                     DL_CR_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss')
+        //                 }
+        //             });
+        //         }
+        //     }
+
+        //     RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res){
+        //         console.log(res["returnData"]);
+        //         toaster.pop('success', '訊息', '請假設定儲存成功', 3000);
+        //     });    
+        // },
+        Update : function(entity){
+            // create a fake promise - normally you'd use the promise returned by $http or $resource
+            var promise = $q.defer();
+            $vm.dailyLeaveGridApi.rowEdit.setSavePromise( entity, promise.promise );
+        
             var _tasks = [],
                 _d = new Date();
 
-            // Delete此Leader的每日請假
+            // Delete此班所有人的假
             _tasks.push({
                 crudType: 'Delete',
                 table: 16,
                 params: {
-                    DL_DEPT : $vm.selectAssignDept,
-                    DL_CR_USER : $vm.profile.U_ID
+                    DL_DEPT : $vm.selectAssignDept
                 }
             });
 
-            // Insert此Leader的每日請假
-            for(var i in $vm.vmData){
-                console.log($vm.vmData[i]);
-                if($vm.vmData[i].DL_IS_LEAVE){
+            // Insert此有被設定為請假的人
+            for(var i in entity){
+                if(entity[i].DL_IS_LEAVE){
                     _tasks.push({
                         crudType: 'Insert',
                         table: 16,
                         params: {
-                            DL_ID : $vm.vmData[i].U_ID,
-                            DL_DEPT : $vm.selectAssignDept,
+                            DL_ID : entity[i].DL_ID,
+                            DL_DEPT : entity[i].DL_DEPT,
                             DL_CR_USER : $vm.profile.U_ID,
                             DL_CR_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss')
                         }
@@ -14170,9 +15895,15 @@ angular.module('app.selfwork.leaderoption').controller('DailyLeaveCtrl', functio
             }
 
             RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res){
-                console.log(res["returnData"]);
-                toaster.pop('success', '訊息', '請假設定儲存成功', 3000);
-            });    
+                promise.resolve();
+            }, function (err) {
+                toaster.pop('danger', '錯誤', '更新失敗', 3000);
+                promise.reject();
+            }).finally(function(){
+                if($vm.dailyLeaveGridApi.rowEdit.getDirtyRows().length == 0){
+                    LoadDailyLeave();
+                }
+            }); 
         },
         LoadDailyLeave : function(){
             LoadDailyLeave();
@@ -14484,7 +16215,7 @@ angular.module('app.settings').controller('AccountCtrl', function ($scope, $stat
 });
 "use strict";
 
-angular.module('app.settings').controller('GroupCtrl', function ($scope, $stateParams, $state, AuthApi, Session, Menu, toaster, $uibModal, $templateCache, $filter, SysCode, UserGrade, RestfulApi, bool) {
+angular.module('app.settings').controller('GroupCtrl', function ($scope, $stateParams, $state, AuthApi, ToolboxApi, Session, toaster, $uibModal, $templateCache, $filter, SysCode, UserGrade, RestfulApi, bool) {
     // console.log($stateParams);
 
 	var $vm = this,
@@ -14627,7 +16358,8 @@ angular.module('app.settings').controller('GroupCtrl', function ($scope, $stateP
     // 產生GroupMenu
     function DoGroupMenu(){
         ToolboxApi.ComposeMenu().then(function(res){ 
-            _.forEach(res, function(item) {
+            console.log(res);
+            _.forEach(res.items, function(item) {
                 CreateItem(item, $vm.groupMenu[0], 1);
             })    
         })    

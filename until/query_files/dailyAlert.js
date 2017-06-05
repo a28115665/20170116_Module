@@ -8,7 +8,11 @@ module.exports = function(pQueryname, pParams){
 		_CaseA = "SELECT '通報' AS BAN_TYPE, \
 						   IL.* \
 					FROM V_BLFO_JOIN_IL \
-					JOIN ITEM_LIST IL ON \
+					JOIN ( \
+						SELECT * \
+						FROM ITEM_LIST \
+						WHERE CONVERT(varchar(100), IL_CR_DATETIME, 23) = CONVERT(varchar(100), GetDate(), 23) \
+					) IL ON \
 					IL.IL_GETNAME = V_BLFO_JOIN_IL.IL_GETNAME AND \
 					IL.IL_GETADDRESS = V_BLFO_JOIN_IL.IL_GETADDRESS \
 					\
@@ -17,7 +21,11 @@ module.exports = function(pQueryname, pParams){
 					SELECT '自訂' AS BAN_TYPE, \
 						   IL.* \
 					FROM BLACK_LIST_FROM_LEADER BLFL \
-					JOIN ITEM_LIST IL ON \
+					JOIN ( \
+						SELECT * \
+						FROM ITEM_LIST \
+						WHERE CONVERT(varchar(100), IL_CR_DATETIME, 23) = CONVERT(varchar(100), GetDate(), 23) \
+					) IL ON \
 					IL.IL_GETNAME = BLFL.BLFL_GETNAME AND \
 					IL.IL_GETADDRESS = BLFL.BLFL_GETADDRESS \
 					WHERE BLFL.BLFL_TRACK = 1 ",
@@ -29,7 +37,11 @@ module.exports = function(pQueryname, pParams){
 		_CaseB = "SELECT '通報' AS BAN_TYPE, \
 						   IL.* \
 					FROM V_BLFO_JOIN_IL \
-					JOIN ITEM_LIST IL ON \
+					JOIN ( \
+						SELECT * \
+						FROM ITEM_LIST \
+						WHERE CONVERT(varchar(100), IL_CR_DATETIME, 23) = CONVERT(varchar(100), GetDate(), 23) \
+					) IL ON \
 					IL.IL_GETADDRESS = V_BLFO_JOIN_IL.IL_GETADDRESS AND \
 					IL.IL_GETTEL = V_BLFO_JOIN_IL.IL_GETTEL \
 					\
@@ -38,7 +50,11 @@ module.exports = function(pQueryname, pParams){
 					SELECT '自訂' AS BAN_TYPE, \
 						   IL.* \
 					FROM BLACK_LIST_FROM_LEADER BLFL \
-					JOIN ITEM_LIST IL ON \
+					JOIN ( \
+						SELECT * \
+						FROM ITEM_LIST \
+						WHERE CONVERT(varchar(100), IL_CR_DATETIME, 23) = CONVERT(varchar(100), GetDate(), 23) \
+					) IL ON \
 					IL.IL_GETADDRESS = BLFL.BLFL_GETADDRESS AND \
 					IL.IL_GETTEL = BLFL.BLFL_GETTEL \
 					WHERE BLFL.BLFL_TRACK = 1 ",
@@ -50,7 +66,11 @@ module.exports = function(pQueryname, pParams){
 		_CaseC = "SELECT '通報' AS BAN_TYPE, \
 						   IL.* \
 					FROM V_BLFO_JOIN_IL \
-					JOIN ITEM_LIST IL ON \
+					JOIN ( \
+						SELECT * \
+						FROM ITEM_LIST \
+						WHERE CONVERT(varchar(100), IL_CR_DATETIME, 23) = CONVERT(varchar(100), GetDate(), 23) \
+					) IL ON \
 					IL.IL_GETNAME = V_BLFO_JOIN_IL.IL_GETNAME AND \
 					IL.IL_GETTEL = V_BLFO_JOIN_IL.IL_GETTEL \
 					\
@@ -59,7 +79,11 @@ module.exports = function(pQueryname, pParams){
 					SELECT '自訂' AS BAN_TYPE, \
 						   IL.* \
 					FROM BLACK_LIST_FROM_LEADER BLFL \
-					JOIN ITEM_LIST IL ON \
+					JOIN ( \
+						SELECT * \
+						FROM ITEM_LIST \
+						WHERE CONVERT(varchar(100), IL_CR_DATETIME, 23) = CONVERT(varchar(100), GetDate(), 23) \
+					) IL ON \
 					IL.IL_GETNAME = BLFL.BLFL_GETNAME AND \
 					IL.IL_GETTEL = BLFL.BLFL_GETTEL \
 					WHERE BLFL.BLFL_TRACK = 1 ",
@@ -72,7 +96,11 @@ module.exports = function(pQueryname, pParams){
 		_CaseD = "SELECT '通報' AS BAN_TYPE, \
 						   IL.* \
 					FROM V_BLFO_JOIN_IL \
-					JOIN ITEM_LIST IL ON \
+					JOIN ( \
+						SELECT * \
+						FROM ITEM_LIST \
+						WHERE CONVERT(varchar(100), IL_CR_DATETIME, 23) = CONVERT(varchar(100), GetDate(), 23) \
+					) IL ON \
 					IL.IL_GETNAME = V_BLFO_JOIN_IL.IL_GETNAME AND \
 					IL.IL_GETADDRESS = V_BLFO_JOIN_IL.IL_GETADDRESS AND \
 					IL.IL_GETTEL = V_BLFO_JOIN_IL.IL_GETTEL \
@@ -82,7 +110,11 @@ module.exports = function(pQueryname, pParams){
 					SELECT '自訂' AS BAN_TYPE, \
 						   IL.* \
 					FROM BLACK_LIST_FROM_LEADER BLFL \
-					JOIN ITEM_LIST IL ON \
+					JOIN ( \
+						SELECT * \
+						FROM ITEM_LIST \
+						WHERE CONVERT(varchar(100), IL_CR_DATETIME, 23) = CONVERT(varchar(100), GetDate(), 23) \
+					) IL ON \
 					IL.IL_GETNAME = BLFL.BLFL_GETNAME AND \
 					IL.IL_GETADDRESS = BLFL.BLFL_GETADDRESS AND \
 					IL.IL_GETTEL = BLFL.BLFL_GETTEL \
@@ -112,7 +144,7 @@ module.exports = function(pQueryname, pParams){
 		case "SelectILCount":
 			_SQLCommand += "SELECT COUNT(1) AS COUNT \
 							FROM ITEM_LIST \
-							WHERE 1 = 1 ";
+							WHERE CONVERT(varchar(100), IL_CR_DATETIME, 23) = CONVERT(varchar(100), GetDate(), 23) ";
 			break;
 		case "SelectCaseA":
 			_SQLCommand += "SELECT \
@@ -157,6 +189,24 @@ module.exports = function(pQueryname, pParams){
 									OUT_IL.* \
 							FROM ( " + _CaseD + " ) OUT_IL \
 							ORDER BY OUT_IL.IL_GETNAME DESC ";
+			break;
+		case "SelectItemList":
+			_SQLCommand += "SELECT * \
+							FROM ITEM_LIST \
+							WHERE 1=1 ";
+							
+			if(pParams["IL_GETADDRESS"] !== undefined){
+				_SQLCommand += " AND IL_GETADDRESS = @IL_GETADDRESS";
+			}
+			if(pParams["IL_GETTEL"] !== undefined){
+				_SQLCommand += " AND IL_GETTEL = @IL_GETTEL";
+			}
+			if(pParams["IL_GETNAME"] !== undefined){
+				_SQLCommand += " AND IL_GETNAME = @IL_GETNAME";
+			}
+
+			_SQLCommand += " ORDER BY IL_GETNAME DESC ";
+
 			break;
 			
 	}

@@ -70,6 +70,18 @@
 }
 
 /*
+ * default page style
+ */
+.default-background {
+    background: url(/styles/img/default_background.png) no-repeat center center fixed;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+    height: 1024px;
+}
+
+/*
  * INDEX
  * 
  * - HTML
@@ -86,10 +98,12 @@
     height: 350px;
 }
 
+/*黑名單加入*/
 .cell-class-ban {
     /*position: relative;*/
-    background-color: #F99D9D !important; 
-    color: #000 !important;
+    /*background-color: #F99D9D !important; */
+    color: #a90329 !important;
+    font-weight: bold;
 
     /*opacity: 1;
     -webkit-animation: flash 1.5s;
@@ -116,6 +130,34 @@
         /*opacity: 1;*/
         background-color:rgba(249, 157, 157, 1);
     }
+}
+
+/*拉貨*/
+.cell-class-pull {
+    /*position: relative;*/
+    background-color: #d4d4d4 !important; 
+    /*color: #a90329 !important;*/
+
+    /*opacity: 1;
+    -webkit-animation: flash 1.5s;
+    -webkit-animation-iteration-count: infinite;
+    animation: flash 1.5s;
+    animation-iteration-count: infinite;*/
+}
+
+/*特貨*/
+.cell-class-special {
+    font-style: italic;
+    text-decoration: underline;
+}
+.cell-class-no-style {
+    font-style: normal;
+    text-decoration: none;
+}
+
+/*ui-grid 異動資料*/
+.ui-grid-row-dirty .ui-grid-cell {
+    color: #8e1da9;
 }
 
 .cell-class-editabled {

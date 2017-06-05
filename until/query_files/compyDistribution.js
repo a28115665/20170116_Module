@@ -6,17 +6,39 @@ module.exports = function(pQueryname, pParams){
 			_SQLCommand += "SELECT CO.CO_CODE, \
 								   CO.CO_NUMBER, \
 								   CO.CO_NAME, \
-								   CO.CO_ADDR, \
-								   COD.COD_PRINCIPAL \
+								   CO.CO_ADDR \
 							FROM COMPY_INFO CO \
-							LEFT JOIN COMPY_DISTRIBUTION COD ON COD.COD_CODE = CO.CO_CODE ";	
+							WHERE CO_STS = 0 \
+						    ORDER BY CO_CR_DATETIME DESC ";	
+
+			break;
+		case "SelectCompyDistribution":
+			_SQLCommand += "SELECT COD_CODE, \
+								   COD_DEPT, \
+								   COD_PRINCIPAL \
+							FROM COMPY_DISTRIBUTION \
+							WHERE 1=1 ";	
 
 			if(pParams["COD_DEPT"] !== undefined){
 				_SQLCommand += " AND COD_DEPT = @COD_DEPT";
 			}
 
-			_SQLCommand += " WHERE CO_STS = 0 \
-							 ORDER BY CO_CR_DATETIME DESC ";
+			_SQLCommand += " ORDER BY COD_CR_DATETIME DESC ";
+
+			// _SQLCommand += "SELECT CO.CO_CODE, \
+			// 					   CO.CO_NUMBER, \
+			// 					   CO.CO_NAME, \
+			// 					   CO.CO_ADDR, \
+			// 					   COD.COD_PRINCIPAL \
+			// 				FROM COMPY_INFO CO \
+			// 				LEFT JOIN COMPY_DISTRIBUTION COD ON COD.COD_CODE = CO.CO_CODE ";	
+
+			// if(pParams["COD_DEPT"] !== undefined){
+			// 	_SQLCommand += " AND COD_DEPT = @COD_DEPT";
+			// }
+
+			// _SQLCommand += " WHERE CO_STS = 0 \
+			// 				 ORDER BY CO_CR_DATETIME DESC ";
 
 			break;
 		case "SelectUserbyGrade":

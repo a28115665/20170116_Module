@@ -40,13 +40,46 @@ angular.module('app')
 		if (!input) {
 		    return '';
 		} else {
-		    return resData[input];
+		    return angular.isUndefined(resData[input]) ? input : resData[input];
 		}
 
 	};
 	
 	function LoadData(){
 		SysCode.get('Role').then(function (res){
+			for(var i in res){
+				resData[res[i].value] = res[i].label;
+			}
+		});
+	}
+
+	// 持續偵測
+	FilterFunction.$stateful = true;
+
+	return FilterFunction;
+
+})
+.filter('opTypeFilter', function (SysCode) {
+
+	var resData = {};
+
+	LoadData();
+
+	var FilterFunction = function (input, isLoad){
+		if(isLoad){
+			LoadData();
+		}
+
+		if (!input) {
+		    return '';
+		} else {
+		    return angular.isUndefined(resData[input]) ? input : resData[input];
+		}
+
+	};
+	
+	function LoadData(){
+		SysCode.get('OpType').then(function (res){
 			for(var i in res){
 				resData[res[i].value] = res[i].label;
 			}
@@ -73,7 +106,7 @@ angular.module('app')
 		if (!input) {
 		    return '';
 		} else {
-		    return resData[input];
+		    return angular.isUndefined(resData[input]) ? input : resData[input];
 		}
 
 	};
@@ -106,7 +139,7 @@ angular.module('app')
 		if (!input) {
 		    return '';
 		} else {
-		    return resData[input];
+		    return angular.isUndefined(resData[input]) ? input : resData[input];
 		}
 
 	};
@@ -139,7 +172,7 @@ angular.module('app')
 		if (!input) {
 		    return '';
 		} else {
-		    return resData[input];
+		    return angular.isUndefined(resData[input]) ? input : resData[input];
 		}
 
 	};
@@ -172,7 +205,7 @@ angular.module('app')
 		if (!input) {
 		    return '';
 		} else {
-		    return resData[input];
+		    return angular.isUndefined(resData[input]) ? input : resData[input];
 		}
 
 	};
@@ -205,7 +238,7 @@ angular.module('app')
 		if (!input) {
 		    return '';
 		} else {
-		    return resData[input];
+		    return angular.isUndefined(resData[input]) ? input : resData[input];
 		}
 
 	};

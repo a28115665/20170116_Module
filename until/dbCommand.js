@@ -142,7 +142,7 @@ var InsertMethod = function (insertname, table, params, callback){
 					
 					break;
 				default:
-					return callback(null, {});
+					return callback("無此InsertName", null);
 					break;
 			}	    
 			schemaType.SchemaType(_params, ps, sql);
@@ -234,7 +234,7 @@ var UpdateMethod = function (updatetname, table, params, condition, callback){
 					}
 					for(var key in _condition){
 						if(_condition[key] == null){
-							Condition.push(" AND "+key + "is @" + key);
+							Condition.push(" AND "+key + " is null");
 						}else{
 							Condition.push(" AND "+key + "=@" + key);
 						}
@@ -245,7 +245,7 @@ var UpdateMethod = function (updatetname, table, params, condition, callback){
 					
 					break;
 				default:
-					callback(null, {});
+					return callback("無此UpdateName", null);
 					break;
 			}	    
 			schemaType.SchemaType(_psParams, ps, sql);
@@ -303,14 +303,18 @@ var DeleteMethod = function (deletename, table, params, callback){
 		    switch(deletename){
 				case "Delete":
 					for(var key in _params){
-						Condition.push(" AND "+key + "=@" + key);
+						if(_params[key] == null){
+							Condition.push(" AND "+key + " is null");
+						}else{
+							Condition.push(" AND "+key + "=@" + key);
+						}
 					}
 
 					SQLCommand += "DELETE FROM " + tables[table] + " WHERE 1=1 "+Condition.join("");
 					
 					break;
 				default:
-					callback(null, {});
+					return callback("無此DeleteName", null);
 					break;
 			}	    
 			schemaType.SchemaType(_params, ps, sql);

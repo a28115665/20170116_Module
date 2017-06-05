@@ -1,6 +1,6 @@
 "use strict";
 
-angular.module('app.selfwork.leaderoption').controller('DailyLeaveCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, $filter, uiGridConstants, RestfulApi, userInfoByGrade, bool) {
+angular.module('app.selfwork.leaderoption').controller('DailyLeaveCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, $filter, uiGridConstants, RestfulApi, userInfoByGrade, bool, $q) {
     
     var $vm = this;
 
@@ -31,43 +31,98 @@ angular.module('app.selfwork.leaderoption').controller('DailyLeaveCtrl', functio
             // enableVerticalScrollbar: false,
             paginationPageSizes: [10, 25, 50],
             paginationPageSize: 10,
+            enableCellEdit: false,
             onRegisterApi: function(gridApi){
                 $vm.dailyLeaveGridApi = gridApi;
+
+                gridApi.rowEdit.on.saveRow($scope, $vm.Update);
             }
         },
         ChangeLeave : function(){
             if($vm.dailyLeaveGridApi.selection.getSelectedRows().length > 0){
-                var _getSelectedRows = $vm.dailyLeaveGridApi.selection.getSelectedRows();
+                var _getSelectedRows = $vm.dailyLeaveGridApi.selection.getSelectedRows(),
+                    _getDirtyData = [];
+
                 for(var i in _getSelectedRows){
-                    _getSelectedRows[i].DL_IS_LEAVE = $vm.isLeave;
+                    // 表示假不一樣需要被更新
+                    if(_getSelectedRows[i].DL_IS_LEAVE != $vm.isLeave){
+                        _getDirtyData.push(_getSelectedRows[i]);
+                    }
+                    // _getSelectedRows[i].DL_IS_LEAVE = $vm.isLeave;
                 }
+
+                if(_getDirtyData.length > 0){
+                    $vm.dailyLeaveGridApi.rowEdit.setRowsDirty(_getDirtyData);
+                }else{
+                    toaster.pop('info', '訊息', '沒有資料需要被更新', 3000);
+                }
+                
+                $vm.dailyLeaveGridApi.selection.clearSelectedRows();
             }
         },
-        Save : function(){
+        // Save : function(){
 
+        //     var _tasks = [],
+        //         _d = new Date();
+
+        //     // Delete此Leader的每日請假
+        //     _tasks.push({
+        //         crudType: 'Delete',
+        //         table: 16,
+        //         params: {
+        //             DL_DEPT : $vm.selectAssignDept,
+        //             DL_CR_USER : $vm.profile.U_ID
+        //         }
+        //     });
+
+        //     // Insert此Leader的每日請假
+        //     for(var i in $vm.vmData){
+        //         console.log($vm.vmData[i]);
+        //         if($vm.vmData[i].DL_IS_LEAVE){
+        //             _tasks.push({
+        //                 crudType: 'Insert',
+        //                 table: 16,
+        //                 params: {
+        //                     DL_ID : $vm.vmData[i].U_ID,
+        //                     DL_DEPT : $vm.selectAssignDept,
+        //                     DL_CR_USER : $vm.profile.U_ID,
+        //                     DL_CR_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss')
+        //                 }
+        //             });
+        //         }
+        //     }
+
+        //     RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res){
+        //         console.log(res["returnData"]);
+        //         toaster.pop('success', '訊息', '請假設定儲存成功', 3000);
+        //     });    
+        // },
+        Update : function(entity){
+            // create a fake promise - normally you'd use the promise returned by $http or $resource
+            var promise = $q.defer();
+            $vm.dailyLeaveGridApi.rowEdit.setSavePromise( entity, promise.promise );
+        
             var _tasks = [],
                 _d = new Date();
 
-            // Delete此Leader的每日請假
+            // Delete此班所有人的假
             _tasks.push({
                 crudType: 'Delete',
                 table: 16,
                 params: {
-                    DL_DEPT : $vm.selectAssignDept,
-                    DL_CR_USER : $vm.profile.U_ID
+                    DL_DEPT : $vm.selectAssignDept
                 }
             });
 
-            // Insert此Leader的每日請假
-            for(var i in $vm.vmData){
-                console.log($vm.vmData[i]);
-                if($vm.vmData[i].DL_IS_LEAVE){
+            // Insert此有被設定為請假的人
+            for(var i in entity){
+                if(entity[i].DL_IS_LEAVE){
                     _tasks.push({
                         crudType: 'Insert',
                         table: 16,
                         params: {
-                            DL_ID : $vm.vmData[i].U_ID,
-                            DL_DEPT : $vm.selectAssignDept,
+                            DL_ID : entity[i].DL_ID,
+                            DL_DEPT : entity[i].DL_DEPT,
                             DL_CR_USER : $vm.profile.U_ID,
                             DL_CR_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss')
                         }
@@ -76,9 +131,15 @@ angular.module('app.selfwork.leaderoption').controller('DailyLeaveCtrl', functio
             }
 
             RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res){
-                console.log(res["returnData"]);
-                toaster.pop('success', '訊息', '請假設定儲存成功', 3000);
-            });    
+                promise.resolve();
+            }, function (err) {
+                toaster.pop('danger', '錯誤', '更新失敗', 3000);
+                promise.reject();
+            }).finally(function(){
+                if($vm.dailyLeaveGridApi.rowEdit.getDirtyRows().length == 0){
+                    LoadDailyLeave();
+                }
+            }); 
         },
         LoadDailyLeave : function(){
             LoadDailyLeave();

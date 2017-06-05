@@ -31,6 +31,9 @@ angular.module('app.selfwork').config(function ($stateProvider){
                     },
                     compy : function(Compy){
                         return Compy.get();
+                    },
+                    opType : function (SysCode){
+                        return SysCode.get('OpType');
                     }
                 }
             }

@@ -10,19 +10,14 @@ module.exports = function(pQueryname, pParams){
 								   OL_IMPORTDT, \
 								   OL_COUNTRY, \
 								   OL_CR_USER, \
-								   OL_W2_PRINCIPAL AS 'W2', \
-								   OL_W2_EDIT_DATETIME, \
-								   OL_W2_OK_DATETIME, \
-								   OL_W3_PRINCIPAL AS 'W3', \
-								   OL_W3_EDIT_DATETIME, \
-								   OL_W3_OK_DATETIME, \
-								   OL_W1_PRINCIPAL AS 'W1', \
-								   OL_W1_EDIT_DATETIME, \
-								   OL_W1_OK_DATETIME, \
 								   ( \
 										SELECT COUNT(1) \
-										FROM ITEM_LIST \
-										WHERE IL_SEQ = OL_SEQ \
+										FROM ( \
+											SELECT IL_BAGNO \
+											FROM ITEM_LIST \
+											WHERE IL_SEQ = OL_SEQ \
+											GROUP BY IL_BAGNO \
+										) A \
 									) AS 'OL_COUNT' \
 							FROM ORDER_LIST \
 							WHERE 1=1 ";

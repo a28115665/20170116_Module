@@ -2,6 +2,7 @@ var sql = require('mssql');
 var setting = require('../app.setting.json');
 var tables = require('./table.json');
 var schemaType = require('./schemaType.js');
+var pool = null;
 
 /**
  * [Connect description] SQL連線
@@ -9,8 +10,8 @@ var schemaType = require('./schemaType.js');
  */
 var Connect = function(callback) {
 	var args = {};
+
   	sql.connect(setting.MSSQL, function(err) {
-  		console.log(err);
 		if(err) callback(err, {});
 		else callback(null, args);
 	});
@@ -228,7 +229,12 @@ var DeleteRequestWithTransaction = function(task, args, callback) {
 	schemaType.SchemaType2(task.params, request, sql);
 
 	for(var key in task.params){
-		Condition.push(" AND "+key + "=@" + key);
+		console.log();
+		if(task.params[key] == null){
+			Condition.push(" AND "+key + " is null");
+		}else{
+			Condition.push(" AND "+key + "=@" + key);
+		}
 	}
 
 	SQLCommand += "DELETE FROM " + tables[task.table] + " WHERE 1=1 "+Condition.join("");
@@ -315,6 +321,7 @@ function requestSql(request, sql, callback) {
             	callback(null, result[0].records);
         	}
         } else {
+    		console.log("SQL錯誤:", errors);
             callback(errors, {});
         }
     });

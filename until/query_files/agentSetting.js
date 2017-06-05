@@ -2,6 +2,33 @@ module.exports = function(pQueryname, pParams){
 	var _SQLCommand = "";
 
 	switch(pQueryname){
+		case "SelectCompyDistribution":
+			_SQLCommand += "SELECT COD_PRINCIPAL, \
+								   COD_CODE, \
+								   COD_DEPT \
+							FROM COMPY_DISTRIBUTION \
+							WHERE 1=1 ";
+
+			if(pParams["COD_DEPT"] !== undefined){
+				_SQLCommand += " AND COD_DEPT = @COD_DEPT";
+			}
+
+			_SQLCommand += " ORDER BY COD_PRINCIPAL ";
+
+		case "SelectAgentSetting":
+			_SQLCommand += "SELECT AS_PRINCIPAL, \
+								   AS_CODE, \
+								   AS_DEPT, \
+								   AS_AGENT \
+							FROM AGENT_SETTING \
+							WHERE 1=1 ";
+
+			if(pParams["AS_DEPT"] !== undefined){
+				_SQLCommand += " AND AS_DEPT = @AS_DEPT";
+			}
+
+			_SQLCommand += " ORDER BY AS_PRINCIPAL ";
+
 		case "SelectCompyAgent":
 			_SQLCommand += "SELECT COD.COD_PRINCIPAL, \
 								   COD.COD_CODE, \
@@ -33,9 +60,9 @@ module.exports = function(pQueryname, pParams){
 							LEFT JOIN USER_INFO ON U_ID = COD_PRINCIPAL \
 							WHERE 1=1 ";
 											
-			if(pParams["COD_CR_USER"] !== undefined){
-				_SQLCommand += " AND COD_CR_USER = @COD_CR_USER";
-			}
+			// if(pParams["COD_CR_USER"] !== undefined){
+			// 	_SQLCommand += " AND COD_CR_USER = @COD_CR_USER";
+			// }
 			if(pParams["COD_DEPT"] !== undefined){
 				_SQLCommand += " AND COD_DEPT = @COD_DEPT";
 			}

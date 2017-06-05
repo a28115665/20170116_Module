@@ -11,6 +11,8 @@ module.exports = function(pQueryname, pParams){
 				_SQLCommand += " AND FLL_SEQ = @FLL_SEQ";
 			}
 		
+			_SQLCommand += " ORDER BY cast(FLL_ITEM as int) ASC ";
+
 			break;
 	}
 

@@ -1,6 +1,6 @@
 "use strict";
 
-angular.module('app.settings').controller('GroupCtrl', function ($scope, $stateParams, $state, AuthApi, Session, Menu, toaster, $uibModal, $templateCache, $filter, SysCode, UserGrade, RestfulApi, bool) {
+angular.module('app.settings').controller('GroupCtrl', function ($scope, $stateParams, $state, AuthApi, ToolboxApi, Session, toaster, $uibModal, $templateCache, $filter, SysCode, UserGrade, RestfulApi, bool) {
     // console.log($stateParams);
 
 	var $vm = this,
@@ -143,7 +143,8 @@ angular.module('app.settings').controller('GroupCtrl', function ($scope, $stateP
     // 產生GroupMenu
     function DoGroupMenu(){
         ToolboxApi.ComposeMenu().then(function(res){ 
-            _.forEach(res, function(item) {
+            console.log(res);
+            _.forEach(res.items, function(item) {
                 CreateItem(item, $vm.groupMenu[0], 1);
             })    
         })    
