@@ -8675,13 +8675,20 @@ angular.module('app.settings').controller('AccountManagementCtrl', function ($sc
                     animation: true,
                     ariaLabelledBy: 'modal-title',
                     ariaDescribedBy: 'modal-body',
-                    templateUrl: 'isDelete.html',
-                    controller: 'IsDeleteModalInstanceCtrl',
+                    template: $templateCache.get('isChecked'),
+                    controller: 'IsCheckedModalInstanceCtrl',
                     controllerAs: '$ctrl',
                     size: 'sm',
+                    windowClass: 'center-modal',
+                    // appendTo: parentElem,
                     resolve: {
-                        items: function () {
+                        items: function() {
                             return row.entity;
+                        },
+                        show: function(){
+                            return {
+                                title : "是否刪除"
+                            };
                         }
                     }
                 });
@@ -8767,13 +8774,20 @@ angular.module('app.settings').controller('AccountManagementCtrl', function ($sc
                     animation: true,
                     ariaLabelledBy: 'modal-title',
                     ariaDescribedBy: 'modal-body',
-                    templateUrl: 'isDelete.html',
-                    controller: 'IsDeleteModalInstanceCtrl',
+                    template: $templateCache.get('isChecked'),
+                    controller: 'IsCheckedModalInstanceCtrl',
                     controllerAs: '$ctrl',
                     size: 'sm',
+                    windowClass: 'center-modal',
+                    // appendTo: parentElem,
                     resolve: {
-                        items: function () {
+                        items: function() {
                             return row.entity;
+                        },
+                        show: function(){
+                            return {
+                                title : "是否刪除"
+                            };
                         }
                     }
                 });
@@ -8977,13 +8991,20 @@ angular.module('app.settings').controller('BillboardEditorCtrl', function ($scop
                 animation: true,
                 ariaLabelledBy: 'modal-title',
                 ariaDescribedBy: 'modal-body',
-                templateUrl: 'isDelete.html',
-                controller: 'IsDeleteModalInstanceCtrl',
+                template: $templateCache.get('isChecked'),
+                controller: 'IsCheckedModalInstanceCtrl',
                 controllerAs: '$ctrl',
                 size: 'sm',
+                windowClass: 'center-modal',
+                // appendTo: parentElem,
                 resolve: {
-                    items: function () {
+                    items: function() {
                         return $vm.billboardEditorGridApi.selection.getSelectedRows();
+                    },
+                    show: function(){
+                        return {
+                            title : "是否刪除"
+                        };
                     }
                 }
             });
@@ -9059,13 +9080,20 @@ angular.module('app.settings').controller('BillboardEditorCtrl', function ($scop
                 animation: true,
                 ariaLabelledBy: 'modal-title',
                 ariaDescribedBy: 'modal-body',
-                templateUrl: 'isDelete.html',
-                controller: 'IsDeleteModalInstanceCtrl',
+                template: $templateCache.get('isChecked'),
+                controller: 'IsCheckedModalInstanceCtrl',
                 controllerAs: '$ctrl',
                 size: 'sm',
+                windowClass: 'center-modal',
+                // appendTo: parentElem,
                 resolve: {
-                    items: function () {
+                    items: function() {
                         return $vm.billboardHistoryGridApi.selection.getSelectedRows();
+                    },
+                    show: function(){
+                        return {
+                            title : "是否刪除"
+                        };
                     }
                 }
             });
@@ -9173,13 +9201,20 @@ angular.module('app.settings').controller('ExternalManagementCtrl', function ($s
                     animation: true,
                     ariaLabelledBy: 'modal-title',
                     ariaDescribedBy: 'modal-body',
-                    templateUrl: 'isDelete.html',
-                    controller: 'IsDeleteModalInstanceCtrl',
+                    template: $templateCache.get('isChecked'),
+                    controller: 'IsCheckedModalInstanceCtrl',
                     controllerAs: '$ctrl',
                     size: 'sm',
+                    windowClass: 'center-modal',
+                    // appendTo: parentElem,
                     resolve: {
-                        items: function () {
+                        items: function() {
                             return row.entity;
+                        },
+                        show: function(){
+                            return {
+                                title : "是否刪除"
+                            };
                         }
                     }
                 });
@@ -9250,13 +9285,20 @@ angular.module('app.settings').controller('ExternalManagementCtrl', function ($s
                     animation: true,
                     ariaLabelledBy: 'modal-title',
                     ariaDescribedBy: 'modal-body',
-                    templateUrl: 'isDelete.html',
-                    controller: 'IsDeleteModalInstanceCtrl',
+                    template: $templateCache.get('isChecked'),
+                    controller: 'IsCheckedModalInstanceCtrl',
                     controllerAs: '$ctrl',
                     size: 'sm',
+                    windowClass: 'center-modal',
+                    // appendTo: parentElem,
                     resolve: {
-                        items: function () {
+                        items: function() {
                             return row.entity;
+                        },
+                        show: function(){
+                            return {
+                                title : "是否刪除"
+                            };
                         }
                     }
                 });
@@ -9514,13 +9556,20 @@ angular.module('app.settings').controller('NewsCtrl', function ($scope, $statePa
                 animation: true,
                 ariaLabelledBy: 'modal-title',
                 ariaDescribedBy: 'modal-body',
-                templateUrl: 'isDelete.html',
-                controller: 'IsDeleteModalInstanceCtrl',
+                template: $templateCache.get('isChecked'),
+                controller: 'IsCheckedModalInstanceCtrl',
                 controllerAs: '$ctrl',
                 size: 'sm',
+                windowClass: 'center-modal',
+                // appendTo: parentElem,
                 resolve: {
-                    items: function () {
+                    items: function() {
                         return pDeleteUploaded;
+                    },
+                    show: function(){
+                        return {
+                            title : "是否刪除"
+                        };
                     }
                 }
             });
