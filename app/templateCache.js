@@ -20,6 +20,10 @@ angular.module('app')
 	                                          			<i class="fa fa-circle text-warning" ng-if="!row.entity.g"> 作業中</i>\
 	                                          			<i class="fa fa-circle text-success" ng-if="row.entity.g"> 完成</i>\
 	                                       		    </div>');
+    $templateCache.put('accessibilityToMC', '<div class="ui-grid-cell-contents text-center">\
+                                                    <a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethod.modifyData(row)"> 編輯</a>\
+                                                    <a href="javascript:void(0);" class="btn btn-danger btn-xs" ng-click="grid.appScope.$vm.gridMethod.cancelData(row)"> 取消</a>\
+                                              </div>');
 	$templateCache.put('accessibilityToRMC', '<div class="ui-grid-cell-contents text-center">\
                                     				<a href="javascript:void(0);" class="btn btn-danger btn-xs" ng-click="grid.appScope.$vm.gridMethod.rejectData(row)" ng-disabled="row.entity.g"> 退單</a>\
                                     				<a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethod.modifyData(row)"> 編輯</a>\

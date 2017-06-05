@@ -133,17 +133,29 @@ module.exports = function(pQueryname, pParams){
 			_SQLCommand += "SELECT CO_NAME, \
 								( \
 									SELECT COUNT(1) \
-									FROM ITEM_LIST \
+									FROM ( \
+										SELECT * \
+										FROM ITEM_LIST \
+										WHERE CONVERT(varchar(100), IL_CR_DATETIME, 23) = CONVERT(varchar(100), GetDate(), 23) \
+									) IL \
 									JOIN ORDER_LIST ON OL_SEQ = IL_SEQ AND OL_CO_CODE = CO_CODE \
 								) AS 'W2_COUNT', \
 								( \
 									SELECT COUNT(1) \
-									FROM FLIGHT_ITEM_LIST \
+									FROM ( \
+										SELECT * \
+										FROM FLIGHT_ITEM_LIST \
+										WHERE CONVERT(varchar(100), FLL_CR_DATETIME, 23) = CONVERT(varchar(100), GetDate(), 23) \
+									) FLL \
 									JOIN ORDER_LIST ON OL_SEQ = FLL_SEQ AND OL_CO_CODE = CO_CODE \
 								) AS 'W3_COUNT', \
 								( \
 									SELECT COUNT(1) \
-									FROM Delivery_Item_List \
+									FROM ( \
+										SELECT * \
+										FROM Delivery_Item_List \
+										WHERE CONVERT(varchar(100), DIL_CR_DATETIME, 23) = CONVERT(varchar(100), GetDate(), 23) \
+									) DIL \
 									JOIN ORDER_LIST ON OL_SEQ = DIL_SEQ AND OL_CO_CODE = CO_CODE \
 								) AS 'W1_COUNT' \
 							FROM COMPY_INFO";

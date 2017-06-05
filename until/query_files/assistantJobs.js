@@ -8,6 +8,7 @@ module.exports = function(pQueryname, pParams){
 								   OL_FLIGHTNO, \
 								   OL_IMPORTDT, \
 								   OL_COUNTRY, \
+								   PG_SEQ, \
 								   PG_BAGNO, \
 								   PG_MOVED, \
 								   PG_MASTER, \

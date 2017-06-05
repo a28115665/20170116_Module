@@ -139,3 +139,31 @@
 	</section>
 
 </div>
+
+<script type="text/ng-template" id="modifyModalContent.html">
+    <div class="modal-header">
+	    <h3 class="modal-title" id="modal-title">編輯</h3>
+	</div>
+	<div class="modal-body" id="modal-body">
+	    <form class="form-horizontal" name="modifyForm">
+			<fieldset>
+				<div class="form-group">
+			        <label class="col-md-2 control-label">航班</label>
+			        <div class="col-md-10">
+			            <input class="form-control" name="OL_FLIGHTNO" placeholder="請輸入航班(改)" ng-model="$ctrl.mdData.PG_FLIGHTNO" type="text" required>
+			        </div>
+			    </div>
+				<div class="form-group">
+			        <label class="col-md-2 control-label">主號</label>
+			        <div class="col-md-10">
+			            <input class="form-control" name="OL_MASTER" placeholder="請輸入主號(改)" ng-model="$ctrl.mdData.PG_MASTER" type="text" required>
+			        </div>
+			    </div>
+			</fieldset>
+	    </form>
+	</div>
+	<div class="modal-footer">
+	    <button class="btn btn-primary" type="button" ng-click="$ctrl.ok()" ng-disabled="!modifyForm.$valid">{{getWord('OK')}}</button>
+	    <button class="btn btn-default" type="button" ng-click="$ctrl.cancel()">{{getWord('Cancel')}}</button>
+	</div>
+</script>
