@@ -122,19 +122,19 @@ angular.module('app.selfwork').controller('EmployeeJobsCtrl', function ($scope, 
                     // $ctrl.selected = selectedItem;
                     console.log(selectedItem);
                     
-                    RestfulApi.UpdateMSSQLData({
-                        updatename: 'Update',
-                        table: 18,
-                        params: {
-                            OL_W2_PRINCIPAL : null
-                        },
-                        condition: {
-                            OL_SEQ : selectedItem.OL_SEQ,
-                            OL_CR_USER : selectedItem.OL_CR_USER
-                        }
-                    }).then(function (res) {
-                        LoadOrderList();
-                    });
+                    // RestfulApi.UpdateMSSQLData({
+                    //     updatename: 'Update',
+                    //     table: 18,
+                    //     params: {
+                    //         OL_W2_PRINCIPAL : null
+                    //     },
+                    //     condition: {
+                    //         OL_SEQ : selectedItem.OL_SEQ,
+                    //         OL_CR_USER : selectedItem.OL_CR_USER
+                    //     }
+                    // }).then(function (res) {
+                    //     LoadOrderList();
+                    // });
 
                 }, function() {
                     // $log.info('Modal dismissed at: ' + new Date());
@@ -145,45 +145,45 @@ angular.module('app.selfwork').controller('EmployeeJobsCtrl', function ($scope, 
                 console.log(row);
 
                 // 如果是第一次編輯 會先記錄編輯時間
-                if(row.entity.OL_W2_EDIT_DATETIME == null){
-                    RestfulApi.UpdateMSSQLData({
-                        updatename: 'Update',
-                        table: 18,
-                        params: {
-                            OL_W2_EDIT_DATETIME : $filter('date')(new Date(), 'yyyy-MM-dd HH:mm:ss')
-                        },
-                        condition: {
-                            OL_SEQ : row.entity.OL_SEQ,
-                            OL_CR_USER : row.entity.OL_CR_USER
-                        }
-                    }).then(function (res) {
-                        $state.transitionTo("app.selfwork.employeejobs.job001", {
-                            data: row.entity
-                        });
-                    });
-                }else{
+                // if(row.entity.OL_W2_EDIT_DATETIME == null){
+                //     RestfulApi.UpdateMSSQLData({
+                //         updatename: 'Update',
+                //         table: 18,
+                //         params: {
+                //             OL_W2_EDIT_DATETIME : $filter('date')(new Date(), 'yyyy-MM-dd HH:mm:ss')
+                //         },
+                //         condition: {
+                //             OL_SEQ : row.entity.OL_SEQ,
+                //             OL_CR_USER : row.entity.OL_CR_USER
+                //         }
+                //     }).then(function (res) {
+                //         $state.transitionTo("app.selfwork.employeejobs.job001", {
+                //             data: row.entity
+                //         });
+                //     });
+                // }else{
                     $state.transitionTo("app.selfwork.employeejobs.job001", {
                         data: row.entity
                     });
-                }
+                // }
             },
             // 完成
             closeData : function(row){
                 console.log(row);
 
-                RestfulApi.UpdateMSSQLData({
-                    updatename: 'Update',
-                    table: 18,
-                    params: {
-                        OL_W2_OK_DATETIME : $filter('date')(new Date(), 'yyyy-MM-dd HH:mm:ss')
-                    },
-                    condition: {
-                        OL_SEQ : row.entity.OL_SEQ,
-                        OL_CR_USER : row.entity.OL_CR_USER
-                    }
-                }).then(function (res) {
-                    LoadOrderList();
-                });
+                // RestfulApi.UpdateMSSQLData({
+                //     updatename: 'Update',
+                //     table: 18,
+                //     params: {
+                //         OL_W2_OK_DATETIME : $filter('date')(new Date(), 'yyyy-MM-dd HH:mm:ss')
+                //     },
+                //     condition: {
+                //         OL_SEQ : row.entity.OL_SEQ,
+                //         OL_CR_USER : row.entity.OL_CR_USER
+                //     }
+                // }).then(function (res) {
+                //     LoadOrderList();
+                // });
             },
             // 刪除報機單
             deleteData : function(row){
@@ -195,63 +195,63 @@ angular.module('app.selfwork').controller('EmployeeJobsCtrl', function ($scope, 
             rejectData : function(row){
                 console.log(row);
 
-                RestfulApi.UpdateMSSQLData({
-                    updatename: 'Update',
-                    table: 18,
-                    params: {
-                        OL_W3_PRINCIPAL : null
-                    },
-                    condition: {
-                        OL_SEQ : row.entity.OL_SEQ,
-                        OL_CR_USER : row.entity.OL_CR_USER
-                    }
-                }).then(function (res) {
-                    LoadOrderList();
-                });
+                // RestfulApi.UpdateMSSQLData({
+                //     updatename: 'Update',
+                //     table: 18,
+                //     params: {
+                //         OL_W3_PRINCIPAL : null
+                //     },
+                //     condition: {
+                //         OL_SEQ : row.entity.OL_SEQ,
+                //         OL_CR_USER : row.entity.OL_CR_USER
+                //     }
+                // }).then(function (res) {
+                //     LoadOrderList();
+                // });
             },
             // 編輯
             modifyData : function(row){
                 console.log(row);
 
-                if(row.entity.OL_W3_EDIT_DATETIME == null){
-                    RestfulApi.UpdateMSSQLData({
-                        updatename: 'Update',
-                        table: 18,
-                        params: {
-                            OL_W3_EDIT_DATETIME : $filter('date')(new Date(), 'yyyy-MM-dd HH:mm:ss')
-                        },
-                        condition: {
-                            OL_SEQ : row.entity.OL_SEQ,
-                            OL_CR_USER : row.entity.OL_CR_USER
-                        }
-                    }).then(function (res) {
-                        $state.transitionTo("app.selfwork.employeejobs.job002", {
-                            data: row.entity
-                        });
-                    });
-                }else{
+                // if(row.entity.OL_W3_EDIT_DATETIME == null){
+                //     RestfulApi.UpdateMSSQLData({
+                //         updatename: 'Update',
+                //         table: 18,
+                //         params: {
+                //             OL_W3_EDIT_DATETIME : $filter('date')(new Date(), 'yyyy-MM-dd HH:mm:ss')
+                //         },
+                //         condition: {
+                //             OL_SEQ : row.entity.OL_SEQ,
+                //             OL_CR_USER : row.entity.OL_CR_USER
+                //         }
+                //     }).then(function (res) {
+                //         $state.transitionTo("app.selfwork.employeejobs.job002", {
+                //             data: row.entity
+                //         });
+                //     });
+                // }else{
                     $state.transitionTo("app.selfwork.employeejobs.job002", {
                         data: row.entity
                     });
-                }
+                // }
             },
             // 結單
             closeData : function(row){
                 console.log(row);
 
-                RestfulApi.UpdateMSSQLData({
-                    updatename: 'Update',
-                    table: 18,
-                    params: {
-                        OL_W3_OK_DATETIME : $filter('date')(new Date(), 'yyyy-MM-dd HH:mm:ss')
-                    },
-                    condition: {
-                        OL_SEQ : row.entity.OL_SEQ,
-                        OL_CR_USER : row.entity.OL_CR_USER
-                    }
-                }).then(function (res) {
-                    LoadOrderList();
-                });
+                // RestfulApi.UpdateMSSQLData({
+                //     updatename: 'Update',
+                //     table: 18,
+                //     params: {
+                //         OL_W3_OK_DATETIME : $filter('date')(new Date(), 'yyyy-MM-dd HH:mm:ss')
+                //     },
+                //     condition: {
+                //         OL_SEQ : row.entity.OL_SEQ,
+                //         OL_CR_USER : row.entity.OL_CR_USER
+                //     }
+                // }).then(function (res) {
+                //     LoadOrderList();
+                // });
             },
             // 刪除銷艙單
             deleteData : function(row){
@@ -263,63 +263,63 @@ angular.module('app.selfwork').controller('EmployeeJobsCtrl', function ($scope, 
             rejectData : function(row){
                 console.log(row);
 
-                RestfulApi.UpdateMSSQLData({
-                    updatename: 'Update',
-                    table: 18,
-                    params: {
-                        OL_W1_PRINCIPAL : null
-                    },
-                    condition: {
-                        OL_SEQ : row.entity.OL_SEQ,
-                        OL_CR_USER : row.entity.OL_CR_USER
-                    }
-                }).then(function (res) {
-                    LoadOrderList();
-                });
+                // RestfulApi.UpdateMSSQLData({
+                //     updatename: 'Update',
+                //     table: 18,
+                //     params: {
+                //         OL_W1_PRINCIPAL : null
+                //     },
+                //     condition: {
+                //         OL_SEQ : row.entity.OL_SEQ,
+                //         OL_CR_USER : row.entity.OL_CR_USER
+                //     }
+                // }).then(function (res) {
+                //     LoadOrderList();
+                // });
             },
             // 編輯
             modifyData : function(row){
                 console.log(row);
 
-                if(row.entity.OL_W1_EDIT_DATETIME == null){
-                    RestfulApi.UpdateMSSQLData({
-                        updatename: 'Update',
-                        table: 18,
-                        params: {
-                            OL_W1_EDIT_DATETIME : $filter('date')(new Date(), 'yyyy-MM-dd HH:mm:ss')
-                        },
-                        condition: {
-                            OL_SEQ : row.entity.OL_SEQ,
-                            OL_CR_USER : row.entity.OL_CR_USER
-                        }
-                    }).then(function (res) {
-                        $state.transitionTo("app.selfwork.employeejobs.job003", {
-                            data: row.entity
-                        });
-                    });
-                }else{
+                // if(row.entity.OL_W1_EDIT_DATETIME == null){
+                //     RestfulApi.UpdateMSSQLData({
+                //         updatename: 'Update',
+                //         table: 18,
+                //         params: {
+                //             OL_W1_EDIT_DATETIME : $filter('date')(new Date(), 'yyyy-MM-dd HH:mm:ss')
+                //         },
+                //         condition: {
+                //             OL_SEQ : row.entity.OL_SEQ,
+                //             OL_CR_USER : row.entity.OL_CR_USER
+                //         }
+                //     }).then(function (res) {
+                //         $state.transitionTo("app.selfwork.employeejobs.job003", {
+                //             data: row.entity
+                //         });
+                //     });
+                // }else{
                     $state.transitionTo("app.selfwork.employeejobs.job003", {
                         data: row.entity
                     });
-                }
+                // }
             },
             // 結單
             closeData : function(row){
                 console.log(row);
 
-                RestfulApi.UpdateMSSQLData({
-                    updatename: 'Update',
-                    table: 18,
-                    params: {
-                        OL_W1_OK_DATETIME : $filter('date')(new Date(), 'yyyy-MM-dd HH:mm:ss')
-                    },
-                    condition: {
-                        OL_SEQ : row.entity.OL_SEQ,
-                        OL_CR_USER : row.entity.OL_CR_USER
-                    }
-                }).then(function (res) {
-                    LoadOrderList();
-                });
+                // RestfulApi.UpdateMSSQLData({
+                //     updatename: 'Update',
+                //     table: 18,
+                //     params: {
+                //         OL_W1_OK_DATETIME : $filter('date')(new Date(), 'yyyy-MM-dd HH:mm:ss')
+                //     },
+                //     condition: {
+                //         OL_SEQ : row.entity.OL_SEQ,
+                //         OL_CR_USER : row.entity.OL_CR_USER
+                //     }
+                // }).then(function (res) {
+                //     LoadOrderList();
+                // });
             },
             // 刪除派送單
             deleteData : function(row){
@@ -395,8 +395,6 @@ angular.module('app.selfwork').controller('EmployeeJobsCtrl', function ($scope, 
         }).then(function (res){
             console.log(res["returnData"]);
             $vm.selfWorkData = res["returnData"];
-        }).finally(function() {
-            HandleWindowResize($vm.selfWorkGridApi);
         });    
     };
 
