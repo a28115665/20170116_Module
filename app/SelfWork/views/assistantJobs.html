@@ -30,10 +30,16 @@
 
 				        <ul id="widget-tab-1" class="nav pull-right" ng-class="{'nav-tabs' : !!ShowTabs, 'nav-pills': !ShowTabs }">
 				            <li ng-class="$vm.TabSwitch('hr1')" ng-click="$vm.defaultTab='hr1';$vm.LoadData()">
-				                <a data-toggle="tab" href="#hr1"> <i class="fa fa-lg fa-hand-o-down"></i> <span class="hidden-mobile hidden-tablet"> 改走 </span> </a>
+				                <a data-toggle="tab" href="#hr1"> <i class="fa fa-lg fa-cube"></i> <span class="hidden-mobile hidden-tablet"> 銷艙單 </span> </a>
 				            </li>
 				            <li ng-class="$vm.TabSwitch('hr2')" ng-click="$vm.defaultTab='hr2';$vm.LoadData()">
-				                <a data-toggle="tab" href="#hr2"> <i class="fa fa-lg fa-puzzle-piece"></i> <span class="hidden-mobile hidden-tablet"> 拉貨 </span></a>
+				                <a data-toggle="tab" href="#hr2"> <i class="fa fa-lg fa-question"></i> <span class="hidden-mobile hidden-tablet"> 主號待補 </span> </a>
+				            </li>
+				            <li ng-class="$vm.TabSwitch('hr3')" ng-click="$vm.defaultTab='hr3';$vm.LoadData()">
+				                <a data-toggle="tab" href="#hr3"> <i class="fa fa-lg fa-hand-o-down"></i> <span class="hidden-mobile hidden-tablet"> 改走 </span> </a>
+				            </li>
+				            <li ng-class="$vm.TabSwitch('hr4')" ng-click="$vm.defaultTab='hr4';$vm.LoadData()">
+				                <a data-toggle="tab" href="#hr4"> <i class="fa fa-lg fa-puzzle-piece"></i> <span class="hidden-mobile hidden-tablet"> 拉貨 </span></a>
 				            </li>
 				        </ul>
 
@@ -46,62 +52,15 @@
 							<!-- widget body text-->
 				            <div class="tab-content no-padding">
 				                <div class="tab-pane fade in " ng-class="$vm.TabSwitch('hr1')" id="hr1">
-
-									<!-- <div class="widget-body-toolbar">
-									    <div class="row">
-									        <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
-									        	<form class="form-inline" role="form">
-									                <fieldset>
-									                    <div class="form-group">
-															<i class="fa fa-circle-o"> 已派單</i>
-															<i class="fa fa-circle text-warning"> 已編輯</i>
-															<i class="fa fa-circle text-success"> 已完成</i>
-									                    </div>
-									                </fieldset>
-									            </form>
-									        </div>
-									        <div class="col-xs-12 col-sm-12 col-md-9 col-lg-9 text-right">
-									        	<form class="form-inline" role="form">
-									                <fieldset>
-									                    <div class="form-group">
-															<select class="form-control" ng-model="$vm.selectAssignDept" ng-change="$vm.LoadPrincipal()" ng-options="data.value as data.label for data in $vm.assignGradeData">
-			  												</select>
-									                    </div>
-									                    <div class="form-group">
-															<select class="form-control" ng-model="$vm.selectAssignPrincipal" ng-options="data.value as data.label for data in $vm.assignPrincipalData[$vm.selectAssignDept]">
-			  													<option value="">-- 請選擇負責人 --</option>
-			  												</select>
-									                    </div>
-									                    <div class="form-group">
-												            <button class="btn btn-primary"
-												            		ng-disabled="$vm.orderListGridApi.selection.getSelectedRows().length == 0 || $vm.selectAssignPrincipal == undefined"
-												            		ng-click="$vm.CustomizeAssign()">
-												                自訂指派
-												            </button>
-									                    </div>
-									                    <div class="form-group">
-												            <button class="btn btn-primary"
-												            		ng-click="$vm.AutoAssign()">
-												                自動分派
-												            </button>
-									                    </div>
-									                    <div class="form-group">
-												            <button class="btn btn-danger"
-												            		ng-disabled="$vm.orderListGridApi.selection.getSelectedRows().length == 0"
-												            		ng-click="$vm.CancelPrincipal()">
-												                取消/取回
-												            </button>
-									                    </div>
-									                </fieldset>
-									            </form>
-									        </div>
-									    </div>
-									</div> -->
-
-									<!-- <div id="grid1" ui-grid="$vm.orderListOptions" class="my-ui-grid" ui-grid-pagination ui-grid-resize-columns ui-grid-selection ui-grid-auto-resize></div> -->
-
+									<div id="grid1" ui-grid="$vm.flightItemOptions" class="my-ui-grid" ui-grid-pagination ui-grid-resize-columns ui-grid-auto-resize></div>
 				                </div>
 				                <div class="tab-pane fade in " ng-class="$vm.TabSwitch('hr2')" id="hr2">
+				                	主號待補
+				                </div>
+				                <div class="tab-pane fade in " ng-class="$vm.TabSwitch('hr3')" id="hr3">
+									改走
+				                </div>
+				                <div class="tab-pane fade in " ng-class="$vm.TabSwitch('hr4')" id="hr4">
 
 									<!-- <div class="widget-body-toolbar">
 									    <div class="row">
@@ -140,7 +99,72 @@
 
 </div>
 
-<script type="text/ng-template" id="modifyModalContent.html">
+<script type="text/ng-template" id="opWorkMenu.html">
+    <div class="modal-header bg-color-green">
+        <h3 class="modal-title text-center">
+            <strong class=" txt-color-white">{{$ctrl.row.entity.name}}</strong>
+        </h3>
+    </div>
+    <div class="modal-body text-center"> 
+        <div class="row" ng-if="$ctrl.row.entity.name == '銷艙單'"> 
+        	<button type="button" class="btn btn-info btn-lg btn-block" ng-click="$ctrl.appScope.gridMethodForJob002.viewData($ctrl.row);$ctrl.cancel()"> 
+                檢視 
+            </button>
+            <button type="button" class="btn btn-primary btn-lg btn-block" ng-click="$ctrl.appScope.gridMethodForJob002.closeData($ctrl.row);$ctrl.cancel()" ng-disabled="$ctrl.row.entity.W3_FDATETIME != null"> 
+                完成 
+            </button> 
+        </div> 
+    </div>
+</script>
+
+<script type="text/ng-template" id="modifyOrderListModalContent.html">
+    <div class="modal-header">
+	    <h3 class="modal-title" id="modal-title">修改</h3>
+	</div>
+	<div class="modal-body" id="modal-body">
+	    <form class="form-horizontal" name="modifyForm">
+			<fieldset>
+				<div class="form-group">
+			        <label class="col-md-2 control-label">進口日期</label>
+			        <div class="col-md-10">
+			        	<input class="form-control" name="OL_IMPORTDT" type="text" ng-model="$ctrl.mdData.OL_IMPORTDT" ui-mask="9999-99-99" ui-mask-placeholder ui-mask-placeholder-char="_" placeholder="請輸入公佈日期 (西元 年-月-日)" model-view-value="true" is-date required/>
+			        </div>
+			    </div>
+				<div class="form-group">
+			        <label class="col-md-2 control-label">行家</label>
+			        <div class="col-md-10">
+						<select class="form-control" name="OL_CO_CODE" ng-model="$ctrl.mdData.OL_CO_CODE" ng-options="data.value as data.label for data in $ctrl.compy" ng-disabled="$ctrl.compy.length == 0" required>
+						</select>
+			        </div>
+			    </div>
+				<div class="form-group">
+			        <label class="col-md-2 control-label">航班</label>
+			        <div class="col-md-10">
+			            <input class="form-control" name="OL_FLIGHTNO" placeholder="請輸入航班" ng-model="$ctrl.mdData.OL_FLIGHTNO" type="text" required>
+			        </div>
+			    </div>
+				<div class="form-group">
+			        <label class="col-md-2 control-label">主號</label>
+			        <div class="col-md-10">
+			            <input class="form-control" name="OL_MASTER" placeholder="請輸入主號" ng-model="$ctrl.mdData.OL_MASTER" type="text" required>
+			        </div>
+			    </div>
+				<div class="form-group">
+			        <label class="col-md-2 control-label">起運國別</label>
+			        <div class="col-md-10">
+			            <input class="form-control" name="OL_COUNTRY" placeholder="請輸入起運國別" ng-model="$ctrl.mdData.OL_COUNTRY" type="text" required>
+			        </div>
+			    </div>
+			</fieldset>
+	    </form>
+	</div>
+	<div class="modal-footer">
+	    <button class="btn btn-primary" type="button" ng-click="$ctrl.ok()" ng-disabled="!modifyForm.$valid">{{getWord('OK')}}</button>
+	    <button class="btn btn-default" type="button" ng-click="$ctrl.cancel()">{{getWord('Cancel')}}</button>
+	</div>
+</script>
+
+<script type="text/ng-template" id="modifyPullGoodsModalContent.html">
     <div class="modal-header">
 	    <h3 class="modal-title" id="modal-title">編輯</h3>
 	</div>

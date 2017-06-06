@@ -93,53 +93,53 @@ angular.module('app.selfwork').controller('EmployeeJobsCtrl', function ($scope, 
         },
         gridMethodForJob001 : {
             //退件
-            rejectData : function(row){
-                console.log(row);
+            // rejectData : function(row){
+            //     console.log(row);
 
-                var modalInstance = $uibModal.open({
-                    animation: true,
-                    ariaLabelledBy: 'modal-title',
-                    ariaDescribedBy: 'modal-body',
-                    template: $templateCache.get('isChecked'),
-                    controller: 'IsCheckedModalInstanceCtrl',
-                    controllerAs: '$ctrl',
-                    size: 'sm',
-                    windowClass: 'center-modal',
-                    // appendTo: parentElem,
-                    resolve: {
-                        items: function() {
-                            return row.entity;
-                        },
-                        show: function(){
-                            return {
-                                title : "是否退單"
-                            }
-                        }
-                    }
-                });
+            //     var modalInstance = $uibModal.open({
+            //         animation: true,
+            //         ariaLabelledBy: 'modal-title',
+            //         ariaDescribedBy: 'modal-body',
+            //         template: $templateCache.get('isChecked'),
+            //         controller: 'IsCheckedModalInstanceCtrl',
+            //         controllerAs: '$ctrl',
+            //         size: 'sm',
+            //         windowClass: 'center-modal',
+            //         // appendTo: parentElem,
+            //         resolve: {
+            //             items: function() {
+            //                 return row.entity;
+            //             },
+            //             show: function(){
+            //                 return {
+            //                     title : "是否退單"
+            //                 }
+            //             }
+            //         }
+            //     });
 
-                modalInstance.result.then(function(selectedItem) {
-                    // $ctrl.selected = selectedItem;
-                    console.log(selectedItem);
+            //     modalInstance.result.then(function(selectedItem) {
+            //         // $ctrl.selected = selectedItem;
+            //         console.log(selectedItem);
                     
-                    // RestfulApi.UpdateMSSQLData({
-                    //     updatename: 'Update',
-                    //     table: 18,
-                    //     params: {
-                    //         OL_W2_PRINCIPAL : null
-                    //     },
-                    //     condition: {
-                    //         OL_SEQ : selectedItem.OL_SEQ,
-                    //         OL_CR_USER : selectedItem.OL_CR_USER
-                    //     }
-                    // }).then(function (res) {
-                    //     LoadOrderList();
-                    // });
+            //         // RestfulApi.UpdateMSSQLData({
+            //         //     updatename: 'Update',
+            //         //     table: 18,
+            //         //     params: {
+            //         //         OL_W2_PRINCIPAL : null
+            //         //     },
+            //         //     condition: {
+            //         //         OL_SEQ : selectedItem.OL_SEQ,
+            //         //         OL_CR_USER : selectedItem.OL_CR_USER
+            //         //     }
+            //         // }).then(function (res) {
+            //         //     LoadOrderList();
+            //         // });
 
-                }, function() {
-                    // $log.info('Modal dismissed at: ' + new Date());
-                });
-            },
+            //     }, function() {
+            //         // $log.info('Modal dismissed at: ' + new Date());
+            //     });
+            // },
             // 編輯
             modifyData : function(row){
                 console.log(row);
@@ -187,19 +187,50 @@ angular.module('app.selfwork').controller('EmployeeJobsCtrl', function ($scope, 
             closeData : function(row){
                 console.log(row);
 
-                // RestfulApi.UpdateMSSQLData({
-                //     updatename: 'Update',
-                //     table: 18,
-                //     params: {
-                //         OL_W2_OK_DATETIME : $filter('date')(new Date(), 'yyyy-MM-dd HH:mm:ss')
-                //     },
-                //     condition: {
-                //         OL_SEQ : row.entity.OL_SEQ,
-                //         OL_CR_USER : row.entity.OL_CR_USER
-                //     }
-                // }).then(function (res) {
-                //     LoadOrderList();
-                // });
+                var modalInstance = $uibModal.open({
+                    animation: true,
+                    ariaLabelledBy: 'modal-title',
+                    ariaDescribedBy: 'modal-body',
+                    template: $templateCache.get('isChecked'),
+                    controller: 'IsCheckedModalInstanceCtrl',
+                    controllerAs: '$ctrl',
+                    size: 'sm',
+                    windowClass: 'center-modal',
+                    // appendTo: parentElem,
+                    resolve: {
+                        items: function() {
+                            return row.entity;
+                        },
+                        show: function(){
+                            return {
+                                title : "是否完成"
+                            }
+                        }
+                    }
+                });
+
+                modalInstance.result.then(function(selectedItem) {
+                    // $ctrl.selected = selectedItem;
+                    console.log(selectedItem);
+
+                    RestfulApi.UpdateMSSQLData({
+                        updatename: 'Update',
+                        table: 22,
+                        params: {
+                            OE_FDATETIME : $filter('date')(new Date(), 'yyyy-MM-dd HH:mm:ss')
+                        },
+                        condition: {
+                            OE_SEQ : selectedItem.OL_SEQ,
+                            OE_TYPE : 'R',
+                            OE_PRINCIPAL : $vm.profile.U_ID
+                        }
+                    }).then(function (res) {
+                        LoadOrderList();
+                    });
+
+                }, function() {
+                    // $log.info('Modal dismissed at: ' + new Date());
+                });
             },
             // 修改
             // 已編輯且完成就可以讓所有人修改
@@ -211,7 +242,46 @@ angular.module('app.selfwork').controller('EmployeeJobsCtrl', function ($scope, 
             },
             // 刪除報機單
             deleteData : function(row){
+                var modalInstance = $uibModal.open({
+                    animation: true,
+                    ariaLabelledBy: 'modal-title',
+                    ariaDescribedBy: 'modal-body',
+                    template: $templateCache.get('isChecked'),
+                    controller: 'IsCheckedModalInstanceCtrl',
+                    controllerAs: '$ctrl',
+                    size: 'sm',
+                    windowClass: 'center-modal',
+                    // appendTo: parentElem,
+                    resolve: {
+                        items: function() {
+                            return row.entity;
+                        },
+                        show: function(){
+                            return {
+                                title : "是否刪除"
+                            }
+                        }
+                    }
+                });
 
+                modalInstance.result.then(function(selectedItem) {
+                    // $ctrl.selected = selectedItem;
+                    console.log(selectedItem);
+
+                    RestfulApi.DeleteMSSQLData({
+                        deletename: 'Delete',
+                        table: 9,
+                        params: {
+                            IL_SEQ : selectedItem.OL_SEQ
+                        }
+                    }).then(function (res) {
+                        toaster.pop('info', '訊息', '報機單刪除成功', 3000);
+                        LoadOrderList();
+                    });
+
+                }, function() {
+                    // $log.info('Modal dismissed at: ' + new Date());
+                });
             }
         },
         gridMethodForJob002 : {
@@ -253,31 +323,31 @@ angular.module('app.selfwork').controller('EmployeeJobsCtrl', function ($scope, 
                 $vm.selfWorkGridApi = gridApi;
             }
         },
-        Update : function(entity){
-            // create a fake promise - normally you'd use the promise returned by $http or $resource
-            var promise = $q.defer();
-            $vm.selfWorkGridApi.rowEdit.setSavePromise( entity, promise.promise );
+        // Update : function(entity){
+        //     // create a fake promise - normally you'd use the promise returned by $http or $resource
+        //     var promise = $q.defer();
+        //     $vm.selfWorkGridApi.rowEdit.setSavePromise( entity, promise.promise );
          
-            RestfulApi.UpdateMSSQLData({
-                updatename: 'Update',
-                table: 18,
-                params: {
-                    OL_IMPORTDT   : entity.OL_IMPORTDT,
-                    OL_CO_CODE    : entity.OL_CO_CODE,
-                    OL_FLIGHTNO   : entity.OL_FLIGHTNO,
-                    OL_MASTER     : entity.OL_MASTER,
-                    OL_COUNTRY    : entity.OL_COUNTRY
-                },
-                condition: {
-                    OL_SEQ        : entity.OL_SEQ
-                }
-            }).then(function (res) {
-                promise.resolve();
-            }, function (err) {
-                toaster.pop('danger', '錯誤', '更新失敗', 3000);
-                promise.reject();
-            });
-        }
+        //     RestfulApi.UpdateMSSQLData({
+        //         updatename: 'Update',
+        //         table: 18,
+        //         params: {
+        //             OL_IMPORTDT   : entity.OL_IMPORTDT,
+        //             OL_CO_CODE    : entity.OL_CO_CODE,
+        //             OL_FLIGHTNO   : entity.OL_FLIGHTNO,
+        //             OL_MASTER     : entity.OL_MASTER,
+        //             OL_COUNTRY    : entity.OL_COUNTRY
+        //         },
+        //         condition: {
+        //             OL_SEQ        : entity.OL_SEQ
+        //         }
+        //     }).then(function (res) {
+        //         promise.resolve();
+        //     }, function (err) {
+        //         toaster.pop('danger', '錯誤', '更新失敗', 3000);
+        //         promise.reject();
+        //     });
+        // }
     });
 
     function LoadOrderList(){

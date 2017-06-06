@@ -51,7 +51,9 @@ angular.module('app.selfwork').config(function ($stateProvider){
                 controller: 'AssistantJobsCtrl',
                 controllerAs: '$vm',
                 resolve: {
-                    
+                    compy : function(Compy){
+                        return Compy.get();
+                    }
                 }
             }
         }

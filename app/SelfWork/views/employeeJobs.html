@@ -59,7 +59,7 @@
 
 							<div class="table-responsive">
 
-								<div id="grid1" ui-grid="$vm.orderListOptions" class="my-ui-grid" ui-grid-pagination ui-grid-resize-columns ui-grid-edit ui-grid-row-edit></div>
+								<div id="grid1" ui-grid="$vm.orderListOptions" class="my-ui-grid" ui-grid-pagination ui-grid-resize-columns></div>
 
 							</div>
 
@@ -94,15 +94,15 @@
             <button type="button" class="btn btn-primary btn-lg btn-block" ng-click="$ctrl.appScope.gridMethodForJob001.closeData($ctrl.row);$ctrl.cancel()" ng-disabled="($ctrl.row.entity.W2_PRINCIPAL != $ctrl.appScope.profile.U_ID || $ctrl.row.entity.W2_FDATETIME != null)"> 
                 完成 
             </button> 
-            <button type="button" class="btn btn-default btn-lg btn-block" ng-click="$ctrl.appScope.gridMethodForJob001.fixData($ctrl.row);$ctrl.cancel()" ng-disabled="$ctrl.row.entity.W2_FDATETIME == null"> 
+            <button type="button" class="btn btn-warning btn-lg btn-block" ng-click="$ctrl.appScope.gridMethodForJob001.fixData($ctrl.row);$ctrl.cancel()" ng-disabled="$ctrl.row.entity.W2_FDATETIME == null"> 
                 修改 
             </button> 
-            <button type="button" class="btn btn-danger btn-lg btn-block" ng-click="$ctrl.appScope.gridMethodForJob001.rejectData($ctrl.row);$ctrl.cancel()"> 
+            <button type="button" class="btn btn-danger btn-lg btn-block" ng-click="$ctrl.appScope.gridMethodForJob001.deleteData($ctrl.row);$ctrl.cancel()"> 
                 刪除 
             </button> 
         </div> 
         <div class="row" ng-if="$ctrl.row.entity.name == '銷艙單'"> 
-        	<button type="button" class="btn btn-primary btn-lg btn-block" ng-click="$ctrl.appScope.gridMethodForJob002.viewData($ctrl.row);$ctrl.cancel()"> 
+        	<button type="button" class="btn btn-info btn-lg btn-block" ng-click="$ctrl.appScope.gridMethodForJob002.viewData($ctrl.row);$ctrl.cancel()"> 
                 檢視 
             </button>
             <!--<button type="button" class="btn btn-danger btn-lg btn-block" ng-click="$ctrl.appScope.gridMethodForJob002.rejectData($ctrl.row);$ctrl.cancel()"> 
