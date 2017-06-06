@@ -59,6 +59,27 @@ angular.module('app.selfwork').config(function ($stateProvider){
         }
     })
 
+    .state('app.selfwork.assistantjobs.job002', {
+        url: '/job002',
+        data: {
+            title: 'Job002'
+        },
+        params: { 
+            data: null
+        },
+        parent: 'app.selfwork.assistantjobs',
+        views: {
+            "content@app" : {
+                templateUrl: 'app/SelfWork/views/jobs/job002.html',
+                controller: 'Job002Ctrl',
+                controllerAs: '$vm',
+                resolve: {
+
+                }
+            }
+        }
+    })
+
     .state('app.selfwork.employeejobs', {
         url: '/selfwork/employeejobs',
         data: {
@@ -129,6 +150,46 @@ angular.module('app.selfwork').config(function ($stateProvider){
             data: null
         },
         parent: 'app.selfwork.employeejobs',
+        views: {
+            "content@app" : {
+                templateUrl: 'app/SelfWork/views/jobs/job003.html',
+                controller: 'Job003Ctrl',
+                controllerAs: '$vm',
+                resolve: {
+
+                }
+            }
+        }
+    })
+
+    .state('app.selfwork.deliveryjobs', {
+        url: '/selfwork/deliveryjobs',
+        data: {
+            title: 'DeliveryJobs'
+        },
+        views: {
+            "content@app" : {
+                templateUrl: 'app/SelfWork/views/deliveryJobs.html',
+                controller: 'DeliveryJobsCtrl',
+                controllerAs: '$vm',
+                resolve: {
+                    compy: function(Compy){
+                        return Compy.get();
+                    }
+                }
+            }
+        }
+    })
+
+    .state('app.selfwork.deliveryjobs.job003', {
+        url: '/job003',
+        data: {
+            title: 'Job003'
+        },
+        params: { 
+            data: null
+        },
+        parent: 'app.selfwork.deliveryjobs',
         views: {
             "content@app" : {
                 templateUrl: 'app/SelfWork/views/jobs/job003.html',

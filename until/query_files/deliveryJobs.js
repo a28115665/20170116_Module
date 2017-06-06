@@ -2,25 +2,8 @@ module.exports = function(pQueryname, pParams){
 	var _SQLCommand = "";
 
 	switch(pQueryname){
-		case "SelectPullGoods":
-			_SQLCommand += "SELECT OL_CO_CODE, \
-								   OL_MASTER, \
-								   OL_FLIGHTNO, \
-								   OL_IMPORTDT, \
-								   OL_COUNTRY, \
-								   PG_SEQ, \
-								   PG_BAGNO, \
-								   PG_MOVED, \
-								   PG_MASTER, \
-								   PG_FLIGHTNO \
-							FROM ORDER_LIST \
-							JOIN PULL_GOODS ON \
-							PG_SEQ = OL_SEQ \
-						    WHERE 1=1"
+		case "SelectDeliveryItem":
 
-			break;
-
-		case "SelectOrderList":
 			_SQLCommand += "SELECT OL_SEQ, \
 									OL_CO_CODE, \
 									OL_MASTER, \
@@ -63,6 +46,21 @@ module.exports = function(pQueryname, pParams){
 			}
 
 			_SQLCommand += " ORDER BY OL_CR_DATETIME DESC ";
+		
+			break;
+		case "SelectOrderEditor":
+			_SQLCommand += "SELECT * \
+							FROM ORDER_EDITOR \
+							WHERE 1=1 ";
+
+			if(pParams["OE_SEQ"] !== undefined){
+				_SQLCommand += " AND OE_SEQ = @OE_SEQ ";
+			}
+			if(pParams["OE_TYPE"] !== undefined){
+				_SQLCommand += " AND OE_TYPE = @OE_TYPE ";
+			}
+
+			break;
 	}
 
 	return _SQLCommand;

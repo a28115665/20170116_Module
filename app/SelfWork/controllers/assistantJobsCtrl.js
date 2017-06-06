@@ -116,7 +116,7 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
         gridMethodForJob002 : {
             // 檢視
             viewData : function(row){
-                $state.transitionTo("app.selfwork.employeejobs.job002", {
+                $state.transitionTo("app.selfwork.assistantjobs.job002", {
                     data: row.entity
                 });
             },
@@ -180,7 +180,6 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
                 },
                 { name: 'OL_FLIGHTNO' ,  displayName: '航班' },
                 { name: 'OL_MASTER'   ,  displayName: '主號' },
-                { name: 'OL_COUNT'    ,  displayName: '報機單(袋數)', enableCellEdit: false },
                 { name: 'OL_COUNTRY'  ,  displayName: '起運國別' },
                 // { name: 'ITEM_LIST'          ,  displayName: '報機單', enableFiltering: false, width: '8%', cellTemplate: $templateCache.get('accessibilityToOperaForJob001') },
                 { name: 'FLIGHT_ITEM_LIST'   ,  displayName: '銷艙單', enableFiltering: false, width: '8%', cellTemplate: $templateCache.get('accessibilityToOperaForJob002') },
