@@ -145,27 +145,43 @@ angular.module('app.selfwork').controller('EmployeeJobsCtrl', function ($scope, 
                 console.log(row);
 
                 // 如果是第一次編輯 會先記錄編輯時間
-                // if(row.entity.OL_W2_EDIT_DATETIME == null){
-                //     RestfulApi.UpdateMSSQLData({
-                //         updatename: 'Update',
-                //         table: 18,
-                //         params: {
-                //             OL_W2_EDIT_DATETIME : $filter('date')(new Date(), 'yyyy-MM-dd HH:mm:ss')
-                //         },
-                //         condition: {
-                //             OL_SEQ : row.entity.OL_SEQ,
-                //             OL_CR_USER : row.entity.OL_CR_USER
-                //         }
-                //     }).then(function (res) {
-                //         $state.transitionTo("app.selfwork.employeejobs.job001", {
-                //             data: row.entity
-                //         });
-                //     });
-                // }else{
+                if(row.entity.W2_EDATETIME == null){
+                    // 檢查是否有人編輯
+                    RestfulApi.SearchMSSQLData({
+                        querymain: 'employeeJobs',
+                        queryname: 'SelectOrderEditor',
+                        params: {
+                            OE_SEQ : row.entity.OL_SEQ,
+                            OE_TYPE : 'R'
+                        }
+                    }).then(function (res){
+                        // 有 警告並且重Load資料
+                        // 沒有 新增資料到DB
+                        if(res["returnData"].length > 0){
+                            LoadOrderList();
+                            toaster.pop('warning', '警告', '此單已有人編輯', 3000);
+                        }else{
+                            RestfulApi.InsertMSSQLData({
+                                insertname: 'Insert',
+                                table: 22,
+                                params: {
+                                    OE_SEQ : row.entity.OL_SEQ,
+                                    OE_TYPE : 'R', // 報機單
+                                    OE_PRINCIPAL : $vm.profile.U_ID,
+                                    OE_EDATETIME : $filter('date')(new Date(), 'yyyy-MM-dd HH:mm:ss')
+                                }
+                            }).then(function (res) {
+                                $state.transitionTo("app.selfwork.employeejobs.job001", {
+                                    data: row.entity
+                                });
+                            });
+                        }
+                    });
+                }else{
                     $state.transitionTo("app.selfwork.employeejobs.job001", {
                         data: row.entity
                     });
-                // }
+                }
             },
             // 完成
             closeData : function(row){
@@ -185,145 +201,26 @@ angular.module('app.selfwork').controller('EmployeeJobsCtrl', function ($scope, 
                 //     LoadOrderList();
                 // });
             },
+            // 修改
+            // 已編輯且完成就可以讓所有人修改
+            fixData : function(row){
+                console.log(row);
+                $state.transitionTo("app.selfwork.employeejobs.job001", {
+                    data: row.entity
+                });
+            },
             // 刪除報機單
             deleteData : function(row){
 
             }
         },
         gridMethodForJob002 : {
-            // 退件
-            rejectData : function(row){
+            // 檢視
+            viewData : function(row){
                 console.log(row);
-
-                // RestfulApi.UpdateMSSQLData({
-                //     updatename: 'Update',
-                //     table: 18,
-                //     params: {
-                //         OL_W3_PRINCIPAL : null
-                //     },
-                //     condition: {
-                //         OL_SEQ : row.entity.OL_SEQ,
-                //         OL_CR_USER : row.entity.OL_CR_USER
-                //     }
-                // }).then(function (res) {
-                //     LoadOrderList();
-                // });
-            },
-            // 編輯
-            modifyData : function(row){
-                console.log(row);
-
-                // if(row.entity.OL_W3_EDIT_DATETIME == null){
-                //     RestfulApi.UpdateMSSQLData({
-                //         updatename: 'Update',
-                //         table: 18,
-                //         params: {
-                //             OL_W3_EDIT_DATETIME : $filter('date')(new Date(), 'yyyy-MM-dd HH:mm:ss')
-                //         },
-                //         condition: {
-                //             OL_SEQ : row.entity.OL_SEQ,
-                //             OL_CR_USER : row.entity.OL_CR_USER
-                //         }
-                //     }).then(function (res) {
-                //         $state.transitionTo("app.selfwork.employeejobs.job002", {
-                //             data: row.entity
-                //         });
-                //     });
-                // }else{
-                    $state.transitionTo("app.selfwork.employeejobs.job002", {
-                        data: row.entity
-                    });
-                // }
-            },
-            // 結單
-            closeData : function(row){
-                console.log(row);
-
-                // RestfulApi.UpdateMSSQLData({
-                //     updatename: 'Update',
-                //     table: 18,
-                //     params: {
-                //         OL_W3_OK_DATETIME : $filter('date')(new Date(), 'yyyy-MM-dd HH:mm:ss')
-                //     },
-                //     condition: {
-                //         OL_SEQ : row.entity.OL_SEQ,
-                //         OL_CR_USER : row.entity.OL_CR_USER
-                //     }
-                // }).then(function (res) {
-                //     LoadOrderList();
-                // });
-            },
-            // 刪除銷艙單
-            deleteData : function(row){
-
-            }
-        },
-        gridMethodForJob003 : {
-            // 退件
-            rejectData : function(row){
-                console.log(row);
-
-                // RestfulApi.UpdateMSSQLData({
-                //     updatename: 'Update',
-                //     table: 18,
-                //     params: {
-                //         OL_W1_PRINCIPAL : null
-                //     },
-                //     condition: {
-                //         OL_SEQ : row.entity.OL_SEQ,
-                //         OL_CR_USER : row.entity.OL_CR_USER
-                //     }
-                // }).then(function (res) {
-                //     LoadOrderList();
-                // });
-            },
-            // 編輯
-            modifyData : function(row){
-                console.log(row);
-
-                // if(row.entity.OL_W1_EDIT_DATETIME == null){
-                //     RestfulApi.UpdateMSSQLData({
-                //         updatename: 'Update',
-                //         table: 18,
-                //         params: {
-                //             OL_W1_EDIT_DATETIME : $filter('date')(new Date(), 'yyyy-MM-dd HH:mm:ss')
-                //         },
-                //         condition: {
-                //             OL_SEQ : row.entity.OL_SEQ,
-                //             OL_CR_USER : row.entity.OL_CR_USER
-                //         }
-                //     }).then(function (res) {
-                //         $state.transitionTo("app.selfwork.employeejobs.job003", {
-                //             data: row.entity
-                //         });
-                //     });
-                // }else{
-                    $state.transitionTo("app.selfwork.employeejobs.job003", {
-                        data: row.entity
-                    });
-                // }
-            },
-            // 結單
-            closeData : function(row){
-                console.log(row);
-
-                // RestfulApi.UpdateMSSQLData({
-                //     updatename: 'Update',
-                //     table: 18,
-                //     params: {
-                //         OL_W1_OK_DATETIME : $filter('date')(new Date(), 'yyyy-MM-dd HH:mm:ss')
-                //     },
-                //     condition: {
-                //         OL_SEQ : row.entity.OL_SEQ,
-                //         OL_CR_USER : row.entity.OL_CR_USER
-                //     }
-                // }).then(function (res) {
-                //     LoadOrderList();
-                // });
-            },
-            // 刪除派送單
-            deleteData : function(row){
-
+                $state.transitionTo("app.selfwork.employeejobs.job002", {
+                    data: row.entity
+                });
             }
         },
         orderListOptions : {
@@ -343,7 +240,7 @@ angular.module('app.selfwork').controller('EmployeeJobsCtrl', function ($scope, 
                 { name: 'OL_COUNTRY'  ,  displayName: '起運國別' },
                 { name: 'ITEM_LIST'          ,  displayName: '報機單', enableFiltering: false, width: '8%', cellTemplate: $templateCache.get('accessibilityToOperaForJob001') },
                 { name: 'FLIGHT_ITEM_LIST'   ,  displayName: '銷艙單', enableFiltering: false, width: '8%', cellTemplate: $templateCache.get('accessibilityToOperaForJob002') },
-                { name: 'DELIVERY_ITEM_LIST' ,  displayName: '派送單', enableFiltering: false, width: '8%', cellTemplate: $templateCache.get('accessibilityToOperaForJob003') },
+                // { name: 'DELIVERY_ITEM_LIST' ,  displayName: '派送單', enableFiltering: false, width: '8%', cellTemplate: $templateCache.get('accessibilityToOperaForJob003') },
                 { name: 'Options'       , displayName: '操作', width: '5%', enableCellEdit: false, enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToM') }
             ],
             enableFiltering: true,
@@ -390,7 +287,8 @@ angular.module('app.selfwork').controller('EmployeeJobsCtrl', function ($scope, 
             queryname: 'SelectOrderList',
             params: {
                 U_ID : $vm.profile.U_ID,
-                DEPTS : $vm.profile.DEPTS
+                U_GRADE : $vm.profile.U_GRADE
+                // DEPTS : $vm.profile.DEPTS
             }
         }).then(function (res){
             console.log(res["returnData"]);
@@ -403,6 +301,7 @@ angular.module('app.selfwork').controller('EmployeeJobsCtrl', function ($scope, 
     var $ctrl = this;
     $ctrl.appScope = $scope.$parent.$vm;
     $ctrl.row = items;
+    console.log($ctrl);
     
     $ctrl.ok = function() {
         $uibModalInstance.close(items);

@@ -132,7 +132,7 @@ angular.module('app')
                         </div>');
     $templateCache.put('accessibilityToEdited', '\
                         <div class="ui-grid-cell-contents text-center">\
-                            <i class="fa fa-check text-primary" ng-if="row.entity.OP_EDATETIME != null"> </i> \
+                            <i class="fa fa-check text-primary" ng-if="row.entity.OE_EDATETIME != null"> </i> \
                         </div>');
     $templateCache.put('accessibilityToHistoryCount', '\
                         <div class="ui-grid-cell-contents text-center">\

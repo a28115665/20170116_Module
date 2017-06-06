@@ -228,16 +228,29 @@ var DeleteRequestWithTransaction = function(task, args, callback) {
 
 	schemaType.SchemaType2(task.params, request, sql);
 
-	for(var key in task.params){
-		console.log();
-		if(task.params[key] == null){
-			Condition.push(" AND "+key + " is null");
-		}else{
-			Condition.push(" AND "+key + "=@" + key);
-		}
-	}
+	switch(task.deletename){
+		case "DeleteOrderPrinplWithEditor":
 
-	SQLCommand += "DELETE FROM " + tables[task.table] + " WHERE 1=1 "+Condition.join("");
+			if(task.params["OP_SEQ"] !== undefined && task.params["OP_DEPT"] !== undefined){
+				SQLCommand += "DELETE "+tables[task.table]+" FROM "+tables[task.table]+" \
+							   LEFT JOIN ORDER_EDITOR ON OE_SEQ = OP_SEQ AND OE_TYPE = OP_TYPE AND OE_PRINCIPAL = OP_PRINCIPAL \
+							   WHERE OP_SEQ = @OP_SEQ AND OP_DEPT = @OP_DEPT AND OE_EDATETIME IS NULL";
+			}
+			
+			break;
+		default:
+			for(var key in task.params){
+				if(task.params[key] == null){
+					Condition.push(" AND "+key + " is null");
+				}else{
+					Condition.push(" AND "+key + "=@" + key);
+				}
+			}
+
+			SQLCommand += "DELETE FROM " + tables[task.table] + " WHERE 1=1 "+Condition.join("");
+			
+			break;
+	}
 	
 	requestSql(request, SQLCommand, function(err, ret) {
 		args.result.push(ret);
