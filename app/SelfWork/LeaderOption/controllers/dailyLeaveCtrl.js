@@ -47,8 +47,8 @@ angular.module('app.selfwork.leaderoption').controller('DailyLeaveCtrl', functio
                     // 表示假不一樣需要被更新
                     if(_getSelectedRows[i].DL_IS_LEAVE != $vm.isLeave){
                         _getDirtyData.push(_getSelectedRows[i]);
+                        _getSelectedRows[i].DL_IS_LEAVE = $vm.isLeave;
                     }
-                    // _getSelectedRows[i].DL_IS_LEAVE = $vm.isLeave;
                 }
 
                 if(_getDirtyData.length > 0){
@@ -98,6 +98,7 @@ angular.module('app.selfwork.leaderoption').controller('DailyLeaveCtrl', functio
         //     });    
         // },
         Update : function(entity){
+            console.log(entity);
             // create a fake promise - normally you'd use the promise returned by $http or $resource
             var promise = $q.defer();
             $vm.dailyLeaveGridApi.rowEdit.setSavePromise( entity, promise.promise );
@@ -115,19 +116,17 @@ angular.module('app.selfwork.leaderoption').controller('DailyLeaveCtrl', functio
             });
 
             // Insert此有被設定為請假的人
-            for(var i in entity){
-                if(entity[i].DL_IS_LEAVE){
-                    _tasks.push({
-                        crudType: 'Insert',
-                        table: 16,
-                        params: {
-                            DL_ID : entity[i].DL_ID,
-                            DL_DEPT : entity[i].DL_DEPT,
-                            DL_CR_USER : $vm.profile.U_ID,
-                            DL_CR_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss')
-                        }
-                    });
-                }
+            if(entity.DL_IS_LEAVE){
+                _tasks.push({
+                    crudType: 'Insert',
+                    table: 16,
+                    params: {
+                        DL_ID : entity.U_ID,
+                        DL_DEPT : entity.UD_DEPT,
+                        DL_CR_USER : $vm.profile.U_ID,
+                        DL_CR_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss')
+                    }
+                });
             }
 
             RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res){

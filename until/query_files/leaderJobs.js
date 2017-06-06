@@ -15,18 +15,21 @@ module.exports = function(pQueryname, pParams){
 											/*表示已有完成者*/ \
 											SELECT COUNT(1) \
 											FROM ORDER_PRINPL \
-											WHERE OP_SEQ = OL_SEQ AND OP_DEPT = 'W2' AND OP_FDATETIME IS NOT NULL \
+											LEFT JOIN ORDER_EDITOR ON OE_SEQ = OP_SEQ AND OE_TYPE = OP_TYPE \
+											WHERE OP_SEQ = OL_SEQ AND OP_DEPT = 'W2' AND OE_FDATETIME IS NOT NULL \
 										) > 0 THEN '3' \
 										WHEN ( \
 											/*表示未有完成者，但有編輯者*/ \
 											SELECT COUNT(1) \
 											FROM ORDER_PRINPL \
-											WHERE OP_SEQ = OL_SEQ AND OP_DEPT = 'W2' AND OP_EDATETIME IS NOT NULL \
+											LEFT JOIN ORDER_EDITOR ON OE_SEQ = OP_SEQ AND OE_TYPE = OP_TYPE \
+											WHERE OP_SEQ = OL_SEQ AND OP_DEPT = 'W2' AND OE_EDATETIME IS NOT NULL \
 										) > 0 THEN '2' \
 										WHEN ( \
 											/*表示未有完成者，未有編輯者，但有負責人(已派單)*/ \
 											SELECT COUNT(1) \
 											FROM ORDER_PRINPL \
+											LEFT JOIN ORDER_EDITOR ON OE_SEQ = OP_SEQ AND OE_TYPE = OP_TYPE \
 											WHERE OP_SEQ = OL_SEQ AND OP_DEPT = 'W2' \
 										) > 0 THEN '1' \
 										/*表示尚未派單*/ \
@@ -37,18 +40,21 @@ module.exports = function(pQueryname, pParams){
 											/*表示已有完成者*/ \
 											SELECT COUNT(1) \
 											FROM ORDER_PRINPL \
-											WHERE OP_SEQ = OL_SEQ AND OP_DEPT = 'W3' AND OP_FDATETIME IS NOT NULL \
+											LEFT JOIN ORDER_EDITOR ON OE_SEQ = OP_SEQ AND OE_TYPE = OP_TYPE \
+											WHERE OP_SEQ = OL_SEQ AND OP_DEPT = 'W3' AND OE_FDATETIME IS NOT NULL \
 										) > 0 THEN '3' \
 										WHEN ( \
 											/*表示未有完成者，但有編輯者*/ \
 											SELECT COUNT(1) \
 											FROM ORDER_PRINPL \
-											WHERE OP_SEQ = OL_SEQ AND OP_DEPT = 'W3' AND OP_EDATETIME IS NOT NULL \
+											LEFT JOIN ORDER_EDITOR ON OE_SEQ = OP_SEQ AND OE_TYPE = OP_TYPE \
+											WHERE OP_SEQ = OL_SEQ AND OP_DEPT = 'W3' AND OE_EDATETIME IS NOT NULL \
 										) > 0 THEN '2' \
 										WHEN ( \
 											/*表示未有完成者，未有編輯者，但有負責人(已派單)*/ \
 											SELECT COUNT(1) \
 											FROM ORDER_PRINPL \
+											LEFT JOIN ORDER_EDITOR ON OE_SEQ = OP_SEQ AND OE_TYPE = OP_TYPE \
 											WHERE OP_SEQ = OL_SEQ AND OP_DEPT = 'W3' \
 										) > 0 THEN '1' \
 										/*表示尚未派單*/ \
@@ -59,18 +65,21 @@ module.exports = function(pQueryname, pParams){
 											/*表示已有完成者*/ \
 											SELECT COUNT(1) \
 											FROM ORDER_PRINPL \
-											WHERE OP_SEQ = OL_SEQ AND OP_DEPT = 'W1' AND OP_FDATETIME IS NOT NULL \
+											LEFT JOIN ORDER_EDITOR ON OE_SEQ = OP_SEQ AND OE_TYPE = OP_TYPE \
+											WHERE OP_SEQ = OL_SEQ AND OP_DEPT = 'W1' AND OE_FDATETIME IS NOT NULL \
 										) > 0 THEN '3' \
 										WHEN ( \
 											/*表示未有完成者，但有編輯者*/ \
 											SELECT COUNT(1) \
 											FROM ORDER_PRINPL \
-											WHERE OP_SEQ = OL_SEQ AND OP_DEPT = 'W1' AND OP_EDATETIME IS NOT NULL \
+											LEFT JOIN ORDER_EDITOR ON OE_SEQ = OP_SEQ AND OE_TYPE = OP_TYPE \
+											WHERE OP_SEQ = OL_SEQ AND OP_DEPT = 'W1' AND OE_EDATETIME IS NOT NULL \
 										) > 0 THEN '2' \
 										WHEN ( \
 											/*表示未有完成者，未有編輯者，但有負責人(已派單)*/ \
 											SELECT COUNT(1) \
 											FROM ORDER_PRINPL \
+											LEFT JOIN ORDER_EDITOR ON OE_SEQ = OP_SEQ AND OE_TYPE = OP_TYPE \
 											WHERE OP_SEQ = OL_SEQ AND OP_DEPT = 'W1' \
 										) > 0 THEN '1' \
 										/*表示尚未派單*/ \
@@ -85,8 +94,10 @@ module.exports = function(pQueryname, pParams){
 								   OP_DEPT, \
 								   OP_TYPE, \
 								   OP_PRINCIPAL, \
-								   OP_EDATETIME \
+								   OE_EDATETIME, \
+								   OE_FDATETIME \
 							FROM ORDER_PRINPL \
+							LEFT JOIN ORDER_EDITOR ON OE_SEQ = OP_SEQ AND OE_TYPE = OP_TYPE AND OE_PRINCIPAL = OP_PRINCIPAL \
 							WHERE 1=1 ";
 							
 			if(pParams["OP_DEPT"] !== undefined){

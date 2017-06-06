@@ -238,8 +238,9 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
                     // 此負責人編輯狀態為null則刪除
                     var _data = angular.copy($vm.vmData[i].subGridOptions.data);
                     for(var j in _data){
-                        if(_data[j].OP_EDATETIME == null){
+                        if(_data[j].OE_EDATETIME == null){
                             $vm.vmData[i].subGridOptions.data.splice(j, 1);
+                            console.log(j, $vm.vmData[i].subGridOptions.data);
                         }
                     }
 
@@ -378,11 +379,11 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
             // Delete此單的負責人
             _tasks.push({
                 crudType: 'Delete',
+                deletename: 'DeleteOrderPrinplWithEditor',
                 table: 21,
                 params: {
                     OP_SEQ : entity.OL_SEQ,
-                    OP_DEPT : $vm.selectAssignDept,
-                    OP_EDATETIME :  null
+                    OP_DEPT : $vm.selectAssignDept
                 },
 
             });
@@ -390,7 +391,7 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
             // Insert此單的負責人
             for(var i in entity.subGridOptions.data){
                 // 如果編輯狀態不是空值表示沒有被Delete，所以不重複Insert
-                if(entity.subGridOptions.data[i].OP_EDATETIME == null){
+                if(entity.subGridOptions.data[i].OE_EDATETIME == null){
                     _tasks.push({
                         crudType: 'Insert',
                         table: 21,
@@ -473,7 +474,7 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
                     columnDefs: [ 
                         {field: "OP_TYPE", name: "類別", cellFilter: 'opTypeFilter' },
                         {field: "OP_PRINCIPAL", name: "負責人", cellFilter: 'userInfoFilter' },
-                        {field: "OP_EDATETIME_STATUS", name: "編輯者", cellTemplate: $templateCache.get('accessibilityToEdited') }
+                        {field: "OE_EDATETIME_STATUS", name: "編輯者", cellTemplate: $templateCache.get('accessibilityToEdited') }
                     ],
                     enableFiltering: false,
                     enableSorting: true,

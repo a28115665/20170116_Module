@@ -24,6 +24,12 @@ angular.module('app')
                                                     <a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethod.modifyData(row)"> 編輯</a>\
                                                     <a href="javascript:void(0);" class="btn btn-danger btn-xs" ng-click="grid.appScope.$vm.gridMethod.cancelData(row)"> 取消</a>\
                                               </div>');
+    $templateCache.put('accessibilityToMCForPullGoods', '\
+                        <div class="ui-grid-cell-contents text-center">\
+                            <a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethodForPullGoods.modifyData(row)"> 編輯</a>\
+                            <a href="javascript:void(0);" class="btn btn-danger btn-xs" ng-click="grid.appScope.$vm.gridMethodForPullGoods.cancelData(row)"> 取消</a>\
+                      </div>');
+
 	$templateCache.put('accessibilityToRMC', '<div class="ui-grid-cell-contents text-center">\
                                     				<a href="javascript:void(0);" class="btn btn-danger btn-xs" ng-click="grid.appScope.$vm.gridMethod.rejectData(row)" ng-disabled="row.entity.g"> 退單</a>\
                                     				<a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethod.modifyData(row)"> 編輯</a>\
@@ -132,7 +138,7 @@ angular.module('app')
                         </div>');
     $templateCache.put('accessibilityToEdited', '\
                         <div class="ui-grid-cell-contents text-center">\
-                            <i class="fa fa-check text-primary" ng-if="row.entity.OP_EDATETIME != null"> </i> \
+                            <i class="fa fa-check text-primary" ng-if="row.entity.OE_EDATETIME != null"> </i> \
                         </div>');
     $templateCache.put('accessibilityToHistoryCount', '\
                         <div class="ui-grid-cell-contents text-center">\

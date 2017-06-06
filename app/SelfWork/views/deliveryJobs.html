@@ -2,7 +2,7 @@
 <div id="content" ng-init="$vm.Init()">
 
 	<div class="row">
-		<big-breadcrumbs items="['SelfWork', 'EmployeeJobs']" icon="cube" class="col-xs-12 col-sm-7 col-md-7 col-lg-4"></big-breadcrumbs>
+		<big-breadcrumbs items="['SelfWork', 'DeliveryJobs']" icon="cube" class="col-xs-12 col-sm-7 col-md-7 col-lg-4"></big-breadcrumbs>
 	</div>
 
 	<!-- widget grid -->
@@ -59,8 +59,8 @@
 
 							<div class="table-responsive">
 
-								<div id="grid1" ui-grid="$vm.orderListOptions" class="my-ui-grid" ui-grid-pagination ui-grid-resize-columns></div>
-
+								<div id="grid1" ui-grid="$vm.deliveryItemOptions" class="my-ui-grid" ui-grid-pagination ui-grid-resize-columns ui-grid-auto-resize></div>
+									
 							</div>
 
 						</div>
@@ -84,40 +84,7 @@
         </h3>
     </div>
     <div class="modal-body text-center"> 
-        <div class="row" ng-if="$ctrl.row.entity.name == '報機單'"> 
-            <!--<button type="button" class="btn btn-danger btn-lg btn-block" ng-click="$ctrl.appScope.gridMethodForJob001.rejectData($ctrl.row);$ctrl.cancel()"> 
-                退單 
-            </button>--> 
-            <button type="button" class="btn btn-warning btn-lg btn-block" ng-click="$ctrl.appScope.gridMethodForJob001.modifyData($ctrl.row);$ctrl.cancel()" ng-disabled="($ctrl.row.entity.W2_EDATETIME != null) && ($ctrl.row.entity.W2_PRINCIPAL != $ctrl.appScope.profile.U_ID || $ctrl.row.entity.W2_FDATETIME != null)"> 
-                編輯 
-            </button> 
-            <button type="button" class="btn btn-primary btn-lg btn-block" ng-click="$ctrl.appScope.gridMethodForJob001.closeData($ctrl.row);$ctrl.cancel()" ng-disabled="($ctrl.row.entity.W2_PRINCIPAL != $ctrl.appScope.profile.U_ID || $ctrl.row.entity.W2_FDATETIME != null)"> 
-                完成 
-            </button> 
-            <button type="button" class="btn btn-warning btn-lg btn-block" ng-click="$ctrl.appScope.gridMethodForJob001.fixData($ctrl.row);$ctrl.cancel()" ng-disabled="$ctrl.row.entity.W2_FDATETIME == null"> 
-                修改 
-            </button> 
-            <button type="button" class="btn btn-danger btn-lg btn-block" ng-click="$ctrl.appScope.gridMethodForJob001.deleteData($ctrl.row);$ctrl.cancel()"> 
-                刪除 
-            </button> 
-        </div> 
-        <div class="row" ng-if="$ctrl.row.entity.name == '銷艙單'"> 
-        	<button type="button" class="btn btn-info btn-lg btn-block" ng-click="$ctrl.appScope.gridMethodForJob002.viewData($ctrl.row);$ctrl.cancel()"> 
-                檢視 
-            </button>
-            <!--<button type="button" class="btn btn-danger btn-lg btn-block" ng-click="$ctrl.appScope.gridMethodForJob002.rejectData($ctrl.row);$ctrl.cancel()"> 
-                退單 
-            </button> <button type="button" class="btn btn-warning btn-lg btn-block" ng-click="$ctrl.appScope.gridMethodForJob002.modifyData($ctrl.row);$ctrl.cancel()"> 
-                編輯 
-            </button> 
-            <button type="button" class="btn btn-primary btn-lg btn-block" ng-click="$ctrl.appScope.gridMethodForJob002.closeData($ctrl.row);$ctrl.cancel()"> 
-                完成 
-            </button> 
-            <button type="button" class="btn btn-danger btn-lg btn-block" ng-click="$ctrl.appScope.gridMethodForJob002.rejectData($ctrl.row);$ctrl.cancel()"> 
-                刪除 
-            </button>--> 
-        </div> 
-        <!--<div class="row" ng-if="$ctrl.row.entity.name == '派送單'"> 
+        <div class="row" ng-if="$ctrl.row.entity.name == '派送單'"> 
             <button type="button" class="btn btn-danger btn-lg btn-block" ng-click="$ctrl.appScope.gridMethodForJob003.rejectData($ctrl.row);$ctrl.cancel()"> 
                 退單 
             </button> 
@@ -130,7 +97,7 @@
             <button type="button" class="btn btn-danger btn-lg btn-block" ng-click="$ctrl.appScope.gridMethodForJob003.rejectData($ctrl.row);$ctrl.cancel()"> 
                 刪除 
             </button> 
-        </div>-->
+        </div>
     </div>
 </script>
 

@@ -49,7 +49,7 @@ angular.module('app.selfwork').controller('Job002Ctrl', function ($scope, $state
             onRegisterApi: function(gridApi){
                 $vm.job002GridApi = gridApi;
 
-                gridApi.rowEdit.on.saveRow($scope, $vm.Update);
+                // gridApi.rowEdit.on.saveRow($scope, $vm.Update);
             }
         },
         ExportExcel: function(){
