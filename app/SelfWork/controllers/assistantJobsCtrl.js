@@ -111,6 +111,10 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
                 }, function() {
                     // $log.info('Modal dismissed at: ' + new Date());
                 });
+            },
+            // 寄信
+            sendMail : function(row){
+                console.log(row);
             }
         },
         gridMethodForJob002 : {
@@ -184,7 +188,7 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
                 // { name: 'ITEM_LIST'          ,  displayName: '報機單', enableFiltering: false, width: '8%', cellTemplate: $templateCache.get('accessibilityToOperaForJob001') },
                 { name: 'FLIGHT_ITEM_LIST'   ,  displayName: '銷艙單', enableFiltering: false, width: '8%', cellTemplate: $templateCache.get('accessibilityToOperaForJob002') },
                 // { name: 'DELIVERY_ITEM_LIST' ,  displayName: '派送單', enableFiltering: false, width: '8%', cellTemplate: $templateCache.get('accessibilityToOperaForJob003') },
-                { name: 'Options'       , displayName: '操作', width: '5%', enableCellEdit: false, enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToM') }
+                { name: 'Options'       , displayName: '操作', width: '8%', enableCellEdit: false, enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToMSForAssistantJobs') }
             ],
             enableFiltering: true,
             enableSorting: false,

@@ -40,6 +40,7 @@ angular.module('app.settings').controller('ExAccountCtrl', function ($scope, $st
                 }
             }).then(function(res) {
                 // console.log(res);
+                toaster.pop('success', '訊息', '新增外部帳號成功', 3000);
 
                 ReturnToExternalManagementPage();
 
@@ -61,6 +62,7 @@ angular.module('app.settings').controller('ExAccountCtrl', function ($scope, $st
                     CI_ID         : $vm.vmData.CI_ID
                 }
             }).then(function (res) {
+                toaster.pop('success', '訊息', '更新外部帳號成功', 3000);
 
                 ReturnToExternalManagementPage();
 

@@ -22,6 +22,7 @@ angular.module('app.settings').controller('ExCompyCtrl', function ($scope, $stat
                 updatename: 'Update',
                 table: 8,
                 params: {
+                    CO_ID : $vm.vmData.CO_ID,
 		        	CO_STS : $vm.vmData.CO_STS,
 					CO_NAME : $vm.vmData.CO_NAME,
 					CO_NUMBER : $vm.vmData.CO_NUMBER,
@@ -34,6 +35,7 @@ angular.module('app.settings').controller('ExCompyCtrl', function ($scope, $stat
                 }
             }).then(function (res) {
 
+                toaster.pop('success', '訊息', '更新行家成功', 3000);
                 ReturnToExternalManagementPage();
 
             }, function (err) {

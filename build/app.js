@@ -1392,37 +1392,6 @@ angular.module('app.layout', ['ui.router'])
 })
 
 
-    "use strict";
-
-
-    angular.module('app.maps', ['ui.router',
-        'uiGmapgoogle-maps'
-    ])
-    //.config(function(uiGmapGoogleMapApiProvider) {
-    //    uiGmapGoogleMapApiProvider.configure({
-    //        //    key: 'your api key',
-    //        v: '3.20', //defaults to latest 3.X anyhow
-    //        libraries: 'weather,geometry,visualization'
-    //    });
-    //})
-
-
-    angular.module('app.maps').config(function ($stateProvider) {
-
-        $stateProvider
-            .state('app.maps', {
-                url: '/maps',
-                data: {
-                    title: 'Maps'
-                },
-                views: {
-                    "content@app": {
-                        controller: 'MapsDemoCtrl',
-                        templateUrl: 'app/maps/views/maps-demo.html'
-                    }
-                }
-            })
-    });
 "use strict";
 
 angular.module('app.mainwork', ['ui.router']);
@@ -1454,6 +1423,37 @@ angular.module('app.mainwork').config(function ($stateProvider){
         }
     })
 })
+    "use strict";
+
+
+    angular.module('app.maps', ['ui.router',
+        'uiGmapgoogle-maps'
+    ])
+    //.config(function(uiGmapGoogleMapApiProvider) {
+    //    uiGmapGoogleMapApiProvider.configure({
+    //        //    key: 'your api key',
+    //        v: '3.20', //defaults to latest 3.X anyhow
+    //        libraries: 'weather,geometry,visualization'
+    //    });
+    //})
+
+
+    angular.module('app.maps').config(function ($stateProvider) {
+
+        $stateProvider
+            .state('app.maps', {
+                url: '/maps',
+                data: {
+                    title: 'Maps'
+                },
+                views: {
+                    "content@app": {
+                        controller: 'MapsDemoCtrl',
+                        templateUrl: 'app/maps/views/maps-demo.html'
+                    }
+                }
+            })
+    });
 "use strict";
 
 angular.module('app.misc', ['ui.router']);
@@ -3967,6 +3967,11 @@ angular.module('app')
                         <div class="ui-grid-cell-contents text-center">\
                             <a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethodForPullGoods.modifyData(row)"> 編輯</a>\
                             <a href="javascript:void(0);" class="btn btn-danger btn-xs" ng-click="grid.appScope.$vm.gridMethodForPullGoods.cancelData(row)"> 取消</a>\
+                      </div>');
+    $templateCache.put('accessibilityToMSForAssistantJobs', '\
+                        <div class="ui-grid-cell-contents text-center">\
+                            <a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethod.modifyData(row)"> 編輯</a>\
+                            <a href="javascript:void(0);" class="btn btn-info btn-xs" ng-click="grid.appScope.$vm.gridMethod.sendMail(row)"> 寄信</a>\
                       </div>');
 
 	$templateCache.put('accessibilityToRMC', '<div class="ui-grid-cell-contents text-center">\
@@ -7571,6 +7576,10 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
                 }, function() {
                     // $log.info('Modal dismissed at: ' + new Date());
                 });
+            },
+            // 寄信
+            sendMail : function(row){
+                console.log(row);
             }
         },
         gridMethodForJob002 : {
@@ -7644,7 +7653,7 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
                 // { name: 'ITEM_LIST'          ,  displayName: '報機單', enableFiltering: false, width: '8%', cellTemplate: $templateCache.get('accessibilityToOperaForJob001') },
                 { name: 'FLIGHT_ITEM_LIST'   ,  displayName: '銷艙單', enableFiltering: false, width: '8%', cellTemplate: $templateCache.get('accessibilityToOperaForJob002') },
                 // { name: 'DELIVERY_ITEM_LIST' ,  displayName: '派送單', enableFiltering: false, width: '8%', cellTemplate: $templateCache.get('accessibilityToOperaForJob003') },
-                { name: 'Options'       , displayName: '操作', width: '5%', enableCellEdit: false, enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToM') }
+                { name: 'Options'       , displayName: '操作', width: '8%', enableCellEdit: false, enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToMSForAssistantJobs') }
             ],
             enableFiltering: true,
             enableSorting: false,
@@ -9731,9 +9740,8 @@ angular.module('app.settings').controller('ExternalManagementCtrl', function ($s
                             CI_ID : selectedItem.CI_ID
                         }
                     }).then(function (res) {
-                        if(res["returnData"] == 1){
-                            LoadCustInfo();
-                        }
+                        toaster.pop('success', '訊息', '刪除外部帳號成功', 3000);
+                        LoadCustInfo();
                     });
                 }, function() {
                     // $log.info('Modal dismissed at: ' + new Date());
@@ -9815,9 +9823,8 @@ angular.module('app.settings').controller('ExternalManagementCtrl', function ($s
                             CO_CODE : selectedItem.CO_CODE
                         }
                     }).then(function (res) {
-                        if(res["returnData"] == 1){
-                            LoadCustInfo();
-                        }
+                        toaster.pop('success', '訊息', '刪除行家成功', 3000);
+                        LoadCompyInfo();
                     });
                 }, function() {
                     // $log.info('Modal dismissed at: ' + new Date());
@@ -9834,10 +9841,10 @@ angular.module('app.settings').controller('ExternalManagementCtrl', function ($s
                         selectOptions: bool
                     }
                 },
-                { name: 'CO_CODE'   ,  displayName: '公司代號' },
-                { name: 'CO_NAME'   ,  displayName: '公司名稱' },
-                { name: 'CO_NUMBER' ,  displayName: '公司統編' },
-                { name: 'CO_ADDR'   ,  displayName: '公司地址' },
+                { name: 'CO_CODE'   ,  displayName: '行家代號' },
+                { name: 'CO_NAME'   ,  displayName: '行家名稱' },
+                { name: 'CO_NUMBER' ,  displayName: '行家統編' },
+                { name: 'CO_ADDR'   ,  displayName: '行家地址' },
                 { name: 'Options'   ,  displayName: '操作', enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToMDForCompyInfo') }
             ],
             enableFiltering: true,
@@ -9868,24 +9875,33 @@ angular.module('app.settings').controller('ExternalManagementCtrl', function ($s
             modalInstance.result.then(function(selectedItem) {
                 // console.log(selectedItem);
 
-                RestfulApi.InsertMSSQLData({
-                    insertname: 'Insert',
-                    table: 8,
-                    params: {
-                        CO_NAME : selectedItem.CO_NAME,
-                        CO_NUMBER : selectedItem.CO_NUMBER,
-                        CO_ADDR : selectedItem.CO_ADDR,
-                        CO_CR_USER : $vm.profile.U_ID,
-                        CO_CR_DATETIME : $filter('date')(new Date(), 'yyyy-MM-dd HH:mm:ss')
-                    }
-                }).then(function(res) {
-                    console.log(res);
+                // 找出最大ID
+                RestfulApi.SearchMSSQLData({
+                    querymain: 'externalManagement',
+                    queryname: 'SelectMaxCompy'
+                }).then(function (res){
+                    RestfulApi.InsertMSSQLData({
+                        insertname: 'Insert',
+                        table: 8,
+                        params: {
+                            CO_ID : res["returnData"][0].CO_ID,
+                            CO_NAME : selectedItem.CO_NAME,
+                            CO_NUMBER : selectedItem.CO_NUMBER,
+                            CO_ADDR : selectedItem.CO_ADDR,
+                            CO_CR_USER : $vm.profile.U_ID,
+                            CO_CR_DATETIME : $filter('date')(new Date(), 'yyyy-MM-dd HH:mm:ss')
+                        }
+                    }).then(function(res) {
+                        console.log(res);
 
-                    if(res["returnData"] == 1){
-                        LoadCompyInfo();
-                    }
+                        if(res["returnData"] == 1){
+                            LoadCompyInfo();
 
-                    // $state.reload()
+                            toaster.pop('success', '訊息', '新增行家成功', 3000);
+                        }
+
+                        // $state.reload()
+                    });
                 });
             }, function() {
                 // $log.info('Modal dismissed at: ' + new Date());
@@ -9899,42 +9915,7 @@ angular.module('app.settings').controller('ExternalManagementCtrl', function ($s
             queryname: 'SelectCustInfo'
         }).then(function (res){
             $vm.custInfoData = res["returnData"];
-        }).finally(function() {
-            HandleWindowResize($vm.custInfoGridApi);
-            $vm.custInfoGridApi.grid.refresh();
         });
-
-        // RestfulApi.CRUDMSSQLDataByTask([
-        //     {
-        //         crudType: 'Select',
-        //         querymain: 'externalManagement',
-        //         queryname: 'SelectCustInfo'
-        //     },
-        //     {
-        //         crudType: 'Select',
-        //         querymain: 'externalManagement',
-        //         queryname: 'SelectCompyInfo',
-        //         params: {
-        //             CO_STS : false
-        //         }
-        //     }
-        // ]).then(function (res) {
-        //     console.log(res["returnData"]);
-        //     $vm.custInfoData = res["returnData"][0];
-        //     var _compyInfo = res["returnData"][1];
-
-        //     for(var i in $vm.custInfoData){
-        //         for(var j in _compyInfo){
-        //             if($vm.custInfoData[i]["CI_COMPY"] == _compyInfo[j].CO_CODE){
-        //                 $vm.custInfoData[i]["getCICOMPY"] = function(){
-        //                     return 
-        //                 };
-        //             }
-        //         }
-        //     }
-        // }, function (err) {
-        //     console.log(err);
-        // });
     }
 
     function LoadCompyInfo(){
@@ -9942,9 +9923,8 @@ angular.module('app.settings').controller('ExternalManagementCtrl', function ($s
             querymain: 'externalManagement',
             queryname: 'SelectCompyInfo'
         }).then(function (res){
+            console.log(res["returnData"]);
             $vm.compyInfoData = res["returnData"];
-        }).finally(function() {
-            HandleWindowResize($vm.compyInfoGridApi);
         });
     }
 
@@ -14614,20 +14594,20 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
     angular.extend(this, {
         Init : function(){
             // 不正常登入此頁面
-            if($stateParams.data == null){
-                ReturnToEmployeejobsPage();
-            }else{
+            // if($stateParams.data == null){
+            //     ReturnToEmployeejobsPage();
+            // }else{
                 $vm.vmData = $stateParams.data;
 
                 // 測試用
-                // if($vm.vmData == null){
-                //     $vm.vmData = {
-                //         OL_SEQ : 'AdminTest20170525190758'
-                //     };
-                // }
+                if($vm.vmData == null){
+                    $vm.vmData = {
+                        OL_SEQ : 'AdminTest20170525190758'
+                    };
+                }
                 
                 LoadItemList();
-            }
+            // }
         },
         profile : Session.Get(),
         defaultChoice : 'Left',
@@ -14834,32 +14814,34 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
         job001Options : {
             data: '$vm.job001Data',
             columnDefs: [
-                { name: 'Index'         , displayName: '序列', width: 50, enableFiltering: false, enableCellEdit: false, headerCellClass: 'text-muted' },
-                { name: 'IL_G1'         , displayName: '報關種類', width: 154, enableCellEdit: false, headerCellClass: 'text-muted' },
+                { name: 'Index'         , displayName: '序列', width: 50, enableFiltering: false, enableCellEdit: false },
+                { name: 'IL_G1'         , displayName: '報關種類', width: 115, enableCellEdit: false },
                 { name: 'IL_MERGENO'    , displayName: '併票號', width: 129, enableCellEdit: false },
-                { name: 'IL_BAGNO'      , displayName: '袋號', width: 129 },
-                { name: 'IL_SMALLNO'    , displayName: '小號', width: 115 },
-                { name: 'IL_NATURE'     , displayName: '品名', width: 115 },
-                { name: 'IL_NATURE_NEW' , displayName: '新品名', width: 115 },
-                { name: 'IL_CTN'        , displayName: '件數', width: 115 },
-                { name: 'IL_PLACE'      , displayName: '產地', width: 115 },
-                { name: 'IL_NEWPLACE'   , displayName: '新產地', width: 115 },
-                { name: 'IL_WEIGHT'     , displayName: '重量', width: 115 },
-                { name: 'IL_WEIGHT_NEW' , displayName: '更改後重量', width: 115 },
-                { name: 'IL_PCS'        , displayName: '數量', width: 115 },
-                { name: 'IL_NEWPCS'     , displayName: '新數量', width: 115 },
-                { name: 'IL_UNIT'       , displayName: '單位', width: 115 },
-                { name: 'IL_NEWUNIT'    , displayName: '新單位', width: 115 },
-                { name: 'IL_GETNO'      , displayName: '收件者統編', width: 115 },
-                { name: 'IL_SENDNAME'   , displayName: '寄件人或公司', width: 115 },
-                { name: 'IL_NEWSENDNAME', displayName: '新寄件人或公司', width: 115 },
-                { name: 'IL_GETNAME'    , displayName: '收件人公司', width: 115 },
-                { name: 'IL_GETADDRESS' , displayName: '收件地址', width: 300 },
-                { name: 'IL_GETTEL'     , displayName: '收件電話', width: 115 },
-                { name: 'IL_UNIVALENT'  , displayName: '單價', width: 115 },
-                { name: 'IL_FINALCOST'  , displayName: '完稅價格', width: 115 },
-                { name: 'IL_TAX'        , displayName: '稅則', width: 115 },
-                { name: 'IL_TRCOM'      , displayName: '派送公司', width: 115 },
+                { name: 'IL_BAGNO'      , displayName: '袋號', width: 129, headerCellClass: 'text-primary' },
+                { name: 'IL_SMALLNO'    , displayName: '小號', width: 115, headerCellClass: 'text-primary' },
+                { name: 'IL_NATURE'     , displayName: '品名', width: 115, enableCellEdit: false },
+                { name: 'IL_NATURE_NEW' , displayName: '新品名', width: 115, headerCellClass: 'text-primary' },
+                { name: 'IL_CTN'        , displayName: '件數', width: 115, headerCellClass: 'text-primary' },
+                { name: 'IL_PLACE'      , displayName: '產地', width: 115, enableCellEdit: false },
+                { name: 'IL_NEWPLACE'   , displayName: '新產地', width: 115, headerCellClass: 'text-primary' },
+                { name: 'IL_WEIGHT'     , displayName: '重量', width: 115, enableCellEdit: false },
+                { name: 'IL_WEIGHT_NEW' , displayName: '新重量', width: 115, headerCellClass: 'text-primary' },
+                { name: 'IL_PCS'        , displayName: '數量', width: 115, enableCellEdit: false },
+                { name: 'IL_NEWPCS'     , displayName: '新數量', width: 115, headerCellClass: 'text-primary' },
+                { name: 'IL_UNIT'       , displayName: '單位', width: 115, enableCellEdit: false },
+                { name: 'IL_NEWUNIT'    , displayName: '新單位', width: 115, headerCellClass: 'text-primary' },
+                { name: 'IL_GETNO'      , displayName: '收件者統編', width: 115, headerCellClass: 'text-primary' },
+                { name: 'IL_SENDNAME'   , displayName: '寄件人或公司', width: 115, enableCellEdit: false },
+                { name: 'IL_NEWSENDNAME', displayName: '新寄件人或公司', width: 115, headerCellClass: 'text-primary' },
+                { name: 'IL_GETNAME'    , displayName: '收件人公司', width: 115, headerCellClass: 'text-primary' },
+                { name: 'IL_GETADDRESS' , displayName: '收件地址', width: 300, headerCellClass: 'text-primary' },
+                { name: 'IL_GETTEL'     , displayName: '收件電話', width: 115, headerCellClass: 'text-primary' },
+                { name: 'IL_UNIVALENT'  , displayName: '單價', width: 115, enableCellEdit: false },
+                { name: 'IL_UNIVALENT_NEW', displayName: '新單價', width: 115, headerCellClass: 'text-primary' },
+                { name: 'IL_FINALCOST'  , displayName: '完稅價格', width: 115, headerCellClass: 'text-primary' },
+                { name: 'IL_TAX'        , displayName: '稅則', width: 115, headerCellClass: 'text-primary' },
+                { name: 'IL_TRCOM'      , displayName: '派送公司', width: 115, headerCellClass: 'text-primary' },
+                { name: 'IL_REMARK'     , displayName: '備註', width: 115, headerCellClass: 'text-primary' },
                 { name: 'Options'       , displayName: '操作', width: 230, enableCellEdit: false, enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToCB'), pinnedRight:true, cellClass: 'cell-class-no-style' }
             ],
             // rowTemplate: '<div> \
@@ -15003,7 +14985,48 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                     });
 
                     modalInstance.result.then(function(selectedItem) {
-                        // $ctrl.selected = selectedItem;
+                        console.log(selectedItem);
+
+                        if(selectedItem.length > 0){
+                            var _getDirtyData = [];
+                            for(var i in selectedItem){
+
+                                var _beUpdate = $filter('filter')($vm.job001Data, { 
+                                    IL_SEQ : selectedItem[i].entity.IL_SEQ,
+                                    IL_NEWBAGNO : selectedItem[i].entity.IL_NEWBAGNO,
+                                    IL_NEWSMALLNO : selectedItem[i].entity.IL_NEWSMALLNO,
+                                    IL_ORDERINDEX : selectedItem[i].entity.IL_ORDERINDEX
+                                });
+
+                                if(_beUpdate.length > 0){
+                                    var _index = _beUpdate[0].Index - 1;
+
+                                    // 更新收件者相同的值
+                                    $vm.job001Data[_index].IL_BAGNO         = selectedItem[i].entity.IL_BAGNO;
+                                    $vm.job001Data[_index].IL_SMALLNO       = selectedItem[i].entity.IL_SMALLNO;
+                                    $vm.job001Data[_index].IL_NATURE_NEW    = selectedItem[i].entity.IL_NATURE_NEW;
+                                    $vm.job001Data[_index].IL_CTN           = selectedItem[i].entity.IL_CTN;
+                                    $vm.job001Data[_index].IL_PLACE         = selectedItem[i].entity.IL_PLACE;
+                                    $vm.job001Data[_index].IL_WEIGHT_NEW    = selectedItem[i].entity.IL_WEIGHT_NEW;
+                                    $vm.job001Data[_index].IL_NEWPCS        = selectedItem[i].entity.IL_NEWPCS;
+                                    $vm.job001Data[_index].IL_NEWUNIT       = selectedItem[i].entity.IL_NEWUNIT;
+                                    $vm.job001Data[_index].IL_GETNO         = selectedItem[i].entity.IL_GETNO;
+                                    $vm.job001Data[_index].IL_NEWSENDNAME   = selectedItem[i].entity.IL_NEWSENDNAME;
+                                    $vm.job001Data[_index].IL_GETNAME       = selectedItem[i].entity.IL_GETNAME;
+                                    $vm.job001Data[_index].IL_GETADDRESS    = selectedItem[i].entity.IL_GETADDRESS;
+                                    $vm.job001Data[_index].IL_GETTEL        = selectedItem[i].entity.IL_GETTEL;
+                                    $vm.job001Data[_index].IL_UNIVALENT_NEW = selectedItem[i].entity.IL_UNIVALENT_NEW;
+                                    $vm.job001Data[_index].IL_FINALCOST     = selectedItem[i].entity.IL_FINALCOST;
+                                    $vm.job001Data[_index].IL_TAX           = selectedItem[i].entity.IL_TAX;
+                                    $vm.job001Data[_index].IL_TRCOM         = selectedItem[i].entity.IL_TRCOM;
+                                    $vm.job001Data[_index].IL_REMARK        = selectedItem[i].entity.IL_REMARK;
+
+                                    _getDirtyData.push($vm.job001Data[_index]);
+                                }
+                            }
+                            $vm.job001GridApi.rowEdit.setRowsDirty(_getDirtyData);
+                        }
+
                     }, function() {
                         // $log.info('Modal dismissed at: ' + new Date());
                     });
@@ -15049,9 +15072,11 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                     IL_GETADDRESS  : entity.IL_GETADDRESS,
                     IL_GETTEL      : entity.IL_GETTEL,
                     IL_UNIVALENT   : entity.IL_UNIVALENT,
+                    IL_UNIVALENT_NEW : entity.IL_UNIVALENT_NEW,
                     IL_FINALCOST   : entity.IL_FINALCOST,
                     IL_TAX         : entity.IL_TAX,
-                    IL_TRCOM       : entity.IL_TRCOM
+                    IL_TRCOM       : entity.IL_TRCOM,
+                    IL_REMARK      : entity.IL_REMARK
                 },
                 condition: {
                     IL_SEQ        : entity.IL_SEQ,
@@ -15081,8 +15106,6 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                 res["returnData"][i]["Index"] = i+1;
             }
             $vm.job001Data = res["returnData"];
-        }).finally(function() {
-            HandleWindowResize($vm.job001GridApi);
         }); 
     };
 
@@ -15137,41 +15160,51 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
     $ctrl.job001DataHaveMergeNoOption = {
         data: '$ctrl.job001DataHaveMergeNo',
         columnDefs: [
-            { name: 'Index',        displayName: '序列', width: 50},
-            { name: 'IL_G1',        displayName: '報關種類', width: 154 },
-            { name: 'IL_MERGENO',        displayName: '併票號', width: 129, grouping: { groupPriority: 0 } },
-            { name: 'IL_BAGNO',        displayName: '袋號', width: 129 },
-            { name: 'IL_SMALLNO',        displayName: '小號', width: 115 },
-            { name: 'IL_NATURE',        displayName: '品名', width: 115 },
-            { name: 'IL_NATURE_NEW',        displayName: '新品名', width: 115, treeAggregationType: uiGridGroupingConstants.aggregation.MAX, 
+            { name: 'Index'           , displayName: '序列', width: 50},
+            { name: 'IL_G1'           , displayName: '報關種類', width: 115 },
+            { name: 'IL_MERGENO'      , displayName: '併票號', width: 129, grouping: { groupPriority: 0 } },
+            { name: 'IL_BAGNO'        , displayName: '袋號', width: 129 },
+            { name: 'IL_SMALLNO'      , displayName: '小號', width: 115 },
+            // { name: 'IL_NATURE'    , displayName: '品名', width: 115 },
+            { name: 'IL_NATURE_NEW'   , displayName: '新品名', width: 115, treeAggregationType: uiGridGroupingConstants.aggregation.MAX, 
                 customTreeAggregationFinalizerFn: function( aggregation ) {
                     aggregation.rendered = aggregation.value;
                 }
             },
-            { name: 'IL_CTN',        displayName: '件數', width: 115, treeAggregationType: uiGridGroupingConstants.aggregation.SUM, 
+            { name: 'IL_CTN'          , displayName: '件數', width: 115, treeAggregationType: uiGridGroupingConstants.aggregation.SUM, 
                 customTreeAggregationFinalizerFn: function( aggregation ) {
                     aggregation.rendered = aggregation.value;
                 }
             },
-            { name: 'IL_PLACE',        displayName: '產地', width: 115 },
-            { name: 'IL_WEIGHT',        displayName: '重量', width: 115, treeAggregationType: uiGridGroupingConstants.aggregation.SUM, 
+            { name: 'IL_PLACE'        , displayName: '產地', width: 115 },
+            // { name: 'IL_WEIGHT'    , displayName: '重量', width: 115 },
+            { name: 'IL_WEIGHT_NEW'   , displayName: '新重量', width: 115, treeAggregationType: uiGridGroupingConstants.aggregation.SUM, 
                 customTreeAggregationFinalizerFn: function( aggregation ) {
                     // console.log(aggregation);
                     aggregation.rendered = aggregation.value;
                 }
             },
-            { name: 'IL_WEIGHT_NEW',        displayName: '更改後重量', width: 115 },
-            { name: 'IL_PCS',        displayName: '數量', width: 115 },
-            { name: 'IL_UNIT',        displayName: '單位', width: 115 },
-            { name: 'IL_GETNO',        displayName: '收件者統編', width: 115 },
-            { name: 'IL_SENDNAME',        displayName: '寄件人或公司', width: 115 },
-            { name: 'IL_GETNAME',        displayName: '收件人公司', width: 115 },
-            { name: 'IL_GETADDRESS',        displayName: '收件地址', width: 300 },
-            { name: 'IL_GETTEL',        displayName: '收件電話', width: 115 },
-            { name: 'IL_UNIVALENT',        displayName: '單價', width: 115 },
-            { name: 'IL_FINALCOST',        displayName: '完稅價格', width: 115 },
-            { name: 'IL_TAX',        displayName: '稅則', width: 115 },
-            { name: 'IL_TRCOM',        displayName: '派送公司', width: 115 }
+            // { name: 'IL_PCS'       , displayName: '數量', width: 115 },
+            { name: 'IL_NEWPCS'       , displayName: '新數量', width: 115, treeAggregationType: uiGridGroupingConstants.aggregation.SUM, 
+                customTreeAggregationFinalizerFn: function( aggregation ) {
+                    // console.log(aggregation);
+                    aggregation.rendered = aggregation.value;
+                }
+            },
+            // { name: 'IL_UNIT'      , displayName: '單位', width: 115 },
+            { name: 'IL_NEWUNIT'      , displayName: '新單位', width: 115 },
+            { name: 'IL_GETNO'        , displayName: '收件者統編', width: 115 },
+            // { name: 'IL_SENDNAME'  , displayName: '寄件人或公司', width: 115 },
+            { name: 'IL_NEWSENDNAME'  , displayName: '新寄件人或公司', width: 115 },
+            { name: 'IL_GETNAME'      , displayName: '收件人公司', width: 115 },
+            { name: 'IL_GETADDRESS'   , displayName: '收件地址', width: 300 },
+            { name: 'IL_GETTEL'       , displayName: '收件電話', width: 115 },
+            // { name: 'IL_UNIVALENT' , displayName: '單價', width: 115 },
+            { name: 'IL_UNIVALENT_NEW', displayName: '新單價', width: 115 },
+            { name: 'IL_FINALCOST'    , displayName: '完稅價格', width: 115 },
+            { name: 'IL_TAX'          , displayName: '稅則', width: 115 },
+            { name: 'IL_TRCOM'        , displayName: '派送公司', width: 115 },
+            { name: 'IL_REMARK'       , displayName: '備註', width: 115 }
         ],
         enableFiltering: false,
         enableSorting: true,
@@ -15189,28 +15222,33 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
     $ctrl.job001DataNotMergeNoOption = {
         data: '$ctrl.job001DataNotMergeNo',
         columnDefs: [
-            { name: 'Index',        displayName: '序列', width: 50},
-            { name: 'IL_G1',        displayName: '報關種類', width: 154 },
-            { name: 'IL_MERGENO',        displayName: '併票號', width: 129 },
-            { name: 'IL_BAGNO',        displayName: '袋號', width: 129 },
-            { name: 'IL_SMALLNO',        displayName: '小號', width: 115 },
-            { name: 'IL_NATURE',        displayName: '品名', width: 115 },
-            { name: 'IL_NATURE_NEW',        displayName: '新品名', width: 115 },
-            { name: 'IL_CTN',        displayName: '件數', width: 115 },
-            { name: 'IL_PLACE',        displayName: '產地', width: 115 },
-            { name: 'IL_WEIGHT',        displayName: '重量', width: 115 },
-            { name: 'IL_WEIGHT_NEW',        displayName: '更改後重量', width: 115 },
-            { name: 'IL_PCS',        displayName: '數量', width: 115 },
-            { name: 'IL_UNIT',        displayName: '單位', width: 115 },
-            { name: 'IL_GETNO',        displayName: '收件者統編', width: 115 },
-            { name: 'IL_SENDNAME',        displayName: '寄件人或公司', width: 115 },
-            { name: 'IL_GETNAME',        displayName: '收件人公司', width: 115 },
-            { name: 'IL_GETADDRESS',        displayName: '收件地址', width: 300 },
-            { name: 'IL_GETTEL',        displayName: '收件電話', width: 115 },
-            { name: 'IL_UNIVALENT',        displayName: '單價', width: 115 },
-            { name: 'IL_FINALCOST',        displayName: '完稅價格', width: 115 },
-            { name: 'IL_TAX',        displayName: '稅則', width: 115 },
-            { name: 'IL_TRCOM',        displayName: '派送公司', width: 115 }
+            { name: 'Index'           , displayName: '序列', width: 50},
+            { name: 'IL_G1'           , displayName: '報關種類', width: 115 },
+            { name: 'IL_MERGENO'      , displayName: '併票號', width: 129 },
+            { name: 'IL_BAGNO'        , displayName: '袋號', width: 129 },
+            { name: 'IL_SMALLNO'      , displayName: '小號', width: 115 },
+            // { name: 'IL_NATURE'    , displayName: '品名', width: 115 },
+            { name: 'IL_NATURE_NEW'   , displayName: '新品名', width: 115 },
+            { name: 'IL_CTN'          , displayName: '件數', width: 115 },
+            { name: 'IL_PLACE'        , displayName: '產地', width: 115 },
+            // { name: 'IL_WEIGHT'    , displayName: '重量', width: 115 },
+            { name: 'IL_WEIGHT_NEW'   , displayName: '新重量', width: 115 },
+            // { name: 'IL_PCS'       , displayName: '數量', width: 115 },
+            { name: 'IL_NEWPCS'       , displayName: '新數量', width: 115 },
+            // { name: 'IL_UNIT'      , displayName: '單位', width: 115 },
+            { name: 'IL_NEWUNIT'      , displayName: '新單位', width: 115 },
+            { name: 'IL_GETNO'        , displayName: '收件者統編', width: 115 },
+            // { name: 'IL_SENDNAME'  , displayName: '寄件人或公司', width: 115 },
+            { name: 'IL_NEWSENDNAME'  , displayName: '新寄件人或公司', width: 115 },
+            { name: 'IL_GETNAME'      , displayName: '收件人公司', width: 115 },
+            { name: 'IL_GETADDRESS'   , displayName: '收件地址', width: 300 },
+            { name: 'IL_GETTEL'       , displayName: '收件電話', width: 115 },
+            // { name: 'IL_UNIVALENT' , displayName: '單價', width: 115 },
+            { name: 'IL_UNIVALENT_NEW', displayName: '新單價', width: 115 },
+            { name: 'IL_FINALCOST'    , displayName: '完稅價格', width: 115 },
+            { name: 'IL_TAX'          , displayName: '稅則', width: 115 },
+            { name: 'IL_TRCOM'        , displayName: '派送公司', width: 115 },
+            { name: 'IL_REMARK'       , displayName: '備註', width: 115 }
         ],
         enableFiltering: false,
         enableSorting: true,
@@ -15245,35 +15283,40 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
         $uibModalInstance.dismiss('cancel');
     };
 })
-.controller('RepeatNameModalInstanceCtrl', function ($uibModalInstance, repeatNameData) {
+.controller('RepeatNameModalInstanceCtrl', function ($uibModalInstance, $q, $scope, repeatNameData) {
     var $ctrl = this;
     $ctrl.mdData = repeatNameData;
 
     $ctrl.repeatNameOption = {
         data: '$ctrl.mdData',
         columnDefs: [
-            { name: 'Index',        displayName: '序列', width: 50},
-            { name: 'IL_G1',        displayName: '報關種類', width: 154 },
-            { name: 'IL_MERGENO',        displayName: '併票號', width: 129 },
-            { name: 'IL_BAGNO',        displayName: '袋號', width: 129 },
-            { name: 'IL_SMALLNO',        displayName: '小號', width: 115 },
-            { name: 'IL_NATURE',        displayName: '品名', width: 115 },
-            { name: 'IL_NATURE_NEW',        displayName: '新品名', width: 115 },
-            { name: 'IL_CTN',        displayName: '件數', width: 115 },
-            { name: 'IL_PLACE',        displayName: '產地', width: 115 },
-            { name: 'IL_WEIGHT',        displayName: '重量', width: 115 },
-            { name: 'IL_WEIGHT_NEW',        displayName: '更改後重量', width: 115 },
-            { name: 'IL_PCS',        displayName: '數量', width: 115 },
-            { name: 'IL_UNIT',        displayName: '單位', width: 115 },
-            { name: 'IL_GETNO',        displayName: '收件者統編', width: 115 },
-            { name: 'IL_SENDNAME',        displayName: '寄件人或公司', width: 115 },
-            { name: 'IL_GETNAME',        displayName: '收件人公司', width: 115 },
-            { name: 'IL_GETADDRESS',        displayName: '收件地址', width: 300 },
-            { name: 'IL_GETTEL',        displayName: '收件電話', width: 115 },
-            { name: 'IL_UNIVALENT',        displayName: '單價', width: 115 },
-            { name: 'IL_FINALCOST',        displayName: '完稅價格', width: 115 },
-            { name: 'IL_TAX',        displayName: '稅則', width: 115 },
-            { name: 'IL_TRCOM',        displayName: '派送公司', width: 115 }
+            // { name: 'Index'           , displayName: '序列', width: 50, enableCellEdit: false},
+            { name: 'IL_G1'           , displayName: '報關種類', width: 115, enableCellEdit: false },
+            { name: 'IL_MERGENO'      , displayName: '併票號', width: 129, enableCellEdit: false },
+            { name: 'IL_BAGNO'        , displayName: '袋號', width: 129, headerCellClass: 'text-primary' },
+            { name: 'IL_SMALLNO'      , displayName: '小號', width: 115, headerCellClass: 'text-primary' },
+            // { name: 'IL_NATURE'    , displayName: '品名', width: 115 },
+            { name: 'IL_NATURE_NEW'   , displayName: '新品名', width: 115, headerCellClass: 'text-primary' },
+            { name: 'IL_CTN'          , displayName: '件數', width: 115, headerCellClass: 'text-primary' },
+            { name: 'IL_PLACE'        , displayName: '產地', width: 115, headerCellClass: 'text-primary' },
+            // { name: 'IL_WEIGHT'    , displayName: '重量', width: 115 },
+            { name: 'IL_WEIGHT_NEW'   , displayName: '新重量', width: 115, headerCellClass: 'text-primary' },
+            // { name: 'IL_PCS'       , displayName: '數量', width: 115 },
+            { name: 'IL_NEWPCS'       , displayName: '新數量', width: 115, headerCellClass: 'text-primary' },
+            // { name: 'IL_UNIT'      , displayName: '單位', width: 115 },
+            { name: 'IL_NEWUNIT'      , displayName: '新單位', width: 115, headerCellClass: 'text-primary' },
+            { name: 'IL_GETNO'        , displayName: '收件者統編', width: 115, headerCellClass: 'text-primary' },
+            { name: 'IL_SENDNAME'     , displayName: '寄件人或公司', width: 115, enableCellEdit: false },
+            { name: 'IL_NEWSENDNAME'  , displayName: '新寄件人或公司', width: 115, headerCellClass: 'text-primary' },
+            { name: 'IL_GETNAME'      , displayName: '收件人公司', width: 115, headerCellClass: 'text-primary' },
+            { name: 'IL_GETADDRESS'   , displayName: '收件地址', width: 300, headerCellClass: 'text-primary' },
+            { name: 'IL_GETTEL'       , displayName: '收件電話', width: 115, headerCellClass: 'text-primary' },
+            // { name: 'IL_UNIVALENT' , displayName: '單價', width: 115 },
+            { name: 'IL_UNIVALENT_NEW', displayName: '新單價', width: 115, headerCellClass: 'text-primary' },
+            { name: 'IL_FINALCOST'    , displayName: '完稅價格', width: 115, headerCellClass: 'text-primary' },
+            { name: 'IL_TAX'          , displayName: '稅則', width: 115, headerCellClass: 'text-primary' },
+            { name: 'IL_TRCOM'        , displayName: '派送公司', width: 115, headerCellClass: 'text-primary' },
+            { name: 'IL_REMARK'       , displayName: '備註', width: 115, headerCellClass: 'text-primary' }
         ],
         enableFiltering: false,
         enableSorting: true,
@@ -15281,13 +15324,14 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
         // enableVerticalScrollbar: false,
         paginationPageSizes: [50, 100, 150, 200, 250, 300],
         paginationPageSize: 50,
+        rowEditWaitInterval: -1,
         onRegisterApi: function(gridApi){
             $ctrl.repeatNameGridApi = gridApi;
         }
     }
 
     $ctrl.ok = function() {
-        $uibModalInstance.close($ctrl.mdData);
+        $uibModalInstance.close($ctrl.repeatNameGridApi.rowEdit.getDirtyRows());
     };
 
     $ctrl.cancel = function() {
@@ -17063,6 +17107,7 @@ angular.module('app.settings').controller('ExAccountCtrl', function ($scope, $st
                 }
             }).then(function(res) {
                 // console.log(res);
+                toaster.pop('success', '訊息', '新增外部帳號成功', 3000);
 
                 ReturnToExternalManagementPage();
 
@@ -17084,6 +17129,7 @@ angular.module('app.settings').controller('ExAccountCtrl', function ($scope, $st
                     CI_ID         : $vm.vmData.CI_ID
                 }
             }).then(function (res) {
+                toaster.pop('success', '訊息', '更新外部帳號成功', 3000);
 
                 ReturnToExternalManagementPage();
 
@@ -17122,6 +17168,7 @@ angular.module('app.settings').controller('ExCompyCtrl', function ($scope, $stat
                 updatename: 'Update',
                 table: 8,
                 params: {
+                    CO_ID : $vm.vmData.CO_ID,
 		        	CO_STS : $vm.vmData.CO_STS,
 					CO_NAME : $vm.vmData.CO_NAME,
 					CO_NUMBER : $vm.vmData.CO_NUMBER,
@@ -17134,6 +17181,7 @@ angular.module('app.settings').controller('ExCompyCtrl', function ($scope, $stat
                 }
             }).then(function (res) {
 
+                toaster.pop('success', '訊息', '更新行家成功', 3000);
                 ReturnToExternalManagementPage();
 
             }, function (err) {

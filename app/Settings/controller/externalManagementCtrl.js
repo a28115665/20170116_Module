@@ -69,9 +69,8 @@ angular.module('app.settings').controller('ExternalManagementCtrl', function ($s
                             CI_ID : selectedItem.CI_ID
                         }
                     }).then(function (res) {
-                        if(res["returnData"] == 1){
-                            LoadCustInfo();
-                        }
+                        toaster.pop('success', '訊息', '刪除外部帳號成功', 3000);
+                        LoadCustInfo();
                     });
                 }, function() {
                     // $log.info('Modal dismissed at: ' + new Date());
@@ -153,9 +152,8 @@ angular.module('app.settings').controller('ExternalManagementCtrl', function ($s
                             CO_CODE : selectedItem.CO_CODE
                         }
                     }).then(function (res) {
-                        if(res["returnData"] == 1){
-                            LoadCustInfo();
-                        }
+                        toaster.pop('success', '訊息', '刪除行家成功', 3000);
+                        LoadCompyInfo();
                     });
                 }, function() {
                     // $log.info('Modal dismissed at: ' + new Date());
@@ -172,10 +170,10 @@ angular.module('app.settings').controller('ExternalManagementCtrl', function ($s
                         selectOptions: bool
                     }
                 },
-                { name: 'CO_CODE'   ,  displayName: '公司代號' },
-                { name: 'CO_NAME'   ,  displayName: '公司名稱' },
-                { name: 'CO_NUMBER' ,  displayName: '公司統編' },
-                { name: 'CO_ADDR'   ,  displayName: '公司地址' },
+                { name: 'CO_CODE'   ,  displayName: '行家代號' },
+                { name: 'CO_NAME'   ,  displayName: '行家名稱' },
+                { name: 'CO_NUMBER' ,  displayName: '行家統編' },
+                { name: 'CO_ADDR'   ,  displayName: '行家地址' },
                 { name: 'Options'   ,  displayName: '操作', enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToMDForCompyInfo') }
             ],
             enableFiltering: true,
@@ -206,24 +204,33 @@ angular.module('app.settings').controller('ExternalManagementCtrl', function ($s
             modalInstance.result.then(function(selectedItem) {
                 // console.log(selectedItem);
 
-                RestfulApi.InsertMSSQLData({
-                    insertname: 'Insert',
-                    table: 8,
-                    params: {
-                        CO_NAME : selectedItem.CO_NAME,
-                        CO_NUMBER : selectedItem.CO_NUMBER,
-                        CO_ADDR : selectedItem.CO_ADDR,
-                        CO_CR_USER : $vm.profile.U_ID,
-                        CO_CR_DATETIME : $filter('date')(new Date(), 'yyyy-MM-dd HH:mm:ss')
-                    }
-                }).then(function(res) {
-                    console.log(res);
+                // 找出最大ID
+                RestfulApi.SearchMSSQLData({
+                    querymain: 'externalManagement',
+                    queryname: 'SelectMaxCompy'
+                }).then(function (res){
+                    RestfulApi.InsertMSSQLData({
+                        insertname: 'Insert',
+                        table: 8,
+                        params: {
+                            CO_ID : res["returnData"][0].CO_ID,
+                            CO_NAME : selectedItem.CO_NAME,
+                            CO_NUMBER : selectedItem.CO_NUMBER,
+                            CO_ADDR : selectedItem.CO_ADDR,
+                            CO_CR_USER : $vm.profile.U_ID,
+                            CO_CR_DATETIME : $filter('date')(new Date(), 'yyyy-MM-dd HH:mm:ss')
+                        }
+                    }).then(function(res) {
+                        console.log(res);
 
-                    if(res["returnData"] == 1){
-                        LoadCompyInfo();
-                    }
+                        if(res["returnData"] == 1){
+                            LoadCompyInfo();
 
-                    // $state.reload()
+                            toaster.pop('success', '訊息', '新增行家成功', 3000);
+                        }
+
+                        // $state.reload()
+                    });
                 });
             }, function() {
                 // $log.info('Modal dismissed at: ' + new Date());
@@ -237,42 +244,7 @@ angular.module('app.settings').controller('ExternalManagementCtrl', function ($s
             queryname: 'SelectCustInfo'
         }).then(function (res){
             $vm.custInfoData = res["returnData"];
-        }).finally(function() {
-            HandleWindowResize($vm.custInfoGridApi);
-            $vm.custInfoGridApi.grid.refresh();
         });
-
-        // RestfulApi.CRUDMSSQLDataByTask([
-        //     {
-        //         crudType: 'Select',
-        //         querymain: 'externalManagement',
-        //         queryname: 'SelectCustInfo'
-        //     },
-        //     {
-        //         crudType: 'Select',
-        //         querymain: 'externalManagement',
-        //         queryname: 'SelectCompyInfo',
-        //         params: {
-        //             CO_STS : false
-        //         }
-        //     }
-        // ]).then(function (res) {
-        //     console.log(res["returnData"]);
-        //     $vm.custInfoData = res["returnData"][0];
-        //     var _compyInfo = res["returnData"][1];
-
-        //     for(var i in $vm.custInfoData){
-        //         for(var j in _compyInfo){
-        //             if($vm.custInfoData[i]["CI_COMPY"] == _compyInfo[j].CO_CODE){
-        //                 $vm.custInfoData[i]["getCICOMPY"] = function(){
-        //                     return 
-        //                 };
-        //             }
-        //         }
-        //     }
-        // }, function (err) {
-        //     console.log(err);
-        // });
     }
 
     function LoadCompyInfo(){
@@ -280,9 +252,8 @@ angular.module('app.settings').controller('ExternalManagementCtrl', function ($s
             querymain: 'externalManagement',
             queryname: 'SelectCompyInfo'
         }).then(function (res){
+            console.log(res["returnData"]);
             $vm.compyInfoData = res["returnData"];
-        }).finally(function() {
-            HandleWindowResize($vm.compyInfoGridApi);
         });
     }
 
