@@ -96,144 +96,146 @@ angular.module('app.selfwork').controller('DeliveryJobsCtrl', function ($scope, 
                 console.log(row);
 
                 // 如果是第一次編輯 會先記錄編輯時間
-                // if(row.entity.W2_EDATETIME == null){
-                //     // 檢查是否有人編輯
-                //     RestfulApi.SearchMSSQLData({
-                //         querymain: 'employeeJobs',
-                //         queryname: 'SelectOrderEditor',
-                //         params: {
-                //             OE_SEQ : row.entity.OL_SEQ,
-                //             OE_TYPE : 'R'
-                //         }
-                //     }).then(function (res){
-                //         // 有 警告並且重Load資料
-                //         // 沒有 新增資料到DB
-                //         if(res["returnData"].length > 0){
-                //             LoadOrderList();
-                //             toaster.pop('warning', '警告', '此單已有人編輯', 3000);
-                //         }else{
-                //             RestfulApi.InsertMSSQLData({
-                //                 insertname: 'Insert',
-                //                 table: 22,
-                //                 params: {
-                //                     OE_SEQ : row.entity.OL_SEQ,
-                //                     OE_TYPE : 'R', // 報機單
-                //                     OE_PRINCIPAL : $vm.profile.U_ID,
-                //                     OE_EDATETIME : $filter('date')(new Date(), 'yyyy-MM-dd HH:mm:ss')
-                //                 }
-                //             }).then(function (res) {
-                //                 $state.transitionTo("app.selfwork.employeejobs.job001", {
-                //                     data: row.entity
-                //                 });
-                //             });
-                //         }
-                //     });
-                // }else{
+                if(row.entity.W1_EDATETIME == null){
+                    // 檢查是否有人編輯
+                    RestfulApi.SearchMSSQLData({
+                        querymain: 'employeeJobs',
+                        queryname: 'SelectOrderEditor',
+                        params: {
+                            OE_SEQ : row.entity.OL_SEQ,
+                            OE_TYPE : 'D'
+                        }
+                    }).then(function (res){
+                        // 有 警告並且重Load資料
+                        // 沒有 新增資料到DB
+                        if(res["returnData"].length > 0){
+                            LoadOrderList();
+                            toaster.pop('warning', '警告', '此單已有人編輯', 3000);
+                        }else{
+                            RestfulApi.InsertMSSQLData({
+                                insertname: 'Insert',
+                                table: 22,
+                                params: {
+                                    OE_SEQ : row.entity.OL_SEQ,
+                                    OE_TYPE : 'D', // 派送單
+                                    OE_PRINCIPAL : $vm.profile.U_ID,
+                                    OE_EDATETIME : $filter('date')(new Date(), 'yyyy-MM-dd HH:mm:ss')
+                                }
+                            }).then(function (res) {
+                                $state.transitionTo("app.selfwork.deliveryjobs.job003", {
+                                    data: row.entity
+                                });
+                            });
+                        }
+                    });
+                }else{
                     $state.transitionTo("app.selfwork.deliveryjobs.job003", {
                         data: row.entity
                     });
-                // }
+                }
             },
             // 完成
             closeData : function(row){
                 console.log(row);
 
-                // var modalInstance = $uibModal.open({
-                //     animation: true,
-                //     ariaLabelledBy: 'modal-title',
-                //     ariaDescribedBy: 'modal-body',
-                //     template: $templateCache.get('isChecked'),
-                //     controller: 'IsCheckedModalInstanceCtrl',
-                //     controllerAs: '$ctrl',
-                //     size: 'sm',
-                //     windowClass: 'center-modal',
-                //     // appendTo: parentElem,
-                //     resolve: {
-                //         items: function() {
-                //             return row.entity;
-                //         },
-                //         show: function(){
-                //             return {
-                //                 title : "是否完成"
-                //             }
-                //         }
-                //     }
-                // });
+                var modalInstance = $uibModal.open({
+                    animation: true,
+                    ariaLabelledBy: 'modal-title',
+                    ariaDescribedBy: 'modal-body',
+                    template: $templateCache.get('isChecked'),
+                    controller: 'IsCheckedModalInstanceCtrl',
+                    controllerAs: '$ctrl',
+                    size: 'sm',
+                    windowClass: 'center-modal',
+                    // appendTo: parentElem,
+                    resolve: {
+                        items: function() {
+                            return row.entity;
+                        },
+                        show: function(){
+                            return {
+                                title : "是否完成"
+                            }
+                        }
+                    }
+                });
 
-                // modalInstance.result.then(function(selectedItem) {
-                //     // $ctrl.selected = selectedItem;
-                //     console.log(selectedItem);
+                modalInstance.result.then(function(selectedItem) {
+                    // $ctrl.selected = selectedItem;
+                    console.log(selectedItem);
 
-                //     RestfulApi.UpdateMSSQLData({
-                //         updatename: 'Update',
-                //         table: 22,
-                //         params: {
-                //             OE_FDATETIME : $filter('date')(new Date(), 'yyyy-MM-dd HH:mm:ss')
-                //         },
-                //         condition: {
-                //             OE_SEQ : selectedItem.OL_SEQ,
-                //             OE_TYPE : 'R',
-                //             OE_PRINCIPAL : $vm.profile.U_ID
-                //         }
-                //     }).then(function (res) {
-                //         LoadOrderList();
-                //     });
+                    RestfulApi.UpdateMSSQLData({
+                        updatename: 'Update',
+                        table: 22,
+                        params: {
+                            OE_FDATETIME : $filter('date')(new Date(), 'yyyy-MM-dd HH:mm:ss')
+                        },
+                        condition: {
+                            OE_SEQ : selectedItem.OL_SEQ,
+                            OE_TYPE : 'D',
+                            OE_PRINCIPAL : $vm.profile.U_ID
+                        }
+                    }).then(function (res) {
+                        LoadDeliveryItem();
+                    });
 
-                // }, function() {
-                //     // $log.info('Modal dismissed at: ' + new Date());
-                // });
+                }, function() {
+                    // $log.info('Modal dismissed at: ' + new Date());
+                });
             },
             // 修改
             // 已編輯且完成就可以讓所有人修改
             fixData : function(row){
                 console.log(row);
-                $state.transitionTo("app.selfwork.employeejobs.job001", {
-                    data: row.entity
-                });
+                if(row.entity.W1_FDATETIME != null){
+                    $state.transitionTo("app.selfwork.deliveryjobs.job003", {
+                        data: row.entity
+                    });
+                }
             },
             // 刪除派送單
             deleteData : function(row){
                 console.log(row);
-                // var modalInstance = $uibModal.open({
-                //     animation: true,
-                //     ariaLabelledBy: 'modal-title',
-                //     ariaDescribedBy: 'modal-body',
-                //     template: $templateCache.get('isChecked'),
-                //     controller: 'IsCheckedModalInstanceCtrl',
-                //     controllerAs: '$ctrl',
-                //     size: 'sm',
-                //     windowClass: 'center-modal',
-                //     // appendTo: parentElem,
-                //     resolve: {
-                //         items: function() {
-                //             return row.entity;
-                //         },
-                //         show: function(){
-                //             return {
-                //                 title : "是否刪除"
-                //             }
-                //         }
-                //     }
-                // });
+                var modalInstance = $uibModal.open({
+                    animation: true,
+                    ariaLabelledBy: 'modal-title',
+                    ariaDescribedBy: 'modal-body',
+                    template: $templateCache.get('isChecked'),
+                    controller: 'IsCheckedModalInstanceCtrl',
+                    controllerAs: '$ctrl',
+                    size: 'sm',
+                    windowClass: 'center-modal',
+                    // appendTo: parentElem,
+                    resolve: {
+                        items: function() {
+                            return row.entity;
+                        },
+                        show: function(){
+                            return {
+                                title : "是否刪除"
+                            }
+                        }
+                    }
+                });
 
-                // modalInstance.result.then(function(selectedItem) {
-                //     // $ctrl.selected = selectedItem;
-                //     console.log(selectedItem);
+                modalInstance.result.then(function(selectedItem) {
+                    // $ctrl.selected = selectedItem;
+                    console.log(selectedItem);
 
-                //     RestfulApi.DeleteMSSQLData({
-                //         deletename: 'Delete',
-                //         table: 9,
-                //         params: {
-                //             IL_SEQ : selectedItem.OL_SEQ
-                //         }
-                //     }).then(function (res) {
-                //         toaster.pop('info', '訊息', '報機單刪除成功', 3000);
-                //         LoadOrderList();
-                //     });
+                    RestfulApi.DeleteMSSQLData({
+                        deletename: 'Delete',
+                        table: 11,
+                        params: {
+                            IL_SEQ : selectedItem.OL_SEQ
+                        }
+                    }).then(function (res) {
+                        toaster.pop('info', '訊息', '派送單刪除成功', 3000);
+                        LoadDeliveryItem();
+                    });
 
-                // }, function() {
-                //     // $log.info('Modal dismissed at: ' + new Date());
-                // });
+                }, function() {
+                    // $log.info('Modal dismissed at: ' + new Date());
+                });
             }
         },
         deliveryItemOptions : {

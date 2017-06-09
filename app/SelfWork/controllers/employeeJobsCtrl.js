@@ -236,9 +236,11 @@ angular.module('app.selfwork').controller('EmployeeJobsCtrl', function ($scope, 
             // 已編輯且完成就可以讓所有人修改
             fixData : function(row){
                 console.log(row);
-                $state.transitionTo("app.selfwork.employeejobs.job001", {
-                    data: row.entity
-                });
+                if(row.entity.W2_FDATETIME != null){
+                    $state.transitionTo("app.selfwork.employeejobs.job001", {
+                        data: row.entity
+                    });
+                }
             },
             // 刪除報機單
             deleteData : function(row){

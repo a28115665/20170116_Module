@@ -220,4 +220,38 @@ angular.module('app.settings').config(function ($stateProvider){
         }
     })
 
+    .state('app.settings.aviationmail', {
+        url: '/settings/aviationmail',
+        data: {
+            title: 'Aviation Mail'
+        },
+        views: {
+            "content@app" : {
+                templateUrl: 'app/Settings/views/aviationMail.html',
+                controller: 'AviationMailCtrl',
+                controllerAs: '$vm',
+                resolve: {
+
+                }
+            }
+        }
+    })
+
+    .state('app.settings.excompybagno', {
+        url: '/settings/excompybagno',
+        data: {
+            title: 'Excompy Bagno'
+        },
+        views: {
+            "content@app" : {
+                templateUrl: 'app/Settings/views/excompyBagno.html',
+                controller: 'ExcompyBagnoCtrl',
+                controllerAs: '$vm',
+                resolve: {
+
+                }
+            }
+        }
+    })
+
 });
