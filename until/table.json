@@ -21,5 +21,6 @@
 	"19" : "PULL_GOODS",
 	"20" : "SPECIAL_GOODS",
 	"21" : "ORDER_PRINPL",
-	"22" : "ORDER_EDITOR"
+	"22" : "ORDER_EDITOR",
+	"23" : "FLIGHT_ARRIVAL"
 }

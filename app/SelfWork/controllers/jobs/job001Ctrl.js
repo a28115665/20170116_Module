@@ -9,20 +9,20 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
     angular.extend(this, {
         Init : function(){
             // 不正常登入此頁面
-            // if($stateParams.data == null){
-            //     ReturnToEmployeejobsPage();
-            // }else{
+            if($stateParams.data == null){
+                ReturnToEmployeejobsPage();
+            }else{
                 $vm.vmData = $stateParams.data;
 
                 // 測試用
-                if($vm.vmData == null){
-                    $vm.vmData = {
-                        OL_SEQ : 'AdminTest20170525190758'
-                    };
-                }
+                // if($vm.vmData == null){
+                //     $vm.vmData = {
+                //         OL_SEQ : 'AdminTest20170525190758'
+                //     };
+                // }
                 
                 LoadItemList();
-            // }
+            }
         },
         profile : Session.Get(),
         defaultChoice : 'Left',

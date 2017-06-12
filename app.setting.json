@@ -25,5 +25,8 @@
 			"port" : "80",
 			"url" : "/EWSWS/WebServiceChangeNature.asmx/GetNewNature"
 		}
+	},
+	"MOTC" : {
+		"timer" : 120000
 	}
 }

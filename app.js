@@ -15,6 +15,8 @@ var routes = require('./routes/index');
 var auth = require('./routes/auth');
 var restful = require('./routes/restful');
 var toolbox = require('./routes/toolbox');
+var cargoaircraft = require('./routes/cargoaircraft');
+cargoaircraft.GetCargoAircraftTime();
 var middleware = require('./routes/middleware');
 
 var setting = require('./app.setting.json');

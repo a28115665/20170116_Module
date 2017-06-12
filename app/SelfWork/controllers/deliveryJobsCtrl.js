@@ -1,6 +1,6 @@
 "use strict";
 
-angular.module('app.selfwork').controller('DeliveryJobsCtrl', function ($scope, $stateParams, $state, RestfulApi, Session, toaster, $uibModal, $templateCache, uiGridConstants, compy) {
+angular.module('app.selfwork').controller('DeliveryJobsCtrl', function ($scope, $stateParams, $state, RestfulApi, Session, toaster, $uibModal, $templateCache, uiGridConstants, compy, $filter) {
     
     var $vm = this;
 
