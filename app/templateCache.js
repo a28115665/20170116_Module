@@ -24,6 +24,14 @@ angular.module('app')
                                                     <a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethod.modifyData(row)"> 編輯</a>\
                                                     <a href="javascript:void(0);" class="btn btn-danger btn-xs" ng-click="grid.appScope.$vm.gridMethod.cancelData(row)"> 取消</a>\
                                               </div>');
+
+    $templateCache.put('accessibilityToArrivalRemark', '\
+                        <div class="ui-grid-cell-contents text-center" ng-switch="row.entity.FA_ARRIVAL_REMK">\
+                            <span class="label bg-color-green" ng-switch-when="抵達">{{row.entity.FA_ARRIVAL_REMK}}</span>\
+                            <span class="label bg-color-red" ng-switch-when="時間更改">{{row.entity.FA_ARRIVAL_REMK}}</span>\
+                            <span class="label bg-color-orange" ng-switch-when="準時">{{row.entity.FA_ARRIVAL_REMK}}</span>\
+                            <span ng-switch-default>{{row.entity.FA_ARRIVAL_REMK}}</span>\
+                      </div>');
     $templateCache.put('accessibilityToMCForPullGoods', '\
                         <div class="ui-grid-cell-contents text-center">\
                             <a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethodForPullGoods.modifyData(row)"> 編輯</a>\
@@ -33,6 +41,7 @@ angular.module('app')
                         <div class="ui-grid-cell-contents text-center">\
                             <a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethod.modifyData(row)"> 編輯</a>\
                             <a href="javascript:void(0);" class="btn btn-info btn-xs" ng-click="grid.appScope.$vm.gridMethod.sendMail(row)"> 寄信</a>\
+                            <a href="javascript:void(0);" class="btn btn-primary btn-xs" ng-click="grid.appScope.$vm.gridMethod.viewOrder(row)"> 貨物查看</a>\
                       </div>');
 
 	$templateCache.put('accessibilityToRMC', '<div class="ui-grid-cell-contents text-center">\
