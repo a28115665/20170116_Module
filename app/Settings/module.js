@@ -167,6 +167,9 @@ angular.module('app.settings').config(function ($stateProvider){
                     },
                     compy: function(Compy){
                         return Compy.get();
+                    },
+                    coWeights: function (SysCode){
+                        return SysCode.get('CoWeights');
                     }
                 }
             }
@@ -206,6 +209,7 @@ angular.module('app.settings').config(function ($stateProvider){
         params: { 
             data: null
         },
+        parent: 'app.settings.externalmanagement',
         views: {
             "content@app" : {
                 templateUrl: 'app/Settings/views/externalManagement/exCompy.html',
@@ -215,6 +219,9 @@ angular.module('app.settings').config(function ($stateProvider){
                     bool: function (SysCode, $q){
                         return SysCode.get('Boolean');
                     },
+                    coWeights: function (SysCode){
+                        return SysCode.get('CoWeights');
+                    }
                 }
             }
         }

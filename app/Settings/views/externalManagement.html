@@ -105,9 +105,15 @@
 	    <form class="form-horizontal" name="addCompyForm">
 			<fieldset>
 				<div class="form-group">
-			        <label class="col-md-2 control-label">{{getWord('Compy')}}{{getWord('Name')}}</label>
+			        <label class="col-md-2 control-label"><code>*</code>{{getWord('Compy')}}{{getWord('Name')}}</label>
 			        <div class="col-md-10">
 			            <input class="form-control" ng-model="$ctrl.items['CO_NAME']" type="text" placeholder="請輸入行家名稱" required>
+			        </div>
+			    </div>
+				<div class="form-group">
+			        <label class="col-md-2 control-label"><code>*</code>{{getWord('Compy')}}區域</label>
+			        <div class="col-md-10">
+			            <input class="form-control" ng-model="$ctrl.items['CO_AREA']" type="text" placeholder="請輸入行家區域" required>
 			        </div>
 			    </div>
 				<div class="form-group">
@@ -120,6 +126,16 @@
 			        <label class="col-md-2 control-label">{{getWord('Compy')}}{{getWord('Address')}}</label>
 			        <div class="col-md-10">
 			            <input class="form-control" ng-model="$ctrl.items['CO_ADDR']" type="text" placeholder="請輸入行家地址">
+			        </div>
+			    </div>
+				<div class="form-group">
+			        <label class="col-md-2 control-label">{{getWord('Compy')}}權重</label>
+			        <div class="col-md-10">
+						<select class="form-control" 
+								ng-model="$ctrl.items['CO_WEIGHTS']"
+								ng-options="data.value as data.label for data in $ctrl.coWeightsData">
+								<option value="">-- 請選擇 --</option>
+						</select>
 			        </div>
 			    </div>
 			</fieldset>

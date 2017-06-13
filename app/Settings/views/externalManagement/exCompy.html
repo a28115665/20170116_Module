@@ -41,8 +41,14 @@
 								        </div>
 								    </div>
 								    <div class="form-group">
+								        <label class="col-md-2 control-label">行家區域</label>
+								        <div class="col-md-4">
+								            <input class="form-control" placeholder="請輸入行家區域" type="text" ng-model="$vm.vmData.CO_AREA" required>
+								        </div>
+								    </div>
+								    <div class="form-group">
 								        <label class="col-md-2 control-label">行家統編</label>
-								        <div class="col-md-10">
+								        <div class="col-md-4">
 								            <input class="form-control" placeholder="請輸入行家統編" type="text" ng-model="$vm.vmData.CO_NUMBER">
 								        </div>
 								    </div>
@@ -63,6 +69,14 @@
 								        <label class="col-md-2 control-label">行家代號</label>
 								        <div class="col-md-2">
 								            <input class="form-control" placeholder="請輸入行家代號" type="text" ng-model="$vm.vmData.CO_CODE" ng-disabled="true">
+								        </div>
+								        <label class="col-md-2 control-label">行家權重</label>
+								        <div class="col-md-2">
+											<select class="form-control" 
+													ng-model="$vm.vmData.CO_WEIGHTS"
+													ng-options="data.value as data.label for data in $vm.coWeightsData">
+													<option value="">-- 請選擇 --</option>
+											</select>
 								        </div>
 								    </div>
 								</fieldset>

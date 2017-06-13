@@ -37,57 +37,61 @@ var GetCargoAircraftTime = function (){
 	            		_conditions = [];;
 	            	// console.log(upsertData);
 
-	            	for(var i in upsertData){
-	            		// console.log("ScheduleArrivalTime=>",moment(upsertData[i].ScheduleArrivalTime).format('YYYY-MM-DD HH:mm:ss'));
-	            		// console.log("ActualArrivalTime=>",moment(upsertData[i].ActualArrivalTime).format('YYYY-MM-DD HH:mm:ss'));
-	            		// console.log("UpdateTime=>",moment(upsertData[i].UpdateTime).format('YYYY-MM-DD HH:mm:ss'));
-	            		_conditions.push(JSON.stringify({
-			                crudType : 'Upsert',
-							table : 23,
-			                params : {
-			                	FA_AIR_ROTETYPE       : upsertData[i].AirRouteType,
-			                	FA_DEPART_AIRTID      : upsertData[i].DepartureAirportID,
-								FA_ARRIVAL_AIRPTID    : upsertData[i].ArrivalAirportID,
-								FA_SCHEDL_ARRIVALTIME : moment(upsertData[i].ScheduleArrivalTime).format('YYYY-MM-DD HH:mm:ss'),
-								FA_ACTL_ARRIVALTIME   : moment(upsertData[i].ActualArrivalTime).format('YYYY-MM-DD HH:mm:ss'),
-								FA_ARRIVAL_REMK       : upsertData[i].ArrivalRemark,
-								FA_ARRIVAL_TERNL      : upsertData[i].ArrivalTerminal,
-								FA_ARRIVAL_GATE       : upsertData[i].ArrivalGate,
-								FA_UP_DATETIME        : moment(upsertData[i].UpdateTime).format('YYYY-MM-DD HH:mm:ss')
-			                },
-							condition : {
-								FA_FLIGHTDATE : upsertData[i].FlightDate,
-								FA_FLIGHTNUM  : upsertData[i].FlightNumber,
-								FA_AIR_LINEID : upsertData[i].AirlineID
-							}
-	            		}));
+	            	// 有資料再request
+	            	if(upsertData.length > 0){
+
+		            	for(var i in upsertData){
+		            		// console.log("ScheduleArrivalTime=>",moment(upsertData[i].ScheduleArrivalTime).format('YYYY-MM-DD HH:mm:ss'));
+		            		// console.log("ActualArrivalTime=>",moment(upsertData[i].ActualArrivalTime).format('YYYY-MM-DD HH:mm:ss'));
+		            		// console.log("UpdateTime=>",moment(upsertData[i].UpdateTime).format('YYYY-MM-DD HH:mm:ss'));
+		            		_conditions.push(JSON.stringify({
+				                crudType : 'Upsert',
+								table : 23,
+				                params : {
+				                	FA_AIR_ROTETYPE       : upsertData[i].AirRouteType,
+				                	FA_DEPART_AIRTID      : upsertData[i].DepartureAirportID,
+									FA_ARRIVAL_AIRPTID    : upsertData[i].ArrivalAirportID,
+									FA_SCHEDL_ARRIVALTIME : moment(upsertData[i].ScheduleArrivalTime).format('YYYY-MM-DD HH:mm:ss'),
+									FA_ACTL_ARRIVALTIME   : moment(upsertData[i].ActualArrivalTime).format('YYYY-MM-DD HH:mm:ss'),
+									FA_ARRIVAL_REMK       : upsertData[i].ArrivalRemark,
+									FA_ARRIVAL_TERNL      : upsertData[i].ArrivalTerminal,
+									FA_ARRIVAL_GATE       : upsertData[i].ArrivalGate,
+									FA_UP_DATETIME        : moment(upsertData[i].UpdateTime).format('YYYY-MM-DD HH:mm:ss')
+				                },
+								condition : {
+									FA_FLIGHTDATE : upsertData[i].FlightDate,
+									FA_FLIGHTNUM  : upsertData[i].FlightNumber,
+									FA_AIR_LINEID : upsertData[i].AirlineID
+								}
+		            		}));
+		            	}
+
+		            	// 塞入DB
+	        			var _post_upsertData = querystring.stringify(_conditions);
+
+	        			var _post_upsertData_options = {
+				            host: '127.0.0.1',
+				            port: setting.NodeJs.port,
+				            path: '/restful/crudByTask?' + _post_upsertData,
+				            method: 'GET',
+				        };
+
+				        var _post_req = http.request(_post_upsertData_options, function (_post_res){
+				        	var _content = '';
+
+							_post_res.setEncoding('utf8');
+
+				            _post_res.on('data', function (chunk){
+				                _content += chunk;
+				            });
+
+				            _post_res.on('end', function(){
+				            	// console.log(JSON.parse(content));
+							})
+				        });
+
+				        _post_req.end();
 	            	}
-
-	            	// 塞入DB
-        			var _post_upsertData = querystring.stringify(_conditions);
-
-        			var _post_upsertData_options = {
-			            host: '127.0.0.1',
-			            port: setting.NodeJs.port,
-			            path: '/restful/crudByTask?' + _post_upsertData,
-			            method: 'GET',
-			        };
-
-			        var _post_req = http.request(_post_upsertData_options, function (_post_res){
-			        	var _content = '';
-
-						_post_res.setEncoding('utf8');
-
-			            _post_res.on('data', function (chunk){
-			                _content += chunk;
-			            });
-
-			            _post_res.on('end', function(){
-			            	// console.log(JSON.parse(content));
-						})
-			        });
-
-			        _post_req.end();
 	            })
 	        }
 		});

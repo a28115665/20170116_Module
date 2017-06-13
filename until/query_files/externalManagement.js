@@ -19,7 +19,9 @@ module.exports = function(pQueryname, pParams){
 								   CO_NUMBER, \
 								   CO_NAME, \
 								   CO_ADDR, \
-								   CO_STS \
+								   CO_STS, \
+								   CO_WEIGHTS, \
+								   CO_AREA \
 							FROM COMPY_INFO \
 							WHERE 1=1 ";
 							
