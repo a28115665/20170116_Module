@@ -244,6 +244,27 @@ angular.module('app.settings').config(function ($stateProvider){
         }
     })
 
+    .state('app.settings.aviationmail.targeteditor', {
+        url: '/targeteditor',
+        data: {
+            title: 'Target Editor'
+        },
+        params: { 
+            data: null
+        },
+        parent: 'app.settings.aviationmail',
+        views: {
+            "content@app" : {
+                templateUrl: 'app/Settings/views/aviationMail/targetEditor.html',
+                controller: 'TargetEditorCtrl',
+                controllerAs: '$vm',
+                resolve: {
+
+                }
+            }
+        }
+    })
+
     .state('app.settings.excompybagno', {
         url: '/settings/excompybagno',
         data: {

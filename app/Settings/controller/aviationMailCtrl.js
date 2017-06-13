@@ -13,7 +13,7 @@ angular.module('app.settings').controller('AviationMailCtrl', function ($scope, 
             // 編輯
             modifyData : function(row){
                 console.log(row);
-                $state.transitionTo("app.selfwork.jobs.editorjob", {
+                $state.transitionTo("app.settings.aviationmail.targeteditor", {
                     data: row.entity
                 });
             },
