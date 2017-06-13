@@ -29,8 +29,9 @@ angular.module('app', [
     'ui.grid.pinning',
     'ui.grid.autoResize',
     'ui.mask',
-    'ui.tinymce',
     'angularFileUpload',
+    'ngTagsInput',
+    'textAngular',
 
     // Smartadmin Angular Common Module
     'SmartAdmin',
