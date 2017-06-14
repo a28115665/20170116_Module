@@ -97,8 +97,7 @@
 				<div class="form-group">
 			        <label class="col-md-2 control-label">預設內容</label>
 			        <div class="col-md-10">
-			            <!-- <input class="form-control" ng-model="$ctrl.mdData.FM_CONTENT" type="text" placeholder="請輸入預設內容"> -->
-			            <div text-angular ng-model="$ctrl.mdData.FM_CONTENT" ta-toolbar="$ctrl.taToolbar"></div>
+			            <summernote ng-model="$ctrl.mdData.FM_CONTENT" config="$ctrl.snOptions"></summernote>
 			        </div>
 			    </div>
 			</fieldset>

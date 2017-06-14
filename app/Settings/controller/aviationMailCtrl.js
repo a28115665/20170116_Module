@@ -100,28 +100,28 @@ angular.module('app.settings').controller('AviationMailCtrl', function ($scope, 
 
                 // 檢查信件是否有資料
                 if(_mailObjectToArray.length > 0){
-                    // selectedItem.FM_MAIL = _mailObjectToArray.join("; ");
+                    selectedItem.FM_MAIL = _mailObjectToArray.join("; ");
 
-                    // RestfulApi.InsertMSSQLData({
-                    //     insertname: 'Insert',
-                    //     table: 24,
-                    //     params: {
-                    //         FM_TARGET : selectedItem.FM_TARGET,
-                    //         FM_MAIL : _mailObjectToArray.join(";"),
-                    //         FM_CONTENT : selectedItem.FM_CONTENT,
-                    //         FM_CR_USER : $vm.profile.U_ID,
-                    //         FM_CR_DATETIME : $filter('date')(new Date(), 'yyyy-MM-dd HH:mm:ss')
-                    //     }
-                    // }).then(function(res) {
-                    //     console.log(res);
+                    RestfulApi.InsertMSSQLData({
+                        insertname: 'Insert',
+                        table: 24,
+                        params: {
+                            FM_TARGET : selectedItem.FM_TARGET,
+                            FM_MAIL : _mailObjectToArray.join(";"),
+                            FM_CONTENT : selectedItem.FM_CONTENT,
+                            FM_CR_USER : $vm.profile.U_ID,
+                            FM_CR_DATETIME : $filter('date')(new Date(), 'yyyy-MM-dd HH:mm:ss')
+                        }
+                    }).then(function(res) {
+                        console.log(res);
 
-                    //     if(res["returnData"] == 1){
-                    //         LoadFlightMail();
+                        if(res["returnData"] == 1){
+                            LoadFlightMail();
 
-                    //         toaster.pop('success', '訊息', '新增信件成功', 3000);
-                    //     }
+                            toaster.pop('success', '訊息', '新增信件成功', 3000);
+                        }
 
-                    // });
+                    });
                 }else{
                     toaster.pop('danger', '失敗', '沒有任何信件', 3000);
                 }
@@ -142,23 +142,10 @@ angular.module('app.settings').controller('AviationMailCtrl', function ($scope, 
     };
 
 })
-.controller('AddTargetModalInstanceCtrl', function ($uibModalInstance) {
+.controller('AddTargetModalInstanceCtrl', function ($uibModalInstance, SUMMERNOT_CONFIG) {
     var $ctrl = this;
-    /** 所有類型
-        ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'pre', 'quote'],
-        ['bold', 'italics', 'underline', 'strikeThrough', 'ul', 'ol', 'redo', 'undo', 'clear'],
-        ['justifyLeft', 'justifyCenter', 'justifyRight', 'indent', 'outdent'],
-        ['html', 'insertImage','insertLink', 'insertVideo', 'wordcount', 'charcount']
-     */
-    $ctrl.taToolbar = [
-        ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'pre', 'quote'],
-        ['bold', 'italics', 'underline', 'strikeThrough', 'ul', 'ol', 'redo', 'undo', 'clear'],
-        ['justifyLeft', 'justifyCenter', 'justifyRight', 'indent', 'outdent'],
-        ['html', 'wordcount', 'charcount']
-    ];
-    $ctrl.mdData = {
-        FM_CONTENT : ''
-    };
+    $ctrl.mdData = {};
+    $ctrl.snOptions = SUMMERNOT_CONFIG;
 
     $ctrl.ok = function() {
         $uibModalInstance.close($ctrl.mdData);

@@ -1,16 +1,8 @@
 "use strict";
 
-angular.module('app.settings').controller('NewsCtrl', function ($scope, $stateParams, $state, RestfulApi, Session, toaster, $uibModal, $filter, bool, ioType, FileUploader) {
-    console.log($stateParams);
-
-    // $scope.getContent = function() {
-    //     console.log('Editor content:', $scope.tinymceModel);
-    // };
-
-    // $scope.setContent = function() {
-    //     $scope.tinymceModel = 'Time: ' + (new Date());
-    // };
-
+angular.module('app.settings').controller('NewsCtrl', function ($scope, $stateParams, $state, RestfulApi, Session, toaster, $uibModal, $filter, bool, ioType, FileUploader, SUMMERNOT_CONFIG) {
+    
+    // console.log($stateParams);
     var $vm = this,
         _tasks = [],
         _d = new Date(),
@@ -41,22 +33,10 @@ angular.module('app.settings').controller('NewsCtrl', function ($scope, $statePa
         profile : Session.Get(),
         boolData : bool,
         ioTypeData : ioType,
+        snOptions : SUMMERNOT_CONFIG,
         uploader : new FileUploader({
             url: '/toolbox/uploadFile?filePath='+_filepath
         }),
-        tinymceOptions : {
-            skin_url: 'styles/skins/lightgray',
-            plugins: 'link image code',
-            force_br_newlines : false,
-            force_p_newlines : false,
-            forced_root_block : '',
-            toolbar: '',
-            // toolbar: 'undo redo | insert | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image',
-            // selector: 'textarea',
-            image_advtab: true,
-            height: "200px",
-            // toolbar: 'undo redo | bold italic | alignleft aligncenter alignright | code'
-        },
         AddPostGoal : function (){
             var modalInstance = $uibModal.open({
                 animation: true,

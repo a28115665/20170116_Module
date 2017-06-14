@@ -1,16 +1,14 @@
 "use strict";
 
-angular.module('app.settings').controller('TargetEditorCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache) {
+angular.module('app.settings').controller('TargetEditorCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, RestfulApi, $filter) {
     
     var $vm = this;
 
 	angular.extend(this, {
-        profile : Session.Get(),
-        searchCondition : {
-        	startDate : new Date(),
-        	endDate : new Date(),
+        Init : function(){
+            
         },
-        defaultChoice : 'Left',
+        profile : Session.Get(),
         gridMethod : {
             //退件
             rejectData : function(row){

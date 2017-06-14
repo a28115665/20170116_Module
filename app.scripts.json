@@ -40,14 +40,13 @@
       "angular-file-upload",
       "cryptojslib",
       "ng-tags-input",
-      "textAngular-rangy",
-      "textAngular-sanitize",
-      "textAngular"
+      "angular-summernote"
 
     ],
     "vendor.ui": [
       "select2",
       "summernote",
+      "summernote-zh-TW",
       "markdown",
       "he",
       "to-markdown",
@@ -112,6 +111,7 @@
     "jquery-color": "bower_components/jquery-color/jquery.color.js",
     "select2": "bower_components/select2/select2.min.js",
     "summernote": "bower_components/summernote/dist/summernote.min.js",
+    "summernote-zh-TW": "bower_components/summernote/lang/summernote-zh-TW.js",
     "he": "bower_components/he/he.js",
     "to-markdown": "bower_components/to-markdown/dist/to-markdown.js",
     "markdown": "bower_components/markdown/lib/markdown.js",
@@ -174,8 +174,6 @@
     "angular-file-upload": "bower_components/angular-file-upload/dist/angular-file-upload.min.js",
     "cryptojslib": "bower_components/cryptojslib/rollups/md5.js",
     "ng-tags-input": "bower_components/ng-tags-input/ng-tags-input.min.js",
-    "textAngular-rangy": "bower_components/textAngular/dist/textAngular-rangy.min.js",
-    "textAngular-sanitize": "bower_components/textAngular/dist/textAngular-sanitize.min.js",
-    "textAngular": "bower_components/textAngular/dist/textAngular.min.js"
+    "angular-summernote": "bower_components/angular-summernote/dist/angular-summernote.min.js"
   }
 }
