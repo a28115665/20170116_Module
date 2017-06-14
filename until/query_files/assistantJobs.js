@@ -49,7 +49,7 @@ module.exports = function(pQueryname, pParams){
 							/*派送單*/ \
 							LEFT JOIN ORDER_EDITOR W1_OE ON W1_OE.OE_SEQ = ORDER_LIST.OL_SEQ AND W1_OE.OE_TYPE = 'D' AND (W1_OE.OE_EDATETIME IS NOT NULL OR W1_OE.OE_FDATETIME IS NOT NULL) \
 							/*航班資訊*/ \
-							LEFT JOIN FLIGHT_ARRIVAL ON FA_AIR_LINEID + ' ' + CONVERT(varchar(4), FA_FLIGHTNUM) = ORDER_LIST.OL_FLIGHTNO AND FA_FLIGHTDATE = ORDER_LIST.OL_IMPORTDT";
+							LEFT JOIN FLIGHT_ARRIVAL ON FA_AIR_LINEID + ' ' + CONVERT(varchar(4), FA_FLIGHTNUM) = ORDER_LIST.OL_FLIGHTNO AND FA_FLIGHTDATE = ORDER_LIST.OL_IMPORTDT ";
 							
 			if(pParams["U_ID"] !== undefined && pParams["U_GRADE"] !== undefined){
 
@@ -67,7 +67,8 @@ module.exports = function(pQueryname, pParams){
 				}
 			}
 
-			_SQLCommand += " ORDER BY OL_CR_DATETIME DESC ";
+			_SQLCommand += " WHERE OL_FDATETIME IS NULL \
+							 ORDER BY OL_CR_DATETIME DESC ";
 
 			break;
 

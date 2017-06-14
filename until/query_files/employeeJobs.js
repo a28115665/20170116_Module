@@ -101,7 +101,8 @@ module.exports = function(pQueryname, pParams){
 				}
 			}
 
-			_SQLCommand += " ORDER BY OL_CR_DATETIME DESC ";
+			_SQLCommand += " WHERE OL_FDATETIME IS NULL \
+							 ORDER BY OL_CR_DATETIME DESC ";
 		
 			break;
 		case "SelectOrderEditor":

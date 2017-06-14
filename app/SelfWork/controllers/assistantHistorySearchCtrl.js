@@ -1,6 +1,6 @@
 "use strict";
 
-angular.module('app.selfwork').controller('SelfWorkHistorySearchCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache) {
+angular.module('app.selfwork').controller('AssistantHistorySearchCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache) {
     
     var $vm = this;
 
@@ -71,4 +71,4 @@ angular.module('app.selfwork').controller('SelfWorkHistorySearchCtrl', function 
         }
     });
 
-})
+});

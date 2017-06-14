@@ -86,6 +86,7 @@ module.exports = function(pQueryname, pParams){
 										ELSE '0' END \
 									) AS 'W1_STATUS' \
 							FROM ORDER_LIST \
+							WHERE OL_FDATETIME IS NULL \
 							ORDER BY OL_CR_DATETIME DESC";
 			break;
 
