@@ -244,12 +244,7 @@ angular.module('app.settings').config(function ($stateProvider){
                 controller: 'AviationMailCtrl',
                 controllerAs: '$vm',
                 resolve: {
-                    srcipts: function(lazyScript){
-                        return lazyScript.register([
-                            'build/vendor.ui.js'
-                        ])
-
-                    }
+                    
                 }
             }
         }
@@ -270,6 +265,12 @@ angular.module('app.settings').config(function ($stateProvider){
                 controller: 'TargetEditorCtrl',
                 controllerAs: '$vm',
                 resolve: {
+                    srcipts: function(lazyScript){
+                        return lazyScript.register([
+                            'build/vendor.ui.js'
+                        ])
+
+                    }
                 }
             }
         }

@@ -1,72 +1,113 @@
 "use strict";
 
-angular.module('app.settings').controller('TargetEditorCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, RestfulApi, $filter) {
+angular.module('app.settings').controller('TargetEditorCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, RestfulApi, $filter, SUMMERNOT_CONFIG) {
     
     var $vm = this;
 
 	angular.extend(this, {
         Init : function(){
-            
+            if($stateParams.data == null){
+                $vm.vmData = {
+                    "IU" : "Add"
+                }
+            }else{
+                $vm.vmData = $stateParams.data;
+                $vm.vmData["IU"] = "Update";
+
+                var _mail = angular.copy($vm.vmData.FM_MAIL.split(";"));
+                $vm.vmData.FM_MAIL = [];
+                for(var i in _mail){
+                    $vm.vmData.FM_MAIL.push({
+                        text : _mail[i]
+                    });
+                }
+
+            }
+            console.log($vm.vmData);
         },
         profile : Session.Get(),
-        gridMethod : {
-            //退件
-            rejectData : function(row){
-                console.log(row);
-            },
-            //編輯
-            modifyData : function(row){
-                console.log(row);
-                $state.transitionTo("app.selfwork.jobs.editorjob", {
-                    data: {
-                      id: 5,
-                      blue: '#0000FF'
+        snOptions : SUMMERNOT_CONFIG,
+        Return : function(){
+            ReturnToAviationMail();
+        },
+        Add : function(){
+            var _mail = angular.copy($vm.vmData.FM_MAIL),
+                _mailObjectToArray = [];
+            for(var i in _mail){
+                _mailObjectToArray.push(_mail[i].text);
+            }
+
+            // 檢查信件是否有資料
+            if(_mailObjectToArray.length > 0){
+                // $vm.vmData.FM_MAIL = _mailObjectToArray.join("; ");
+
+                RestfulApi.InsertMSSQLData({
+                    insertname: 'Insert',
+                    table: 24,
+                    params: {
+                        FM_TARGET : $vm.vmData.FM_TARGET,
+                        FM_MAIL : _mailObjectToArray.join(";"),
+                        FM_CONTENT : $vm.vmData.FM_CONTENT,
+                        FM_CR_USER : $vm.profile.U_ID,
+                        FM_CR_DATETIME : $filter('date')(new Date(), 'yyyy-MM-dd HH:mm:ss')
                     }
+                }).then(function(res) {
+                    console.log(res);
+
+                    if(res["returnData"] == 1){
+                        ReturnToAviationMail();
+
+                        toaster.pop('success', '訊息', '新增目標成功', 3000);
+                    }
+
                 });
-            },
-            //結單
-            closeData : function(row){
-                console.log(row);
+            }else{
+                toaster.pop('danger', '失敗', '沒有任何信件', 3000);
             }
         },
-        historySearchOptions : {
-            data:  [
-                {
-                    a : '2017-02-09',
-                    b : '297-64659291',
-                    c : '2017-01-15',
-                    d : 'CI5822',
-                    e : 'HK',
-                    f : '新桥供应链',
-                    g : true
-                },
-                {
-                    a : '2017-02-09',
-                    b : '297-64659292',
-                    c : '2017-01-15',
-                    d : 'CI5822',
-                    e : 'HK',
-                    f : '新桥供应链',
-                    g : true
-                },
-            ],
-            columnDefs: [
-                { name: 'a',        displayName: '提單日期' },
-                { name: 'b',        displayName: '主號' },
-                { name: 'c',        displayName: '進口日期' },
-                { name: 'd',        displayName: '班機' },
-                { name: 'e',        displayName: '啟運國別' },
-                { name: 'f',        displayName: '寄件人或公司' },
-                { name: 'g',        displayName: '狀態', cellTemplate: $templateCache.get('accessibilityLightStatus') },
-                { name: 'Options',  displayName: '操作', cellTemplate: $templateCache.get('accessibilityToDMC') }
-            ],
-            enableFiltering: false,
-            enableSorting: false,
-            enableColumnMenus: false,
-            // enableVerticalScrollbar: false,
-            paginationPageSizes: [10, 25, 50],
-            paginationPageSize: 10
+        Update : function(){
+            console.log($vm.vmData);
+
+            var _mail = angular.copy($vm.vmData.FM_MAIL),
+                _mailObjectToArray = [];
+            for(var i in _mail){
+                _mailObjectToArray.push(_mail[i].text);
+            }
+
+            // 檢查信件是否有資料
+            if(_mailObjectToArray.length > 0){
+
+                RestfulApi.UpdateMSSQLData({
+                    updatename: 'Update',
+                    table: 24,
+                    params: {
+                        FM_TARGET : $vm.vmData.FM_TARGET,
+                        FM_MAIL : _mailObjectToArray.join(";"),
+                        FM_CONTENT : $vm.vmData.FM_CONTENT,
+                        FM_UP_USER : $vm.profile.U_ID,
+                        FM_UP_DATETIME : $filter('date')(new Date(), 'yyyy-MM-dd HH:mm:ss')
+                    },
+                    condition: {
+                        FM_ID : $vm.vmData.FM_ID
+                    }
+                }).then(function(res) {
+                    console.log(res);
+
+                    if(res["returnData"] == 1){
+                        ReturnToAviationMail();
+
+                        toaster.pop('success', '訊息', '更新目標成功', 3000);
+                    }
+
+                });
+            }else{
+                toaster.pop('danger', '失敗', '沒有任何信件', 3000);
+            }
         }
     });
+
+    function ReturnToAviationMail(){
+        $state.transitionTo($state.current.parent);
+    };
 
 })

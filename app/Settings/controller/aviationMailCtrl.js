@@ -79,55 +79,8 @@ angular.module('app.settings').controller('AviationMailCtrl', function ($scope, 
         },
         AddTarget : function(){
 
-            var modalInstance = $uibModal.open({
-                animation: true,
-                ariaLabelledBy: 'modal-title',
-                ariaDescribedBy: 'modal-body',
-                templateUrl: 'addTargetModalContent.html',
-                controller: 'AddTargetModalInstanceCtrl',
-                controllerAs: '$ctrl',
-                size: 'lg'
-            });
+            $state.transitionTo("app.settings.aviationmail.targeteditor");
 
-            modalInstance.result.then(function(selectedItem) {
-                console.log(selectedItem);
-
-                var _mail = angular.copy(selectedItem.FM_MAIL),
-                    _mailObjectToArray = [];
-                for(var i in _mail){
-                    _mailObjectToArray.push(_mail[i].text);
-                }
-
-                // 檢查信件是否有資料
-                if(_mailObjectToArray.length > 0){
-                    selectedItem.FM_MAIL = _mailObjectToArray.join("; ");
-
-                    RestfulApi.InsertMSSQLData({
-                        insertname: 'Insert',
-                        table: 24,
-                        params: {
-                            FM_TARGET : selectedItem.FM_TARGET,
-                            FM_MAIL : _mailObjectToArray.join(";"),
-                            FM_CONTENT : selectedItem.FM_CONTENT,
-                            FM_CR_USER : $vm.profile.U_ID,
-                            FM_CR_DATETIME : $filter('date')(new Date(), 'yyyy-MM-dd HH:mm:ss')
-                        }
-                    }).then(function(res) {
-                        console.log(res);
-
-                        if(res["returnData"] == 1){
-                            LoadFlightMail();
-
-                            toaster.pop('success', '訊息', '新增信件成功', 3000);
-                        }
-
-                    });
-                }else{
-                    toaster.pop('danger', '失敗', '沒有任何信件', 3000);
-                }
-            }, function() {
-                // $log.info('Modal dismissed at: ' + new Date());
-            });
         }
     });
 
@@ -141,17 +94,4 @@ angular.module('app.settings').controller('AviationMailCtrl', function ($scope, 
         }); 
     };
 
-})
-.controller('AddTargetModalInstanceCtrl', function ($uibModalInstance, SUMMERNOT_CONFIG) {
-    var $ctrl = this;
-    $ctrl.mdData = {};
-    $ctrl.snOptions = SUMMERNOT_CONFIG;
-
-    $ctrl.ok = function() {
-        $uibModalInstance.close($ctrl.mdData);
-    };
-
-    $ctrl.cancel = function() {
-        $uibModalInstance.dismiss('cancel');
-    };
 });
