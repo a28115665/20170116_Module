@@ -4,11 +4,9 @@ module.exports = function(pQueryname, pParams){
 	switch(pQueryname){
 		case "SelectAllUserInfo":
 			_SQLCommand += "EXEC OpenKeys;";
-			_SQLCommand += "SELECT U_CHECK, \
-								   U_EMAIL, \
+			_SQLCommand += "SELECT U_EMAIL, \
 								   U_ID, \
 								   U_GRADE, \
-								   U_JOB_AGENT, \
 								   U_NAME, \
 								   U_PHONE, \
 								   U_ROLE, \
@@ -30,11 +28,9 @@ module.exports = function(pQueryname, pParams){
 			break;
 		case "SelectAllUserInfoNotWithAdmin":
 			_SQLCommand += "EXEC OpenKeys;";
-			_SQLCommand += "SELECT U_CHECK, \
-								   U_EMAIL, \
+			_SQLCommand += "SELECT U_EMAIL, \
 								   U_ID, \
 								   U_GRADE, \
-								   U_JOB_AGENT, \
 								   U_NAME, \
 								   U_PHONE, \
 								   U_ROLE, \

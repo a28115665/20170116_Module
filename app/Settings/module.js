@@ -31,7 +31,7 @@ angular.module('app.settings').config(function ($stateProvider){
     .state('app.settings.accountmanagement', {
         url: '/settings/accountmanagement',
         data: {
-            title: 'Account Management'
+            title: 'AccountManagement'
         },
         views: {
             "content@app" : {
@@ -107,7 +107,7 @@ angular.module('app.settings').config(function ($stateProvider){
     .state('app.settings.billboardeditor', {
         url: '/settings/billboardeditor',
         data: {
-            title: 'Billboard Editor'
+            title: 'BillboardEditor'
         },
         views: {
             "content@app" : {
@@ -129,7 +129,7 @@ angular.module('app.settings').config(function ($stateProvider){
     .state('app.settings.billboardeditor.news', {
         url: '/news',
         data: {
-            title: 'Add News'
+            title: 'News'
         },
         params: { 
             data: null
@@ -160,7 +160,7 @@ angular.module('app.settings').config(function ($stateProvider){
     .state('app.settings.externalmanagement', {
         url: '/settings/externalmanagement',
         data: {
-            title: 'External Management'
+            title: 'ExternalManagement'
         },
         views: {
             "content@app" : {
@@ -236,7 +236,7 @@ angular.module('app.settings').config(function ($stateProvider){
     .state('app.settings.aviationmail', {
         url: '/settings/aviationmail',
         data: {
-            title: 'Aviation Mail'
+            title: 'AviationMail'
         },
         views: {
             "content@app" : {
@@ -253,7 +253,7 @@ angular.module('app.settings').config(function ($stateProvider){
     .state('app.settings.aviationmail.targeteditor', {
         url: '/targeteditor',
         data: {
-            title: 'Target Editor'
+            title: 'TargetEditor'
         },
         params: { 
             data: null
@@ -279,7 +279,7 @@ angular.module('app.settings').config(function ($stateProvider){
     .state('app.settings.excompybagno', {
         url: '/settings/excompybagno',
         data: {
-            title: 'Excompy Bagno'
+            title: 'ExcompyBagno'
         },
         views: {
             "content@app" : {

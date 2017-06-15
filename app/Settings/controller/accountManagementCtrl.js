@@ -90,13 +90,13 @@ angular.module('app.settings').controller('AccountManagementCtrl', function ($sc
                         selectOptions: bool
                     }
                 },
-                { name: 'U_CHECK'  ,  displayName: '認證', cellFilter: 'booleanFilter', filter: 
-                    {
-                        term: null,
-                        type: uiGridConstants.filter.SELECT,
-                        selectOptions: bool
-                    }
-                },
+                // { name: 'U_CHECK'  ,  displayName: '認證', cellFilter: 'booleanFilter', filter: 
+                //     {
+                //         term: null,
+                //         type: uiGridConstants.filter.SELECT,
+                //         selectOptions: bool
+                //     }
+                // },
                 { name: 'U_ID'     ,  displayName: '帳號' },
                 { name: 'U_NAME'   ,  displayName: '名稱' },
                 { name: 'U_EMAIL'  ,  displayName: '信箱' },

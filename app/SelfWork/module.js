@@ -43,7 +43,7 @@ angular.module('app.selfwork').config(function ($stateProvider){
     .state('app.selfwork.leaderhistorysearch', {
         url: '/selfwork/leaderhistorysearch',
         data: {
-            title: 'Leader History Search'
+            title: 'LeaderHistorySearch'
         },
         views: {
             "content@app" : {
@@ -100,7 +100,7 @@ angular.module('app.selfwork').config(function ($stateProvider){
     .state('app.selfwork.assistanthistorysearch', {
         url: '/selfwork/assistanthistorysearch',
         data: {
-            title: 'Assistant History Search'
+            title: 'AssistantHistorySearch'
         },
         views: {
             "content@app" : {
@@ -199,7 +199,7 @@ angular.module('app.selfwork').config(function ($stateProvider){
     .state('app.selfwork.employeehistorysearch', {
         url: '/selfwork/employeehistorysearch',
         data: {
-            title: 'Employee History Search'
+            title: 'EmployeeHistorySearch'
         },
         views: {
             "content@app" : {
@@ -207,7 +207,12 @@ angular.module('app.selfwork').config(function ($stateProvider){
                 controller: 'EmployeeHistorySearchCtrl',
                 controllerAs: '$vm',
                 resolve: {
-                    
+                    compy: function(Compy){
+                        return Compy.get();
+                    },
+                    bool: function (SysCode){
+                        return SysCode.get('Boolean');
+                    }
                 }
             }
         }
@@ -256,7 +261,7 @@ angular.module('app.selfwork').config(function ($stateProvider){
     .state('app.selfwork.deliveryhistorysearch', {
         url: '/selfwork/deliveryhistorysearch',
         data: {
-            title: 'Delivery History Search'
+            title: 'DeliveryHistorySearch'
         },
         views: {
             "content@app" : {
