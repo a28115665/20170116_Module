@@ -97,6 +97,7 @@
 													<span class="cell-class-ban"> 黑名單</span>
 													<span class="cell-class-pull"> 拉貨</span>
 													<span class="cell-class-special"> 特貨</span>
+													<span class="text-primary"> 可編輯欄位</span>
 										        </span>
 						                    </div>
 						                </fieldset>
@@ -265,7 +266,7 @@
 	    <h3 class="modal-title" id="modal-title">收件者相同</h3>
 	</div>
 	<div class="modal-body no-padding" id="modal-body">
-        <div id="grid1" ui-grid="$ctrl.repeatNameOption" class="my-ui-grid" ui-grid-pagination ui-grid-resize-columns ui-grid-auto-resize></div>
+        <div id="grid1" ui-grid="$ctrl.repeatNameOption" class="my-ui-grid" ui-grid-pagination ui-grid-resize-columns ui-grid-edit ui-grid-row-edit ui-grid-auto-resize></div>
 	</div>
 	<div class="modal-footer">
 	    <button class="btn btn-primary" type="button" ng-click="$ctrl.ok()">{{getWord('OK')}}</button>

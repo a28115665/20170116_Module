@@ -37,14 +37,19 @@ module.exports = function(pQueryname, pParams){
 									W3_OE.OE_FDATETIME AS 'W3_FDATETIME', \
 									W1_OE.OE_PRINCIPAL AS 'W1_PRINCIPAL', \
 									W1_OE.OE_EDATETIME AS 'W1_EDATETIME', \
-									W1_OE.OE_FDATETIME AS 'W1_FDATETIME' \
+									W1_OE.OE_FDATETIME AS 'W1_FDATETIME', \
+									FA_SCHEDL_ARRIVALTIME, \
+									FA_ACTL_ARRIVALTIME, \
+									FA_ARRIVAL_REMK \
 							FROM ORDER_LIST \
 							/*報機單*/ \
 							LEFT JOIN ORDER_EDITOR W2_OE ON W2_OE.OE_SEQ = ORDER_LIST.OL_SEQ AND W2_OE.OE_TYPE = 'R' AND (W2_OE.OE_EDATETIME IS NOT NULL OR W2_OE.OE_FDATETIME IS NOT NULL) \
 							/*銷艙單只有完成時間*/ \
 							LEFT JOIN ORDER_EDITOR W3_OE ON W3_OE.OE_SEQ = ORDER_LIST.OL_SEQ AND W3_OE.OE_TYPE = 'W' AND W3_OE.OE_FDATETIME IS NOT NULL \
 							/*派送單*/ \
-							LEFT JOIN ORDER_EDITOR W1_OE ON W1_OE.OE_SEQ = ORDER_LIST.OL_SEQ AND W1_OE.OE_TYPE = 'D' AND (W1_OE.OE_EDATETIME IS NOT NULL OR W1_OE.OE_FDATETIME IS NOT NULL) ";
+							LEFT JOIN ORDER_EDITOR W1_OE ON W1_OE.OE_SEQ = ORDER_LIST.OL_SEQ AND W1_OE.OE_TYPE = 'D' AND (W1_OE.OE_EDATETIME IS NOT NULL OR W1_OE.OE_FDATETIME IS NOT NULL) \
+							/*航班資訊*/ \
+							LEFT JOIN FLIGHT_ARRIVAL ON FA_AIR_LINEID + ' ' + CONVERT(varchar(4), FA_FLIGHTNUM) = ORDER_LIST.OL_FLIGHTNO AND FA_FLIGHTDATE = ORDER_LIST.OL_IMPORTDT ";
 							
 			if(pParams["U_ID"] !== undefined && pParams["U_GRADE"] !== undefined){
 
@@ -62,7 +67,23 @@ module.exports = function(pQueryname, pParams){
 				}
 			}
 
-			_SQLCommand += " ORDER BY OL_CR_DATETIME DESC ";
+			_SQLCommand += " WHERE OL_FDATETIME IS NULL \
+							 ORDER BY OL_CR_DATETIME DESC ";
+
+			break;
+
+		case "SelectFlightArrival":
+			_SQLCommand += "SELECT * \
+							FROM FLIGHT_ARRIVAL \
+						    WHERE 1=1";
+
+			if(pParams["FA_FLIGHTDATE"] !== undefined){
+				_SQLCommand += " AND FA_FLIGHTDATE = @FA_FLIGHTDATE ";
+			}
+
+			_SQLCommand += " ORDER BY FA_SCHEDL_ARRIVALTIME ";
+
+			break;
 	}
 
 	return _SQLCommand;

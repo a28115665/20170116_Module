@@ -92,39 +92,6 @@ angular.module('app')
 	return FilterFunction;
 
 })
-.filter('departFilter', function (SysCode) {
-
-	var resData = {};
-
-	LoadData();
-
-	var FilterFunction = function (input, isLoad){
-		if(isLoad){
-			LoadData();
-		}
-
-		if (!input) {
-		    return '';
-		} else {
-		    return angular.isUndefined(resData[input]) ? input : resData[input];
-		}
-
-	};
-	
-	function LoadData(){
-		SysCode.get('Depart').then(function (res){
-			for(var i in res){
-				resData[res[i].value] = res[i].label;
-			}
-		});
-	}
-
-	// 持續偵測
-	FilterFunction.$stateful = true;
-
-	return FilterFunction;
-
-})
 .filter('ioTypeFilter', function (SysCode) {
 
 	var resData = {};
@@ -179,6 +146,39 @@ angular.module('app')
 	
 	function LoadData(){
 		Compy.get().then(function (res){
+			for(var i in res){
+				resData[res[i].value] = res[i].label;
+			}
+		});
+	}
+
+	// 持續偵測
+	FilterFunction.$stateful = true;
+
+	return FilterFunction;
+
+})
+.filter('coWeightsFilter', function (SysCode) {
+
+	var resData = {};
+
+	LoadData();
+
+	var FilterFunction = function (input, isLoad){
+		if(isLoad){
+			LoadData();
+		}
+
+		if (!input) {
+		    return '';
+		} else {
+		    return angular.isUndefined(resData[input]) ? input : resData[input];
+		}
+
+	};
+	
+	function LoadData(){
+		SysCode.get('CoWeights').then(function (res){
 			for(var i in res){
 				resData[res[i].value] = res[i].label;
 			}

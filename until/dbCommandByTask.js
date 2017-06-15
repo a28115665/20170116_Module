@@ -141,7 +141,7 @@ var UpdateRequestWithTransaction = function(task, args, callback) {
 	// console.log("UpdateRequestWithTransaction:");
 	var request = new sql.Request(args.transaction),
 		SQLCommand = "",
-		psParams = extend({}, task.params, task.condition)
+		psParams = extend({}, task.params, task.condition),
 		Schema = [],
 		Condition = [];
 
@@ -260,6 +260,82 @@ var DeleteRequestWithTransaction = function(task, args, callback) {
 };
 
 /**
+ * [MergeMatchedUpdateThenInsertRequestWithTransaction description] Transaction For Upsert
+ * @param {[type]}
+ * @param {[type]}
+ * @param {Function}
+ */
+var UpsertRequestWithTransaction = function(task, args, callback) {
+	// console.log("DeleteRequestWithTransaction:");
+	var request = new sql.Request(args.transaction),
+		psParams = extend({}, task.params, task.condition),
+		SQLCommand = "",
+		ParamsValues = [],
+		ParamsSchema = [],
+		ParamsTargetSource = [],
+		ConditionValues = [],
+		ConditionSchema = [],
+		ConditionTarget = [];
+
+	schemaType.SchemaType2(psParams, request, sql);
+
+	// MERGE FLIGHT_ARRIVAL WITH(HOLDLOCK) AS TARGET
+	// USING (VALUES (2))
+	//     AS SOURCE (FA_AIR_ROTETYPE)
+	//     ON TARGET.FA_FLIGHTDATE = '2017-06-12' and TARGET.FA_FLIGHTNUM = '1234' and TARGET.FA_AIR_LINEID = 'CI'
+	// WHEN MATCHED THEN
+	//     UPDATE
+	//     SET TARGET.FA_AIR_ROTETYPE = SOURCE.FA_AIR_ROTETYPE
+	// WHEN NOT MATCHED THEN
+	//     INSERT ( FA_FLIGHTDATE, FA_FLIGHTNUM, FA_AIR_ROTETYPE, FA_AIR_LINEID)
+	//     VALUES ( '2017-06-12', '1234', 1, 'CI')
+
+	switch(task.upsertname){
+		default:
+			// 即將更新的值
+			for(var key in task.params){
+				if(task.params[key] == null){
+					ParamsValues.push("null");
+				}else{
+					ParamsValues.push("@" + key);
+				}
+				ParamsSchema.push(key);
+				ParamsTargetSource.push("TARGET." + key + "= SOURCE." + key);
+			}
+
+			// 條件
+			for(var key in task.condition){
+				if(task.condition[key] == null){
+					ConditionValues.push("null");
+				}else{
+					ConditionValues.push("@" + key);
+				}
+				ConditionSchema.push(key);
+				ConditionTarget.push("TARGET." + key + "= @" + key);
+			}
+
+			SQLCommand += "MERGE " + tables[task.table] + " WITH(HOLDLOCK) AS TARGET \
+						   USING (VALUES (" + ParamsValues.join(", ") + ")) \
+						        AS SOURCE (" + ParamsSchema.join(", ") + ") \
+						        ON " + ConditionTarget.join(" and ") + " \
+						   WHEN MATCHED THEN \
+						   		UPDATE \
+						   		SET " + ParamsTargetSource.join(", ") + " \
+						   WHEN NOT MATCHED THEN \
+						   		INSERT (" + ConditionSchema.join(", ") + ", " + ParamsSchema.join(", ") + ") \
+						   		VALUES (" + ConditionValues.join(", ") + ", " + ParamsValues.join(", ") + ");";
+			
+			break;
+	}
+	
+	requestSql(request, SQLCommand, function(err, ret) {
+		args.result.push(ret);
+		if(err) callback(err, args);
+		else callback(null, args);
+	});
+};
+
+/**
  * [TransactionCommit description] Transaction Commit
  * @param {[type]}   args     [description]
  * @param {Function} callback [description]
@@ -362,6 +438,7 @@ module.exports = {
     InsertRequestWithTransaction : InsertRequestWithTransaction,
     UpdateRequestWithTransaction : UpdateRequestWithTransaction,
 	DeleteRequestWithTransaction : DeleteRequestWithTransaction,
+	UpsertRequestWithTransaction : UpsertRequestWithTransaction,
 	TransactionCommit : TransactionCommit,
 	TransactionRollback : TransactionRollback,
 	DisConnect : DisConnect

@@ -41,7 +41,48 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
         opType : opType,
         gridMethod : {
             deleteData : function(row){
+                console.log(row);
 
+                var modalInstance = $uibModal.open({
+                    animation: true,
+                    ariaLabelledBy: 'modal-title',
+                    ariaDescribedBy: 'modal-body',
+                    template: $templateCache.get('isChecked'),
+                    controller: 'IsCheckedModalInstanceCtrl',
+                    controllerAs: '$ctrl',
+                    size: 'sm',
+                    windowClass: 'center-modal',
+                    // appendTo: parentElem,
+                    resolve: {
+                        items: function() {
+                            return row.entity;
+                        },
+                        show: function(){
+                            return {
+                                title : "是否刪除"
+                            }
+                        }
+                    }
+                });
+
+                modalInstance.result.then(function(selectedItem) {
+                    // $ctrl.selected = selectedItem;
+                    console.log(selectedItem);
+
+                    RestfulApi.DeleteMSSQLData({
+                        deletename: 'Delete',
+                        table: 18,
+                        params: {
+                            OL_SEQ : selectedItem.OL_SEQ
+                        }
+                    }).then(function (res) {
+                        LoadOrderList();
+                        toaster.pop('success', '訊息', '刪除成功', 3000);
+                    });
+
+                }, function() {
+                    // $log.info('Modal dismissed at: ' + new Date());
+                });
             },
             // 編輯
             modifyData : function(row){
@@ -93,6 +134,52 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
             // 結單
             closeData : function(row){
 
+                if(row.entity.W2_STATUS == 3 && row.entity.W3_STATUS == 3 && row.entity.W1_STATUS == 3){
+                    var modalInstance = $uibModal.open({
+                        animation: true,
+                        ariaLabelledBy: 'modal-title',
+                        ariaDescribedBy: 'modal-body',
+                        template: $templateCache.get('isChecked'),
+                        controller: 'IsCheckedModalInstanceCtrl',
+                        controllerAs: '$ctrl',
+                        size: 'sm',
+                        windowClass: 'center-modal',
+                        // appendTo: parentElem,
+                        resolve: {
+                            items: function() {
+                                return row.entity;
+                            },
+                            show: function(){
+                                return {
+                                    title : "是否結單"
+                                }
+                            }
+                        }
+                    });
+
+                    modalInstance.result.then(function(selectedItem) {
+                        // $ctrl.selected = selectedItem;
+                        console.log(selectedItem);
+
+                        RestfulApi.UpdateMSSQLData({
+                            updatename: 'Update',
+                            table: 18,
+                            params: {
+                                OL_FUSER : $vm.profile.U_ID,
+                                OL_FDATETIME : $filter('date')(new Date(), 'yyyy-MM-dd HH:mm:ss')
+                            },
+                            condition: {
+                                OL_SEQ : selectedItem.OL_SEQ
+                            }
+                        }).then(function (res) {
+                            LoadOrderList();
+                            toaster.pop('success', '訊息', '結單完成', 3000);
+                        });
+
+                    }, function() {
+                        // $log.info('Modal dismissed at: ' + new Date());
+                    });
+                }
             }
         },
         orderListOptions : {
@@ -203,28 +290,6 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
                 
                 $vm.orderListGridApi.selection.clearSelectedRows();
 
-                // for(var i in _getSelectedRows){
-                //     // _getSelectedRows[i][$vm.selectAssignDept] = $vm.selectAssignPrincipal;
-
-                //     var _params = {},
-                //         _condition = {};
-                //     _params["OL_"+$vm.selectAssignDept+"_PRINCIPAL"] = $vm.selectAssignPrincipal;
-
-                //     // 規則:如果已經被編輯的單就不可以再給別人
-                //     _condition["OL_"+$vm.selectAssignDept+"_EDIT_DATETIME"] = null;
-                //     _condition["OL_SEQ"] = _getSelectedRows[i].OL_SEQ;
-                //     _condition["OL_CR_USER"] = _getSelectedRows[i].OL_CR_USER;
-
-                //     _tasks.push({
-                //         crudType: 'Update',
-                //         updatename: 'Update',
-                //         table: 18,
-                //         params: _params,
-                //         condition: _condition
-                //     });
-                // }
-
-                // $vm.Save();
             }
         },
         AutoAssign : function(){
@@ -263,50 +328,10 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
                     // 自動分派所有單的負責人都會被更新
                     _getDirtyData.push($vm.vmData[i]);
 
-                    // if($filter('filter')($vm.principalData, {
-                    //     COD_CODE : $vm.vmData[i].OL_CO_CODE,
-                    //     DL_IS_LEAVE : false
-                    // }).length != $vm.vmData[i].subGridOptions.data.length){
-
-                    // }
                 }
 
                 $vm.orderListGridApi.rowEdit.setRowsDirty(_getDirtyData);
                 $vm.orderListGridApi.selection.clearSelectedRows();
-
-
-                // var _principalData = {};
-                // // 找出行家與符合的人
-                // for(var i in $vm.principalData){
-                //     _principalData[$vm.principalData[i].COD_CODE] = $vm.principalData[i].WHO_PRINCIPAL;
-                // }
-
-                // // 每筆資料塞入負責人
-                // for(var i in $vm.vmData){
-                //     // 是否有符合行家的人
-                //     if(!angular.isUndefined(_principalData[$vm.vmData[i].OL_CO_CODE])){
-                //         // $vm.vmData[i][$vm.selectAssignDept] = _principalData[$vm.vmData[i].OL_CO_CODE];
-
-                //         var _params = {},
-                //             _condition = {};
-                //         _params["OL_"+$vm.selectAssignDept+"_PRINCIPAL"] = _principalData[$vm.vmData[i].OL_CO_CODE];
-
-                //         // 規則:如果已經被編輯的單就不可以再給別人
-                //         _condition["OL_"+$vm.selectAssignDept+"_EDIT_DATETIME"] = null;
-                //         _condition["OL_SEQ"] = $vm.vmData[i].OL_SEQ;
-                //         _condition["OL_CR_USER"] = $vm.vmData[i].OL_CR_USER;
-
-                //         _tasks.push({
-                //             crudType: 'Update',
-                //             updatename: 'Update',
-                //             table: 18,
-                //             params: _params,
-                //             condition: _condition
-                //         });
-                //     }
-                // }
-
-                // $vm.Save();
             }
         },
         CancelPrincipal : function(){
@@ -327,45 +352,8 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
                     $vm.orderListGridApi.rowEdit.setRowsDirty(_getDirtyData);
                 }
                 $vm.orderListGridApi.selection.clearSelectedRows();
-
-                // for(var i in _getSelectedRows){
-                //     _getSelectedRows[i][$vm.selectAssignDept] = null;
-
-                //     var _params = {},
-                //         _condition = {};
-                //     _params["OL_"+$vm.selectAssignDept+"_PRINCIPAL"] = _getSelectedRows[i][$vm.selectAssignDept];
-                    
-                //     // 規則:如果已經被編輯的單就不可以再取回
-                //     _condition["OL_"+$vm.selectAssignDept+"_EDIT_DATETIME"] = null;
-                //     _condition["OL_SEQ"] = _getSelectedRows[i].OL_SEQ;
-                //     _condition["OL_CR_USER"] = _getSelectedRows[i].OL_CR_USER;
-
-                //     _tasks.push({
-                //         crudType: 'Update',
-                //         updatename: 'Update',
-                //         table: 18,
-                //         params: _params,
-                //         condition: _condition
-                //     });
-                // }
-
-                // $vm.Save();
             }
         },
-        // Save : function(){
-        //     console.log($vm.vmData);
-
-        //     RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res) {
-        //         console.log(res["returnData"]);
-
-        //         LoadOrderList();
-        //         // toaster.pop('success', '訊息', '派單完成', 3000);
-        //     }, function (err) {
-
-        //     }).finally(function() {
-        //         _tasks = [];
-        //     });
-        // },
         Update : function(entity){
             console.log(entity);
 
@@ -490,20 +478,6 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
             SetHeaderClass();
         });
 
-        // RestfulApi.SearchMSSQLData({
-        //     querymain: 'leaderJobs',
-        //     queryname: 'SelectOrderList'
-        // }).then(function (res){
-        //     console.log(res["returnData"]);
-
-        //     for(var i in res["returnData"]){
-        //         res["returnData"][i]["W2_STATUS"] = ChangeStatus(res["returnData"][i]['W2'], res["returnData"][i]['OL_W2_EDIT_DATETIME'], res["returnData"][i]['OL_W2_OK_DATETIME']);
-        //         res["returnData"][i]["W3_STATUS"] = ChangeStatus(res["returnData"][i]['W3'], res["returnData"][i]['OL_W3_EDIT_DATETIME'], res["returnData"][i]['OL_W3_OK_DATETIME']);
-        //         res["returnData"][i]["W1_STATUS"] = ChangeStatus(res["returnData"][i]['W1'], res["returnData"][i]['OL_W1_EDIT_DATETIME'], res["returnData"][i]['OL_W1_OK_DATETIME']);
-        //     }
-
-        //     $vm.vmData = res["returnData"];
-        // });  
     };
 
     /**

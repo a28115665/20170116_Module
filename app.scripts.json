@@ -37,16 +37,16 @@
       "AngularJS-Toaster",
       "angular-ui-grid",
       "angular-ui-mask",
-      "tinymce",
-      "tinymce-themes",
-      "angular-ui-tinymce",
       "angular-file-upload",
-      "cryptojslib"
+      "cryptojslib",
+      "ng-tags-input",
+      "angular-summernote"
 
     ],
     "vendor.ui": [
       "select2",
       "summernote",
+      "summernote-zh-TW",
       "markdown",
       "he",
       "to-markdown",
@@ -111,6 +111,7 @@
     "jquery-color": "bower_components/jquery-color/jquery.color.js",
     "select2": "bower_components/select2/select2.min.js",
     "summernote": "bower_components/summernote/dist/summernote.min.js",
+    "summernote-zh-TW": "bower_components/summernote/lang/summernote-zh-TW.js",
     "he": "bower_components/he/he.js",
     "to-markdown": "bower_components/to-markdown/dist/to-markdown.js",
     "markdown": "bower_components/markdown/lib/markdown.js",
@@ -170,10 +171,9 @@
     "AngularJS-Toaster": "bower_components/AngularJS-Toaster/toaster.min.js",
     "angular-ui-grid": "bower_components/angular-ui-grid/ui-grid.js",
     "angular-ui-mask": "bower_components/angular-ui-mask/dist/mask.min.js",
-    "tinymce": "bower_components/tinymce/tinymce.min.js",
-    "tinymce-themes": "bower_components/tinymce/themes/modern/theme.js",
-    "angular-ui-tinymce": "bower_components/angular-ui-tinymce/dist/tinymce.min.js",
     "angular-file-upload": "bower_components/angular-file-upload/dist/angular-file-upload.min.js",
-    "cryptojslib": "bower_components/cryptojslib/rollups/md5.js"
+    "cryptojslib": "bower_components/cryptojslib/rollups/md5.js",
+    "ng-tags-input": "bower_components/ng-tags-input/ng-tags-input.min.js",
+    "angular-summernote": "bower_components/angular-summernote/dist/angular-summernote.min.js"
   }
 }

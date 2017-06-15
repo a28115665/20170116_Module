@@ -14,11 +14,14 @@ module.exports = function(pQueryname, pParams){
 		
 			break;
 		case "SelectCompyInfo":
-			_SQLCommand += "SELECT CO_CODE, \
+			_SQLCommand += "SELECT CO_ID, \
+								   CO_CODE, \
 								   CO_NUMBER, \
 								   CO_NAME, \
 								   CO_ADDR, \
-								   CO_STS \
+								   CO_STS, \
+								   CO_WEIGHTS, \
+								   CO_AREA \
 							FROM COMPY_INFO \
 							WHERE 1=1 ";
 							
@@ -26,6 +29,12 @@ module.exports = function(pQueryname, pParams){
 				_SQLCommand += " AND CO_STS = @CO_STS";
 			}
 			_SQLCommand += " ORDER BY CO_CR_DATETIME DESC ";
+			break;
+		case "SelectMaxCompy":
+			_SQLCommand += "SELECT TOP 1 CO_ID+1 AS 'CO_ID' \
+							FROM COMPY_INFO \
+							ORDER BY CO_ID DESC ";
+							
 			break;
 	}
 

@@ -31,7 +31,7 @@ angular.module('app.settings').config(function ($stateProvider){
     .state('app.settings.accountmanagement', {
         url: '/settings/accountmanagement',
         data: {
-            title: 'Account Management'
+            title: 'AccountManagement'
         },
         views: {
             "content@app" : {
@@ -107,7 +107,7 @@ angular.module('app.settings').config(function ($stateProvider){
     .state('app.settings.billboardeditor', {
         url: '/settings/billboardeditor',
         data: {
-            title: 'Billboard Editor'
+            title: 'BillboardEditor'
         },
         views: {
             "content@app" : {
@@ -129,7 +129,7 @@ angular.module('app.settings').config(function ($stateProvider){
     .state('app.settings.billboardeditor.news', {
         url: '/news',
         data: {
-            title: 'Add News'
+            title: 'News'
         },
         params: { 
             data: null
@@ -145,6 +145,12 @@ angular.module('app.settings').config(function ($stateProvider){
                     },
                     ioType: function (SysCode){
                         return SysCode.get('IOType');
+                    },
+                    srcipts: function(lazyScript){
+                        return lazyScript.register([
+                            'build/vendor.ui.js'
+                        ])
+
                     }
                 }
             }
@@ -154,7 +160,7 @@ angular.module('app.settings').config(function ($stateProvider){
     .state('app.settings.externalmanagement', {
         url: '/settings/externalmanagement',
         data: {
-            title: 'External Management'
+            title: 'ExternalManagement'
         },
         views: {
             "content@app" : {
@@ -167,6 +173,9 @@ angular.module('app.settings').config(function ($stateProvider){
                     },
                     compy: function(Compy){
                         return Compy.get();
+                    },
+                    coWeights: function (SysCode){
+                        return SysCode.get('CoWeights');
                     }
                 }
             }
@@ -206,6 +215,7 @@ angular.module('app.settings').config(function ($stateProvider){
         params: { 
             data: null
         },
+        parent: 'app.settings.externalmanagement',
         views: {
             "content@app" : {
                 templateUrl: 'app/Settings/views/externalManagement/exCompy.html',
@@ -215,6 +225,69 @@ angular.module('app.settings').config(function ($stateProvider){
                     bool: function (SysCode, $q){
                         return SysCode.get('Boolean');
                     },
+                    coWeights: function (SysCode){
+                        return SysCode.get('CoWeights');
+                    }
+                }
+            }
+        }
+    })
+
+    .state('app.settings.aviationmail', {
+        url: '/settings/aviationmail',
+        data: {
+            title: 'AviationMail'
+        },
+        views: {
+            "content@app" : {
+                templateUrl: 'app/Settings/views/aviationMail.html',
+                controller: 'AviationMailCtrl',
+                controllerAs: '$vm',
+                resolve: {
+                    
+                }
+            }
+        }
+    })
+
+    .state('app.settings.aviationmail.targeteditor', {
+        url: '/targeteditor',
+        data: {
+            title: 'TargetEditor'
+        },
+        params: { 
+            data: null
+        },
+        parent: 'app.settings.aviationmail',
+        views: {
+            "content@app" : {
+                templateUrl: 'app/Settings/views/aviationMail/targetEditor.html',
+                controller: 'TargetEditorCtrl',
+                controllerAs: '$vm',
+                resolve: {
+                    srcipts: function(lazyScript){
+                        return lazyScript.register([
+                            'build/vendor.ui.js'
+                        ])
+
+                    }
+                }
+            }
+        }
+    })
+
+    .state('app.settings.excompybagno', {
+        url: '/settings/excompybagno',
+        data: {
+            title: 'ExcompyBagno'
+        },
+        views: {
+            "content@app" : {
+                templateUrl: 'app/Settings/views/excompyBagno.html',
+                controller: 'ExcompyBagnoCtrl',
+                controllerAs: '$vm',
+                resolve: {
+
                 }
             }
         }

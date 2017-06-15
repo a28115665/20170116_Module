@@ -102,9 +102,8 @@
 			<small>發文時間 <cite>{{$ctrl.mdData.BB_CR_DATETIME | datetimeFilter}}</cite></small>
 		</p>
 		<div style="overflow: hidden;">
-		    <blockquote class="pull-left">
-    			<p>{{$ctrl.mdData.BB_CONTENT}}</p>
-	        </blockquote>
+			<span ng-bind-html="$ctrl.mdData.BB_CONTENT">
+			</span>
 		</div>
 		<div style="overflow: hidden;">
 		    <blockquote class="pull-right">

@@ -11,7 +11,7 @@ angular.module('app.settings').controller('AccountCtrl', function ($scope, $stat
                 $vm.vmData = {
                 	U_ROLE : "SUser",
                 	U_STS : bool[0].value,
-                	U_CHECK : bool[0].value,
+                	// U_CHECK : bool[0].value,
                     IU : "Add"
                 }
             }else{
@@ -71,9 +71,9 @@ angular.module('app.settings').controller('AccountCtrl', function ($scope, $stat
                     U_ROLE        : $vm.vmData.U_ROLE,
                     U_EMAIL       : $vm.vmData.U_EMAIL,
                     U_GRADE       : $vm.vmData.U_GRADE,
-                    U_JOB_AGENT   : $vm.vmData.U_JOB_AGENT,
+                    // U_JOB_AGENT   : $vm.vmData.U_JOB_AGENT,
                     U_STS         : $vm.vmData.U_STS,
-                    U_CHECK       : $vm.vmData.U_CHECK,
+                    // U_CHECK       : $vm.vmData.U_CHECK,
                     U_CR_USER     : $vm.profile.U_ID,
                     U_CR_DATETIME : $filter('date')(new Date, 'yyyy-MM-dd HH:mm:ss')
                 }
@@ -81,6 +81,7 @@ angular.module('app.settings').controller('AccountCtrl', function ($scope, $stat
 
             RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res) {
 
+                toaster.success("訊息", "帳號新增成功", 3000);
                 ReturnToAccountManagementPage();
 
             }, function (err) {
@@ -102,9 +103,9 @@ angular.module('app.settings').controller('AccountCtrl', function ($scope, $stat
                     U_ROLE        : $vm.vmData.U_ROLE,
                     U_EMAIL       : $vm.vmData.U_EMAIL,
                     U_GRADE       : $vm.vmData.U_GRADE,
-                    U_JOB_AGENT   : $vm.vmData.U_JOB_AGENT,
+                    // U_JOB_AGENT   : $vm.vmData.U_JOB_AGENT,
                     U_STS         : $vm.vmData.U_STS,
-                    U_CHECK       : $vm.vmData.U_CHECK,
+                    // U_CHECK       : $vm.vmData.U_CHECK,
                     U_UP_USER     : $vm.profile.U_ID,
                     U_UP_DATETIME : $filter('date')(new Date, 'yyyy-MM-dd HH:mm:ss')
                 },
@@ -115,6 +116,7 @@ angular.module('app.settings').controller('AccountCtrl', function ($scope, $stat
             
         	RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res) {
 
+                toaster.success("訊息", "帳號更新成功", 3000);
     			ReturnToAccountManagementPage();
 
             }, function (err) {

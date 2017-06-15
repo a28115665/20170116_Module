@@ -151,6 +151,9 @@ router.get('/crudByTask', function(req, res) {
             case "Delete":
                 tasks.push(async.apply(dbCommandByTask.DeleteRequestWithTransaction, _task));
                 break;
+            case "Upsert":
+                tasks.push(async.apply(dbCommandByTask.UpsertRequestWithTransaction, _task));
+                break;
             default:
                 break;
         }

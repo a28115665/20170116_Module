@@ -1,6 +1,6 @@
 "use strict";
 
-angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, RestfulApi, $filter, uiGridConstants, compy) {
+angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, RestfulApi, $filter, uiGridConstants, compy, $window) {
     
     var $vm = this;
 
@@ -19,18 +19,49 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
             console.log($vm.defaultTab);
             switch($vm.defaultTab){
                 case 'hr1':
-                    LoadFlightItem();
+                    LoadFlightArrival();
                     break;
                 case 'hr2':
-                    // LoadPullGoods();
+                    LoadFlightItem();
                     break;
                 case 'hr3':
                     // LoadPullGoods();
                     break;
                 case 'hr4':
+                    // LoadPullGoods();
+                    break;
+                case 'hr5':
                     LoadPullGoods();
                     break;
             }
+        },
+        flightArrivalOptions : {
+            data:  '$vm.flightArrivalData',
+            columnDefs: [
+                { name: 'FA_FLIGHTDATE'          ,  displayName: '起飛日期', cellFilter: 'dateFilter', width: 80 },
+                { name: 'FA_AIR_LINEID'          ,  displayName: '航空代號', width: 80 },
+                { name: 'FA_FLIGHTNUM'           ,  displayName: '貨機號碼', width: 80 },
+                { name: 'FA_DEPART_AIRTID'       ,  displayName: '起飛來源', width: 80 },
+                { name: 'FA_ARRIVAL_AIRPTID'     ,  displayName: '抵達目的', width: 80 },
+                { name: 'FA_SCHEDL_ARRIVALTIME'  ,  displayName: '預計抵達時間', cellFilter: 'datetimeFilter' },
+                { name: 'FA_ACTL_ARRIVALTIME'    ,  displayName: '真實抵達時間', cellFilter: 'datetimeFilter' },
+                { name: 'FA_ARRIVAL_REMK'        ,  displayName: '狀態', width: 80, cellTemplate: $templateCache.get('accessibilityToArrivalRemark') },
+                { name: 'FA_ARRIVAL_GATE'        ,  displayName: '登機口', width: 80 },
+                { name: 'FA_UP_DATETIME'         ,  displayName: '資料更新時間', cellFilter: 'datetimeFilter' }
+            ],
+            enableFiltering: true,
+            enableSorting: true,
+            enableColumnMenus: false,
+            // enableVerticalScrollbar: false,
+            // paginationPageSizes: [10, 25, 50],
+            // paginationPageSize: 10,
+            onRegisterApi: function(gridApi){
+                $vm.flightArrivalGridApi = gridApi;
+            }
+        },
+        ReloadFlightArrival : function(){
+            LoadFlightArrival();
+            toaster.pop('success', '訊息', '重新整理完成', 3000);
         },
         gridMethod : {
             // 各單的工作選項
@@ -111,6 +142,40 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
                 }, function() {
                     // $log.info('Modal dismissed at: ' + new Date());
                 });
+            },
+            // 寄信
+            sendMail : function(row){
+                console.log(row);
+            },
+            // 貨物查看
+            viewOrder : function(row){
+                console.log(row);
+
+                if(!angular.isUndefined(row.entity.OL_FLIGHTNO) && !angular.isUndefined(row.entity.OL_MASTER)){
+
+                    var _flightNo = row.entity.OL_FLIGHTNO.toUpperCase().split(" "),
+                        _master = row.entity.OL_MASTER.split("-");
+
+                    switch(_flightNo[0]){
+                        case "BR":
+                            $window.open('http://www.brcargo.com/ec_web/Default.aspx?TNT_FLAG=Y&AWB_CODE='+_master[0]+'&MAWB_NUMBER='+_master[1]);
+                            break;
+                        case "CI":
+                            $window.open('https://cargo.china-airlines.com/CCNetv2/content/manage/ShipmentTracking.aspx?AwbPfx='+_master[0]+'&AwbNum='+_master[1]+'&checkcode=*7*upHGj');
+                            break;
+                        case "CX":
+                            $window.open('http://www.cathaypacificcargo.com/ManageYourShipment/TrackYourShipment/tabid/108/SingleAWBNo/'+row.entity.OL_MASTER+'/language/en-US/Default.aspx');
+                            break;
+                        case "HX":
+                            $window.open('http://www.hkairlinescargo.com/CargoPortal/sreachYun/zh_TW/'+_master[0]+'/'+_master[1]+'/1/');
+                            break;
+                        default:
+                            toaster.pop('info', '訊息', '此航班代號不在設定內', 3000);
+                            break;
+                    }
+                }else{
+                    toaster.pop('info', '訊息', '航班或主號不存在', 3000);
+                }
             }
         },
         gridMethodForJob002 : {
@@ -170,21 +235,24 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
         flightItemOptions : {
             data:  '$vm.flightItemData',
             columnDefs: [
-                { name: 'OL_IMPORTDT' ,  displayName: '進口日期', cellFilter: 'dateFilter' },
-                { name: 'OL_CO_CODE'  ,  displayName: '行家', cellFilter: 'compyFilter', filter: 
+                { name: 'OL_IMPORTDT'            ,  displayName: '進口日期', width: 80, cellFilter: 'dateFilter' },
+                { name: 'OL_CO_CODE'             ,  displayName: '行家', width: 80, cellFilter: 'compyFilter', filter: 
                     {
                         term: null,
                         type: uiGridConstants.filter.SELECT,
                         selectOptions: compy
                     }
                 },
-                { name: 'OL_FLIGHTNO' ,  displayName: '航班' },
-                { name: 'OL_MASTER'   ,  displayName: '主號' },
-                { name: 'OL_COUNTRY'  ,  displayName: '起運國別' },
-                // { name: 'ITEM_LIST'          ,  displayName: '報機單', enableFiltering: false, width: '8%', cellTemplate: $templateCache.get('accessibilityToOperaForJob001') },
-                { name: 'FLIGHT_ITEM_LIST'   ,  displayName: '銷艙單', enableFiltering: false, width: '8%', cellTemplate: $templateCache.get('accessibilityToOperaForJob002') },
-                // { name: 'DELIVERY_ITEM_LIST' ,  displayName: '派送單', enableFiltering: false, width: '8%', cellTemplate: $templateCache.get('accessibilityToOperaForJob003') },
-                { name: 'Options'       , displayName: '操作', width: '5%', enableCellEdit: false, enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToM') }
+                { name: 'OL_FLIGHTNO'            ,  displayName: '航班', width: 80 },
+                { name: 'FA_SCHEDL_ARRIVALTIME'  ,  displayName: '預計抵達時間', cellFilter: 'datetimeFilter' },
+                { name: 'FA_ACTL_ARRIVALTIME'    ,  displayName: '真實抵達時間', cellFilter: 'datetimeFilter' },
+                { name: 'FA_ARRIVAL_REMK'        ,  displayName: '狀態', width: 80, cellTemplate: $templateCache.get('accessibilityToArrivalRemark') },
+                { name: 'OL_MASTER'              ,  displayName: '主號', width: 120 },
+                { name: 'OL_COUNTRY'             ,  displayName: '起運國別', width: 80 },
+                // { name: 'ITEM_LIST'           ,  displayName: '報機單', enableFiltering: false, width: '8%', cellTemplate: $templateCache.get('accessibilityToOperaForJob001') },
+                { name: 'FLIGHT_ITEM_LIST'       ,  displayName: '銷艙單', enableFiltering: false, width: '8%', cellTemplate: $templateCache.get('accessibilityToOperaForJob002') },
+                // { name: 'DELIVERY_ITEM_LIST'  ,  displayName: '派送單', enableFiltering: false, width: '8%', cellTemplate: $templateCache.get('accessibilityToOperaForJob003') },
+                { name: 'Options'                ,  displayName: '操作', width: '12%', enableCellEdit: false, enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToMSForAssistantJobs') }
             ],
             enableFiltering: true,
             enableSorting: false,
@@ -316,6 +384,19 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
             }
         }
     });
+
+    function LoadFlightArrival(){
+        RestfulApi.SearchMSSQLData({
+            querymain: 'assistantJobs',
+            queryname: 'SelectFlightArrival',
+            params: {
+                FA_FLIGHTDATE : $filter('date')(new Date(), 'yyyy-MM-dd')
+            }
+        }).then(function (res){
+            console.log(res["returnData"]);
+            $vm.flightArrivalData = res["returnData"];
+        }); 
+    };
 
     function LoadFlightItem(){
         RestfulApi.SearchMSSQLData({

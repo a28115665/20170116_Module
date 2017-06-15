@@ -1,6 +1,6 @@
 "use strict";
 
-angular.module('app.settings').controller('ExCompyCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $filter, RestfulApi, bool) {
+angular.module('app.settings').controller('ExCompyCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $filter, RestfulApi, bool, coWeights) {
 
 	var $vm = this;
     // console.log(Account.get());
@@ -8,11 +8,15 @@ angular.module('app.settings').controller('ExCompyCtrl', function ($scope, $stat
 	angular.extend(this, {
         Init : function(){
             // 不正常登入此頁面
-            if($stateParams.data == null) ReturnToExternalManagementPage();
+            if($stateParams.data == null){
+               ReturnToExternalManagementPage(); 
+            } else{
+                $vm.vmData = $stateParams.data;
+            }
         },
         profile : Session.Get(),
         boolData : bool,
-        vmData : $stateParams.data,
+        coWeightsData : coWeights,
         Return : function(){
         	ReturnToExternalManagementPage();
         },
@@ -22,11 +26,14 @@ angular.module('app.settings').controller('ExCompyCtrl', function ($scope, $stat
                 updatename: 'Update',
                 table: 8,
                 params: {
-		        	CO_STS : $vm.vmData.CO_STS,
-					CO_NAME : $vm.vmData.CO_NAME,
-					CO_NUMBER : $vm.vmData.CO_NUMBER,
-					CO_ADDR : $vm.vmData.CO_ADDR,
-                    CO_UP_USER : $vm.profile.U_ID,
+                    CO_ID          : $vm.vmData.CO_ID,
+		        	CO_STS         : $vm.vmData.CO_STS,
+					CO_NAME        : $vm.vmData.CO_NAME,
+					CO_NUMBER      : $vm.vmData.CO_NUMBER,
+					CO_ADDR        : $vm.vmData.CO_ADDR,
+                    CO_AREA        : $vm.vmData.CO_AREA,
+                    CO_WEIGHTS     : $vm.vmData.CO_WEIGHTS,
+                    CO_UP_USER     : $vm.profile.U_ID,
                     CO_UP_DATETIME : $filter('date')(new Date(), 'yyyy-MM-dd HH:mm:ss')
                 },
                 condition: {
@@ -34,6 +41,7 @@ angular.module('app.settings').controller('ExCompyCtrl', function ($scope, $stat
                 }
             }).then(function (res) {
 
+                toaster.pop('success', '訊息', '更新行家成功', 3000);
                 ReturnToExternalManagementPage();
 
             }, function (err) {
@@ -43,9 +51,10 @@ angular.module('app.settings').controller('ExCompyCtrl', function ($scope, $stat
 	})
 
 	function ReturnToExternalManagementPage(){
-        $state.transitionTo("app.settings.externalmanagement", null, { 
-            reload: true, inherit: false, notify: true
-        });
+        // $state.transitionTo("app.settings.externalmanagement", null, { 
+        //     reload: true, inherit: false, notify: true
+        // });
+        $state.transitionTo($state.current.parent);
 	}
 
 });

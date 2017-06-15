@@ -40,6 +40,23 @@ angular.module('app.selfwork').config(function ($stateProvider){
         }
     })
 
+    .state('app.selfwork.leaderhistorysearch', {
+        url: '/selfwork/leaderhistorysearch',
+        data: {
+            title: 'LeaderHistorySearch'
+        },
+        views: {
+            "content@app" : {
+                templateUrl: 'app/SelfWork/views/leaderHistorySearch.html',
+                controller: 'LeaderHistorySearchCtrl',
+                controllerAs: '$vm',
+                resolve: {
+                    
+                }
+            }
+        }
+    })
+
     .state('app.selfwork.assistantjobs', {
         url: '/selfwork/assistantjobs',
         data: {
@@ -75,6 +92,23 @@ angular.module('app.selfwork').config(function ($stateProvider){
                 controllerAs: '$vm',
                 resolve: {
 
+                }
+            }
+        }
+    })
+
+    .state('app.selfwork.assistanthistorysearch', {
+        url: '/selfwork/assistanthistorysearch',
+        data: {
+            title: 'AssistantHistorySearch'
+        },
+        views: {
+            "content@app" : {
+                templateUrl: 'app/SelfWork/views/assistantHistorySearch.html',
+                controller: 'AssistantHistorySearchCtrl',
+                controllerAs: '$vm',
+                resolve: {
+                    
                 }
             }
         }
@@ -162,6 +196,28 @@ angular.module('app.selfwork').config(function ($stateProvider){
         }
     })
 
+    .state('app.selfwork.employeehistorysearch', {
+        url: '/selfwork/employeehistorysearch',
+        data: {
+            title: 'EmployeeHistorySearch'
+        },
+        views: {
+            "content@app" : {
+                templateUrl: 'app/SelfWork/views/employeeHistorySearch.html',
+                controller: 'EmployeeHistorySearchCtrl',
+                controllerAs: '$vm',
+                resolve: {
+                    compy: function(Compy){
+                        return Compy.get();
+                    },
+                    bool: function (SysCode){
+                        return SysCode.get('Boolean');
+                    }
+                }
+            }
+        }
+    })
+
     .state('app.selfwork.deliveryjobs', {
         url: '/selfwork/deliveryjobs',
         data: {
@@ -202,20 +258,18 @@ angular.module('app.selfwork').config(function ($stateProvider){
         }
     })
 
-    .state('app.selfwork.historysearch', {
-        url: '/selfwork/historysearch',
+    .state('app.selfwork.deliveryhistorysearch', {
+        url: '/selfwork/deliveryhistorysearch',
         data: {
-            title: 'HistorySearch'
+            title: 'DeliveryHistorySearch'
         },
         views: {
             "content@app" : {
-                templateUrl: 'app/SelfWork/views/historySearch.html',
-                controller: 'SelfWorkHistorySearchCtrl',
+                templateUrl: 'app/SelfWork/views/deliveryHistorySearch.html',
+                controller: 'DeliveryHistorySearchCtrl',
                 controllerAs: '$vm',
                 resolve: {
-                    billboardData: function () {
-                        return [];
-                    }
+                    
                 }
             }
         }

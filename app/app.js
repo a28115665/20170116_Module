@@ -29,8 +29,9 @@ angular.module('app', [
     'ui.grid.pinning',
     'ui.grid.autoResize',
     'ui.mask',
-    'ui.tinymce',
     'angularFileUpload',
+    'ngTagsInput',
+    'summernote',
 
     // Smartadmin Angular Common Module
     'SmartAdmin',
@@ -119,6 +120,20 @@ angular.module('app', [
 
 })
 .constant('APP_CONFIG', window.appConfig)
+.constant('SUMMERNOT_CONFIG', {
+    lang: 'zh-TW',
+    height: 300,
+    toolbar: [
+        ['style', ['style']],
+        ['font', ['bold', 'italic', 'underline', 'clear']],
+        ['fontname', ['fontname']],
+        ['color', ['color']],
+        ['para', ['ul', 'ol', 'paragraph']],
+        ['table', ['table']],
+        ['height', ['height']],
+        ['view', ['help']]
+    ]
+})
 
 .run(function ($rootScope, $state, $stateParams, Session, $http, AuthApi) {
     // $rootScope.$state = $state;
