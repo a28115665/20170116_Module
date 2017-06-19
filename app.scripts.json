@@ -40,7 +40,8 @@
       "angular-file-upload",
       "cryptojslib",
       "ng-tags-input",
-      "angular-summernote"
+      "angular-summernote",
+      "angular-local-storage"
 
     ],
     "vendor.ui": [
@@ -174,6 +175,7 @@
     "angular-file-upload": "bower_components/angular-file-upload/dist/angular-file-upload.min.js",
     "cryptojslib": "bower_components/cryptojslib/rollups/md5.js",
     "ng-tags-input": "bower_components/ng-tags-input/ng-tags-input.min.js",
-    "angular-summernote": "bower_components/angular-summernote/dist/angular-summernote.min.js"
+    "angular-summernote": "bower_components/angular-summernote/dist/angular-summernote.min.js",
+    "angular-local-storage": "bower_components/angular-local-storage/dist/angular-local-storage.min.js"
   }
 }

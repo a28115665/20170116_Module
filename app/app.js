@@ -32,6 +32,7 @@ angular.module('app', [
     'angularFileUpload',
     'ngTagsInput',
     'summernote',
+    'LocalStorageModule',
 
     // Smartadmin Angular Common Module
     'SmartAdmin',
@@ -133,6 +134,9 @@ angular.module('app', [
         ['height', ['height']],
         ['view', ['help']]
     ]
+})
+.config(function (localStorageServiceProvider) {
+    localStorageServiceProvider.setStorageType('localStorage');
 })
 
 .run(function ($rootScope, $state, $stateParams, Session, $http, AuthApi) {

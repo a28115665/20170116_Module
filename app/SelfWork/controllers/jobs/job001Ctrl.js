@@ -12,6 +12,10 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
             if($stateParams.data == null){
                 ReturnToEmployeejobsPage();
             }else{
+
+                $vm.bigBreadcrumbsItems = $state.current.name.split(".");
+                $vm.bigBreadcrumbsItems.shift();
+
                 $vm.vmData = $stateParams.data;
 
                 // 測試用
@@ -37,7 +41,23 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                     PW : $vm.profile.U_PW,
                     NATURE : row.entity.IL_NATURE
                 }).then(function (res) {
-                    row.entity.IL_NATURE_NEW = res["returnData"];
+                    var _returnData = JSON.parse(res["returnData"]),
+                        needToUpdate = false;
+                    console.log(_returnData);
+
+                    if(!angular.isUndefined(_returnData["IL_NATURE_NEW"])){
+                        row.entity.IL_NATURE_NEW = _returnData["IL_NATURE_NEW"];
+                        needToUpdate = true;
+                    }
+                    if(!angular.isUndefined(_returnData["IL_NEWUNIT"])){
+                        row.entity.IL_NEWUNIT = _returnData["IL_NEWUNIT"];
+                        needToUpdate = true;
+                    }
+
+                    if(needToUpdate){
+                        $vm.job001GridApi.rowEdit.setRowsDirty([row.entity]);
+                    }
+
                 }).finally(function() {
                     row.entity.loading = false;
                 });
@@ -500,6 +520,7 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                     IL_ORDERINDEX : entity.IL_ORDERINDEX
                 }
             }).then(function (res) {
+                // console.log(res);
                 promise.resolve();
             }, function (err) {
                 toaster.pop('danger', '錯誤', '更新失敗', 3000);

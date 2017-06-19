@@ -273,3 +273,7 @@ function HandleWindowResize (gridApi){
         gridApi.core.handleWindowResize();
     }, 500);
 };
+// 第一個英文單字變大寫
+function CapitalizeFirstLetter(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+};

@@ -1,5 +1,5 @@
 <!-- MAIN CONTENT -->
-<div id="content">
+<div id="content" ng-init="$vm.Init()">
 
 	<div class="row">
 		<big-breadcrumbs items="['SelfWork', 'EmployeeHistorySearch']" icon="history" class="col-xs-12 col-sm-7 col-md-7 col-lg-4"></big-breadcrumbs>
@@ -57,20 +57,20 @@
 											</select>
 								        </div>
 								        <label class="col-md-2 control-label">航班</label>
-								        <div class="col-md-1">
-								            <input class="form-control" ng-model="$vm.vmData.FLIGHTNO_START" placeholder="代碼" type="text" ui-mask="AA" ui-mask-placeholder>
+								        <div class="col-md-1" ng-class="$vm.vmData.FLIGHTNO_END.length && !$vm.vmData.FLIGHTNO_START.length ? ' has-error' : ''">
+								            <input class="form-control" ng-model="$vm.vmData.FLIGHTNO_START" placeholder="代碼" type="text" ui-mask="AA" ui-mask-placeholder ng-required="$vm.vmData.FLIGHTNO_END.length">
 								        </div>
-								        <div class="col-md-3">
-								            <input class="form-control" ng-model="$vm.vmData.FLIGHTNO_END" placeholder="號碼" type="text" maxlength="4">
+								        <div class="col-md-3" ng-class="$vm.vmData.FLIGHTNO_START.length && !$vm.vmData.FLIGHTNO_END.length ? ' has-error' : ''">
+								            <input class="form-control" ng-model="$vm.vmData.FLIGHTNO_END" placeholder="號碼" type="text" maxlength="4" ng-required="$vm.vmData.FLIGHTNO_START.length">
 								        </div>
 								    </div>
 								    <div class="form-group">
 								        <label class="col-md-2 control-label">主號</label>
-								        <div class="col-md-1">
-								            <input class="form-control" ng-model="$vm.vmData.MASTER_START" placeholder="開頭" type="text" ui-mask="999" ui-mask-placeholder>
+								        <div class="col-md-1" ng-class="$vm.vmData.MASTER_END.length && !$vm.vmData.MASTER_START.length ? ' has-error' : ''">
+								            <input class="form-control" ng-model="$vm.vmData.MASTER_START" placeholder="開頭" type="text" ui-mask="999" ui-mask-placeholder ng-required="$vm.vmData.MASTER_END.length">
 								        </div>
-								        <div class="col-md-2">
-								            <input class="form-control" ng-model="$vm.vmData.MASTER_END" placeholder="末8碼" type="text" ui-mask="99999999" ui-mask-placeholder>
+								        <div class="col-md-2" ng-class="$vm.vmData.MASTER_START.length && !$vm.vmData.MASTER_END.length ? ' has-error' : ''">
+								            <input class="form-control" ng-model="$vm.vmData.MASTER_END" placeholder="末8碼" type="text" ui-mask="99999999" ui-mask-placeholder ng-required="$vm.vmData.MASTER_START.length">
 								        </div>
 								        <label class="col-md-2 control-label">起運國別</label>
 								        <div class="col-md-2">
@@ -89,7 +89,7 @@
 									    <div class="form-group">
 									        <label class="col-md-2 control-label">袋號</label>
 									        <div class="col-md-4">
-									            <input class="form-control" ng-model="$vm.vmData.BAGNO" placeholder="袋號" type="text" pattern=".{5,10}">
+									            <input class="form-control" ng-model="$vm.vmData.BAGNO" placeholder="袋號" type="text" maxlength="8">
 									        </div>
 									        <label class="col-md-2 control-label">袋號末五碼</label>
 									        <div class="col-md-4">
@@ -98,25 +98,25 @@
 									    </div>
 									    <div class="form-group">
 									        <label class="col-md-2 control-label">袋號範圍</label>
-									        <div class="col-md-3">
-									            <input class="form-control" ng-model="$vm.vmData.BAGNO_RANGE5" placeholder="袋號前五碼" type="text" maxlength="5">
+									        <div class="col-md-3" ng-class="($vm.vmData.BAGNO_RANGE3_START.length || $vm.vmData.BAGNO_RANGE3_END.length) && !$vm.vmData.BAGNO_RANGE5.length ? ' has-error' : ''">
+									            <input class="form-control" ng-model="$vm.vmData.BAGNO_RANGE5" placeholder="袋號前五碼" type="text" maxlength="5" ng-required="$vm.vmData.BAGNO_RANGE3_START.length || $vm.vmData.BAGNO_RANGE3_END.length">
 									        </div>
-									        <div class="col-md-3">
-									            <input class="form-control" ng-model="$vm.vmData.BAGNO_RANGE3_START" placeholder="袋號末三碼(起)" type="text" maxlength="3">
+									        <div class="col-md-3" ng-class="($vm.vmData.BAGNO_RANGE5.length || $vm.vmData.BAGNO_RANGE3_END.length) && !$vm.vmData.BAGNO_RANGE3_START.length ? ' has-error' : ''">
+									            <input class="form-control" ng-model="$vm.vmData.BAGNO_RANGE3_START" placeholder="袋號末三碼(起)" type="text" maxlength="3" ui-mask="999" ui-mask-placeholder ng-required="$vm.vmData.BAGNO_RANGE5.length || $vm.vmData.BAGNO_RANGE3_END.length">
 									        </div>
 									        <label class="col-md-1 control-label text-center">~</label>
-									        <div class="col-md-3">
-									            <input class="form-control" ng-model="$vm.vmData.BAGNO_RANGE3_END" placeholder="袋號末三碼(迄)" type="text" maxlength="3">
+									        <div class="col-md-3" ng-class="($vm.vmData.BAGNO_RANGE5.length || $vm.vmData.BAGNO_RANGE3_START.length) && !$vm.vmData.BAGNO_RANGE3_END.length ? ' has-error' : ''">
+									            <input class="form-control" ng-model="$vm.vmData.BAGNO_RANGE3_END" placeholder="袋號末三碼(迄)" type="text" maxlength="3" ui-mask="999" ui-mask-placeholder ng-required="$vm.vmData.BAGNO_RANGE5.length || $vm.vmData.BAGNO_RANGE3_START.length">
 									        </div>
 									    </div>
 									    <div class="form-group">
 									        <label class="col-md-2 control-label">收件人/公司</label>
 									        <div class="col-md-4">
-									            <input class="form-control" ng-model="$vm.vmData.GETNAME" placeholder="收件人/公司" type="text">
+									            <input class="form-control" ng-model="$vm.vmData.GETNAME" placeholder="收件人/公司(模糊查詢)" type="text">
 									        </div>
 									        <label class="col-md-2 control-label">收件地址</label>
 									        <div class="col-md-4">
-									            <input class="form-control" ng-model="$vm.vmData.GETADDRESS" placeholder="收件地址" type="text">
+									            <input class="form-control" ng-model="$vm.vmData.GETADDRESS" placeholder="收件地址(模糊查詢)" type="text">
 									        </div>
 									    </div>
 									    <div class="form-group">
@@ -126,7 +126,7 @@
 									        </div>
 									        <label class="col-md-2 control-label">原始品名</label>
 									        <div class="col-md-4">
-									            <input class="form-control" ng-model="$vm.vmData.NATURE" placeholder="原始品名" type="text">
+									            <input class="form-control" ng-model="$vm.vmData.NATURE" placeholder="原始品名(模糊查詢)" type="text">
 									        </div>
 									    </div>
 								    </div>
@@ -138,7 +138,7 @@
 								            <button class="btn btn-default" type="submit" ng-click="$vm.Cancel()">
 								                {{getWord('Cancel')}}
 								            </button>
-								            <button class="btn btn-primary" type="submit" ng-click="$vm.Search()">
+								            <button class="btn btn-primary" type="submit" ng-click="$vm.Search()" ng-disabled="!searchform.$valid">
 								                <i class="fa fa-search"></i>
 								                {{getWord('Search')}}
 								            </button>
@@ -156,7 +156,95 @@
 	        </article>
 	        <!-- End WIDGET START -->
 
+	        <!-- NEW WIDGET START -->
+	        <article class="col-xs-12 col-sm-12 col-md-12 col-lg-12" ng-if="$vm.resultData.length">
+	        	<!-- Widget ID (each widget will need unique ID)-->
+				<div id="EmployeeHistorySearch" data-widget-sortable="false" data-widget-colorbutton="false" data-widget-togglebutton="false" data-widget-editbutton="false" data-widget-fullscreenbutton="false" data-widget-deletebutton="false" data-widget-color="blue" data-jarvis-widget>
+				    <!-- widget options:
+				        usage: <div data-jarvis-widget id="wid-id-0" data-widget-editbutton="false">
+				        data-widget-colorbutton="false"
+				        data-widget-editbutton="false"
+				        data-widget-togglebutton="false"
+				        data-widget-deletebutton="false"
+				        data-widget-fullscreenbutton="false"
+				        data-widget-custombutton="false"
+				        data-widget-collapsed="true"
+				        data-widget-sortable="false"
+				    -->
+				    <header>
+				        <h2>查詢結果 </h2>
+
+				        <div class="widget-toolbar smart-form" role="menu">
+				            <a href-void="" class="btn btn-success" href="#" ng-click="$vm.ExportExcel()">匯出Excel</a>
+				        </div>
+				    </header>
+				    <!-- widget div-->
+				    <div>
+				        <!-- widget content -->
+						<div class="widget-body no-padding">
+
+							<div class="table-responsive">
+
+								<div id="grid1" ui-grid="$vm.resultOptions" class="my-ui-grid" ui-grid-pagination ui-grid-resize-columns></div>
+
+							</div>
+
+						</div>
+						<!-- end widget content -->
+				    </div>
+				    <!-- end widget div -->
+				</div>
+				<!-- end widget -->
+	        </article>
+	        <!-- End WIDGET START -->
+
 	    </div>
 	</section>
 
 </div>
+
+<script type="text/ng-template" id="opWorkMenu.html">
+    <div class="modal-header bg-color-green">
+        <h3 class="modal-title text-center">
+            <strong class=" txt-color-white">{{$ctrl.row.entity.name}}</strong>
+        </h3>
+    </div>
+    <div class="modal-body text-center"> 
+        <div class="row" ng-if="$ctrl.row.entity.name == '報機單'"> 
+            <!-- <button type="button" class="btn btn-warning btn-lg btn-block" ng-click="$ctrl.appScope.gridMethodForJob001.modifyData($ctrl.row);$ctrl.cancel()" ng-disabled="($ctrl.row.entity.W2_EDATETIME != null) && ($ctrl.row.entity.W2_PRINCIPAL != $ctrl.appScope.profile.U_ID || $ctrl.row.entity.W2_FDATETIME != null)"> 
+                編輯 
+            </button> 
+            <button type="button" class="btn btn-primary btn-lg btn-block" ng-click="$ctrl.appScope.gridMethodForJob001.closeData($ctrl.row);$ctrl.cancel()" ng-disabled="($ctrl.row.entity.W2_PRINCIPAL != $ctrl.appScope.profile.U_ID || $ctrl.row.entity.W2_FDATETIME != null)"> 
+                完成 
+            </button> -->
+            <button type="button" class="btn btn-warning btn-lg btn-block" ng-click="$ctrl.appScope.gridMethodForJob001.fixData($ctrl.row);$ctrl.cancel()" ng-disabled="$ctrl.row.entity.W2_FDATETIME == null"> 
+                修改 
+            </button> 
+            <!-- <button type="button" class="btn btn-danger btn-lg btn-block" ng-click="$ctrl.appScope.gridMethodForJob001.deleteData($ctrl.row);$ctrl.cancel()"> 
+                刪除 
+            </button> -->
+        </div> 
+        <div class="row" ng-if="$ctrl.row.entity.name == '銷艙單'"> 
+        	<button type="button" class="btn btn-info btn-lg btn-block" ng-click="$ctrl.appScope.gridMethodForJob002.viewData($ctrl.row);$ctrl.cancel()"> 
+                檢視 
+            </button>
+        </div> 
+    </div>
+</script>
+
+<script type="text/ng-template" id="downloadFiles.html">
+    <div class="modal-header" ng-init="$ctrl.MdInit()">
+	    <h1 class="modal-title" id="modal-title">
+	    	<span class="label txt-color-pink">檔案下載</span>
+	    </h1>
+	</div>
+	<div class="modal-body no-padding" id="modal-body">
+
+		<div id="grid1" ui-grid="$ctrl.mdDataOptions" class="my-ui-grid-350" ui-grid-resize-columns ui-grid-selection></div>
+		
+	</div>
+	<div class="modal-footer">
+		<a href-void="" class="btn bg-color-pink txt-color-white" href="#" ng-click="$ctrl.ok()">{{getWord('Download')}}</a>
+	    <button class="btn btn-default" type="button" ng-click="$ctrl.cancel()">{{getWord('Cancel')}}</button>
+	</div>
+</script>

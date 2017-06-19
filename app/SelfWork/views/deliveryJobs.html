@@ -87,7 +87,7 @@
         <div class="row" ng-if="$ctrl.row.entity.name == '派送單'"> 
             <!-- <button type="button" class="btn btn-danger btn-lg btn-block" ng-click="$ctrl.appScope.gridMethodForJob003.rejectData($ctrl.row);$ctrl.cancel()"> 
                 退單 
-            </button> -->
+            </button> 
             <button type="button" class="btn btn-warning btn-lg btn-block" ng-click="$ctrl.appScope.gridMethodForJob003.modifyData($ctrl.row);$ctrl.cancel()" ng-disabled="($ctrl.row.entity.W1_EDATETIME != null) && ($ctrl.row.entity.W1_PRINCIPAL != $ctrl.appScope.profile.U_ID || $ctrl.row.entity.W1_FDATETIME != null)"> 
                 編輯 
             </button> 
@@ -99,6 +99,12 @@
             </button> 
             <button type="button" class="btn btn-danger btn-lg btn-block" ng-click="$ctrl.appScope.gridMethodForJob003.rejectData($ctrl.row);$ctrl.cancel()"> 
                 刪除 
+            </button> -->
+        	<button type="button" class="btn btn-info btn-lg btn-block" ng-click="$ctrl.appScope.gridMethodForJob003.viewData($ctrl.row);$ctrl.cancel()"> 
+                檢視 
+            </button> 
+            <button type="button" class="btn btn-primary btn-lg btn-block" ng-click="$ctrl.appScope.gridMethodForJob003.closeData($ctrl.row);$ctrl.cancel()" ng-disabled="$ctrl.row.entity.W1_FDATETIME != null"> 
+                完成 
             </button> 
         </div>
     </div>

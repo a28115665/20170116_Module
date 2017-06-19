@@ -219,6 +219,11 @@ router.get('/changeNature', function(req, res) {
         // post the data
         post_req.write(post_data);
 
+        post_req.on('error', function(err) {
+            // Handle error
+            res.status(500).send('改單失敗');
+        });
+
         post_req.end(); 
 
     } catch(err) {

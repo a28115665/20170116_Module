@@ -9,7 +9,6 @@ angular.module('app.selfwork').controller('EmployeeJobsCtrl', function ($scope, 
             LoadOrderList();
         },
         profile : Session.Get(),
-        defaultChoice : 'Left',
         gridMethod : {
             // 各單的工作選項
             gridOperation : function(row, name){
