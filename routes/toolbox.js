@@ -337,12 +337,13 @@ router.get('/composeMenu', function(req, res) {
                                             "sref": progmObj[iProgm].PROG_PATH.toLowerCase(),
                                             "icon": progmObj[iProgm].SP_ICON,
                                             "lvl": progmObj[iProgm].SP_LVL,
-                                            "exsysId": progmObj[iProgm].SS_SYSID
+                                            "exsysId": progmObj[iProgm].SS_SYSID,
+                                            "sort": progmObj[iProgm].SP_SEQ //將順序納入判斷
                                         };
                             progItem.items.push(tempItem);
                         }
                         
-                        //2.取得系統Array
+                        //2.取得系統Array(資料夾的概念)
                         var tmpExSubsys = '';
                         for(var iSys = 0 ; iSys < sysCount; iSys++){
                             //找出上一層的子系統
@@ -362,17 +363,19 @@ router.get('/composeMenu', function(req, res) {
                                             "lvl": subsysObj[iSys].SS_LVL,
                                             "sysId": subsysObj[iSys].SS_SYSID,
                                             "exsysId": tmpExSubsys,
+                                            "sort": subsysObj[iSys].SS_SEQ, //將順序納入判斷
                                             "items":[]
                                         };
                             sysItem.items.push(tempItem);
                         }
 
-                        //3.將程式塞入對應的子系統
+                        //3.將程式塞入對應的子系統(資料夾)
                         var outputObj;
+                        //最大層級往回推(含最深之子層級或程式)
                         for(var iLvl = iMaxLvl + 1 ; iLvl >= 1 ; iLvl--){
                             for(var iProg = 0; iProg < progmCount ; iProg++){
                                 for(var iSys = 0 ; iSys < sysCount; iSys++){
-                                    //找出最小的lvl 往上加
+                                    //找出最小的lvl 往上加，找出該層的prog
                                     if(progItem.items[iProg].lvl == iLvl){
                                         //若lvl-1等於前一子系統之lvl，且程式附屬的系統ID=系統ID，則將程式加入該系統
                                         if((progItem.items[iProg].lvl - 1) == sysItem.items[iSys].lvl && 
@@ -404,7 +407,15 @@ router.get('/composeMenu', function(req, res) {
                                                         "icon": sysItem.items[iSubsys].icon,
                                                         "items": sysItem.items[iSubsys].items
                                                     };
-                                                sysItem.items[iSys].items.push(tmpObj);
+                                                if(sysItem.items[iSubsys].sort > 0){
+                                                    //因撈出的prog已經照順序放，只要照資料夾需擺放的位置插入陣列中即可。
+                                                    sysItem.items[iSys].items.splice(sysItem.items[iSubsys].sort - 1,0,tmpObj);
+                                                }
+                                                else{
+                                                    sysItem.items[iSys].items.splice(0,0,tmpObj);
+                                                }
+                                                
+                                                //sysItem.items[iSys].items.push(tmpObj);
                                             }
                                     }
 
