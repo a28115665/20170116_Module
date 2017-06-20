@@ -11,6 +11,7 @@ module.exports = function(pQueryname, pParams){
 					JOIN ( \
 						SELECT * \
 						FROM ITEM_LIST \
+						/*只抓今天*/ \
 						WHERE CONVERT(varchar(100), IL_CR_DATETIME, 23) = CONVERT(varchar(100), GetDate(), 23) \
 					) IL ON \
 					IL.IL_GETNAME = V_BLFO_JOIN_IL.IL_GETNAME AND \
@@ -24,6 +25,7 @@ module.exports = function(pQueryname, pParams){
 					JOIN ( \
 						SELECT * \
 						FROM ITEM_LIST \
+						/*只抓今天*/ \
 						WHERE CONVERT(varchar(100), IL_CR_DATETIME, 23) = CONVERT(varchar(100), GetDate(), 23) \
 					) IL ON \
 					IL.IL_GETNAME = BLFL.BLFL_GETNAME AND \
@@ -40,6 +42,7 @@ module.exports = function(pQueryname, pParams){
 					JOIN ( \
 						SELECT * \
 						FROM ITEM_LIST \
+						/*只抓今天*/ \
 						WHERE CONVERT(varchar(100), IL_CR_DATETIME, 23) = CONVERT(varchar(100), GetDate(), 23) \
 					) IL ON \
 					IL.IL_GETADDRESS = V_BLFO_JOIN_IL.IL_GETADDRESS AND \
@@ -53,6 +56,7 @@ module.exports = function(pQueryname, pParams){
 					JOIN ( \
 						SELECT * \
 						FROM ITEM_LIST \
+						/*只抓今天*/ \
 						WHERE CONVERT(varchar(100), IL_CR_DATETIME, 23) = CONVERT(varchar(100), GetDate(), 23) \
 					) IL ON \
 					IL.IL_GETADDRESS = BLFL.BLFL_GETADDRESS AND \
@@ -69,6 +73,7 @@ module.exports = function(pQueryname, pParams){
 					JOIN ( \
 						SELECT * \
 						FROM ITEM_LIST \
+						/*只抓今天*/ \
 						WHERE CONVERT(varchar(100), IL_CR_DATETIME, 23) = CONVERT(varchar(100), GetDate(), 23) \
 					) IL ON \
 					IL.IL_GETNAME = V_BLFO_JOIN_IL.IL_GETNAME AND \
@@ -82,6 +87,7 @@ module.exports = function(pQueryname, pParams){
 					JOIN ( \
 						SELECT * \
 						FROM ITEM_LIST \
+						/*只抓今天*/ \
 						WHERE CONVERT(varchar(100), IL_CR_DATETIME, 23) = CONVERT(varchar(100), GetDate(), 23) \
 					) IL ON \
 					IL.IL_GETNAME = BLFL.BLFL_GETNAME AND \
@@ -99,6 +105,7 @@ module.exports = function(pQueryname, pParams){
 					JOIN ( \
 						SELECT * \
 						FROM ITEM_LIST \
+						/*只抓今天*/ \
 						WHERE CONVERT(varchar(100), IL_CR_DATETIME, 23) = CONVERT(varchar(100), GetDate(), 23) \
 					) IL ON \
 					IL.IL_GETNAME = V_BLFO_JOIN_IL.IL_GETNAME AND \
@@ -113,6 +120,7 @@ module.exports = function(pQueryname, pParams){
 					JOIN ( \
 						SELECT * \
 						FROM ITEM_LIST \
+						/*只抓今天*/ \
 						WHERE CONVERT(varchar(100), IL_CR_DATETIME, 23) = CONVERT(varchar(100), GetDate(), 23) \
 					) IL ON \
 					IL.IL_GETNAME = BLFL.BLFL_GETNAME AND \
@@ -152,6 +160,8 @@ module.exports = function(pQueryname, pParams){
 										SELECT COUNT(1) \
 										FROM ITEM_LIST IN_IL \
 										WHERE IN_IL.IL_GETNAME = OUT_IL.IL_GETNAME AND IN_IL.IL_GETADDRESS = OUT_IL.IL_GETADDRESS \
+										/*不包含今天*/ \
+										AND CONVERT(varchar(100), IN_IL.IL_CR_DATETIME, 23) NOT IN (CONVERT(varchar(100), GetDate(), 23)) \
 									) AS 'IL_COUNT', \
 									OUT_IL.* \
 							FROM ( " + _CaseA + " ) OUT_IL \
@@ -163,6 +173,8 @@ module.exports = function(pQueryname, pParams){
 										SELECT COUNT(1) \
 										FROM ITEM_LIST IN_IL \
 										WHERE IN_IL.IL_GETADDRESS = OUT_IL.IL_GETADDRESS AND IN_IL.IL_GETTEL = OUT_IL.IL_GETTEL \
+										/*不包含今天*/ \
+										AND CONVERT(varchar(100), IN_IL.IL_CR_DATETIME, 23) NOT IN (CONVERT(varchar(100), GetDate(), 23)) \
 									) AS 'IL_COUNT', \
 									OUT_IL.* \
 							FROM ( " + _CaseB + " ) OUT_IL \
@@ -174,6 +186,8 @@ module.exports = function(pQueryname, pParams){
 										SELECT COUNT(1) \
 										FROM ITEM_LIST IN_IL \
 										WHERE IN_IL.IL_GETNAME = OUT_IL.IL_GETNAME AND IN_IL.IL_GETTEL = OUT_IL.IL_GETTEL \
+										/*不包含今天*/ \
+										AND CONVERT(varchar(100), IN_IL.IL_CR_DATETIME, 23) NOT IN (CONVERT(varchar(100), GetDate(), 23)) \
 									) AS 'IL_COUNT', \
 									OUT_IL.* \
 							FROM ( " + _CaseC + " ) OUT_IL \
@@ -185,6 +199,8 @@ module.exports = function(pQueryname, pParams){
 										SELECT COUNT(1) \
 										FROM ITEM_LIST IN_IL \
 										WHERE IN_IL.IL_GETNAME = OUT_IL.IL_GETNAME AND IN_IL.IL_GETADDRESS = OUT_IL.IL_GETADDRESS AND IN_IL.IL_GETTEL = OUT_IL.IL_GETTEL \
+										/*不包含今天*/ \
+										AND CONVERT(varchar(100), IN_IL.IL_CR_DATETIME, 23) NOT IN (CONVERT(varchar(100), GetDate(), 23)) \
 									) AS 'IL_COUNT', \
 									OUT_IL.* \
 							FROM ( " + _CaseD + " ) OUT_IL \
@@ -193,7 +209,7 @@ module.exports = function(pQueryname, pParams){
 		case "SelectItemList":
 			_SQLCommand += "SELECT * \
 							FROM ITEM_LIST \
-							WHERE 1=1 ";
+							WHERE CONVERT(varchar(100), IL_CR_DATETIME, 23) NOT IN (CONVERT(varchar(100), GetDate(), 23)) ";
 							
 			if(pParams["IL_GETADDRESS"] !== undefined){
 				_SQLCommand += " AND IL_GETADDRESS = @IL_GETADDRESS";
