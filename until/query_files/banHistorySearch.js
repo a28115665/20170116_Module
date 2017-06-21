@@ -129,46 +129,6 @@ module.exports = function(pQueryname, pParams){
 					WHERE BLFL.BLFL_TRACK = 1 ";
 
 	switch(pQueryname){
-		case "SelectCaseACount":
-			_SQLCommand += "SELECT COUNT(1) AS COUNT \
-							FROM ( "+ _CaseA + " ) A \
-							WHERE 1 = 1 ";
-
-			delete pParams["START_DATETIME"];
-			delete pParams["END_DATETIME"];
-			break;
-		case "SelectCaseBCount":
-			_SQLCommand += "SELECT COUNT(1) AS COUNT \
-							FROM ( "+ _CaseB + " ) B \
-							WHERE 1 = 1 ";
-
-			delete pParams["START_DATETIME"];
-			delete pParams["END_DATETIME"];
-			break;
-		case "SelectCaseCCount":
-			_SQLCommand += "SELECT COUNT(1) AS COUNT \
-							FROM ( "+ _CaseC + " ) C \
-							WHERE 1 = 1 ";
-
-			delete pParams["START_DATETIME"];
-			delete pParams["END_DATETIME"];
-			break;
-		case "SelectCaseDCount":
-			_SQLCommand += "SELECT COUNT(1) AS COUNT \
-							FROM ( "+ _CaseD + " ) D \
-							WHERE 1 = 1 ";
-
-			delete pParams["START_DATETIME"];
-			delete pParams["END_DATETIME"];
-			break;
-		case "SelectILCount":
-			_SQLCommand += "SELECT COUNT(1) AS COUNT \
-							FROM ITEM_LIST \
-							WHERE '"+pParams["START_DATETIME"]+"' <= IL_CR_DATETIME AND IL_CR_DATETIME <= '"+pParams["END_DATETIME"]+"'";
-
-			delete pParams["START_DATETIME"];
-			delete pParams["END_DATETIME"];
-			break;
 		case "SelectCaseA":
 			_SQLCommand += "SELECT \
 									( \

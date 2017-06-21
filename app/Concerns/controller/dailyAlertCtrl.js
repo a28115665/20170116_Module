@@ -1,6 +1,6 @@
 "use strict";
 
-angular.module('app.concerns').controller('DailyAlertCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, $timeout, uiGridConstants, RestfulApi) {
+angular.module('app.concerns').controller('DailyAlertCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, $timeout, uiGridConstants, RestfulApi, $filter) {
     
     var $vm = this,
         columnDefs = [
@@ -47,6 +47,8 @@ angular.module('app.concerns').controller('DailyAlertCtrl', function ($scope, $s
 	angular.extend(this, {
         Init : function(){
             $scope.ShowTabs = true;
+            $vm.startDatetime = $filter('date')(new Date(), 'yyyy-MM-dd') + ' 00:00:00';
+            $vm.endDatetime = $filter('date')(new Date(), 'yyyy-MM-dd') + ' 23:59:59';
             $vm.LoadData();
             LoadILCount();
         },
@@ -91,6 +93,12 @@ angular.module('app.concerns').controller('DailyAlertCtrl', function ($scope, $s
                         },
                         type: function(){
                             return $vm.defaultTab;   
+                        },
+                        time: function(){
+                            return {
+                                startDatetime: $vm.startDatetime,
+                                endDatetime: $vm.endDatetime
+                            }
                         }
                     }
                 });
@@ -163,27 +171,47 @@ angular.module('app.concerns').controller('DailyAlertCtrl', function ($scope, $s
             {
                 crudType: 'Select',
                 querymain: 'dailyAlert',
-                queryname: 'SelectCaseACount'
+                queryname: 'SelectCaseACount',
+                params: {
+                    START_DATETIME: $vm.startDatetime,
+                    END_DATETIME: $vm.endDatetime
+                }
             },
             {
                 crudType: 'Select',
                 querymain: 'dailyAlert',
-                queryname: 'SelectCaseBCount'
+                queryname: 'SelectCaseBCount',
+                params: {
+                    START_DATETIME: $vm.startDatetime,
+                    END_DATETIME: $vm.endDatetime
+                }
             },
             {
                 crudType: 'Select',
                 querymain: 'dailyAlert',
-                queryname: 'SelectCaseCCount'
+                queryname: 'SelectCaseCCount',
+                params: {
+                    START_DATETIME: $vm.startDatetime,
+                    END_DATETIME: $vm.endDatetime
+                }
             },
             {
                 crudType: 'Select',
                 querymain: 'dailyAlert',
-                queryname: 'SelectCaseDCount'
+                queryname: 'SelectCaseDCount',
+                params: {
+                    START_DATETIME: $vm.startDatetime,
+                    END_DATETIME: $vm.endDatetime
+                }
             },
             {
                 crudType: 'Select',
                 querymain: 'dailyAlert',
-                queryname: 'SelectILCount'
+                queryname: 'SelectILCount',
+                params: {
+                    START_DATETIME: $vm.startDatetime,
+                    END_DATETIME: $vm.endDatetime
+                }
             }
         ]).then(function (res) {
             console.log(res["returnData"]);
@@ -200,7 +228,11 @@ angular.module('app.concerns').controller('DailyAlertCtrl', function ($scope, $s
     function LoadCaseA(){
         RestfulApi.SearchMSSQLData({
             querymain: 'dailyAlert',
-            queryname: 'SelectCaseA'
+            queryname: 'SelectCaseA',
+            params: {
+                START_DATETIME: $vm.startDatetime,
+                END_DATETIME: $vm.endDatetime
+            }
         }).then(function (res){
             console.log(res["returnData"]);
             $vm.caseAData = res["returnData"];
@@ -210,7 +242,11 @@ angular.module('app.concerns').controller('DailyAlertCtrl', function ($scope, $s
     function LoadCaseB(){
         RestfulApi.SearchMSSQLData({
             querymain: 'dailyAlert',
-            queryname: 'SelectCaseB'
+            queryname: 'SelectCaseB',
+            params: {
+                START_DATETIME: $vm.startDatetime,
+                END_DATETIME: $vm.endDatetime
+            }
         }).then(function (res){
             console.log(res["returnData"]);
             $vm.caseBData = res["returnData"];
@@ -220,7 +256,11 @@ angular.module('app.concerns').controller('DailyAlertCtrl', function ($scope, $s
     function LoadCaseC(){
         RestfulApi.SearchMSSQLData({
             querymain: 'dailyAlert',
-            queryname: 'SelectCaseC'
+            queryname: 'SelectCaseC',
+            params: {
+                START_DATETIME: $vm.startDatetime,
+                END_DATETIME: $vm.endDatetime
+            }
         }).then(function (res){
             console.log(res["returnData"]);
             $vm.caseCData = res["returnData"];
@@ -230,14 +270,18 @@ angular.module('app.concerns').controller('DailyAlertCtrl', function ($scope, $s
     function LoadCaseD(){
         RestfulApi.SearchMSSQLData({
             querymain: 'dailyAlert',
-            queryname: 'SelectCaseD'
+            queryname: 'SelectCaseD',
+            params: {
+                START_DATETIME: $vm.startDatetime,
+                END_DATETIME: $vm.endDatetime
+            }
         }).then(function (res){
             console.log(res["returnData"]);
             $vm.caseDData = res["returnData"];
         }); 
     }
 })
-.controller('ShowHistoryCountModalInstanceCtrl', function ($uibModalInstance, item, type, RestfulApi) {
+.controller('ShowHistoryCountModalInstanceCtrl', function ($uibModalInstance, item, type, RestfulApi, time) {
     var $ctrl = this;
 
     $ctrl.Init = function(){
@@ -293,26 +337,30 @@ angular.module('app.concerns').controller('DailyAlertCtrl', function ($scope, $s
             case 'hr1':
                 _params = {
                     IL_GETNAME : item.IL_GETNAME,
-                    IL_GETADDRESS : item.IL_GETADDRESS
+                    IL_GETADDRESS : item.IL_GETADDRESS,
+                    START_DATETIME: time.startDatetime
                 };
                 break;
             case 'hr2':
                 _params = {
                     IL_GETADDRESS : item.IL_GETADDRESS,
-                    IL_GETTEL : item.IL_GETTEL
+                    IL_GETTEL : item.IL_GETTEL,
+                    START_DATETIME: time.startDatetime
                 };
                 break;
             case 'hr3':
                 _params = {
                     IL_GETNAME : item.IL_GETNAME,
-                    IL_GETTEL : item.IL_GETTEL
+                    IL_GETTEL : item.IL_GETTEL,
+                    START_DATETIME: time.startDatetime
                 };
                 break;
             case 'hr4':
                 _params = {
                     IL_GETNAME : item.IL_GETNAME,
                     IL_GETADDRESS : item.IL_GETADDRESS,
-                    IL_GETTEL : item.IL_GETTEL
+                    IL_GETTEL : item.IL_GETTEL,
+                    START_DATETIME: time.startDatetime
                 };
                 break;
         }

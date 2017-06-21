@@ -62,7 +62,12 @@ angular.module('app.concerns').config(function ($stateProvider){
                 controller: 'BanHistorySearchCtrl',
                 controllerAs: '$vm',
                 resolve: {
-                    
+                    compy: function(Compy){
+                        return Compy.get();
+                    },
+                    bool: function (SysCode){
+                        return SysCode.get('Boolean');
+                    }
                 }
             }
         }
