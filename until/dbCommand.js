@@ -26,13 +26,15 @@ require("fs").readdirSync(queryFilesPath).forEach(function(file) {
 var SelectMethod = function (querymain, queryname, params, callback){
 
 	try {
-		var connection = sql.connect(setting.MSSQL).then(function(cp) {
-			var ps = new sql.PreparedStatement(cp),
+		var connection = new sql.Connection(setting.MSSQL, function (Error) {  
+		    if (Error) return;
+
+			var ps = new sql.PreparedStatement(connection),
 				_params = typeof params == "string" ? JSON.parse(params) : {},
 				SQLCommand = "";
 
 			// 依querymain至各檔案下查詢method
-			SQLCommand = queryMethods[querymain](queryname, _params)
+			SQLCommand = queryMethods[querymain](queryname, _params);
 			
 			// schema所需的orm
 			schemaType.SchemaType(_params, ps, sql);
@@ -40,7 +42,7 @@ var SelectMethod = function (querymain, queryname, params, callback){
 			// 執行SQL，並且回傳值
 		    ps.prepare(SQLCommand, function(err) {
 			    // ... error checks
-			    if(err) return callback(err, null);
+			    if(err) return;
 			    
 			    /*
 			    	recordset -> 回傳值
@@ -48,51 +50,22 @@ var SelectMethod = function (querymain, queryname, params, callback){
 			     */
 				ps.execute(_params, function(err, recordset, affected) {
 					// ... error checks
-					if(err) return callback(err, null);
-
-					callback(null, recordset);
+					if(err) return;
 
 					ps.unprepare(function(err) {
 					    // ... error checks
 					    if(err) return callback(err, null);
+
+					    callback(null, recordset);  
 					});
 				});
 			});
 
-		}).catch(function(err) {
-		    // ... error checks
-	        return callback(err, null);
 		});
 	}
 	catch(err) {
 		return callback(err, null);
-	}
-
-	// var request = new sql.Request(),
-	// 	_params = JSON.parse(params);
-
-	// sql.connect(setting.MSSQL).then(function() {
-	// 	// console.log(queryname);
-	// 	// console.log(_params["U_ID"], _params["U_Name"]);
-	// 	var SQLCommand = "";
-	//     switch(queryname){
-	// 		case "SelectAllUserInfo":
-	// 			SQLCommand += "SELECT * \
-	// 						   FROM UserInfo \
-	// 						   WHERE 1=1"
-	// 			if(_params["U_ID"] !== undefined){
-	// 				request.input('U_ID', sql.VarChar(15), _params["U_ID"]);
-	// 				SQLCommand += " AND U_ID = @U_ID";
-	// 			}
-	// 			if(_params["U_Name"] !== undefined){
-	// 				request.input('U_Name', sql.NVarChar(15), _params["U_Name"]);
-	// 				SQLCommand += " AND U_Name = @U_Name";
-	// 			}
-	// 			break;
-	// 		default:
-	// 			callback(null, {});
-	// 			break;
-	// 	}	    
+	}  
 };
 
 /**
@@ -105,8 +78,10 @@ var SelectMethod = function (querymain, queryname, params, callback){
 var InsertMethod = function (insertname, table, params, callback){
 	
 	try {
-		var connection = sql.connect(setting.MSSQL).then(function(cp) {
-			var ps = new sql.PreparedStatement(cp),
+		var connection = new sql.Connection(setting.MSSQL, function (Error) {  
+		    if (Error) return;
+
+			var ps = new sql.PreparedStatement(connection),
 				_params = typeof params == "string" ? JSON.parse(params) : params,
 				SQLCommand = "",
 				Schema = [],
@@ -150,7 +125,7 @@ var InsertMethod = function (insertname, table, params, callback){
 			// 執行SQL，並且回傳值
 		    ps.prepare(SQLCommand, function(err) {
 			    // ... error checks
-			    if(err) return callback(err, null);
+			    if(err) return;
 			    
 			    /*
 			    	recordset -> 回傳值
@@ -159,21 +134,18 @@ var InsertMethod = function (insertname, table, params, callback){
 				ps.execute(_params, function(err, recordset, affected) {
 					// console.log(err, recordset, affected);
 					// ... error checks
-					if(err) return callback(err, null);
-
-					callback(null, affected);
+					if(err) return;
 
 					ps.unprepare(function(err) {
 					    // ... error checks
 					    if(err) return callback(err, null);
+
+					    callback(null, affected);  
 					});
 				});
 			});
 
 
-		}).catch(function(err) {
-		    // ... error checks
-	        return callback(err, null);
 		});
 	}
 	catch(err) {
@@ -192,7 +164,9 @@ var InsertMethod = function (insertname, table, params, callback){
 var UpdateMethod = function (updatetname, table, params, condition, callback){
 	
 	try {
-		var connection = sql.connect(setting.MSSQL).then(function() {
+		var connection = new sql.Connection(setting.MSSQL, function (Error) {  
+		    if (Error) return;
+
 			var ps = new sql.PreparedStatement(connection),
 				_params = typeof params == "string" ? JSON.parse(params) : params,
 				_condition = JSON.parse(condition),
@@ -253,7 +227,7 @@ var UpdateMethod = function (updatetname, table, params, condition, callback){
 			// 執行SQL，並且回傳值
 		    ps.prepare(SQLCommand, function(err) {
 			    // ... error checks
-			    if(err) return callback(err, null);
+			    if(err) return; 
 			    
 			    /*
 			    	recordset -> 回傳值
@@ -262,21 +236,17 @@ var UpdateMethod = function (updatetname, table, params, condition, callback){
 				ps.execute(_psParams, function(err, recordset, affected) {
 					// console.log(err, recordset, affected);
 					// ... error checks
-					if(err) return callback(err, null);
-
-					callback(null, affected);
+					if(err) return; 
 
 					ps.unprepare(function(err) {
 					    // ... error checks
 					    if(err) return callback(err, null);
+
+					    callback(null, affected);  
 					});
 				});
 			});
 
-
-		}).catch(function(err) {
-		    // ... error checks
-	        return callback(err, null);
 		});
 	}
 	catch(err) {
@@ -294,7 +264,9 @@ var UpdateMethod = function (updatetname, table, params, condition, callback){
 var DeleteMethod = function (deletename, table, params, callback){
 	
 	try {
-		var connection = sql.connect(setting.MSSQL).then(function() {
+		var connection = new sql.Connection(setting.MSSQL, function (Error) {  
+		    if (Error) return;
+
 			var ps = new sql.PreparedStatement(connection),
 				_params = typeof params == "string" ? JSON.parse(params) : params,
 				SQLCommand = "",
@@ -322,7 +294,7 @@ var DeleteMethod = function (deletename, table, params, callback){
 			// 執行SQL，並且回傳值
 		    ps.prepare(SQLCommand, function(err) {
 			    // ... error checks
-			    if(err) return callback(err, null);
+			    if(err) return;
 			    
 			    /*
 			    	recordset -> 回傳值
@@ -331,21 +303,18 @@ var DeleteMethod = function (deletename, table, params, callback){
 				ps.execute(_params, function(err, recordset, affected) {
 					// console.log(err, recordset, affected);
 					// ... error checks
-					if(err) return callback(err, null);
-
-					callback(null, affected);
+					if(err) return;
 
 					ps.unprepare(function(err) {
 					    // ... error checks
 					    if(err) return callback(err, null);
+
+						callback(null, affected);
 					});
 				});
 			});
 
 
-		}).catch(function(err) {
-		    // ... error checks
-	        return callback(err, null);
 		});
 	}
 	catch(err) {

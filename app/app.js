@@ -32,6 +32,7 @@ angular.module('app', [
     'angularFileUpload',
     'ngTagsInput',
     'summernote',
+    'LocalStorageModule',
 
     // Smartadmin Angular Common Module
     'SmartAdmin',
@@ -134,6 +135,9 @@ angular.module('app', [
         ['view', ['help']]
     ]
 })
+.config(function (localStorageServiceProvider) {
+    localStorageServiceProvider.setStorageType('localStorage');
+})
 
 .run(function ($rootScope, $state, $stateParams, Session, $http, AuthApi) {
     // $rootScope.$state = $state;
@@ -191,16 +195,16 @@ angular.module('app', [
         // });
     });
 
-    // $rootScope.$on('$stateChangeSuccess', function(event, toState, roParams, fromState, fromParams) {
-    //     // 檢視此頁是否有權限進入
-    //     // 無權限就導到default頁面
-    //     // console.log(Session.Get().GRIGHT[toState.name], toState.name);
-    //     if(!angular.isUndefined(Session.Get())){
-    //         if(!Session.Get().GRIGHT[toState.name]){
-    //             // event.preventDefault();
-    //             $state.transitionTo("app.default");
-    //         }
-    //     }
-    // });
+    $rootScope.$on('$stateChangeSuccess', function(event, toState, roParams, fromState, fromParams) {
+        // 檢視此頁是否有權限進入
+        // 無權限就導到default頁面
+        // console.log(Session.Get().GRIGHT[toState.name], toState.name);
+        if(!angular.isUndefined(Session.Get())){
+            if(!Session.Get().GRIGHT[toState.name]){
+                // event.preventDefault();
+                $state.transitionTo("app.default");
+            }
+        }
+    });
 
 });

@@ -1,5 +1,5 @@
 <!-- MAIN CONTENT -->
-<div id="content">
+<div id="content" ng-init="$vm.Init()">
 
 	<div class="row">
 		<big-breadcrumbs items="['SelfWork', 'DeliveryHistorySearch']" icon="history" class="col-xs-12 col-sm-7 col-md-7 col-lg-4"></big-breadcrumbs>
@@ -58,20 +58,20 @@
 											</select>
 								        </div>
 								        <label class="col-md-2 control-label">航班</label>
-								        <div class="col-md-1">
-								            <input class="form-control" ng-model="$vm.vmData.FLIGHTNO_START" placeholder="代碼" type="text" ui-mask="AA" ui-mask-placeholder>
+								        <div class="col-md-1" ng-class="$vm.vmData.FLIGHTNO_END.length && !$vm.vmData.FLIGHTNO_START.length ? ' has-error' : ''">
+								            <input class="form-control" ng-model="$vm.vmData.FLIGHTNO_START" placeholder="代碼" type="text" ui-mask="AA" ui-mask-placeholder ng-required="$vm.vmData.FLIGHTNO_END.length">
 								        </div>
-								        <div class="col-md-3">
-								            <input class="form-control" ng-model="$vm.vmData.FLIGHTNO_END" placeholder="號碼" type="text" maxlength="4">
+								        <div class="col-md-3" ng-class="$vm.vmData.FLIGHTNO_START.length && !$vm.vmData.FLIGHTNO_END.length ? ' has-error' : ''">
+								            <input class="form-control" ng-model="$vm.vmData.FLIGHTNO_END" placeholder="號碼" type="text" maxlength="4" ng-required="$vm.vmData.FLIGHTNO_START.length">
 								        </div>
 								    </div>
 								    <div class="form-group">
 								        <label class="col-md-2 control-label">主號</label>
-								        <div class="col-md-1">
-								            <input class="form-control" ng-model="$vm.vmData.MASTER_START" placeholder="開頭" type="text" ui-mask="999" ui-mask-placeholder>
+								        <div class="col-md-1" ng-class="$vm.vmData.MASTER_END.length && !$vm.vmData.MASTER_START.length ? ' has-error' : ''">
+								            <input class="form-control" ng-model="$vm.vmData.MASTER_START" placeholder="開頭" type="text" ui-mask="999" ui-mask-placeholder ng-required="$vm.vmData.MASTER_END.length">
 								        </div>
-								        <div class="col-md-2">
-								            <input class="form-control" ng-model="$vm.vmData.MASTER_END" placeholder="末8碼" type="text" ui-mask="99999999" ui-mask-placeholder>
+								        <div class="col-md-2" ng-class="$vm.vmData.MASTER_START.length && !$vm.vmData.MASTER_END.length ? ' has-error' : ''">
+								            <input class="form-control" ng-model="$vm.vmData.MASTER_END" placeholder="末8碼" type="text" ui-mask="99999999" ui-mask-placeholder ng-required="$vm.vmData.MASTER_START.length">
 								        </div>
 								        <label class="col-md-2 control-label">起運國別</label>
 								        <div class="col-md-2">
@@ -94,7 +94,7 @@
 								            <button class="btn btn-default" type="submit" ng-click="$vm.Cancel()">
 								                {{getWord('Cancel')}}
 								            </button>
-								            <button class="btn btn-primary" type="submit" ng-click="$vm.Search()">
+								            <button class="btn btn-primary" type="submit" ng-click="$vm.Search()" ng-disabled="!searchform.$valid">
 								                <i class="fa fa-search"></i>
 								                {{getWord('Search')}}
 								            </button>
@@ -112,7 +112,64 @@
 	        </article>
 	        <!-- End WIDGET START -->
 
+	        <!-- NEW WIDGET START -->
+	        <article class="col-xs-12 col-sm-12 col-md-12 col-lg-12" ng-if="$vm.resultData.length">
+	        	<!-- Widget ID (each widget will need unique ID)-->
+				<div id="Deliveryhistorysearch" data-widget-sortable="false" data-widget-colorbutton="false" data-widget-togglebutton="false" data-widget-editbutton="false" data-widget-fullscreenbutton="false" data-widget-deletebutton="false" data-widget-color="blue" data-jarvis-widget>
+				    <!-- widget options:
+				        usage: <div data-jarvis-widget id="wid-id-0" data-widget-editbutton="false">
+				        data-widget-colorbutton="false"
+				        data-widget-editbutton="false"
+				        data-widget-togglebutton="false"
+				        data-widget-deletebutton="false"
+				        data-widget-fullscreenbutton="false"
+				        data-widget-custombutton="false"
+				        data-widget-collapsed="true"
+				        data-widget-sortable="false"
+				    -->
+				    <header>
+				        <h2>查詢結果 </h2>
+
+				        <div class="widget-toolbar smart-form" role="menu">
+				            <a href-void="" class="btn btn-success" href="#" ng-click="$vm.ExportExcel()">匯出Excel</a>
+				        </div>
+				    </header>
+				    <!-- widget div-->
+				    <div>
+				        <!-- widget content -->
+						<div class="widget-body no-padding">
+
+							<div class="table-responsive">
+
+								<div id="grid1" ui-grid="$vm.resultOptions" class="my-ui-grid" ui-grid-pagination ui-grid-resize-columns></div>
+
+							</div>
+
+						</div>
+						<!-- end widget content -->
+				    </div>
+				    <!-- end widget div -->
+				</div>
+				<!-- end widget -->
+	        </article>
+	        <!-- End WIDGET START -->
+
 	    </div>
 	</section>
 
 </div>
+
+<script type="text/ng-template" id="opWorkMenu.html">
+    <div class="modal-header bg-color-green">
+        <h3 class="modal-title text-center">
+            <strong class=" txt-color-white">{{$ctrl.row.entity.name}}</strong>
+        </h3>
+    </div>
+    <div class="modal-body text-center"> 
+        <div class="row" ng-if="$ctrl.row.entity.name == '派送單'"> 
+        	<button type="button" class="btn btn-info btn-lg btn-block" ng-click="$ctrl.appScope.gridMethodForJob003.viewData($ctrl.row);$ctrl.cancel()"> 
+                檢視 
+            </button> 
+        </div>
+    </div>
+</script>

@@ -92,10 +92,9 @@ app.use(function(err, req, res, next) {
     // });
 });
 
-
 // module.exports = app;
 
 // server port 3000
 app.listen(setting.NodeJs.port, function() {
-  return console.info("Express server listening on port " + (this.address().port) + " in " + process.env.NODE_ENV + " mode");
+    return console.info("Express server listening on port " + (this.address().port) + " in " + process.env.NODE_ENV + " mode");
 });

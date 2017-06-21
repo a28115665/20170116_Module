@@ -57,10 +57,10 @@ var SelectRequestWithTransaction = function(task, args, callback) {
 	var request = new sql.Request(args.transaction),
 		SQLCommand = "";
 
-	schemaType.SchemaType2(task.params, request, sql);
-
 	// 依querymain至各檔案下查詢method
-	SQLCommand = queryMethods[task.querymain](task.queryname, task.params)
+	SQLCommand = queryMethods[task.querymain](task.queryname, task.params);
+
+	schemaType.SchemaType2(task.params, request, sql);
 
 	requestSql(request, SQLCommand, function(err, ret) {
 		args.result.push(ret);
@@ -81,8 +81,6 @@ var InsertRequestWithTransaction = function(task, args, callback) {
 		SQLCommand = "",
 		Schema = [],
 		Values = [];
-
-	schemaType.SchemaType2(task.params, request, sql);
 
 	switch(task.insertname){
 		case "Insert":
@@ -124,6 +122,8 @@ var InsertRequestWithTransaction = function(task, args, callback) {
 			break;
 	}	 
 
+	schemaType.SchemaType2(task.params, request, sql);
+
 	requestSql(request, SQLCommand, function(err, ret) {
 		args.result.push(ret);
 		if(err) callback(err, args);
@@ -144,8 +144,6 @@ var UpdateRequestWithTransaction = function(task, args, callback) {
 		psParams = extend({}, task.params, task.condition),
 		Schema = [],
 		Condition = [];
-
-	schemaType.SchemaType2(psParams, request, sql);
 
 	switch(task.updatename){
 		case "Update":
@@ -206,6 +204,8 @@ var UpdateRequestWithTransaction = function(task, args, callback) {
 			
 			break;
 	}	
+
+	schemaType.SchemaType2(psParams, request, sql);
 	
 	requestSql(request, SQLCommand, function(err, ret) {
 		args.result.push(ret);
@@ -225,8 +225,6 @@ var DeleteRequestWithTransaction = function(task, args, callback) {
 	var request = new sql.Request(args.transaction),
 		SQLCommand = "",
 		Condition = [];
-
-	schemaType.SchemaType2(task.params, request, sql);
 
 	switch(task.deletename){
 		case "DeleteOrderPrinplWithEditor":
@@ -251,6 +249,8 @@ var DeleteRequestWithTransaction = function(task, args, callback) {
 			
 			break;
 	}
+
+	schemaType.SchemaType2(task.params, request, sql);
 	
 	requestSql(request, SQLCommand, function(err, ret) {
 		args.result.push(ret);

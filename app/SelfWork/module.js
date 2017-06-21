@@ -51,7 +51,12 @@ angular.module('app.selfwork').config(function ($stateProvider){
                 controller: 'LeaderHistorySearchCtrl',
                 controllerAs: '$vm',
                 resolve: {
-                    
+                    compy: function(Compy){
+                        return Compy.get();
+                    },
+                    bool: function (SysCode){
+                        return SysCode.get('Boolean');
+                    }
                 }
             }
         }
@@ -108,7 +113,33 @@ angular.module('app.selfwork').config(function ($stateProvider){
                 controller: 'AssistantHistorySearchCtrl',
                 controllerAs: '$vm',
                 resolve: {
-                    
+                    compy: function(Compy){
+                        return Compy.get();
+                    },
+                    bool: function (SysCode){
+                        return SysCode.get('Boolean');
+                    }
+                }
+            }
+        }
+    })
+
+    .state('app.selfwork.assistanthistorysearch.resultjob002', {
+        url: '/resultjob002',
+        data: {
+            title: 'AssistanthistorysearchResultJob002'
+        },
+        params: { 
+            data: null
+        },
+        parent: 'app.selfwork.assistanthistorysearch',
+        views: {
+            "content@app" : {
+                templateUrl: 'app/SelfWork/views/jobs/job002.html',
+                controller: 'Job002Ctrl',
+                controllerAs: '$vm',
+                resolve: {
+
                 }
             }
         }
@@ -218,6 +249,48 @@ angular.module('app.selfwork').config(function ($stateProvider){
         }
     })
 
+    .state('app.selfwork.employeehistorysearch.resultjob001', {
+        url: '/resultjob001',
+        data: {
+            title: 'EmployeeHistorySearchResultJob001'
+        },
+        params: { 
+            data: null
+        },
+        parent: 'app.selfwork.employeehistorysearch',
+        views: {
+            "content@app" : {
+                templateUrl: 'app/SelfWork/views/jobs/job001.html',
+                controller: 'Job001Ctrl',
+                controllerAs: '$vm',
+                resolve: {
+
+                }
+            }
+        }
+    })
+
+    .state('app.selfwork.employeehistorysearch.resultjob002', {
+        url: '/resultjob002',
+        data: {
+            title: 'EmployeeHistorySearchResultJob002'
+        },
+        params: { 
+            data: null
+        },
+        parent: 'app.selfwork.employeehistorysearch',
+        views: {
+            "content@app" : {
+                templateUrl: 'app/SelfWork/views/jobs/job002.html',
+                controller: 'Job002Ctrl',
+                controllerAs: '$vm',
+                resolve: {
+
+                }
+            }
+        }
+    })
+
     .state('app.selfwork.deliveryjobs', {
         url: '/selfwork/deliveryjobs',
         data: {
@@ -269,7 +342,33 @@ angular.module('app.selfwork').config(function ($stateProvider){
                 controller: 'DeliveryHistorySearchCtrl',
                 controllerAs: '$vm',
                 resolve: {
-                    
+                    compy: function(Compy){
+                        return Compy.get();
+                    },
+                    bool: function (SysCode){
+                        return SysCode.get('Boolean');
+                    }
+                }
+            }
+        }
+    })
+
+    .state('app.selfwork.deliveryhistorysearch.resultjob003', {
+        url: '/resultjob003',
+        data: {
+            title: 'DeliveryhistorysearchResultJob003'
+        },
+        params: { 
+            data: null
+        },
+        parent: 'app.selfwork.deliveryhistorysearch',
+        views: {
+            "content@app" : {
+                templateUrl: 'app/SelfWork/views/jobs/job003.html',
+                controller: 'Job003Ctrl',
+                controllerAs: '$vm',
+                resolve: {
+
                 }
             }
         }

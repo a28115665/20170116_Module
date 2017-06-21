@@ -21,7 +21,7 @@
 	},
 	"WebService" : {
 		"changeNature" : {
-			"host" : "10.1.21.22",
+			"host" : "10.1.154.119",
 			"port" : "80",
 			"url" : "/EWSWS/WebServiceChangeNature.asmx/GetNewNature"
 		}

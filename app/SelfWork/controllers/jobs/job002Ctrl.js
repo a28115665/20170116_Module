@@ -12,6 +12,9 @@ angular.module('app.selfwork').controller('Job002Ctrl', function ($scope, $state
             if($stateParams.data == null){
                 ReturnToEmployeejobsPage();
             }else{
+                $vm.bigBreadcrumbsItems = $state.current.name.split(".");
+                $vm.bigBreadcrumbsItems.shift();
+                
                 $vm.vmData = $stateParams.data;
 
                 // 測試用

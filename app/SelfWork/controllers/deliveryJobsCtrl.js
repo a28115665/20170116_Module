@@ -134,6 +134,12 @@ angular.module('app.selfwork').controller('DeliveryJobsCtrl', function ($scope, 
                     });
                 }
             },
+            // 檢視
+            viewData : function(row){
+                $state.transitionTo("app.selfwork.deliveryjobs.job003", {
+                    data: row.entity
+                });
+            },
             // 完成
             closeData : function(row){
                 console.log(row);

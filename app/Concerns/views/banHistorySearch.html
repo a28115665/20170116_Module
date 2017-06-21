@@ -33,44 +33,61 @@
 				        <!-- widget content -->
 						<div class="widget-body">
 
-							<form id="search-form"
-		                          name="searchform"
-		                          class="form-horizontal">
+							<form id="search-form" name="searchform" class="form-horizontal">
 							    <fieldset>
 								    <div class="form-group">
-								        <label class="col-md-2 control-label">提單日期</label>
-								        <div class="col-md-5">
-								            <input class="form-control" placeholder="Default Text Field" type="date" ng-model="$vm.searchCondition.startDate">
+								        <label class="col-md-2 control-label">日期區間(起)</label>
+								        <div class="col-md-4">
+								            <input class="form-control" name="START_DATETIME" type="text" ng-model="$vm.vmData.START_DATETIME" ui-mask="9999-99-99" ui-mask-placeholder ui-mask-placeholder-char="_" placeholder="進口日期起 (西元 年-月-日)" model-view-value="true" is-date/>
+								            <p class="note" ng-show="searchform.START_DATETIME.$valid && !searchform.START_DATETIME.$pristine">開始於 {{searchform.START_DATETIME.$modelValue}}</p>
 								        </div>
-								        <div class="col-md-5">
-								            <input class="form-control" placeholder="Default Text Field" type="date" ng-model="$vm.searchCondition.endDate">
-								        </div>
-								    </div>
-								    <div class="form-group">
-								        <label class="col-md-2 control-label">主號</label>
-								        <div class="col-md-10">
-								            <input class="form-control" placeholder="請輸入主號" type="text">
+								        <label class="col-md-2 control-label">日期區間(迄)</label>
+								        <div class="col-md-4">
+								            <input class="form-control" name="END_DATETIME" type="text" ng-model="$vm.vmData.END_DATETIME" ui-mask="9999-99-99" ui-mask-placeholder ui-mask-placeholder-char="_" placeholder="進口日期迄 (西元 年-月-日)" model-view-value="true" is-date/>
+								            <p class="note" ng-show="searchform.END_DATETIME.$valid && !searchform.END_DATETIME.$pristine">結束於 {{searchform.END_DATETIME.$modelValue}}</p>
 								        </div>
 								    </div>
 								    <div class="form-group">
-								        <label class="col-md-2 control-label">進口日期</label>
-								        <div class="col-md-5">
-								            <input class="form-control" placeholder="Default Text Field" type="date" ng-model="$vm.searchCondition.startDate">
+								        <label class="col-md-2 control-label">袋號</label>
+								        <div class="col-md-4">
+								            <input class="form-control" ng-model="$vm.vmData.BAGNO" placeholder="袋號" type="text" maxlength="8">
 								        </div>
-								        <div class="col-md-5">
-								            <input class="form-control" placeholder="Default Text Field" type="date" ng-model="$vm.searchCondition.endDate">
-								        </div>
-								    </div>
-								    <div class="form-group">
-								        <label class="col-md-2 control-label">班機</label>
-								        <div class="col-md-10">
-								            <input class="form-control" placeholder="請輸入班機" type="text">
+								        <label class="col-md-2 control-label">袋號末五碼</label>
+								        <div class="col-md-4">
+								            <input class="form-control" ng-model="$vm.vmData.BAGNO_LAST5" placeholder="袋號末五碼" type="text" ui-mask="AA999" ui-mask-placeholder>
 								        </div>
 								    </div>
 								    <div class="form-group">
-								        <label class="col-md-2 control-label">起運國別</label>
-								        <div class="col-md-10">
-								            <input class="form-control" placeholder="請輸入起運國別" type="text">
+								        <label class="col-md-2 control-label">袋號範圍</label>
+								        <div class="col-md-3" ng-class="($vm.vmData.BAGNO_RANGE3_START.length || $vm.vmData.BAGNO_RANGE3_END.length) && !$vm.vmData.BAGNO_RANGE5.length ? ' has-error' : ''">
+								            <input class="form-control" ng-model="$vm.vmData.BAGNO_RANGE5" placeholder="袋號前五碼" type="text" maxlength="5" ng-required="$vm.vmData.BAGNO_RANGE3_START.length || $vm.vmData.BAGNO_RANGE3_END.length">
+								        </div>
+								        <div class="col-md-3" ng-class="($vm.vmData.BAGNO_RANGE5.length || $vm.vmData.BAGNO_RANGE3_END.length) && !$vm.vmData.BAGNO_RANGE3_START.length ? ' has-error' : ''">
+								            <input class="form-control" ng-model="$vm.vmData.BAGNO_RANGE3_START" placeholder="袋號末三碼(起)" type="text" maxlength="3" ui-mask="999" ui-mask-placeholder ng-required="$vm.vmData.BAGNO_RANGE5.length || $vm.vmData.BAGNO_RANGE3_END.length">
+								        </div>
+								        <label class="col-md-1 control-label text-center">~</label>
+								        <div class="col-md-3" ng-class="($vm.vmData.BAGNO_RANGE5.length || $vm.vmData.BAGNO_RANGE3_START.length) && !$vm.vmData.BAGNO_RANGE3_END.length ? ' has-error' : ''">
+								            <input class="form-control" ng-model="$vm.vmData.BAGNO_RANGE3_END" placeholder="袋號末三碼(迄)" type="text" maxlength="3" ui-mask="999" ui-mask-placeholder ng-required="$vm.vmData.BAGNO_RANGE5.length || $vm.vmData.BAGNO_RANGE3_START.length">
+								        </div>
+								    </div>
+								    <div class="form-group">
+								        <label class="col-md-2 control-label">收件人/公司</label>
+								        <div class="col-md-4">
+								            <input class="form-control" ng-model="$vm.vmData.GETNAME" placeholder="收件人/公司(模糊查詢)" type="text">
+								        </div>
+								        <label class="col-md-2 control-label">收件地址</label>
+								        <div class="col-md-4">
+								            <input class="form-control" ng-model="$vm.vmData.GETADDRESS" placeholder="收件地址(模糊查詢)" type="text">
+								        </div>
+								    </div>
+								    <div class="form-group">
+								        <label class="col-md-2 control-label">收件電話</label>
+								        <div class="col-md-4">
+								            <input class="form-control" ng-model="$vm.vmData.GETTEL" placeholder="收件電話" type="text">
+								        </div>
+								        <label class="col-md-2 control-label">原始品名</label>
+								        <div class="col-md-4">
+								            <input class="form-control" ng-model="$vm.vmData.NATURE" placeholder="原始品名(模糊查詢)" type="text">
 								        </div>
 								    </div>
 								</fieldset>
@@ -78,10 +95,10 @@
 		                        <div class="form-actions">
 								    <div class="row">
 								        <div class="col-md-12">
-								            <button class="btn btn-default" type="submit">
+								            <button class="btn btn-default" type="submit" ng-click="$vm.Cancel()">
 								                {{getWord('Cancel')}}
 								            </button>
-								            <button class="btn btn-primary" type="submit">
+								            <button class="btn btn-primary" type="submit" ng-click="$vm.Search()" ng-disabled="!searchform.$valid">
 								                <i class="fa fa-search"></i>
 								                {{getWord('Search')}}
 								            </button>
@@ -100,9 +117,9 @@
 	        <!-- End WIDGET START -->
 
 	        <!-- NEW WIDGET START -->
-	        <article class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+	        <article class="col-xs-12 col-sm-12 col-md-12 col-lg-12" ng-if="$vm.resultData.length">
 	        	<!-- Widget ID (each widget will need unique ID)-->
-				<div id="billboard" data-widget-sortable="false" data-widget-colorbutton="false" data-widget-togglebutton="false" data-widget-editbutton="false" data-widget-fullscreenbutton="false" data-widget-deletebutton="false" data-widget-color="blue" data-jarvis-widget>
+				<div id="EmployeeHistorySearch" data-widget-sortable="false" data-widget-colorbutton="false" data-widget-togglebutton="false" data-widget-editbutton="false" data-widget-fullscreenbutton="false" data-widget-deletebutton="false" data-widget-color="blue" data-jarvis-widget>
 				    <!-- widget options:
 				        usage: <div data-jarvis-widget id="wid-id-0" data-widget-editbutton="false">
 				        data-widget-colorbutton="false"
@@ -115,8 +132,11 @@
 				        data-widget-sortable="false"
 				    -->
 				    <header>
-				        <h2>歷史查詢結果 </h2>
+				        <h2>查詢結果 </h2>
 
+				        <div class="widget-toolbar smart-form" role="menu">
+				            <a href-void="" class="btn btn-success" href="#" ng-click="$vm.ExportExcel()">匯出Excel</a>
+				        </div>
 				    </header>
 				    <!-- widget div-->
 				    <div>
@@ -125,7 +145,7 @@
 
 							<div class="table-responsive">
 
-								<div id="grid1" ui-grid="$vm.historySearchOptions" class="my-ui-grid" ui-grid-pagination ui-grid-resize-columns></div>
+								<div id="grid1" ui-grid="$vm.resultOptions" class="my-ui-grid" ui-grid-pagination ui-grid-resize-columns></div>
 
 							</div>
 

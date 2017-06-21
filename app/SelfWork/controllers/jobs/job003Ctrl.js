@@ -12,6 +12,9 @@ angular.module('app.selfwork').controller('Job003Ctrl', function ($scope, $state
             if($stateParams.data == null){
                 ReturnToEmployeejobsPage();
             }else{
+                $vm.bigBreadcrumbsItems = $state.current.name.split(".");
+                $vm.bigBreadcrumbsItems.shift();
+                
                 $vm.vmData = $stateParams.data;
 
                 // 測試用
@@ -53,7 +56,7 @@ angular.module('app.selfwork').controller('Job003Ctrl', function ($scope, $state
             onRegisterApi: function(gridApi){
                 $vm.job003GridApi = gridApi;
 
-                gridApi.rowEdit.on.saveRow($scope, $vm.Update);
+                // gridApi.rowEdit.on.saveRow($scope, $vm.Update);
             }
         },
         ExportExcel: function(){
