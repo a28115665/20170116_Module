@@ -45,7 +45,9 @@ angular.module('app.concerns').config(function ($stateProvider){
                 controller: 'DailyAlertCtrl',
                 controllerAs: '$vm',
                 resolve: {
-                    
+                    compy: function(Compy){
+                        return Compy.get();
+                    }
                 }
             }
         }

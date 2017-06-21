@@ -1,6 +1,6 @@
 "use strict";
 
-angular.module('app.concerns').controller('DailyAlertCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, $timeout, uiGridConstants, RestfulApi, $filter) {
+angular.module('app.concerns').controller('DailyAlertCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, $timeout, uiGridConstants, RestfulApi, $filter, compy) {
     
     var $vm = this,
         columnDefs = [
@@ -15,6 +15,17 @@ angular.module('app.concerns').controller('DailyAlertCtrl', function ($scope, $s
                     ]
                 }
             },
+            { name: 'OL_IMPORTDT'            ,  displayName: '進口日期', width: 80, cellFilter: 'dateFilter' },
+            { name: 'OL_CO_CODE'             ,  displayName: '行家', width: 80, cellFilter: 'compyFilter', filter: 
+                {
+                    term: null,
+                    type: uiGridConstants.filter.SELECT,
+                    selectOptions: compy
+                }
+            },
+            { name: 'OL_FLIGHTNO'            ,  displayName: '航班', width: 80 },
+            { name: 'OL_MASTER'              ,  displayName: '主號', width: 120 },
+            { name: 'OL_COUNTRY'             ,  displayName: '起運國別', width: 80 },
             { name: 'IL_G1'         , displayName: '報關種類', width: 115 },
             { name: 'IL_MERGENO'    , displayName: '併票號', width: 129 },
             { name: 'IL_BAGNO'      , displayName: '袋號', width: 129 },
@@ -291,6 +302,17 @@ angular.module('app.concerns').controller('DailyAlertCtrl', function ($scope, $s
     $ctrl.mdDataOption = {
         data:  '$ctrl.mdData',
         columnDefs: [
+            { name: 'OL_IMPORTDT'            ,  displayName: '進口日期', width: 80, cellFilter: 'dateFilter' },
+            { name: 'OL_CO_CODE'             ,  displayName: '行家', width: 80, cellFilter: 'compyFilter', filter: 
+                {
+                    term: null,
+                    type: uiGridConstants.filter.SELECT,
+                    selectOptions: compy
+                }
+            },
+            { name: 'OL_FLIGHTNO'            ,  displayName: '航班', width: 80 },
+            { name: 'OL_MASTER'              ,  displayName: '主號', width: 120 },
+            { name: 'OL_COUNTRY'             ,  displayName: '起運國別', width: 80 },
             { name: 'IL_G1'         , displayName: '報關種類', width: 115 },
             { name: 'IL_MERGENO'    , displayName: '併票號', width: 129 },
             { name: 'IL_BAGNO'      , displayName: '袋號', width: 129 },
