@@ -13,7 +13,7 @@ module.exports = function(pQueryname, pParams){
 						FROM ITEM_LIST \
 						LEFT JOIN ORDER_LIST ON OL_SEQ = IL_SEQ \
 						/*只抓今天*/ \
-						WHERE '"+pParams["START_DATETIME"]+"' <= OL_IMPORTDT AND OL_IMPORTDT <= '"+pParams["END_DATETIME"]+"' \
+						WHERE '"+pParams["IMPORTDT_FROM"]+"' <= OL_IMPORTDT AND OL_IMPORTDT <= '"+pParams["IMPORTDT_TOXX"]+"' \
 					) IL ON \
 					IL.IL_GETNAME = V_BLFO_JOIN_IL.IL_GETNAME AND \
 					IL.IL_GETADDRESS = V_BLFO_JOIN_IL.IL_GETADDRESS \
@@ -28,7 +28,7 @@ module.exports = function(pQueryname, pParams){
 						FROM ITEM_LIST \
 						LEFT JOIN ORDER_LIST ON OL_SEQ = IL_SEQ \
 						/*只抓今天*/ \
-						WHERE '"+pParams["START_DATETIME"]+"' <= OL_IMPORTDT AND OL_IMPORTDT <= '"+pParams["END_DATETIME"]+"' \
+						WHERE '"+pParams["IMPORTDT_FROM"]+"' <= OL_IMPORTDT AND OL_IMPORTDT <= '"+pParams["IMPORTDT_TOXX"]+"' \
 					) IL ON \
 					IL.IL_GETNAME = BLFL.BLFL_GETNAME AND \
 					IL.IL_GETADDRESS = BLFL.BLFL_GETADDRESS \
@@ -46,7 +46,7 @@ module.exports = function(pQueryname, pParams){
 						FROM ITEM_LIST \
 						LEFT JOIN ORDER_LIST ON OL_SEQ = IL_SEQ \
 						/*只抓今天*/ \
-						WHERE '"+pParams["START_DATETIME"]+"' <= OL_IMPORTDT AND OL_IMPORTDT <= '"+pParams["END_DATETIME"]+"' \
+						WHERE '"+pParams["IMPORTDT_FROM"]+"' <= OL_IMPORTDT AND OL_IMPORTDT <= '"+pParams["IMPORTDT_TOXX"]+"' \
 					) IL ON \
 					IL.IL_GETADDRESS = V_BLFO_JOIN_IL.IL_GETADDRESS AND \
 					IL.IL_GETTEL = V_BLFO_JOIN_IL.IL_GETTEL \
@@ -61,7 +61,7 @@ module.exports = function(pQueryname, pParams){
 						FROM ITEM_LIST \
 						LEFT JOIN ORDER_LIST ON OL_SEQ = IL_SEQ \
 						/*只抓今天*/ \
-						WHERE '"+pParams["START_DATETIME"]+"' <= OL_IMPORTDT AND OL_IMPORTDT <= '"+pParams["END_DATETIME"]+"' \
+						WHERE '"+pParams["IMPORTDT_FROM"]+"' <= OL_IMPORTDT AND OL_IMPORTDT <= '"+pParams["IMPORTDT_TOXX"]+"' \
 					) IL ON \
 					IL.IL_GETADDRESS = BLFL.BLFL_GETADDRESS AND \
 					IL.IL_GETTEL = BLFL.BLFL_GETTEL \
@@ -79,7 +79,7 @@ module.exports = function(pQueryname, pParams){
 						FROM ITEM_LIST \
 						LEFT JOIN ORDER_LIST ON OL_SEQ = IL_SEQ \
 						/*只抓今天*/ \
-						WHERE '"+pParams["START_DATETIME"]+"' <= OL_IMPORTDT AND OL_IMPORTDT <= '"+pParams["END_DATETIME"]+"' \
+						WHERE '"+pParams["IMPORTDT_FROM"]+"' <= OL_IMPORTDT AND OL_IMPORTDT <= '"+pParams["IMPORTDT_TOXX"]+"' \
 					) IL ON \
 					IL.IL_GETNAME = V_BLFO_JOIN_IL.IL_GETNAME AND \
 					IL.IL_GETTEL = V_BLFO_JOIN_IL.IL_GETTEL \
@@ -94,7 +94,7 @@ module.exports = function(pQueryname, pParams){
 						FROM ITEM_LIST \
 						LEFT JOIN ORDER_LIST ON OL_SEQ = IL_SEQ \
 						/*只抓今天*/ \
-						WHERE '"+pParams["START_DATETIME"]+"' <= OL_IMPORTDT AND OL_IMPORTDT <= '"+pParams["END_DATETIME"]+"' \
+						WHERE '"+pParams["IMPORTDT_FROM"]+"' <= OL_IMPORTDT AND OL_IMPORTDT <= '"+pParams["IMPORTDT_TOXX"]+"' \
 					) IL ON \
 					IL.IL_GETNAME = BLFL.BLFL_GETNAME AND \
 					IL.IL_GETTEL = BLFL.BLFL_GETTEL \
@@ -113,7 +113,7 @@ module.exports = function(pQueryname, pParams){
 						FROM ITEM_LIST \
 						LEFT JOIN ORDER_LIST ON OL_SEQ = IL_SEQ \
 						/*只抓今天*/ \
-						WHERE '"+pParams["START_DATETIME"]+"' <= OL_IMPORTDT AND OL_IMPORTDT <= '"+pParams["END_DATETIME"]+"' \
+						WHERE '"+pParams["IMPORTDT_FROM"]+"' <= OL_IMPORTDT AND OL_IMPORTDT <= '"+pParams["IMPORTDT_TOXX"]+"' \
 					) IL ON \
 					IL.IL_GETNAME = V_BLFO_JOIN_IL.IL_GETNAME AND \
 					IL.IL_GETADDRESS = V_BLFO_JOIN_IL.IL_GETADDRESS AND \
@@ -129,7 +129,7 @@ module.exports = function(pQueryname, pParams){
 						FROM ITEM_LIST \
 						LEFT JOIN ORDER_LIST ON OL_SEQ = IL_SEQ \
 						/*只抓今天*/ \
-						WHERE '"+pParams["START_DATETIME"]+"' <= OL_IMPORTDT AND OL_IMPORTDT <= '"+pParams["END_DATETIME"]+"' \
+						WHERE '"+pParams["IMPORTDT_FROM"]+"' <= OL_IMPORTDT AND OL_IMPORTDT <= '"+pParams["IMPORTDT_TOXX"]+"' \
 					) IL ON \
 					IL.IL_GETNAME = BLFL.BLFL_GETNAME AND \
 					IL.IL_GETADDRESS = BLFL.BLFL_GETADDRESS AND \
@@ -142,32 +142,32 @@ module.exports = function(pQueryname, pParams){
 							FROM ( "+ _CaseA + " ) A \
 							WHERE 1 = 1 ";
 
-			delete pParams["START_DATETIME"];
-			delete pParams["END_DATETIME"];
+			delete pParams["IMPORTDT_FROM"];
+			delete pParams["IMPORTDT_TOXX"];
 			break;
 		case "SelectCaseBCount":
 			_SQLCommand += "SELECT COUNT(1) AS COUNT \
 							FROM ( "+ _CaseB + " ) B \
 							WHERE 1 = 1 ";
 
-			delete pParams["START_DATETIME"];
-			delete pParams["END_DATETIME"];
+			delete pParams["IMPORTDT_FROM"];
+			delete pParams["IMPORTDT_TOXX"];
 			break;
 		case "SelectCaseCCount":
 			_SQLCommand += "SELECT COUNT(1) AS COUNT \
 							FROM ( "+ _CaseC + " ) C \
 							WHERE 1 = 1 ";
 
-			delete pParams["START_DATETIME"];
-			delete pParams["END_DATETIME"];
+			delete pParams["IMPORTDT_FROM"];
+			delete pParams["IMPORTDT_TOXX"];
 			break;
 		case "SelectCaseDCount":
 			_SQLCommand += "SELECT COUNT(1) AS COUNT \
 							FROM ( "+ _CaseD + " ) D \
 							WHERE 1 = 1 ";
 
-			delete pParams["START_DATETIME"];
-			delete pParams["END_DATETIME"];
+			delete pParams["IMPORTDT_FROM"];
+			delete pParams["IMPORTDT_TOXX"];
 			break;
 		case "SelectILCount":
 			_SQLCommand += "SELECT COUNT(1) AS COUNT \
@@ -175,12 +175,12 @@ module.exports = function(pQueryname, pParams){
 								SELECT * \
 								FROM ITEM_LIST \
 								LEFT JOIN ORDER_LIST ON OL_SEQ = IL_SEQ \
-								/*不包含今天*/ \
-								WHERE '"+pParams["START_DATETIME"]+"' <= OL_IMPORTDT AND OL_IMPORTDT <= '"+pParams["END_DATETIME"]+"' \
+								/*只抓今天*/ \
+								WHERE '"+pParams["IMPORTDT_FROM"]+"' <= OL_IMPORTDT AND OL_IMPORTDT <= '"+pParams["IMPORTDT_TOXX"]+"' \
 							) IN_IL ";
 
-			delete pParams["START_DATETIME"];
-			delete pParams["END_DATETIME"];
+			delete pParams["IMPORTDT_FROM"];
+			delete pParams["IMPORTDT_TOXX"];
 			break;
 		case "SelectCaseA":
 			_SQLCommand += "SELECT \
@@ -191,7 +191,7 @@ module.exports = function(pQueryname, pParams){
 											FROM ITEM_LIST \
 											LEFT JOIN ORDER_LIST ON OL_SEQ = IL_SEQ \
 											/*不包含今天*/ \
-											WHERE OL_IMPORTDT <= '"+pParams["START_DATETIME"]+"' \
+											WHERE OL_IMPORTDT < '"+pParams["IMPORTDT_FROM"]+"' \
 										) IN_IL \
 										WHERE IN_IL.IL_GETNAME = OUT_IL.IL_GETNAME AND IN_IL.IL_GETADDRESS = OUT_IL.IL_GETADDRESS \
 									) AS 'IL_COUNT', \
@@ -199,8 +199,8 @@ module.exports = function(pQueryname, pParams){
 							FROM ( " + _CaseA + " ) OUT_IL \
 							ORDER BY OUT_IL.IL_GETNAME DESC ";
 
-			delete pParams["START_DATETIME"];
-			delete pParams["END_DATETIME"];
+			delete pParams["IMPORTDT_FROM"];
+			delete pParams["IMPORTDT_TOXX"];
 			break;
 		case "SelectCaseB":
 			_SQLCommand += "SELECT \
@@ -211,7 +211,7 @@ module.exports = function(pQueryname, pParams){
 											FROM ITEM_LIST \
 											LEFT JOIN ORDER_LIST ON OL_SEQ = IL_SEQ \
 											/*不包含今天*/ \
-											WHERE OL_IMPORTDT <= '"+pParams["START_DATETIME"]+"' \
+											WHERE OL_IMPORTDT < '"+pParams["IMPORTDT_FROM"]+"' \
 										) IN_IL \
 										WHERE IN_IL.IL_GETADDRESS = OUT_IL.IL_GETADDRESS AND IN_IL.IL_GETTEL = OUT_IL.IL_GETTEL \
 									) AS 'IL_COUNT', \
@@ -219,8 +219,8 @@ module.exports = function(pQueryname, pParams){
 							FROM ( " + _CaseB + " ) OUT_IL \
 							ORDER BY OUT_IL.IL_GETNAME DESC ";
 							
-			delete pParams["START_DATETIME"];
-			delete pParams["END_DATETIME"];
+			delete pParams["IMPORTDT_FROM"];
+			delete pParams["IMPORTDT_TOXX"];
 			break;
 		case "SelectCaseC":
 			_SQLCommand += "SELECT \
@@ -231,7 +231,7 @@ module.exports = function(pQueryname, pParams){
 											FROM ITEM_LIST \
 											LEFT JOIN ORDER_LIST ON OL_SEQ = IL_SEQ \
 											/*不包含今天*/ \
-											WHERE OL_IMPORTDT <= '"+pParams["START_DATETIME"]+"' \
+											WHERE OL_IMPORTDT < '"+pParams["IMPORTDT_FROM"]+"' \
 										) IN_IL \
 										WHERE IN_IL.IL_GETNAME = OUT_IL.IL_GETNAME AND IN_IL.IL_GETTEL = OUT_IL.IL_GETTEL \
 									) AS 'IL_COUNT', \
@@ -239,8 +239,8 @@ module.exports = function(pQueryname, pParams){
 							FROM ( " + _CaseC + " ) OUT_IL \
 							ORDER BY OUT_IL.IL_GETNAME DESC ";
 							
-			delete pParams["START_DATETIME"];
-			delete pParams["END_DATETIME"];
+			delete pParams["IMPORTDT_FROM"];
+			delete pParams["IMPORTDT_TOXX"];
 			break;
 		case "SelectCaseD":
 			_SQLCommand += "SELECT \
@@ -251,7 +251,7 @@ module.exports = function(pQueryname, pParams){
 											FROM ITEM_LIST \
 											LEFT JOIN ORDER_LIST ON OL_SEQ = IL_SEQ \
 											/*不包含今天*/ \
-											WHERE OL_IMPORTDT <= '"+pParams["START_DATETIME"]+"' \
+											WHERE OL_IMPORTDT < '"+pParams["IMPORTDT_FROM"]+"' \
 										) IN_IL \
 										WHERE IN_IL.IL_GETNAME = OUT_IL.IL_GETNAME AND IN_IL.IL_GETADDRESS = OUT_IL.IL_GETADDRESS AND IN_IL.IL_GETTEL = OUT_IL.IL_GETTEL \
 									) AS 'IL_COUNT', \
@@ -259,8 +259,8 @@ module.exports = function(pQueryname, pParams){
 							FROM ( " + _CaseD + " ) OUT_IL \
 							ORDER BY OUT_IL.IL_GETNAME DESC ";
 							
-			delete pParams["START_DATETIME"];
-			delete pParams["END_DATETIME"];
+			delete pParams["IMPORTDT_FROM"];
+			delete pParams["IMPORTDT_TOXX"];
 			break;
 		case "SelectItemList":
 			_SQLCommand += "SELECT * \
@@ -269,8 +269,9 @@ module.exports = function(pQueryname, pParams){
 								FROM ITEM_LIST \
 								LEFT JOIN ORDER_LIST ON OL_SEQ = IL_SEQ \
 								/*不包含今天*/ \
-								WHERE OL_IMPORTDT <= '"+pParams["START_DATETIME"]+"' \
-							) IN_IL ";
+								WHERE OL_IMPORTDT < '"+pParams["IMPORTDT_FROM"]+"' \
+							) IN_IL \
+							WHERE 1=1 ";
 							
 			if(pParams["IL_GETADDRESS"] !== undefined){
 				_SQLCommand += " AND IL_GETADDRESS = @IL_GETADDRESS";
@@ -283,8 +284,8 @@ module.exports = function(pQueryname, pParams){
 			}
 
 			_SQLCommand += " ORDER BY IL_GETNAME DESC ";
-
-			delete pParams["START_DATETIME"];
+			
+			delete pParams["IMPORTDT_FROM"];
 
 			break;
 			

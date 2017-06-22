@@ -1,6 +1,6 @@
 "use strict";
 
-angular.module('app.concerns').controller('DailyAlertCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, $timeout, uiGridConstants, RestfulApi, $filter, compy) {
+angular.module('app.concerns').controller('ResultBanCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, $timeout, uiGridConstants, RestfulApi, $filter, compy, localStorageService) {
     
     var $vm = this,
         columnDefs = [
@@ -57,11 +57,22 @@ angular.module('app.concerns').controller('DailyAlertCtrl', function ($scope, $s
 
 	angular.extend(this, {
         Init : function(){
-            $scope.ShowTabs = true;
-            $vm.IMPORTDT_FROM = $filter('date')(new Date(), 'yyyy-MM-dd') + ' 00:00:00';
-            $vm.IMPORTDT_TOXX = $filter('date')(new Date(), 'yyyy-MM-dd') + ' 23:59:59';
-            $vm.LoadData();
-            LoadILCount();
+
+            if($stateParams.data == null){
+                ReturnToBanHistorySearchPage();
+            }else{
+                $scope.ShowTabs = true;
+                
+                $vm.bigBreadcrumbsItems = $state.current.name.split(".");
+                $vm.bigBreadcrumbsItems.shift();
+
+                $vm.vmData = $stateParams.data;
+                $vm.params = CombineConditions(localStorageService.get("BanHistorySearch"));
+
+                $vm.LoadData();
+                console.log($vm.params);
+            }
+
         },
         profile : Session.Get(),
         defaultTab : 'hr1',
@@ -104,12 +115,6 @@ angular.module('app.concerns').controller('DailyAlertCtrl', function ($scope, $s
                         },
                         type: function(){
                             return $vm.defaultTab;   
-                        },
-                        time: function(){
-                            return {
-                                IMPORTDT_FROM: $vm.IMPORTDT_FROM,
-                                IMPORTDT_TOXX: $vm.IMPORTDT_TOXX
-                            }
                         },
                         compy: function(){
                             return compy;
@@ -177,76 +182,17 @@ angular.module('app.concerns').controller('DailyAlertCtrl', function ($scope, $s
             onRegisterApi: function(gridApi){
                 $vm.caseDGridApi = gridApi;
             }
+        },
+        Return : function(){
+            ReturnToBanHistorySearchPage();
         }
     });
 
-    function LoadILCount(){
-        RestfulApi.CRUDMSSQLDataByTask([
-            {
-                crudType: 'Select',
-                querymain: 'dailyAlert',
-                queryname: 'SelectCaseACount',
-                params: {
-                    IMPORTDT_FROM: $vm.IMPORTDT_FROM,
-                    IMPORTDT_TOXX: $vm.IMPORTDT_TOXX
-                }
-            },
-            {
-                crudType: 'Select',
-                querymain: 'dailyAlert',
-                queryname: 'SelectCaseBCount',
-                params: {
-                    IMPORTDT_FROM: $vm.IMPORTDT_FROM,
-                    IMPORTDT_TOXX: $vm.IMPORTDT_TOXX
-                }
-            },
-            {
-                crudType: 'Select',
-                querymain: 'dailyAlert',
-                queryname: 'SelectCaseCCount',
-                params: {
-                    IMPORTDT_FROM: $vm.IMPORTDT_FROM,
-                    IMPORTDT_TOXX: $vm.IMPORTDT_TOXX
-                }
-            },
-            {
-                crudType: 'Select',
-                querymain: 'dailyAlert',
-                queryname: 'SelectCaseDCount',
-                params: {
-                    IMPORTDT_FROM: $vm.IMPORTDT_FROM,
-                    IMPORTDT_TOXX: $vm.IMPORTDT_TOXX
-                }
-            },
-            {
-                crudType: 'Select',
-                querymain: 'dailyAlert',
-                queryname: 'SelectILCount',
-                params: {
-                    IMPORTDT_FROM: $vm.IMPORTDT_FROM,
-                    IMPORTDT_TOXX: $vm.IMPORTDT_TOXX
-                }
-            }
-        ]).then(function (res) {
-            console.log(res["returnData"]);
-            var _returnData = [];
-            for(var i in res["returnData"]){
-                _returnData.push(res["returnData"][i][0].COUNT);
-            }
-            $vm.allCountData = _returnData;
-        }, function (err) {
-
-        });
-    }
-
     function LoadCaseA(){
         RestfulApi.SearchMSSQLData({
-            querymain: 'dailyAlert',
+            querymain: 'banHistorySearch',
             queryname: 'SelectCaseA',
-            params: {
-                IMPORTDT_FROM: $vm.IMPORTDT_FROM,
-                IMPORTDT_TOXX: $vm.IMPORTDT_TOXX
-            }
+            params: $vm.params
         }).then(function (res){
             console.log(res["returnData"]);
             $vm.caseAData = res["returnData"];
@@ -255,12 +201,9 @@ angular.module('app.concerns').controller('DailyAlertCtrl', function ($scope, $s
 
     function LoadCaseB(){
         RestfulApi.SearchMSSQLData({
-            querymain: 'dailyAlert',
+            querymain: 'banHistorySearch',
             queryname: 'SelectCaseB',
-            params: {
-                IMPORTDT_FROM: $vm.IMPORTDT_FROM,
-                IMPORTDT_TOXX: $vm.IMPORTDT_TOXX
-            }
+            params: $vm.params
         }).then(function (res){
             console.log(res["returnData"]);
             $vm.caseBData = res["returnData"];
@@ -269,12 +212,9 @@ angular.module('app.concerns').controller('DailyAlertCtrl', function ($scope, $s
 
     function LoadCaseC(){
         RestfulApi.SearchMSSQLData({
-            querymain: 'dailyAlert',
+            querymain: 'banHistorySearch',
             queryname: 'SelectCaseC',
-            params: {
-                IMPORTDT_FROM: $vm.IMPORTDT_FROM,
-                IMPORTDT_TOXX: $vm.IMPORTDT_TOXX
-            }
+            params: $vm.params
         }).then(function (res){
             console.log(res["returnData"]);
             $vm.caseCData = res["returnData"];
@@ -283,19 +223,36 @@ angular.module('app.concerns').controller('DailyAlertCtrl', function ($scope, $s
 
     function LoadCaseD(){
         RestfulApi.SearchMSSQLData({
-            querymain: 'dailyAlert',
+            querymain: 'banHistorySearch',
             queryname: 'SelectCaseD',
-            params: {
-                IMPORTDT_FROM: $vm.IMPORTDT_FROM,
-                IMPORTDT_TOXX: $vm.IMPORTDT_TOXX
-            }
+            params: $vm.params
         }).then(function (res){
             console.log(res["returnData"]);
             $vm.caseDData = res["returnData"];
         }); 
     }
+
+    /**
+     * CombineConditions 條件組合
+     * @param {[type]}
+     */
+    function CombineConditions(pObject){
+        var _conditions = {};
+
+        for(var i in pObject){
+            if(pObject[i] != ""){
+                _conditions[i] = pObject[i];
+            }
+        }
+
+        return _conditions;
+    }
+
+    function ReturnToBanHistorySearchPage(){
+        $state.transitionTo($state.current.parent);
+    }
 })
-.controller('ShowHistoryCountModalInstanceCtrl', function ($uibModalInstance, item, type, RestfulApi, uiGridConstants, compy, time) {
+.controller('ShowHistoryCountModalInstanceCtrl', function ($uibModalInstance, item, type, RestfulApi, uiGridConstants, compy) {
     var $ctrl = this;
 
     $ctrl.Init = function(){
@@ -363,21 +320,30 @@ angular.module('app.concerns').controller('DailyAlertCtrl', function ($scope, $s
                 _params = {
                     IL_GETNAME : item.IL_GETNAME,
                     IL_GETADDRESS : item.IL_GETADDRESS,
-                    IMPORTDT_FROM: time.IMPORTDT_FROM
+                    IL_SEQ : item.IL_SEQ,
+                    IL_NEWBAGNO : item.IL_NEWBAGNO,
+                    IL_NEWSMALLNO : item.IL_NEWSMALLNO,
+                    IL_ORDERINDEX : item.IL_ORDERINDEX
                 };
                 break;
             case 'hr2':
                 _params = {
                     IL_GETADDRESS : item.IL_GETADDRESS,
                     IL_GETTEL : item.IL_GETTEL,
-                    IMPORTDT_FROM: time.IMPORTDT_FROM
+                    IL_SEQ : item.IL_SEQ,
+                    IL_NEWBAGNO : item.IL_NEWBAGNO,
+                    IL_NEWSMALLNO : item.IL_NEWSMALLNO,
+                    IL_ORDERINDEX : item.IL_ORDERINDEX
                 };
                 break;
             case 'hr3':
                 _params = {
                     IL_GETNAME : item.IL_GETNAME,
                     IL_GETTEL : item.IL_GETTEL,
-                    IMPORTDT_FROM: time.IMPORTDT_FROM
+                    IL_SEQ : item.IL_SEQ,
+                    IL_NEWBAGNO : item.IL_NEWBAGNO,
+                    IL_NEWSMALLNO : item.IL_NEWSMALLNO,
+                    IL_ORDERINDEX : item.IL_ORDERINDEX
                 };
                 break;
             case 'hr4':
@@ -385,13 +351,16 @@ angular.module('app.concerns').controller('DailyAlertCtrl', function ($scope, $s
                     IL_GETNAME : item.IL_GETNAME,
                     IL_GETADDRESS : item.IL_GETADDRESS,
                     IL_GETTEL : item.IL_GETTEL,
-                    IMPORTDT_FROM: time.IMPORTDT_FROM
+                    IL_SEQ : item.IL_SEQ,
+                    IL_NEWBAGNO : item.IL_NEWBAGNO,
+                    IL_NEWSMALLNO : item.IL_NEWSMALLNO,
+                    IL_ORDERINDEX : item.IL_ORDERINDEX
                 };
                 break;
         }
 
         RestfulApi.SearchMSSQLData({
-            querymain: 'dailyAlert',
+            querymain: 'banHistorySearch',
             queryname: 'SelectItemList',
             params: _params
         }).then(function (res){

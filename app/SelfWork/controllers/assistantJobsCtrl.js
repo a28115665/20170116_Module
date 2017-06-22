@@ -255,7 +255,7 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
                 { name: 'Options'                ,  displayName: '操作', width: '12%', enableCellEdit: false, enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToMSForAssistantJobs') }
             ],
             enableFiltering: true,
-            enableSorting: false,
+            enableSorting: true,
             enableColumnMenus: false,
             // enableVerticalScrollbar: false,
             paginationPageSizes: [10, 25, 50],
@@ -405,6 +405,19 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
         }).then(function (res){
             console.log(res["returnData"]);
             $vm.flightItemData = res["returnData"];
+
+            var _showFixMaster = false,
+                _fixMasterCount = 0;
+            for(var i in $vm.flightItemData){
+                if($vm.flightItemData[i].OL_MASTER == ""){
+                    _showFixMaster = true;
+                    _fixMasterCount += 1;
+                }
+            }
+
+            if(_showFixMaster){
+                toaster.pop('info', '訊息', '尚有 '+_fixMasterCount+' 單需主號待補', 3000);
+            }
         }); 
     };
 

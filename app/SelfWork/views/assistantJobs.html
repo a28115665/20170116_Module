@@ -35,9 +35,9 @@
 				            <li ng-class="$vm.TabSwitch('hr2')" ng-click="$vm.defaultTab='hr2';$vm.LoadData()">
 				                <a data-toggle="tab" href="#hr2"> <i class="fa fa-lg fa-cube"></i> <span class="hidden-mobile hidden-tablet"> 銷艙單 </span> </a>
 				            </li>
-				            <li ng-class="$vm.TabSwitch('hr3')" ng-click="$vm.defaultTab='hr3';$vm.LoadData()">
+				            <!-- <li ng-class="$vm.TabSwitch('hr3')" ng-click="$vm.defaultTab='hr3';$vm.LoadData()">
 				                <a data-toggle="tab" href="#hr3"> <i class="fa fa-lg fa-question"></i> <span class="hidden-mobile hidden-tablet"> 主號待補 </span> </a>
-				            </li>
+				            </li> -->
 				            <li ng-class="$vm.TabSwitch('hr4')" ng-click="$vm.defaultTab='hr4';$vm.LoadData()">
 				                <a data-toggle="tab" href="#hr4"> <i class="fa fa-lg fa-hand-o-down"></i> <span class="hidden-mobile hidden-tablet"> 改走 </span> </a>
 				            </li>
@@ -84,9 +84,9 @@
 									<div id="grid1" ui-grid="$vm.flightItemOptions" class="my-ui-grid" ui-grid-pagination ui-grid-resize-columns ui-grid-auto-resize></div>
 									
 				                </div>
-				                <div class="tab-pane fade in " ng-class="$vm.TabSwitch('hr3')" id="hr3">
+				                <!-- <div class="tab-pane fade in " ng-class="$vm.TabSwitch('hr3')" id="hr3">
 				                	主號待補
-				                </div>
+				                </div> -->
 				                <div class="tab-pane fade in " ng-class="$vm.TabSwitch('hr4')" id="hr4">
 									改走
 				                </div>

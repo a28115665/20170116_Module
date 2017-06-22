@@ -830,12 +830,38 @@ angular.module('app.concerns').config(function ($stateProvider){
     .state('app.concerns.banhistorysearch', {
         url: '/concerns/banhistorysearch',
         data: {
-            title: 'HistorySearch'
+            title: 'BanHistorySearch'
         },
         views: {
             "content@app" : {
                 templateUrl: 'app/Concerns/views/banHistorySearch.html',
                 controller: 'BanHistorySearchCtrl',
+                controllerAs: '$vm',
+                resolve: {
+                    compy: function(Compy){
+                        return Compy.get();
+                    },
+                    bool: function (SysCode){
+                        return SysCode.get('Boolean');
+                    }
+                }
+            }
+        }
+    })
+
+    .state('app.concerns.banhistorysearch.resultban', {
+        url: '/resultban',
+        data: {
+            title: 'BanHistorySearchResultBan'
+        },
+        params: { 
+            data: null
+        },
+        parent: 'app.concerns.banhistorysearch',
+        views: {
+            "content@app" : {
+                templateUrl: 'app/Concerns/views/banHistorySearch/resultBan.html',
+                controller: 'ResultBanCtrl',
                 controllerAs: '$vm',
                 resolve: {
                     compy: function(Compy){
@@ -5900,38 +5926,19 @@ angular.module('app.concerns').controller('BanHistorySearchCtrl', function ($sco
     var $vm = this;
 
 	angular.extend(this, {
+        Init : function(){
+            // console.log(localStorageService.get("BanHistorySearch"));
+            
+            // 帶入LocalStorage資料
+            if(localStorageService.get("BanHistorySearch") == null){
+                $vm.vmData = {};
+            }else{
+                $vm.vmData = localStorageService.get("BanHistorySearch");
+            }
+        },
         profile : Session.Get(),
         boolData : bool,
         compyData : compy,
-        resultOptions : {
-            data:  '$vm.resultData',
-            columnDefs: [
-                { name: 'OL_IMPORTDT' ,  displayName: '進口日期', cellFilter: 'dateFilter' },
-                { name: 'OL_CO_CODE'  ,  displayName: '行家', cellFilter: 'compyFilter', filter: 
-                    {
-                        term: null,
-                        type: uiGridConstants.filter.SELECT,
-                        selectOptions: compy
-                    }
-                },
-                { name: 'OL_FLIGHTNO' ,  displayName: '航班' },
-                { name: 'OL_MASTER'   ,  displayName: '主號' },
-                { name: 'OL_COUNT'    ,  displayName: '報機單(袋數)', enableCellEdit: false },
-                { name: 'OL_COUNTRY'  ,  displayName: '起運國別' },
-                { name: 'ITEM_LIST'          ,  displayName: '報機單', enableFiltering: false, width: '8%', cellTemplate: $templateCache.get('accessibilityToOperaForJob001') },
-                { name: 'FLIGHT_ITEM_LIST'   ,  displayName: '銷艙單', enableFiltering: false, width: '8%', cellTemplate: $templateCache.get('accessibilityToOperaForJob002') },
-                { name: 'Options'       , displayName: '下載', width: '5%', enableCellEdit: false, enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToOnceDownload') }
-            ],
-            enableFiltering: true,
-            enableSorting: false,
-            enableColumnMenus: false,
-            // enableVerticalScrollbar: false,
-            paginationPageSizes: [10, 25, 50],
-            paginationPageSize: 10,
-            onRegisterApi: function(gridApi){
-                $vm.resultGridApi = gridApi;
-            }
-        },
         Cancel : function(){
             ClearSearchCondition();
         },
@@ -5951,21 +5958,56 @@ angular.module('app.concerns').controller('BanHistorySearchCtrl', function ($sco
         var _params = {};
 
         _params = CombineConditions($vm.vmData);
+        // 紀錄查詢條件
+        localStorageService.set("BanHistorySearch", $vm.vmData);
         
         console.log(_params);
+        
+        RestfulApi.CRUDMSSQLDataByTask([
+            {
+                crudType: 'Select',
+                querymain: 'banHistorySearch',
+                queryname: 'SelectCaseACount',
+                params: _params
+            },
+            {  
+                crudType: 'Select',
+                querymain: 'banHistorySearch',
+                queryname: 'SelectCaseBCount',
+                params: _params
+            },
+            {  
+                crudType: 'Select',
+                querymain: 'banHistorySearch',
+                queryname: 'SelectCaseCCount',
+                params: _params
+            },
+            {  
+                crudType: 'Select',
+                querymain: 'banHistorySearch',
+                queryname: 'SelectCaseDCount',
+                params: _params
+            }
+        ]).then(function (res){
+            console.log(res["returnData"]);
 
-        // RestfulApi.SearchMSSQLData({
-        //     querymain: 'banHistorySearch',
-        //     queryname: 'SelectSearch',
-        //     params: _params
-        // }).then(function (res){
-        //     console.log(res["returnData"]);
-        //     if(res["returnData"].length > 0){
-        //         $vm.resultData = res["returnData"];
-        //     }else{
-        //         toaster.pop('info', '訊息', '查無資料', 3000);
-        //     }
-        // });
+            var _count = res["returnData"][0][0].COUNT + res["returnData"][1][0].COUNT + res["returnData"][2][0].COUNT + res["returnData"][3][0].COUNT;
+
+            if(_count > 0){
+                console.log(_count);
+                $state.transitionTo("app.concerns.banhistorysearch.resultban", {
+                    data: {
+                        SelectCaseACount : res["returnData"][0][0].COUNT,
+                        SelectCaseBCount : res["returnData"][1][0].COUNT,
+                        SelectCaseCCount : res["returnData"][2][0].COUNT,
+                        SelectCaseDCount : res["returnData"][3][0].COUNT
+                    }
+                });
+            }else{
+                toaster.pop('info', '訊息', '查無資料', 3000);
+            }
+
+        });
     }
 
     /**
@@ -6005,13 +6047,7 @@ angular.module('app.concerns').controller('BanHistorySearchCtrl', function ($sco
 
         for(var i in pObject){
             if(pObject[i] != ""){
-                if(i == "START_DATETIME"){
-                    _conditions[i] = pObject[i] + " 00:00:00";
-                }else if(i == "END_DATETIME"){
-                    _conditions[i] = pObject[i] + " 23:59:59";
-                }else{
-                    _conditions[i] = pObject[i];
-                }
+                _conditions[i] = pObject[i];
             }
         }
 
@@ -6022,6 +6058,7 @@ angular.module('app.concerns').controller('BanHistorySearchCtrl', function ($sco
      * [ClearSearchCondition description] 清除查詢條件
      */
     function ClearSearchCondition(){
+        localStorageService.remove("BanHistorySearch");
         $vm.vmData = {};
     }
 
@@ -6086,8 +6123,8 @@ angular.module('app.concerns').controller('DailyAlertCtrl', function ($scope, $s
 	angular.extend(this, {
         Init : function(){
             $scope.ShowTabs = true;
-            $vm.startDatetime = $filter('date')(new Date(), 'yyyy-MM-dd') + ' 00:00:00';
-            $vm.endDatetime = $filter('date')(new Date(), 'yyyy-MM-dd') + ' 23:59:59';
+            $vm.IMPORTDT_FROM = $filter('date')(new Date(), 'yyyy-MM-dd') + ' 00:00:00';
+            $vm.IMPORTDT_TOXX = $filter('date')(new Date(), 'yyyy-MM-dd') + ' 23:59:59';
             $vm.LoadData();
             LoadILCount();
         },
@@ -6135,9 +6172,12 @@ angular.module('app.concerns').controller('DailyAlertCtrl', function ($scope, $s
                         },
                         time: function(){
                             return {
-                                startDatetime: $vm.startDatetime,
-                                endDatetime: $vm.endDatetime
+                                IMPORTDT_FROM: $vm.IMPORTDT_FROM,
+                                IMPORTDT_TOXX: $vm.IMPORTDT_TOXX
                             }
+                        },
+                        compy: function(){
+                            return compy;
                         }
                     }
                 });
@@ -6212,8 +6252,8 @@ angular.module('app.concerns').controller('DailyAlertCtrl', function ($scope, $s
                 querymain: 'dailyAlert',
                 queryname: 'SelectCaseACount',
                 params: {
-                    START_DATETIME: $vm.startDatetime,
-                    END_DATETIME: $vm.endDatetime
+                    IMPORTDT_FROM: $vm.IMPORTDT_FROM,
+                    IMPORTDT_TOXX: $vm.IMPORTDT_TOXX
                 }
             },
             {
@@ -6221,8 +6261,8 @@ angular.module('app.concerns').controller('DailyAlertCtrl', function ($scope, $s
                 querymain: 'dailyAlert',
                 queryname: 'SelectCaseBCount',
                 params: {
-                    START_DATETIME: $vm.startDatetime,
-                    END_DATETIME: $vm.endDatetime
+                    IMPORTDT_FROM: $vm.IMPORTDT_FROM,
+                    IMPORTDT_TOXX: $vm.IMPORTDT_TOXX
                 }
             },
             {
@@ -6230,8 +6270,8 @@ angular.module('app.concerns').controller('DailyAlertCtrl', function ($scope, $s
                 querymain: 'dailyAlert',
                 queryname: 'SelectCaseCCount',
                 params: {
-                    START_DATETIME: $vm.startDatetime,
-                    END_DATETIME: $vm.endDatetime
+                    IMPORTDT_FROM: $vm.IMPORTDT_FROM,
+                    IMPORTDT_TOXX: $vm.IMPORTDT_TOXX
                 }
             },
             {
@@ -6239,8 +6279,8 @@ angular.module('app.concerns').controller('DailyAlertCtrl', function ($scope, $s
                 querymain: 'dailyAlert',
                 queryname: 'SelectCaseDCount',
                 params: {
-                    START_DATETIME: $vm.startDatetime,
-                    END_DATETIME: $vm.endDatetime
+                    IMPORTDT_FROM: $vm.IMPORTDT_FROM,
+                    IMPORTDT_TOXX: $vm.IMPORTDT_TOXX
                 }
             },
             {
@@ -6248,8 +6288,8 @@ angular.module('app.concerns').controller('DailyAlertCtrl', function ($scope, $s
                 querymain: 'dailyAlert',
                 queryname: 'SelectILCount',
                 params: {
-                    START_DATETIME: $vm.startDatetime,
-                    END_DATETIME: $vm.endDatetime
+                    IMPORTDT_FROM: $vm.IMPORTDT_FROM,
+                    IMPORTDT_TOXX: $vm.IMPORTDT_TOXX
                 }
             }
         ]).then(function (res) {
@@ -6269,8 +6309,8 @@ angular.module('app.concerns').controller('DailyAlertCtrl', function ($scope, $s
             querymain: 'dailyAlert',
             queryname: 'SelectCaseA',
             params: {
-                START_DATETIME: $vm.startDatetime,
-                END_DATETIME: $vm.endDatetime
+                IMPORTDT_FROM: $vm.IMPORTDT_FROM,
+                IMPORTDT_TOXX: $vm.IMPORTDT_TOXX
             }
         }).then(function (res){
             console.log(res["returnData"]);
@@ -6283,8 +6323,8 @@ angular.module('app.concerns').controller('DailyAlertCtrl', function ($scope, $s
             querymain: 'dailyAlert',
             queryname: 'SelectCaseB',
             params: {
-                START_DATETIME: $vm.startDatetime,
-                END_DATETIME: $vm.endDatetime
+                IMPORTDT_FROM: $vm.IMPORTDT_FROM,
+                IMPORTDT_TOXX: $vm.IMPORTDT_TOXX
             }
         }).then(function (res){
             console.log(res["returnData"]);
@@ -6297,8 +6337,8 @@ angular.module('app.concerns').controller('DailyAlertCtrl', function ($scope, $s
             querymain: 'dailyAlert',
             queryname: 'SelectCaseC',
             params: {
-                START_DATETIME: $vm.startDatetime,
-                END_DATETIME: $vm.endDatetime
+                IMPORTDT_FROM: $vm.IMPORTDT_FROM,
+                IMPORTDT_TOXX: $vm.IMPORTDT_TOXX
             }
         }).then(function (res){
             console.log(res["returnData"]);
@@ -6311,8 +6351,8 @@ angular.module('app.concerns').controller('DailyAlertCtrl', function ($scope, $s
             querymain: 'dailyAlert',
             queryname: 'SelectCaseD',
             params: {
-                START_DATETIME: $vm.startDatetime,
-                END_DATETIME: $vm.endDatetime
+                IMPORTDT_FROM: $vm.IMPORTDT_FROM,
+                IMPORTDT_TOXX: $vm.IMPORTDT_TOXX
             }
         }).then(function (res){
             console.log(res["returnData"]);
@@ -6320,7 +6360,7 @@ angular.module('app.concerns').controller('DailyAlertCtrl', function ($scope, $s
         }); 
     }
 })
-.controller('ShowHistoryCountModalInstanceCtrl', function ($uibModalInstance, item, type, RestfulApi, time) {
+.controller('ShowHistoryCountModalInstanceCtrl', function ($uibModalInstance, item, type, RestfulApi, uiGridConstants, compy, time) {
     var $ctrl = this;
 
     $ctrl.Init = function(){
@@ -6388,21 +6428,21 @@ angular.module('app.concerns').controller('DailyAlertCtrl', function ($scope, $s
                 _params = {
                     IL_GETNAME : item.IL_GETNAME,
                     IL_GETADDRESS : item.IL_GETADDRESS,
-                    START_DATETIME: time.startDatetime
+                    IMPORTDT_FROM: time.IMPORTDT_FROM
                 };
                 break;
             case 'hr2':
                 _params = {
                     IL_GETADDRESS : item.IL_GETADDRESS,
                     IL_GETTEL : item.IL_GETTEL,
-                    START_DATETIME: time.startDatetime
+                    IMPORTDT_FROM: time.IMPORTDT_FROM
                 };
                 break;
             case 'hr3':
                 _params = {
                     IL_GETNAME : item.IL_GETNAME,
                     IL_GETTEL : item.IL_GETTEL,
-                    START_DATETIME: time.startDatetime
+                    IMPORTDT_FROM: time.IMPORTDT_FROM
                 };
                 break;
             case 'hr4':
@@ -6410,7 +6450,7 @@ angular.module('app.concerns').controller('DailyAlertCtrl', function ($scope, $s
                     IL_GETNAME : item.IL_GETNAME,
                     IL_GETADDRESS : item.IL_GETADDRESS,
                     IL_GETTEL : item.IL_GETTEL,
-                    START_DATETIME: time.startDatetime
+                    IMPORTDT_FROM: time.IMPORTDT_FROM
                 };
                 break;
         }
@@ -6562,25 +6602,6 @@ angular.module('app').factory('Project', function($http, APP_CONFIG){
         list: $http.get(APP_CONFIG.apiRootUrl + '/projects.json')
     }
 });
-"use strict";
-
-angular.module('app').directive('recentProjects', function(Project){
-    return {
-        restrict: "EA",
-        replace: true,
-        templateUrl: "app/dashboard/projects/recent-projects.tpl.html",
-        scope: true,
-        link: function(scope, element){
-
-            Project.list.then(function(response){
-                scope.projects = response.data;
-            });
-            scope.clearProjects = function(){
-                scope.projects = [];
-            }
-        }
-    }
-});
 angular.module("app").run(["$templateCache", function($templateCache) {$templateCache.put("app/app/dashboard/live-feeds.tpl.html","<div jarvis-widget id=\"live-feeds-widget\" data-widget-togglebutton=\"false\" data-widget-editbutton=\"false\"\r\n     data-widget-fullscreenbutton=\"false\" data-widget-colorbutton=\"false\" data-widget-deletebutton=\"false\">\r\n<!-- widget options:\r\nusage: <div class=\"jarviswidget\" id=\"wid-id-0\" data-widget-editbutton=\"false\">\r\n\r\ndata-widget-colorbutton=\"false\"\r\ndata-widget-editbutton=\"false\"\r\ndata-widget-togglebutton=\"false\"\r\ndata-widget-deletebutton=\"false\"\r\ndata-widget-fullscreenbutton=\"false\"\r\ndata-widget-custombutton=\"false\"\r\ndata-widget-collapsed=\"true\"\r\ndata-widget-sortable=\"false\"\r\n\r\n-->\r\n<header>\r\n    <span class=\"widget-icon\"> <i class=\"glyphicon glyphicon-stats txt-color-darken\"></i> </span>\r\n\r\n    <h2>Live Feeds </h2>\r\n\r\n    <ul class=\"nav nav-tabs pull-right in\" id=\"myTab\">\r\n        <li class=\"active\">\r\n            <a data-toggle=\"tab\" href=\"#s1\"><i class=\"fa fa-clock-o\"></i> <span class=\"hidden-mobile hidden-tablet\">Live Stats</span></a>\r\n        </li>\r\n\r\n        <li>\r\n            <a data-toggle=\"tab\" href=\"#s2\"><i class=\"fa fa-facebook\"></i> <span class=\"hidden-mobile hidden-tablet\">Social Network</span></a>\r\n        </li>\r\n\r\n        <li>\r\n            <a data-toggle=\"tab\" href=\"#s3\"><i class=\"fa fa-dollar\"></i> <span class=\"hidden-mobile hidden-tablet\">Revenue</span></a>\r\n        </li>\r\n    </ul>\r\n\r\n</header>\r\n\r\n<!-- widget div-->\r\n<div class=\"no-padding\">\r\n\r\n    <div class=\"widget-body\">\r\n        <!-- content -->\r\n        <div id=\"myTabContent\" class=\"tab-content\">\r\n            <div class=\"tab-pane fade active in padding-10 no-padding-bottom\" id=\"s1\">\r\n                <div class=\"row no-space\">\r\n                    <div class=\"col-xs-12 col-sm-12 col-md-8 col-lg-8\">\r\n														<span class=\"demo-liveupdate-1\"> <span\r\n                                                                class=\"onoffswitch-title\">Live switch</span> <span\r\n                                                                class=\"onoffswitch\">\r\n																<input type=\"checkbox\" name=\"start_interval\" ng-model=\"autoUpdate\"\r\n                                                                       class=\"onoffswitch-checkbox\" id=\"start_interval\">\r\n																<label class=\"onoffswitch-label\" for=\"start_interval\">\r\n                                                                    <span class=\"onoffswitch-inner\"\r\n                                                                          data-swchon-text=\"ON\"\r\n                                                                          data-swchoff-text=\"OFF\"></span>\r\n                                                                    <span class=\"onoffswitch-switch\"></span>\r\n                                                                </label> </span> </span>\r\n\r\n                        <div id=\"updating-chart\" class=\"chart-large txt-color-blue\" flot-basic flot-data=\"liveStats\" flot-options=\"liveStatsOptions\"></div>\r\n\r\n                    </div>\r\n                    <div class=\"col-xs-12 col-sm-12 col-md-4 col-lg-4 show-stats\">\r\n\r\n                        <div class=\"row\">\r\n                            <div class=\"col-xs-6 col-sm-6 col-md-12 col-lg-12\"><span class=\"text\"> My Tasks <span\r\n                                    class=\"pull-right\">130/200</span> </span>\r\n\r\n                                <div class=\"progress\">\r\n                                    <div class=\"progress-bar bg-color-blueDark\" style=\"width: 65%;\"></div>\r\n                                </div>\r\n                            </div>\r\n                            <div class=\"col-xs-6 col-sm-6 col-md-12 col-lg-12\"><span class=\"text\"> Transfered <span\r\n                                    class=\"pull-right\">440 GB</span> </span>\r\n\r\n                                <div class=\"progress\">\r\n                                    <div class=\"progress-bar bg-color-blue\" style=\"width: 34%;\"></div>\r\n                                </div>\r\n                            </div>\r\n                            <div class=\"col-xs-6 col-sm-6 col-md-12 col-lg-12\"><span class=\"text\"> Bugs Squashed<span\r\n                                    class=\"pull-right\">77%</span> </span>\r\n\r\n                                <div class=\"progress\">\r\n                                    <div class=\"progress-bar bg-color-blue\" style=\"width: 77%;\"></div>\r\n                                </div>\r\n                            </div>\r\n                            <div class=\"col-xs-6 col-sm-6 col-md-12 col-lg-12\"><span class=\"text\"> User Testing <span\r\n                                    class=\"pull-right\">7 Days</span> </span>\r\n\r\n                                <div class=\"progress\">\r\n                                    <div class=\"progress-bar bg-color-greenLight\" style=\"width: 84%;\"></div>\r\n                                </div>\r\n                            </div>\r\n\r\n                            <span class=\"show-stat-buttons\"> <span class=\"col-xs-12 col-sm-6 col-md-6 col-lg-6\"> <a\r\n                                    href-void class=\"btn btn-default btn-block hidden-xs\">Generate PDF</a> </span> <span\r\n                                    class=\"col-xs-12 col-sm-6 col-md-6 col-lg-6\"> <a href-void\r\n                                                                                     class=\"btn btn-default btn-block hidden-xs\">Report\r\n                                a bug</a> </span> </span>\r\n\r\n                        </div>\r\n\r\n                    </div>\r\n                </div>\r\n\r\n                <div class=\"show-stat-microcharts\" data-sparkline-container data-easy-pie-chart-container>\r\n                    <div class=\"col-xs-12 col-sm-3 col-md-3 col-lg-3\">\r\n\r\n                        <div class=\"easy-pie-chart txt-color-orangeDark\" data-percent=\"33\" data-pie-size=\"50\">\r\n                            <span class=\"percent percent-sign\">35</span>\r\n                        </div>\r\n                        <span class=\"easy-pie-title\"> Server Load <i class=\"fa fa-caret-up icon-color-bad\"></i> </span>\r\n                        <ul class=\"smaller-stat hidden-sm pull-right\">\r\n                            <li>\r\n                                <span class=\"label bg-color-greenLight\"><i class=\"fa fa-caret-up\"></i> 97%</span>\r\n                            </li>\r\n                            <li>\r\n                                <span class=\"label bg-color-blueLight\"><i class=\"fa fa-caret-down\"></i> 44%</span>\r\n                            </li>\r\n                        </ul>\r\n                        <div class=\"sparkline txt-color-greenLight hidden-sm hidden-md pull-right\"\r\n                             data-sparkline-type=\"line\" data-sparkline-height=\"33px\" data-sparkline-width=\"70px\"\r\n                             data-fill-color=\"transparent\">\r\n                            130, 187, 250, 257, 200, 210, 300, 270, 363, 247, 270, 363, 247\r\n                        </div>\r\n                    </div>\r\n                    <div class=\"col-xs-12 col-sm-3 col-md-3 col-lg-3\">\r\n                        <div class=\"easy-pie-chart txt-color-greenLight\" data-percent=\"78.9\" data-pie-size=\"50\">\r\n                            <span class=\"percent percent-sign\">78.9 </span>\r\n                        </div>\r\n                        <span class=\"easy-pie-title\"> Disk Space <i class=\"fa fa-caret-down icon-color-good\"></i></span>\r\n                        <ul class=\"smaller-stat hidden-sm pull-right\">\r\n                            <li>\r\n                                <span class=\"label bg-color-blueDark\"><i class=\"fa fa-caret-up\"></i> 76%</span>\r\n                            </li>\r\n                            <li>\r\n                                <span class=\"label bg-color-blue\"><i class=\"fa fa-caret-down\"></i> 3%</span>\r\n                            </li>\r\n                        </ul>\r\n                        <div class=\"sparkline txt-color-blue hidden-sm hidden-md pull-right\" data-sparkline-type=\"line\"\r\n                             data-sparkline-height=\"33px\" data-sparkline-width=\"70px\" data-fill-color=\"transparent\">\r\n                            257, 200, 210, 300, 270, 363, 130, 187, 250, 247, 270, 363, 247\r\n                        </div>\r\n                    </div>\r\n                    <div class=\"col-xs-12 col-sm-3 col-md-3 col-lg-3\">\r\n                        <div class=\"easy-pie-chart txt-color-blue\" data-percent=\"23\" data-pie-size=\"50\">\r\n                            <span class=\"percent percent-sign\">23 </span>\r\n                        </div>\r\n                        <span class=\"easy-pie-title\"> Transfered <i class=\"fa fa-caret-up icon-color-good\"></i></span>\r\n                        <ul class=\"smaller-stat hidden-sm pull-right\">\r\n                            <li>\r\n                                <span class=\"label bg-color-darken\">10GB</span>\r\n                            </li>\r\n                            <li>\r\n                                <span class=\"label bg-color-blueDark\"><i class=\"fa fa-caret-up\"></i> 10%</span>\r\n                            </li>\r\n                        </ul>\r\n                        <div class=\"sparkline txt-color-darken hidden-sm hidden-md pull-right\"\r\n                             data-sparkline-type=\"line\" data-sparkline-height=\"33px\" data-sparkline-width=\"70px\"\r\n                             data-fill-color=\"transparent\">\r\n                            200, 210, 363, 247, 300, 270, 130, 187, 250, 257, 363, 247, 270\r\n                        </div>\r\n                    </div>\r\n                    <div class=\"col-xs-12 col-sm-3 col-md-3 col-lg-3\">\r\n                        <div class=\"easy-pie-chart txt-color-darken\" data-percent=\"36\" data-pie-size=\"50\">\r\n                            <span class=\"percent degree-sign\">36 <i class=\"fa fa-caret-up\"></i></span>\r\n                        </div>\r\n                        <span class=\"easy-pie-title\"> Temperature <i\r\n                                class=\"fa fa-caret-down icon-color-good\"></i></span>\r\n                        <ul class=\"smaller-stat hidden-sm pull-right\">\r\n                            <li>\r\n                                <span class=\"label bg-color-red\"><i class=\"fa fa-caret-up\"></i> 124</span>\r\n                            </li>\r\n                            <li>\r\n                                <span class=\"label bg-color-blue\"><i class=\"fa fa-caret-down\"></i> 40 F</span>\r\n                            </li>\r\n                        </ul>\r\n                        <div class=\"sparkline txt-color-red hidden-sm hidden-md pull-right\" data-sparkline-type=\"line\"\r\n                             data-sparkline-height=\"33px\" data-sparkline-width=\"70px\" data-fill-color=\"transparent\">\r\n                            2700, 3631, 2471, 2700, 3631, 2471, 1300, 1877, 2500, 2577, 2000, 2100, 3000\r\n                        </div>\r\n                    </div>\r\n                </div>\r\n\r\n            </div>\r\n            <!-- end s1 tab pane -->\r\n\r\n            <div class=\"tab-pane fade\" id=\"s2\">\r\n                <div class=\"widget-body-toolbar bg-color-white\">\r\n\r\n                    <form class=\"form-inline\" role=\"form\">\r\n\r\n                        <div class=\"form-group\">\r\n                            <label class=\"sr-only\" for=\"s123\">Show From</label>\r\n                            <input type=\"email\" class=\"form-control input-sm\" id=\"s123\" placeholder=\"Show From\">\r\n                        </div>\r\n                        <div class=\"form-group\">\r\n                            <input type=\"email\" class=\"form-control input-sm\" id=\"s124\" placeholder=\"To\">\r\n                        </div>\r\n\r\n                        <div class=\"btn-group hidden-phone pull-right\">\r\n                            <a class=\"btn dropdown-toggle btn-xs btn-default\" data-toggle=\"dropdown\"><i\r\n                                    class=\"fa fa-cog\"></i> More <span class=\"caret\"> </span> </a>\r\n                            <ul class=\"dropdown-menu pull-right\">\r\n                                <li>\r\n                                    <a href-void><i class=\"fa fa-file-text-alt\"></i> Export to PDF</a>\r\n                                </li>\r\n                                <li>\r\n                                    <a href-void><i class=\"fa fa-question-sign\"></i> Help</a>\r\n                                </li>\r\n                            </ul>\r\n                        </div>\r\n\r\n                    </form>\r\n\r\n                </div>\r\n                <div class=\"padding-10\">\r\n                    <div id=\"statsChart\" class=\"chart-large has-legend-unique\" flot-basic flot-data=\"statsData\" flot-options=\"statsDisplayOptions\"></div>\r\n                </div>\r\n\r\n            </div>\r\n            <!-- end s2 tab pane -->\r\n\r\n            <div class=\"tab-pane fade\" id=\"s3\">\r\n\r\n                <div class=\"widget-body-toolbar bg-color-white smart-form\" id=\"rev-toggles\">\r\n\r\n                    <div class=\"inline-group\">\r\n\r\n                        <label for=\"gra-0\" class=\"checkbox\">\r\n                            <input type=\"checkbox\" id=\"gra-0\" ng-model=\"targetsShow\">\r\n                            <i></i> Target </label>\r\n                        <label for=\"gra-1\" class=\"checkbox\">\r\n                            <input type=\"checkbox\" id=\"gra-1\" ng-model=\"actualsShow\">\r\n                            <i></i> Actual </label>\r\n                        <label for=\"gra-2\" class=\"checkbox\">\r\n                            <input type=\"checkbox\" id=\"gra-2\" ng-model=\"signupsShow\">\r\n                            <i></i> Signups </label>\r\n                    </div>\r\n\r\n                    <div class=\"btn-group hidden-phone pull-right\">\r\n                        <a class=\"btn dropdown-toggle btn-xs btn-default\" data-toggle=\"dropdown\"><i\r\n                                class=\"fa fa-cog\"></i> More <span class=\"caret\"> </span> </a>\r\n                        <ul class=\"dropdown-menu pull-right\">\r\n                            <li>\r\n                                <a href-void><i class=\"fa fa-file-text-alt\"></i> Export to PDF</a>\r\n                            </li>\r\n                            <li>\r\n                                <a href-void><i class=\"fa fa-question-sign\"></i> Help</a>\r\n                            </li>\r\n                        </ul>\r\n                    </div>\r\n\r\n                </div>\r\n\r\n                <div class=\"padding-10\">\r\n                    <div id=\"flotcontainer\" class=\"chart-large has-legend-unique\" flot-basic flot-data=\"revenewData\" flot-options=\"revenewDisplayOptions\" ></div>\r\n                </div>\r\n            </div>\r\n            <!-- end s3 tab pane -->\r\n        </div>\r\n\r\n        <!-- end content -->\r\n    </div>\r\n\r\n</div>\r\n<!-- end widget div -->\r\n</div>\r\n");
 $templateCache.put("app/app/layout/layout.tpl.html","<!-- HEADER -->\r\n<div data-smart-include=\"app/layout/partials/header.tpl.html\" class=\"placeholder-header\"></div>\r\n<!-- END HEADER -->\r\n\r\n\r\n<!-- Left panel : Navigation area -->\r\n<!-- Note: This width of the aside area can be adjusted through LESS variables -->\r\n<div data-smart-include=\"app/layout/partials/navigation.tpl.html\" class=\"placeholder-left-panel\"></div>\r\n\r\n<!-- END NAVIGATION -->\r\n\r\n<!-- MAIN PANEL -->\r\n<div id=\"main\" role=\"main\">\r\n    <demo-states></demo-states>\r\n\r\n    <!-- RIBBON -->\r\n    <div id=\"ribbon\">\r\n\r\n		<span class=\"ribbon-button-alignment\">\r\n			<span id=\"refresh\" class=\"btn btn-ribbon\" reset-widgets\r\n                  tooltip-placement=\"bottom\"\r\n                  smart-tooltip-html=\"<i class=\'text-warning fa fa-warning\'></i> Warning! This will reset all your widget settings.\">\r\n				<i class=\"fa fa-refresh\"></i>\r\n			</span>\r\n		</span>\r\n\r\n        <!-- breadcrumb -->\r\n        <state-breadcrumbs></state-breadcrumbs>\r\n        <!-- end breadcrumb -->\r\n\r\n\r\n    </div>\r\n    <!-- END RIBBON -->\r\n\r\n\r\n    <div data-smart-router-animation-wrap=\"content content@app\" data-wrap-for=\"#content\">\r\n        <div data-ui-view=\"content\" data-autoscroll=\"false\"></div>\r\n    </div>\r\n\r\n</div>\r\n<!-- END MAIN PANEL -->\r\n\r\n<!-- PAGE FOOTER -->\r\n<div data-smart-include=\"app/layout/partials/footer.tpl.html\"></div>\r\n\r\n<div data-smart-include=\"app/layout/shortcut/shortcut.tpl.html\"></div>\r\n\r\n<!-- END PAGE FOOTER -->\r\n\r\n\r\n");
 $templateCache.put("app/app/auth/directives/login-info.tpl.html","<div class=\"login-info ng-cloak\">\r\n    <span> <!-- User image size is adjusted inside CSS, it should stay as it -->\r\n        <!-- <a  href=\"\" toggle-shortcut>\r\n            <img ng-src=\"{{user.picture}}\" alt=\"me\" class=\"online\">\r\n                <span>{{user.U_NAME}}\r\n                </span>\r\n            <i class=\"fa fa-angle-down\"></i>\r\n        </a> -->\r\n        <a  href=\"\">\r\n            <img ng-src=\"{{user.picture}}\" alt=\"me\" class=\"online\">\r\n                <span>{{user.U_NAME}}\r\n                </span>\r\n        </a>\r\n     </span>\r\n</div>");
@@ -6633,6 +6654,25 @@ $templateCache.put("app/public/app/_common/forms/directives/bootstrap-validation
 $templateCache.put("app/public/app/_common/forms/directives/bootstrap-validation/bootstrap-profile-form.tpl.html","<form id=\"profileForm\">\r\n\r\n    <fieldset>\r\n        <legend>\r\n            Default Form Elements\r\n        </legend>\r\n        <div class=\"form-group\">\r\n            <label>Email address</label>\r\n            <input type=\"text\" class=\"form-control\" name=\"email\" />\r\n        </div>\r\n    </fieldset>\r\n    <fieldset>\r\n        <div class=\"form-group\">\r\n            <label>Password</label>\r\n            <input type=\"password\" class=\"form-control\" name=\"password\" />\r\n        </div>\r\n    </fieldset>\r\n\r\n    <div class=\"form-actions\">\r\n        <div class=\"row\">\r\n            <div class=\"col-md-12\">\r\n                <button class=\"btn btn-default\" type=\"submit\">\r\n                    <i class=\"fa fa-eye\"></i>\r\n                    Validate\r\n                </button>\r\n            </div>\r\n        </div>\r\n    </div>\r\n</form>\r\n");
 $templateCache.put("app/public/app/_common/forms/directives/bootstrap-validation/bootstrap-toggling-form.tpl.html","<form id=\"togglingForm\" method=\"post\" class=\"form-horizontal\">\r\n\r\n    <fieldset>\r\n        <legend>\r\n            Default Form Elements\r\n        </legend>\r\n        <div class=\"form-group\">\r\n            <label class=\"col-lg-3 control-label\">Full name <sup>*</sup></label>\r\n            <div class=\"col-lg-4\">\r\n                <input type=\"text\" class=\"form-control\" name=\"firstName\" placeholder=\"First name\" />\r\n            </div>\r\n            <div class=\"col-lg-4\">\r\n                <input type=\"text\" class=\"form-control\" name=\"lastName\" placeholder=\"Last name\" />\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n\r\n    <fieldset>\r\n        <div class=\"form-group\">\r\n            <label class=\"col-lg-3 control-label\">Company <sup>*</sup></label>\r\n            <div class=\"col-lg-5\">\r\n                <input type=\"text\" class=\"form-control\" name=\"company\"\r\n                       required data-bv-notempty-message=\"The company name is required\" />\r\n            </div>\r\n            <div class=\"col-lg-2\">\r\n                <button type=\"button\" class=\"btn btn-info btn-sm\" data-toggle=\"#jobInfo\">\r\n                    Add more info\r\n                </button>\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n\r\n    <!-- These fields will not be validated as long as they are not visible -->\r\n    <div id=\"jobInfo\" style=\"display: none;\">\r\n        <fieldset>\r\n            <div class=\"form-group\">\r\n                <label class=\"col-lg-3 control-label\">Job title <sup>*</sup></label>\r\n                <div class=\"col-lg-5\">\r\n                    <input type=\"text\" class=\"form-control\" name=\"job\" />\r\n                </div>\r\n            </div>\r\n        </fieldset>\r\n\r\n        <fieldset>\r\n            <div class=\"form-group\">\r\n                <label class=\"col-lg-3 control-label\">Department <sup>*</sup></label>\r\n                <div class=\"col-lg-5\">\r\n                    <input type=\"text\" class=\"form-control\" name=\"department\" />\r\n                </div>\r\n            </div>\r\n        </fieldset>\r\n    </div>\r\n\r\n    <fieldset>\r\n        <div class=\"form-group\">\r\n            <label class=\"col-lg-3 control-label\">Mobile phone <sup>*</sup></label>\r\n            <div class=\"col-lg-5\">\r\n                <input type=\"text\" class=\"form-control\" name=\"mobilePhone\" />\r\n            </div>\r\n            <div class=\"col-lg-2\">\r\n                <button type=\"button\" class=\"btn btn-info btn-sm\" data-toggle=\"#phoneInfo\">\r\n                    Add more phone numbers\r\n                </button>\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n    <!-- These fields will not be validated as long as they are not visible -->\r\n    <div id=\"phoneInfo\" style=\"display: none;\">\r\n\r\n        <fieldset>\r\n            <div class=\"form-group\">\r\n                <label class=\"col-lg-3 control-label\">Home phone</label>\r\n                <div class=\"col-lg-5\">\r\n                    <input type=\"text\" class=\"form-control\" name=\"homePhone\" />\r\n                </div>\r\n            </div>\r\n        </fieldset>\r\n        <fieldset>\r\n            <div class=\"form-group\">\r\n                <label class=\"col-lg-3 control-label\">Office phone</label>\r\n                <div class=\"col-lg-5\">\r\n                    <input type=\"text\" class=\"form-control\" name=\"officePhone\" />\r\n                </div>\r\n            </div>\r\n        </fieldset>\r\n    </div>\r\n\r\n    <div class=\"form-actions\">\r\n        <div class=\"row\">\r\n            <div class=\"col-md-12\">\r\n                <button class=\"btn btn-default\" type=\"submit\">\r\n                    <i class=\"fa fa-eye\"></i>\r\n                    Validate\r\n                </button>\r\n            </div>\r\n        </div>\r\n    </div>\r\n</form>");
 $templateCache.put("app/public/app/_common/layout/directives/demo/demo-states.tpl.html","<div class=\"demo\"><span id=\"demo-setting\"><i class=\"fa fa-cog txt-color-blueDark\"></i></span>\r\n\r\n    <form>\r\n        <legend class=\"no-padding margin-bottom-10\">Layout Options</legend>\r\n        <section>\r\n            <label><input type=\"checkbox\" ng-model=\"fixedHeader\"\r\n                          class=\"checkbox style-0\"><span>Fixed Header</span></label>\r\n            <label><input type=\"checkbox\"\r\n                          ng-model=\"fixedNavigation\"\r\n                          class=\"checkbox style-0\"><span>Fixed Navigation</span></label>\r\n            <label><input type=\"checkbox\"\r\n                          ng-model=\"fixedRibbon\"\r\n                          class=\"checkbox style-0\"><span>Fixed Ribbon</span></label>\r\n            <label><input type=\"checkbox\"\r\n                          ng-model=\"fixedPageFooter\"\r\n                          class=\"checkbox style-0\"><span>Fixed Footer</span></label>\r\n            <label><input type=\"checkbox\"\r\n                          ng-model=\"insideContainer\"\r\n                          class=\"checkbox style-0\"><span>Inside <b>.container</b></span></label>\r\n            <label><input type=\"checkbox\"\r\n                          ng-model=\"rtl\"\r\n                          class=\"checkbox style-0\"><span>RTL</span></label>\r\n            <label><input type=\"checkbox\"\r\n                          ng-model=\"menuOnTop\"\r\n                          class=\"checkbox style-0\"><span>Menu on <b>top</b></span></label>\r\n            <label><input type=\"checkbox\"\r\n                          ng-model=\"colorblindFriendly\"\r\n                          class=\"checkbox style-0\"><span>For Colorblind <div\r\n                    class=\"font-xs text-right\">(experimental)\r\n            </div></span>\r\n            </label><span id=\"smart-bgimages\"></span></section>\r\n        <section><h6 class=\"margin-top-10 semi-bold margin-bottom-5\">Clear Localstorage</h6><a\r\n                ng-click=\"factoryReset()\" class=\"btn btn-xs btn-block btn-primary\" id=\"reset-smart-widget\"><i\r\n                class=\"fa fa-refresh\"></i> Factory Reset</a></section>\r\n\r\n        <h6 class=\"margin-top-10 semi-bold margin-bottom-5\">SmartAdmin Skins</h6>\r\n\r\n\r\n        <section id=\"smart-styles\">\r\n            <a ng-repeat=\"skin in skins\" ng-click=\"setSkin(skin)\" class=\"{{skin.class}}\" style=\"{{skin.style}}\"><i ng-if=\"skin.name == $parent.smartSkin\" class=\"fa fa-check fa-fw\"></i> {{skin.label}} <sup ng-if=\"skin.beta\">beta</sup></a>\r\n        </section>\r\n    </form>\r\n</div>");}]);
+"use strict";
+
+angular.module('app').directive('recentProjects', function(Project){
+    return {
+        restrict: "EA",
+        replace: true,
+        templateUrl: "app/dashboard/projects/recent-projects.tpl.html",
+        scope: true,
+        link: function(scope, element){
+
+            Project.list.then(function(response){
+                scope.projects = response.data;
+            });
+            scope.clearProjects = function(){
+                scope.projects = [];
+            }
+        }
+    }
+});
 "use strict";
 
 angular.module('app').controller('TodoCtrl', function ($scope, $timeout, Todo) {
@@ -8405,7 +8445,7 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
                 { name: 'Options'                ,  displayName: '操作', width: '12%', enableCellEdit: false, enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToMSForAssistantJobs') }
             ],
             enableFiltering: true,
-            enableSorting: false,
+            enableSorting: true,
             enableColumnMenus: false,
             // enableVerticalScrollbar: false,
             paginationPageSizes: [10, 25, 50],
@@ -8555,6 +8595,19 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
         }).then(function (res){
             console.log(res["returnData"]);
             $vm.flightItemData = res["returnData"];
+
+            var _showFixMaster = false,
+                _fixMasterCount = 0;
+            for(var i in $vm.flightItemData){
+                if($vm.flightItemData[i].OL_MASTER == ""){
+                    _showFixMaster = true;
+                    _fixMasterCount += 1;
+                }
+            }
+
+            if(_showFixMaster){
+                toaster.pop('info', '訊息', '尚有 '+_fixMasterCount+' 單需主號待補', 3000);
+            }
         }); 
     };
 
@@ -13024,6 +13077,385 @@ angular.module('app.auth').directive('googleSignin', function ($rootScope, Googl
     };
 });
 
+"use strict";
+
+angular.module('app.concerns').controller('ResultBanCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, $timeout, uiGridConstants, RestfulApi, $filter, compy, localStorageService) {
+    
+    var $vm = this,
+        columnDefs = [
+            { name: 'IL_COUNT'      , displayName: '歷史歷程', width: 75, enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToHistoryCount') },
+            { name: 'BAN_TYPE'      , displayName: '名單類型', width: 100, filter: 
+                {
+                    term: "通報",
+                    type: uiGridConstants.filter.SELECT,
+                    selectOptions: [
+                        {label:"通報", value:"通報"},
+                        {label:"自訂", value:"自訂"}
+                    ]
+                }
+            },
+            { name: 'OL_IMPORTDT'            ,  displayName: '進口日期', width: 80, cellFilter: 'dateFilter' },
+            { name: 'OL_CO_CODE'             ,  displayName: '行家', width: 80, cellFilter: 'compyFilter', filter: 
+                {
+                    term: null,
+                    type: uiGridConstants.filter.SELECT,
+                    selectOptions: compy
+                }
+            },
+            { name: 'OL_FLIGHTNO'            ,  displayName: '航班', width: 80 },
+            { name: 'OL_MASTER'              ,  displayName: '主號', width: 120 },
+            { name: 'OL_COUNTRY'             ,  displayName: '起運國別', width: 80 },
+            { name: 'IL_G1'         , displayName: '報關種類', width: 115 },
+            { name: 'IL_MERGENO'    , displayName: '併票號', width: 129 },
+            { name: 'IL_BAGNO'      , displayName: '袋號', width: 129 },
+            { name: 'IL_SMALLNO'    , displayName: '小號', width: 115 },
+            { name: 'IL_NATURE'     , displayName: '品名', width: 115 },
+            { name: 'IL_NATURE_NEW' , displayName: '新品名', width: 115 },
+            { name: 'IL_CTN'        , displayName: '件數', width: 115 },
+            { name: 'IL_PLACE'      , displayName: '產地', width: 115 },
+            { name: 'IL_NEWPLACE'   , displayName: '新產地', width: 115 },
+            { name: 'IL_WEIGHT'     , displayName: '重量', width: 115 },
+            { name: 'IL_WEIGHT_NEW' , displayName: '新重量', width: 115 },
+            { name: 'IL_PCS'        , displayName: '數量', width: 115 },
+            { name: 'IL_NEWPCS'     , displayName: '新數量', width: 115 },
+            { name: 'IL_UNIT'       , displayName: '單位', width: 115 },
+            { name: 'IL_NEWUNIT'    , displayName: '新單位', width: 115 },
+            { name: 'IL_GETNO'      , displayName: '收件者統編', width: 115 },
+            { name: 'IL_SENDNAME'   , displayName: '寄件人或公司', width: 115 },
+            { name: 'IL_NEWSENDNAME', displayName: '新寄件人或公司', width: 115 },
+            { name: 'IL_GETNAME'    , displayName: '收件人公司', width: 115 },
+            { name: 'IL_GETADDRESS' , displayName: '收件地址', width: 300 },
+            { name: 'IL_GETTEL'     , displayName: '收件電話', width: 115 },
+            { name: 'IL_UNIVALENT'  , displayName: '單價', width: 115 },
+            { name: 'IL_UNIVALENT_NEW', displayName: '新單價', width: 115 },
+            { name: 'IL_FINALCOST'  , displayName: '完稅價格', width: 115 },
+            { name: 'IL_TAX'        , displayName: '稅則', width: 115 },
+            { name: 'IL_TRCOM'      , displayName: '派送公司', width: 115 },
+            { name: 'IL_REMARK'     , displayName: '備註', width: 115 }
+        ];
+
+	angular.extend(this, {
+        Init : function(){
+
+            if($stateParams.data == null){
+                ReturnToBanHistorySearchPage();
+            }else{
+                $scope.ShowTabs = true;
+                
+                $vm.bigBreadcrumbsItems = $state.current.name.split(".");
+                $vm.bigBreadcrumbsItems.shift();
+
+                $vm.vmData = $stateParams.data;
+                $vm.params = CombineConditions(localStorageService.get("BanHistorySearch"));
+
+                $vm.LoadData();
+                console.log($vm.params);
+            }
+
+        },
+        profile : Session.Get(),
+        defaultTab : 'hr1',
+        TabSwitch : function(pTabID){
+            return pTabID == $vm.defaultTab ? 'active' : '';
+        },
+        LoadData : function(){
+            console.log($vm.defaultTab);
+            switch($vm.defaultTab){
+                case 'hr1':
+                    LoadCaseA();
+                    break;
+                case 'hr2':
+                    LoadCaseB();
+                    break;
+                case 'hr3':
+                    LoadCaseC();
+                    break;
+                case 'hr4':
+                    LoadCaseD();
+                    break;
+            }
+        },
+        gridMethod : {
+            // 顯示歷史黑名單
+            showHistoryCount : function(row){
+                console.log(row);
+                var modalInstance = $uibModal.open({
+                    animation: true,
+                    ariaLabelledBy: 'modal-title',
+                    ariaDescribedBy: 'modal-body',
+                    templateUrl: 'showHistoryCountModalContent.html',
+                    controller: 'ShowHistoryCountModalInstanceCtrl',
+                    controllerAs: '$ctrl',
+                    size: 'lg',
+                    // appendTo: parentElem,
+                    resolve: {
+                        item: function() {
+                            return row.entity;
+                        },
+                        type: function(){
+                            return $vm.defaultTab;   
+                        },
+                        compy: function(){
+                            return compy;
+                        }
+                    }
+                });
+
+                modalInstance.result.then(function(selectedItem) {
+                    // $ctrl.selected = selectedItem;
+                    console.log(selectedItem);
+
+                }, function() {
+                    // $log.info('Modal dismissed at: ' + new Date());
+                });
+            }
+        },
+        caseAOptions : {
+            data:  '$vm.caseAData',
+            columnDefs: columnDefs,
+            enableFiltering: true,
+            enableSorting: true,
+            enableColumnMenus: false,
+            // enableVerticalScrollbar: false,
+            paginationPageSizes: [10, 25, 50],
+            paginationPageSize: 10,
+            onRegisterApi: function(gridApi){
+                $vm.caseAGridApi = gridApi;
+            }
+        },
+        caseBOptions : {
+            data:  '$vm.caseBData',
+            columnDefs: columnDefs,
+            enableFiltering: true,
+            enableSorting: true,
+            enableColumnMenus: false,
+            // enableVerticalScrollbar: false,
+            paginationPageSizes: [10, 25, 50],
+            paginationPageSize: 10,
+            onRegisterApi: function(gridApi){
+                $vm.caseBGridApi = gridApi;
+            }
+        },
+        caseCOptions : {
+            data:  '$vm.caseCData',
+            columnDefs: columnDefs,
+            enableFiltering: true,
+            enableSorting: true,
+            enableColumnMenus: false,
+            // enableVerticalScrollbar: false,
+            paginationPageSizes: [10, 25, 50],
+            paginationPageSize: 10,
+            onRegisterApi: function(gridApi){
+                $vm.caseCGridApi = gridApi;
+            }
+        },
+        caseDOptions : {
+            data:  '$vm.caseDData',
+            columnDefs: columnDefs,
+            enableFiltering: true,
+            enableSorting: true,
+            enableColumnMenus: false,
+            // enableVerticalScrollbar: false,
+            paginationPageSizes: [10, 25, 50],
+            paginationPageSize: 10,
+            onRegisterApi: function(gridApi){
+                $vm.caseDGridApi = gridApi;
+            }
+        },
+        Return : function(){
+            ReturnToBanHistorySearchPage();
+        }
+    });
+
+    function LoadCaseA(){
+        RestfulApi.SearchMSSQLData({
+            querymain: 'banHistorySearch',
+            queryname: 'SelectCaseA',
+            params: $vm.params
+        }).then(function (res){
+            console.log(res["returnData"]);
+            $vm.caseAData = res["returnData"];
+        }); 
+    }
+
+    function LoadCaseB(){
+        RestfulApi.SearchMSSQLData({
+            querymain: 'banHistorySearch',
+            queryname: 'SelectCaseB',
+            params: $vm.params
+        }).then(function (res){
+            console.log(res["returnData"]);
+            $vm.caseBData = res["returnData"];
+        }); 
+    }
+
+    function LoadCaseC(){
+        RestfulApi.SearchMSSQLData({
+            querymain: 'banHistorySearch',
+            queryname: 'SelectCaseC',
+            params: $vm.params
+        }).then(function (res){
+            console.log(res["returnData"]);
+            $vm.caseCData = res["returnData"];
+        }); 
+    }
+
+    function LoadCaseD(){
+        RestfulApi.SearchMSSQLData({
+            querymain: 'banHistorySearch',
+            queryname: 'SelectCaseD',
+            params: $vm.params
+        }).then(function (res){
+            console.log(res["returnData"]);
+            $vm.caseDData = res["returnData"];
+        }); 
+    }
+
+    /**
+     * CombineConditions 條件組合
+     * @param {[type]}
+     */
+    function CombineConditions(pObject){
+        var _conditions = {};
+
+        for(var i in pObject){
+            if(pObject[i] != ""){
+                _conditions[i] = pObject[i];
+            }
+        }
+
+        return _conditions;
+    }
+
+    function ReturnToBanHistorySearchPage(){
+        $state.transitionTo($state.current.parent);
+    }
+})
+.controller('ShowHistoryCountModalInstanceCtrl', function ($uibModalInstance, item, type, RestfulApi, uiGridConstants, compy) {
+    var $ctrl = this;
+
+    $ctrl.Init = function(){
+        LoadHistoryCount(type);
+    };
+
+    $ctrl.mdDataOption = {
+        data:  '$ctrl.mdData',
+        columnDefs: [
+            { name: 'OL_IMPORTDT'            ,  displayName: '進口日期', width: 80, cellFilter: 'dateFilter' },
+            { name: 'OL_CO_CODE'             ,  displayName: '行家', width: 80, cellFilter: 'compyFilter', filter: 
+                {
+                    term: null,
+                    type: uiGridConstants.filter.SELECT,
+                    selectOptions: compy
+                }
+            },
+            { name: 'OL_FLIGHTNO'            ,  displayName: '航班', width: 80 },
+            { name: 'OL_MASTER'              ,  displayName: '主號', width: 120 },
+            { name: 'OL_COUNTRY'             ,  displayName: '起運國別', width: 80 },
+            { name: 'IL_G1'         , displayName: '報關種類', width: 115 },
+            { name: 'IL_MERGENO'    , displayName: '併票號', width: 129 },
+            { name: 'IL_BAGNO'      , displayName: '袋號', width: 129 },
+            { name: 'IL_SMALLNO'    , displayName: '小號', width: 115 },
+            { name: 'IL_NATURE'     , displayName: '品名', width: 115 },
+            { name: 'IL_NATURE_NEW' , displayName: '新品名', width: 115 },
+            { name: 'IL_CTN'        , displayName: '件數', width: 115 },
+            { name: 'IL_PLACE'      , displayName: '產地', width: 115 },
+            { name: 'IL_NEWPLACE'   , displayName: '新產地', width: 115 },
+            { name: 'IL_WEIGHT'     , displayName: '重量', width: 115 },
+            { name: 'IL_WEIGHT_NEW' , displayName: '新重量', width: 115 },
+            { name: 'IL_PCS'        , displayName: '數量', width: 115 },
+            { name: 'IL_NEWPCS'     , displayName: '新數量', width: 115 },
+            { name: 'IL_UNIT'       , displayName: '單位', width: 115 },
+            { name: 'IL_NEWUNIT'    , displayName: '新單位', width: 115 },
+            { name: 'IL_GETNO'      , displayName: '收件者統編', width: 115 },
+            { name: 'IL_SENDNAME'   , displayName: '寄件人或公司', width: 115 },
+            { name: 'IL_NEWSENDNAME', displayName: '新寄件人或公司', width: 115 },
+            { name: 'IL_GETNAME'    , displayName: '收件人公司', width: 115 },
+            { name: 'IL_GETADDRESS' , displayName: '收件地址', width: 300 },
+            { name: 'IL_GETTEL'     , displayName: '收件電話', width: 115 },
+            { name: 'IL_UNIVALENT'  , displayName: '單價', width: 115 },
+            { name: 'IL_UNIVALENT_NEW', displayName: '新單價', width: 115 },
+            { name: 'IL_FINALCOST'  , displayName: '完稅價格', width: 115 },
+            { name: 'IL_TAX'        , displayName: '稅則', width: 115 },
+            { name: 'IL_TRCOM'      , displayName: '派送公司', width: 115 },
+            { name: 'IL_REMARK'     , displayName: '備註', width: 115 }
+        ],
+        enableFiltering: true,
+        enableSorting: true,
+        enableColumnMenus: false,
+        // enableVerticalScrollbar: false,
+        paginationPageSizes: [10, 25, 50],
+        paginationPageSize: 10,
+        onRegisterApi: function(gridApi){
+            $ctrl.mdDataGridApi = gridApi;
+        }
+    }
+
+    function LoadHistoryCount(pType){
+        var _params = {};
+
+        switch(pType){
+            case 'hr1':
+                _params = {
+                    IL_GETNAME : item.IL_GETNAME,
+                    IL_GETADDRESS : item.IL_GETADDRESS,
+                    IL_SEQ : item.IL_SEQ,
+                    IL_NEWBAGNO : item.IL_NEWBAGNO,
+                    IL_NEWSMALLNO : item.IL_NEWSMALLNO,
+                    IL_ORDERINDEX : item.IL_ORDERINDEX
+                };
+                break;
+            case 'hr2':
+                _params = {
+                    IL_GETADDRESS : item.IL_GETADDRESS,
+                    IL_GETTEL : item.IL_GETTEL,
+                    IL_SEQ : item.IL_SEQ,
+                    IL_NEWBAGNO : item.IL_NEWBAGNO,
+                    IL_NEWSMALLNO : item.IL_NEWSMALLNO,
+                    IL_ORDERINDEX : item.IL_ORDERINDEX
+                };
+                break;
+            case 'hr3':
+                _params = {
+                    IL_GETNAME : item.IL_GETNAME,
+                    IL_GETTEL : item.IL_GETTEL,
+                    IL_SEQ : item.IL_SEQ,
+                    IL_NEWBAGNO : item.IL_NEWBAGNO,
+                    IL_NEWSMALLNO : item.IL_NEWSMALLNO,
+                    IL_ORDERINDEX : item.IL_ORDERINDEX
+                };
+                break;
+            case 'hr4':
+                _params = {
+                    IL_GETNAME : item.IL_GETNAME,
+                    IL_GETADDRESS : item.IL_GETADDRESS,
+                    IL_GETTEL : item.IL_GETTEL,
+                    IL_SEQ : item.IL_SEQ,
+                    IL_NEWBAGNO : item.IL_NEWBAGNO,
+                    IL_NEWSMALLNO : item.IL_NEWSMALLNO,
+                    IL_ORDERINDEX : item.IL_ORDERINDEX
+                };
+                break;
+        }
+
+        RestfulApi.SearchMSSQLData({
+            querymain: 'banHistorySearch',
+            queryname: 'SelectItemList',
+            params: _params
+        }).then(function (res){
+            console.log(res["returnData"]);
+            $ctrl.mdData = res["returnData"];
+        }); 
+    }
+
+    $ctrl.ok = function() {
+        $uibModalInstance.close($ctrl.mdData);
+    };
+
+    $ctrl.cancel = function() {
+        $uibModalInstance.dismiss('cancel');
+    };
+});
 'use strict';
 
 angular.module('app.chat').factory('ChatApi', function ($q, $rootScope, User, $http, APP_CONFIG) {

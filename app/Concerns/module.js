@@ -56,12 +56,38 @@ angular.module('app.concerns').config(function ($stateProvider){
     .state('app.concerns.banhistorysearch', {
         url: '/concerns/banhistorysearch',
         data: {
-            title: 'HistorySearch'
+            title: 'BanHistorySearch'
         },
         views: {
             "content@app" : {
                 templateUrl: 'app/Concerns/views/banHistorySearch.html',
                 controller: 'BanHistorySearchCtrl',
+                controllerAs: '$vm',
+                resolve: {
+                    compy: function(Compy){
+                        return Compy.get();
+                    },
+                    bool: function (SysCode){
+                        return SysCode.get('Boolean');
+                    }
+                }
+            }
+        }
+    })
+
+    .state('app.concerns.banhistorysearch.resultban', {
+        url: '/resultban',
+        data: {
+            title: 'BanHistorySearchResultBan'
+        },
+        params: { 
+            data: null
+        },
+        parent: 'app.concerns.banhistorysearch',
+        views: {
+            "content@app" : {
+                templateUrl: 'app/Concerns/views/banHistorySearch/resultBan.html',
+                controller: 'ResultBanCtrl',
                 controllerAs: '$vm',
                 resolve: {
                     compy: function(Compy){

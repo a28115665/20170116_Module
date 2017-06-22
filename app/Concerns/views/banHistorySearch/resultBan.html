@@ -2,7 +2,7 @@
 <div id="content" ng-init="$vm.Init()">
 
 	<div class="row">
-		<big-breadcrumbs items="['Concerns', 'DailyAlert']" icon="bell-o" class="col-xs-12 col-sm-7 col-md-7 col-lg-4"></big-breadcrumbs>
+		<big-breadcrumbs items="$vm.bigBreadcrumbsItems" icon="bell-o" class="col-xs-12 col-sm-7 col-md-7 col-lg-4"></big-breadcrumbs>
 	</div>
 
 	<!-- widget grid -->
@@ -18,10 +18,7 @@
 	                </div>
 	                <div class="panel-body no-padding text-align-center">
 	                    <div class="the-price">
-	                        <h1>
-	                            {{$vm.allCountData[0]}}<span class="subscript">/{{$vm.allCountData[4]}}</span>
-	                        </h1>
-	                        <small>不合格率 : {{($vm.allCountData[0] / $vm.allCountData[4]) * 100 | number:2}}%</small>
+	                        <small>查詢結果 : {{$vm.vmData.SelectCaseACount}}筆</small>
 	                    </div>
 	                    <table class="table">
 	                        <tbody>
@@ -51,10 +48,7 @@
 	                </div>
 	                <div class="panel-body no-padding text-align-center">
 	                    <div class="the-price">
-	                        <h1>
-	                            {{$vm.allCountData[1]}}<span class="subscript">/{{$vm.allCountData[4]}}</span>
-	                        </h1>
-	                        <small>不合格率 : {{($vm.allCountData[1] / $vm.allCountData[4]) * 100 | number:2}}%</small>
+	                        <small>查詢結果 : {{$vm.vmData.SelectCaseBCount}}筆</small>
 	                    </div>
 	                    <table class="table">
 	                        <tbody>
@@ -84,10 +78,7 @@
 	                </div>
 	                <div class="panel-body no-padding text-align-center">
 	                    <div class="the-price">
-	                        <h1>
-	                            {{$vm.allCountData[2]}}<span class="subscript">/{{$vm.allCountData[4]}}</span>
-	                        </h1>
-	                        <small>不合格率 : {{($vm.allCountData[2] / $vm.allCountData[4]) * 100 | number:2}}%</small>
+	                        <small>查詢結果 : {{$vm.vmData.SelectCaseCCount}}筆</small>
 	                    </div>
 	                    <table class="table">
 	                        <tbody>
@@ -117,10 +108,7 @@
 	                </div>
 	                <div class="panel-body no-padding text-align-center">
 	                    <div class="the-price">
-	                        <h1>
-	                            {{$vm.allCountData[3]}}<span class="subscript">/{{$vm.allCountData[4]}}</span>
-	                        </h1>
-	                        <small>不合格率 : {{($vm.allCountData[3] / $vm.allCountData[4]) * 100 | number:2}}%</small>
+	                        <small>查詢結果 : {{$vm.vmData.SelectCaseDCount}}筆</small>
 	                    </div>
 	                    <table class="table">
 	                        <tbody>
@@ -198,18 +186,6 @@
 									<div class="widget-body-toolbar">
 									    <div class="row">
 									        <div class="col-xs-9 col-sm-5 col-md-5 col-lg-5">
-									        	<form class="form-inline" role="form">
-									                <fieldset>
-									                    <div class="form-group">
-													        <label class="control-label"><span class="text-primary">進口日期</span>：</label>
-										                    <div class="form-group">
-										                    	<span>
-										                    		{{$vm.IMPORTDT_FROM}} ~ {{$vm.IMPORTDT_TOXX}}
-										                    	</span>
-										                    </div>
-									                    </div>
-									                </fieldset>
-									            </form>
 									        </div>
 									        <div class="col-xs-3 col-sm-7 col-md-7 col-lg-7 text-right">
 									        	<form class="form-inline" role="form">
@@ -233,18 +209,6 @@
 									<div class="widget-body-toolbar">
 									    <div class="row">
 									        <div class="col-xs-9 col-sm-5 col-md-5 col-lg-5">
-									        	<form class="form-inline" role="form">
-									                <fieldset>
-									                    <div class="form-group">
-													        <label class="control-label"><span class="text-primary">進口日期</span>：</label>
-										                    <div class="form-group">
-										                    	<span>
-										                    		{{$vm.IMPORTDT_FROM}} ~ {{$vm.IMPORTDT_TOXX}}
-										                    	</span>
-										                    </div>
-									                    </div>
-									                </fieldset>
-									            </form>
 									        </div>
 									        <div class="col-xs-3 col-sm-7 col-md-7 col-lg-7 text-right">
 									        	<form class="form-inline" role="form">
@@ -268,18 +232,6 @@
 									<div class="widget-body-toolbar">
 									    <div class="row">
 									        <div class="col-xs-9 col-sm-5 col-md-5 col-lg-5">
-									        	<form class="form-inline" role="form">
-									                <fieldset>
-									                    <div class="form-group">
-													        <label class="control-label"><span class="text-primary">進口日期</span>：</label>
-										                    <div class="form-group">
-										                    	<span>
-										                    		{{$vm.IMPORTDT_FROM}} ~ {{$vm.IMPORTDT_TOXX}}
-										                    	</span>
-										                    </div>
-									                    </div>
-									                </fieldset>
-									            </form>
 									        </div>
 									        <div class="col-xs-3 col-sm-7 col-md-7 col-lg-7 text-right">
 									        	<form class="form-inline" role="form">
@@ -303,18 +255,6 @@
 									<div class="widget-body-toolbar">
 									    <div class="row">
 									        <div class="col-xs-9 col-sm-5 col-md-5 col-lg-5">
-									        	<form class="form-inline" role="form">
-									                <fieldset>
-									                    <div class="form-group">
-													        <label class="control-label"><span class="text-primary">進口日期</span>：</label>
-										                    <div class="form-group">
-										                    	<span>
-										                    		{{$vm.IMPORTDT_FROM}} ~ {{$vm.IMPORTDT_TOXX}}
-										                    	</span>
-										                    </div>
-									                    </div>
-									                </fieldset>
-									            </form>
 									        </div>
 									        <div class="col-xs-3 col-sm-7 col-md-7 col-lg-7 text-right">
 									        	<form class="form-inline" role="form">
@@ -335,6 +275,15 @@
 				                </div>
 
 				            </div>
+				            <!-- end widget body text-->
+
+							<!-- widget footer -->
+							<div class="widget-footer">
+								<button class="btn btn-default" type="button" ng-click="$vm.Return()">
+									返回
+								</button>
+							</div>
+							<!-- end widget footer -->
 
 						</div>
 						<!-- end widget content -->
