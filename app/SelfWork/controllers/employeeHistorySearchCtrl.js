@@ -1,6 +1,6 @@
 "use strict";
 
-angular.module('app.selfwork').controller('EmployeeHistorySearchCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, RestfulApi, $filter, compy, bool, uiGridConstants, localStorageService) {
+angular.module('app.selfwork').controller('EmployeeHistorySearchCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, RestfulApi, $filter, compy, bool, uiGridConstants, localStorageService, ToolboxApi) {
     
     var $vm = this;
 
@@ -95,7 +95,7 @@ angular.module('app.selfwork').controller('EmployeeHistorySearchCtrl', function 
                 { name: 'OL_COUNTRY'  ,  displayName: '起運國別' },
                 { name: 'ITEM_LIST'          ,  displayName: '報機單', enableFiltering: false, width: '8%', cellTemplate: $templateCache.get('accessibilityToOperaForJob001') },
                 { name: 'FLIGHT_ITEM_LIST'   ,  displayName: '銷艙單', enableFiltering: false, width: '8%', cellTemplate: $templateCache.get('accessibilityToOperaForJob002') },
-                { name: 'Options'       , displayName: '下載', width: '5%', enableCellEdit: false, enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToOnceDownload') }
+                // { name: 'Options'       , displayName: '下載', width: '5%', enableCellEdit: false, enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToOnceDownload') }
             ],
             enableFiltering: true,
             enableSorting: false,
@@ -119,22 +119,36 @@ angular.module('app.selfwork').controller('EmployeeHistorySearchCtrl', function 
             }else{
                 toaster.pop('info', '訊息', '請輸入查詢條件', 3000);
             }
+        },
+        ExportExcel : function(){
+
+            var _exportName = $filter('date')(new Date(), 'yyyyMMdd') + ' ' + $scope.getWord($state.current.data.title) + '結果';
+
+            ToolboxApi.ExportExcelBySql({
+                templates : 2,
+                filename : _exportName,
+                querymain: 'employeeHistorySearch',
+                queryname: 'SelectSearch',
+                params: $vm._params
+            }).then(function (res) {
+                // console.log(res);
+            });
         }
     });
 
     function SearchData () {
-        var _params = {};
+        $vm._params = {};
 
-        _params = CombineConditions($vm.vmData);
+        $vm._params = CombineConditions($vm.vmData);
         // 紀錄查詢條件
         localStorageService.set("EmployeeHistorySearch", $vm.vmData);
         
-        console.log(_params);
+        console.log($vm._params);
 
         RestfulApi.SearchMSSQLData({
             querymain: 'employeeHistorySearch',
             queryname: 'SelectSearch',
-            params: _params
+            params: $vm._params
         }).then(function (res){
             console.log(res["returnData"]);
             if(res["returnData"].length > 0){

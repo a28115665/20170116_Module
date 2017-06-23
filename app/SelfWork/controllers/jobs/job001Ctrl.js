@@ -366,7 +366,27 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
             }
         },
         ExportExcel: function(){
+            console.log($vm.vmData);
+            var _exportName = $filter('date')($vm.vmData.OL_IMPORTDT, 'yyyyMMdd') + ' ' + 
+                              $filter('compyFilter')($vm.vmData.OL_CO_CODE) + ' ' + 
+                              $vm.vmData.OL_FLIGHTNO + ' ' +
+                              $vm.vmData.OL_COUNT + '袋';
 
+            ToolboxApi.ExportExcelBySql({
+                templates : 0,
+                filename : _exportName,
+                querymain: 'job001',
+                queryname: 'SelectItemList',
+                params: {
+                    OL_MASTER : $vm.vmData.OL_MASTER,
+                    OL_IMPORTDT : $filter('date')($vm.vmData.OL_IMPORTDT, 'yyyy-MM-dd'),
+                    OL_FLIGHTNO : $vm.vmData.OL_FLIGHTNO,
+                    OL_COUNTRY : $vm.vmData.OL_COUNTRY,                
+                    IL_SEQ : $vm.vmData.OL_SEQ
+                }
+            }).then(function (res) {
+                // console.log(res);
+            });
         },
         // 顯示併票結果
         MergeNoResult : function(){
@@ -541,7 +561,7 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
             for(var i=0;i<res["returnData"].length;i++){
                 res["returnData"][i]["Index"] = i+1;
             }
-            $vm.job001Data = res["returnData"];
+            $vm.job001Data = angular.copy(res["returnData"]);
         }); 
     };
 

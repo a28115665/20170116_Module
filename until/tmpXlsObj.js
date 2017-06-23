@@ -27,7 +27,7 @@ const fs = require('fs');
 //             var xlsTmpl = new XlsxTemplate(tmplData);
                     
 //             //2. JsonStr convert to JsonObj
-//             var setValues = JSON.parse(pXlsObj.JsonXlsStr);
+//             var setValues = JSON.parse(pXlsObj.JsonXls);
      
 //             //3. Perform substitution
 //             xlsTmpl.substitute(pXlsObj.SheetNumber, setValues);
@@ -64,7 +64,7 @@ var GetXls = function (pXlsObj, callback){
             var xlsTmpl = new XlsxTemplate(tmplData);
                     
             //2. JsonStr convert to JsonObj
-            var setValues = JSON.parse(pXlsObj.JsonXlsStr);
+            var setValues = pXlsObj.JsonXls;
      
             //3. Perform substitution
             xlsTmpl.substitute(pXlsObj.SheetNumber, setValues);
@@ -89,9 +89,9 @@ var GetXls = function (pXlsObj, callback){
 function CheckXlsObj(pXlsObj){
     var rErr = '';
     if(pXlsObj != undefined){
-        //檢核 JsonXlsStr
-        if(!HasValue(pXlsObj.JsonXlsStr))
-            rErr += '請傳入 JsonXlsStr。\n'; //需匯入至excel的json格式字串
+        //檢核 JsonXls
+        if(!HasValue(pXlsObj.JsonXls))
+            rErr += '請傳入 JsonXls。\n'; //需匯入至excel的json格式字串
         if(!HasValue(pXlsObj.TmpXlsFilePath))
             rErr += '請傳入 TmpXlsFilePath。\n';//讀取template excel的路徑
         // if(!HasValue(pXlsObj.OutputXlsPath))

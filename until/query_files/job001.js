@@ -27,6 +27,8 @@ module.exports = function(pQueryname, pParams){
 			if(pParams["IL_SEQ"] !== undefined){
 				_SQLCommand += " AND IL_SEQ = @IL_SEQ";
 			}
+
+			_SQLCommand += " ORDER BY IL_BAGNO ";
 		
 			break;
 		case "SelectRepeatName":
@@ -40,6 +42,9 @@ module.exports = function(pQueryname, pParams){
 								HAVING COUNT(*) > 1 \
 							) REPEAT_NAME ON REPEAT_NAME.IL_GETNAME = ITEM_LIST.IL_GETNAME \
 							WHERE ITEM_LIST.IL_SEQ = @IL_SEQ";
+
+			_SQLCommand += " ORDER BY IL_BAGNO ";
+			
 			break;
 	}
 

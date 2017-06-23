@@ -28,8 +28,15 @@ module.exports = function(pQueryname, pParams){
 									W3_OE.OE_FDATETIME AS 'W3_FDATETIME', \
 									W1_OE.OE_PRINCIPAL AS 'W1_PRINCIPAL', \
 									W1_OE.OE_EDATETIME AS 'W1_EDATETIME', \
-									W1_OE.OE_FDATETIME AS 'W1_FDATETIME' \
-							FROM ORDER_LIST \
+									W1_OE.OE_FDATETIME AS 'W1_FDATETIME', \
+									CONVERT(varchar, OL_IMPORTDT, 23 ) AS 'OL_IMPORTDT_EX', \
+									CO_NAME \
+							FROM ( \
+								SELECT * \
+								FROM ORDER_LIST \
+								/*行家中文名稱*/ \
+								OUTTER JOIN COMPY_INFO ON CO_CODE = OL_CO_CODE \
+							) ORDER_LIST \
 							LEFT JOIN ITEM_LIST ON IL_SEQ = OL_SEQ \
 							/*報機單*/ \
 							LEFT JOIN ORDER_EDITOR W2_OE ON W2_OE.OE_SEQ = ORDER_LIST.OL_SEQ AND W2_OE.OE_TYPE = 'R' AND (W2_OE.OE_EDATETIME IS NOT NULL OR W2_OE.OE_FDATETIME IS NOT NULL) \
@@ -135,7 +142,8 @@ module.exports = function(pQueryname, pParams){
 									 W3_OE.OE_FDATETIME, \
 									 W1_OE.OE_PRINCIPAL, \
 									 W1_OE.OE_EDATETIME, \
-									 W1_OE.OE_FDATETIME \
+									 W1_OE.OE_FDATETIME, \
+									 CO_NAME \
 							ORDER BY OL_CR_DATETIME DESC ";
 			break;
 	}
