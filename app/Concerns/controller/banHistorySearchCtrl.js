@@ -5,38 +5,19 @@ angular.module('app.concerns').controller('BanHistorySearchCtrl', function ($sco
     var $vm = this;
 
 	angular.extend(this, {
+        Init : function(){
+            // console.log(localStorageService.get("BanHistorySearch"));
+            
+            // 帶入LocalStorage資料
+            if(localStorageService.get("BanHistorySearch") == null){
+                $vm.vmData = {};
+            }else{
+                $vm.vmData = localStorageService.get("BanHistorySearch");
+            }
+        },
         profile : Session.Get(),
         boolData : bool,
         compyData : compy,
-        resultOptions : {
-            data:  '$vm.resultData',
-            columnDefs: [
-                { name: 'OL_IMPORTDT' ,  displayName: '進口日期', cellFilter: 'dateFilter' },
-                { name: 'OL_CO_CODE'  ,  displayName: '行家', cellFilter: 'compyFilter', filter: 
-                    {
-                        term: null,
-                        type: uiGridConstants.filter.SELECT,
-                        selectOptions: compy
-                    }
-                },
-                { name: 'OL_FLIGHTNO' ,  displayName: '航班' },
-                { name: 'OL_MASTER'   ,  displayName: '主號' },
-                { name: 'OL_COUNT'    ,  displayName: '報機單(袋數)', enableCellEdit: false },
-                { name: 'OL_COUNTRY'  ,  displayName: '起運國別' },
-                { name: 'ITEM_LIST'          ,  displayName: '報機單', enableFiltering: false, width: '8%', cellTemplate: $templateCache.get('accessibilityToOperaForJob001') },
-                { name: 'FLIGHT_ITEM_LIST'   ,  displayName: '銷艙單', enableFiltering: false, width: '8%', cellTemplate: $templateCache.get('accessibilityToOperaForJob002') },
-                { name: 'Options'       , displayName: '下載', width: '5%', enableCellEdit: false, enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToOnceDownload') }
-            ],
-            enableFiltering: true,
-            enableSorting: false,
-            enableColumnMenus: false,
-            // enableVerticalScrollbar: false,
-            paginationPageSizes: [10, 25, 50],
-            paginationPageSize: 10,
-            onRegisterApi: function(gridApi){
-                $vm.resultGridApi = gridApi;
-            }
-        },
         Cancel : function(){
             ClearSearchCondition();
         },
@@ -56,21 +37,56 @@ angular.module('app.concerns').controller('BanHistorySearchCtrl', function ($sco
         var _params = {};
 
         _params = CombineConditions($vm.vmData);
+        // 紀錄查詢條件
+        localStorageService.set("BanHistorySearch", $vm.vmData);
         
         console.log(_params);
+        
+        RestfulApi.CRUDMSSQLDataByTask([
+            {
+                crudType: 'Select',
+                querymain: 'banHistorySearch',
+                queryname: 'SelectCaseACount',
+                params: _params
+            },
+            {  
+                crudType: 'Select',
+                querymain: 'banHistorySearch',
+                queryname: 'SelectCaseBCount',
+                params: _params
+            },
+            {  
+                crudType: 'Select',
+                querymain: 'banHistorySearch',
+                queryname: 'SelectCaseCCount',
+                params: _params
+            },
+            {  
+                crudType: 'Select',
+                querymain: 'banHistorySearch',
+                queryname: 'SelectCaseDCount',
+                params: _params
+            }
+        ]).then(function (res){
+            console.log(res["returnData"]);
 
-        // RestfulApi.SearchMSSQLData({
-        //     querymain: 'banHistorySearch',
-        //     queryname: 'SelectSearch',
-        //     params: _params
-        // }).then(function (res){
-        //     console.log(res["returnData"]);
-        //     if(res["returnData"].length > 0){
-        //         $vm.resultData = res["returnData"];
-        //     }else{
-        //         toaster.pop('info', '訊息', '查無資料', 3000);
-        //     }
-        // });
+            var _count = res["returnData"][0][0].COUNT + res["returnData"][1][0].COUNT + res["returnData"][2][0].COUNT + res["returnData"][3][0].COUNT;
+
+            if(_count > 0){
+                console.log(_count);
+                $state.transitionTo("app.concerns.banhistorysearch.resultban", {
+                    data: {
+                        SelectCaseACount : res["returnData"][0][0].COUNT,
+                        SelectCaseBCount : res["returnData"][1][0].COUNT,
+                        SelectCaseCCount : res["returnData"][2][0].COUNT,
+                        SelectCaseDCount : res["returnData"][3][0].COUNT
+                    }
+                });
+            }else{
+                toaster.pop('info', '訊息', '查無資料', 3000);
+            }
+
+        });
     }
 
     /**
@@ -110,13 +126,7 @@ angular.module('app.concerns').controller('BanHistorySearchCtrl', function ($sco
 
         for(var i in pObject){
             if(pObject[i] != ""){
-                if(i == "START_DATETIME"){
-                    _conditions[i] = pObject[i] + " 00:00:00";
-                }else if(i == "END_DATETIME"){
-                    _conditions[i] = pObject[i] + " 23:59:59";
-                }else{
-                    _conditions[i] = pObject[i];
-                }
+                _conditions[i] = pObject[i];
             }
         }
 
@@ -127,6 +137,7 @@ angular.module('app.concerns').controller('BanHistorySearchCtrl', function ($sco
      * [ClearSearchCondition description] 清除查詢條件
      */
     function ClearSearchCondition(){
+        localStorageService.remove("BanHistorySearch");
         $vm.vmData = {};
     }
 

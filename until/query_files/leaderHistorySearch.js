@@ -30,11 +30,11 @@ module.exports = function(pQueryname, pParams){
 							WHERE 1=1 ";
 						
 			if(pParams["IMPORTDT_FROM"] !== undefined){
-				_SQLCommand += " AND OL_IMPORTDT <= '" + pParams["IMPORTDT_FROM"] + "'";
+				_SQLCommand += " AND OL_IMPORTDT >= '" + pParams["IMPORTDT_FROM"] + "'";
 				delete pParams["IMPORTDT_FROM"];
 			}
 			if(pParams["IMPORTDT_TOXX"] !== undefined){
-				_SQLCommand += " AND OL_IMPORTDT >= '" + pParams["IMPORTDT_TOXX"] + "'";
+				_SQLCommand += " AND OL_IMPORTDT <= '" + pParams["IMPORTDT_TOXX"] + "'";
 				delete pParams["IMPORTDT_TOXX"];
 			}
 			if(pParams["CO_CODE"] !== undefined){

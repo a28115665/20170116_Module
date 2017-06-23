@@ -7,7 +7,7 @@ module.exports = function(pQueryname, pParams){
 								   U_NAME, \
 								   U_GRADE \
 						   FROM USER_INFO \
-						   WHERE U_ID != 'Administrator' AND U_CHECK = 1 AND U_STS = 0 \
+						   WHERE U_ID != 'Administrator' AND U_STS = 0 \
 						   ORDER BY U_CR_DATETIME Desc";
 			break;
 		case "SelectUserGroup":
