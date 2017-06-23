@@ -1,6 +1,6 @@
 "use strict";
 
-angular.module('app.selfwork').controller('AssistantHistorySearchCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, RestfulApi, $filter, bool, compy, uiGridConstants, localStorageService) {
+angular.module('app.selfwork').controller('AssistantHistorySearchCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, RestfulApi, $filter, bool, compy, uiGridConstants, localStorageService, ToolboxApi) {
     
     var $vm = this;
 
@@ -186,22 +186,36 @@ angular.module('app.selfwork').controller('AssistantHistorySearchCtrl', function
             }else{
                 toaster.pop('info', '訊息', '請輸入查詢條件', 3000);
             }
+        },
+        ExportExcel : function(){
+
+            var _exportName = $filter('date')(new Date(), 'yyyyMMdd') + ' ' + $scope.getWord($state.current.data.title) + '結果';
+
+            ToolboxApi.ExportExcelBySql({
+                templates : 1,
+                filename : _exportName,
+                querymain: 'assistantHistorySearch',
+                queryname: 'SelectSearch',
+                params: $vm._params
+            }).then(function (res) {
+                // console.log(res);
+            });
         }
     });
 
     function SearchData () {
-        var _params = {};
+        $vm._params = {};
 
-        _params = CombineConditions($vm.vmData);
+        $vm._params = CombineConditions($vm.vmData);
         // 紀錄查詢條件
         localStorageService.set("AssistantHistorySearch", $vm.vmData);
         
-        console.log(_params);
+        // console.log($vm._params);
 
         RestfulApi.SearchMSSQLData({
             querymain: 'assistantHistorySearch',
             queryname: 'SelectSearch',
-            params: _params
+            params: $vm._params
         }).then(function (res){
             console.log(res["returnData"]);
             if(res["returnData"].length > 0){

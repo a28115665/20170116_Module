@@ -15,17 +15,17 @@ angular.module('app.concerns').controller('DailyAlertCtrl', function ($scope, $s
                     ]
                 }
             },
-            { name: 'OL_IMPORTDT'            ,  displayName: '進口日期', width: 80, cellFilter: 'dateFilter' },
-            { name: 'OL_CO_CODE'             ,  displayName: '行家', width: 80, cellFilter: 'compyFilter', filter: 
+            { name: 'OL_IMPORTDT'   ,  displayName: '進口日期', width: 80, cellFilter: 'dateFilter' },
+            { name: 'OL_CO_CODE'    ,  displayName: '行家', width: 80, cellFilter: 'compyFilter', filter: 
                 {
                     term: null,
                     type: uiGridConstants.filter.SELECT,
                     selectOptions: compy
                 }
             },
-            { name: 'OL_FLIGHTNO'            ,  displayName: '航班', width: 80 },
-            { name: 'OL_MASTER'              ,  displayName: '主號', width: 120 },
-            { name: 'OL_COUNTRY'             ,  displayName: '起運國別', width: 80 },
+            { name: 'OL_FLIGHTNO'   ,  displayName: '航班', width: 80 },
+            { name: 'OL_MASTER'     ,  displayName: '主號', width: 120 },
+            { name: 'OL_COUNTRY'    ,  displayName: '起運國別', width: 80 },
             { name: 'IL_G1'         , displayName: '報關種類', width: 115 },
             { name: 'IL_MERGENO'    , displayName: '併票號', width: 129 },
             { name: 'IL_BAGNO'      , displayName: '袋號', width: 129 },
@@ -177,6 +177,46 @@ angular.module('app.concerns').controller('DailyAlertCtrl', function ($scope, $s
             onRegisterApi: function(gridApi){
                 $vm.caseDGridApi = gridApi;
             }
+        },
+        ExportExcel : function(){
+
+            var _exportName = null,
+                _queryname = null;
+
+            switch($vm.defaultTab){
+                case 'hr1':
+                    _exportName = $filter('date')(new Date(), 'yyyyMMdd') + ' ' + $scope.getWord($state.current.data.title) + ' A類型';
+                    _queryname = "SelectCaseA";
+                    break;
+                case 'hr2':
+                    _exportName = $filter('date')(new Date(), 'yyyyMMdd') + ' ' + $scope.getWord($state.current.data.title) + ' B類型';
+                    _queryname = "SelectCaseB";
+                    break;
+                case 'hr3':
+                    _exportName = $filter('date')(new Date(), 'yyyyMMdd') + ' ' + $scope.getWord($state.current.data.title) + ' C類型';
+                    _queryname = "SelectCaseC";
+                    break;
+                case 'hr4':
+                    _exportName = $filter('date')(new Date(), 'yyyyMMdd') + ' ' + $scope.getWord($state.current.data.title) + ' D類型';
+                    _queryname = "SelectCaseD";
+                    break;
+            }
+
+            // if(_exportName != null){
+            //     ToolboxApi.ExportExcelBySql({
+            //         templates : 3,
+            //         filename : _exportName,
+            //         querymain: 'dailyAlert',
+            //         queryname: _queryname,
+            //         params: {
+            //             IMPORTDT_FROM: $vm.IMPORTDT_FROM,
+            //             IMPORTDT_TOXX: $vm.IMPORTDT_TOXX
+            //         }
+            //     }).then(function (res) {
+            //         // console.log(res);
+            //     });
+            // }
+
         }
     });
 

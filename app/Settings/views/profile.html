@@ -44,7 +44,7 @@
 	                        <div class="col-sm-3 profile-pic">
 	                            <img src="styles/img/avatars/sunny-big.png" alt="demo user">
 	                            <div class="padding-10">
-	                                <h4 class="font-md">
+	                                <!-- <h4 class="font-md">
 	                                	<strong>15</strong>
                                         <br>
                                         <small>持有單量</small>
@@ -54,7 +54,7 @@
 	                                	<strong>419</strong>
                                         <br>
                                         <small>完成單量</small>
-                                    </h4>
+                                    </h4> -->
 	                            </div>
 	                        </div>
 	                        <div class="col-sm-6">
@@ -66,7 +66,18 @@
 	                            <ul class="list-unstyled">
 	                                <li>
 	                                    <p class="text-muted">
-	                                        <i class="fa fa-envelope" title="信箱"></i>&nbsp;&nbsp;{{$vm.profile.U_EMAIL}}
+	                                        <i class="fa fa-user-circle" title="職稱"></i>&nbsp;&nbsp;
+	                                        <span class="txt-color-darken">
+	                                        	{{$vm.profile.U_GRADE | gradeFilter}}
+	                                        </span>
+	                                    </p>
+	                                </li>
+	                                <li>
+	                                    <p class="text-muted">
+	                                        <i class="fa fa-envelope" title="信箱"></i>&nbsp;&nbsp;
+	                                        <span class="txt-color-darken">
+	                                        	{{$vm.profile.U_EMAIL}}
+	                                        </span>
 	                                    </p>
 	                                </li>
 	                                <li>
@@ -81,7 +92,7 @@
 	                                    <p class="text-muted">
 	                                        <i class="fa fa-calendar-check-o" title="更新時間"></i>&nbsp;&nbsp;
 	                                        <span class="txt-color-darken">
-	                                        	{{$vm.profile.U_UP_Datetime | date:'yyyy-MM-dd HH:mm:ss' : 'UTC'}}
+	                                        	{{$vm.profile.U_UP_DATETIME | datetimeFilter}}
 	                                        </span>
 	                                    </p>
 	                                </li>
@@ -148,7 +159,7 @@
 
 <script type="text/ng-template" id="myModalContent.html">
     <div class="modal-header">
-	    <h3 class="modal-title" id="modal-title">{{getWord('Profile Editor')}}</h3>
+	    <h3 class="modal-title" id="modal-title">{{getWord('Profile')}}{{getWord('Editor')}}</h3>
 	</div>
 	<div class="modal-body" id="modal-body">
 
@@ -181,7 +192,7 @@
 				<div class="form-group">
 			        <label class="col-md-2 control-label">信箱</label>
 			        <div class="col-md-10">
-			            <input class="form-control" ng-model="$ctrl.mdData['U_EMAIL']" type="email">
+			            <input name="U_EMAIL" class="form-control" ng-model="$ctrl.mdData['U_EMAIL']" type="email">
 			        </div>
 			    </div>
 			</fieldset>
@@ -189,7 +200,7 @@
 
 	</div>
 	<div class="modal-footer">
-	    <button class="btn btn-warning" type="button" ng-click="$ctrl.ok()" ng-disabled="!profileEditorform.$valid || $ctrl.CheckPW()">{{getWord('Modify')}}</button>
+	    <button class="btn btn-primary" type="button" ng-click="$ctrl.ok()" ng-disabled="!profileEditorform.$valid && $ctrl.CheckPW()">{{getWord('OK')}}</button>
 	    <button class="btn btn-default" type="button" ng-click="$ctrl.cancel()">{{getWord('Cancel')}}</button>
 	</div>
 </script>

@@ -4,6 +4,7 @@ var mkdirp = require('mkdirp');
 var dbCommand = require('../until/dbCommand.js');
 var tmpXlsObj = require('../until/tmpXlsObj.js');
 var setting = require('../app.setting.json');
+var templates = require('../templates/templates.json');
 var archiver = require('archiver');
 var http = require('http');
 const querystring = require('querystring');
@@ -78,6 +79,87 @@ router.get('/exportExcelByVar', function(req, res) {
             res.end(toArrayBuffer(buffer));
         }
     });
+});
+
+/**
+ * ExportExcelBySql 經由Sql匯出Excel
+ */
+router.get('/exportExcelBySql', function(req, res) {
+
+    // console.log(req.query);
+    if(req.query["templates"] == undefined){
+        res.status(post_res.statusCode).send('匯出失敗');
+    }
+
+    var post_data = querystring.stringify(req.query);
+    
+    var post_options = {
+        host: '127.0.0.1',
+        port: setting.NodeJs.port,
+        path: '/restful/crud?' + post_data,
+        method: 'GET'
+    };
+
+    // Set up the request
+    var post_req = http.request(post_options, function (post_res) {
+
+        // console.log("statusCode: ", post_res.statusCode);
+        //console.log("headers: ", post_res.headers);
+        if(post_res.statusCode == 200){
+            var content = '';
+
+            post_res.setEncoding('utf8');
+
+            post_res.on('data', function(chunk) {
+                content += chunk;
+            });
+
+            post_res.on('end', function() {
+                // console.log(content);
+
+                const _params = typeof req.query["params"] == "string" ? JSON.parse(req.query["params"]) : req.query["params"];
+
+                _params["data"] = JSON.parse(content).returnData;
+
+                // console.log(_params.data.length);
+
+                tmpXlsObj.GetXls({
+                    JsonXls : _params,
+                    TmpXlsFilePath : path.join(path.dirname(module.parent.filename), 'templates', templates[req.query["templates"]]), //template xls 路徑(含檔名)
+                    // OutputXlsPath : path.join(path.dirname(module.parent.filename), 'templates', 'test2.xlsx'),
+                    SheetNumber : 1
+                }, function (err, result){
+                    if (err) {
+                        console.log(err);
+                        // Do something with your error...
+                        res.status(500).send("匯出失敗");
+                    } else {
+
+                        res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+                        res.setHeader('Content-Length', result.length);
+                        res.setHeader('Expires', '0');
+                        // res.setHeader('Content-Disposition', 'attachment; filename=test.xls');
+                        res.setHeader('Content-Encoding', 'UTF-8');
+                        res.status(200);
+
+                        var buffer = new Buffer(result, "binary");
+
+                        res.end(toArrayBuffer(buffer));
+                    }
+                });
+
+            });
+        }else{
+            res.status(post_res.statusCode).send('匯出失敗');
+        }
+    });
+
+    post_req.on('error', function(err) {
+        // Handle error
+        res.status(500).send('匯出失敗');
+    });
+
+    post_req.end(); 
 });
 
 /**

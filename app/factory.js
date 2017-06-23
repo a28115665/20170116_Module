@@ -42,6 +42,19 @@ angular.module('app')
                 }
             }
         ),
+        EXPORTEXCELBYSQL : $resource('/toolbox/exportExcelBySql', null, 
+            {
+                'postByArraybuffer': { 
+                    method: 'GET',
+                    responseType : 'arraybuffer',
+                    transformResponse: function(data) {
+                        return {
+                            response: new Blob([data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
+                        };
+                    }
+                }
+            }
+        ),
         DOWNLOADFILES : $resource('/toolbox/downloadFiles', null, 
             {
                 'postByArraybuffer': { 

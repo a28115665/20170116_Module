@@ -9,7 +9,8 @@ module.exports = function(pQueryname, pParams){
 						   IL.* \
 					FROM V_BLFO_JOIN_IL \
 					JOIN ( \
-						SELECT * \
+						SELECT *, \
+						   	   CONVERT(varchar, OL_IMPORTDT, 23 ) AS 'OL_IMPORTDT_EX' \
 						FROM ITEM_LIST \
 						LEFT JOIN ORDER_LIST ON OL_SEQ = IL_SEQ \
 						/*只抓今天*/ \
@@ -24,7 +25,8 @@ module.exports = function(pQueryname, pParams){
 						   IL.* \
 					FROM BLACK_LIST_FROM_LEADER BLFL \
 					JOIN ( \
-						SELECT * \
+						SELECT *, \
+						   	   CONVERT(varchar, OL_IMPORTDT, 23 ) AS 'OL_IMPORTDT_EX' \
 						FROM ITEM_LIST \
 						LEFT JOIN ORDER_LIST ON OL_SEQ = IL_SEQ \
 						/*只抓今天*/ \
@@ -196,7 +198,10 @@ module.exports = function(pQueryname, pParams){
 										WHERE IN_IL.IL_GETNAME = OUT_IL.IL_GETNAME AND IN_IL.IL_GETADDRESS = OUT_IL.IL_GETADDRESS \
 									) AS 'IL_COUNT', \
 									OUT_IL.* \
+						   			/*CO_NAME*/ \
 							FROM ( " + _CaseA + " ) OUT_IL \
+							/*行家中文名稱*/ \
+							/*OUTTER JOIN COMPY_INFO ON CO_CODE = OUT_IL.OL_CO_CODE*/ \
 							ORDER BY OUT_IL.IL_GETNAME DESC ";
 
 			delete pParams["IMPORTDT_FROM"];
