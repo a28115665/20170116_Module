@@ -1,6 +1,6 @@
 "use strict";
 
-angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, uiGridConstants, RestfulApi, compy, opType, userInfoByGrade, $filter, $q) {
+angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, uiGridConstants, RestfulApi, compy, opType, userInfoByGrade, $filter, $q, ToolboxApi) {
     
     var $vm = this,
         _tasks = [];
@@ -8,6 +8,9 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
 	angular.extend(this, {
         Init : function(){
             $scope.ShowTabs = true;
+            $vm.IMPORTDT_FROM = $filter('date')(new Date(), 'yyyy-MM-dd') + ' 00:00:00';
+            $vm.IMPORTDT_TOXX = $filter('date')(new Date(), 'yyyy-MM-dd') + ' 23:59:59';
+
             if(userInfoByGrade[0].length == 0){
                 toaster.pop('info', '訊息', '無員工管理', 3000);
                 $vm.vmData = [];
@@ -410,7 +413,7 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
                 { name: 'CO_NAME'  ,  displayName: '行家' },
                 { name: 'W2_COUNT' ,  displayName: '報機單', enableFiltering: false },
                 { name: 'W3_COUNT' ,  displayName: '銷艙單', enableFiltering: false },
-                { name: 'W1_COUNT' ,  displayName: '派件單', enableFiltering: false }
+                { name: 'W1_COUNT' ,  displayName: '派送單', enableFiltering: false }
             ],
             enableFiltering: true,
             enableSorting: true,
@@ -423,7 +426,40 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
             }
         },
         ExportExcel : function(){
-            
+
+            var _exportName = null,
+                _queryname = null,
+                _templates = null,
+                _params = {};
+
+            switch($vm.defaultTab){
+                case 'hr1':
+                    _templates = 6;
+                    _exportName = $filter('date')(new Date(), 'yyyyMMdd') + ' 派單狀態';
+                    _queryname = "SelectOrderListForExcel";
+                    break;
+                case 'hr2':
+                    _templates = 7;
+                    _exportName = $filter('date')(new Date(), 'yyyyMMdd') + ' 每日行家統計';
+                    _queryname = "SelectCompyStatistics";
+                    _params = {
+                        IMPORTDT_FROM: $vm.IMPORTDT_FROM,
+                        IMPORTDT_TOXX: $vm.IMPORTDT_TOXX
+                    }
+                    break;
+            }
+
+            if(_exportName != null){
+                ToolboxApi.ExportExcelBySql({
+                    templates : _templates,
+                    filename : _exportName,
+                    querymain: "leaderJobs",
+                    queryname: _queryname,
+                    params: _params
+                }).then(function (res) {
+                    // console.log(res);
+                });
+            }
         }
     });
 
@@ -544,7 +580,11 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
     function LoadStatistics(){
         RestfulApi.SearchMSSQLData({
             querymain: 'leaderJobs',
-            queryname: 'SelectCompyStatistics'
+            queryname: 'SelectCompyStatistics',
+            params: {
+                IMPORTDT_FROM: $vm.IMPORTDT_FROM,
+                IMPORTDT_TOXX: $vm.IMPORTDT_TOXX
+            }
         }).then(function (res){
             console.log(res["returnData"]);
             $vm.compyStatisticsData = res["returnData"];

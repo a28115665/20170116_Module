@@ -1,6 +1,6 @@
 "use strict";
 
-angular.module('app.selfwork').controller('AssistantHistorySearchCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, RestfulApi, $filter, bool, compy, uiGridConstants, localStorageService, ToolboxApi) {
+angular.module('app.selfwork').controller('AssistantHistorySearchCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, RestfulApi, $filter, bool, compy, uiGridConstants, localStorageService, ToolboxApi, $window) {
     
     var $vm = this;
 

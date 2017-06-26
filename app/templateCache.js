@@ -35,12 +35,12 @@ angular.module('app')
                       </div>');
     $templateCache.put('accessibilityToMCForPullGoods', '\
                         <div class="ui-grid-cell-contents text-center">\
-                            <a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethodForPullGoods.modifyData(row)"> 編輯</a>\
+                            <a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethodForPullGoods.modifyData(row)"> 修改</a>\
                             <a href="javascript:void(0);" class="btn btn-danger btn-xs" ng-click="grid.appScope.$vm.gridMethodForPullGoods.cancelData(row)"> 取消</a>\
                       </div>');
     $templateCache.put('accessibilityToMSForAssistantJobs', '\
                         <div class="ui-grid-cell-contents text-center">\
-                            <a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethod.modifyData(row)"> 編輯</a>\
+                            <a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethod.modifyData(row)"> 修改</a>\
                             <a href="javascript:void(0);" class="btn btn-info btn-xs" ng-click="grid.appScope.$vm.gridMethod.sendMail(row)"> 寄信</a>\
                             <a href="javascript:void(0);" class="btn btn-primary btn-xs" ng-click="grid.appScope.$vm.gridMethod.viewOrder(row)"> 貨況</a>\
                       </div>');
@@ -155,12 +155,12 @@ angular.module('app')
     $templateCache.put('accessibilityToDMCForLeader', '\
                         <div class="ui-grid-cell-contents text-center">\
                             <a href="javascript:void(0);" class="btn btn-danger btn-xs" ng-click="grid.appScope.$vm.gridMethod.deleteData(row)" ng-disabled="row.entity.g"> 刪除</a>\
-                            <a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethod.modifyData(row)"> 編輯</a>\
+                            <a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethod.modifyData(row)"> 修改</a>\
                             <a href="javascript:void(0);" class="btn btn-primary btn-xs" ng-click="grid.appScope.$vm.gridMethod.closeData(row)" ng-class="(row.entity.W1_STATUS == \'3\' && row.entity.W2_STATUS == \'3\' && row.entity.W3_STATUS == \'3\') ? \'\' : \'disabled\'"> 結單</a>\
                         </div>');
     $templateCache.put('accessibilityToMForLeaderSearch', '\
                         <div class="ui-grid-cell-contents text-center">\
-                            <a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethod.modifyData(row)"> 編輯</a>\
+                            <a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethod.modifyData(row)"> 修改</a>\
                         </div>');
     $templateCache.put('accessibilityToEdited', '\
                         <div class="ui-grid-cell-contents text-center">\

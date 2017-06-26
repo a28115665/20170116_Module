@@ -117,7 +117,12 @@ router.get('/exportExcelBySql', function(req, res) {
             post_res.on('end', function() {
                 // console.log(content);
 
-                const _params = typeof req.query["params"] == "string" ? JSON.parse(req.query["params"]) : req.query["params"];
+                let _params = typeof req.query["params"] == "string" ? JSON.parse(req.query["params"]) : req.query["params"];
+                
+                // 如果undefined則先宣告物件
+                if(_params == undefined){
+                    _params = {};
+                }
 
                 _params["data"] = JSON.parse(content).returnData;
 

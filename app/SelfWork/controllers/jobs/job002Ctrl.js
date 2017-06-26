@@ -1,6 +1,6 @@
 "use strict";
 
-angular.module('app.selfwork').controller('Job002Ctrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, RestfulApi, uiGridConstants, $filter, $q) {
+angular.module('app.selfwork').controller('Job002Ctrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, RestfulApi, uiGridConstants, $filter, $q, ToolboxApi) {
     // console.log($stateParams, $state);
 
     var $vm = this,
@@ -32,7 +32,7 @@ angular.module('app.selfwork').controller('Job002Ctrl', function ($scope, $state
         job002Options : {
             data: '$vm.job002Data',
             columnDefs: [
-                { name: 'Index'           , displayName: '序列', width: 50, enableCellEdit: false, enableFiltering: false, headerCellClass: 'text-muted'},
+                // { name: 'Index'           , displayName: '序列', width: 50, enableCellEdit: false, enableFiltering: false, headerCellClass: 'text-muted'},
                 { name: 'FLL_ITEM'        , displayName: '序號' },
                 { name: 'FLL_BAGNO'       , displayName: '袋號' },
                 { name: 'FLL_CTN'         , displayName: '件數' },
@@ -56,7 +56,25 @@ angular.module('app.selfwork').controller('Job002Ctrl', function ($scope, $state
             }
         },
         ExportExcel: function(){
+            var _exportName = $filter('date')($vm.vmData.OL_IMPORTDT, 'yyyyMMdd') + ' ' + 
+                              $filter('compyFilter')($vm.vmData.OL_CO_CODE) + ' ' + 
+                              $vm.vmData.OL_FLIGHTNO;
 
+            ToolboxApi.ExportExcelBySql({
+                templates : 5,
+                filename : _exportName,
+                querymain: 'job002',
+                queryname: 'SelectFlightItemList',
+                params: {
+                    OL_MASTER : $vm.vmData.OL_MASTER,
+                    OL_IMPORTDT : $filter('date')($vm.vmData.OL_IMPORTDT, 'yyyy-MM-dd'),
+                    OL_FLIGHTNO : $vm.vmData.OL_FLIGHTNO,
+                    OL_COUNTRY : $vm.vmData.OL_COUNTRY,                
+                    FLL_SEQ: $vm.vmData.OL_SEQ
+                }
+            }).then(function (res) {
+                // console.log(res);
+            });
         },
         Return : function(){
             ReturnToEmployeejobsPage();
@@ -100,9 +118,9 @@ angular.module('app.selfwork').controller('Job002Ctrl', function ($scope, $state
             }
         }).then(function (res){
             console.log(res["returnData"]);
-            for(var i=0;i<res["returnData"].length;i++){
-                res["returnData"][i]["Index"] = i+1;
-            }
+            // for(var i=0;i<res["returnData"].length;i++){
+            //     res["returnData"][i]["Index"] = i+1;
+            // }
             $vm.job002Data = res["returnData"];
         }).finally(function() {
             HandleWindowResize($vm.job002GridApi);

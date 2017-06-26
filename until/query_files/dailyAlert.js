@@ -44,7 +44,8 @@ module.exports = function(pQueryname, pParams){
 						   IL.* \
 					FROM V_BLFO_JOIN_IL \
 					JOIN ( \
-						SELECT * \
+						SELECT *, \
+						   	   CONVERT(varchar, OL_IMPORTDT, 23 ) AS 'OL_IMPORTDT_EX' \
 						FROM ITEM_LIST \
 						LEFT JOIN ORDER_LIST ON OL_SEQ = IL_SEQ \
 						/*只抓今天*/ \
@@ -59,7 +60,8 @@ module.exports = function(pQueryname, pParams){
 						   IL.* \
 					FROM BLACK_LIST_FROM_LEADER BLFL \
 					JOIN ( \
-						SELECT * \
+						SELECT *, \
+						   	   CONVERT(varchar, OL_IMPORTDT, 23 ) AS 'OL_IMPORTDT_EX' \
 						FROM ITEM_LIST \
 						LEFT JOIN ORDER_LIST ON OL_SEQ = IL_SEQ \
 						/*只抓今天*/ \
@@ -77,7 +79,8 @@ module.exports = function(pQueryname, pParams){
 						   IL.* \
 					FROM V_BLFO_JOIN_IL \
 					JOIN ( \
-						SELECT * \
+						SELECT *, \
+						   	   CONVERT(varchar, OL_IMPORTDT, 23 ) AS 'OL_IMPORTDT_EX' \
 						FROM ITEM_LIST \
 						LEFT JOIN ORDER_LIST ON OL_SEQ = IL_SEQ \
 						/*只抓今天*/ \
@@ -92,7 +95,8 @@ module.exports = function(pQueryname, pParams){
 						   IL.* \
 					FROM BLACK_LIST_FROM_LEADER BLFL \
 					JOIN ( \
-						SELECT * \
+						SELECT *, \
+						   	   CONVERT(varchar, OL_IMPORTDT, 23 ) AS 'OL_IMPORTDT_EX' \
 						FROM ITEM_LIST \
 						LEFT JOIN ORDER_LIST ON OL_SEQ = IL_SEQ \
 						/*只抓今天*/ \
@@ -111,7 +115,8 @@ module.exports = function(pQueryname, pParams){
 						   IL.* \
 					FROM V_BLFO_JOIN_IL \
 					JOIN ( \
-						SELECT * \
+						SELECT *, \
+						   	   CONVERT(varchar, OL_IMPORTDT, 23 ) AS 'OL_IMPORTDT_EX' \
 						FROM ITEM_LIST \
 						LEFT JOIN ORDER_LIST ON OL_SEQ = IL_SEQ \
 						/*只抓今天*/ \
@@ -127,7 +132,8 @@ module.exports = function(pQueryname, pParams){
 						   IL.* \
 					FROM BLACK_LIST_FROM_LEADER BLFL \
 					JOIN ( \
-						SELECT * \
+						SELECT *, \
+						   	   CONVERT(varchar, OL_IMPORTDT, 23 ) AS 'OL_IMPORTDT_EX' \
 						FROM ITEM_LIST \
 						LEFT JOIN ORDER_LIST ON OL_SEQ = IL_SEQ \
 						/*只抓今天*/ \
@@ -197,11 +203,11 @@ module.exports = function(pQueryname, pParams){
 										) IN_IL \
 										WHERE IN_IL.IL_GETNAME = OUT_IL.IL_GETNAME AND IN_IL.IL_GETADDRESS = OUT_IL.IL_GETADDRESS \
 									) AS 'IL_COUNT', \
-									OUT_IL.* \
-						   			/*CO_NAME*/ \
+									OUT_IL.*, \
+						   			CO_NAME \
 							FROM ( " + _CaseA + " ) OUT_IL \
 							/*行家中文名稱*/ \
-							/*OUTTER JOIN COMPY_INFO ON CO_CODE = OUT_IL.OL_CO_CODE*/ \
+							LEFT JOIN COMPY_INFO ON CO_CODE = OUT_IL.OL_CO_CODE \
 							ORDER BY OUT_IL.IL_GETNAME DESC ";
 
 			delete pParams["IMPORTDT_FROM"];
@@ -220,8 +226,11 @@ module.exports = function(pQueryname, pParams){
 										) IN_IL \
 										WHERE IN_IL.IL_GETADDRESS = OUT_IL.IL_GETADDRESS AND IN_IL.IL_GETTEL = OUT_IL.IL_GETTEL \
 									) AS 'IL_COUNT', \
-									OUT_IL.* \
+									OUT_IL.*, \
+						   			CO_NAME \
 							FROM ( " + _CaseB + " ) OUT_IL \
+							/*行家中文名稱*/ \
+							LEFT JOIN COMPY_INFO ON CO_CODE = OUT_IL.OL_CO_CODE \
 							ORDER BY OUT_IL.IL_GETNAME DESC ";
 							
 			delete pParams["IMPORTDT_FROM"];
@@ -240,8 +249,11 @@ module.exports = function(pQueryname, pParams){
 										) IN_IL \
 										WHERE IN_IL.IL_GETNAME = OUT_IL.IL_GETNAME AND IN_IL.IL_GETTEL = OUT_IL.IL_GETTEL \
 									) AS 'IL_COUNT', \
-									OUT_IL.* \
+									OUT_IL.*, \
+						   			CO_NAME \
 							FROM ( " + _CaseC + " ) OUT_IL \
+							/*行家中文名稱*/ \
+							LEFT JOIN COMPY_INFO ON CO_CODE = OUT_IL.OL_CO_CODE \
 							ORDER BY OUT_IL.IL_GETNAME DESC ";
 							
 			delete pParams["IMPORTDT_FROM"];
@@ -260,8 +272,11 @@ module.exports = function(pQueryname, pParams){
 										) IN_IL \
 										WHERE IN_IL.IL_GETNAME = OUT_IL.IL_GETNAME AND IN_IL.IL_GETADDRESS = OUT_IL.IL_GETADDRESS AND IN_IL.IL_GETTEL = OUT_IL.IL_GETTEL \
 									) AS 'IL_COUNT', \
-									OUT_IL.* \
+									OUT_IL.*, \
+						   			CO_NAME \
 							FROM ( " + _CaseD + " ) OUT_IL \
+							/*行家中文名稱*/ \
+							LEFT JOIN COMPY_INFO ON CO_CODE = OUT_IL.OL_CO_CODE \
 							ORDER BY OUT_IL.IL_GETNAME DESC ";
 							
 			delete pParams["IMPORTDT_FROM"];

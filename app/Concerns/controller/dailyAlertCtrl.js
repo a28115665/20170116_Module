@@ -1,6 +1,6 @@
 "use strict";
 
-angular.module('app.concerns').controller('DailyAlertCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, $timeout, uiGridConstants, RestfulApi, $filter, compy) {
+angular.module('app.concerns').controller('DailyAlertCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, $timeout, uiGridConstants, RestfulApi, $filter, compy, ToolboxApi) {
     
     var $vm = this,
         columnDefs = [
@@ -202,20 +202,20 @@ angular.module('app.concerns').controller('DailyAlertCtrl', function ($scope, $s
                     break;
             }
 
-            // if(_exportName != null){
-            //     ToolboxApi.ExportExcelBySql({
-            //         templates : 3,
-            //         filename : _exportName,
-            //         querymain: 'dailyAlert',
-            //         queryname: _queryname,
-            //         params: {
-            //             IMPORTDT_FROM: $vm.IMPORTDT_FROM,
-            //             IMPORTDT_TOXX: $vm.IMPORTDT_TOXX
-            //         }
-            //     }).then(function (res) {
-            //         // console.log(res);
-            //     });
-            // }
+            if(_exportName != null){
+                ToolboxApi.ExportExcelBySql({
+                    templates : 3,
+                    filename : _exportName,
+                    querymain: 'dailyAlert',
+                    queryname: _queryname,
+                    params: {
+                        IMPORTDT_FROM: $vm.IMPORTDT_FROM,
+                        IMPORTDT_TOXX: $vm.IMPORTDT_TOXX
+                    }
+                }).then(function (res) {
+                    // console.log(res);
+                });
+            }
 
         }
     });

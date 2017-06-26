@@ -145,32 +145,121 @@ module.exports = function(pQueryname, pParams){
 			_SQLCommand += "SELECT CO_NAME, \
 								( \
 									SELECT COUNT(1) \
-									FROM ( \
-										SELECT * \
-										FROM ITEM_LIST \
-										WHERE CONVERT(varchar(100), IL_CR_DATETIME, 23) = CONVERT(varchar(100), GetDate(), 23) \
-									) IL \
+									FROM ITEM_LIST \
 									JOIN ORDER_LIST ON OL_SEQ = IL_SEQ AND OL_CO_CODE = CO_CODE \
+									/*只抓今天*/ \
+									WHERE '"+pParams["IMPORTDT_FROM"]+"' <= OL_IMPORTDT AND OL_IMPORTDT <= '"+pParams["IMPORTDT_TOXX"]+"' \
 								) AS 'W2_COUNT', \
 								( \
 									SELECT COUNT(1) \
-									FROM ( \
-										SELECT * \
-										FROM FLIGHT_ITEM_LIST \
-										WHERE CONVERT(varchar(100), FLL_CR_DATETIME, 23) = CONVERT(varchar(100), GetDate(), 23) \
-									) FLL \
+									FROM FLIGHT_ITEM_LIST \
 									JOIN ORDER_LIST ON OL_SEQ = FLL_SEQ AND OL_CO_CODE = CO_CODE \
+									/*只抓今天*/ \
+									WHERE '"+pParams["IMPORTDT_FROM"]+"' <= OL_IMPORTDT AND OL_IMPORTDT <= '"+pParams["IMPORTDT_TOXX"]+"' \
 								) AS 'W3_COUNT', \
 								( \
 									SELECT COUNT(1) \
-									FROM ( \
-										SELECT * \
-										FROM Delivery_Item_List \
-										WHERE CONVERT(varchar(100), DIL_CR_DATETIME, 23) = CONVERT(varchar(100), GetDate(), 23) \
-									) DIL \
+									FROM Delivery_Item_List \
 									JOIN ORDER_LIST ON OL_SEQ = DIL_SEQ AND OL_CO_CODE = CO_CODE \
+									/*只抓今天*/ \
+									WHERE '"+pParams["IMPORTDT_FROM"]+"' <= OL_IMPORTDT AND OL_IMPORTDT <= '"+pParams["IMPORTDT_TOXX"]+"' \
 								) AS 'W1_COUNT' \
 							FROM COMPY_INFO";
+			
+			delete pParams["IMPORTDT_FROM"];
+			delete pParams["IMPORTDT_TOXX"];
+			break;
+
+
+		case "SelectOrderListForExcel":
+			_SQLCommand += "SELECT OL_SEQ, \
+									OL_CO_CODE, \
+									OL_MASTER, \
+									OL_FLIGHTNO, \
+									OL_IMPORTDT, \
+									OL_COUNTRY, \
+									OL_CR_USER, \
+									( \
+										CASE WHEN ( \
+											/*表示已有完成者*/ \
+											SELECT COUNT(1) \
+											FROM ORDER_PRINPL \
+											LEFT JOIN ORDER_EDITOR ON OE_SEQ = OP_SEQ AND OE_TYPE = OP_TYPE \
+											WHERE OP_SEQ = OL_SEQ AND OP_DEPT = 'W2' AND OE_FDATETIME IS NOT NULL \
+										) > 0 THEN '已完成' \
+										WHEN ( \
+											/*表示未有完成者，但有編輯者*/ \
+											SELECT COUNT(1) \
+											FROM ORDER_PRINPL \
+											LEFT JOIN ORDER_EDITOR ON OE_SEQ = OP_SEQ AND OE_TYPE = OP_TYPE \
+											WHERE OP_SEQ = OL_SEQ AND OP_DEPT = 'W2' AND OE_EDATETIME IS NOT NULL \
+										) > 0 THEN '已編輯' \
+										WHEN ( \
+											/*表示未有完成者，未有編輯者，但有負責人(已派單)*/ \
+											SELECT COUNT(1) \
+											FROM ORDER_PRINPL \
+											LEFT JOIN ORDER_EDITOR ON OE_SEQ = OP_SEQ AND OE_TYPE = OP_TYPE \
+											WHERE OP_SEQ = OL_SEQ AND OP_DEPT = 'W2' \
+										) > 0 THEN '已派單' \
+										/*表示尚未派單*/ \
+										ELSE '' END \
+									) AS 'W2_STATUS', \
+									( \
+										CASE WHEN ( \
+											/*表示已有完成者*/ \
+											SELECT COUNT(1) \
+											FROM ORDER_PRINPL \
+											LEFT JOIN ORDER_EDITOR ON OE_SEQ = OP_SEQ AND OE_TYPE = OP_TYPE \
+											WHERE OP_SEQ = OL_SEQ AND OP_DEPT = 'W3' AND OE_FDATETIME IS NOT NULL \
+										) > 0 THEN '已完成' \
+										WHEN ( \
+											/*表示未有完成者，但有編輯者*/ \
+											SELECT COUNT(1) \
+											FROM ORDER_PRINPL \
+											LEFT JOIN ORDER_EDITOR ON OE_SEQ = OP_SEQ AND OE_TYPE = OP_TYPE \
+											WHERE OP_SEQ = OL_SEQ AND OP_DEPT = 'W3' AND OE_EDATETIME IS NOT NULL \
+										) > 0 THEN '已編輯' \
+										WHEN ( \
+											/*表示未有完成者，未有編輯者，但有負責人(已派單)*/ \
+											SELECT COUNT(1) \
+											FROM ORDER_PRINPL \
+											LEFT JOIN ORDER_EDITOR ON OE_SEQ = OP_SEQ AND OE_TYPE = OP_TYPE \
+											WHERE OP_SEQ = OL_SEQ AND OP_DEPT = 'W3' \
+										) > 0 THEN '已派單' \
+										/*表示尚未派單*/ \
+										ELSE '' END \
+									) AS 'W3_STATUS', \
+									( \
+										CASE WHEN ( \
+											/*表示已有完成者*/ \
+											SELECT COUNT(1) \
+											FROM ORDER_PRINPL \
+											LEFT JOIN ORDER_EDITOR ON OE_SEQ = OP_SEQ AND OE_TYPE = OP_TYPE \
+											WHERE OP_SEQ = OL_SEQ AND OP_DEPT = 'W1' AND OE_FDATETIME IS NOT NULL \
+										) > 0 THEN '已完成' \
+										WHEN ( \
+											/*表示未有完成者，但有編輯者*/ \
+											SELECT COUNT(1) \
+											FROM ORDER_PRINPL \
+											LEFT JOIN ORDER_EDITOR ON OE_SEQ = OP_SEQ AND OE_TYPE = OP_TYPE \
+											WHERE OP_SEQ = OL_SEQ AND OP_DEPT = 'W1' AND OE_EDATETIME IS NOT NULL \
+										) > 0 THEN '已編輯' \
+										WHEN ( \
+											/*表示未有完成者，未有編輯者，但有負責人(已派單)*/ \
+											SELECT COUNT(1) \
+											FROM ORDER_PRINPL \
+											LEFT JOIN ORDER_EDITOR ON OE_SEQ = OP_SEQ AND OE_TYPE = OP_TYPE \
+											WHERE OP_SEQ = OL_SEQ AND OP_DEPT = 'W1' \
+										) > 0 THEN '已派單' \
+										/*表示尚未派單*/ \
+										ELSE '' END \
+									) AS 'W1_STATUS', \
+									CONVERT(varchar, OL_IMPORTDT, 23 ) AS 'OL_IMPORTDT_EX', \
+									CO_NAME \
+							FROM ORDER_LIST \
+							OUTTER JOIN COMPY_INFO ON CO_CODE = OL_CO_CODE \
+							WHERE OL_FDATETIME IS NULL \
+							ORDER BY OL_CR_DATETIME DESC";
 			break;
 	}
 
