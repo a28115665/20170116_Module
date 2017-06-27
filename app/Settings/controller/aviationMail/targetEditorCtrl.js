@@ -47,6 +47,7 @@ angular.module('app.settings').controller('TargetEditorCtrl', function ($scope, 
                     params: {
                         FM_TARGET : $vm.vmData.FM_TARGET,
                         FM_MAIL : _mailObjectToArray.join(";"),
+                        FM_TITLE : $vm.vmData.FM_TITLE,
                         FM_CONTENT : $vm.vmData.FM_CONTENT,
                         FM_CR_USER : $vm.profile.U_ID,
                         FM_CR_DATETIME : $filter('date')(new Date(), 'yyyy-MM-dd HH:mm:ss')
@@ -83,6 +84,7 @@ angular.module('app.settings').controller('TargetEditorCtrl', function ($scope, 
                     params: {
                         FM_TARGET : $vm.vmData.FM_TARGET,
                         FM_MAIL : _mailObjectToArray.join(";"),
+                        FM_TITLE : $vm.vmData.FM_TITLE,
                         FM_CONTENT : $vm.vmData.FM_CONTENT,
                         FM_UP_USER : $vm.profile.U_ID,
                         FM_UP_DATETIME : $filter('date')(new Date(), 'yyyy-MM-dd HH:mm:ss')
