@@ -9,27 +9,26 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
     angular.extend(this, {
         Init : function(){
             // 不正常登入此頁面
-            if($stateParams.data == null){
-                ReturnToEmployeejobsPage();
-            }else{
+            // if($stateParams.data == null){
+            //     ReturnToEmployeejobsPage();
+            // }else{
 
                 $vm.bigBreadcrumbsItems = $state.current.name.split(".");
                 $vm.bigBreadcrumbsItems.shift();
 
-                $vm.vmData = $stateParams.data;
+                // $vm.vmData = $stateParams.data;
 
                 // 測試用
-                // if($vm.vmData == null){
-                //     $vm.vmData = {
-                //         OL_SEQ : 'AdminTest20170525190758'
-                //     };
-                // }
+                if($vm.vmData == null){
+                    $vm.vmData = {
+                        OL_SEQ : 'AdminTest20170525190758'
+                    };
+                }
                 
                 LoadItemList();
-            }
+            // }
         },
         profile : Session.Get(),
-        defaultChoice : 'Left',
         gridMethod : {
             // 改單
             changeNature : function(row){
@@ -200,45 +199,91 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
             // 特貨
             specialGoods : function(row){
                 console.log(row);
+                // var modalInstance = $uibModal.open({
+                //     animation: true,
+                //     ariaLabelledBy: 'modal-title',
+                //     ariaDescribedBy: 'modal-body',
+                //     template: $templateCache.get('isChecked'),
+                //     controller: 'IsCheckedModalInstanceCtrl',
+                //     controllerAs: '$ctrl',
+                //     size: 'sm',
+                //     windowClass: 'center-modal',
+                //     // appendTo: parentElem,
+                //     resolve: {
+                //         items: function() {
+                //             return row.entity;
+                //         },
+                //         show: function(){
+                //             return {
+                //                 title : "是否特貨"
+                //             };
+                //         }
+                //     }
+                // });
+
+                // modalInstance.result.then(function(selectedItem) {
+                //     // $ctrl.selected = selectedItem;
+                //     console.log(selectedItem);
+                //     RestfulApi.InsertMSSQLData({
+                //         insertname: 'Insert',
+                //         table: 20,
+                //         params: {
+                //             SPG_SEQ         : selectedItem.IL_SEQ,
+                //             SPG_NEWBAGNO    : selectedItem.IL_NEWBAGNO,
+                //             SPG_NEWSMALLNO  : selectedItem.IL_NEWSMALLNO,
+                //             SPG_ORDERINDEX  : selectedItem.IL_ORDERINDEX,
+                //             SPG_CR_USER     : $vm.profile.U_ID,
+                //             SPG_CR_DATETIME : $filter('date')(new Date, 'yyyy-MM-dd HH:mm:ss')
+                //         }
+                //     }).then(function(res) {
+                //         // 加入後需要Disabled
+                //         row.entity.SPG_SPECIALGOODS = true;
+                //     });
+
+                // }, function() {
+                //     // $log.info('Modal dismissed at: ' + new Date());
+                // });
+                
                 var modalInstance = $uibModal.open({
                     animation: true,
                     ariaLabelledBy: 'modal-title',
                     ariaDescribedBy: 'modal-body',
-                    template: $templateCache.get('isChecked'),
-                    controller: 'IsCheckedModalInstanceCtrl',
+                    templateUrl: 'specialGoodsModalContent.html',
+                    controller: 'SpecialGoodsModalInstanceCtrl',
                     controllerAs: '$ctrl',
                     size: 'sm',
-                    windowClass: 'center-modal',
                     // appendTo: parentElem,
                     resolve: {
                         items: function() {
                             return row.entity;
                         },
-                        show: function(){
-                            return {
-                                title : "是否特貨"
-                            };
+                        specialGoods: function(SysCode) {
+                            return SysCode.get('SpecialGoods');
                         }
                     }
                 });
 
                 modalInstance.result.then(function(selectedItem) {
-                    // $ctrl.selected = selectedItem;
+
                     console.log(selectedItem);
-                    RestfulApi.InsertMSSQLData({
-                        insertname: 'Insert',
+
+                    RestfulApi.UpsertMSSQLData({
+                        upsertname: 'Upsert',
                         table: 20,
                         params: {
+                            SPG_TYPE        : selectedItem.SPG_TYPE,
+                            SPG_CR_USER     : $vm.profile.U_ID,
+                            SPG_CR_DATETIME : $filter('date')(new Date, 'yyyy-MM-dd HH:mm:ss')
+                        },
+                        condition: {
                             SPG_SEQ         : selectedItem.IL_SEQ,
                             SPG_NEWBAGNO    : selectedItem.IL_NEWBAGNO,
                             SPG_NEWSMALLNO  : selectedItem.IL_NEWSMALLNO,
-                            SPG_ORDERINDEX  : selectedItem.IL_ORDERINDEX,
-                            SPG_CR_USER     : $vm.profile.U_ID,
-                            SPG_CR_DATETIME : $filter('date')(new Date, 'yyyy-MM-dd HH:mm:ss')
+                            SPG_ORDERINDEX  : selectedItem.IL_ORDERINDEX
                         }
-                    }).then(function(res) {
+                    }).then(function (res) {
                         // 加入後需要Disabled
-                        row.entity.SPG_SPECIALGOODS = true;
+                        row.entity.SPG_SPECIALGOODS = selectedItem.SPG_TYPE;
                     });
 
                 }, function() {
@@ -283,7 +328,7 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
             //                 <div ng-repeat="(colRenderIndex, col) in colContainer.renderedColumns track by col.colDef.name" class="ui-grid-cell" ng-class="row.entity.BLFO_TRACK != null ? \'cell-class-pull cell-class-ban\' : \'\'" ui-grid-cell></div> \
             //               </div>',
             rowTemplate: '<div> \
-                            <div ng-repeat="(colRenderIndex, col) in colContainer.renderedColumns track by col.colDef.name" class="ui-grid-cell" ng-class="{\'cell-class-ban\' : row.entity.BLFO_TRACK != null, \'cell-class-pull\' : row.entity.PG_PULLGOODS == true, \'cell-class-special\' : row.entity.SPG_SPECIALGOODS == true}" ui-grid-cell></div> \
+                            <div ng-repeat="(colRenderIndex, col) in colContainer.renderedColumns track by col.colDef.name" class="ui-grid-cell" ng-class="{\'cell-class-ban\' : row.entity.BLFO_TRACK != null, \'cell-class-pull\' : row.entity.PG_PULLGOODS == true, \'cell-class-special\' : row.entity.SPG_SPECIALGOODS != 0}" ui-grid-cell></div> \
                           </div>',
             enableFiltering: true,
             enableSorting: true,
@@ -306,7 +351,8 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
             if($vm.job001GridApi.selection.getSelectedRows().length > 0){
                 // 取得第一個袋號當併票號
                 var _mergeNo = $vm.job001GridApi.selection.getSelectedRows()[0].IL_BAGNO,
-                    _natureNew = [];
+                    _natureNew = [],
+                    _bagNo = [];
 
                 // 塞入新品名
                 for(var i in $vm.job001GridApi.selection.getSelectedRows()){
@@ -314,6 +360,12 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                     if($vm.job001GridApi.selection.getSelectedRows()[i].IL_NATURE_NEW != null){
                         _natureNew.push($vm.job001GridApi.selection.getSelectedRows()[i].IL_NATURE_NEW);
                     }
+
+                    // 算出袋數 重複不塞入
+                    if($filter('filter')(_bagNo, $vm.job001GridApi.selection.getSelectedRows()[i].IL_BAGNO).length == 0){
+                        _bagNo.push($vm.job001GridApi.selection.getSelectedRows()[i].IL_BAGNO);
+                    }
+
                 }
                 var modalInstance = $uibModal.open({
                     animation: true,
@@ -330,6 +382,9 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                         },
                         natureNew: function() {
                             return _natureNew;
+                        },
+                        bagNo: function(){
+                            return _bagNo;
                         }
                     }
                 });
@@ -570,13 +625,14 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
     };
 
 })
-.controller('MergeNoModalInstanceCtrl', function ($uibModalInstance, mergeNo, natureNew) {
+.controller('MergeNoModalInstanceCtrl', function ($uibModalInstance, mergeNo, natureNew, bagNo) {
     var $ctrl = this;
     $ctrl.natureNew = natureNew;
 
     $ctrl.mdData = {
         mergeNo : mergeNo,
-        natureNew : null
+        natureNew : null,
+        bagNo : bagNo
     };
 
     $ctrl.Init = function(){
@@ -594,6 +650,19 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
 .controller('OPAddBanModalInstanceCtrl', function ($uibModalInstance, vmData) {
     var $ctrl = this;
     $ctrl.mdData = vmData;
+
+    $ctrl.ok = function() {
+        $uibModalInstance.close($ctrl.mdData);
+    };
+
+    $ctrl.cancel = function() {
+        $uibModalInstance.dismiss('cancel');
+    };
+})
+.controller('SpecialGoodsModalInstanceCtrl', function ($uibModalInstance, items, specialGoods) {
+    var $ctrl = this;
+    $ctrl.mdData = items;
+    $ctrl.specialGoodsData = specialGoods;
 
     $ctrl.ok = function() {
         $uibModalInstance.close($ctrl.mdData);

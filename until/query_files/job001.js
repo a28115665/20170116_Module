@@ -5,7 +5,7 @@ module.exports = function(pQueryname, pParams){
 		case "SelectItemList":
 			_SQLCommand += "SELECT BLFO_TRACK, \
 									CASE WHEN PG_SEQ IS NULL THEN 0 ELSE 1 END AS 'PG_PULLGOODS', \
-									CASE WHEN SPG_SEQ IS NULL THEN 0 ELSE 1 END AS 'SPG_SPECIALGOODS', \
+									CASE WHEN SPG_SEQ IS NULL OR SPG_TYPE IS NULL THEN 0 ELSE SPG_TYPE END AS 'SPG_SPECIALGOODS', \
 									PG_MOVED, \
 									ITEM_LIST.* \
 							FROM ITEM_LIST \

@@ -95,6 +95,35 @@ router.put('/crud', function(req, res) {
 });
 
 /**
+ * Restful 插入
+ */
+router.patch('/crud', function(req, res) {
+
+    // console.log("PATCH: ", req.query);
+    dbCommand.UpsertMethod(req.query["upsertname"], req.query["table"], req.query["params"], req.query["condition"], function(err, affected) {
+        if (err) {
+            console.log(err);
+            // Do something with your error...
+            res.status(500).send('插入失敗');
+        } else {
+            res.json({
+                "returnData": affected
+            });
+        }
+    })
+    
+    // session檢核
+    // if(req.session.key === undefined){}
+    // if (Object.keys(req.query).length === 0) {
+    //     res.end();
+    // } else {
+    //     res.json({
+    //         "returnData": req.query
+    //     });
+    // }
+});
+
+/**
  * Restful 刪除
  */
 router.delete('/crud', function(req, res) {

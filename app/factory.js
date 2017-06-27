@@ -22,7 +22,8 @@ angular.module('app')
         CRUD : $resource('/restful/crud', null,
             {
                 'update': { method: 'PUT' },
-                'insert': { method: 'POST'}
+                'upsert': { method: 'PATCH' },
+                'insert': { method: 'POST' }
             }
         ),
         CRUDBYTASK : $resource('/restful/crudByTask'),

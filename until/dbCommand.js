@@ -255,6 +255,104 @@ var UpdateMethod = function (updatetname, table, params, condition, callback){
 }
 
 /**
+ * [UpsertMethod 單筆資料Upsert]
+ * @param {[type]}   upsertname [插入序名稱]
+ * @param {[type]}   table      [資料表名稱]
+ * @param {[type]}   params     [插入參數]
+ * @param {[type]}   condition  [插入條件]
+ * @param {Function} callback   [回拋]
+ */
+var UpsertMethod = function (upsertname, table, params, condition, callback){
+
+	try {
+		var connection = new sql.Connection(setting.MSSQL, function (Error) {  
+		    if (Error) return;
+
+			var ps = new sql.PreparedStatement(connection),
+				_params = typeof params == "string" ? JSON.parse(params) : params,
+				_condition = JSON.parse(condition),
+				_psParams = extend({}, _params, _condition),
+				SQLCommand = "",
+				ParamsValues = [],
+				ParamsSchema = [],
+				ParamsTargetSource = [],
+				ConditionValues = [],
+				ConditionSchema = [],
+				ConditionTarget = [];
+
+		    switch(upsertname){
+				case "Upsert":
+					// 即將更新的值
+					for(var key in _params){
+						if(_params[key] == null){
+							ParamsValues.push("null");
+						}else{
+							ParamsValues.push("@" + key);
+						}
+						ParamsSchema.push(key);
+						ParamsTargetSource.push("TARGET." + key + "= SOURCE." + key);
+					}
+
+					// 條件
+					for(var key in _condition){
+						if(_condition[key] == null){
+							ConditionValues.push("null");
+						}else{
+							ConditionValues.push("@" + key);
+						}
+						ConditionSchema.push(key);
+						ConditionTarget.push("TARGET." + key + "= @" + key);
+					}
+
+					SQLCommand += "MERGE " + tables[table] + " WITH(HOLDLOCK) AS TARGET \
+								   USING (VALUES (" + ParamsValues.join(", ") + ")) \
+								        AS SOURCE (" + ParamsSchema.join(", ") + ") \
+								        ON " + ConditionTarget.join(" and ") + " \
+								   WHEN MATCHED THEN \
+								   		UPDATE \
+								   		SET " + ParamsTargetSource.join(", ") + " \
+								   WHEN NOT MATCHED THEN \
+								   		INSERT (" + ConditionSchema.join(", ") + ", " + ParamsSchema.join(", ") + ") \
+								   		VALUES (" + ConditionValues.join(", ") + ", " + ParamsValues.join(", ") + ");";
+					
+					break;
+				default:
+					return callback("無此UpdateName", null);
+					break;
+			}	    
+			schemaType.SchemaType(_psParams, ps, sql);
+
+			// 執行SQL，並且回傳值
+		    ps.prepare(SQLCommand, function(err) {
+			    // ... error checks
+			    if(err) return; 
+			    
+			    /*
+			    	recordset -> 回傳值
+					affected -> Returns number of affected rows in case of INSERT, UPDATE or DELETE statement.
+			     */
+				ps.execute(_psParams, function(err, recordset, affected) {
+					// console.log(err, recordset, affected);
+					// ... error checks
+					if(err) return; 
+
+					ps.unprepare(function(err) {
+					    // ... error checks
+					    if(err) return callback(err, null);
+
+					    callback(null, affected);  
+					});
+				});
+			});
+
+		});
+	}
+	catch(err) {
+		return callback(err, null);
+	}
+}
+
+/**
  * [DeleteMethod 單筆資料Delete]
  * @param {[type]}   deletename [刪除序名稱]
  * @param {[type]}   table      [資料表名稱]
@@ -340,4 +438,5 @@ function extend(target) {
 module.exports.SelectMethod = SelectMethod;
 module.exports.InsertMethod = InsertMethod;
 module.exports.UpdateMethod = UpdateMethod;
+module.exports.UpsertMethod = UpsertMethod;
 module.exports.DeleteMethod = DeleteMethod;

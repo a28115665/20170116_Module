@@ -137,6 +137,27 @@
 
 </div>
 
+<script type="text/ng-template" id="specialGoodsModalContent.html">
+	<div class="modal-body" id="modal-body">
+	    <form class="form-horizontal" name="specialGoodsForm">
+			<fieldset>
+				<div class="form-group">
+			        <label class="col-md-4 control-label">特貨類型</label>
+			        <div class="col-md-8">
+						<select class="form-control" ng-model="$ctrl.mdData['SPG_TYPE']" ng-options="data.value as data.label for data in $ctrl.specialGoodsData" required>
+							<option value="">--請選擇--</option>
+						</select>
+			    	</div>
+			    </div>
+			</fieldset>
+	    </form>
+	</div>
+	<div class="modal-footer text-center">
+	    <button class="btn btn-primary" type="button" ng-click="$ctrl.ok()" ng-disabled="!specialGoodsForm.$valid">{{getWord('OK')}}</button>
+	    <button class="btn btn-default" type="button" ng-click="$ctrl.cancel()">{{getWord('Cancel')}}</button>
+	</div>
+</script>
+
 <script type="text/ng-template" id="mergeNoModalContent.html">
     <div class="modal-header" ng-init="$ctrl.Init()">
 	    <h3 class="modal-title" id="modal-title">併票</h3>
@@ -175,6 +196,12 @@
 			        <label class="col-md-2 control-label">自訂</label>
 			        <div class="col-md-10">
 			            <input class="form-control" placeholder="請輸入自訂併票號品名" ng-model="$ctrl.mdData.natureNew" type="text">
+			        </div>
+			    </div>
+				<div class="form-group">
+			        <label class="col-md-2 control-label">袋數</label>
+			        <div class="col-md-10">
+			            <span class="form-control" ng-disabled="true">{{$ctrl.mdData.bagNo.length}}</span>
 			        </div>
 			    </div>
 			</fieldset>
