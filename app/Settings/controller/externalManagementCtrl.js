@@ -241,6 +241,9 @@ angular.module('app.settings').controller('ExternalManagementCtrl', function ($s
                         if(res["returnData"] == 1){
                             LoadCompyInfo();
 
+                            // 新增成功後，更新compy的值
+                            $filter('compyFilter')({}, true);
+
                             toaster.pop('success', '訊息', '新增行家成功', 3000);
                         }
 

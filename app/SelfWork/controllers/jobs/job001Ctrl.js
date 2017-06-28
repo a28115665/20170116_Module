@@ -9,24 +9,24 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
     angular.extend(this, {
         Init : function(){
             // 不正常登入此頁面
-            // if($stateParams.data == null){
-            //     ReturnToEmployeejobsPage();
-            // }else{
+            if($stateParams.data == null){
+                ReturnToEmployeejobsPage();
+            }else{
 
                 $vm.bigBreadcrumbsItems = $state.current.name.split(".");
                 $vm.bigBreadcrumbsItems.shift();
 
-                // $vm.vmData = $stateParams.data;
+                $vm.vmData = $stateParams.data;
 
                 // 測試用
-                if($vm.vmData == null){
-                    $vm.vmData = {
-                        OL_SEQ : 'AdminTest20170525190758'
-                    };
-                }
+                // if($vm.vmData == null){
+                //     $vm.vmData = {
+                //         OL_SEQ : 'AdminTest20170525190758'
+                //     };
+                // }
                 
                 LoadItemList();
-            // }
+            }
         },
         profile : Session.Get(),
         gridMethod : {
@@ -199,50 +199,6 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
             // 特貨
             specialGoods : function(row){
                 console.log(row);
-                // var modalInstance = $uibModal.open({
-                //     animation: true,
-                //     ariaLabelledBy: 'modal-title',
-                //     ariaDescribedBy: 'modal-body',
-                //     template: $templateCache.get('isChecked'),
-                //     controller: 'IsCheckedModalInstanceCtrl',
-                //     controllerAs: '$ctrl',
-                //     size: 'sm',
-                //     windowClass: 'center-modal',
-                //     // appendTo: parentElem,
-                //     resolve: {
-                //         items: function() {
-                //             return row.entity;
-                //         },
-                //         show: function(){
-                //             return {
-                //                 title : "是否特貨"
-                //             };
-                //         }
-                //     }
-                // });
-
-                // modalInstance.result.then(function(selectedItem) {
-                //     // $ctrl.selected = selectedItem;
-                //     console.log(selectedItem);
-                //     RestfulApi.InsertMSSQLData({
-                //         insertname: 'Insert',
-                //         table: 20,
-                //         params: {
-                //             SPG_SEQ         : selectedItem.IL_SEQ,
-                //             SPG_NEWBAGNO    : selectedItem.IL_NEWBAGNO,
-                //             SPG_NEWSMALLNO  : selectedItem.IL_NEWSMALLNO,
-                //             SPG_ORDERINDEX  : selectedItem.IL_ORDERINDEX,
-                //             SPG_CR_USER     : $vm.profile.U_ID,
-                //             SPG_CR_DATETIME : $filter('date')(new Date, 'yyyy-MM-dd HH:mm:ss')
-                //         }
-                //     }).then(function(res) {
-                //         // 加入後需要Disabled
-                //         row.entity.SPG_SPECIALGOODS = true;
-                //     });
-
-                // }, function() {
-                //     // $log.info('Modal dismissed at: ' + new Date());
-                // });
                 
                 var modalInstance = $uibModal.open({
                     animation: true,
