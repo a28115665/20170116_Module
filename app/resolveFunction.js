@@ -44,7 +44,7 @@ function CompyResolve (RestfulApi, $q){
             
             RestfulApi.SearchMSSQLData({
                 querymain: 'externalManagement',
-                queryname: 'SelectCompyInfo',
+                queryname: 'SelectCompyInfo2',
                 params: {
                     CO_STS : false
                 }
@@ -53,9 +53,15 @@ function CompyResolve (RestfulApi, $q){
                     finalData = [];
 
                 for(var i in data){
+                    // finalData.push({
+                    //     value: data[i].CO_CODE,
+                    //     label: data[i].CO_NAME
+                    // });
+                    
+                    // 使用者要求方便觀看
                     finalData.push({
                         value: data[i].CO_CODE,
-                        label: data[i].CO_NAME
+                        label: '[' + data[i].CO_CODE +'] ' + data[i].CO_NAME
                     });
                 }
                 

@@ -1,6 +1,6 @@
 "use strict";
 
-angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, RestfulApi, $filter, uiGridConstants, compy, $window) {
+angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, RestfulApi, $filter, uiGridConstants, compy, $window, ToolboxApi) {
     
     var $vm = this;
 
@@ -146,6 +146,15 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
             // 寄信
             sendMail : function(row){
                 console.log(row);
+
+                // ToolboxApi.SendMail({
+                //     // ID : $vm.profile.U_ID,
+                //     // PW : $vm.profile.U_PW,
+                //     // NATURE : row.entity.IL_NATURE
+                // }).then(function (res) {
+                //     console.log(res["returnData"]);
+
+                // });
             },
             // 貨物查看
             viewOrder : function(row){

@@ -230,6 +230,21 @@ angular.module('app')
 	    return deferred.promise
 	},
 
+	this.SendMail = function (dataSrc) {
+	    // console.log(dataSrc);
+	    var deferred = $q.defer();
+
+	    Resource.SENDMAIL.get(dataSrc,
+	    	function (pSResponse){
+				deferred.resolve(pSResponse);
+			},
+	    	function (pFResponse){
+	    		deferred.reject(pFResponse.data);
+	    	});
+
+	    return deferred.promise
+	},
+
 	this.ChangeNature = function (dataSrc) {
 	    // console.log(dataSrc);
 	    var deferred = $q.defer();

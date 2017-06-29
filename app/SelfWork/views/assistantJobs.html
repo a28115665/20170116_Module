@@ -204,13 +204,19 @@
 				<div class="form-group">
 			        <label class="col-md-2 control-label">航班</label>
 			        <div class="col-md-10">
-			            <input class="form-control" name="OL_FLIGHTNO" placeholder="請輸入航班(改)" ng-model="$ctrl.mdData.PG_FLIGHTNO" type="text" required>
+			            <input class="form-control" name="PG_FLIGHTNO" placeholder="請輸入航班(改)" ng-model="$ctrl.mdData.PG_FLIGHTNO" type="text" required>
 			        </div>
 			    </div>
 				<div class="form-group">
 			        <label class="col-md-2 control-label">主號</label>
 			        <div class="col-md-10">
-			            <input class="form-control" name="OL_MASTER" placeholder="請輸入主號(改)" ng-model="$ctrl.mdData.PG_MASTER" type="text" required>
+			            <input class="form-control" name="PG_MASTER" placeholder="請輸入主號(改)" ng-model="$ctrl.mdData.PG_MASTER" type="text" required>
+			        </div>
+			    </div>
+				<div class="form-group">
+			        <label class="col-md-2 control-label">拉貨原因</label>
+			        <div class="col-md-10">
+			            <textarea class="form-control" rows="3" name="PG_REASON" ng-model="$ctrl.mdData.PG_REASON" style="resize: none; " ng-disabled="true"></textarea>
 			        </div>
 			    </div>
 			</fieldset>

@@ -69,6 +69,7 @@ angular.module('app')
                 }
             }
         ),
+        SENDMAIL : $resource('/toolbox/sendMail'),
         CHANGENATURE : $resource('/toolbox/changeNature'),
         COMPOSEMENU : $resource('/toolbox/composeMenu')
     };

@@ -8,6 +8,7 @@ var templates = require('../templates/templates.json');
 var archiver = require('archiver');
 var http = require('http');
 const querystring = require('querystring');
+const nodemailer = require('nodemailer');
 
 var dateFormat = require('dateformat');
 
@@ -243,6 +244,62 @@ router.get('/downloadFiles', function(req, res) {
         res.status(500).send('下載失敗');
     }
 
+});
+
+/**
+ * SendMail 寄信
+ */
+router.get('/sendMail', function(req, res) {
+
+    // 取得帳號密碼
+    var post_data = querystring.stringify({
+        querymain : 'aviationMail',
+        queryname : 'SelectMailAccount',
+        params : JSON.stringify({
+            MA_USER : 'a28115665@gmail.com'
+        })
+    });
+    
+    var post_options = {
+        host: '127.0.0.1',
+        port: setting.NodeJs.port,
+        path: '/restful/crud?' + post_data,
+        method: 'GET'
+    };
+
+    // Set up the request
+    var post_req = http.request(post_options, function (post_res) {
+
+        // console.log("statusCode: ", post_res.statusCode);
+        //console.log("headers: ", post_res.headers);
+        if(post_res.statusCode == 200){
+            var content = '';
+
+            post_res.setEncoding('utf8');
+
+            post_res.on('data', function(chunk) {
+                content += chunk;
+            });
+
+            post_res.on('end', function() {
+                var account = JSON.parse(content).returnData;
+                // console.log(account);
+
+                res.json({
+                    "returnData": "ok"
+                });
+            });
+        }else{
+            res.status(post_res.statusCode).send('寄信失敗');
+        }
+    });
+
+    post_req.on('error', function(err) {
+        // Handle error
+        res.status(500).send('寄信失敗');
+    });
+
+    post_req.end(); 
 });
 
 /**

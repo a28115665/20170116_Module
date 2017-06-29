@@ -12,7 +12,8 @@ module.exports = function(pQueryname, pParams){
 								   PG_BAGNO, \
 								   PG_MOVED, \
 								   PG_MASTER, \
-								   PG_FLIGHTNO \
+								   PG_FLIGHTNO, \
+								   PG_REASON \
 							FROM ORDER_LIST \
 							JOIN PULL_GOODS ON \
 							PG_SEQ = OL_SEQ \

@@ -109,6 +109,9 @@ var InsertRequestWithTransaction = function(task, args, callback) {
 			if(SQLCommand.match(/@CI_PW/gi)){
 				SQLCommand = SQLCommand.replace(/@CI_PW/gi, 'dbo.Encrypt(@CI_PW)');
 			}
+			if(SQLCommand.match(/@MA_PASS/gi)){
+				SQLCommand = SQLCommand.replace(/@CI_PW/gi, 'dbo.Encrypt(@CI_PW)');
+			}
 			
 			break;
 		default:

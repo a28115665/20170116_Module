@@ -32,6 +32,7 @@
     "mkdirp": "^0.5.1",
     "moment": "^2.18.1",
     "mssql": "^3.3.0",
+    "nodemailer": "^4.0.1",
     "xlsx-template": "0.0.7"
   }
 }

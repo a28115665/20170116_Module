@@ -147,7 +147,7 @@ angular.module('app')
 	function LoadData(){
 		Compy.get().then(function (res){
 			for(var i in res){
-				resData[res[i].value] = res[i].label;
+				resData[res[i].value] = res[i].label.split(' ')[1];
 			}
 		});
 	}

@@ -9,9 +9,9 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
     angular.extend(this, {
         Init : function(){
             // 不正常登入此頁面
-            if($stateParams.data == null){
-                ReturnToEmployeejobsPage();
-            }else{
+            // if($stateParams.data == null){
+            //     ReturnToEmployeejobsPage();
+            // }else{
 
                 $vm.bigBreadcrumbsItems = $state.current.name.split(".");
                 $vm.bigBreadcrumbsItems.shift();
@@ -19,14 +19,14 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                 $vm.vmData = $stateParams.data;
 
                 // 測試用
-                // if($vm.vmData == null){
-                //     $vm.vmData = {
-                //         OL_SEQ : 'AdminTest20170525190758'
-                //     };
-                // }
+                if($vm.vmData == null){
+                    $vm.vmData = {
+                        OL_SEQ : 'AdminTest20170525190758'
+                    };
+                }
                 
                 LoadItemList();
-            }
+            // }
         },
         profile : Session.Get(),
         gridMethod : {
@@ -106,31 +106,25 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
             // 拉貨
             pullGoods : function(row){
                 console.log(row.entity);
+
                 var modalInstance = $uibModal.open({
                     animation: true,
                     ariaLabelledBy: 'modal-title',
                     ariaDescribedBy: 'modal-body',
-                    template: $templateCache.get('isChecked'),
-                    controller: 'IsCheckedModalInstanceCtrl',
+                    templateUrl: 'pullGoodsModalContent.html',
+                    controller: 'PullGoodsModalInstanceCtrl',
                     controllerAs: '$ctrl',
-                    size: 'sm',
-                    windowClass: 'center-modal',
+                    // size: 'lg',
                     // appendTo: parentElem,
                     resolve: {
-                        items: function() {
+                        vmData: function() {
                             return row.entity;
-                        },
-                        show: function(){
-                            return {
-                                title : "是否拉貨"
-                            };
                         }
                     }
                 });
 
                 modalInstance.result.then(function(selectedItem) {
-                    // $ctrl.selected = selectedItem;
-                    console.log(selectedItem);
+                    // console.log(selectedItem);
                     
                     RestfulApi.InsertMSSQLData({
                         insertname: 'Insert',
@@ -138,6 +132,7 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                         params: {
                             PG_SEQ         : selectedItem.IL_SEQ,
                             PG_BAGNO       : selectedItem.IL_BAGNO,
+                            PG_REASON      : selectedItem.PG_REASON,
                             PG_CR_USER     : $vm.profile.U_ID,
                             PG_CR_DATETIME : $filter('date')(new Date, 'yyyy-MM-dd HH:mm:ss')
                         }
@@ -262,8 +257,6 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                 { name: 'IL_NEWPLACE'   , displayName: '新產地', width: 115, headerCellClass: 'text-primary' },
                 { name: 'IL_WEIGHT'     , displayName: '重量', width: 115, enableCellEdit: false },
                 { name: 'IL_WEIGHT_NEW' , displayName: '新重量', width: 115, headerCellClass: 'text-primary' },
-                { name: 'IL_PCS'        , displayName: '數量', width: 115, enableCellEdit: false },
-                { name: 'IL_NEWPCS'     , displayName: '新數量', width: 115, headerCellClass: 'text-primary' },
                 { name: 'IL_UNIT'       , displayName: '單位', width: 115, enableCellEdit: false },
                 { name: 'IL_NEWUNIT'    , displayName: '新單位', width: 115, headerCellClass: 'text-primary' },
                 { name: 'IL_GETNO'      , displayName: '收件者統編', width: 115, headerCellClass: 'text-primary' },
@@ -272,6 +265,8 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                 { name: 'IL_GETNAME'    , displayName: '收件人公司', width: 115, headerCellClass: 'text-primary' },
                 { name: 'IL_GETADDRESS' , displayName: '收件地址', width: 300, headerCellClass: 'text-primary' },
                 { name: 'IL_GETTEL'     , displayName: '收件電話', width: 115, headerCellClass: 'text-primary' },
+                { name: 'IL_PCS'        , displayName: '數量', width: 115, enableCellEdit: false },
+                { name: 'IL_NEWPCS'     , displayName: '新數量', width: 115, headerCellClass: 'text-primary' },
                 { name: 'IL_UNIVALENT'  , displayName: '單價', width: 115, enableCellEdit: false },
                 { name: 'IL_UNIVALENT_NEW', displayName: '新單價', width: 115, headerCellClass: 'text-primary' },
                 { name: 'IL_FINALCOST'  , displayName: '完稅價格', width: 115, headerCellClass: 'text-primary' },
@@ -299,6 +294,75 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                 $vm.job001GridApi = gridApi;
 
                 gridApi.rowEdit.on.saveRow($scope, $vm.Update);
+
+                gridApi.edit.on.afterCellEdit($scope, function(rowEntity, colDef, newValue, oldValue){
+
+                    var _univalent = parseInt(rowEntity.IL_UNIVALENT_NEW),
+                        _pcs = parseInt(rowEntity.IL_NEWPCS),
+                        _finalcost = parseInt(rowEntity.IL_FINALCOST),
+                        start = 0;
+
+                    if(!isNaN(_univalent)){
+                        start += 1;
+                    }
+                    if(!isNaN(_pcs)){
+                        start += 1;
+                    }
+                    if(!isNaN(_finalcost)){
+                        start += 1;
+                    }
+
+                    // 表示可以開始計算
+                    if(start >= 2){
+                        // 新單價
+                        if(colDef.name == 'IL_UNIVALENT_NEW'){
+                            //如果數量有值
+                            if(!isNaN(_pcs)){
+                                _finalcost = _pcs * _univalent;
+                            }
+                        }
+
+                        // 新數量
+                        if(colDef.name == 'IL_NEWPCS'){
+                            if(!isNaN(_univalent)){
+                                _finalcost = _pcs * _univalent;
+                            }
+                        }
+
+                        // 當完稅價格小於100
+                        if(_finalcost < 100){
+                            // 給個新值 100~125
+                            var maxNum = 125;  
+                            var minNum = 100;  
+                            _finalcost = Math.floor(Math.random() * (maxNum - minNum + 1)) + minNum; 
+                        }
+
+                        // 當完稅價格超過1500 提醒使用者
+                        if(_finalcost > 1500){
+                            toaster.pop('warning', '警告', '完稅價格超過1500元，請注意', 3000);
+                        }
+                        
+                        // 當數量不為空 帶出單價
+                        if(!isNaN(_pcs)){
+                            _univalent = Math.round(_finalcost / _pcs);
+                        }
+
+                        // 完稅價格
+                        if(colDef.name == 'IL_FINALCOST'){
+                            // 避免帳不平 再次計算完稅價格
+                            if(!isNaN(_pcs) && !isNaN(_univalent)){
+                                _finalcost = _pcs * _univalent;
+                            }
+                        }
+                    }
+
+                    // console.log("_univalent:", _univalent," _pcs:" , _pcs," _finalcost:" , _finalcost);
+                    rowEntity.IL_UNIVALENT_NEW = isNaN(_univalent) ? null : _univalent;
+                    rowEntity.IL_NEWPCS = isNaN(_pcs) ? null : _pcs;
+                    rowEntity.IL_FINALCOST = isNaN(_finalcost) ? null : _finalcost;
+
+                    // console.log('edited row id:' + rowEntity.Index + ' Column:' + colDef.name + ' newValue:' + newValue + ' oldValue:' + oldValue);
+                });
             }
         },
         // 併票
@@ -378,25 +442,65 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
         },
         ExportExcel: function(){
             console.log($vm.vmData);
-            var _exportName = $filter('date')($vm.vmData.OL_IMPORTDT, 'yyyyMMdd') + ' ' + 
-                              $filter('compyFilter')($vm.vmData.OL_CO_CODE) + ' ' + 
-                              $vm.vmData.OL_FLIGHTNO + ' ' +
-                              $vm.vmData.OL_COUNT + '袋';
 
-            ToolboxApi.ExportExcelBySql({
-                templates : 0,
-                filename : _exportName,
-                querymain: 'job001',
-                queryname: 'SelectItemList',
-                params: {
-                    OL_MASTER : $vm.vmData.OL_MASTER,
-                    OL_IMPORTDT : $filter('date')($vm.vmData.OL_IMPORTDT, 'yyyy-MM-dd'),
-                    OL_FLIGHTNO : $vm.vmData.OL_FLIGHTNO,
-                    OL_COUNTRY : $vm.vmData.OL_COUNTRY,                
-                    IL_SEQ : $vm.vmData.OL_SEQ
+            var modalInstance = $uibModal.open({
+                animation: true,
+                ariaLabelledBy: 'modal-title',
+                ariaDescribedBy: 'modal-body',
+                templateUrl: 'excelMenu.html',
+                controller: 'ExcelMenuModalInstanceCtrl',
+                controllerAs: '$ctrl',
+                // scope: $scope,
+                size: 'sm',
+                // windowClass: 'center-modal',
+                // appendTo: parentElem
+            });
+
+            modalInstance.result.then(function(selectedItem) {
+                // $ctrl.selected = selectedItem;
+                console.log(selectedItem);
+
+                var _exportName = $filter('date')($vm.vmData.OL_IMPORTDT, 'yyyyMMdd') + ' ' + 
+                                  $filter('compyFilter')($vm.vmData.OL_CO_CODE) + ' ' + 
+                                  $vm.vmData.OL_FLIGHTNO + ' ' +
+                                  $vm.vmData.OL_COUNT + '袋',
+                    _queryname = null;
+
+                switch(selectedItem){
+                    case "0":
+                        _queryname = "SelectItemListForEx0";
+                        break;
+                    case "8":
+                        _queryname = "SelectItemListForEx8";
+                        break;
+                    case "9":
+                        _queryname = "SelectItemListForEx0";
+                        break;
+                    case "10":
+                        _queryname = "SelectItemListForEx8";
+                        break;
                 }
-            }).then(function (res) {
-                // console.log(res);
+
+                if(_queryname != null){
+                    ToolboxApi.ExportExcelBySql({
+                        templates : selectedItem,
+                        filename : _exportName,
+                        querymain: 'job001',
+                        queryname: _queryname,
+                        params: {
+                            OL_MASTER : $vm.vmData.OL_MASTER,
+                            OL_IMPORTDT : $filter('date')($vm.vmData.OL_IMPORTDT, 'yyyy-MM-dd'),
+                            OL_FLIGHTNO : $vm.vmData.OL_FLIGHTNO,
+                            OL_COUNTRY : $vm.vmData.OL_COUNTRY,                
+                            IL_SEQ : $vm.vmData.OL_SEQ
+                        }
+                    }).then(function (res) {
+                        // console.log(res);
+                    });
+                }
+
+            }, function() {
+                // $log.info('Modal dismissed at: ' + new Date());
             });
         },
         // 顯示併票結果
@@ -581,6 +685,17 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
     };
 
 })
+.controller('ExcelMenuModalInstanceCtrl', function ($uibModalInstance) {
+    var $ctrl = this;
+    
+    $ctrl.ok = function(pType) {
+        $uibModalInstance.close(pType);
+    };
+
+    $ctrl.cancel = function() {
+        $uibModalInstance.dismiss('cancel');
+    };
+})
 .controller('MergeNoModalInstanceCtrl', function ($uibModalInstance, mergeNo, natureNew, bagNo) {
     var $ctrl = this;
     $ctrl.natureNew = natureNew;
@@ -604,6 +719,18 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
     };
 })
 .controller('OPAddBanModalInstanceCtrl', function ($uibModalInstance, vmData) {
+    var $ctrl = this;
+    $ctrl.mdData = vmData;
+
+    $ctrl.ok = function() {
+        $uibModalInstance.close($ctrl.mdData);
+    };
+
+    $ctrl.cancel = function() {
+        $uibModalInstance.dismiss('cancel');
+    };
+})
+.controller('PullGoodsModalInstanceCtrl', function ($uibModalInstance, vmData) {
     var $ctrl = this;
     $ctrl.mdData = vmData;
 
