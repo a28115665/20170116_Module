@@ -503,6 +503,27 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                 // $log.info('Modal dismissed at: ' + new Date());
             });
         },
+        // 匯出班機表欄位
+        ExportAirportSchema : function(){
+            var _exportName = $filter('date')($vm.vmData.OL_IMPORTDT, 'yyyyMMdd') + ' ' + 
+                              $filter('compyFilter')($vm.vmData.OL_CO_CODE) + ' 班機表欄位';
+
+            ToolboxApi.ExportExcelBySql({
+                templates : 11,
+                filename : _exportName,
+                querymain: 'job001',
+                queryname: 'SelectItemList',
+                params: {
+                    OL_MASTER : $vm.vmData.OL_MASTER,
+                    OL_IMPORTDT : $filter('date')($vm.vmData.OL_IMPORTDT, 'yyyy-MM-dd'),
+                    OL_FLIGHTNO : $vm.vmData.OL_FLIGHTNO,
+                    OL_COUNTRY : $vm.vmData.OL_COUNTRY,                
+                    IL_SEQ : $vm.vmData.OL_SEQ
+                }
+            }).then(function (res) {
+                // console.log(res);
+            });
+        },
         // 顯示併票結果
         MergeNoResult : function(){
             var modalInstance = $uibModal.open({
