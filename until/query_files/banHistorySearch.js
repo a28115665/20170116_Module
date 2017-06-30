@@ -313,7 +313,19 @@ function CaseD(pParams){
 
 function Conditions(pParams, pDelete){
 	var _SQLCommand = "";
-
+						
+	if(pParams["CRDT_FROM"] !== undefined){
+		_SQLCommand += " AND OL_CR_DATETIME >= '" + pParams["CRDT_FROM"] + "'";
+		if(pDelete){
+			delete pParams["CRDT_FROM"];
+		}
+	}
+	if(pParams["CRDT_TOXX"] !== undefined){
+		_SQLCommand += " AND OL_CR_DATETIME <= '" + pParams["CRDT_TOXX"] + "'";
+		if(pDelete){
+			delete pParams["CRDT_TOXX"];
+		}
+	}
 	if(pParams["IMPORTDT_FROM"] !== undefined){
 		_SQLCommand += " AND OL_IMPORTDT >= '" + pParams["IMPORTDT_FROM"] + "'";
 		if(pDelete){

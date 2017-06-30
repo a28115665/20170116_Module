@@ -135,7 +135,13 @@ angular.module('app.selfwork').controller('LeaderHistorySearchCtrl', function ($
 
         for(var i in pObject){
             if(pObject[i] != ""){
-                _conditions[i] = pObject[i];
+                if(i == "CRDT_FROM"){
+                    _conditions[i] = pObject[i] + ' 00:00:00';
+                }else if(i == "CRDT_TOXX"){
+                    _conditions[i] = pObject[i] + ' 23:59:59';
+                }else{
+                    _conditions[i] = pObject[i];
+                }
             }
         }
 

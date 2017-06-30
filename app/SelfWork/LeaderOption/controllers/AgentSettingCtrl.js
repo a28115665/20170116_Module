@@ -1,6 +1,6 @@
 "use strict";
 
-angular.module('app.selfwork.leaderoption').controller('AgentSettingCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, $filter, uiGridConstants, RestfulApi, userInfoByCompyDistribution, compy, $q, uiGridGroupingConstants) {
+angular.module('app.selfwork.leaderoption').controller('AgentSettingCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, $filter, uiGridConstants, RestfulApi, userInfoByCompyDistribution, compy, $q, uiGridGroupingConstants, coWeights) {
     
     var $vm = this;
 
@@ -36,6 +36,13 @@ angular.module('app.selfwork.leaderoption').controller('AgentSettingCtrl', funct
                     treeAggregationType: uiGridGroupingConstants.aggregation.COUNT, 
                     customTreeAggregationFinalizerFn: function( aggregation ) {
                         aggregation.rendered = aggregation.value;
+                    }
+                },
+                { name: 'CO_WEIGHTS',  displayName: '權重', cellFilter: 'coWeightsFilter', filter: 
+                    {
+                        term: null,
+                        type: uiGridConstants.filter.SELECT,
+                        selectOptions: coWeights
                     }
                 },
                 { name: 'AGENT_COUNT'   ,  displayName: '代理人數' , treeAggregationType: uiGridGroupingConstants.aggregation.SUM, 

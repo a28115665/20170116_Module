@@ -125,6 +125,39 @@ angular.module('app')
 	return FilterFunction;
 
 })
+.filter('coWeightsFilter', function (SysCode) {
+
+	var resData = {};
+
+	LoadData();
+
+	var FilterFunction = function (input, isLoad){
+		if(isLoad){
+			LoadData();
+		}
+
+		if (!input) {
+		    return '';
+		} else {
+		    return angular.isUndefined(resData[input]) ? input : resData[input];
+		}
+
+	};
+	
+	function LoadData(){
+		SysCode.get('CoWeights').then(function (res){
+			for(var i in res){
+				resData[res[i].value] = res[i].label;
+			}
+		});
+	}
+
+	// 持續偵測
+	FilterFunction.$stateful = true;
+
+	return FilterFunction;
+
+})
 .filter('compyFilter', function (Compy) {
 
 	var resData = {};

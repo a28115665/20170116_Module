@@ -46,6 +46,14 @@ module.exports = function(pQueryname, pParams){
 							LEFT JOIN ORDER_EDITOR W1_OE ON W1_OE.OE_SEQ = ORDER_LIST.OL_SEQ AND W1_OE.OE_TYPE = 'D' AND (W1_OE.OE_EDATETIME IS NOT NULL OR W1_OE.OE_FDATETIME IS NOT NULL) \
 							WHERE 1=1 ";
 						
+			if(pParams["CRDT_FROM"] !== undefined){
+				_SQLCommand += " AND OL_CR_DATETIME >= '" + pParams["CRDT_FROM"] + "'";
+				delete pParams["CRDT_FROM"];
+			}
+			if(pParams["CRDT_TOXX"] !== undefined){
+				_SQLCommand += " AND OL_CR_DATETIME <= '" + pParams["CRDT_TOXX"] + "'";
+				delete pParams["CRDT_TOXX"];
+			}						
 			if(pParams["IMPORTDT_FROM"] !== undefined){
 				_SQLCommand += " AND OL_IMPORTDT >= '" + pParams["IMPORTDT_FROM"] + "'";
 				delete pParams["IMPORTDT_FROM"];

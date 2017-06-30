@@ -154,12 +154,6 @@
             <button type="button" class="btn btn-info btn-lg btn-block" ng-click="$ctrl.ok('8')"> 
                 介宏格式 
             </button> 
-            <button type="button" class="btn btn-info btn-lg btn-block" ng-click="$ctrl.ok('9')"> 
-                關貿格式(含特貨) 
-            </button> 
-            <button type="button" class="btn btn-info btn-lg btn-block" ng-click="$ctrl.ok('10')"> 
-                介宏格式(含特貨)  
-            </button> 
         </div> 
 	</div>
 </script>
@@ -188,13 +182,13 @@
 </script>
 
 <script type="text/ng-template" id="specialGoodsModalContent.html">
-	<div class="modal-body" id="modal-body">
+	<div class="modal-body" id="modal-body" ng-init="$ctrl.Init()">
 	    <form class="form-horizontal" name="specialGoodsForm">
 			<fieldset>
 				<div class="form-group">
 			        <label class="col-md-4 control-label">特貨類型</label>
 			        <div class="col-md-8">
-						<select class="form-control" ng-model="$ctrl.mdData['SPG_TYPE']" ng-options="data.value as data.label for data in $ctrl.specialGoodsData" required>
+						<select class="form-control" ng-model="$ctrl.mdData['SPG_TYPE']" ng-options="data.value as data.label for data in $ctrl.specialGoodsData">
 							<option value="">--請選擇--</option>
 						</select>
 			    	</div>

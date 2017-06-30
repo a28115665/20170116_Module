@@ -3031,6 +3031,9 @@ angular.module('app.selfwork.leaderoption').config(function ($stateProvider){
                     },
                     compy : function(Compy){
                         return Compy.get();
+                    },
+                    coWeights: function (SysCode){
+                        return SysCode.get('CoWeights');
                     }
                 }
             }
@@ -3053,6 +3056,9 @@ angular.module('app.selfwork.leaderoption').config(function ($stateProvider){
                     },
                     compy : function(Compy){
                         return Compy.get();
+                    },
+                    coWeights: function (SysCode){
+                        return SysCode.get('CoWeights');
                     }
                 }
             }
@@ -3593,6 +3599,39 @@ angular.module('app')
 	
 	function LoadData(){
 		SysCode.get('IOType').then(function (res){
+			for(var i in res){
+				resData[res[i].value] = res[i].label;
+			}
+		});
+	}
+
+	// 持續偵測
+	FilterFunction.$stateful = true;
+
+	return FilterFunction;
+
+})
+.filter('coWeightsFilter', function (SysCode) {
+
+	var resData = {};
+
+	LoadData();
+
+	var FilterFunction = function (input, isLoad){
+		if(isLoad){
+			LoadData();
+		}
+
+		if (!input) {
+		    return '';
+		} else {
+		    return angular.isUndefined(resData[input]) ? input : resData[input];
+		}
+
+	};
+	
+	function LoadData(){
+		SysCode.get('CoWeights').then(function (res){
 			for(var i in res){
 				resData[res[i].value] = res[i].label;
 			}
@@ -4429,9 +4468,9 @@ angular.module('app')
                         <a href="javascript:void(0);" class="btn btn-primary btn-xs" ng-click="grid.appScope.$vm.gridMethod.pullGoods(row)" ng-class="row.entity.PG_PULLGOODS ? \'disabled\' : \'\'"> 拉貨</a>\
                         <!--<a href="javascript:void(0);" class="btn btn-primary btn-xs" ng-click="grid.appScope.$vm.gridMethod.cancelPullGoods(row)" ng-show="row.entity.PG_PULLGOODS && !row.entity.PG_MOVED"> 恢復</a>-->\
                         <!--<a href="javascript:void(0);" class="btn btn-success btn-xs" ng-click="grid.appScope.$vm.gridMethod.specialGoods(row)" ng-class="row.entity.SPG_SPECIALGOODS != 0 ? \'disabled\' : \'\'"> 特貨</a>-->\
-                        <a href="javascript:void(0);" class="btn btn-success btn-xs" ng-click="grid.appScope.$vm.gridMethod.specialGoods(row)" ng-show="row.entity.SPG_SPECIALGOODS == 0"> 特貨</a>\
-                        <span class="text-success" ng-show="row.entity.SPG_SPECIALGOODS == 1"> 普特貨</span>\
-                        <span class="text-success" ng-show="row.entity.SPG_SPECIALGOODS == 2"> 特特貨</span>\
+                        <a href="javascript:void(0);" class="btn btn-default btn-xs" ng-click="grid.appScope.$vm.gridMethod.specialGoods(row)" ng-show="row.entity.SPG_SPECIALGOODS == 0"> 特貨</a>\
+                        <a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethod.specialGoods(row)" ng-show="row.entity.SPG_SPECIALGOODS == 1"> 普特貨</a>\
+                        <a href="javascript:void(0);" class="btn btn-success btn-xs" ng-click="grid.appScope.$vm.gridMethod.specialGoods(row)" ng-show="row.entity.SPG_SPECIALGOODS == 2"> 特特貨</a>\
    		  		    </div>');
     $templateCache.put('accessibilityToMForBLFO', '<div class="ui-grid-cell-contents text-center">\
                                             <a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethodForBLFO.modifyData(row)"> {{$parent.$root.getWord(\'Modify\')}}</a>\
@@ -6161,7 +6200,13 @@ angular.module('app.concerns').controller('BanHistorySearchCtrl', function ($sco
 
         for(var i in pObject){
             if(pObject[i] != ""){
-                _conditions[i] = pObject[i];
+                if(i == "CRDT_FROM"){
+                    _conditions[i] = pObject[i] + ' 00:00:00';
+                }else if(i == "CRDT_TOXX"){
+                    _conditions[i] = pObject[i] + ' 23:59:59';
+                }else{
+                    _conditions[i] = pObject[i];
+                }
             }
         }
 
@@ -8340,7 +8385,13 @@ angular.module('app.selfwork').controller('AssistantHistorySearchCtrl', function
 
         for(var i in pObject){
             if(pObject[i] != ""){
-                _conditions[i] = pObject[i];
+                if(i == "CRDT_FROM"){
+                    _conditions[i] = pObject[i] + ' 00:00:00';
+                }else if(i == "CRDT_TOXX"){
+                    _conditions[i] = pObject[i] + ' 23:59:59';
+                }else{
+                    _conditions[i] = pObject[i];
+                }
             }
         }
 
@@ -8989,7 +9040,13 @@ angular.module('app.selfwork').controller('DeliveryHistorySearchCtrl', function 
 
         for(var i in pObject){
             if(pObject[i] != ""){
-                _conditions[i] = pObject[i];
+                if(i == "CRDT_FROM"){
+                    _conditions[i] = pObject[i] + ' 00:00:00';
+                }else if(i == "CRDT_TOXX"){
+                    _conditions[i] = pObject[i] + ' 23:59:59';
+                }else{
+                    _conditions[i] = pObject[i];
+                }
             }
         }
 
@@ -9496,7 +9553,13 @@ angular.module('app.selfwork').controller('EmployeeHistorySearchCtrl', function 
 
         for(var i in pObject){
             if(pObject[i] != ""){
-                _conditions[i] = pObject[i];
+                if(i == "CRDT_FROM"){
+                    _conditions[i] = pObject[i] + ' 00:00:00';
+                }else if(i == "CRDT_TOXX"){
+                    _conditions[i] = pObject[i] + ' 23:59:59';
+                }else{
+                    _conditions[i] = pObject[i];
+                }
             }
         }
 
@@ -9517,6 +9580,7 @@ angular.module('app.selfwork').controller('EmployeeHistorySearchCtrl', function 
 angular.module('app.selfwork').controller('EmployeeJobsCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, $filter, uiGridConstants, RestfulApi, compy, $q) {
     
     var $vm = this;
+    console.log(Session.Get());
 
 	angular.extend(this, {
         Init : function(){
@@ -9605,54 +9669,16 @@ angular.module('app.selfwork').controller('EmployeeJobsCtrl', function ($scope, 
             }
         },
         gridMethodForJob001 : {
-            //退件
-            // rejectData : function(row){
-            //     console.log(row);
+            // 檢視(組長職位以上)
+            viewData : function(row){
+                console.log(row);
 
-            //     var modalInstance = $uibModal.open({
-            //         animation: true,
-            //         ariaLabelledBy: 'modal-title',
-            //         ariaDescribedBy: 'modal-body',
-            //         template: $templateCache.get('isChecked'),
-            //         controller: 'IsCheckedModalInstanceCtrl',
-            //         controllerAs: '$ctrl',
-            //         size: 'sm',
-            //         windowClass: 'center-modal',
-            //         // appendTo: parentElem,
-            //         resolve: {
-            //             items: function() {
-            //                 return row.entity;
-            //             },
-            //             show: function(){
-            //                 return {
-            //                     title : "是否退單"
-            //                 }
-            //             }
-            //         }
-            //     });
-
-            //     modalInstance.result.then(function(selectedItem) {
-            //         // $ctrl.selected = selectedItem;
-            //         console.log(selectedItem);
-                    
-            //         // RestfulApi.UpdateMSSQLData({
-            //         //     updatename: 'Update',
-            //         //     table: 18,
-            //         //     params: {
-            //         //         OL_W2_PRINCIPAL : null
-            //         //     },
-            //         //     condition: {
-            //         //         OL_SEQ : selectedItem.OL_SEQ,
-            //         //         OL_CR_USER : selectedItem.OL_CR_USER
-            //         //     }
-            //         // }).then(function (res) {
-            //         //     LoadOrderList();
-            //         // });
-
-            //     }, function() {
-            //         // $log.info('Modal dismissed at: ' + new Date());
-            //     });
-            // },
+                if($vm.profile.U_GRADE <= 9){
+                    $state.transitionTo("app.selfwork.employeejobs.job001", {
+                        data: row.entity
+                    });
+                }
+            },
             // 編輯
             modifyData : function(row){
                 console.log(row);
@@ -9811,22 +9837,25 @@ angular.module('app.selfwork').controller('EmployeeJobsCtrl', function ($scope, 
         orderListOptions : {
             data:  '$vm.selfWorkData',
             columnDefs: [
-                { name: 'OL_IMPORTDT' ,  displayName: '進口日期', cellFilter: 'dateFilter' },
-                { name: 'OL_CO_CODE'  ,  displayName: '行家', cellFilter: 'compyFilter', filter: 
+                { name: 'OL_IMPORTDT'            ,  displayName: '進口日期', cellFilter: 'dateFilter' },
+                { name: 'OL_CO_CODE'             ,  displayName: '行家', width: 80, cellFilter: 'compyFilter', filter: 
                     {
                         term: null,
                         type: uiGridConstants.filter.SELECT,
                         selectOptions: compy
                     }
                 },
-                { name: 'OL_FLIGHTNO' ,  displayName: '航班' },
-                { name: 'OL_MASTER'   ,  displayName: '主號' },
-                { name: 'OL_COUNT'    ,  displayName: '報機單(袋數)', enableCellEdit: false },
-                { name: 'OL_COUNTRY'  ,  displayName: '起運國別' },
-                { name: 'ITEM_LIST'          ,  displayName: '報機單', enableFiltering: false, width: '8%', cellTemplate: $templateCache.get('accessibilityToOperaForJob001') },
-                { name: 'FLIGHT_ITEM_LIST'   ,  displayName: '銷艙單', enableFiltering: false, width: '8%', cellTemplate: $templateCache.get('accessibilityToOperaForJob002') },
-                // { name: 'DELIVERY_ITEM_LIST' ,  displayName: '派送單', enableFiltering: false, width: '8%', cellTemplate: $templateCache.get('accessibilityToOperaForJob003') },
-                { name: 'Options'       , displayName: '操作', width: '5%', enableCellEdit: false, enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToM') }
+                { name: 'OL_FLIGHTNO'            ,  displayName: '航班', width: 80 },
+                { name: 'FA_SCHEDL_ARRIVALTIME'  ,  displayName: '預計抵達時間', cellFilter: 'datetimeFilter' },
+                { name: 'FA_ACTL_ARRIVALTIME'    ,  displayName: '真實抵達時間', cellFilter: 'datetimeFilter' },
+                { name: 'FA_ARRIVAL_REMK'        ,  displayName: '狀態', width: 60, cellTemplate: $templateCache.get('accessibilityToArrivalRemark') },
+                { name: 'OL_MASTER'              ,  displayName: '主號' },
+                { name: 'OL_COUNT'               ,  displayName: '報機單(袋數)', width: 80, enableCellEdit: false },
+                { name: 'OL_COUNTRY'             ,  displayName: '起運國別', width: 80 },
+                { name: 'ITEM_LIST'              ,  displayName: '報機單', enableFiltering: false, width: '8%', cellTemplate: $templateCache.get('accessibilityToOperaForJob001') },
+                { name: 'FLIGHT_ITEM_LIST'       ,  displayName: '銷艙單', enableFiltering: false, width: '8%', cellTemplate: $templateCache.get('accessibilityToOperaForJob002') },
+                // { name: 'DELIVERY_ITEM_LIST'  ,  displayName: '派送單', enableFiltering: false, width: '8%', cellTemplate: $templateCache.get('accessibilityToOperaForJob003') },
+                { name: 'Options'                ,  displayName: '操作', width: '5%', enableCellEdit: false, enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToM') }
             ],
             enableFiltering: true,
             enableSorting: false,
@@ -10033,7 +10062,13 @@ angular.module('app.selfwork').controller('LeaderHistorySearchCtrl', function ($
 
         for(var i in pObject){
             if(pObject[i] != ""){
-                _conditions[i] = pObject[i];
+                if(i == "CRDT_FROM"){
+                    _conditions[i] = pObject[i] + ' 00:00:00';
+                }else if(i == "CRDT_TOXX"){
+                    _conditions[i] = pObject[i] + ' 23:59:59';
+                }else{
+                    _conditions[i] = pObject[i];
+                }
             }
         }
 
@@ -16955,9 +16990,9 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
     angular.extend(this, {
         Init : function(){
             // 不正常登入此頁面
-            // if($stateParams.data == null){
-            //     ReturnToEmployeejobsPage();
-            // }else{
+            if($stateParams.data == null){
+                ReturnToEmployeejobsPage();
+            }else{
 
                 $vm.bigBreadcrumbsItems = $state.current.name.split(".");
                 $vm.bigBreadcrumbsItems.shift();
@@ -16965,14 +17000,14 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                 $vm.vmData = $stateParams.data;
 
                 // 測試用
-                if($vm.vmData == null){
-                    $vm.vmData = {
-                        OL_SEQ : 'AdminTest20170525190758'
-                    };
-                }
+                // if($vm.vmData == null){
+                //     $vm.vmData = {
+                //         OL_SEQ : 'AdminTest20170525190758'
+                //     };
+                // }
                 
                 LoadItemList();
-            // }
+            }
         },
         profile : Session.Get(),
         gridMethod : {
@@ -17164,24 +17199,40 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
 
                     console.log(selectedItem);
 
-                    RestfulApi.UpsertMSSQLData({
-                        upsertname: 'Upsert',
-                        table: 20,
-                        params: {
-                            SPG_TYPE        : selectedItem.SPG_TYPE,
-                            SPG_CR_USER     : $vm.profile.U_ID,
-                            SPG_CR_DATETIME : $filter('date')(new Date, 'yyyy-MM-dd HH:mm:ss')
-                        },
-                        condition: {
-                            SPG_SEQ         : selectedItem.IL_SEQ,
-                            SPG_NEWBAGNO    : selectedItem.IL_NEWBAGNO,
-                            SPG_NEWSMALLNO  : selectedItem.IL_NEWSMALLNO,
-                            SPG_ORDERINDEX  : selectedItem.IL_ORDERINDEX
-                        }
-                    }).then(function (res) {
-                        // 加入後需要Disabled
-                        row.entity.SPG_SPECIALGOODS = selectedItem.SPG_TYPE;
-                    });
+                    if(selectedItem.SPG_TYPE == null){
+                        RestfulApi.DeleteMSSQLData({
+                            deletename: 'Delete',
+                            table: 20,
+                            params: {
+                                SPG_SEQ         : selectedItem.IL_SEQ,
+                                SPG_NEWBAGNO    : selectedItem.IL_NEWBAGNO,
+                                SPG_NEWSMALLNO  : selectedItem.IL_NEWSMALLNO,
+                                SPG_ORDERINDEX  : selectedItem.IL_ORDERINDEX
+                            }
+                        }).then(function (res) {
+                            // 變更特貨類型
+                            row.entity.SPG_SPECIALGOODS = 0;
+                        });
+                    }else{
+                        RestfulApi.UpsertMSSQLData({
+                            upsertname: 'Upsert',
+                            table: 20,
+                            params: {
+                                SPG_TYPE        : selectedItem.SPG_TYPE,
+                                SPG_CR_USER     : $vm.profile.U_ID,
+                                SPG_CR_DATETIME : $filter('date')(new Date, 'yyyy-MM-dd HH:mm:ss')
+                            },
+                            condition: {
+                                SPG_SEQ         : selectedItem.IL_SEQ,
+                                SPG_NEWBAGNO    : selectedItem.IL_NEWBAGNO,
+                                SPG_NEWSMALLNO  : selectedItem.IL_NEWSMALLNO,
+                                SPG_ORDERINDEX  : selectedItem.IL_ORDERINDEX
+                            }
+                        }).then(function (res) {
+                            // 變更特貨類型
+                            row.entity.SPG_SPECIALGOODS = selectedItem.SPG_TYPE;
+                        });
+                    }
 
                 }, function() {
                     // $log.info('Modal dismissed at: ' + new Date());
@@ -17419,12 +17470,6 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                     case "8":
                         _queryname = "SelectItemListForEx8";
                         break;
-                    case "9":
-                        _queryname = "SelectItemListForEx0";
-                        break;
-                    case "10":
-                        _queryname = "SelectItemListForEx8";
-                        break;
                 }
 
                 if(_queryname != null){
@@ -17458,12 +17503,13 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                 templates : 11,
                 filename : _exportName,
                 querymain: 'job001',
-                queryname: 'SelectItemList',
+                queryname: 'SelectItemListForEx0',
                 params: {
                     OL_MASTER : $vm.vmData.OL_MASTER,
                     OL_IMPORTDT : $filter('date')($vm.vmData.OL_IMPORTDT, 'yyyy-MM-dd'),
                     OL_FLIGHTNO : $vm.vmData.OL_FLIGHTNO,
-                    OL_COUNTRY : $vm.vmData.OL_COUNTRY,                
+                    OL_COUNTRY : $vm.vmData.OL_COUNTRY,   
+                    OL_COUNT : $vm.vmData.OL_COUNT,             
                     IL_SEQ : $vm.vmData.OL_SEQ
                 }
             }).then(function (res) {
@@ -17710,9 +17756,18 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
     };
 })
 .controller('SpecialGoodsModalInstanceCtrl', function ($uibModalInstance, items, specialGoods) {
+    console.log(items);
     var $ctrl = this;
-    $ctrl.mdData = items;
-    $ctrl.specialGoodsData = specialGoods;
+
+    $ctrl.Init = function(){
+        $ctrl.mdData = items;
+        $ctrl.specialGoodsData = specialGoods;
+
+        if($ctrl.mdData.SPG_SPECIALGOODS != 0){
+            $ctrl.mdData['SPG_TYPE'] = $ctrl.mdData.SPG_SPECIALGOODS.toString();
+        }
+    }
+
 
     $ctrl.ok = function() {
         $uibModalInstance.close($ctrl.mdData);
@@ -18192,7 +18247,7 @@ angular.module('app.selfwork').controller('Job003Ctrl', function ($scope, $state
 });
 "use strict";
 
-angular.module('app.selfwork.leaderoption').controller('AgentSettingCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, $filter, uiGridConstants, RestfulApi, userInfoByCompyDistribution, compy, $q, uiGridGroupingConstants) {
+angular.module('app.selfwork.leaderoption').controller('AgentSettingCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, $filter, uiGridConstants, RestfulApi, userInfoByCompyDistribution, compy, $q, uiGridGroupingConstants, coWeights) {
     
     var $vm = this;
 
@@ -18228,6 +18283,13 @@ angular.module('app.selfwork.leaderoption').controller('AgentSettingCtrl', funct
                     treeAggregationType: uiGridGroupingConstants.aggregation.COUNT, 
                     customTreeAggregationFinalizerFn: function( aggregation ) {
                         aggregation.rendered = aggregation.value;
+                    }
+                },
+                { name: 'CO_WEIGHTS',  displayName: '權重', cellFilter: 'coWeightsFilter', filter: 
+                    {
+                        term: null,
+                        type: uiGridConstants.filter.SELECT,
+                        selectOptions: coWeights
                     }
                 },
                 { name: 'AGENT_COUNT'   ,  displayName: '代理人數' , treeAggregationType: uiGridGroupingConstants.aggregation.SUM, 
@@ -18579,7 +18641,7 @@ angular.module('app.selfwork.leaderoption').controller('AgentSettingCtrl', funct
 })
 "use strict";
 
-angular.module('app.selfwork.leaderoption').controller('CompyDistributionCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, $filter, $q, RestfulApi, uiGridConstants, userInfoByGrade, compy) {
+angular.module('app.selfwork.leaderoption').controller('CompyDistributionCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, $filter, $q, RestfulApi, uiGridConstants, userInfoByGrade, compy, coWeights) {
     
     var $vm = this;
 
@@ -18600,6 +18662,13 @@ angular.module('app.selfwork.leaderoption').controller('CompyDistributionCtrl', 
                         term: null,
                         type: uiGridConstants.filter.SELECT,
                         selectOptions: compy
+                    }
+                },
+                { name: 'CO_WEIGHTS',  displayName: '權重', cellFilter: 'coWeightsFilter', filter: 
+                    {
+                        term: null,
+                        type: uiGridConstants.filter.SELECT,
+                        selectOptions: coWeights
                     }
                 },
                 // { name: 'CO_ADDR'      ,  displayName: '公司地址' },
@@ -19956,6 +20025,10 @@ angular.module('app.settings').controller('ExCompyCtrl', function ($scope, $stat
             }).then(function (res) {
 
                 toaster.pop('success', '訊息', '更新行家成功', 3000);
+
+                // 新增成功後，更新compy的值
+                $filter('compyFilter')({}, true);
+                
                 ReturnToExternalManagementPage();
 
             }, function (err) {

@@ -9,9 +9,9 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
     angular.extend(this, {
         Init : function(){
             // 不正常登入此頁面
-            // if($stateParams.data == null){
-            //     ReturnToEmployeejobsPage();
-            // }else{
+            if($stateParams.data == null){
+                ReturnToEmployeejobsPage();
+            }else{
 
                 $vm.bigBreadcrumbsItems = $state.current.name.split(".");
                 $vm.bigBreadcrumbsItems.shift();
@@ -19,14 +19,14 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                 $vm.vmData = $stateParams.data;
 
                 // 測試用
-                if($vm.vmData == null){
-                    $vm.vmData = {
-                        OL_SEQ : 'AdminTest20170525190758'
-                    };
-                }
+                // if($vm.vmData == null){
+                //     $vm.vmData = {
+                //         OL_SEQ : 'AdminTest20170525190758'
+                //     };
+                // }
                 
                 LoadItemList();
-            // }
+            }
         },
         profile : Session.Get(),
         gridMethod : {
@@ -218,24 +218,40 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
 
                     console.log(selectedItem);
 
-                    RestfulApi.UpsertMSSQLData({
-                        upsertname: 'Upsert',
-                        table: 20,
-                        params: {
-                            SPG_TYPE        : selectedItem.SPG_TYPE,
-                            SPG_CR_USER     : $vm.profile.U_ID,
-                            SPG_CR_DATETIME : $filter('date')(new Date, 'yyyy-MM-dd HH:mm:ss')
-                        },
-                        condition: {
-                            SPG_SEQ         : selectedItem.IL_SEQ,
-                            SPG_NEWBAGNO    : selectedItem.IL_NEWBAGNO,
-                            SPG_NEWSMALLNO  : selectedItem.IL_NEWSMALLNO,
-                            SPG_ORDERINDEX  : selectedItem.IL_ORDERINDEX
-                        }
-                    }).then(function (res) {
-                        // 加入後需要Disabled
-                        row.entity.SPG_SPECIALGOODS = selectedItem.SPG_TYPE;
-                    });
+                    if(selectedItem.SPG_TYPE == null){
+                        RestfulApi.DeleteMSSQLData({
+                            deletename: 'Delete',
+                            table: 20,
+                            params: {
+                                SPG_SEQ         : selectedItem.IL_SEQ,
+                                SPG_NEWBAGNO    : selectedItem.IL_NEWBAGNO,
+                                SPG_NEWSMALLNO  : selectedItem.IL_NEWSMALLNO,
+                                SPG_ORDERINDEX  : selectedItem.IL_ORDERINDEX
+                            }
+                        }).then(function (res) {
+                            // 變更特貨類型
+                            row.entity.SPG_SPECIALGOODS = 0;
+                        });
+                    }else{
+                        RestfulApi.UpsertMSSQLData({
+                            upsertname: 'Upsert',
+                            table: 20,
+                            params: {
+                                SPG_TYPE        : selectedItem.SPG_TYPE,
+                                SPG_CR_USER     : $vm.profile.U_ID,
+                                SPG_CR_DATETIME : $filter('date')(new Date, 'yyyy-MM-dd HH:mm:ss')
+                            },
+                            condition: {
+                                SPG_SEQ         : selectedItem.IL_SEQ,
+                                SPG_NEWBAGNO    : selectedItem.IL_NEWBAGNO,
+                                SPG_NEWSMALLNO  : selectedItem.IL_NEWSMALLNO,
+                                SPG_ORDERINDEX  : selectedItem.IL_ORDERINDEX
+                            }
+                        }).then(function (res) {
+                            // 變更特貨類型
+                            row.entity.SPG_SPECIALGOODS = selectedItem.SPG_TYPE;
+                        });
+                    }
 
                 }, function() {
                     // $log.info('Modal dismissed at: ' + new Date());
@@ -473,12 +489,6 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                     case "8":
                         _queryname = "SelectItemListForEx8";
                         break;
-                    case "9":
-                        _queryname = "SelectItemListForEx0";
-                        break;
-                    case "10":
-                        _queryname = "SelectItemListForEx8";
-                        break;
                 }
 
                 if(_queryname != null){
@@ -512,12 +522,13 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                 templates : 11,
                 filename : _exportName,
                 querymain: 'job001',
-                queryname: 'SelectItemList',
+                queryname: 'SelectItemListForEx0',
                 params: {
                     OL_MASTER : $vm.vmData.OL_MASTER,
                     OL_IMPORTDT : $filter('date')($vm.vmData.OL_IMPORTDT, 'yyyy-MM-dd'),
                     OL_FLIGHTNO : $vm.vmData.OL_FLIGHTNO,
-                    OL_COUNTRY : $vm.vmData.OL_COUNTRY,                
+                    OL_COUNTRY : $vm.vmData.OL_COUNTRY,   
+                    OL_COUNT : $vm.vmData.OL_COUNT,             
                     IL_SEQ : $vm.vmData.OL_SEQ
                 }
             }).then(function (res) {
@@ -764,9 +775,18 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
     };
 })
 .controller('SpecialGoodsModalInstanceCtrl', function ($uibModalInstance, items, specialGoods) {
+    console.log(items);
     var $ctrl = this;
-    $ctrl.mdData = items;
-    $ctrl.specialGoodsData = specialGoods;
+
+    $ctrl.Init = function(){
+        $ctrl.mdData = items;
+        $ctrl.specialGoodsData = specialGoods;
+
+        if($ctrl.mdData.SPG_SPECIALGOODS != 0){
+            $ctrl.mdData['SPG_TYPE'] = $ctrl.mdData.SPG_SPECIALGOODS.toString();
+        }
+    }
+
 
     $ctrl.ok = function() {
         $uibModalInstance.close($ctrl.mdData);

@@ -6,7 +6,8 @@ module.exports = function(pQueryname, pParams){
 			_SQLCommand += "SELECT CO.CO_CODE, \
 								   CO.CO_NUMBER, \
 								   CO.CO_NAME, \
-								   CO.CO_ADDR \
+								   CO.CO_ADDR, \
+								   CO.CO_WEIGHTS \
 							FROM COMPY_INFO CO \
 							WHERE CO_STS = 0 \
 						    ORDER BY CO_CR_DATETIME DESC ";	

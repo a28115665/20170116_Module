@@ -1,6 +1,6 @@
 "use strict";
 
-angular.module('app.selfwork.leaderoption').controller('CompyDistributionCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, $filter, $q, RestfulApi, uiGridConstants, userInfoByGrade, compy) {
+angular.module('app.selfwork.leaderoption').controller('CompyDistributionCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, $filter, $q, RestfulApi, uiGridConstants, userInfoByGrade, compy, coWeights) {
     
     var $vm = this;
 
@@ -21,6 +21,13 @@ angular.module('app.selfwork.leaderoption').controller('CompyDistributionCtrl', 
                         term: null,
                         type: uiGridConstants.filter.SELECT,
                         selectOptions: compy
+                    }
+                },
+                { name: 'CO_WEIGHTS',  displayName: '權重', cellFilter: 'coWeightsFilter', filter: 
+                    {
+                        term: null,
+                        type: uiGridConstants.filter.SELECT,
+                        selectOptions: coWeights
                     }
                 },
                 // { name: 'CO_ADDR'      ,  displayName: '公司地址' },
