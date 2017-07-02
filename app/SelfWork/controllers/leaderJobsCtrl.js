@@ -198,6 +198,7 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
                 },
                 { name: 'OL_FLIGHTNO' ,  displayName: '航班' },
                 { name: 'OL_MASTER'   ,  displayName: '主號' },
+                { name: 'OL_COUNT'    ,  displayName: '報機單(袋數)', width: 80, enableCellEdit: false },
                 { name: 'OL_COUNTRY'  ,  displayName: '起運國別' },
                 { name: 'W2_STATUS'   ,  displayName: '報機單狀態', cellTemplate: $templateCache.get('accessibilityToForW2'), filter: 
                     {

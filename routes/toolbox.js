@@ -87,7 +87,7 @@ router.get('/exportExcelByVar', function(req, res) {
  */
 router.get('/exportExcelBySql', function(req, res) {
 
-    // console.log(req.query);
+    // console.log(req.session.key);
     if(req.query["templates"] == undefined){
         res.status(post_res.statusCode).send('匯出失敗');
     }

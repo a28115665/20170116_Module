@@ -42,12 +42,12 @@ angular.module('app')
                         <div class="ui-grid-cell-contents text-center">\
                             <a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethod.modifyData(row)"> 修改</a>\
                             <a href="javascript:void(0);" class="btn btn-info btn-xs" ng-click="grid.appScope.$vm.gridMethod.sendMail(row)"> 寄信</a>\
-                            <a href="javascript:void(0);" class="btn btn-primary btn-xs" ng-click="grid.appScope.$vm.gridMethod.viewOrder(row)"> 貨況</a>\
+                            <a href="javascript:void(0);" class="btn btn-primary btn-xs" ng-click="grid.appScope.$vm.gridMethod.viewOrder(row)"> 航班</a>\
                       </div>');
     $templateCache.put('accessibilityToMSForAssistantJobsSearch', '\
                         <div class="ui-grid-cell-contents text-center">\
                             <a href="javascript:void(0);" class="btn btn-info btn-xs" ng-click="grid.appScope.$vm.gridMethod.sendMail(row)"> 寄信</a>\
-                            <a href="javascript:void(0);" class="btn btn-primary btn-xs" ng-click="grid.appScope.$vm.gridMethod.viewOrder(row)"> 貨況</a>\
+                            <a href="javascript:void(0);" class="btn btn-primary btn-xs" ng-click="grid.appScope.$vm.gridMethod.viewOrder(row)"> 航班</a>\
                       </div>');
 
 	$templateCache.put('accessibilityToRMC', '\

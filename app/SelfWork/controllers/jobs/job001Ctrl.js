@@ -21,7 +21,8 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                 // 測試用
                 // if($vm.vmData == null){
                 //     $vm.vmData = {
-                //         OL_SEQ : 'AdminTest20170525190758'
+                //         OL_SEQ : 'AdminTest20170525190758',
+                //         OL_CR_DATETIME : '2017-04-19T10:10:47.906Z'
                 //     };
                 // }
                 
@@ -263,7 +264,7 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
             columnDefs: [
                 { name: 'Index'         , displayName: '序列', width: 50, enableFiltering: false, enableCellEdit: false },
                 { name: 'IL_G1'         , displayName: '報關種類', width: 115, enableCellEdit: false },
-                { name: 'IL_MERGENO'    , displayName: '併票號', width: 129, enableCellEdit: false },
+                { name: 'IL_MERGENO'    , displayName: '併票號', width: 129, headerCellClass: 'text-primary' },
                 { name: 'IL_BAGNO'      , displayName: '袋號', width: 129, headerCellClass: 'text-primary' },
                 { name: 'IL_SMALLNO'    , displayName: '小號', width: 115, headerCellClass: 'text-primary' },
                 { name: 'IL_NATURE'     , displayName: '品名', width: 115, enableCellEdit: false },
@@ -273,22 +274,25 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                 { name: 'IL_NEWPLACE'   , displayName: '新產地', width: 115, headerCellClass: 'text-primary' },
                 { name: 'IL_WEIGHT'     , displayName: '重量', width: 115, enableCellEdit: false },
                 { name: 'IL_WEIGHT_NEW' , displayName: '新重量', width: 115, headerCellClass: 'text-primary' },
-                { name: 'IL_UNIT'       , displayName: '單位', width: 115, enableCellEdit: false },
-                { name: 'IL_NEWUNIT'    , displayName: '新單位', width: 115, headerCellClass: 'text-primary' },
-                { name: 'IL_GETNO'      , displayName: '收件者統編', width: 115, headerCellClass: 'text-primary' },
-                { name: 'IL_SENDNAME'   , displayName: '寄件人或公司', width: 115, enableCellEdit: false },
-                { name: 'IL_NEWSENDNAME', displayName: '新寄件人或公司', width: 115, headerCellClass: 'text-primary' },
-                { name: 'IL_GETNAME'    , displayName: '收件人公司', width: 115, headerCellClass: 'text-primary' },
-                { name: 'IL_GETADDRESS' , displayName: '收件地址', width: 300, headerCellClass: 'text-primary' },
-                { name: 'IL_GETTEL'     , displayName: '收件電話', width: 115, headerCellClass: 'text-primary' },
                 { name: 'IL_PCS'        , displayName: '數量', width: 115, enableCellEdit: false },
                 { name: 'IL_NEWPCS'     , displayName: '新數量', width: 115, headerCellClass: 'text-primary' },
                 { name: 'IL_UNIVALENT'  , displayName: '單價', width: 115, enableCellEdit: false },
                 { name: 'IL_UNIVALENT_NEW', displayName: '新單價', width: 115, headerCellClass: 'text-primary' },
                 { name: 'IL_FINALCOST'  , displayName: '完稅價格', width: 115, headerCellClass: 'text-primary' },
-                { name: 'IL_TAX'        , displayName: '稅則', width: 115, headerCellClass: 'text-primary' },
+                { name: 'IL_UNIT'       , displayName: '單位', width: 115, enableCellEdit: false },
+                { name: 'IL_NEWUNIT'    , displayName: '新單位', width: 115, headerCellClass: 'text-primary' },
+                { name: 'IL_GETNO'      , displayName: '收件者統編', width: 115, headerCellClass: 'text-primary' },
+                { name: 'IL_EXNO'       , displayName: '匯出統編', width: 115, headerCellClass: 'text-primary' },
+                { name: 'IL_SENDNAME'   , displayName: '寄件人', width: 115, enableCellEdit: false },
+                { name: 'IL_NEWSENDNAME', displayName: '新寄件人', width: 115, headerCellClass: 'text-primary' },
+                { name: 'IL_TAX'        , displayName: '稅費歸屬', width: 115, headerCellClass: 'text-primary' },
+                { name: 'IL_GETNAME'    , displayName: '收件人公司', width: 115, headerCellClass: 'text-primary' },
+                { name: 'IL_GETADDRESS' , displayName: '收件地址', width: 300, headerCellClass: 'text-primary' },
+                { name: 'IL_GETTEL'     , displayName: '收件電話', width: 115, headerCellClass: 'text-primary' },
+                { name: 'IL_EXTEL'      , displayName: '匯出電話', width: 115, headerCellClass: 'text-primary' },
                 { name: 'IL_TRCOM'      , displayName: '派送公司', width: 115, headerCellClass: 'text-primary' },
                 { name: 'IL_REMARK'     , displayName: '備註', width: 115, headerCellClass: 'text-primary' },
+                { name: 'IL_TAX2'       , displayName: '稅則', width: 115, headerCellClass: 'text-primary' },
                 { name: 'Options'       , displayName: '操作', width: 230, enableCellEdit: false, enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToCB'), pinnedRight:true, cellClass: 'cell-class-no-style' }
             ],
             // rowTemplate: '<div> \
@@ -516,19 +520,20 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
         // 匯出班機表欄位
         ExportAirportSchema : function(){
             var _exportName = $filter('date')($vm.vmData.OL_IMPORTDT, 'yyyyMMdd') + ' ' + 
-                              $filter('compyFilter')($vm.vmData.OL_CO_CODE) + ' 班機表欄位';
+                              $filter('compyFilter')($vm.vmData.OL_CO_CODE) + ' ' +
+                              $vm.vmData.OL_FLIGHTNO + ' ' +
+                              $vm.vmData.OL_COUNT + '袋';
 
             ToolboxApi.ExportExcelBySql({
                 templates : 11,
                 filename : _exportName,
                 querymain: 'job001',
-                queryname: 'SelectItemListForEx0',
+                queryname: 'SelectItemListForFlight',
                 params: {
                     OL_MASTER : $vm.vmData.OL_MASTER,
                     OL_IMPORTDT : $filter('date')($vm.vmData.OL_IMPORTDT, 'yyyy-MM-dd'),
                     OL_FLIGHTNO : $vm.vmData.OL_FLIGHTNO,
-                    OL_COUNTRY : $vm.vmData.OL_COUNTRY,   
-                    OL_COUNT : $vm.vmData.OL_COUNT,             
+                    OL_COUNTRY : $vm.vmData.OL_COUNTRY,               
                     IL_SEQ : $vm.vmData.OL_SEQ
                 }
             }).then(function (res) {
@@ -604,6 +609,7 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                                     var _index = _beUpdate[0].Index - 1;
 
                                     // 更新收件者相同的值
+                                    $vm.job001Data[_index].IL_MERGENO         = selectedItem[i].entity.IL_MERGENO;
                                     $vm.job001Data[_index].IL_BAGNO         = selectedItem[i].entity.IL_BAGNO;
                                     $vm.job001Data[_index].IL_SMALLNO       = selectedItem[i].entity.IL_SMALLNO;
                                     $vm.job001Data[_index].IL_NATURE_NEW    = selectedItem[i].entity.IL_NATURE_NEW;
@@ -622,6 +628,9 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                                     $vm.job001Data[_index].IL_TAX           = selectedItem[i].entity.IL_TAX;
                                     $vm.job001Data[_index].IL_TRCOM         = selectedItem[i].entity.IL_TRCOM;
                                     $vm.job001Data[_index].IL_REMARK        = selectedItem[i].entity.IL_REMARK;
+                                    $vm.job001Data[_index].IL_EXTEL         = selectedItem[i].entity.IL_EXTEL;
+                                    $vm.job001Data[_index].IL_EXNO          = selectedItem[i].entity.IL_EXNO;
+                                    $vm.job001Data[_index].IL_TAX2          = selectedItem[i].entity.IL_TAX2;
 
                                     _getDirtyData.push($vm.job001Data[_index]);
                                 }
@@ -636,6 +645,110 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                     toaster.pop('info', '訊息', '無重複收件者名稱', 3000);
                 }
             }); 
+        },
+        // 篩選出收件人 收件地址 收件電話 超過六次的資料
+        OverSix : function(){
+            if(!angular.isUndefined($vm.vmData.OL_CR_DATETIME)){
+                var _year = $filter('date')($vm.vmData.OL_CR_DATETIME, 'yyyy'),
+                    _queryname = null,
+                    _type = null;
+
+                if($vm.vmData.OL_CR_DATETIME < _year+'-06-30T23:59:59.999Z'){
+                    console.log('上半年');
+                    _type = '上半年';
+                    _queryname = 'SelectOverSixFirst';
+                }
+                if(_year+'-07-01T00:00:00.000Z' < $vm.vmData.OL_CR_DATETIME){
+                    console.log('下半年');
+                    _type = '下半年';
+                    _queryname = 'SelectOverSixSecond';
+                }
+
+                if(_queryname != null){
+                    RestfulApi.SearchMSSQLData({
+                        querymain: 'job001',
+                        queryname: _queryname,
+                        params: {
+                            IL_SEQ: $vm.vmData.OL_SEQ
+                        }
+                    }).then(function (res){
+                        console.log(res["returnData"]);
+                        if(res["returnData"].length > 0){
+                            var modalInstance = $uibModal.open({
+                                animation: true,
+                                ariaLabelledBy: 'modal-title',
+                                ariaDescribedBy: 'modal-body',
+                                templateUrl: 'overSixModalContent.html',
+                                controller: 'OverSixModalInstanceCtrl',
+                                controllerAs: '$ctrl',
+                                size: 'lg',
+                                // appendTo: parentElem,
+                                resolve: {
+                                    overSixData: function() {
+                                        return res["returnData"];
+                                    },
+                                    type: function(){
+                                        return _type;
+                                    }
+                                }
+                            });
+
+                            modalInstance.result.then(function(selectedItem) {
+                                console.log(selectedItem);
+
+                                if(selectedItem.length > 0){
+                                    var _getDirtyData = [];
+                                    for(var i in selectedItem){
+
+                                        var _beUpdate = $filter('filter')($vm.job001Data, { 
+                                            IL_SEQ : selectedItem[i].entity.IL_SEQ,
+                                            IL_NEWBAGNO : selectedItem[i].entity.IL_NEWBAGNO,
+                                            IL_NEWSMALLNO : selectedItem[i].entity.IL_NEWSMALLNO,
+                                            IL_ORDERINDEX : selectedItem[i].entity.IL_ORDERINDEX
+                                        });
+
+                                        if(_beUpdate.length > 0){
+                                            var _index = _beUpdate[0].Index - 1;
+
+                                            // 更新超過六次的值
+                                            $vm.job001Data[_index].IL_MERGENO         = selectedItem[i].entity.IL_MERGENO;
+                                            $vm.job001Data[_index].IL_BAGNO         = selectedItem[i].entity.IL_BAGNO;
+                                            $vm.job001Data[_index].IL_SMALLNO       = selectedItem[i].entity.IL_SMALLNO;
+                                            $vm.job001Data[_index].IL_NATURE_NEW    = selectedItem[i].entity.IL_NATURE_NEW;
+                                            $vm.job001Data[_index].IL_CTN           = selectedItem[i].entity.IL_CTN;
+                                            $vm.job001Data[_index].IL_PLACE         = selectedItem[i].entity.IL_PLACE;
+                                            $vm.job001Data[_index].IL_WEIGHT_NEW    = selectedItem[i].entity.IL_WEIGHT_NEW;
+                                            $vm.job001Data[_index].IL_NEWPCS        = selectedItem[i].entity.IL_NEWPCS;
+                                            $vm.job001Data[_index].IL_NEWUNIT       = selectedItem[i].entity.IL_NEWUNIT;
+                                            $vm.job001Data[_index].IL_GETNO         = selectedItem[i].entity.IL_GETNO;
+                                            $vm.job001Data[_index].IL_NEWSENDNAME   = selectedItem[i].entity.IL_NEWSENDNAME;
+                                            $vm.job001Data[_index].IL_GETNAME       = selectedItem[i].entity.IL_GETNAME;
+                                            $vm.job001Data[_index].IL_GETADDRESS    = selectedItem[i].entity.IL_GETADDRESS;
+                                            $vm.job001Data[_index].IL_GETTEL        = selectedItem[i].entity.IL_GETTEL;
+                                            $vm.job001Data[_index].IL_UNIVALENT_NEW = selectedItem[i].entity.IL_UNIVALENT_NEW;
+                                            $vm.job001Data[_index].IL_FINALCOST     = selectedItem[i].entity.IL_FINALCOST;
+                                            $vm.job001Data[_index].IL_TAX           = selectedItem[i].entity.IL_TAX;
+                                            $vm.job001Data[_index].IL_TRCOM         = selectedItem[i].entity.IL_TRCOM;
+                                            $vm.job001Data[_index].IL_REMARK        = selectedItem[i].entity.IL_REMARK;
+                                            $vm.job001Data[_index].IL_EXTEL         = selectedItem[i].entity.IL_EXTEL;
+                                            $vm.job001Data[_index].IL_EXNO          = selectedItem[i].entity.IL_EXNO;
+                                            $vm.job001Data[_index].IL_TAX2          = selectedItem[i].entity.IL_TAX2;
+
+                                            _getDirtyData.push($vm.job001Data[_index]);
+                                        }
+                                    }
+                                    $vm.job001GridApi.rowEdit.setRowsDirty(_getDirtyData);
+                                }
+
+                            }, function() {
+                                // $log.info('Modal dismissed at: ' + new Date());
+                            });
+                        }else{
+                            toaster.pop('info', '訊息', '無 收件人、收件地址、收件電話 超過六次的資料', 3000);
+                        }
+                    }); 
+                }
+            }
         },
         Return : function(){
             ReturnToEmployeejobsPage();
@@ -678,7 +791,10 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                     IL_FINALCOST   : entity.IL_FINALCOST,
                     IL_TAX         : entity.IL_TAX,
                     IL_TRCOM       : entity.IL_TRCOM,
-                    IL_REMARK      : entity.IL_REMARK
+                    IL_REMARK      : entity.IL_REMARK,
+                    IL_EXTEL       : entity.IL_EXTEL,
+                    IL_EXNO        : entity.IL_EXNO,
+                    IL_TAX2        : entity.IL_TAX2
                 },
                 condition: {
                     IL_SEQ        : entity.IL_SEQ,
@@ -843,17 +959,20 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
             // { name: 'IL_UNIT'      , displayName: '單位', width: 115 },
             { name: 'IL_NEWUNIT'      , displayName: '新單位', width: 115 },
             { name: 'IL_GETNO'        , displayName: '收件者統編', width: 115 },
-            // { name: 'IL_SENDNAME'  , displayName: '寄件人或公司', width: 115 },
-            { name: 'IL_NEWSENDNAME'  , displayName: '新寄件人或公司', width: 115 },
+            // { name: 'IL_SENDNAME'  , displayName: '寄件人', width: 115 },
+            { name: 'IL_NEWSENDNAME'  , displayName: '新寄件人', width: 115 },
             { name: 'IL_GETNAME'      , displayName: '收件人公司', width: 115 },
             { name: 'IL_GETADDRESS'   , displayName: '收件地址', width: 300 },
             { name: 'IL_GETTEL'       , displayName: '收件電話', width: 115 },
             // { name: 'IL_UNIVALENT' , displayName: '單價', width: 115 },
             { name: 'IL_UNIVALENT_NEW', displayName: '新單價', width: 115 },
             { name: 'IL_FINALCOST'    , displayName: '完稅價格', width: 115 },
-            { name: 'IL_TAX'          , displayName: '稅則', width: 115 },
+            { name: 'IL_TAX'          , displayName: '稅費歸屬', width: 115 },
             { name: 'IL_TRCOM'        , displayName: '派送公司', width: 115 },
-            { name: 'IL_REMARK'       , displayName: '備註', width: 115 }
+            { name: 'IL_REMARK'       , displayName: '備註', width: 115 },
+            { name: 'IL_EXTEL'        , displayName: '匯出電話', width: 115 },
+            { name: 'IL_EXNO'         , displayName: '匯出統編', width: 115 },
+            { name: 'IL_TAX2'         , displayName: '稅則', width: 115 }
         ],
         enableFiltering: false,
         enableSorting: true,
@@ -887,17 +1006,20 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
             // { name: 'IL_UNIT'      , displayName: '單位', width: 115 },
             { name: 'IL_NEWUNIT'      , displayName: '新單位', width: 115 },
             { name: 'IL_GETNO'        , displayName: '收件者統編', width: 115 },
-            // { name: 'IL_SENDNAME'  , displayName: '寄件人或公司', width: 115 },
-            { name: 'IL_NEWSENDNAME'  , displayName: '新寄件人或公司', width: 115 },
+            // { name: 'IL_SENDNAME'  , displayName: '寄件人', width: 115 },
+            { name: 'IL_NEWSENDNAME'  , displayName: '新寄件人', width: 115 },
             { name: 'IL_GETNAME'      , displayName: '收件人公司', width: 115 },
             { name: 'IL_GETADDRESS'   , displayName: '收件地址', width: 300 },
             { name: 'IL_GETTEL'       , displayName: '收件電話', width: 115 },
             // { name: 'IL_UNIVALENT' , displayName: '單價', width: 115 },
             { name: 'IL_UNIVALENT_NEW', displayName: '新單價', width: 115 },
             { name: 'IL_FINALCOST'    , displayName: '完稅價格', width: 115 },
-            { name: 'IL_TAX'          , displayName: '稅則', width: 115 },
+            { name: 'IL_TAX'          , displayName: '稅費歸屬', width: 115 },
             { name: 'IL_TRCOM'        , displayName: '派送公司', width: 115 },
-            { name: 'IL_REMARK'       , displayName: '備註', width: 115 }
+            { name: 'IL_REMARK'       , displayName: '備註', width: 115 },
+            { name: 'IL_EXTEL'        , displayName: '匯出電話', width: 115 },
+            { name: 'IL_EXNO'         , displayName: '匯出統編', width: 115 },
+            { name: 'IL_TAX2'         , displayName: '稅則', width: 115 }
         ],
         enableFiltering: false,
         enableSorting: true,
@@ -941,7 +1063,7 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
         columnDefs: [
             // { name: 'Index'           , displayName: '序列', width: 50, enableCellEdit: false},
             { name: 'IL_G1'           , displayName: '報關種類', width: 115, enableCellEdit: false },
-            { name: 'IL_MERGENO'      , displayName: '併票號', width: 129, enableCellEdit: false },
+            { name: 'IL_MERGENO'      , displayName: '併票號', width: 129, headerCellClass: 'text-primary' },
             { name: 'IL_BAGNO'        , displayName: '袋號', width: 129, headerCellClass: 'text-primary' },
             { name: 'IL_SMALLNO'      , displayName: '小號', width: 115, headerCellClass: 'text-primary' },
             // { name: 'IL_NATURE'    , displayName: '品名', width: 115 },
@@ -955,17 +1077,20 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
             // { name: 'IL_UNIT'      , displayName: '單位', width: 115 },
             { name: 'IL_NEWUNIT'      , displayName: '新單位', width: 115, headerCellClass: 'text-primary' },
             { name: 'IL_GETNO'        , displayName: '收件者統編', width: 115, headerCellClass: 'text-primary' },
-            { name: 'IL_SENDNAME'     , displayName: '寄件人或公司', width: 115, enableCellEdit: false },
-            { name: 'IL_NEWSENDNAME'  , displayName: '新寄件人或公司', width: 115, headerCellClass: 'text-primary' },
+            { name: 'IL_SENDNAME'     , displayName: '寄件人', width: 115, enableCellEdit: false },
+            { name: 'IL_NEWSENDNAME'  , displayName: '新寄件人', width: 115, headerCellClass: 'text-primary' },
             { name: 'IL_GETNAME'      , displayName: '收件人公司', width: 115, headerCellClass: 'text-primary' },
             { name: 'IL_GETADDRESS'   , displayName: '收件地址', width: 300, headerCellClass: 'text-primary' },
             { name: 'IL_GETTEL'       , displayName: '收件電話', width: 115, headerCellClass: 'text-primary' },
             // { name: 'IL_UNIVALENT' , displayName: '單價', width: 115 },
             { name: 'IL_UNIVALENT_NEW', displayName: '新單價', width: 115, headerCellClass: 'text-primary' },
             { name: 'IL_FINALCOST'    , displayName: '完稅價格', width: 115, headerCellClass: 'text-primary' },
-            { name: 'IL_TAX'          , displayName: '稅則', width: 115, headerCellClass: 'text-primary' },
+            { name: 'IL_TAX'          , displayName: '稅費歸屬', width: 115, headerCellClass: 'text-primary' },
             { name: 'IL_TRCOM'        , displayName: '派送公司', width: 115, headerCellClass: 'text-primary' },
-            { name: 'IL_REMARK'       , displayName: '備註', width: 115, headerCellClass: 'text-primary' }
+            { name: 'IL_REMARK'       , displayName: '備註', width: 115, headerCellClass: 'text-primary' },
+            { name: 'IL_EXTEL'        , displayName: '匯出電話', width: 115, headerCellClass: 'text-primary' },
+            { name: 'IL_EXNO'         , displayName: '匯出統編', width: 115, headerCellClass: 'text-primary' },
+            { name: 'IL_TAX2'         , displayName: '稅則', width: 115, headerCellClass: 'text-primary' },
         ],
         enableFiltering: false,
         enableSorting: true,
@@ -981,6 +1106,65 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
 
     $ctrl.ok = function() {
         $uibModalInstance.close($ctrl.repeatNameGridApi.rowEdit.getDirtyRows());
+    };
+
+    $ctrl.cancel = function() {
+        $uibModalInstance.dismiss('cancel');
+    };
+})
+.controller('OverSixModalInstanceCtrl', function ($uibModalInstance, $q, $scope, overSixData, type) {
+    var $ctrl = this;
+    $ctrl.type = type;
+    $ctrl.mdData = overSixData;
+
+    $ctrl.overSixOption = {
+        data: '$ctrl.mdData',
+        columnDefs: [
+            // { name: 'Index'           , displayName: '序列', width: 50, enableCellEdit: false},
+            { name: 'IL_G1'           , displayName: '報關種類', width: 115, enableCellEdit: false },
+            { name: 'IL_MERGENO'      , displayName: '併票號', width: 129, headerCellClass: 'text-primary' },
+            { name: 'IL_BAGNO'        , displayName: '袋號', width: 129, headerCellClass: 'text-primary' },
+            { name: 'IL_SMALLNO'      , displayName: '小號', width: 115, headerCellClass: 'text-primary' },
+            // { name: 'IL_NATURE'    , displayName: '品名', width: 115 },
+            { name: 'IL_NATURE_NEW'   , displayName: '新品名', width: 115, headerCellClass: 'text-primary' },
+            { name: 'IL_CTN'          , displayName: '件數', width: 115, headerCellClass: 'text-primary' },
+            { name: 'IL_PLACE'        , displayName: '產地', width: 115, headerCellClass: 'text-primary' },
+            // { name: 'IL_WEIGHT'    , displayName: '重量', width: 115 },
+            { name: 'IL_WEIGHT_NEW'   , displayName: '新重量', width: 115, headerCellClass: 'text-primary' },
+            // { name: 'IL_PCS'       , displayName: '數量', width: 115 },
+            { name: 'IL_NEWPCS'       , displayName: '新數量', width: 115, headerCellClass: 'text-primary' },
+            // { name: 'IL_UNIT'      , displayName: '單位', width: 115 },
+            { name: 'IL_NEWUNIT'      , displayName: '新單位', width: 115, headerCellClass: 'text-primary' },
+            { name: 'IL_GETNO'        , displayName: '收件者統編', width: 115, headerCellClass: 'text-primary' },
+            { name: 'IL_SENDNAME'     , displayName: '寄件人', width: 115, enableCellEdit: false },
+            { name: 'IL_NEWSENDNAME'  , displayName: '新寄件人', width: 115, headerCellClass: 'text-primary' },
+            { name: 'IL_GETNAME'      , displayName: '收件人公司', width: 115, headerCellClass: 'text-primary' },
+            { name: 'IL_GETADDRESS'   , displayName: '收件地址', width: 300, headerCellClass: 'text-primary' },
+            { name: 'IL_GETTEL'       , displayName: '收件電話', width: 115, headerCellClass: 'text-primary' },
+            // { name: 'IL_UNIVALENT' , displayName: '單價', width: 115 },
+            { name: 'IL_UNIVALENT_NEW', displayName: '新單價', width: 115, headerCellClass: 'text-primary' },
+            { name: 'IL_FINALCOST'    , displayName: '完稅價格', width: 115, headerCellClass: 'text-primary' },
+            { name: 'IL_TAX'          , displayName: '稅費歸屬', width: 115, headerCellClass: 'text-primary' },
+            { name: 'IL_TRCOM'        , displayName: '派送公司', width: 115, headerCellClass: 'text-primary' },
+            { name: 'IL_REMARK'       , displayName: '備註', width: 115, headerCellClass: 'text-primary' },
+            { name: 'IL_EXTEL'        , displayName: '匯出電話', width: 115, headerCellClass: 'text-primary' },
+            { name: 'IL_EXNO'         , displayName: '匯出統編', width: 115, headerCellClass: 'text-primary' },
+            { name: 'IL_TAX2'         , displayName: '稅則', width: 115, headerCellClass: 'text-primary' },
+        ],
+        enableFiltering: false,
+        enableSorting: true,
+        enableColumnMenus: false,
+        // enableVerticalScrollbar: false,
+        paginationPageSizes: [50, 100, 150, 200, 250, 300],
+        paginationPageSize: 50,
+        rowEditWaitInterval: -1,
+        onRegisterApi: function(gridApi){
+            $ctrl.overSixGridApi = gridApi;
+        }
+    }
+
+    $ctrl.ok = function() {
+        $uibModalInstance.close($ctrl.overSixGridApi.rowEdit.getDirtyRows());
     };
 
     $ctrl.cancel = function() {

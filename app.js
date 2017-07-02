@@ -55,10 +55,18 @@ app.use('/auth', auth);
 app.use('/restful', restful);
 app.use('/toolbox', toolbox);
 app.get('/favicon.ico', function(req, res) {
-    res.send(204);
+    res.sendStatus(204);
 });
 app.get('*', function(req, res) { 
-    res.sendfile('./public/404.html');
+    // console.log(404);
+    res.sendFile('404.html', { root: path.join(__dirname, 'public') }, function (err) {
+        if (err) {
+            console.log(err);
+        } else {
+            console.log('Send:', '404.html');
+        }
+    });
+    // res.sendfile('../public/404.html');
 });
 
 // catch 404 and forward to error handler

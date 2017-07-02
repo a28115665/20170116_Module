@@ -9,6 +9,15 @@ module.exports = function(pQueryname, pParams){
 									OL_FLIGHTNO, \
 									OL_IMPORTDT, \
 									OL_COUNTRY, \
+									( \
+										SELECT COUNT(1) \
+										FROM ( \
+											SELECT IL_BAGNO \
+											FROM ITEM_LIST \
+											WHERE IL_SEQ = OL_SEQ \
+											GROUP BY IL_BAGNO \
+										) A \
+									) AS 'OL_COUNT', \
 									OL_CR_USER, \
 									( \
 										CASE WHEN ( \
