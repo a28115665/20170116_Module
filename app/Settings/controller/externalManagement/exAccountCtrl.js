@@ -22,6 +22,41 @@ angular.module('app.settings').controller('ExAccountCtrl', function ($scope, $st
         profile : Session.Get(),
         boolData : bool,
         compyData : compy,
+        ForgetPW : function(){
+
+            var _defaultPass = "Eastwind@168";
+
+            var modalInstance = $uibModal.open({
+                animation: true,
+                ariaLabelledBy: 'modal-title',
+                ariaDescribedBy: 'modal-body',
+                template: $templateCache.get('isChecked'),
+                controller: 'IsCheckedModalInstanceCtrl',
+                controllerAs: '$ctrl',
+                size: 'sm',
+                windowClass: 'center-modal',
+                // appendTo: parentElem,
+                resolve: {
+                    items: function() {
+                        return _defaultPass;
+                    },
+                    show: function(){
+                        return {
+                            title : "即將設定為預設密碼" + _defaultPass
+                        };
+                    }
+                }
+            });
+
+            modalInstance.result.then(function(selectedItem) {
+                // console.log(selectedItem);
+                
+                $vm.vmData.CI_PW = selectedItem;
+
+            }, function() {
+                // $log.info('Modal dismissed at: ' + new Date());
+            });
+        },
         Return : function(){
         	ReturnToExternalManagementPage();
         },
@@ -52,6 +87,7 @@ angular.module('app.settings').controller('ExAccountCtrl', function ($scope, $st
                 updatename: 'UpdateByEncrypt',
                 table: 7,
                 params: {
+                    CI_PW          : $vm.vmData.CI_PW,
                     CI_NAME        : $vm.vmData.CI_NAME,
                     CI_COMPY       : $vm.vmData.CI_COMPY,
                     CI_STS         : $vm.vmData.CI_STS,

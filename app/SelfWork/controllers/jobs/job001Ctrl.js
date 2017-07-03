@@ -9,9 +9,9 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
     angular.extend(this, {
         Init : function(){
             // 不正常登入此頁面
-            if($stateParams.data == null){
-                ReturnToEmployeejobsPage();
-            }else{
+            // if($stateParams.data == null){
+            //     ReturnToEmployeejobsPage();
+            // }else{
 
                 $vm.bigBreadcrumbsItems = $state.current.name.split(".");
                 $vm.bigBreadcrumbsItems.shift();
@@ -19,15 +19,15 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                 $vm.vmData = $stateParams.data;
 
                 // 測試用
-                // if($vm.vmData == null){
-                //     $vm.vmData = {
-                //         OL_SEQ : 'AdminTest20170525190758',
-                //         OL_CR_DATETIME : '2017-04-19T10:10:47.906Z'
-                //     };
-                // }
+                if($vm.vmData == null){
+                    $vm.vmData = {
+                        OL_SEQ : 'AdminTest20170525190758',
+                        OL_CR_DATETIME : '2017-04-19T10:10:47.906Z'
+                    };
+                }
                 
                 LoadItemList();
-            }
+            // }
         },
         profile : Session.Get(),
         gridMethod : {
@@ -263,7 +263,7 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
             data: '$vm.job001Data',
             columnDefs: [
                 { name: 'Index'         , displayName: '序列', width: 50, enableFiltering: false, enableCellEdit: false },
-                { name: 'IL_G1'         , displayName: '報關種類', width: 115, enableCellEdit: false },
+                { name: 'IL_G1'         , displayName: '報關種類', width: 115, headerCellClass: 'text-primary' },
                 { name: 'IL_MERGENO'    , displayName: '併票號', width: 129, headerCellClass: 'text-primary' },
                 { name: 'IL_BAGNO'      , displayName: '袋號', width: 129, headerCellClass: 'text-primary' },
                 { name: 'IL_SMALLNO'    , displayName: '小號', width: 115, headerCellClass: 'text-primary' },
@@ -293,7 +293,7 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                 { name: 'IL_TRCOM'      , displayName: '派送公司', width: 115, headerCellClass: 'text-primary' },
                 { name: 'IL_REMARK'     , displayName: '備註', width: 115, headerCellClass: 'text-primary' },
                 { name: 'IL_TAX2'       , displayName: '稅則', width: 115, headerCellClass: 'text-primary' },
-                { name: 'Options'       , displayName: '操作', width: 230, enableCellEdit: false, enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToCB'), pinnedRight:true, cellClass: 'cell-class-no-style' }
+                { name: 'Options'       , displayName: '操作', width: 240, enableCellEdit: false, enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToCB'), pinnedRight:true, cellClass: 'cell-class-no-style' }
             ],
             // rowTemplate: '<div> \
             //                 <div ng-repeat="(colRenderIndex, col) in colContainer.renderedColumns track by col.colDef.name" class="ui-grid-cell" ng-class="row.entity.BLFO_TRACK != null ? \'cell-class-pull cell-class-ban\' : \'\'" ui-grid-cell></div> \
@@ -496,21 +496,48 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                 }
 
                 if(_queryname != null){
-                    ToolboxApi.ExportExcelBySql({
-                        templates : selectedItem,
-                        filename : _exportName,
-                        querymain: 'job001',
-                        queryname: _queryname,
-                        params: {
-                            OL_MASTER : $vm.vmData.OL_MASTER,
-                            OL_IMPORTDT : $filter('date')($vm.vmData.OL_IMPORTDT, 'yyyy-MM-dd'),
-                            OL_FLIGHTNO : $vm.vmData.OL_FLIGHTNO,
-                            OL_COUNTRY : $vm.vmData.OL_COUNTRY,                
-                            IL_SEQ : $vm.vmData.OL_SEQ
+
+                    // 選擇筆數匯出
+                    if($vm.job001GridApi.selection.getSelectedRows().length > 0){
+                        var _newSmallNo = [];
+                        for(var i in $vm.job001GridApi.selection.getSelectedRows()){
+                            _newSmallNo.push($vm.job001GridApi.selection.getSelectedRows()[i].IL_NEWSMALLNO);
                         }
-                    }).then(function (res) {
-                        // console.log(res);
-                    });
+
+                        ToolboxApi.ExportExcelBySql({
+                            templates : selectedItem,
+                            filename : _exportName,
+                            querymain: 'job001',
+                            queryname: _queryname,
+                            params: {
+                                OL_MASTER : $vm.vmData.OL_MASTER,
+                                OL_IMPORTDT : $filter('date')($vm.vmData.OL_IMPORTDT, 'yyyy-MM-dd'),
+                                OL_FLIGHTNO : $vm.vmData.OL_FLIGHTNO,
+                                OL_COUNTRY : $vm.vmData.OL_COUNTRY,                
+                                IL_SEQ : $vm.vmData.OL_SEQ,
+                                NewSmallNo : "'"+_newSmallNo.join("','")+"'"
+                            }
+                        }).then(function (res) {
+                            // console.log(res);
+                        });
+
+                    }else{
+                        ToolboxApi.ExportExcelBySql({
+                            templates : selectedItem,
+                            filename : _exportName,
+                            querymain: 'job001',
+                            queryname: _queryname,
+                            params: {
+                                OL_MASTER : $vm.vmData.OL_MASTER,
+                                OL_IMPORTDT : $filter('date')($vm.vmData.OL_IMPORTDT, 'yyyy-MM-dd'),
+                                OL_FLIGHTNO : $vm.vmData.OL_FLIGHTNO,
+                                OL_COUNTRY : $vm.vmData.OL_COUNTRY,                
+                                IL_SEQ : $vm.vmData.OL_SEQ
+                            }
+                        }).then(function (res) {
+                            // console.log(res);
+                        });
+                    }
                 }
 
             }, function() {
@@ -524,21 +551,54 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                               $vm.vmData.OL_FLIGHTNO + ' ' +
                               $vm.vmData.OL_COUNT + '袋';
 
-            ToolboxApi.ExportExcelBySql({
-                templates : 11,
-                filename : _exportName,
-                querymain: 'job001',
-                queryname: 'SelectItemListForFlight',
-                params: {
-                    OL_MASTER : $vm.vmData.OL_MASTER,
-                    OL_IMPORTDT : $filter('date')($vm.vmData.OL_IMPORTDT, 'yyyy-MM-dd'),
-                    OL_FLIGHTNO : $vm.vmData.OL_FLIGHTNO,
-                    OL_COUNTRY : $vm.vmData.OL_COUNTRY,               
-                    IL_SEQ : $vm.vmData.OL_SEQ
-                }
-            }).then(function (res) {
-                // console.log(res);
-            });
+            // 選擇筆數匯出
+            if($vm.job001GridApi.selection.getSelectedRows().length > 0){
+
+                // if($vm.job001GridApi.selection.getSelectedRows().length < 1000){
+
+                    var _newSmallNo = [];
+                    for(var i in $vm.job001GridApi.selection.getSelectedRows()){
+                        _newSmallNo.push($vm.job001GridApi.selection.getSelectedRows()[i].IL_NEWSMALLNO);
+                    }
+
+                    ToolboxApi.ExportExcelBySql({
+                        templates : 11,
+                        filename : _exportName,
+                        querymain: 'job001',
+                        queryname: 'SelectItemListForFlight',
+                        params: {
+                            OL_MASTER : $vm.vmData.OL_MASTER,
+                            OL_IMPORTDT : $filter('date')($vm.vmData.OL_IMPORTDT, 'yyyy-MM-dd'),
+                            OL_FLIGHTNO : $vm.vmData.OL_FLIGHTNO,
+                            OL_COUNTRY : $vm.vmData.OL_COUNTRY,               
+                            IL_SEQ : $vm.vmData.OL_SEQ,
+                            NewSmallNo : "'"+_newSmallNo.join("','")+"'"
+                        }
+                    }).then(function (res) {
+                        // console.log(res);
+                    });
+                // }else{
+                //     toaster.pop('info', '訊息', '超過300筆，請重新選擇筆數', 3000);
+                // }
+            }
+            // 全部匯出
+            else{
+                ToolboxApi.ExportExcelBySql({
+                    templates : 11,
+                    filename : _exportName,
+                    querymain: 'job001',
+                    queryname: 'SelectItemListForFlight',
+                    params: {
+                        OL_MASTER : $vm.vmData.OL_MASTER,
+                        OL_IMPORTDT : $filter('date')($vm.vmData.OL_IMPORTDT, 'yyyy-MM-dd'),
+                        OL_FLIGHTNO : $vm.vmData.OL_FLIGHTNO,
+                        OL_COUNTRY : $vm.vmData.OL_COUNTRY,               
+                        IL_SEQ : $vm.vmData.OL_SEQ
+                    }
+                }).then(function (res) {
+                    // console.log(res);
+                });
+            }
         },
         // 顯示併票結果
         MergeNoResult : function(){
@@ -1149,7 +1209,9 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
             { name: 'IL_REMARK'       , displayName: '備註', width: 115, headerCellClass: 'text-primary' },
             { name: 'IL_EXTEL'        , displayName: '匯出電話', width: 115, headerCellClass: 'text-primary' },
             { name: 'IL_EXNO'         , displayName: '匯出統編', width: 115, headerCellClass: 'text-primary' },
-            { name: 'IL_TAX2'         , displayName: '稅則', width: 115, headerCellClass: 'text-primary' },
+            { name: 'IL_TAX2'         , displayName: '稅則', width: 115, headerCellClass: 'text-primary' },  
+            { name: 'GETNAME_COUNT'   , displayName: '收件人公司', width: 90, pinnedRight:true },
+            { name: 'GETADDRESS_COUNT', displayName: '收件地址', width: 80, pinnedRight:true }
         ],
         enableFiltering: false,
         enableSorting: true,
