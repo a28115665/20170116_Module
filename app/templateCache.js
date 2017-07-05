@@ -140,28 +140,31 @@ angular.module('app')
                         </div>');
     $templateCache.put('accessibilityToForW2', '\
                         <div class="ui-grid-cell-contents text-center">\
-                            <i class="fa fa-circle-o" ng-if="row.entity.W2_STATUS == \'1\'"> </i> \
-                            <i class="fa fa-circle text-warning" ng-if="row.entity.W2_STATUS == \'2\'"> </i> \
-                            <i class="fa fa-circle text-success" ng-if="row.entity.W2_STATUS == \'3\'"> </i> \
+                            <i class="fa fa-circle-o" data-tooltip-placement="left" data-uib-tooltip="{{row.entity.W2_PRINCIPAL}}" ng-if="row.entity.W2_STATUS == \'1\'"> </i> \
+                            <i class="fa fa-circle text-warning" data-tooltip-placement="left" data-uib-tooltip="{{row.entity.W2_PRINCIPAL | userInfoFilter}}" ng-if="row.entity.W2_STATUS == \'2\'"> </i> \
+                            <i class="fa fa-circle text-success" data-tooltip-placement="left" data-uib-tooltip="{{row.entity.W2_PRINCIPAL | userInfoFilter}}" ng-if="row.entity.W2_STATUS == \'3\'"> </i> \
+                            <i class="fa fa-circle txt-color-magenta" data-tooltip-placement="left" data-uib-tooltip="{{row.entity.W2_PRINCIPAL | userInfoFilter}}" ng-if="row.entity.W2_STATUS == \'4\'"> </i> \
                         </div>');
     $templateCache.put('accessibilityToForW3', '\
                         <div class="ui-grid-cell-contents text-center">\
-                            <i class="fa fa-circle-o" ng-if="row.entity.W3_STATUS == \'1\'"> </i> \
-                            <i class="fa fa-circle text-warning" ng-if="row.entity.W3_STATUS == \'2\'"> </i> \
-                            <i class="fa fa-circle text-success" ng-if="row.entity.W3_STATUS == \'3\'"> </i> \
+                            <i class="fa fa-circle-o" data-tooltip-placement="left" data-uib-tooltip="{{row.entity.W3_PRINCIPAL}}" ng-if="row.entity.W3_STATUS == \'1\'"> </i> \
+                            <i class="fa fa-circle text-warning" data-tooltip-placement="left" data-uib-tooltip="{{row.entity.W3_PRINCIPAL}}" ng-if="row.entity.W3_STATUS == \'2\'"> </i> \
+                            <i class="fa fa-circle text-success" data-tooltip-placement="left" data-uib-tooltip="{{row.entity.W3_PRINCIPAL}}" ng-if="row.entity.W3_STATUS == \'3\'"> </i> \
+                            <i class="fa fa-circle txt-color-magenta" data-tooltip-placement="left" data-uib-tooltip="{{row.entity.W3_PRINCIPAL | userInfoFilter}}" ng-if="row.entity.W3_STATUS == \'4\'"> </i> \
                         </div>');
     $templateCache.put('accessibilityToForW1', '\
                         <div class="ui-grid-cell-contents text-center">\
-                            <i class="fa fa-circle-o" ng-if="row.entity.W1_STATUS == \'1\'"> </i> \
-                            <i class="fa fa-circle text-warning" ng-if="row.entity.W1_STATUS == \'2\'"> </i> \
-                            <i class="fa fa-circle text-success" ng-if="row.entity.W1_STATUS == \'3\'"> </i> \
+                            <i class="fa fa-circle-o" data-tooltip-placement="left" data-uib-tooltip="{{row.entity.W1_PRINCIPAL}}" ng-if="row.entity.W1_STATUS == \'1\'"> </i> \
+                            <i class="fa fa-circle text-warning" data-tooltip-placement="left" data-uib-tooltip="{{row.entity.W1_PRINCIPAL}}" ng-if="row.entity.W1_STATUS == \'2\'"> </i> \
+                            <i class="fa fa-circle text-success" data-tooltip-placement="left" data-uib-tooltip="{{row.entity.W1_PRINCIPAL}}" ng-if="row.entity.W1_STATUS == \'3\'"> </i> \
+                            <i class="fa fa-circle txt-color-magenta" data-tooltip-placement="left" data-uib-tooltip="{{row.entity.W1_PRINCIPAL | userInfoFilter}}" ng-if="row.entity.W1_STATUS == \'4\'"> </i> \
                         </div>');
     $templateCache.put('accessibilityToDMCForLeader', '\
                         <div class="ui-grid-cell-contents text-center">\
                             <a href="javascript:void(0);" class="btn btn-danger btn-xs" ng-click="grid.appScope.$vm.gridMethod.deleteData(row)" ng-disabled="row.entity.g"> 刪除</a>\
                             <a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethod.modifyData(row)"> 修改</a>\
                             <!-- <a href="javascript:void(0);" class="btn btn-primary btn-xs" ng-click="grid.appScope.$vm.gridMethod.closeData(row)" ng-class="(row.entity.W1_STATUS == \'3\' && row.entity.W2_STATUS == \'3\' && row.entity.W3_STATUS == \'3\') ? \'\' : \'disabled\'"> 結單</a> -->\
-                            <a href="javascript:void(0);" class="btn btn-primary btn-xs" ng-click="grid.appScope.$vm.gridMethod.closeData(row)" ng-class="(row.entity.W2_STATUS == \'3\') ? \'\' : \'disabled\'"> 結單</a>\
+                            <a href="javascript:void(0);" class="btn btn-primary btn-xs" ng-click="grid.appScope.$vm.gridMethod.closeData(row)" ng-class="(row.entity.W2_STATUS == \'3\' || row.entity.W2_STATUS == \'4\') ? \'\' : \'disabled\'"> 結單</a>\
                         </div>');
     $templateCache.put('accessibilityToMForLeaderSearch', '\
                         <div class="ui-grid-cell-contents text-center">\

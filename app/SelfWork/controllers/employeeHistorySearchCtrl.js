@@ -93,6 +93,7 @@ angular.module('app.selfwork').controller('EmployeeHistorySearchCtrl', function 
                 { name: 'OL_MASTER'   ,  displayName: '主號' },
                 { name: 'OL_COUNT'    ,  displayName: '報機單(袋數)', enableCellEdit: false },
                 { name: 'OL_COUNTRY'  ,  displayName: '起運國別' },
+                { name: 'W2_PRINCIPAL',  displayName: '負責人', cellFilter: 'userInfoFilter' },
                 { name: 'ITEM_LIST'          ,  displayName: '報機單', enableFiltering: false, width: '8%', cellTemplate: $templateCache.get('accessibilityToOperaForJob001') },
                 { name: 'FLIGHT_ITEM_LIST'   ,  displayName: '銷艙單', enableFiltering: false, width: '8%', cellTemplate: $templateCache.get('accessibilityToOperaForJob002') },
                 // { name: 'Options'       , displayName: '下載', width: '5%', enableCellEdit: false, enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToOnceDownload') }

@@ -137,7 +137,7 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
             // 結單
             closeData : function(row){
 
-                if(row.entity.W2_STATUS == 3){
+                if(row.entity.W2_STATUS == 3 || row.entity.W2_STATUS == 4){
                 // if(row.entity.W2_STATUS == 3 && row.entity.W3_STATUS == 3 && row.entity.W1_STATUS == 3){
                     var modalInstance = $uibModal.open({
                         animation: true,
@@ -210,6 +210,7 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
                             {label:'已派單', value: '1'},
                             {label:'已編輯', value: '2'},
                             {label:'已完成', value: '3'},
+                            {label:'非作業員'  , value: '4'}
                         ]
                     }
                 },
@@ -223,6 +224,7 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
                             {label:'已派單', value: '1'},
                             {label:'已編輯', value: '2'},
                             {label:'已完成', value: '3'},
+                            {label:'非作業員'  , value: '4'}
                         ]
                     }
                 },
@@ -236,6 +238,7 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
                             {label:'已派單', value: '1'},
                             {label:'已編輯', value: '2'},
                             {label:'已完成', value: '3'},
+                            {label:'非作業員'  , value: '4'}
                         ]
                     }
                 },

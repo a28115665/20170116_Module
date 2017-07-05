@@ -260,7 +260,7 @@ angular.module('app.selfwork').controller('EmployeeJobsCtrl', function ($scope, 
         orderListOptions : {
             data:  '$vm.selfWorkData',
             columnDefs: [
-                { name: 'OL_IMPORTDT'            ,  displayName: '進口日期', cellFilter: 'dateFilter' },
+                { name: 'OL_IMPORTDT'            ,  displayName: '進口日期', width: 80, cellFilter: 'dateFilter' },
                 { name: 'OL_CO_CODE'             ,  displayName: '行家', width: 80, cellFilter: 'compyFilter', filter: 
                     {
                         term: null,
@@ -275,6 +275,19 @@ angular.module('app.selfwork').controller('EmployeeJobsCtrl', function ($scope, 
                 { name: 'OL_MASTER'              ,  displayName: '主號' },
                 { name: 'OL_COUNT'               ,  displayName: '報機單(袋數)', width: 80, enableCellEdit: false },
                 { name: 'OL_COUNTRY'             ,  displayName: '起運國別', width: 80 },
+                { name: 'W2_STATUS'              ,  displayName: '狀態', width: 80, cellTemplate: $templateCache.get('accessibilityToForW2'), filter: 
+                    {
+                        term: null,
+                        type: uiGridConstants.filter.SELECT,
+                        selectOptions: [
+                            // {label:'未派單', value: '0'},
+                            {label:'已派單', value: '1'},
+                            {label:'已編輯', value: '2'},
+                            {label:'已完成', value: '3'},
+                            {label:'非作業員'  , value: '4'}
+                        ]
+                    }
+                },
                 { name: 'ITEM_LIST'              ,  displayName: '報機單', enableFiltering: false, width: '8%', cellTemplate: $templateCache.get('accessibilityToOperaForJob001') },
                 { name: 'FLIGHT_ITEM_LIST'       ,  displayName: '銷艙單', enableFiltering: false, width: '8%', cellTemplate: $templateCache.get('accessibilityToOperaForJob002') },
                 // { name: 'DELIVERY_ITEM_LIST'  ,  displayName: '派送單', enableFiltering: false, width: '8%', cellTemplate: $templateCache.get('accessibilityToOperaForJob003') },
