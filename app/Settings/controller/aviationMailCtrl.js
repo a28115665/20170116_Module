@@ -74,8 +74,8 @@ angular.module('app.settings').controller('AviationMailCtrl', function ($scope, 
             enableSorting: false,
             enableColumnMenus: false,
             // enableVerticalScrollbar: false,
-            paginationPageSizes: [10, 25, 50],
-            paginationPageSize: 10
+            paginationPageSizes: [10, 25, 50, 100],
+            paginationPageSize: 100
         },
         AddTarget : function(){
 

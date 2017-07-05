@@ -3,16 +3,18 @@ var router = express.Router();
 var dbCommand = require('../until/dbCommand.js');
 var dbCommandByTask = require('../until/dbCommandByTask.js');
 var async = require('async');
+var logger = require('../until/log4js.js').logger('restful');
 
 /**
  * Restful 查詢
  */
 router.get('/crud', function(req, res) {
+    // console.log(req);
     
     dbCommand.SelectMethod(req.query["querymain"], req.query["queryname"], req.query["params"], function(err, recordset) {
         if (err) {
-            console.log(err);
             // Do something with your error...
+            logger.error('查詢失敗', req.ip, __line+'行', err);
             res.status(500).send('查詢失敗');
         } else {
             res.header('Cache-Control', 'no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0')

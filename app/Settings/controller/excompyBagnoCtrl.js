@@ -124,8 +124,8 @@ angular.module('app.settings').controller('ExcompyBagnoCtrl', function ($scope, 
             enableSorting: false,
             enableColumnMenus: false,
             // enableVerticalScrollbar: false,
-            paginationPageSizes: [10, 25, 50],
-            paginationPageSize: 10,
+            paginationPageSizes: [10, 25, 50, 100],
+            paginationPageSize: 100,
             onRegisterApi: function(gridApi){
                 $vm.bagNo3NeedGridApi = gridApi;
             }
@@ -201,8 +201,8 @@ angular.module('app.settings').controller('ExcompyBagnoCtrl', function ($scope, 
             enableSorting: false,
             enableColumnMenus: false,
             // enableVerticalScrollbar: false,
-            paginationPageSizes: [10, 25, 50],
-            paginationPageSize: 10,
+            paginationPageSizes: [10, 25, 50, 100],
+            paginationPageSize: 100,
             onRegisterApi: function(gridApi){
                 $vm.bagNo5NotNeedGridApi = gridApi;
             }

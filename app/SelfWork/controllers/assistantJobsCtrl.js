@@ -53,8 +53,8 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
             enableSorting: true,
             enableColumnMenus: false,
             // enableVerticalScrollbar: false,
-            // paginationPageSizes: [10, 25, 50],
-            // paginationPageSize: 10,
+            // paginationPageSizes: [10, 25, 50, 100],
+            // paginationPageSize: 100,
             onRegisterApi: function(gridApi){
                 $vm.flightArrivalGridApi = gridApi;
             }
@@ -267,8 +267,8 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
             enableSorting: true,
             enableColumnMenus: false,
             // enableVerticalScrollbar: false,
-            paginationPageSizes: [10, 25, 50],
-            paginationPageSize: 10,
+            paginationPageSizes: [10, 25, 50, 100],
+            paginationPageSize: 100,
             onRegisterApi: function(gridApi){
                 $vm.flightItemGridApi = gridApi;
             }
@@ -386,8 +386,8 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
             enableSorting: false,
             enableColumnMenus: false,
             // enableVerticalScrollbar: false,
-            paginationPageSizes: [10, 25, 50],
-            paginationPageSize: 10,
+            paginationPageSizes: [10, 25, 50, 100],
+            paginationPageSize: 100,
             onRegisterApi: function(gridApi){
                 $vm.pullGoodsGridApi = gridApi;
             }

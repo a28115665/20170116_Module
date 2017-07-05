@@ -102,8 +102,8 @@ angular.module('app.settings').controller('ExternalManagementCtrl', function ($s
             enableSorting: false,
             enableColumnMenus: false,
             // enableVerticalScrollbar: false,
-            paginationPageSizes: [10, 25, 50],
-            paginationPageSize: 10,
+            paginationPageSizes: [10, 25, 50, 100],
+            paginationPageSize: 100,
             onRegisterApi: function(gridApi){
                 $vm.custInfoGridApi = gridApi;
             }
@@ -188,8 +188,8 @@ angular.module('app.settings').controller('ExternalManagementCtrl', function ($s
             enableSorting: false,
             enableColumnMenus: false,
             // enableVerticalScrollbar: false,
-            paginationPageSizes: [10, 25, 50],
-            paginationPageSize: 10,
+            paginationPageSizes: [10, 25, 50, 100],
+            paginationPageSize: 100,
             onRegisterApi: function(gridApi){
                 $vm.compyInfoGridApi = gridApi;
             }

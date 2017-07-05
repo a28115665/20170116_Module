@@ -133,8 +133,8 @@ angular.module('app.concerns').controller('DailyAlertCtrl', function ($scope, $s
             enableSorting: true,
             enableColumnMenus: false,
             // enableVerticalScrollbar: false,
-            paginationPageSizes: [10, 25, 50],
-            paginationPageSize: 10,
+            paginationPageSizes: [10, 25, 50, 100],
+            paginationPageSize: 100,
             onRegisterApi: function(gridApi){
                 $vm.caseAGridApi = gridApi;
             }
@@ -146,8 +146,8 @@ angular.module('app.concerns').controller('DailyAlertCtrl', function ($scope, $s
             enableSorting: true,
             enableColumnMenus: false,
             // enableVerticalScrollbar: false,
-            paginationPageSizes: [10, 25, 50],
-            paginationPageSize: 10,
+            paginationPageSizes: [10, 25, 50, 100],
+            paginationPageSize: 100,
             onRegisterApi: function(gridApi){
                 $vm.caseBGridApi = gridApi;
             }
@@ -159,8 +159,8 @@ angular.module('app.concerns').controller('DailyAlertCtrl', function ($scope, $s
             enableSorting: true,
             enableColumnMenus: false,
             // enableVerticalScrollbar: false,
-            paginationPageSizes: [10, 25, 50],
-            paginationPageSize: 10,
+            paginationPageSizes: [10, 25, 50, 100],
+            paginationPageSize: 100,
             onRegisterApi: function(gridApi){
                 $vm.caseCGridApi = gridApi;
             }
@@ -172,8 +172,8 @@ angular.module('app.concerns').controller('DailyAlertCtrl', function ($scope, $s
             enableSorting: true,
             enableColumnMenus: false,
             // enableVerticalScrollbar: false,
-            paginationPageSizes: [10, 25, 50],
-            paginationPageSize: 10,
+            paginationPageSizes: [10, 25, 50, 100],
+            paginationPageSize: 100,
             onRegisterApi: function(gridApi){
                 $vm.caseDGridApi = gridApi;
             }
@@ -388,8 +388,8 @@ angular.module('app.concerns').controller('DailyAlertCtrl', function ($scope, $s
         enableSorting: true,
         enableColumnMenus: false,
         // enableVerticalScrollbar: false,
-        paginationPageSizes: [10, 25, 50],
-        paginationPageSize: 10,
+        paginationPageSizes: [10, 25, 50, 100],
+        paginationPageSize: 100,
         onRegisterApi: function(gridApi){
             $ctrl.mdDataGridApi = gridApi;
         }

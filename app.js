@@ -1,7 +1,7 @@
 var express = require('express');
 var path = require('path');
 // var favicon = require('serve-favicon');
-var logger = require('morgan');
+// var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var busboy = require('connect-busboy');
@@ -23,13 +23,35 @@ var setting = require('./app.setting.json');
 
 var app = express();
 
+/**
+ * 印出行數
+ * 範例: console.log(__line);
+ */
+Object.defineProperty(global, '__stack', {
+    get: function(){
+        var orig = Error.prepareStackTrace;
+        Error.prepareStackTrace = function(_, stack){ return stack; };
+        var err = new Error;
+        Error.captureStackTrace(err, arguments.callee);
+        var stack = err.stack;
+        Error.prepareStackTrace = orig;
+        return stack;
+    }
+});
+
+Object.defineProperty(global, '__line', {
+    get: function(){
+        return __stack[1].getLineNumber();
+    }
+});
+
 // view engine setup
 // app.set('views', path.join(__dirname, 'views'));
 // app.set('view engine', 'jade');
 
 // uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
-app.use(logger('dev'));
+// app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());

@@ -35,15 +35,14 @@ module.exports = function(pQueryname, pParams){
 			_SQLCommand += "SELECT ITEM_LIST.* \
 							FROM ITEM_LIST \
 							JOIN ( \
-								SELECT IL_GETNAME \
+								SELECT IL_GETNAME_NEW \
 								FROM ITEM_LIST \
 								WHERE IL_SEQ = @IL_SEQ \
-								GROUP BY IL_GETNAME \
+								GROUP BY IL_GETNAME_NEW \
 								HAVING COUNT(*) > 1 \
-							) REPEAT_NAME ON REPEAT_NAME.IL_GETNAME = ITEM_LIST.IL_GETNAME \
-							WHERE ITEM_LIST.IL_SEQ = @IL_SEQ";
-
-			_SQLCommand += " ORDER BY IL_BAGNO ";
+							) REPEAT_NAME ON REPEAT_NAME.IL_GETNAME_NEW = ITEM_LIST.IL_GETNAME_NEW \
+							WHERE ITEM_LIST.IL_SEQ = @IL_SEQ \
+							ORDER BY IL_GETNAME_NEW, IL_BAGNO";
 			
 			break;
 		case "SelectItemListForFlight":
@@ -103,8 +102,8 @@ module.exports = function(pQueryname, pParams){
 									END AS 'SPG_SPECIALGOODS', \
 									PG_MOVED, \
 									ITEM_LIST.*, \
-									/*報關*/ \
-									'' AS 'CUSTOMS_CLEARANCE' \
+									CASE WHEN ROW_NUMBER() OVER(PARTITION BY IL_BAGNO ORDER BY IL_BAGNO) = 1 \
+									THEN IL_BAGNO ELSE NULL END AS 'IL_BAGNOEX_NOREPEAT' \
 							FROM ITEM_LIST \
 							LEFT JOIN BLACK_LIST_FROM_OP ON \
 							IL_SEQ = BLFO_SEQ AND \
@@ -121,10 +120,13 @@ module.exports = function(pQueryname, pParams){
 							IL_ORDERINDEX = SPG_ORDERINDEX \
 							WHERE 1=1 \
 							/*拉貨不匯出*/ \
-							AND PG_SEQ IS NULL \
-							/*匯出X2*/ \
-							AND IL_G1 = '' ";
-							
+							AND PG_SEQ IS NULL ";
+			
+			if(pParams["IL_G1"] !== undefined){
+				_SQLCommand += " AND IL_G1 IN ("+pParams["IL_G1"]+")";
+				delete pParams["IL_G1"];
+			}
+
 			if(pParams["IL_SEQ"] !== undefined){
 				_SQLCommand += " AND IL_SEQ = @IL_SEQ";
 			}
@@ -147,6 +149,8 @@ module.exports = function(pQueryname, pParams){
 									END AS 'SPG_SPECIALGOODS', \
 									PG_MOVED, \
 									ITEM_LIST.*, \
+									CASE WHEN ROW_NUMBER() OVER(PARTITION BY IL_BAGNO ORDER BY IL_BAGNO) = 1 \
+									THEN IL_BAGNO ELSE NULL END AS 'IL_BAGNOEX_NOREPEAT', \
 									/*淨重 ROUND(IF(G5-0.5>0,G5-0.5,G5-0.1),2)*/ \
 									CASE WHEN ITEM_LIST.IL_WEIGHT_NEW - 0.5 > 0 THEN ROUND(ITEM_LIST.IL_WEIGHT_NEW - 0.5, 2) ELSE ROUND(ITEM_LIST.IL_WEIGHT_NEW - 0.1, 2) END AS 'NW', \
 									/*稅別辦法*/ \
@@ -173,7 +177,7 @@ module.exports = function(pQueryname, pParams){
 							/*拉貨不匯出*/ \
 							AND PG_SEQ IS NULL \
 							/*匯出X2*/ \
-							AND IL_G1 = '' ";
+							AND IL_G1 IN ('', 'X2') ";
 							
 			if(pParams["IL_SEQ"] !== undefined){
 				_SQLCommand += " AND IL_SEQ = @IL_SEQ";
@@ -193,10 +197,12 @@ module.exports = function(pQueryname, pParams){
 								   GETADDRESS_COUNT \
 								   /*GETTEL_COUNT*/ \
 							FROM ITEM_LIST \
-							LEFT JOIN V_FIRST_HALF_YEAR_NAME VFHYN ON VFHYN.IL_GETNAME = ITEM_LIST.IL_GETNAME \
-							LEFT JOIN V_FIRST_HALF_YEAR_ADDRESS VFHYA ON VFHYA.IL_GETADDRESS = ITEM_LIST.IL_GETADDRESS \
+							LEFT JOIN V_FIRST_HALF_YEAR_NAME VFHYN ON VFHYN.IL_GETNAME_NEW = ITEM_LIST.IL_GETNAME_NEW \
+							LEFT JOIN V_FIRST_HALF_YEAR_ADDRESS VFHYA ON VFHYA.IL_GETADDRESS_NEW = ITEM_LIST.IL_GETADDRESS_NEW \
 							/*LEFT JOIN V_FIRST_HALF_YEAR_TEL VFHYT ON VFHYT.IL_GETTEL = ITEM_LIST.IL_GETTEL*/ \
-							WHERE 1=1 ";
+							WHERE 1=1 \
+							/*不包含G1 X2 X3*/ \
+							AND IL_G1 = ''";
 							
 			if(pParams["IL_SEQ"] !== undefined){
 				_SQLCommand += " AND IL_SEQ = @IL_SEQ";
@@ -213,10 +219,12 @@ module.exports = function(pQueryname, pParams){
 								   GETADDRESS_COUNT \
 								   /*GETTEL_COUNT*/ \
 							FROM ITEM_LIST \
-							LEFT JOIN V_SECOND_HALF_YEAR_NAME VSHYN ON VSHYN.IL_GETNAME = ITEM_LIST.IL_GETNAME \
-							LEFT JOIN V_SECOND_HALF_YEAR_ADDRESS VSHYA ON VSHYA.IL_GETADDRESS = ITEM_LIST.IL_GETADDRESS \
+							LEFT JOIN V_SECOND_HALF_YEAR_NAME VSHYN ON VSHYN.IL_GETNAME_NEW = ITEM_LIST.IL_GETNAME_NEW \
+							LEFT JOIN V_SECOND_HALF_YEAR_ADDRESS VSHYA ON VSHYA.IL_GETADDRESS_NEW = ITEM_LIST.IL_GETADDRESS_NEW \
 							/*LEFT JOIN V_SECOND_HALF_YEAR_TEL VSHYT ON VSHYT.IL_GETTEL = ITEM_LIST.IL_GETTEL*/ \
-							WHERE 1=1 ";
+							WHERE 1=1 \
+							/*不包含G1 X2 X3*/ \
+							AND IL_G1 = ''";
 							
 			if(pParams["IL_SEQ"] !== undefined){
 				_SQLCommand += " AND IL_SEQ = @IL_SEQ";

@@ -119,25 +119,25 @@
 				<div class="form-group">
 			        <label class="col-md-3 control-label">寄件人公司</label>
 			        <div class="col-md-9">
-			            <input class="form-control" placeholder="請輸入寄件人公司" ng-model="$ctrl.mdData['IL_SENDNAME']" type="text" ng-disabled="true" required>
+			            <input class="form-control" placeholder="請輸入寄件人公司" ng-model="$ctrl.mdData['IL_SENDNAME']" type="text" ng-disabled="true"  ng-required="!$ctrl.mdData['IL_GETNAME'] && !$ctrl.mdData['IL_GETADDRESS'] && !$ctrl.mdData['IL_GETTEL']">
 			        </div>
 			    </div>
 				<div class="form-group">
 			        <label class="col-md-3 control-label">收件人或公司</label>
 			        <div class="col-md-9">
-			            <input class="form-control" placeholder="請輸入收件人或公司" ng-model="$ctrl.mdData['IL_GETNAME']" type="text" ng-disabled="true" required>
+			            <input class="form-control" placeholder="請輸入收件人或公司" ng-model="$ctrl.mdData['IL_GETNAME']" type="text" ng-disabled="true">
 			        </div>
 			    </div>
 				<div class="form-group">
 			        <label class="col-md-3 control-label">收件人地址</label>
 			        <div class="col-md-9">
-			            <input class="form-control" placeholder="請輸入收件人地址" ng-model="$ctrl.mdData['IL_GETADDRESS']" type="text" ng-disabled="true" required>
+			            <input class="form-control" placeholder="請輸入收件人地址" ng-model="$ctrl.mdData['IL_GETADDRESS']" type="text" ng-disabled="true">
 			        </div>
 			    </div>
 				<div class="form-group">
 			        <label class="col-md-3 control-label">收件人電話</label>
 			        <div class="col-md-9">
-			            <input class="form-control" placeholder="請輸入收件人電話" ng-model="$ctrl.mdData['IL_GETTEL']" type="text" ng-disabled="true" required>
+			            <input class="form-control" placeholder="請輸入收件人電話" ng-model="$ctrl.mdData['IL_GETTEL']" type="text" ng-disabled="true">
 			        </div>
 			    </div>
 				<div class="form-group">
@@ -169,25 +169,25 @@
 				<div class="form-group">
 			        <label class="col-md-3 control-label">寄件人公司</label>
 			        <div class="col-md-9">
-			            <input class="form-control" placeholder="請輸入寄件人公司" ng-model="$ctrl.mdData['BLFL_SENDNAME']" type="text" required>
+			            <input class="form-control" placeholder="請輸入寄件人公司" ng-model="$ctrl.mdData['BLFL_SENDNAME']" type="text" ng-required="!$ctrl.mdData['BLFL_GETNAME'] && !$ctrl.mdData['BLFL_GETADDRESS'] && !$ctrl.mdData['BLFL_GETTEL']">
 			        </div>
 			    </div>
 				<div class="form-group">
 			        <label class="col-md-3 control-label">收件人或公司</label>
 			        <div class="col-md-9">
-			            <input class="form-control" placeholder="請輸入收件人或公司" ng-model="$ctrl.mdData['BLFL_GETNAME']" type="text" required>
+			            <input class="form-control" placeholder="請輸入收件人或公司" ng-model="$ctrl.mdData['BLFL_GETNAME']" type="text">
 			        </div>
 			    </div>
 				<div class="form-group">
 			        <label class="col-md-3 control-label">收件人地址</label>
 			        <div class="col-md-9">
-			            <input class="form-control" placeholder="請輸入收件人地址" ng-model="$ctrl.mdData['BLFL_GETADDRESS']" type="text" required>
+			            <input class="form-control" placeholder="請輸入收件人地址" ng-model="$ctrl.mdData['BLFL_GETADDRESS']" type="text">
 			        </div>
 			    </div>
 				<div class="form-group">
 			        <label class="col-md-3 control-label">收件人電話</label>
 			        <div class="col-md-9">
-			            <input class="form-control" placeholder="收件人電話" ng-model="$ctrl.mdData['BLFL_GETTEL']" type="text" ng-pattern="/^\d+$/" required>
+			            <input class="form-control" placeholder="收件人電話" ng-model="$ctrl.mdData['BLFL_GETTEL']" type="text" ng-pattern="/^\d+$/">
 			        </div>
 			    </div>
 				<div class="form-group">

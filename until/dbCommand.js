@@ -42,7 +42,7 @@ var SelectMethod = function (querymain, queryname, params, callback){
 			// 執行SQL，並且回傳值
 		    ps.prepare(SQLCommand, function(err) {
 			    // ... error checks
-			    if(err) return;
+			    if(err) return callback(err, null);
 			    
 			    /*
 			    	recordset -> 回傳值
@@ -50,7 +50,7 @@ var SelectMethod = function (querymain, queryname, params, callback){
 			     */
 				ps.execute(_params, function(err, recordset, affected) {
 					// ... error checks
-					if(err) return;
+					if(err) return callback(err, null);
 
 					ps.unprepare(function(err) {
 					    // ... error checks

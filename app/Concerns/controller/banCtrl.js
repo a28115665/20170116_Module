@@ -99,8 +99,8 @@ angular.module('app.concerns').controller('BanCtrl', function ($scope, $statePar
             enableSorting: false,
             enableColumnMenus: false,
             // enableVerticalScrollbar: false,
-            paginationPageSizes: [10, 25, 50],
-            paginationPageSize: 10,
+            paginationPageSizes: [10, 25, 50, 100],
+            paginationPageSize: 100,
             onRegisterApi: function(gridApi){
                 $vm.blfoGridApi = gridApi;
             }
@@ -276,8 +276,8 @@ angular.module('app.concerns').controller('BanCtrl', function ($scope, $statePar
             enableSorting: false,
             enableColumnMenus: false,
             // enableVerticalScrollbar: false,
-            paginationPageSizes: [10, 25, 50],
-            paginationPageSize: 10,
+            paginationPageSizes: [10, 25, 50, 100],
+            paginationPageSize: 100,
             onRegisterApi: function(gridApi){
                 $vm.blflGridApi = gridApi;
             }

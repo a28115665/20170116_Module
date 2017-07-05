@@ -137,7 +137,8 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
             // 結單
             closeData : function(row){
 
-                if(row.entity.W2_STATUS == 3 && row.entity.W3_STATUS == 3 && row.entity.W1_STATUS == 3){
+                if(row.entity.W2_STATUS == 3){
+                // if(row.entity.W2_STATUS == 3 && row.entity.W3_STATUS == 3 && row.entity.W1_STATUS == 3){
                     var modalInstance = $uibModal.open({
                         animation: true,
                         ariaLabelledBy: 'modal-title',
@@ -245,8 +246,8 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
             enableSorting: true,
             enableColumnMenus: false,
             // enableVerticalScrollbar: false,
-            paginationPageSizes: [10, 25, 50],
-            paginationPageSize: 10,
+            paginationPageSizes: [10, 25, 50, 100],
+            paginationPageSize: 100,
             expandableRowTemplate: 'expandableRowTemplate.html',
             expandableRowHeight: 150,
             enableCellEdit: false,
@@ -305,17 +306,18 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
                 for(var i in $vm.vmData){
 
                     // 此負責人編輯狀態為null則刪除
-                    var _data = angular.copy($vm.vmData[i].subGridOptions.data);
-                    for(var j in _data){
-                        if(_data[j].OE_EDATETIME == null){
-                            $vm.vmData[i].subGridOptions.data.splice(j, 1);
-                            console.log(j, $vm.vmData[i].subGridOptions.data);
-                        }
-                    }
+                    // var _data = angular.copy($vm.vmData[i].subGridOptions.data);
+                    // for(var j in _data){
+                    //     if(_data[j].OE_EDATETIME == null){
+                    //         $vm.vmData[i].subGridOptions.data.splice(j, 1);
+                    //         console.log(j, $vm.vmData[i].subGridOptions.data);
+                    //     }
+                    // }
 
+                    // 根據設定給予負責人
                     for(var j in $vm.principalData){
                         if($vm.vmData[i].OL_CO_CODE == $vm.principalData[j].COD_CODE){
-                            // 有負責人和此data沒有此負責人就塞入資料
+                            // 此data沒有此負責人就塞入資料
                             if(($vm.principalData[j].WHO_PRINCIPAL != null) &&
                                 $filter('filter')($vm.vmData[i].subGridOptions.data, { OP_PRINCIPAL : $vm.principalData[j].WHO_PRINCIPAL }).length == 0){
                                 // console.log($vm.principalData[j]);
@@ -376,8 +378,7 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
                 params: {
                     OP_SEQ : entity.OL_SEQ,
                     OP_DEPT : $vm.selectAssignDept
-                },
-
+                }
             });
 
             // Insert此單的負責人
@@ -420,8 +421,8 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
             enableSorting: true,
             enableColumnMenus: false,
             // enableVerticalScrollbar: false,
-            paginationPageSizes: [10, 25, 50],
-            paginationPageSize: 10,
+            paginationPageSizes: [10, 25, 50, 100],
+            paginationPageSize: 100,
             onRegisterApi: function(gridApi){
                 $vm.compyStatisticsGridApi = gridApi;
             }

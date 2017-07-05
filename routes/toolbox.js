@@ -9,6 +9,7 @@ var archiver = require('archiver');
 var http = require('http');
 const querystring = require('querystring');
 const nodemailer = require('nodemailer');
+var logger = require('../until/log4js.js').logger('toolbox');
 
 var dateFormat = require('dateformat');
 
@@ -118,41 +119,48 @@ router.get('/exportExcelBySql', function(req, res) {
             post_res.on('end', function() {
                 // console.log(content);
 
-                let _params = typeof req.query["params"] == "string" ? JSON.parse(req.query["params"]) : req.query["params"];
-                
-                // 如果undefined則先宣告物件
-                if(_params == undefined){
-                    _params = {};
-                }
+                try {
 
-                _params["data"] = JSON.parse(content).returnData;
-
-                // console.log(_params.data.length);
-
-                tmpXlsObj.GetXls({
-                    JsonXls : _params,
-                    TmpXlsFilePath : path.join(path.dirname(module.parent.filename), 'templates', templates[req.query["templates"]]), //template xls 路徑(含檔名)
-                    // OutputXlsPath : path.join(path.dirname(module.parent.filename), 'templates', 'test2.xlsx'),
-                    SheetNumber : 1
-                }, function (err, result){
-                    if (err) {
-                        console.log(err);
-                        // Do something with your error...
-                        res.status(500).send("匯出失敗");
-                    } else {
-
-                        res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-                        res.setHeader('Content-Length', result.length);
-                        res.setHeader('Expires', '0');
-                        // res.setHeader('Content-Disposition', 'attachment; filename=test.xls');
-                        res.setHeader('Content-Encoding', 'UTF-8');
-                        res.status(200);
-
-                        var buffer = new Buffer(result, "binary");
-
-                        res.end(toArrayBuffer(buffer));
+                    let _params = typeof req.query["params"] == "string" ? JSON.parse(req.query["params"]) : req.query["params"];
+                    
+                    // 如果undefined則先宣告物件
+                    if(_params == undefined){
+                        _params = {};
                     }
-                });
+
+                    _params["data"] = JSON.parse(content).returnData;
+
+                    // console.log(_params.data.length);
+
+                    tmpXlsObj.GetXls({
+                        JsonXls : _params,
+                        TmpXlsFilePath : path.join(path.dirname(module.parent.filename), 'templates', templates[req.query["templates"]]), //template xls 路徑(含檔名)
+                        // OutputXlsPath : path.join(path.dirname(module.parent.filename), 'templates', 'test2.xlsx'),
+                        SheetNumber : 1
+                    }, function (err, result){
+                        if (err) {
+                            // Do something with your error...
+                            logger.error('匯出失敗', req.ip, __line+'行', err);
+                            res.status(500).send("匯出失敗");
+                        } else {
+
+                            res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+                            res.setHeader('Content-Length', result.length);
+                            res.setHeader('Expires', '0');
+                            // res.setHeader('Content-Disposition', 'attachment; filename=test.xls');
+                            res.setHeader('Content-Encoding', 'UTF-8');
+                            res.status(200);
+
+                            var buffer = new Buffer(result, "binary");
+
+                            res.end(toArrayBuffer(buffer));
+                        }
+                    });
+                } 
+                catch(err) {
+                    logger.error('匯出失敗', req.ip, __line+'行', err);
+                    res.status(500).send("匯出失敗");
+                }  
 
             });
         }else{

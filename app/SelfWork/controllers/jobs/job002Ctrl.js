@@ -48,7 +48,7 @@ angular.module('app.selfwork').controller('Job002Ctrl', function ($scope, $state
 		    enableRowSelection: true,
     		enableSelectAll: true,
             paginationPageSizes: [50, 100, 150, 200, 250, 300],
-            paginationPageSize: 50,
+            paginationPageSize: 100,
             onRegisterApi: function(gridApi){
                 $vm.job002GridApi = gridApi;
 
