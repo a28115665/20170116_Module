@@ -124,8 +124,8 @@ angular.module('app.mainwork').controller('MainWorkCtrl', function ($scope, $sta
             enableSorting: false,
             enableColumnMenus: false,
             // enableVerticalScrollbar: false,
-            paginationPageSizes: [10, 25, 50],
-            paginationPageSize: 10,
+            paginationPageSizes: [10, 25, 50, 100],
+            paginationPageSize: 100,
             onRegisterApi: function(gridApi){
                 $vm.billboardGridApi = gridApi;
             }
@@ -171,8 +171,8 @@ angular.module('app.mainwork').controller('MainWorkCtrl', function ($scope, $sta
         //     enableSorting: false,
         //     enableColumnMenus: false,
         //     // enableVerticalScrollbar: false,
-        //     paginationPageSizes: [10, 25, 50],
-        //     paginationPageSize: 10
+        //     paginationPageSizes: [10, 25, 50, 100],
+        //     paginationPageSize: 100
         // }
     });
 

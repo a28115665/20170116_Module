@@ -42,6 +42,10 @@ angular.module('app.settings').controller('ExCompyCtrl', function ($scope, $stat
             }).then(function (res) {
 
                 toaster.pop('success', '訊息', '更新行家成功', 3000);
+
+                // 新增成功後，更新compy的值
+                $filter('compyFilter')({}, true);
+                
                 ReturnToExternalManagementPage();
 
             }, function (err) {

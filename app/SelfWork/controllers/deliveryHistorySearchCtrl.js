@@ -81,8 +81,8 @@ angular.module('app.selfwork').controller('DeliveryHistorySearchCtrl', function 
             enableSorting: false,
             enableColumnMenus: false,
             // enableVerticalScrollbar: false,
-            paginationPageSizes: [10, 25, 50],
-            paginationPageSize: 10,
+            paginationPageSizes: [10, 25, 50, 100],
+            paginationPageSize: 100,
             onRegisterApi: function(gridApi){
                 $vm.resultGridApi = gridApi;
             }
@@ -176,7 +176,13 @@ angular.module('app.selfwork').controller('DeliveryHistorySearchCtrl', function 
 
         for(var i in pObject){
             if(pObject[i] != ""){
-                _conditions[i] = pObject[i];
+                if(i == "CRDT_FROM"){
+                    _conditions[i] = pObject[i] + ' 00:00:00';
+                }else if(i == "CRDT_TOXX"){
+                    _conditions[i] = pObject[i] + ' 23:59:59';
+                }else{
+                    _conditions[i] = pObject[i];
+                }
             }
         }
 

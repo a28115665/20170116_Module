@@ -3,6 +3,7 @@
 angular.module('app.selfwork').controller('EmployeeJobsCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, $filter, uiGridConstants, RestfulApi, compy, $q) {
     
     var $vm = this;
+    console.log(Session.Get());
 
 	angular.extend(this, {
         Init : function(){
@@ -91,54 +92,16 @@ angular.module('app.selfwork').controller('EmployeeJobsCtrl', function ($scope, 
             }
         },
         gridMethodForJob001 : {
-            //退件
-            // rejectData : function(row){
-            //     console.log(row);
+            // 檢視(組長職位以上)
+            viewData : function(row){
+                console.log(row);
 
-            //     var modalInstance = $uibModal.open({
-            //         animation: true,
-            //         ariaLabelledBy: 'modal-title',
-            //         ariaDescribedBy: 'modal-body',
-            //         template: $templateCache.get('isChecked'),
-            //         controller: 'IsCheckedModalInstanceCtrl',
-            //         controllerAs: '$ctrl',
-            //         size: 'sm',
-            //         windowClass: 'center-modal',
-            //         // appendTo: parentElem,
-            //         resolve: {
-            //             items: function() {
-            //                 return row.entity;
-            //             },
-            //             show: function(){
-            //                 return {
-            //                     title : "是否退單"
-            //                 }
-            //             }
-            //         }
-            //     });
-
-            //     modalInstance.result.then(function(selectedItem) {
-            //         // $ctrl.selected = selectedItem;
-            //         console.log(selectedItem);
-                    
-            //         // RestfulApi.UpdateMSSQLData({
-            //         //     updatename: 'Update',
-            //         //     table: 18,
-            //         //     params: {
-            //         //         OL_W2_PRINCIPAL : null
-            //         //     },
-            //         //     condition: {
-            //         //         OL_SEQ : selectedItem.OL_SEQ,
-            //         //         OL_CR_USER : selectedItem.OL_CR_USER
-            //         //     }
-            //         // }).then(function (res) {
-            //         //     LoadOrderList();
-            //         // });
-
-            //     }, function() {
-            //         // $log.info('Modal dismissed at: ' + new Date());
-            //     });
-            // },
+                if($vm.profile.U_GRADE <= 9){
+                    $state.transitionTo("app.selfwork.employeejobs.job001", {
+                        data: row.entity
+                    });
+                }
+            },
             // 編輯
             modifyData : function(row){
                 console.log(row);
@@ -297,29 +260,45 @@ angular.module('app.selfwork').controller('EmployeeJobsCtrl', function ($scope, 
         orderListOptions : {
             data:  '$vm.selfWorkData',
             columnDefs: [
-                { name: 'OL_IMPORTDT' ,  displayName: '進口日期', cellFilter: 'dateFilter' },
-                { name: 'OL_CO_CODE'  ,  displayName: '行家', cellFilter: 'compyFilter', filter: 
+                { name: 'OL_IMPORTDT'            ,  displayName: '進口日期', width: 80, cellFilter: 'dateFilter' },
+                { name: 'OL_CO_CODE'             ,  displayName: '行家', width: 80, cellFilter: 'compyFilter', filter: 
                     {
                         term: null,
                         type: uiGridConstants.filter.SELECT,
                         selectOptions: compy
                     }
                 },
-                { name: 'OL_FLIGHTNO' ,  displayName: '航班' },
-                { name: 'OL_MASTER'   ,  displayName: '主號' },
-                { name: 'OL_COUNT'    ,  displayName: '報機單(袋數)', enableCellEdit: false },
-                { name: 'OL_COUNTRY'  ,  displayName: '起運國別' },
-                { name: 'ITEM_LIST'          ,  displayName: '報機單', enableFiltering: false, width: '8%', cellTemplate: $templateCache.get('accessibilityToOperaForJob001') },
-                { name: 'FLIGHT_ITEM_LIST'   ,  displayName: '銷艙單', enableFiltering: false, width: '8%', cellTemplate: $templateCache.get('accessibilityToOperaForJob002') },
-                // { name: 'DELIVERY_ITEM_LIST' ,  displayName: '派送單', enableFiltering: false, width: '8%', cellTemplate: $templateCache.get('accessibilityToOperaForJob003') },
-                { name: 'Options'       , displayName: '操作', width: '5%', enableCellEdit: false, enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToM') }
+                { name: 'OL_FLIGHTNO'            ,  displayName: '航班', width: 80 },
+                { name: 'FA_SCHEDL_ARRIVALTIME'  ,  displayName: '預計抵達時間', cellFilter: 'datetimeFilter' },
+                { name: 'FA_ACTL_ARRIVALTIME'    ,  displayName: '真實抵達時間', cellFilter: 'datetimeFilter' },
+                { name: 'FA_ARRIVAL_REMK'        ,  displayName: '狀態', width: 60, cellTemplate: $templateCache.get('accessibilityToArrivalRemark') },
+                { name: 'OL_MASTER'              ,  displayName: '主號' },
+                { name: 'OL_COUNT'               ,  displayName: '報機單(袋數)', width: 80, enableCellEdit: false },
+                { name: 'OL_COUNTRY'             ,  displayName: '起運國別', width: 80 },
+                { name: 'W2_STATUS'              ,  displayName: '狀態', width: 80, cellTemplate: $templateCache.get('accessibilityToForW2'), filter: 
+                    {
+                        term: null,
+                        type: uiGridConstants.filter.SELECT,
+                        selectOptions: [
+                            // {label:'未派單', value: '0'},
+                            {label:'已派單', value: '1'},
+                            {label:'已編輯', value: '2'},
+                            {label:'已完成', value: '3'},
+                            {label:'非作業員'  , value: '4'}
+                        ]
+                    }
+                },
+                { name: 'ITEM_LIST'              ,  displayName: '報機單', enableFiltering: false, width: '8%', cellTemplate: $templateCache.get('accessibilityToOperaForJob001') },
+                { name: 'FLIGHT_ITEM_LIST'       ,  displayName: '銷艙單', enableFiltering: false, width: '8%', cellTemplate: $templateCache.get('accessibilityToOperaForJob002') },
+                // { name: 'DELIVERY_ITEM_LIST'  ,  displayName: '派送單', enableFiltering: false, width: '8%', cellTemplate: $templateCache.get('accessibilityToOperaForJob003') },
+                { name: 'Options'                ,  displayName: '操作', width: '5%', enableCellEdit: false, enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToM') }
             ],
             enableFiltering: true,
             enableSorting: false,
             enableColumnMenus: false,
             // enableVerticalScrollbar: false,
-            paginationPageSizes: [10, 25, 50],
-            paginationPageSize: 10,
+            paginationPageSizes: [10, 25, 50, 100],
+            paginationPageSize: 100,
             onRegisterApi: function(gridApi){
                 $vm.selfWorkGridApi = gridApi;
             }

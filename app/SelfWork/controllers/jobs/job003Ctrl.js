@@ -1,6 +1,6 @@
 "use strict";
 
-angular.module('app.selfwork').controller('Job003Ctrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, RestfulApi, uiGridConstants, $filter, $q) {
+angular.module('app.selfwork').controller('Job003Ctrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, RestfulApi, uiGridConstants, $filter, $q, ToolboxApi) {
     // console.log($stateParams, $state);
 
     var $vm = this,
@@ -52,7 +52,7 @@ angular.module('app.selfwork').controller('Job003Ctrl', function ($scope, $state
 		    enableRowSelection: true,
     		enableSelectAll: true,
             paginationPageSizes: [50, 100, 150, 200, 250, 300],
-            paginationPageSize: 50,
+            paginationPageSize: 100,
             onRegisterApi: function(gridApi){
                 $vm.job003GridApi = gridApi;
 
@@ -60,7 +60,25 @@ angular.module('app.selfwork').controller('Job003Ctrl', function ($scope, $state
             }
         },
         ExportExcel: function(){
+            var _exportName = $filter('date')($vm.vmData.OL_IMPORTDT, 'yyyyMMdd') + ' ' + 
+                              $filter('compyFilter')($vm.vmData.OL_CO_CODE) + ' ' + 
+                              $vm.vmData.OL_FLIGHTNO;
 
+            ToolboxApi.ExportExcelBySql({
+                templates : 4,
+                filename : _exportName,
+                querymain: 'job003',
+                queryname: 'SelectDeliveryItemList',
+                params: {
+                    OL_MASTER : $vm.vmData.OL_MASTER,
+                    OL_IMPORTDT : $filter('date')($vm.vmData.OL_IMPORTDT, 'yyyy-MM-dd'),
+                    OL_FLIGHTNO : $vm.vmData.OL_FLIGHTNO,
+                    OL_COUNTRY : $vm.vmData.OL_COUNTRY,                
+                    DIL_SEQ: $vm.vmData.OL_SEQ
+                }
+            }).then(function (res) {
+                // console.log(res);
+            });
         },
         Return : function(){
             ReturnToEmployeejobsPage();

@@ -5,8 +5,10 @@ module.exports = function(pQueryname, pParams){
 		case "SelectCompyDistribution":
 			_SQLCommand += "SELECT COD_PRINCIPAL, \
 								   COD_CODE, \
-								   COD_DEPT \
+								   COD_DEPT, \
+								   CO_WEIGHTS \
 							FROM COMPY_DISTRIBUTION \
+							LEFT JOIN COMPY_INFO ON CO_CODE = COD_CODE \
 							WHERE 1=1 ";
 
 			if(pParams["COD_DEPT"] !== undefined){

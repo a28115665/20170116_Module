@@ -1,6 +1,6 @@
 "use strict";
 
-angular.module('app.selfwork.leaderoption').controller('CompyDistributionCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, $filter, $q, RestfulApi, uiGridConstants, userInfoByGrade, compy) {
+angular.module('app.selfwork.leaderoption').controller('CompyDistributionCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, $filter, $q, RestfulApi, uiGridConstants, userInfoByGrade, compy, coWeights) {
     
     var $vm = this;
 
@@ -23,6 +23,13 @@ angular.module('app.selfwork.leaderoption').controller('CompyDistributionCtrl', 
                         selectOptions: compy
                     }
                 },
+                { name: 'CO_WEIGHTS',  displayName: '權重', cellFilter: 'coWeightsFilter', filter: 
+                    {
+                        term: null,
+                        type: uiGridConstants.filter.SELECT,
+                        selectOptions: coWeights
+                    }
+                },
                 // { name: 'CO_ADDR'      ,  displayName: '公司地址' },
                 // { name: 'COD_PRINCIPAL',  displayName: '負責人' , cellFilter: 'userInfoFilter', filter: 
                 //     {
@@ -37,8 +44,8 @@ angular.module('app.selfwork.leaderoption').controller('CompyDistributionCtrl', 
             enableSorting: true,
             enableColumnMenus: false,
             // enableVerticalScrollbar: false,
-            paginationPageSizes: [10, 25, 50],
-            paginationPageSize: 10,
+            paginationPageSizes: [10, 25, 50, 100],
+            paginationPageSize: 100,
             expandableRowTemplate: 'expandableRowTemplate.html',
             expandableRowHeight: 150,
             expandableRowScope: {

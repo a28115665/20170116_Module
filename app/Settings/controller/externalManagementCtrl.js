@@ -102,8 +102,8 @@ angular.module('app.settings').controller('ExternalManagementCtrl', function ($s
             enableSorting: false,
             enableColumnMenus: false,
             // enableVerticalScrollbar: false,
-            paginationPageSizes: [10, 25, 50],
-            paginationPageSize: 10,
+            paginationPageSizes: [10, 25, 50, 100],
+            paginationPageSize: 100,
             onRegisterApi: function(gridApi){
                 $vm.custInfoGridApi = gridApi;
             }
@@ -188,8 +188,8 @@ angular.module('app.settings').controller('ExternalManagementCtrl', function ($s
             enableSorting: false,
             enableColumnMenus: false,
             // enableVerticalScrollbar: false,
-            paginationPageSizes: [10, 25, 50],
-            paginationPageSize: 10,
+            paginationPageSizes: [10, 25, 50, 100],
+            paginationPageSize: 100,
             onRegisterApi: function(gridApi){
                 $vm.compyInfoGridApi = gridApi;
             }
@@ -240,6 +240,9 @@ angular.module('app.settings').controller('ExternalManagementCtrl', function ($s
 
                         if(res["returnData"] == 1){
                             LoadCompyInfo();
+
+                            // 新增成功後，更新compy的值
+                            $filter('compyFilter')({}, true);
 
                             toaster.pop('success', '訊息', '新增行家成功', 3000);
                         }

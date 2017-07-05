@@ -66,6 +66,9 @@
 				    <header>
 				        <h2>編輯 </h2>
 				        <div class="widget-toolbar smart-form" role="menu">
+				            <a href-void="" class="btn btn-warning" href="#" ng-click="$vm.OverSix()">超過六次</a>
+				        </div>
+				        <div class="widget-toolbar smart-form" role="menu">
 				            <a href-void="" class="btn btn-warning" href="#" ng-click="$vm.RepeatName()">收件者相同</a>
 				        </div>
 				        <div class="widget-toolbar smart-form" role="menu">
@@ -73,6 +76,9 @@
 				        </div>
 				        <div class="widget-toolbar smart-form" role="menu">
 				            <a href-void="" class="btn btn-success" href="#" ng-click="$vm.ExportExcel()">匯出Excel</a>
+				        </div>
+				        <div class="widget-toolbar smart-form" role="menu">
+				            <a href-void="" class="btn btn-success" href="#" ng-click="$vm.ExportAirportSchema()">匯出班機表欄位</a>
 				        </div>
 				        <div class="widget-toolbar smart-form" role="menu">
 				            <a href-void="" class="btn btn-danger" href="#" ng-click="$vm.CancelNo()">取消併票</a>
@@ -137,6 +143,74 @@
 
 </div>
 
+<script type="text/ng-template" id="excelMenu.html">
+    <div class="modal-header bg-color-green">
+        <h3 class="modal-title text-center">
+            <strong class=" txt-color-white">選擇格式</strong>
+        </h3>
+    </div>
+	<div class="modal-body" id="modal-body">
+        <div class="row"> 
+            <button type="button" class="btn btn-info btn-lg btn-block" ng-click="$ctrl.ok('0G1')"> 
+                關貿格式 (G1)
+            </button> 
+            <button type="button" class="btn btn-info btn-lg btn-block" ng-click="$ctrl.ok('0X2')"> 
+                關貿格式 (X2)
+            </button> 
+            <button type="button" class="btn btn-info btn-lg btn-block" ng-click="$ctrl.ok('0X3')"> 
+                關貿格式 (X3)
+            </button> 
+            <button type="button" class="btn btn-info btn-lg btn-block" ng-click="$ctrl.ok('8')"> 
+                介宏格式 
+            </button> 
+        </div> 
+	</div>
+</script>
+
+
+<script type="text/ng-template" id="pullGoodsModalContent.html">
+    <div class="modal-header">
+	    <h3 class="modal-title" id="modal-title">拉貨</h3>
+	</div>
+	<div class="modal-body" id="modal-body">
+	    <form class="form-horizontal" name="pullGoodsForm">
+			<fieldset>
+				<div class="form-group">
+			        <label class="col-md-2 control-label">拉貨原因</label>
+			        <div class="col-md-10">
+			            <textarea class="form-control" rows="3" name="PG_REASON" ng-model="$ctrl.mdData['PG_REASON']" maxlength="200" placeholder="輸入拉貨原因(最多200字)" style="resize: none; "></textarea>
+			        </div>
+			    </div>
+			</fieldset>
+	    </form>
+	</div>
+	<div class="modal-footer text-center">
+	    <button class="btn btn-primary" type="button" ng-click="$ctrl.ok()" ng-disabled="!pullGoodsForm.$valid">{{getWord('OK')}}</button>
+	    <button class="btn btn-default" type="button" ng-click="$ctrl.cancel()">{{getWord('Cancel')}}</button>
+	</div>
+</script>
+
+<script type="text/ng-template" id="specialGoodsModalContent.html">
+	<div class="modal-body" id="modal-body" ng-init="$ctrl.Init()">
+	    <form class="form-horizontal" name="specialGoodsForm">
+			<fieldset>
+				<div class="form-group">
+			        <label class="col-md-4 control-label">特貨類型</label>
+			        <div class="col-md-8">
+						<select class="form-control" ng-model="$ctrl.mdData['SPG_TYPE']" ng-options="data.value as data.label for data in $ctrl.specialGoodsData">
+							<option value="">--請選擇--</option>
+						</select>
+			    	</div>
+			    </div>
+			</fieldset>
+	    </form>
+	</div>
+	<div class="modal-footer text-center">
+	    <button class="btn btn-primary" type="button" ng-click="$ctrl.ok()" ng-disabled="!specialGoodsForm.$valid">{{getWord('OK')}}</button>
+	    <button class="btn btn-default" type="button" ng-click="$ctrl.cancel()">{{getWord('Cancel')}}</button>
+	</div>
+</script>
+
 <script type="text/ng-template" id="mergeNoModalContent.html">
     <div class="modal-header" ng-init="$ctrl.Init()">
 	    <h3 class="modal-title" id="modal-title">併票</h3>
@@ -175,6 +249,12 @@
 			        <label class="col-md-2 control-label">自訂</label>
 			        <div class="col-md-10">
 			            <input class="form-control" placeholder="請輸入自訂併票號品名" ng-model="$ctrl.mdData.natureNew" type="text">
+			        </div>
+			    </div>
+				<div class="form-group">
+			        <label class="col-md-2 control-label">袋數</label>
+			        <div class="col-md-10">
+			            <span class="form-control" ng-disabled="true">{{$ctrl.mdData.bagNo.length}}</span>
 			        </div>
 			    </div>
 			</fieldset>
@@ -267,6 +347,19 @@
 	</div>
 	<div class="modal-body no-padding" id="modal-body">
         <div id="grid1" ui-grid="$ctrl.repeatNameOption" class="my-ui-grid" ui-grid-pagination ui-grid-resize-columns ui-grid-edit ui-grid-row-edit ui-grid-auto-resize></div>
+	</div>
+	<div class="modal-footer">
+	    <button class="btn btn-primary" type="button" ng-click="$ctrl.ok()">{{getWord('OK')}}</button>
+	    <button class="btn btn-default" type="button" ng-click="$ctrl.cancel()">{{getWord('Cancel')}}</button>
+	</div>
+</script>
+
+<script type="text/ng-template" id="overSixModalContent.html">
+    <div class="modal-header" ng-Init="$ctrl.MdInit()">
+	    <h3 class="modal-title" id="modal-title">超過六次({{$ctrl.type}})</h3>
+	</div>
+	<div class="modal-body no-padding" id="modal-body">
+        <div id="grid1" ui-grid="$ctrl.overSixOption" class="my-ui-grid" ui-grid-pagination ui-grid-resize-columns ui-grid-pinning ui-grid-edit ui-grid-row-edit ui-grid-auto-resize></div>
 	</div>
 	<div class="modal-footer">
 	    <button class="btn btn-primary" type="button" ng-click="$ctrl.ok()">{{getWord('OK')}}</button>

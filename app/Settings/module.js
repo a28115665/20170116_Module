@@ -287,7 +287,9 @@ angular.module('app.settings').config(function ($stateProvider){
                 controller: 'ExcompyBagnoCtrl',
                 controllerAs: '$vm',
                 resolve: {
-
+                    bool: function (SysCode){
+                        return SysCode.get('Boolean');
+                    }
                 }
             }
         }

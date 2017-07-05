@@ -1,6 +1,6 @@
 "use strict";
 
-angular.module('app.concerns').controller('DailyAlertCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, $timeout, uiGridConstants, RestfulApi, $filter, compy) {
+angular.module('app.concerns').controller('DailyAlertCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, $timeout, uiGridConstants, RestfulApi, $filter, compy, ToolboxApi) {
     
     var $vm = this,
         columnDefs = [
@@ -133,8 +133,8 @@ angular.module('app.concerns').controller('DailyAlertCtrl', function ($scope, $s
             enableSorting: true,
             enableColumnMenus: false,
             // enableVerticalScrollbar: false,
-            paginationPageSizes: [10, 25, 50],
-            paginationPageSize: 10,
+            paginationPageSizes: [10, 25, 50, 100],
+            paginationPageSize: 100,
             onRegisterApi: function(gridApi){
                 $vm.caseAGridApi = gridApi;
             }
@@ -146,8 +146,8 @@ angular.module('app.concerns').controller('DailyAlertCtrl', function ($scope, $s
             enableSorting: true,
             enableColumnMenus: false,
             // enableVerticalScrollbar: false,
-            paginationPageSizes: [10, 25, 50],
-            paginationPageSize: 10,
+            paginationPageSizes: [10, 25, 50, 100],
+            paginationPageSize: 100,
             onRegisterApi: function(gridApi){
                 $vm.caseBGridApi = gridApi;
             }
@@ -159,8 +159,8 @@ angular.module('app.concerns').controller('DailyAlertCtrl', function ($scope, $s
             enableSorting: true,
             enableColumnMenus: false,
             // enableVerticalScrollbar: false,
-            paginationPageSizes: [10, 25, 50],
-            paginationPageSize: 10,
+            paginationPageSizes: [10, 25, 50, 100],
+            paginationPageSize: 100,
             onRegisterApi: function(gridApi){
                 $vm.caseCGridApi = gridApi;
             }
@@ -172,8 +172,8 @@ angular.module('app.concerns').controller('DailyAlertCtrl', function ($scope, $s
             enableSorting: true,
             enableColumnMenus: false,
             // enableVerticalScrollbar: false,
-            paginationPageSizes: [10, 25, 50],
-            paginationPageSize: 10,
+            paginationPageSizes: [10, 25, 50, 100],
+            paginationPageSize: 100,
             onRegisterApi: function(gridApi){
                 $vm.caseDGridApi = gridApi;
             }
@@ -202,20 +202,20 @@ angular.module('app.concerns').controller('DailyAlertCtrl', function ($scope, $s
                     break;
             }
 
-            // if(_exportName != null){
-            //     ToolboxApi.ExportExcelBySql({
-            //         templates : 3,
-            //         filename : _exportName,
-            //         querymain: 'dailyAlert',
-            //         queryname: _queryname,
-            //         params: {
-            //             IMPORTDT_FROM: $vm.IMPORTDT_FROM,
-            //             IMPORTDT_TOXX: $vm.IMPORTDT_TOXX
-            //         }
-            //     }).then(function (res) {
-            //         // console.log(res);
-            //     });
-            // }
+            if(_exportName != null){
+                ToolboxApi.ExportExcelBySql({
+                    templates : 3,
+                    filename : _exportName,
+                    querymain: 'dailyAlert',
+                    queryname: _queryname,
+                    params: {
+                        IMPORTDT_FROM: $vm.IMPORTDT_FROM,
+                        IMPORTDT_TOXX: $vm.IMPORTDT_TOXX
+                    }
+                }).then(function (res) {
+                    // console.log(res);
+                });
+            }
 
         }
     });
@@ -388,8 +388,8 @@ angular.module('app.concerns').controller('DailyAlertCtrl', function ($scope, $s
         enableSorting: true,
         enableColumnMenus: false,
         // enableVerticalScrollbar: false,
-        paginationPageSizes: [10, 25, 50],
-        paginationPageSize: 10,
+        paginationPageSizes: [10, 25, 50, 100],
+        paginationPageSize: 100,
         onRegisterApi: function(gridApi){
             $ctrl.mdDataGridApi = gridApi;
         }

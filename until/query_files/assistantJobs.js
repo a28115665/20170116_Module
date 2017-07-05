@@ -12,7 +12,8 @@ module.exports = function(pQueryname, pParams){
 								   PG_BAGNO, \
 								   PG_MOVED, \
 								   PG_MASTER, \
-								   PG_FLIGHTNO \
+								   PG_FLIGHTNO, \
+								   PG_REASON \
 							FROM ORDER_LIST \
 							JOIN PULL_GOODS ON \
 							PG_SEQ = OL_SEQ \
@@ -68,7 +69,7 @@ module.exports = function(pQueryname, pParams){
 			}
 
 			_SQLCommand += " WHERE OL_FDATETIME IS NULL \
-							 ORDER BY OL_CR_DATETIME DESC ";
+							 ORDER BY CASE WHEN FA_SCHEDL_ARRIVALTIME IS NULL THEN 1 ELSE 0 END, FA_SCHEDL_ARRIVALTIME ";
 
 			break;
 

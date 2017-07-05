@@ -1,6 +1,6 @@
 "use strict";
 
-angular.module('app.concerns').controller('ResultBanCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, $timeout, uiGridConstants, RestfulApi, $filter, compy, localStorageService) {
+angular.module('app.concerns').controller('ResultBanCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, $timeout, uiGridConstants, RestfulApi, $filter, compy, localStorageService, ToolboxApi) {
     
     var $vm = this,
         columnDefs = [
@@ -138,8 +138,8 @@ angular.module('app.concerns').controller('ResultBanCtrl', function ($scope, $st
             enableSorting: true,
             enableColumnMenus: false,
             // enableVerticalScrollbar: false,
-            paginationPageSizes: [10, 25, 50],
-            paginationPageSize: 10,
+            paginationPageSizes: [10, 25, 50, 100],
+            paginationPageSize: 100,
             onRegisterApi: function(gridApi){
                 $vm.caseAGridApi = gridApi;
             }
@@ -151,8 +151,8 @@ angular.module('app.concerns').controller('ResultBanCtrl', function ($scope, $st
             enableSorting: true,
             enableColumnMenus: false,
             // enableVerticalScrollbar: false,
-            paginationPageSizes: [10, 25, 50],
-            paginationPageSize: 10,
+            paginationPageSizes: [10, 25, 50, 100],
+            paginationPageSize: 100,
             onRegisterApi: function(gridApi){
                 $vm.caseBGridApi = gridApi;
             }
@@ -164,8 +164,8 @@ angular.module('app.concerns').controller('ResultBanCtrl', function ($scope, $st
             enableSorting: true,
             enableColumnMenus: false,
             // enableVerticalScrollbar: false,
-            paginationPageSizes: [10, 25, 50],
-            paginationPageSize: 10,
+            paginationPageSizes: [10, 25, 50, 100],
+            paginationPageSize: 100,
             onRegisterApi: function(gridApi){
                 $vm.caseCGridApi = gridApi;
             }
@@ -177,14 +177,50 @@ angular.module('app.concerns').controller('ResultBanCtrl', function ($scope, $st
             enableSorting: true,
             enableColumnMenus: false,
             // enableVerticalScrollbar: false,
-            paginationPageSizes: [10, 25, 50],
-            paginationPageSize: 10,
+            paginationPageSizes: [10, 25, 50, 100],
+            paginationPageSize: 100,
             onRegisterApi: function(gridApi){
                 $vm.caseDGridApi = gridApi;
             }
         },
         Return : function(){
             ReturnToBanHistorySearchPage();
+        },
+        ExportExcel : function(){
+
+            var _exportName = null,
+                _queryname = null;
+
+            switch($vm.defaultTab){
+                case 'hr1':
+                    _exportName = $filter('date')(new Date(), 'yyyyMMdd') + ' ' + $scope.getWord($state.current.data.title) + ' A類型';
+                    _queryname = "SelectCaseA";
+                    break;
+                case 'hr2':
+                    _exportName = $filter('date')(new Date(), 'yyyyMMdd') + ' ' + $scope.getWord($state.current.data.title) + ' B類型';
+                    _queryname = "SelectCaseB";
+                    break;
+                case 'hr3':
+                    _exportName = $filter('date')(new Date(), 'yyyyMMdd') + ' ' + $scope.getWord($state.current.data.title) + ' C類型';
+                    _queryname = "SelectCaseC";
+                    break;
+                case 'hr4':
+                    _exportName = $filter('date')(new Date(), 'yyyyMMdd') + ' ' + $scope.getWord($state.current.data.title) + ' D類型';
+                    _queryname = "SelectCaseD";
+                    break;
+            }
+
+            if(_exportName != null){
+                ToolboxApi.ExportExcelBySql({
+                    templates : 3,
+                    filename : _exportName,
+                    querymain: 'banHistorySearch',
+                    queryname: _queryname,
+                    params: $vm.params
+                }).then(function (res) {
+                    // console.log(res);
+                });
+            }
         }
     });
 
@@ -305,8 +341,8 @@ angular.module('app.concerns').controller('ResultBanCtrl', function ($scope, $st
         enableSorting: true,
         enableColumnMenus: false,
         // enableVerticalScrollbar: false,
-        paginationPageSizes: [10, 25, 50],
-        paginationPageSize: 10,
+        paginationPageSizes: [10, 25, 50, 100],
+        paginationPageSize: 100,
         onRegisterApi: function(gridApi){
             $ctrl.mdDataGridApi = gridApi;
         }

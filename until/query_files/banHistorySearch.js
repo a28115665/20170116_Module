@@ -40,8 +40,11 @@ module.exports = function(pQueryname, pParams){
 										) IN_IL \
 										WHERE IN_IL.IL_GETNAME = OUT_IL.IL_GETNAME AND IN_IL.IL_GETADDRESS = OUT_IL.IL_GETADDRESS \
 									) AS 'IL_COUNT', \
-									OUT_IL.* \
+									OUT_IL.*, \
+						   			CO_NAME \
 							FROM ( " + CaseA(pParams) + " ) OUT_IL \
+							/*行家中文名稱*/ \
+							LEFT JOIN COMPY_INFO ON CO_CODE = OUT_IL.OL_CO_CODE \
 							ORDER BY OUT_IL.IL_GETNAME DESC ";
 			break;
 		case "SelectCaseB":
@@ -62,8 +65,11 @@ module.exports = function(pQueryname, pParams){
 										) IN_IL \
 										WHERE IN_IL.IL_GETADDRESS = OUT_IL.IL_GETADDRESS AND IN_IL.IL_GETTEL = OUT_IL.IL_GETTEL \
 									) AS 'IL_COUNT', \
-									OUT_IL.* \
+									OUT_IL.*, \
+						   			CO_NAME \
 							FROM ( " + CaseB(pParams) + " ) OUT_IL \
+							/*行家中文名稱*/ \
+							LEFT JOIN COMPY_INFO ON CO_CODE = OUT_IL.OL_CO_CODE \
 							ORDER BY OUT_IL.IL_GETNAME DESC ";
 			console.log(_SQLCommand);
 			break;
@@ -85,8 +91,11 @@ module.exports = function(pQueryname, pParams){
 										) IN_IL \
 										WHERE IN_IL.IL_GETNAME = OUT_IL.IL_GETNAME AND IN_IL.IL_GETTEL = OUT_IL.IL_GETTEL \
 									) AS 'IL_COUNT', \
-									OUT_IL.* \
+									OUT_IL.*, \
+						   			CO_NAME \
 							FROM ( " + CaseC(pParams) + " ) OUT_IL \
+							/*行家中文名稱*/ \
+							LEFT JOIN COMPY_INFO ON CO_CODE = OUT_IL.OL_CO_CODE \
 							ORDER BY OUT_IL.IL_GETNAME DESC ";
 			break;
 		case "SelectCaseD":
@@ -107,8 +116,11 @@ module.exports = function(pQueryname, pParams){
 										) IN_IL \
 										WHERE IN_IL.IL_GETNAME = OUT_IL.IL_GETNAME AND IN_IL.IL_GETADDRESS = OUT_IL.IL_GETADDRESS AND IN_IL.IL_GETTEL = OUT_IL.IL_GETTEL \
 									) AS 'IL_COUNT', \
-									OUT_IL.* \
+									OUT_IL.*, \
+						   			CO_NAME \
 							FROM ( " + CaseD(pParams) + " ) OUT_IL \
+							/*行家中文名稱*/ \
+							LEFT JOIN COMPY_INFO ON CO_CODE = OUT_IL.OL_CO_CODE \
 							ORDER BY OUT_IL.IL_GETNAME DESC ";
 			break;
 		case "SelectItemList":
@@ -154,7 +166,8 @@ function CaseA(pParams){
 						   IL.* \
 					FROM V_BLFO_JOIN_IL \
 					JOIN ( \
-						SELECT * \
+						SELECT *, \
+						   	   CONVERT(varchar, OL_IMPORTDT, 23 ) AS 'OL_IMPORTDT_EX' \
 						FROM ITEM_LIST \
 						LEFT JOIN ORDER_LIST ON OL_SEQ = IL_SEQ \
 						/*條件*/ \
@@ -169,7 +182,8 @@ function CaseA(pParams){
 						   IL.* \
 					FROM BLACK_LIST_FROM_LEADER BLFL \
 					JOIN ( \
-						SELECT * \
+						SELECT *, \
+						   	   CONVERT(varchar, OL_IMPORTDT, 23 ) AS 'OL_IMPORTDT_EX' \
 						FROM ITEM_LIST \
 						LEFT JOIN ORDER_LIST ON OL_SEQ = IL_SEQ \
 						/*條件*/ \
@@ -190,7 +204,8 @@ function CaseB(pParams){
 						   IL.* \
 					FROM V_BLFO_JOIN_IL \
 					JOIN ( \
-						SELECT * \
+						SELECT *, \
+						   	   CONVERT(varchar, OL_IMPORTDT, 23 ) AS 'OL_IMPORTDT_EX' \
 						FROM ITEM_LIST \
 						LEFT JOIN ORDER_LIST ON OL_SEQ = IL_SEQ \
 						/*條件*/ \
@@ -205,7 +220,8 @@ function CaseB(pParams){
 						   IL.* \
 					FROM BLACK_LIST_FROM_LEADER BLFL \
 					JOIN ( \
-						SELECT * \
+						SELECT *, \
+						   	   CONVERT(varchar, OL_IMPORTDT, 23 ) AS 'OL_IMPORTDT_EX' \
 						FROM ITEM_LIST \
 						LEFT JOIN ORDER_LIST ON OL_SEQ = IL_SEQ \
 						/*條件*/ \
@@ -226,7 +242,8 @@ function CaseC(pParams){
 						   IL.* \
 					FROM V_BLFO_JOIN_IL \
 					JOIN ( \
-						SELECT * \
+						SELECT *, \
+						   	   CONVERT(varchar, OL_IMPORTDT, 23 ) AS 'OL_IMPORTDT_EX' \
 						FROM ITEM_LIST \
 						LEFT JOIN ORDER_LIST ON OL_SEQ = IL_SEQ \
 						/*條件*/ \
@@ -241,7 +258,8 @@ function CaseC(pParams){
 						   IL.* \
 					FROM BLACK_LIST_FROM_LEADER BLFL \
 					JOIN ( \
-						SELECT * \
+						SELECT *, \
+						   	   CONVERT(varchar, OL_IMPORTDT, 23 ) AS 'OL_IMPORTDT_EX' \
 						FROM ITEM_LIST \
 						LEFT JOIN ORDER_LIST ON OL_SEQ = IL_SEQ \
 						/*條件*/ \
@@ -263,7 +281,8 @@ function CaseD(pParams){
 						   IL.* \
 					FROM V_BLFO_JOIN_IL \
 					JOIN ( \
-						SELECT * \
+						SELECT *, \
+						   	   CONVERT(varchar, OL_IMPORTDT, 23 ) AS 'OL_IMPORTDT_EX' \
 						FROM ITEM_LIST \
 						LEFT JOIN ORDER_LIST ON OL_SEQ = IL_SEQ \
 						/*條件*/ \
@@ -279,7 +298,8 @@ function CaseD(pParams){
 						   IL.* \
 					FROM BLACK_LIST_FROM_LEADER BLFL \
 					JOIN ( \
-						SELECT * \
+						SELECT *, \
+						   	   CONVERT(varchar, OL_IMPORTDT, 23 ) AS 'OL_IMPORTDT_EX' \
 						FROM ITEM_LIST \
 						LEFT JOIN ORDER_LIST ON OL_SEQ = IL_SEQ \
 						/*條件*/ \
@@ -293,7 +313,19 @@ function CaseD(pParams){
 
 function Conditions(pParams, pDelete){
 	var _SQLCommand = "";
-
+						
+	if(pParams["CRDT_FROM"] !== undefined){
+		_SQLCommand += " AND OL_CR_DATETIME >= '" + pParams["CRDT_FROM"] + "'";
+		if(pDelete){
+			delete pParams["CRDT_FROM"];
+		}
+	}
+	if(pParams["CRDT_TOXX"] !== undefined){
+		_SQLCommand += " AND OL_CR_DATETIME <= '" + pParams["CRDT_TOXX"] + "'";
+		if(pDelete){
+			delete pParams["CRDT_TOXX"];
+		}
+	}
 	if(pParams["IMPORTDT_FROM"] !== undefined){
 		_SQLCommand += " AND OL_IMPORTDT >= '" + pParams["IMPORTDT_FROM"] + "'";
 		if(pDelete){

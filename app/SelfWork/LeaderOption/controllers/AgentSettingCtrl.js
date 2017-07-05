@@ -1,6 +1,6 @@
 "use strict";
 
-angular.module('app.selfwork.leaderoption').controller('AgentSettingCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, $filter, uiGridConstants, RestfulApi, userInfoByCompyDistribution, compy, $q, uiGridGroupingConstants) {
+angular.module('app.selfwork.leaderoption').controller('AgentSettingCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, $filter, uiGridConstants, RestfulApi, userInfoByCompyDistribution, compy, $q, uiGridGroupingConstants, coWeights) {
     
     var $vm = this;
 
@@ -38,6 +38,13 @@ angular.module('app.selfwork.leaderoption').controller('AgentSettingCtrl', funct
                         aggregation.rendered = aggregation.value;
                     }
                 },
+                { name: 'CO_WEIGHTS',  displayName: '權重', cellFilter: 'coWeightsFilter', filter: 
+                    {
+                        term: null,
+                        type: uiGridConstants.filter.SELECT,
+                        selectOptions: coWeights
+                    }
+                },
                 { name: 'AGENT_COUNT'   ,  displayName: '代理人數' , treeAggregationType: uiGridGroupingConstants.aggregation.SUM, 
                     customTreeAggregationFinalizerFn: function( aggregation ) {
                         aggregation.rendered = aggregation.value;
@@ -56,8 +63,8 @@ angular.module('app.selfwork.leaderoption').controller('AgentSettingCtrl', funct
             enableColumnMenus: false,
             groupingShowCounts: false,
             // enableVerticalScrollbar: false,
-            paginationPageSizes: [10, 25, 50],
-            paginationPageSize: 10,
+            paginationPageSizes: [10, 25, 50, 100],
+            paginationPageSize: 100,
             expandableRowTemplate: 'expandableRowTemplate.html',
             expandableRowHeight: 150,
             enableCellEdit: false,

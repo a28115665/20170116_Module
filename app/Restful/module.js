@@ -45,6 +45,10 @@ angular.module('app.restful').config(function ($stateProvider){
                                     status : "",
                                     result : ""
                                 },
+                                upsertTest : {
+                                    status : "",
+                                    result : ""
+                                },
                                 deleteTest : {
                                     status : "",
                                     result : ""
@@ -120,9 +124,9 @@ angular.module('app.restful').config(function ($stateProvider){
                                 updatename: 'Update',
                                 table: 0,
                                 params: {
-                                    U_Name : $vm.testData.Name,
-                                    U_UP_User : Session.Get().U_ID,
-                                    U_UP_DateTime : $filter('date')(new Date(), 'yyyy-MM-dd HH:mm:ss')
+                                    U_NAME : $vm.testData.Name,
+                                    U_UP_USER : Session.Get().U_ID,
+                                    U_UP_DATETIME : $filter('date')(new Date(), 'yyyy-MM-dd HH:mm:ss')
                                 },
                                 condition: {
                                     U_ID : $vm.testData.ID
@@ -133,6 +137,30 @@ angular.module('app.restful').config(function ($stateProvider){
                             }, function (err) {
                                 $vm.restful.updateTest.status = "失敗";
                                 $vm.restful.updateTest.result = err;
+                            });
+                        };
+
+                        /**
+                         * Upsert Sample
+                         */
+                        $vm.UpsertTest = function(){
+                            RestfulApi.UpsertMSSQLData({
+                                upsertname: 'Upsert',
+                                table: 0,
+                                params: {
+                                    U_NAME : $vm.testData.Name,
+                                    U_UP_USER : Session.Get().U_ID,
+                                    U_UP_DATETIME : $filter('date')(new Date(), 'yyyy-MM-dd HH:mm:ss')
+                                },
+                                condition: {
+                                    U_ID : $vm.testData.ID
+                                }
+                            }).then(function (res) {
+                                $vm.restful.upsertTest.status = "成功";
+                                $vm.restful.upsertTest.result = res["returnData"];
+                            }, function (err) {
+                                $vm.restful.upsertTest.status = "失敗";
+                                $vm.restful.upsertTest.result = err;
                             });
                         };
 

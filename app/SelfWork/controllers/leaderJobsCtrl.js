@@ -1,6 +1,6 @@
 "use strict";
 
-angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, uiGridConstants, RestfulApi, compy, opType, userInfoByGrade, $filter, $q) {
+angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, uiGridConstants, RestfulApi, compy, opType, userInfoByGrade, $filter, $q, ToolboxApi) {
     
     var $vm = this,
         _tasks = [];
@@ -8,6 +8,9 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
 	angular.extend(this, {
         Init : function(){
             $scope.ShowTabs = true;
+            $vm.IMPORTDT_FROM = $filter('date')(new Date(), 'yyyy-MM-dd') + ' 00:00:00';
+            $vm.IMPORTDT_TOXX = $filter('date')(new Date(), 'yyyy-MM-dd') + ' 23:59:59';
+
             if(userInfoByGrade[0].length == 0){
                 toaster.pop('info', '訊息', '無員工管理', 3000);
                 $vm.vmData = [];
@@ -134,7 +137,8 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
             // 結單
             closeData : function(row){
 
-                if(row.entity.W2_STATUS == 3 && row.entity.W3_STATUS == 3 && row.entity.W1_STATUS == 3){
+                if(row.entity.W2_STATUS == 3 || row.entity.W2_STATUS == 4){
+                // if(row.entity.W2_STATUS == 3 && row.entity.W3_STATUS == 3 && row.entity.W1_STATUS == 3){
                     var modalInstance = $uibModal.open({
                         animation: true,
                         ariaLabelledBy: 'modal-title',
@@ -195,6 +199,7 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
                 },
                 { name: 'OL_FLIGHTNO' ,  displayName: '航班' },
                 { name: 'OL_MASTER'   ,  displayName: '主號' },
+                { name: 'OL_COUNT'    ,  displayName: '報機單(袋數)', width: 80, enableCellEdit: false },
                 { name: 'OL_COUNTRY'  ,  displayName: '起運國別' },
                 { name: 'W2_STATUS'   ,  displayName: '報機單狀態', cellTemplate: $templateCache.get('accessibilityToForW2'), filter: 
                     {
@@ -205,6 +210,7 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
                             {label:'已派單', value: '1'},
                             {label:'已編輯', value: '2'},
                             {label:'已完成', value: '3'},
+                            {label:'非作業員'  , value: '4'}
                         ]
                     }
                 },
@@ -218,6 +224,7 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
                             {label:'已派單', value: '1'},
                             {label:'已編輯', value: '2'},
                             {label:'已完成', value: '3'},
+                            {label:'非作業員'  , value: '4'}
                         ]
                     }
                 },
@@ -231,6 +238,7 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
                             {label:'已派單', value: '1'},
                             {label:'已編輯', value: '2'},
                             {label:'已完成', value: '3'},
+                            {label:'非作業員'  , value: '4'}
                         ]
                     }
                 },
@@ -241,8 +249,8 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
             enableSorting: true,
             enableColumnMenus: false,
             // enableVerticalScrollbar: false,
-            paginationPageSizes: [10, 25, 50],
-            paginationPageSize: 10,
+            paginationPageSizes: [10, 25, 50, 100],
+            paginationPageSize: 100,
             expandableRowTemplate: 'expandableRowTemplate.html',
             expandableRowHeight: 150,
             enableCellEdit: false,
@@ -301,17 +309,18 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
                 for(var i in $vm.vmData){
 
                     // 此負責人編輯狀態為null則刪除
-                    var _data = angular.copy($vm.vmData[i].subGridOptions.data);
-                    for(var j in _data){
-                        if(_data[j].OE_EDATETIME == null){
-                            $vm.vmData[i].subGridOptions.data.splice(j, 1);
-                            console.log(j, $vm.vmData[i].subGridOptions.data);
-                        }
-                    }
+                    // var _data = angular.copy($vm.vmData[i].subGridOptions.data);
+                    // for(var j in _data){
+                    //     if(_data[j].OE_EDATETIME == null){
+                    //         $vm.vmData[i].subGridOptions.data.splice(j, 1);
+                    //         console.log(j, $vm.vmData[i].subGridOptions.data);
+                    //     }
+                    // }
 
+                    // 根據設定給予負責人
                     for(var j in $vm.principalData){
                         if($vm.vmData[i].OL_CO_CODE == $vm.principalData[j].COD_CODE){
-                            // 有負責人和此data沒有此負責人就塞入資料
+                            // 此data沒有此負責人就塞入資料
                             if(($vm.principalData[j].WHO_PRINCIPAL != null) &&
                                 $filter('filter')($vm.vmData[i].subGridOptions.data, { OP_PRINCIPAL : $vm.principalData[j].WHO_PRINCIPAL }).length == 0){
                                 // console.log($vm.principalData[j]);
@@ -372,8 +381,7 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
                 params: {
                     OP_SEQ : entity.OL_SEQ,
                     OP_DEPT : $vm.selectAssignDept
-                },
-
+                }
             });
 
             // Insert此單的負責人
@@ -410,20 +418,53 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
                 { name: 'CO_NAME'  ,  displayName: '行家' },
                 { name: 'W2_COUNT' ,  displayName: '報機單', enableFiltering: false },
                 { name: 'W3_COUNT' ,  displayName: '銷艙單', enableFiltering: false },
-                { name: 'W1_COUNT' ,  displayName: '派件單', enableFiltering: false }
+                { name: 'W1_COUNT' ,  displayName: '派送單', enableFiltering: false }
             ],
             enableFiltering: true,
             enableSorting: true,
             enableColumnMenus: false,
             // enableVerticalScrollbar: false,
-            paginationPageSizes: [10, 25, 50],
-            paginationPageSize: 10,
+            paginationPageSizes: [10, 25, 50, 100],
+            paginationPageSize: 100,
             onRegisterApi: function(gridApi){
                 $vm.compyStatisticsGridApi = gridApi;
             }
         },
         ExportExcel : function(){
-            
+
+            var _exportName = null,
+                _queryname = null,
+                _templates = null,
+                _params = {};
+
+            switch($vm.defaultTab){
+                case 'hr1':
+                    _templates = 6;
+                    _exportName = $filter('date')(new Date(), 'yyyyMMdd') + ' 派單狀態';
+                    _queryname = "SelectOrderListForExcel";
+                    break;
+                case 'hr2':
+                    _templates = 7;
+                    _exportName = $filter('date')(new Date(), 'yyyyMMdd') + ' 每日行家統計';
+                    _queryname = "SelectCompyStatistics";
+                    _params = {
+                        IMPORTDT_FROM: $vm.IMPORTDT_FROM,
+                        IMPORTDT_TOXX: $vm.IMPORTDT_TOXX
+                    }
+                    break;
+            }
+
+            if(_exportName != null){
+                ToolboxApi.ExportExcelBySql({
+                    templates : _templates,
+                    filename : _exportName,
+                    querymain: "leaderJobs",
+                    queryname: _queryname,
+                    params: _params
+                }).then(function (res) {
+                    // console.log(res);
+                });
+            }
         }
     });
 
@@ -544,7 +585,11 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
     function LoadStatistics(){
         RestfulApi.SearchMSSQLData({
             querymain: 'leaderJobs',
-            queryname: 'SelectCompyStatistics'
+            queryname: 'SelectCompyStatistics',
+            params: {
+                IMPORTDT_FROM: $vm.IMPORTDT_FROM,
+                IMPORTDT_TOXX: $vm.IMPORTDT_TOXX
+            }
         }).then(function (res){
             console.log(res["returnData"]);
             $vm.compyStatisticsData = res["returnData"];

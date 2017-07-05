@@ -1,6 +1,6 @@
 "use strict";
 
-angular.module('app.settings').controller('AccountCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, RestfulApi, $filter, bool, role, userGrade) {
+angular.module('app.settings').controller('AccountCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, RestfulApi, $filter, bool, role, userGrade, $templateCache) {
 
     var $vm = this,
         _tasks = [];
@@ -27,30 +27,64 @@ angular.module('app.settings').controller('AccountCtrl', function ($scope, $stat
         boolData : bool,
         roleData : role,
         gradeData : userGrade,
-        ModifyPW : function(){
-        	var modalInstance = $uibModal.open({
+        ForgetPW : function(){
+
+            var _defaultPass = "Eastwind@168";
+
+            var modalInstance = $uibModal.open({
                 animation: true,
                 ariaLabelledBy: 'modal-title',
                 ariaDescribedBy: 'modal-body',
-                templateUrl: 'modifyPWModalContent.html',
-                controller: 'ModifyPWModalInstanceCtrl',
+                template: $templateCache.get('isChecked'),
+                controller: 'IsCheckedModalInstanceCtrl',
                 controllerAs: '$ctrl',
-                // size: 'lg',
+                size: 'sm',
+                windowClass: 'center-modal',
                 // appendTo: parentElem,
                 resolve: {
-                    pw: function () {
-                        return $vm.vmData.U_PW;
+                    items: function() {
+                        return _defaultPass;
+                    },
+                    show: function(){
+                        return {
+                            title : "即將設定為預設密碼" + _defaultPass
+                        };
                     }
                 }
             });
 
             modalInstance.result.then(function(selectedItem) {
-            	console.log(selectedItem);
-            	$vm.vmData.U_PW = selectedItem;
+                // console.log(selectedItem);
                 
+                $vm.vmData.U_PW = selectedItem;
+
             }, function() {
                 // $log.info('Modal dismissed at: ' + new Date());
             });
+
+        	// var modalInstance = $uibModal.open({
+         //        animation: true,
+         //        ariaLabelledBy: 'modal-title',
+         //        ariaDescribedBy: 'modal-body',
+         //        templateUrl: 'modifyPWModalContent.html',
+         //        controller: 'ModifyPWModalInstanceCtrl',
+         //        controllerAs: '$ctrl',
+         //        // size: 'lg',
+         //        // appendTo: parentElem,
+         //        resolve: {
+         //            pw: function () {
+         //                return $vm.vmData.U_PW;
+         //            }
+         //        }
+         //    });
+
+         //    modalInstance.result.then(function(selectedItem) {
+         //    	console.log(selectedItem);
+         //    	$vm.vmData.U_PW = selectedItem;
+                
+         //    }, function() {
+         //        // $log.info('Modal dismissed at: ' + new Date());
+         //    });
         },
         Return : function(){
         	ReturnToAccountManagementPage();
@@ -272,8 +306,8 @@ angular.module('app.settings').controller('AccountCtrl', function ($scope, $stat
         enableRowSelection: true,
         enableSelectAll: true,
         selectionRowHeaderWidth: 35,
-        paginationPageSizes: [10, 25, 50],
-        paginationPageSize: 10,
+        paginationPageSizes: [10, 25, 50, 100],
+        paginationPageSize: 100,
         onRegisterApi: function(gridApi){ 
             $ctrl.mdDataGridApi = gridApi;
         } 

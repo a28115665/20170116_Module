@@ -98,7 +98,7 @@ var GetCargoAircraftTime = function (){
 
         post_req.on('error', function(err) {
             // Handle error
-            res.status(500).send('抓取航班失敗');
+            console.log('抓取航班失敗，原因:', err);
         });
 
 

@@ -28,6 +28,9 @@ angular.module('app.selfwork.leaderoption').config(function ($stateProvider){
                     },
                     compy : function(Compy){
                         return Compy.get();
+                    },
+                    coWeights: function (SysCode){
+                        return SysCode.get('CoWeights');
                     }
                 }
             }
@@ -50,6 +53,9 @@ angular.module('app.selfwork.leaderoption').config(function ($stateProvider){
                     },
                     compy : function(Compy){
                         return Compy.get();
+                    },
+                    coWeights: function (SysCode){
+                        return SysCode.get('CoWeights');
                     }
                 }
             }

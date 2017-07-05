@@ -121,8 +121,8 @@ angular.module('app.settings').controller('AccountManagementCtrl', function ($sc
             enableSorting: false,
             enableColumnMenus: false,
             // enableVerticalScrollbar: false,
-            paginationPageSizes: [10, 25, 50],
-            paginationPageSize: 10,
+            paginationPageSizes: [10, 25, 50, 100],
+            paginationPageSize: 100,
             onRegisterApi: function(gridApi){
                 $vm.accountManagementGridApi = gridApi;
             }
@@ -196,8 +196,8 @@ angular.module('app.settings').controller('AccountManagementCtrl', function ($sc
             enableFiltering: true,
             enableSorting: false,
             enableColumnMenus: false,
-            paginationPageSizes: [10, 25, 50],
-            paginationPageSize: 10,
+            paginationPageSizes: [10, 25, 50, 100],
+            paginationPageSize: 100,
             onRegisterApi: function(gridApi){
                 $vm.groupManagementGridApi = gridApi;
             }

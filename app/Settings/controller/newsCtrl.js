@@ -493,8 +493,8 @@ angular.module('app.settings').controller('NewsCtrl', function ($scope, $statePa
         enableRowSelection: true,
         enableSelectAll: true,
         selectionRowHeaderWidth: 35,
-        paginationPageSizes: [10, 25, 50],
-        paginationPageSize: 10,
+        paginationPageSizes: [10, 25, 50, 100],
+        paginationPageSize: 100,
         onRegisterApi: function(gridApi){ 
             $ctrl.mdDataGridApi = gridApi;
         } 

@@ -93,6 +93,7 @@ angular.module('app.selfwork').controller('EmployeeHistorySearchCtrl', function 
                 { name: 'OL_MASTER'   ,  displayName: '主號' },
                 { name: 'OL_COUNT'    ,  displayName: '報機單(袋數)', enableCellEdit: false },
                 { name: 'OL_COUNTRY'  ,  displayName: '起運國別' },
+                { name: 'W2_PRINCIPAL',  displayName: '負責人', cellFilter: 'userInfoFilter' },
                 { name: 'ITEM_LIST'          ,  displayName: '報機單', enableFiltering: false, width: '8%', cellTemplate: $templateCache.get('accessibilityToOperaForJob001') },
                 { name: 'FLIGHT_ITEM_LIST'   ,  displayName: '銷艙單', enableFiltering: false, width: '8%', cellTemplate: $templateCache.get('accessibilityToOperaForJob002') },
                 // { name: 'Options'       , displayName: '下載', width: '5%', enableCellEdit: false, enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToOnceDownload') }
@@ -101,8 +102,8 @@ angular.module('app.selfwork').controller('EmployeeHistorySearchCtrl', function 
             enableSorting: false,
             enableColumnMenus: false,
             // enableVerticalScrollbar: false,
-            paginationPageSizes: [10, 25, 50],
-            paginationPageSize: 10,
+            paginationPageSizes: [10, 25, 50, 100],
+            paginationPageSize: 100,
             onRegisterApi: function(gridApi){
                 $vm.resultGridApi = gridApi;
             }
@@ -196,7 +197,13 @@ angular.module('app.selfwork').controller('EmployeeHistorySearchCtrl', function 
 
         for(var i in pObject){
             if(pObject[i] != ""){
-                _conditions[i] = pObject[i];
+                if(i == "CRDT_FROM"){
+                    _conditions[i] = pObject[i] + ' 00:00:00';
+                }else if(i == "CRDT_TOXX"){
+                    _conditions[i] = pObject[i] + ' 23:59:59';
+                }else{
+                    _conditions[i] = pObject[i];
+                }
             }
         }
 

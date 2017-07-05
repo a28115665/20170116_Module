@@ -22,7 +22,8 @@ angular.module('app')
         CRUD : $resource('/restful/crud', null,
             {
                 'update': { method: 'PUT' },
-                'insert': { method: 'POST'}
+                'upsert': { method: 'PATCH' },
+                'insert': { method: 'POST' }
             }
         ),
         CRUDBYTASK : $resource('/restful/crudByTask'),
@@ -68,6 +69,7 @@ angular.module('app')
                 }
             }
         ),
+        SENDMAIL : $resource('/toolbox/sendMail'),
         CHANGENATURE : $resource('/toolbox/changeNature'),
         COMPOSEMENU : $resource('/toolbox/composeMenu')
     };
