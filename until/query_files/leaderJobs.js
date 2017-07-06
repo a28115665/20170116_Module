@@ -336,6 +336,11 @@ module.exports = function(pQueryname, pParams){
 							WHERE OL_FDATETIME IS NULL \
 							ORDER BY OL_CR_DATETIME DESC";
 			break;
+
+		case "SelectParm":
+			_SQLCommand = "SELECT SPA_AUTOPRIN \
+						   FROM SYS_PARM";
+			break;
 	}
 
 	return _SQLCommand;

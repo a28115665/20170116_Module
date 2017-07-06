@@ -29,6 +29,7 @@ angular.module('app')
         CRUDBYTASK : $resource('/restful/crudByTask'),
         LOGIN : $resource('/auth/login'),
         LOGOUT : $resource('/auth/logout'),
+        VERSION : $resource('/auth/version'),
         RELOADSESSION : $resource('/auth/reLoadSession'),
         EXPORTEXCELBYVAR : $resource('/toolbox/exportExcelByVar', null, 
             {

@@ -33,6 +33,7 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
                     AssignOptype();
                     LoadOrderList();
                     LoadPrincipal();
+                    LoadParm();
                     break;
                 case 'hr2':
                     LoadStatistics();
@@ -258,6 +259,30 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
                 $vm.orderListGridApi = gridApi;
 
                 gridApi.rowEdit.on.saveRow($scope, $vm.Update);
+            }
+        },
+        AutoPrincipal : function(){
+            if(!angular.isUndefined($vm.parmData['SPA_AUTOPRIN'])){
+                RestfulApi.UpdateMSSQLData({
+                    updatename: 'Update',
+                    table: 26,
+                    params: {
+                        SPA_AUTOPRIN : $vm.parmData['SPA_AUTOPRIN']
+                    },
+                    condition: {
+                        SPA_KEY : 'eastwind168'
+                    }
+                }).then(function (res) {
+                    
+                    if(res['returnData'] == 1){
+                        if($vm.parmData['SPA_AUTOPRIN']){
+                            toaster.pop('info', '訊息', '開啟自動派單', 3000);
+                        }else{
+                            toaster.pop('info', '訊息', '關閉自動派單', 3000);
+                        }
+                    }
+
+                });
             }
         },
         ChangeDept : function(){
@@ -593,6 +618,18 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
         }).then(function (res){
             console.log(res["returnData"]);
             $vm.compyStatisticsData = res["returnData"];
+        });  
+    };
+
+    function LoadParm(){
+        RestfulApi.SearchMSSQLData({
+            querymain: 'leaderJobs',
+            queryname: 'SelectParm'
+        }).then(function (res){
+            console.log(res["returnData"]);
+            if(res["returnData"].length > 0){
+                $vm.parmData = res["returnData"][0];
+            }
         });  
     };
 

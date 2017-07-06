@@ -9,9 +9,17 @@ var del = require('del');
 var fs = require('fs');
 var gulpLivereload = require('gulp-livereload');
 var _ = require('lodash');
+var gulpHtmlVersion = require('gulp-html-version');
+var jsonModify = require('gulp-json-modify');
 
 
 var scripts = require('./app.scripts.json');
+
+var version = {
+    // paramName: 'version',
+    paramType: 'timestamp',
+    suffix: ['css', 'js']
+};
 
 var source = {
     js: {
@@ -79,7 +87,18 @@ gulp.task('clean', function(cb) {
     return del(['public'], cb);
 });
 
-gulp.task('move-public', ['clean'], function(e){
+// version data in multiple files 
+gulp.task('version', function () {
+ 
+  return gulp.src([ './version.json' ])
+    .pipe(jsonModify({
+        key: 'version',
+        value: new Date().getTime()
+    }))
+    .pipe(gulp.dest('./'))
+});
+
+gulp.task('move-public', ['clean', 'version'], function(e){
 
     gulp.src('api/**/*.*').pipe(gulp.dest(destinations['public'] + '/api'));
     gulp.src('app/**/' + source.js.html).pipe(gulp.dest(destinations['public'] + '/app'));
@@ -91,6 +110,7 @@ gulp.task('move-public', ['clean'], function(e){
             source.js.tpl,
             source.js.html
         ])
+    .pipe(gulpHtmlVersion(version))
     .pipe(gulp.dest(destinations['public']));
 });
 

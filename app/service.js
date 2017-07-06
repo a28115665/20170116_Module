@@ -136,6 +136,20 @@ angular.module('app')
 	    	});
 
 	    return deferred.promise
+	},
+
+	this.Version = function () {
+	    var deferred = $q.defer();
+	    
+	    Resource.VERSION.get({},
+	    	function (pSResponse){
+				deferred.resolve(pSResponse);
+			},
+	    	function (pFResponse){
+	    		deferred.reject(pFResponse.data);
+	    	});
+
+	    return deferred.promise
 	}
 })
 .service('ToolboxApi', function ($http, $q, Resource){

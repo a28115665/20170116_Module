@@ -373,6 +373,17 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
 
                 gridApi.edit.on.afterCellEdit($scope, function(rowEntity, colDef, newValue, oldValue){
 
+                    if(colDef.name == 'IL_GETNAME_NEW'){
+                        var _temp = encodeURI(rowEntity.IL_GETNAME_NEW),
+                            regex = /%09/gi;
+
+                        _temp = _temp.replace(regex, "%20");
+                        rowEntity.IL_GETNAME_NEW = decodeURI(_temp);
+
+                        console.log(rowEntity.IL_GETNAME_NEW);
+                    }
+
+                    // 計算稅
                     var _univalent = parseInt(rowEntity.IL_UNIVALENT_NEW),
                         _pcs = parseInt(rowEntity.IL_NEWPCS),
                         _finalcost = parseInt(rowEntity.IL_FINALCOST),

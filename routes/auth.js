@@ -4,6 +4,7 @@ var dbcommand = require('../until/dbCommand.js');
 var setting = require('../app.setting.json');
 var http = require('http');
 var querystring = require('querystring');
+var fs = require("fs");
 
 /**
  * 重新讀取Session
@@ -165,8 +166,6 @@ router.get('/login', function(req, res) {
     }
 });
 
-
-
 /**
  * 登出
  */
@@ -184,4 +183,32 @@ router.get('/logout', function(req, res) {
     // res.redirect('/#/login');
 });
 
+/**
+ * 版本
+ */
+router.get('/version', function(req, res) {
+
+    var version = getConfig('../version.json');
+
+    res.json({
+        "returnData": version.version
+    });
+
+});
+
 module.exports = router;
+
+function readJsonFileSync(filepath, encoding){
+
+    if (typeof (encoding) == 'undefined'){
+        encoding = 'utf8';
+    }
+    var file = fs.readFileSync(filepath, encoding);
+    return JSON.parse(file);
+}
+
+function getConfig(file){
+
+    var filepath = __dirname + '/' + file;
+    return readJsonFileSync(filepath);
+}

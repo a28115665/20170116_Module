@@ -139,7 +139,7 @@ angular.module('app', [
     localStorageServiceProvider.setStorageType('localStorage');
 })
 
-.run(function ($rootScope, $state, $stateParams, Session, $http, AuthApi) {
+.run(function ($rootScope, $state, $stateParams, Session, $http, AuthApi, localStorageService) {
     // $rootScope.$state = $state;
     // $rootScope.$stateParams = $stateParams;
     // editableOptions.theme = 'bs3';
@@ -195,7 +195,7 @@ angular.module('app', [
         // });
     });
 
-    // $rootScope.$on('$stateChangeSuccess', function(event, toState, roParams, fromState, fromParams) {
+    // $rootScope.$on('$stateChangeSuccess', function (event, toState, roParams, fromState, fromParams) {
     //     // 檢視此頁是否有權限進入
     //     // 無權限就導到default頁面
     //     // console.log(Session.Get().GRIGHT[toState.name], toState.name);
@@ -204,6 +204,24 @@ angular.module('app', [
     //             // event.preventDefault();
     //             $state.transitionTo("app.default");
     //         }
+
+    //         AuthApi.Version().then(function (res){
+    //             var _version = res["returnData"];
+
+    //             // 如果沒有版本
+    //             if(localStorageService.get("LocalVersion") == null){
+    //                 // 加入版本
+    //                 localStorageService.set("LocalVersion", _version);
+    //             }
+
+    //             // 如果版本較舊
+    //             if(parseInt(localStorageService.get("LocalVersion")) < _version){
+    //                 // 加入版本
+    //                 localStorageService.set("LocalVersion", _version);
+    //                 // 更新畫面
+    //                 window.location.reload();
+    //             }
+    //         });
     //     }
     // });
 
