@@ -38,6 +38,7 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
         flightArrivalOptions : {
             data:  '$vm.flightArrivalData',
             columnDefs: [
+                { name: 'Index'                  ,  displayName: '序列', width: 50 },
                 { name: 'FA_FLIGHTDATE'          ,  displayName: '起飛日期', cellFilter: 'dateFilter', width: 80 },
                 { name: 'FA_AIR_LINEID'          ,  displayName: '航空代號', width: 80 },
                 { name: 'FA_FLIGHTNUM'           ,  displayName: '貨機號碼', width: 80 },
@@ -403,6 +404,9 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
             }
         }).then(function (res){
             console.log(res["returnData"]);
+            for(var i=0;i<res["returnData"].length;i++){
+                res["returnData"][i]["Index"] = i+1;
+            }
             $vm.flightArrivalData = res["returnData"];
         }); 
     };
