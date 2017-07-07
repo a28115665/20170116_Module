@@ -273,7 +273,7 @@ angular.module('app')
 })
 .controller('ModifyOrderListModalInstanceCtrl', function ($uibModalInstance, vmData, compy) {
     var $ctrl = this,
-        _flightNo = vmData.OL_FLIGHTNO.split(' ');
+        _flightNo = vmData.OL_FLIGHTNO != null ? vmData.OL_FLIGHTNO.split(' ') : [];
     if(_flightNo.length == 2){
         vmData.FLIGHTNO_START = _flightNo[0];
         vmData.FLIGHTNO_END = _flightNo[1];

@@ -317,7 +317,7 @@ var UpsertRequestWithTransaction = function(task, args, callback) {
 				ConditionTarget.push("TARGET." + key + "= @" + key);
 			}
 
-			SQLCommand += "MERGE " + tables[task.table] + " WITH(HOLDLOCK) AS TARGET \
+			SQLCommand += "MERGE " + tables[task.table] + " AS TARGET \
 						   USING (VALUES (" + ParamsValues.join(", ") + ")) \
 						        AS SOURCE (" + ParamsSchema.join(", ") + ") \
 						        ON " + ConditionTarget.join(" and ") + " \

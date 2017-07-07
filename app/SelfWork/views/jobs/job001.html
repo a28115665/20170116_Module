@@ -69,7 +69,23 @@
 				            <a href-void="" class="btn btn-warning" href="#" ng-click="$vm.OverSix()">超過六次</a>
 				        </div>
 				        <div class="widget-toolbar smart-form" role="menu">
-				            <a href-void="" class="btn btn-warning" href="#" ng-click="$vm.RepeatName()">收件者相同</a>
+				            <div class="btn-group dropdown" uib-dropdown keyboard-nav is-open="dropdownOpen">
+						        <button id="simple-btn-keyboard-nav" type="button" class="btn btn-warning dropdown-toggle btn-xs" uib-dropdown-toggle>
+						            找出相同 <span class="caret"></span>
+						        </button>
+						        <ul class="dropdown-menu" uib-dropdown-menu role="menu" aria-labelledby="simple-btn-keyboard-nav">
+						            <li role="menuitem">
+				                        <a href-void="" href="#" ng-click="$vm.RepeatData('N');dropdownOpen=false">收件者</a>
+						            </li>
+				                    <li>
+				                        <a href-void="" href="#" ng-click="$vm.RepeatData('A');dropdownOpen=false">地址</a>
+				                    </li>
+				                    <li>
+				                        <a href-void="" href="#" ng-click="$vm.RepeatData('N+A');dropdownOpen=false">收件者+地址</a>
+				                    </li>
+						        </ul>
+						    </div>
+				            <!-- <a href-void="" class="btn btn-warning" href="#" ng-click="$vm.RepeatName()">收件者相同</a> -->
 				        </div>
 				        <div class="widget-toolbar smart-form" role="menu">
 				            <a href-void="" class="btn btn-warning" href="#" ng-click="$vm.MergeNoResult()">併票結果</a>
@@ -80,12 +96,12 @@
 				        <div class="widget-toolbar smart-form" role="menu">
 				            <a href-void="" class="btn btn-success" href="#" ng-click="$vm.ExportAirportSchema()">匯出班機表欄位</a>
 				        </div>
-				        <div class="widget-toolbar smart-form" role="menu">
+				        <!-- <div class="widget-toolbar smart-form" role="menu">
 				            <a href-void="" class="btn btn-danger" href="#" ng-click="$vm.CancelNo()">取消併票</a>
 				        </div>
 				        <div class="widget-toolbar smart-form" role="menu">
 				            <a href-void="" class="btn btn-primary" href="#" ng-click="$vm.MergeNo()">併票</a>
-				        </div>
+				        </div> -->
 				    </header>
 				    <!-- widget div-->
 				    <div>
@@ -95,19 +111,47 @@
 							<div class="table-responsive">
 
 								<div class="widget-body-toolbar">
-						        	<form class="form-inline" role="form">
-						                <fieldset>
-						                    <div class="form-group">
-										        <label class="control-label">標籤說明：</label>
-										        <span>
-													<span class="cell-class-ban"> 黑名單</span>
-													<span class="cell-class-pull"> 拉貨</span>
-													<span class="cell-class-special"> 特貨</span>
-													<span class="text-primary"> 可編輯欄位</span>
-										        </span>
-						                    </div>
-						                </fieldset>
-						            </form>
+								    <div class="row">
+								        <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
+								        	<form class="form-inline" role="form">
+								                <fieldset>
+								                    <div class="form-group">
+												        <label class="control-label">標籤說明：</label>
+												        <span>
+															<span class="cell-class-ban"> 黑名單</span>
+															<span class="cell-class-pull"> 拉貨</span>
+															<span class="cell-class-special"> 特貨</span>
+															<span class="text-primary"> 可編輯欄位</span>
+												        </span>
+								                    </div>
+								                </fieldset>
+								            </form>
+								        </div>
+								        <div class="col-xs-12 col-sm-12 col-md-8 col-lg-8 text-right">
+								        	<form class="form-inline" role="form">
+								                <fieldset>
+								                    <div class="form-group">
+											            <button class="btn btn-primary"
+											            		ng-click="$vm.MergeNo()">
+											                併票
+											            </button>
+								                    </div>
+								                    <div class="form-group">
+											            <button class="btn btn-danger"
+											            		ng-click="$vm.CancelNo()">
+											                取消併票
+											            </button>
+								                    </div>
+								                    <div class="form-group">
+											            <button class="btn btn-default"
+											            		ng-click="$vm.MultiSpecialGoods()">
+											                特貨標記
+											            </button>
+								                    </div>
+								                </fieldset>
+								            </form>
+								        </div>
+								    </div>
 								</div>
 
 								<div id="grid1" ui-grid="$vm.job001Options" class="my-ui-grid" ui-grid-pagination ui-grid-resize-columns ui-grid-selection ui-grid-pinning ui-grid-edit ui-grid-row-edit ui-grid-auto-resize></div>
@@ -341,12 +385,12 @@
 	</div>
 </script>
 
-<script type="text/ng-template" id="repeatNameModalContent.html">
+<script type="text/ng-template" id="repeatDataModalContent.html">
     <div class="modal-header" ng-Init="$ctrl.MdInit()">
 	    <h3 class="modal-title" id="modal-title">收件者相同</h3>
 	</div>
 	<div class="modal-body no-padding" id="modal-body">
-        <div id="grid1" ui-grid="$ctrl.repeatNameOption" class="my-ui-grid" ui-grid-pagination ui-grid-resize-columns ui-grid-edit ui-grid-row-edit ui-grid-auto-resize></div>
+        <div id="grid1" ui-grid="$ctrl.repeatDataOption" class="my-ui-grid" ui-grid-pagination ui-grid-resize-columns ui-grid-edit ui-grid-row-edit ui-grid-auto-resize></div>
 	</div>
 	<div class="modal-footer">
 	    <button class="btn btn-primary" type="button" ng-click="$ctrl.ok()">{{getWord('OK')}}</button>

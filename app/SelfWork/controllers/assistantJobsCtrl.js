@@ -422,7 +422,7 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
             var _showFixMaster = false,
                 _fixMasterCount = 0;
             for(var i in $vm.flightItemData){
-                if($vm.flightItemData[i].OL_MASTER == ""){
+                if($vm.flightItemData[i].OL_MASTER == "" || $vm.flightItemData[i].OL_MASTER == null){
                     _showFixMaster = true;
                     _fixMasterCount += 1;
                 }

@@ -45,6 +45,38 @@ module.exports = function(pQueryname, pParams){
 							ORDER BY IL_GETNAME_NEW, IL_BAGNO";
 			
 			break;
+		case "SelectRepeatAddress":
+			_SQLCommand += "SELECT ITEM_LIST.* \
+							FROM ITEM_LIST \
+							JOIN ( \
+								SELECT IL_GETADDRESS_NEW \
+								FROM ITEM_LIST \
+								WHERE IL_SEQ = @IL_SEQ \
+								GROUP BY IL_GETADDRESS_NEW \
+								HAVING COUNT(*) > 1 \
+							) REPEAT_ADDRESS ON REPEAT_ADDRESS.IL_GETADDRESS_NEW = ITEM_LIST.IL_GETADDRESS_NEW \
+							WHERE ITEM_LIST.IL_SEQ = @IL_SEQ \
+							ORDER BY IL_GETADDRESS_NEW, IL_BAGNO";
+			
+			break;
+		case "SelectRepeatNameAndAddress":
+			_SQLCommand += "SELECT ITEM_LIST.* \
+							FROM ITEM_LIST \
+							JOIN ( \
+								SELECT IL_GETNAME_NEW, IL_GETADDRESS_NEW \
+								FROM ITEM_LIST \
+								WHERE IL_SEQ = @IL_SEQ \
+								AND IL_GETNAME_NEW IS NOT NULL \
+								AND IL_GETADDRESS_NEW IS NOT NULL \
+								GROUP BY IL_GETNAME_NEW, IL_GETADDRESS_NEW \
+								HAVING COUNT(*) > 1 \
+							) REPEAT_ADDRESS \
+							ON REPEAT_ADDRESS.IL_GETNAME_NEW = ITEM_LIST.IL_GETNAME_NEW \
+							AND REPEAT_ADDRESS.IL_GETADDRESS_NEW = ITEM_LIST.IL_GETADDRESS_NEW \
+							WHERE ITEM_LIST.IL_SEQ = @IL_SEQ \
+							ORDER BY IL_GETNAME_NEW, IL_GETADDRESS_NEW, IL_BAGNO";
+			
+			break;
 		case "SelectItemListForFlight":
 			_SQLCommand += "SELECT BLFO_TRACK, \
 									CASE WHEN PG_SEQ IS NULL THEN 0 ELSE 1 END AS 'PG_PULLGOODS', \

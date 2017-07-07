@@ -294,7 +294,7 @@ angular.module('app.selfwork').controller('EmployeeJobsCtrl', function ($scope, 
                 { name: 'Options'                ,  displayName: '操作', width: '5%', enableCellEdit: false, enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToM') }
             ],
             enableFiltering: true,
-            enableSorting: false,
+            enableSorting: true,
             enableColumnMenus: false,
             // enableVerticalScrollbar: false,
             paginationPageSizes: [10, 25, 50, 100],

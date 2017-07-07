@@ -307,7 +307,7 @@ var UpsertMethod = function (upsertname, table, params, condition, callback){
 						ConditionTarget.push("TARGET." + key + "= @" + key);
 					}
 
-					SQLCommand += "MERGE " + tables[table] + " WITH(HOLDLOCK) AS TARGET \
+					SQLCommand += "MERGE " + tables[table] + " AS TARGET \
 								   USING (VALUES (" + ParamsValues.join(", ") + ")) \
 								        AS SOURCE (" + ParamsSchema.join(", ") + ") \
 								        ON " + ConditionTarget.join(" and ") + " \

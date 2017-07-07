@@ -9,9 +9,9 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
     angular.extend(this, {
         Init : function(){
             // 不正常登入此頁面
-            if($stateParams.data == null){
-                ReturnToEmployeejobsPage();
-            }else{
+            // if($stateParams.data == null){
+            //     ReturnToEmployeejobsPage();
+            // }else{
 
                 $vm.bigBreadcrumbsItems = $state.current.name.split(".");
                 $vm.bigBreadcrumbsItems.shift();
@@ -19,15 +19,15 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                 $vm.vmData = $stateParams.data;
 
                 // 測試用
-                // if($vm.vmData == null){
-                //     $vm.vmData = {
-                //         OL_SEQ : 'AdminTest20170525190758',
-                //         OL_CR_DATETIME : '2017-04-19T10:10:47.906Z'
-                //     };
-                // }
+                if($vm.vmData == null){
+                    $vm.vmData = {
+                        OL_SEQ : 'AdminTest20170525190758',
+                        OL_CR_DATETIME : '2017-04-19T10:10:47.906Z'
+                    };
+                }
                 
                 LoadItemList();
-            }
+            // }
         },
         profile : Session.Get(),
         gridMethod : {
@@ -349,7 +349,7 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                 { name: 'IL_TRCOM'      , displayName: '派送公司', width: 115, headerCellClass: 'text-primary' },
                 { name: 'IL_REMARK'     , displayName: '備註', width: 115, headerCellClass: 'text-primary' },
                 { name: 'IL_TAX2'       , displayName: '稅則', width: 115, headerCellClass: 'text-primary' },
-                { name: 'Options'       , displayName: '操作', width: 240, enableCellEdit: false, enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToCB'), pinnedRight:true, cellClass: 'cell-class-no-style' }
+                { name: 'Options'       , displayName: '操作', width: 250, enableCellEdit: false, enableSorting:false, enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToCB'), pinnedRight:true, cellClass: 'cell-class-no-style' }
             ],
             // rowTemplate: '<div> \
             //                 <div ng-repeat="(colRenderIndex, col) in colContainer.renderedColumns track by col.colDef.name" class="ui-grid-cell" ng-class="row.entity.BLFO_TRACK != null ? \'cell-class-pull cell-class-ban\' : \'\'" ui-grid-cell></div> \
@@ -527,6 +527,86 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                 $vm.job001GridApi.selection.clearSelectedRows();
             }
         },
+        // 特貨註記
+        MultiSpecialGoods: function(){
+            if($vm.job001GridApi.selection.getSelectedRows().length > 0){
+
+                var modalInstance = $uibModal.open({
+                    animation: true,
+                    ariaLabelledBy: 'modal-title',
+                    ariaDescribedBy: 'modal-body',
+                    templateUrl: 'specialGoodsModalContent.html',
+                    controller: 'MultiSpecialGoodsModalInstanceCtrl',
+                    controllerAs: '$ctrl',
+                    size: 'sm',
+                    // appendTo: parentElem,
+                    resolve: {
+                        specialGoods: function(SysCode) {
+                            return SysCode.get('SpecialGoods');
+                        }
+                    }
+                });
+
+                modalInstance.result.then(function(selectedItem) {
+
+                    // console.log(selectedItem);
+
+                    var _task = [];
+
+                    for(var i in $vm.job001GridApi.selection.getSelectedRows()){
+
+                        if(selectedItem.SPG_TYPE == null){
+                            _task.push({
+                                crudType: 'Delete',
+                                table: 20,
+                                params: {
+                                    SPG_SEQ         : $vm.job001GridApi.selection.getSelectedRows()[i].IL_SEQ,
+                                    SPG_NEWBAGNO    : $vm.job001GridApi.selection.getSelectedRows()[i].IL_NEWBAGNO,
+                                    SPG_NEWSMALLNO  : $vm.job001GridApi.selection.getSelectedRows()[i].IL_NEWSMALLNO,
+                                    SPG_ORDERINDEX  : $vm.job001GridApi.selection.getSelectedRows()[i].IL_ORDERINDEX
+                                }
+                            });
+                        }else{
+                            _task.push({
+                                crudType: 'Upsert',
+                                table: 20,
+                                params: {
+                                    SPG_TYPE        : selectedItem.SPG_TYPE,
+                                    SPG_CR_USER     : $vm.profile.U_ID,
+                                    SPG_CR_DATETIME : $filter('date')(new Date, 'yyyy-MM-dd HH:mm:ss')
+                                },
+                                condition: {
+                                    SPG_SEQ         : $vm.job001GridApi.selection.getSelectedRows()[i].IL_SEQ,
+                                    SPG_NEWBAGNO    : $vm.job001GridApi.selection.getSelectedRows()[i].IL_NEWBAGNO,
+                                    SPG_NEWSMALLNO  : $vm.job001GridApi.selection.getSelectedRows()[i].IL_NEWSMALLNO,
+                                    SPG_ORDERINDEX  : $vm.job001GridApi.selection.getSelectedRows()[i].IL_ORDERINDEX
+                                }
+                            });
+                        }
+
+                    }
+
+                    RestfulApi.CRUDMSSQLDataByTask(_task).then(function (res){
+
+                        if(res["returnData"].length > 0){
+                            // 變更特貨類型
+                            for(var i in $vm.job001GridApi.selection.getSelectedRows()){
+                                if(selectedItem.SPG_TYPE == null){
+                                    $vm.job001GridApi.selection.getSelectedRows()[i].SPG_SPECIALGOODS = 0;
+                                }else{
+                                    $vm.job001GridApi.selection.getSelectedRows()[i].SPG_SPECIALGOODS = selectedItem.SPG_TYPE;
+                                }
+                            }
+
+                            $vm.job001GridApi.selection.clearSelectedRows();
+                        }
+                    });
+
+                }, function() {
+                    // $log.info('Modal dismissed at: ' + new Date());
+                });
+            }
+        },
         ExportExcel: function(){
             console.log($vm.vmData);
 
@@ -677,6 +757,7 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                 templateUrl: 'mergeNoResultModalContent.html',
                 controller: 'MergeNoResultModalInstanceCtrl',
                 controllerAs: '$ctrl',
+                backdrop: 'static',
                 size: 'lg',
                 // appendTo: parentElem,
                 resolve: {
@@ -692,88 +773,94 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                 // $log.info('Modal dismissed at: ' + new Date());
             });
         },
-        // 顯示收件者相同結果
-        RepeatName : function(){
-            RestfulApi.SearchMSSQLData({
-                querymain: 'job001',
-                queryname: 'SelectRepeatName',
-                params: {
-                    IL_SEQ: $vm.vmData.OL_SEQ
-                }
-            }).then(function (res){
-                // console.log(res["returnData"]);
-                if(res["returnData"].length > 0){
-                    var modalInstance = $uibModal.open({
-                        animation: true,
-                        ariaLabelledBy: 'modal-title',
-                        ariaDescribedBy: 'modal-body',
-                        templateUrl: 'repeatNameModalContent.html',
-                        controller: 'RepeatNameModalInstanceCtrl',
-                        controllerAs: '$ctrl',
-                        size: 'lg',
-                        // appendTo: parentElem,
-                        resolve: {
-                            repeatNameData: function() {
-                                return res["returnData"];
-                            }
-                        }
-                    });
+        /**
+         * 依類型找出相同
+         * N : 收件人
+         * A : 地址
+         * N+A : 收件人 + 地址
+         */
+        RepeatData : function(pType){
 
-                    modalInstance.result.then(function(selectedItem) {
-                        console.log(selectedItem);
+            var _queryname = null;
+            switch(pType){
+                case "N":
+                    _queryname = 'SelectRepeatName';
+                    break;
+                case "A":
+                    _queryname = 'SelectRepeatAddress';
+                    break;
+                case "N+A":
+                    _queryname = 'SelectRepeatNameAndAddress';
+                    break;
+            }
 
-                        if(selectedItem.length > 0){
-                            var _getDirtyData = [];
-                            for(var i in selectedItem){
-
-                                var _beUpdate = $filter('filter')($vm.job001Data, { 
-                                    IL_SEQ : selectedItem[i].entity.IL_SEQ,
-                                    IL_NEWBAGNO : selectedItem[i].entity.IL_NEWBAGNO,
-                                    IL_NEWSMALLNO : selectedItem[i].entity.IL_NEWSMALLNO,
-                                    IL_ORDERINDEX : selectedItem[i].entity.IL_ORDERINDEX
-                                });
-
-                                if(_beUpdate.length > 0){
-                                    var _index = _beUpdate[0].Index - 1;
-
-                                    // 更新收件者相同的值
-                                    $vm.job001Data[_index].IL_G1             = selectedItem[i].entity.IL_G1;
-                                    $vm.job001Data[_index].IL_MERGENO        = selectedItem[i].entity.IL_MERGENO;
-                                    $vm.job001Data[_index].IL_BAGNO          = selectedItem[i].entity.IL_BAGNO;
-                                    $vm.job001Data[_index].IL_SMALLNO        = selectedItem[i].entity.IL_SMALLNO;
-                                    $vm.job001Data[_index].IL_NATURE_NEW     = selectedItem[i].entity.IL_NATURE_NEW;
-                                    $vm.job001Data[_index].IL_CTN            = selectedItem[i].entity.IL_CTN;
-                                    $vm.job001Data[_index].IL_PLACE          = selectedItem[i].entity.IL_PLACE;
-                                    $vm.job001Data[_index].IL_WEIGHT_NEW     = selectedItem[i].entity.IL_WEIGHT_NEW;
-                                    $vm.job001Data[_index].IL_NEWPCS         = selectedItem[i].entity.IL_NEWPCS;
-                                    $vm.job001Data[_index].IL_NEWUNIT        = selectedItem[i].entity.IL_NEWUNIT;
-                                    $vm.job001Data[_index].IL_GETNO          = selectedItem[i].entity.IL_GETNO;
-                                    $vm.job001Data[_index].IL_NEWSENDNAME    = selectedItem[i].entity.IL_NEWSENDNAME;
-                                    $vm.job001Data[_index].IL_GETNAME_NEW    = selectedItem[i].entity.IL_GETNAME_NEW;
-                                    $vm.job001Data[_index].IL_GETADDRESS_NEW = selectedItem[i].entity.IL_GETADDRESS_NEW;
-                                    $vm.job001Data[_index].IL_GETTEL         = selectedItem[i].entity.IL_GETTEL;
-                                    $vm.job001Data[_index].IL_UNIVALENT_NEW  = selectedItem[i].entity.IL_UNIVALENT_NEW;
-                                    $vm.job001Data[_index].IL_FINALCOST      = selectedItem[i].entity.IL_FINALCOST;
-                                    $vm.job001Data[_index].IL_TAX            = selectedItem[i].entity.IL_TAX;
-                                    $vm.job001Data[_index].IL_TRCOM          = selectedItem[i].entity.IL_TRCOM;
-                                    $vm.job001Data[_index].IL_REMARK         = selectedItem[i].entity.IL_REMARK;
-                                    $vm.job001Data[_index].IL_EXTEL          = selectedItem[i].entity.IL_EXTEL;
-                                    $vm.job001Data[_index].IL_EXNO           = selectedItem[i].entity.IL_EXNO;
-                                    $vm.job001Data[_index].IL_TAX2           = selectedItem[i].entity.IL_TAX2;
-
-                                    _getDirtyData.push($vm.job001Data[_index]);
+            if (_queryname != null){ 
+                RestfulApi.SearchMSSQLData({
+                    querymain: 'job001',
+                    queryname: _queryname,
+                    params: {
+                        IL_SEQ: $vm.vmData.OL_SEQ
+                    }
+                }).then(function (res){
+                    // console.log(res["returnData"]);
+                    if(res["returnData"].length > 0){
+                        var modalInstance = $uibModal.open({
+                            animation: true,
+                            ariaLabelledBy: 'modal-title',
+                            ariaDescribedBy: 'modal-body',
+                            templateUrl: 'repeatDataModalContent.html',
+                            controller: 'RepeatDataModalInstanceCtrl',
+                            controllerAs: '$ctrl',
+                            backdrop: 'static',
+                            size: 'lg',
+                            // appendTo: parentElem,
+                            resolve: {
+                                repeatData: function() {
+                                    return res["returnData"];
                                 }
                             }
-                            $vm.job001GridApi.rowEdit.setRowsDirty(_getDirtyData);
-                        }
+                        });
 
-                    }, function() {
-                        // $log.info('Modal dismissed at: ' + new Date());
-                    });
-                }else{
-                    toaster.pop('info', '訊息', '無重複收件者名稱', 3000);
-                }
-            }); 
+                        modalInstance.result.then(function(selectedItem) {
+                            console.log(selectedItem);
+
+                            if(selectedItem.length > 0){
+                                var _getDirtyData = [];
+                                for(var i in selectedItem){
+
+                                    var _beUpdate = $filter('filter')($vm.job001Data, { 
+                                        IL_SEQ : selectedItem[i].entity.IL_SEQ,
+                                        IL_NEWBAGNO : selectedItem[i].entity.IL_NEWBAGNO,
+                                        IL_NEWSMALLNO : selectedItem[i].entity.IL_NEWSMALLNO,
+                                        IL_ORDERINDEX : selectedItem[i].entity.IL_ORDERINDEX
+                                    });
+
+                                    if(_beUpdate.length > 0){
+                                        var _index = _beUpdate[0].Index - 1;
+
+                                        // 更新收件者相同的值
+                                        for(var j in $vm.job001GridApi.grid.columns){
+                                            var _colDef = $vm.job001GridApi.grid.columns[j].colDef;
+                                            if(_colDef.enableCellEdit){
+                                                console.log(_colDef.name);
+                                                $vm.job001Data[_index][_colDef.name] = selectedItem[i].entity[_colDef.name];
+                                            }
+                                        }
+
+                                        _getDirtyData.push($vm.job001Data[_index]);
+                                    }
+                                }
+                                $vm.job001GridApi.rowEdit.setRowsDirty(_getDirtyData);
+                            }
+
+                        }, function() {
+                            // $log.info('Modal dismissed at: ' + new Date());
+                        });
+                    }else{
+                        toaster.pop('info', '訊息', '無重複收件者名稱', 3000);
+                    }
+                }); 
+            }
         },
         // 篩選出收件人 收件地址 收件電話 超過六次的資料
         OverSix : function(){
@@ -810,6 +897,7 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                                 templateUrl: 'overSixModalContent.html',
                                 controller: 'OverSixModalInstanceCtrl',
                                 controllerAs: '$ctrl',
+                                backdrop: 'static',
                                 size: 'lg',
                                 // appendTo: parentElem,
                                 resolve: {
@@ -840,29 +928,13 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                                             var _index = _beUpdate[0].Index - 1;
 
                                             // 更新超過六次的值
-                                            $vm.job001Data[_index].IL_G1             = selectedItem[i].entity.IL_G1;
-                                            $vm.job001Data[_index].IL_MERGENO        = selectedItem[i].entity.IL_MERGENO;
-                                            $vm.job001Data[_index].IL_BAGNO          = selectedItem[i].entity.IL_BAGNO;
-                                            $vm.job001Data[_index].IL_SMALLNO        = selectedItem[i].entity.IL_SMALLNO;
-                                            $vm.job001Data[_index].IL_NATURE_NEW     = selectedItem[i].entity.IL_NATURE_NEW;
-                                            $vm.job001Data[_index].IL_CTN            = selectedItem[i].entity.IL_CTN;
-                                            $vm.job001Data[_index].IL_PLACE          = selectedItem[i].entity.IL_PLACE;
-                                            $vm.job001Data[_index].IL_WEIGHT_NEW     = selectedItem[i].entity.IL_WEIGHT_NEW;
-                                            $vm.job001Data[_index].IL_NEWPCS         = selectedItem[i].entity.IL_NEWPCS;
-                                            $vm.job001Data[_index].IL_NEWUNIT        = selectedItem[i].entity.IL_NEWUNIT;
-                                            $vm.job001Data[_index].IL_GETNO          = selectedItem[i].entity.IL_GETNO;
-                                            $vm.job001Data[_index].IL_NEWSENDNAME    = selectedItem[i].entity.IL_NEWSENDNAME;
-                                            $vm.job001Data[_index].IL_GETNAME_NEW    = selectedItem[i].entity.IL_GETNAME_NEW;
-                                            $vm.job001Data[_index].IL_GETADDRESS_NEW = selectedItem[i].entity.IL_GETADDRESS_NEW;
-                                            $vm.job001Data[_index].IL_GETTEL         = selectedItem[i].entity.IL_GETTEL;
-                                            $vm.job001Data[_index].IL_UNIVALENT_NEW  = selectedItem[i].entity.IL_UNIVALENT_NEW;
-                                            $vm.job001Data[_index].IL_FINALCOST      = selectedItem[i].entity.IL_FINALCOST;
-                                            $vm.job001Data[_index].IL_TAX            = selectedItem[i].entity.IL_TAX;
-                                            $vm.job001Data[_index].IL_TRCOM          = selectedItem[i].entity.IL_TRCOM;
-                                            $vm.job001Data[_index].IL_REMARK         = selectedItem[i].entity.IL_REMARK;
-                                            $vm.job001Data[_index].IL_EXTEL          = selectedItem[i].entity.IL_EXTEL;
-                                            $vm.job001Data[_index].IL_EXNO           = selectedItem[i].entity.IL_EXNO;
-                                            $vm.job001Data[_index].IL_TAX2           = selectedItem[i].entity.IL_TAX2;
+                                            for(var j in $vm.job001GridApi.grid.columns){
+                                                var _colDef = $vm.job001GridApi.grid.columns[j].colDef;
+                                                if(_colDef.enableCellEdit){
+                                                    console.log(_colDef.name);
+                                                    $vm.job001Data[_index][_colDef.name] = selectedItem[i].entity[_colDef.name];
+                                                }
+                                            }
 
                                             _getDirtyData.push($vm.job001Data[_index]);
                                         }
@@ -899,24 +971,15 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                     IL_MERGENO         : entity.IL_MERGENO,
                     IL_BAGNO           : entity.IL_BAGNO,
                     IL_SMALLNO         : entity.IL_SMALLNO,
-                    IL_NATURE          : entity.IL_NATURE,
                     IL_NATURE_NEW      : entity.IL_NATURE_NEW,
                     IL_CTN             : entity.IL_CTN,
-                    IL_PLACE           : entity.IL_PLACE,
-                    IL_NEWPLACE        : entity.IL_NEWPLACE,
-                    IL_WEIGHT          : entity.IL_WEIGHT,
-                    IL_WEIGHT_NEW      : entity.IL_WEIGHT_NEW,
-                    IL_PCS             : entity.IL_PCS,
                     IL_NEWPCS          : entity.IL_NEWPCS,
-                    IL_UNIT            : entity.IL_UNIT,
                     IL_NEWUNIT         : entity.IL_NEWUNIT,
                     IL_GETNO           : entity.IL_GETNO,
-                    IL_SENDNAME        : entity.IL_SENDNAME,
                     IL_NEWSENDNAME     : entity.IL_NEWSENDNAME,
                     IL_GETNAME_NEW     : entity.IL_GETNAME_NEW,
                     IL_GETADDRESS_NEW  : entity.IL_GETADDRESS_NEW,
                     IL_GETTEL          : entity.IL_GETTEL,
-                    IL_UNIVALENT       : entity.IL_UNIVALENT,
                     IL_UNIVALENT_NEW   : entity.IL_UNIVALENT_NEW,
                     IL_FINALCOST       : entity.IL_FINALCOST,
                     IL_TAX             : entity.IL_TAX,
@@ -1023,7 +1086,6 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
     };
 })
 .controller('SpecialGoodsModalInstanceCtrl', function ($uibModalInstance, items, specialGoods) {
-    console.log(items);
     var $ctrl = this;
 
     $ctrl.Init = function(){
@@ -1035,6 +1097,21 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
         }
     }
 
+
+    $ctrl.ok = function() {
+        $uibModalInstance.close($ctrl.mdData);
+    };
+
+    $ctrl.cancel = function() {
+        $uibModalInstance.dismiss('cancel');
+    };
+})
+.controller('MultiSpecialGoodsModalInstanceCtrl', function ($uibModalInstance, specialGoods) {
+    var $ctrl = this;
+
+    $ctrl.Init = function(){
+        $ctrl.specialGoodsData = specialGoods;
+    }
 
     $ctrl.ok = function() {
         $uibModalInstance.close($ctrl.mdData);
@@ -1200,11 +1277,11 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
         $uibModalInstance.dismiss('cancel');
     };
 })
-.controller('RepeatNameModalInstanceCtrl', function ($uibModalInstance, $q, $scope, repeatNameData) {
+.controller('RepeatDataModalInstanceCtrl', function ($uibModalInstance, $q, $scope, repeatData) {
     var $ctrl = this;
-    $ctrl.mdData = repeatNameData;
+    $ctrl.mdData = repeatData;
 
-    $ctrl.repeatNameOption = {
+    $ctrl.repeatDataOption = {
         data: '$ctrl.mdData',
         columnDefs: [
             { name: 'IL_G1'         , displayName: '報關種類', width: 115, headerCellClass: 'text-primary' },
@@ -1248,12 +1325,12 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
         paginationPageSize: 100,
         rowEditWaitInterval: -1,
         onRegisterApi: function(gridApi){
-            $ctrl.repeatNameGridApi = gridApi;
+            $ctrl.repeatDataGridApi = gridApi;
         }
     }
 
     $ctrl.ok = function() {
-        $uibModalInstance.close($ctrl.repeatNameGridApi.rowEdit.getDirtyRows());
+        $uibModalInstance.close($ctrl.repeatDataGridApi.rowEdit.getDirtyRows());
     };
 
     $ctrl.cancel = function() {
