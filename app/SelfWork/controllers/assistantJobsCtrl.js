@@ -11,7 +11,7 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
             $vm.LoadData();
         },
         profile : Session.Get(),
-        defaultTab : 'hr1',
+        defaultTab : 'hr2',
         TabSwitch : function(pTabID){
             return pTabID == $vm.defaultTab ? 'active' : '';
         },
@@ -38,7 +38,7 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
         flightArrivalOptions : {
             data:  '$vm.flightArrivalData',
             columnDefs: [
-                { name: 'Index'                  ,  displayName: '序列', width: 50 },
+                { name: 'Index'                  ,  displayName: '序列', width: 50, enableFiltering: false },
                 { name: 'FA_FLIGHTDATE'          ,  displayName: '起飛日期', cellFilter: 'dateFilter', width: 80 },
                 { name: 'FA_AIR_LINEID'          ,  displayName: '航空代號', width: 80 },
                 { name: 'FA_FLIGHTNUM'           ,  displayName: '貨機號碼', width: 80 },

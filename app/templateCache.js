@@ -228,7 +228,7 @@ angular.module('app')
                                     <div class="form-group"> \
                                         <label class="col-md-2 control-label">主號</label> \
                                         <div class="col-md-10"> \
-                                            <input class="form-control" name="OL_MASTER" placeholder="請輸入主號" ng-model="$ctrl.mdData.OL_MASTER" type="text" ui-mask="999-99999999" ui-mask-placeholder> \
+                                            <input class="form-control" name="OL_MASTER" placeholder="請輸入主號" model-view-value="true" ng-model="$ctrl.mdData.OL_MASTER" type="text" ui-mask="999-99999999" ui-mask-placeholder> \
                                         </div> \
                                     </div> \
                                     <div class="form-group"> \

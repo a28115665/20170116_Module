@@ -11,7 +11,7 @@ angular.module('app.auth').directive('loginInfo', function(User, Session){
             // });
             
 			scope.user = angular.copy(Session.Get());
-			scope.user["picture"] = 'styles/img/avatars/sunny.png';
+			scope.user["picture"] = 'styles/img/avatars/eastwind.png';
         }
     }
 })

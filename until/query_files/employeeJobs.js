@@ -2,55 +2,7 @@ module.exports = function(pQueryname, pParams){
 	var _SQLCommand = "";
 
 	switch(pQueryname){
-		case "SelectOrderList":
-			// _SQLCommand += "SELECT OL_SEQ, \
-			// 					   OL_CO_CODE, \
-			// 					   OL_MASTER, \
-			// 					   OL_FLIGHTNO, \
-			// 					   OL_IMPORTDT, \
-			// 					   OL_COUNTRY, \
-			// 					   OL_CR_USER, \
-			// 					   ( \
-			// 							SELECT COUNT(1) \
-			// 							FROM ( \
-			// 								SELECT IL_BAGNO \
-			// 								FROM ITEM_LIST \
-			// 								WHERE IL_SEQ = OL_SEQ \
-			// 								GROUP BY IL_BAGNO \
-			// 							) A \
-			// 						) AS 'OL_COUNT' \
-			// 				FROM ORDER_LIST \
-			// 				WHERE 1=1 ";
-							
-			// if(pParams["DEPTS"] !== undefined && pParams["U_ID"] !== undefined && pParams["U_GRADE"] !== undefined){
-			// 	var _Content = [],
-			// 		// 早中晚班的Level
-			// 		_Lvl = 4,
-			// 		// 早中晚班員工的Grade
-			// 		_OpGrade = 11,
-			// 		// 層級夠可以看到全部資料
-			// 		_isSupervisor = false;
-
-			// 	// Grade等於11表示員工 則需要組SQL
-			// 	if(pParams["U_GRADE"] == 11){
-
-			// 		for(var i in pParams["DEPTS"]){
-			// 			if(pParams["DEPTS"][i].SUD_DLVL < _Lvl){
-			// 				_isSupervisor = true;
-			// 			}
-			// 			_Content.push("OL_"+pParams["DEPTS"][i].SUD_DEPT+"_PRINCIPAL = '" + pParams["U_ID"] + "'");
-			// 		}
-
-			// 		// 不是主管則組SQL
-			// 		if(!_isSupervisor){
-			// 			_SQLCommand += " AND ( "+_Content.join(" OR ")+" ) ";
-			// 		}
-			// 	}
-
-			// 	// 避免PrepareStatement載入非DB裡的Schema
-			// 	delete pParams["DEPTS"];
-			// }
-
+		case "SelectOrderList":	
 			_SQLCommand += "SELECT OL_SEQ, \
 									OL_CO_CODE, \
 									OL_MASTER, \
@@ -65,6 +17,7 @@ module.exports = function(pQueryname, pParams){
 											SELECT IL_BAGNO \
 											FROM ITEM_LIST \
 											WHERE IL_SEQ = OL_SEQ \
+											AND IL_BAGNO IS NOT NULL \
 											GROUP BY IL_BAGNO \
 										) A \
 									) AS 'OL_COUNT', \
