@@ -179,7 +179,7 @@ angular.module('app.selfwork').config(function ($stateProvider){
                 controller: 'Job001Ctrl',
                 controllerAs: '$vm',
                 resolve: {
-
+                    
                 }
             }
         }

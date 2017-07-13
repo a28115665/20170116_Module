@@ -30,6 +30,16 @@ module.exports = function(pQueryname, pParams){
 									OL_COUNTRY, \
 									OL_CR_USER, \
 									OL_CR_DATETIME, \
+									( \
+										SELECT COUNT(1) \
+										FROM ( \
+											SELECT FLL_BAGNO \
+											FROM FLIGHT_ITEM_LIST \
+											WHERE FLL_SEQ = OL_SEQ \
+											AND FLL_BAGNO IS NOT NULL AND FLL_BAGNO != '' \
+											GROUP BY FLL_BAGNO \
+										) A \
+									) AS 'OL_COUNT', \
 									W2_OE.OE_PRINCIPAL AS 'W2_PRINCIPAL', \
 									W2_OE.OE_EDATETIME AS 'W2_EDATETIME', \
 									W2_OE.OE_FDATETIME AS 'W2_FDATETIME', \
@@ -40,6 +50,7 @@ module.exports = function(pQueryname, pParams){
 									W1_OE.OE_EDATETIME AS 'W1_EDATETIME', \
 									W1_OE.OE_FDATETIME AS 'W1_FDATETIME', \
 									FA_SCHEDL_ARRIVALTIME, \
+									FA_ACTL_DEPARTTIME, \
 									FA_ACTL_ARRIVALTIME, \
 									FA_ARRIVAL_REMK \
 							FROM ORDER_LIST \
@@ -69,7 +80,57 @@ module.exports = function(pQueryname, pParams){
 			}
 
 			_SQLCommand += " WHERE OL_FDATETIME IS NULL \
+							 AND ( SELECT COUNT(1) \
+								FROM ( \
+									SELECT FLL_BAGNO \
+									FROM FLIGHT_ITEM_LIST \
+									WHERE FLL_SEQ = OL_SEQ \
+									AND FLL_BAGNO IS NOT NULL AND FLL_BAGNO != '' \
+									GROUP BY FLL_BAGNO \
+								) A ) > 0 \
 							 ORDER BY CASE WHEN FA_SCHEDL_ARRIVALTIME IS NULL THEN 1 ELSE 0 END, FA_SCHEDL_ARRIVALTIME ";
+
+			break;
+
+		case "SelectMasterToBeFilled":
+			_SQLCommand += "SELECT OL_SEQ, \
+									OL_CO_CODE, \
+									OL_MASTER, \
+									OL_FLIGHTNO, \
+									OL_IMPORTDT, \
+									OL_COUNTRY, \
+									OL_CR_USER, \
+									OL_CR_DATETIME, \
+									( \
+										SELECT COUNT(1) \
+										FROM ( \
+											SELECT IL_BAGNO \
+											FROM ITEM_LIST \
+											WHERE IL_SEQ = OL_SEQ \
+											AND IL_BAGNO IS NOT NULL AND IL_BAGNO != '' \
+											GROUP BY IL_BAGNO \
+										) A \
+									) AS 'OL_COUNT' \
+							FROM ORDER_LIST ";
+							
+			if(pParams["U_ID"] !== undefined && pParams["U_GRADE"] !== undefined){
+
+				// 早中晚班員工的Grade
+				var _OpGrade = 11;
+
+				// Grade等於11表示員工 則需要組SQL
+				if(pParams["U_GRADE"] == 11){
+					_SQLCommand += "/*負責人(owner)*/ \
+									JOIN ( \
+										SELECT * \
+										FROM ORDER_PRINPL \
+										WHERE OP_PRINCIPAL = @U_ID \
+									) ORDER_PRINPL ON OP_SEQ = ORDER_LIST.OL_SEQ ";
+				}
+			}
+
+			_SQLCommand += " WHERE OL_FDATETIME IS NULL \
+							 AND OL_MASTER IN ('', NULL) ";
 
 			break;
 

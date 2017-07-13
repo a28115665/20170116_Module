@@ -95,6 +95,14 @@ module.exports = function(pQueryname, pParams){
 			}
 
 			_SQLCommand += " WHERE OL_FDATETIME IS NULL \
+							 AND ( SELECT COUNT(1) \
+								FROM ( \
+									SELECT IL_BAGNO \
+									FROM ITEM_LIST \
+									WHERE IL_SEQ = OL_SEQ \
+									AND IL_BAGNO IS NOT NULL AND IL_BAGNO != '' \
+									GROUP BY IL_BAGNO \
+								) A ) > 0 \
 							 ORDER BY CASE WHEN FA_SCHEDL_ARRIVALTIME IS NULL THEN 1 ELSE 0 END, FA_SCHEDL_ARRIVALTIME ";
 		
 			break;

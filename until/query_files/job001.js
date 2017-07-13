@@ -7,8 +7,15 @@ module.exports = function(pQueryname, pParams){
 									CASE WHEN PG_SEQ IS NULL THEN 0 ELSE 1 END AS 'PG_PULLGOODS', \
 									CASE WHEN SPG_SEQ IS NULL OR SPG_TYPE IS NULL THEN 0 ELSE SPG_TYPE END AS 'SPG_SPECIALGOODS', \
 									PG_MOVED, \
+									CASE WHEN DF.FLL_BAGNO IS NULL THEN 0 ELSE 1 END AS BAGNO_MATCH, \
 									ITEM_LIST.* \
 							FROM ITEM_LIST \
+							LEFT JOIN ( \
+								SELECT DISTINCT(FLL_BAGNO) \
+								FROM FLIGHT_ITEM_LIST \
+								WHERE FLL_SEQ = @IL_SEQ \
+								AND FLL_BAGNO != '' \
+							) DF ON DF.FLL_BAGNO = IL_BAGNO \
 							LEFT JOIN BLACK_LIST_FROM_OP ON \
 							IL_SEQ = BLFO_SEQ AND \
 							IL_NEWBAGNO = BLFO_NEWBAGNO AND \
@@ -22,13 +29,9 @@ module.exports = function(pQueryname, pParams){
 							IL_NEWBAGNO = SPG_NEWBAGNO AND \
 							IL_NEWSMALLNO = SPG_NEWSMALLNO AND \
 							IL_ORDERINDEX = SPG_ORDERINDEX \
-							WHERE 1=1";
-							
-			if(pParams["IL_SEQ"] !== undefined){
-				_SQLCommand += " AND IL_SEQ = @IL_SEQ";
-			}
-
-			_SQLCommand += " ORDER BY IL_BAGNO ";
+							WHERE 1=1 \
+							AND IL_SEQ = @IL_SEQ \
+							ORDER BY IL_BAGNO";
 		
 			break;
 		case "SelectRepeatName":

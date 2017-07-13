@@ -28,7 +28,7 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
                     // LoadPullGoods();
                     break;
                 case 'hr4':
-                    // LoadPullGoods();
+                    LoadMasterToBeFilled();
                     break;
                 case 'hr5':
                     LoadPullGoods();
@@ -44,10 +44,14 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
                 { name: 'FA_FLIGHTNUM'           ,  displayName: '貨機號碼', width: 80 },
                 { name: 'FA_DEPART_AIRTID'       ,  displayName: '起飛來源', width: 80 },
                 { name: 'FA_ARRIVAL_AIRPTID'     ,  displayName: '抵達目的', width: 80 },
+                { name: 'FA_SCHEDL_DEPARTTIME'   ,  displayName: '預計起飛時間', cellFilter: 'datetimeFilter' },
+                { name: 'FA_ACTL_DEPARTTIME'     ,  displayName: '真實起飛時間', cellFilter: 'datetimeFilter' },
+                { name: 'FA_DEPART_REMK'         ,  displayName: '起飛狀態', width: 80, cellTemplate: $templateCache.get('accessibilityToDepartRemark') },
+                { name: 'FA_DEPART_GATE'         ,  displayName: '起飛登機口', width: 80 },
                 { name: 'FA_SCHEDL_ARRIVALTIME'  ,  displayName: '預計抵達時間', cellFilter: 'datetimeFilter' },
                 { name: 'FA_ACTL_ARRIVALTIME'    ,  displayName: '真實抵達時間', cellFilter: 'datetimeFilter' },
-                { name: 'FA_ARRIVAL_REMK'        ,  displayName: '狀態', width: 80, cellTemplate: $templateCache.get('accessibilityToArrivalRemark') },
-                { name: 'FA_ARRIVAL_GATE'        ,  displayName: '登機口', width: 80 },
+                { name: 'FA_ARRIVAL_REMK'        ,  displayName: '抵達狀態', width: 80, cellTemplate: $templateCache.get('accessibilityToArrivalRemark') },
+                { name: 'FA_ARRIVAL_GATE'        ,  displayName: '抵達登機口', width: 80 },
                 { name: 'FA_UP_DATETIME'         ,  displayName: '資料更新時間', cellFilter: 'datetimeFilter' }
             ],
             enableFiltering: true,
@@ -138,6 +142,7 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
                         }
                     }).then(function (res) {
                         LoadFlightItem();
+                        LoadMasterToBeFilled();
                     });
 
                 }, function() {
@@ -190,7 +195,13 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
         },
         gridMethodForJob002 : {
             // 檢視
-            viewData : function(row){
+            // viewData : function(row){
+            //     $state.transitionTo("app.selfwork.assistantjobs.job002", {
+            //         data: row.entity
+            //     });
+            // },
+            // 修改
+            fixData : function(row){
                 $state.transitionTo("app.selfwork.assistantjobs.job002", {
                     data: row.entity
                 });
@@ -246,7 +257,7 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
             data:  '$vm.flightItemData',
             columnDefs: [
                 { name: 'OL_IMPORTDT'            ,  displayName: '進口日期', width: 80, cellFilter: 'dateFilter' },
-                { name: 'OL_CO_CODE'             ,  displayName: '行家', width: 80, cellFilter: 'compyFilter', filter: 
+                { name: 'OL_CO_CODE'             ,  displayName: '發銷艙單行家', width: 110, cellFilter: 'compyFilter', filter: 
                     {
                         term: null,
                         type: uiGridConstants.filter.SELECT,
@@ -254,10 +265,12 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
                     }
                 },
                 { name: 'OL_FLIGHTNO'            ,  displayName: '航班', width: 80 },
+                { name: 'FA_ACTL_DEPARTTIME'     ,  displayName: '真實起飛時間', cellFilter: 'datetimeFilter' },
                 { name: 'FA_SCHEDL_ARRIVALTIME'  ,  displayName: '預計抵達時間', cellFilter: 'datetimeFilter' },
                 { name: 'FA_ACTL_ARRIVALTIME'    ,  displayName: '真實抵達時間', cellFilter: 'datetimeFilter' },
                 { name: 'FA_ARRIVAL_REMK'        ,  displayName: '狀態', width: 80, cellTemplate: $templateCache.get('accessibilityToArrivalRemark') },
                 { name: 'OL_MASTER'              ,  displayName: '主號', width: 120 },
+                { name: 'OL_COUNT'               ,  displayName: '銷艙單(袋數)', width: 80, enableCellEdit: false },
                 { name: 'OL_COUNTRY'             ,  displayName: '起運國別', width: 80 },
                 // { name: 'ITEM_LIST'           ,  displayName: '報機單', enableFiltering: false, width: '8%', cellTemplate: $templateCache.get('accessibilityToOperaForJob001') },
                 { name: 'FLIGHT_ITEM_LIST'       ,  displayName: '銷艙單', enableFiltering: false, width: '8%', cellTemplate: $templateCache.get('accessibilityToOperaForJob002') },
@@ -369,6 +382,33 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
                 });
             }
         },
+        masterToBeFilledOptions : {
+            data:  '$vm.masterToBeFilledData',
+            columnDefs: [
+                { name: 'OL_IMPORTDT'            ,  displayName: '進口日期', cellFilter: 'dateFilter' },
+                { name: 'OL_CO_CODE'             ,  displayName: '行家', cellFilter: 'compyFilter', filter: 
+                    {
+                        term: null,
+                        type: uiGridConstants.filter.SELECT,
+                        selectOptions: compy
+                    }
+                },
+                { name: 'OL_FLIGHTNO'            ,  displayName: '航班' },
+                { name: 'OL_MASTER'              ,  displayName: '主號' },
+                { name: 'OL_COUNT'               ,  displayName: '報機單(袋數)', enableCellEdit: false },
+                { name: 'OL_COUNTRY'             ,  displayName: '起運國別' },
+                { name: 'Options'                ,  displayName: '操作', width: '5%', enableCellEdit: false, enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToM') }
+            ],
+            enableFiltering: false,
+            enableSorting: false,
+            enableColumnMenus: false,
+            // enableVerticalScrollbar: false,
+            paginationPageSizes: [10, 25, 50, 100],
+            paginationPageSize: 100,
+            onRegisterApi: function(gridApi){
+                $vm.pullGoodsGridApi = gridApi;
+            }
+        },
         pullGoodsOptions : {
             data:  '$vm.pullGoodsData',
             columnDefs: [
@@ -419,18 +459,33 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
             console.log(res["returnData"]);
             $vm.flightItemData = res["returnData"];
 
-            var _showFixMaster = false,
-                _fixMasterCount = 0;
-            for(var i in $vm.flightItemData){
-                if($vm.flightItemData[i].OL_MASTER == "" || $vm.flightItemData[i].OL_MASTER == null){
-                    _showFixMaster = true;
-                    _fixMasterCount += 1;
-                }
-            }
+            // var _showFixMaster = false,
+            //     _fixMasterCount = 0;
+            // for(var i in $vm.flightItemData){
+            //     if($vm.flightItemData[i].OL_MASTER == "" || $vm.flightItemData[i].OL_MASTER == null){
+            //         _showFixMaster = true;
+            //         _fixMasterCount += 1;
+            //     }
+            // }
 
-            if(_showFixMaster){
-                toaster.pop('info', '訊息', '尚有 '+_fixMasterCount+' 單需主號待補', 3000);
+            // if(_showFixMaster){
+            //     toaster.pop('info', '訊息', '尚有 '+_fixMasterCount+' 單需主號待補', 3000);
+            // }
+        }); 
+    };
+
+    function LoadMasterToBeFilled(){
+        RestfulApi.SearchMSSQLData({
+            querymain: 'assistantJobs',
+            queryname: 'SelectMasterToBeFilled',
+            params: {
+                U_ID : $vm.profile.U_ID,
+                U_GRADE : $vm.profile.U_GRADE
+                // DEPTS : $vm.profile.DEPTS
             }
+        }).then(function (res){
+            console.log(res["returnData"]);
+            $vm.masterToBeFilledData = res["returnData"];
         }); 
     };
 

@@ -25,6 +25,18 @@ angular.module('app')
                                                     <a href="javascript:void(0);" class="btn btn-danger btn-xs" ng-click="grid.appScope.$vm.gridMethod.cancelData(row)"> 取消</a>\
                                               </div>');
 
+    $templateCache.put('accessibilityToDepartRemark', '\
+                        <div class="ui-grid-cell-contents text-center" ng-switch="row.entity.FA_DEPART_REMK">\
+                            <span class="label bg-color-green" ng-switch-when="出發">{{row.entity.FA_DEPART_REMK}}</span>\
+                            <span class="label bg-color-orange" ng-switch-when="檢查">{{row.entity.FA_DEPART_REMK}}</span>\
+                            <span class="label bg-color-blue" ng-switch-when="準時">{{row.entity.FA_DEPART_REMK}}</span>\
+                            <span class="label bg-color-red" ng-switch-when="延誤">{{row.entity.FA_DEPART_REMK}}</span>\
+                            <span class="label bg-color-blueDark" ng-switch-when="取消">{{row.entity.FA_DEPART_REMK}}</span>\
+                            <span class="label bg-color-magenta" ng-switch-when="報到">{{row.entity.FA_DEPART_REMK}}</span>\
+                            <span class="label bg-color-redLight" ng-switch-when="已飛">{{row.entity.FA_DEPART_REMK}}</span>\
+                            <span ng-switch-default>{{row.entity.FA_DEPART_REMK}}</span>\
+                      </div>');
+
     $templateCache.put('accessibilityToArrivalRemark', '\
                         <div class="ui-grid-cell-contents text-center" ng-switch="row.entity.FA_ARRIVAL_REMK">\
                             <span class="label bg-color-green" ng-switch-when="抵達">{{row.entity.FA_ARRIVAL_REMK}}</span>\
@@ -36,6 +48,13 @@ angular.module('app')
                             <span class="label bg-color-redLight" ng-switch-when="加班">{{row.entity.FA_ARRIVAL_REMK}}</span>\
                             <span ng-switch-default>{{row.entity.FA_ARRIVAL_REMK}}</span>\
                       </div>');
+
+    $templateCache.put('accessibilityToInternalGoods', '\
+                        <div class="ui-grid-cell-contents text-center">\
+                            <i class="fa fa-remove text-danger" ng-if="row.entity.BAGNO_MATCH == 0"> </i> \
+                            <i class="fa fa-check text-success" ng-if="row.entity.BAGNO_MATCH == 1"> </i> \
+                        </div>');
+
     $templateCache.put('accessibilityToMCForPullGoods', '\
                         <div class="ui-grid-cell-contents text-center">\
                             <a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethodForPullGoods.modifyData(row)"> 修改</a>\
@@ -219,7 +238,7 @@ angular.module('app')
                                             <input class="form-control" name="OL_FLIGHTNO" placeholder="請輸入航班" ng-model="$ctrl.mdData.OL_FLIGHTNO" type="text" ui-mask="AA 9999" ui-mask-placeholder> \
                                         </div> --> \
                                         <div class="col-md-3" ng-class="$ctrl.mdData.FLIGHTNO_END.length && !$ctrl.mdData.FLIGHTNO_START.length ? \' has-error\' : \'\'"> \
-                                            <input class="form-control" ng-model="$ctrl.mdData.FLIGHTNO_START" placeholder="代碼" type="text" ui-mask="AA" ui-mask-placeholder ng-required="$ctrl.mdData.FLIGHTNO_END.length"> \
+                                            <input class="form-control" ng-model="$ctrl.mdData.FLIGHTNO_START" placeholder="代碼" type="text" ui-mask="**" ui-mask-placeholder ng-required="$ctrl.mdData.FLIGHTNO_END.length"> \
                                         </div> \
                                         <div class="col-md-7" ng-class="$ctrl.mdData.FLIGHTNO_START.length && !$ctrl.mdData.FLIGHTNO_END.length ? \' has-error\' : \'\'"> \
                                             <input class="form-control" ng-model="$ctrl.mdData.FLIGHTNO_END" placeholder="號碼" type="text" maxlength="4" ng-required="$ctrl.mdData.FLIGHTNO_START.length"> \

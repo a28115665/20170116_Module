@@ -33,13 +33,14 @@ angular.module('app.selfwork').controller('Job002Ctrl', function ($scope, $state
             data: '$vm.job002Data',
             columnDefs: [
                 // { name: 'Index'           , displayName: '序列', width: 50, enableCellEdit: false, enableFiltering: false, headerCellClass: 'text-muted'},
-                { name: 'FLL_ITEM'        , displayName: '序號' },
-                { name: 'FLL_BAGNO'       , displayName: '袋號' },
-                { name: 'FLL_CTN'         , displayName: '件數' },
-                { name: 'FLL_WEIGHT'      , displayName: '重量' },
-                { name: 'FLL_DESCRIPTION' , displayName: '品名' },
-                { name: 'FLL_DECLAREDNO'  , displayName: '宣告序號' },
-                { name: 'FLL_REMARK'      , displayName: '備註' }
+                { name: 'FLL_ITEM'        , displayName: '序號', enableCellEdit: false },
+                { name: 'BAGNO_MATCH'     , displayName: '內貨', enableCellEdit: false, cellTemplate: $templateCache.get('accessibilityToInternalGoods') },
+                { name: 'FLL_BAGNO'       , displayName: '袋號', headerCellClass: 'text-primary' },
+                { name: 'FLL_CTN'         , displayName: '件數', headerCellClass: 'text-primary' },
+                { name: 'FLL_WEIGHT'      , displayName: '重量', headerCellClass: 'text-primary' },
+                { name: 'FLL_DESCRIPTION' , displayName: '品名', headerCellClass: 'text-primary' },
+                { name: 'FLL_DECLAREDNO'  , displayName: '宣告序號', headerCellClass: 'text-primary' },
+                { name: 'FLL_REMARK'      , displayName: '備註', headerCellClass: 'text-primary' }
             ],
             enableFiltering: true,
             enableSorting: true,
@@ -88,7 +89,7 @@ angular.module('app.selfwork').controller('Job002Ctrl', function ($scope, $state
                 updatename: 'Update',
                 table: 10,
                 params: {
-                    FLL_ITEM         : entity.FLL_ITEM,
+                    // FLL_ITEM         : entity.FLL_ITEM,
                     FLL_BAGNO        : entity.FLL_BAGNO,
                     FLL_CTN          : entity.FLL_CTN,
                     FLL_WEIGHT       : entity.FLL_WEIGHT,

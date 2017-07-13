@@ -9,9 +9,9 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
     angular.extend(this, {
         Init : function(){
             // 不正常登入此頁面
-            // if($stateParams.data == null){
-            //     ReturnToEmployeejobsPage();
-            // }else{
+            if($stateParams.data == null){
+                ReturnToEmployeejobsPage();
+            }else{
 
                 $vm.bigBreadcrumbsItems = $state.current.name.split(".");
                 $vm.bigBreadcrumbsItems.shift();
@@ -27,7 +27,7 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                 }
                 
                 LoadItemList();
-            // }
+            }
         },
         profile : Session.Get(),
         gridMethod : {
@@ -265,6 +265,16 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                 { name: 'Index'         , displayName: '序列', width: 50, enableFiltering: false, enableCellEdit: false },
                 { name: 'IL_G1'         , displayName: '報關種類', width: 115, headerCellClass: 'text-primary' },
                 { name: 'IL_MERGENO'    , displayName: '併票號', width: 129, headerCellClass: 'text-primary' },
+                { name: 'BAGNO_MATCH'   , displayName: '內貨', width: 50, enableCellEdit: false, cellTemplate: $templateCache.get('accessibilityToInternalGoods'), filter: 
+                    {
+                        term: null,
+                        type: uiGridConstants.filter.SELECT,
+                        selectOptions: [
+                            {label:'否', value: '0'},
+                            {label:'是', value: '1'}
+                        ]
+                    }
+                },
                 { name: 'IL_BAGNO'      , displayName: '袋號', width: 129, headerCellClass: 'text-primary' },
                 { name: 'IL_SMALLNO'    , displayName: '小號', width: 115, headerCellClass: 'text-primary' },
                 { name: 'IL_NATURE'     , displayName: '品名', width: 115, enableCellEdit: false },
@@ -332,7 +342,16 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                         placeholder: '最大'
                     }
                 ]},
-                { name: 'IL_FINALCOST'  , displayName: '完稅價格', width: 115, headerCellClass: 'text-primary' },
+                { name: 'IL_FINALCOST'  , displayName: '完稅價格', width: 115, headerCellClass: 'text-primary', filters: [
+                    {
+                        condition: uiGridConstants.filter.GREATER_THAN,
+                        placeholder: '最小'
+                    },
+                    {
+                        condition: uiGridConstants.filter.LESS_THAN,
+                        placeholder: '最大'
+                    }
+                ]},
                 { name: 'IL_UNIT'       , displayName: '單位', width: 115, enableCellEdit: false },
                 { name: 'IL_NEWUNIT'    , displayName: '新單位', width: 115, headerCellClass: 'text-primary' },
                 { name: 'IL_GETNO'      , displayName: '收件者統編', width: 115, headerCellClass: 'text-primary' },
@@ -447,6 +466,8 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                     rowEntity.IL_UNIVALENT_NEW = isNaN(_univalent) ? null : _univalent;
                     rowEntity.IL_NEWPCS = isNaN(_pcs) ? null : _pcs;
                     rowEntity.IL_FINALCOST = isNaN(_finalcost) ? null : _finalcost;
+
+                    $vm.job001GridApi.rowEdit.setRowsDirty([rowEntity]);
 
                     // console.log('edited row id:' + rowEntity.Index + ' Column:' + colDef.name + ' newValue:' + newValue + ' oldValue:' + oldValue);
                 });
