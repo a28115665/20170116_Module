@@ -16,6 +16,14 @@ module.exports = function(pQueryname, pParams){
 							ORDER BY cast(FLL_ITEM as int) ASC";
 
 			break;
+		case "SelectRemark":
+			_SQLCommand += "SELECT FLLR_REMARK, \
+								   '' AS SPACE \
+							FROM FLL_REMARK \
+							WHERE FLLR_SEQ = @FLL_SEQ \
+							ORDER BY FLLR_ROWINDEX";
+
+			break;
 	}
 
 	return _SQLCommand;

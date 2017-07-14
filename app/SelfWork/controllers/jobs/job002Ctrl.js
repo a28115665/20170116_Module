@@ -9,23 +9,23 @@ angular.module('app.selfwork').controller('Job002Ctrl', function ($scope, $state
     angular.extend(this, {
         Init : function(){
             // 不正常登入此頁面
-            // if($stateParams.data == null){
-            //     ReturnToEmployeejobsPage();
-            // }else{
+            if($stateParams.data == null){
+                ReturnToEmployeejobsPage();
+            }else{
                 $vm.bigBreadcrumbsItems = $state.current.name.split(".");
                 $vm.bigBreadcrumbsItems.shift();
                 
                 $vm.vmData = $stateParams.data;
 
                 // 測試用
-                if($vm.vmData == null){
-                    $vm.vmData = {
-                        OL_SEQ : 'AdminTest20170418195141'
-                    };
-                }
+                // if($vm.vmData == null){
+                //     $vm.vmData = {
+                //         OL_SEQ : 'Co0001Co000120170712205825'
+                //     };
+                // }
                 
                 LoadFlightItemList();
-            // }
+            }
         },
         profile : Session.Get(),
         defaultChoice : 'Left',
@@ -66,25 +66,63 @@ angular.module('app.selfwork').controller('Job002Ctrl', function ($scope, $state
             }
         },
         ExportExcel: function(){
+
             var _exportName = $filter('date')($vm.vmData.OL_IMPORTDT, 'yyyyMMdd') + ' ' + 
                               $filter('compyFilter')($vm.vmData.OL_CO_CODE) + ' ' + 
                               $vm.vmData.OL_FLIGHTNO;
 
-            ToolboxApi.ExportExcelBySql({
-                templates : 5,
-                filename : _exportName,
-                querymain: 'job002',
-                queryname: 'SelectFlightItemList',
-                params: {
-                    OL_MASTER : $vm.vmData.OL_MASTER,
-                    OL_IMPORTDT : $filter('date')($vm.vmData.OL_IMPORTDT, 'yyyy-MM-dd'),
-                    OL_FLIGHTNO : $vm.vmData.OL_FLIGHTNO,
-                    OL_COUNTRY : $vm.vmData.OL_COUNTRY,                
-                    FLL_SEQ: $vm.vmData.OL_SEQ
+            ToolboxApi.ExportExcelByMultiSql([
+                {
+                    templates      : 5,
+                    filename       : _exportName,
+                    OL_MASTER      : $vm.vmData.OL_MASTER,
+                    OL_IMPORTDT    : $filter('date')($vm.vmData.OL_IMPORTDT, 'yyyy-MM-dd'),
+                    OL_FLIGHTNO    : $vm.vmData.OL_FLIGHTNO,
+                    OL_COUNTRY     : $vm.vmData.OL_COUNTRY, 
+                    OL_TEL         : $vm.vmData.OL_TEL, 
+                    OL_FAX         : $vm.vmData.OL_FAX, 
+                    OL_TOTALBAG    : $vm.vmData.OL_TOTALBAG, 
+                    OL_TOTALWEIGHT : $vm.vmData.OL_TOTALWEIGHT
+                },
+                {
+                    crudType: 'Select',
+                    querymain: 'job002',
+                    queryname: 'SelectFlightItemList',
+                    params: {               
+                        FLL_SEQ: $vm.vmData.OL_SEQ
+                    }
+                },
+                {
+                    crudType: 'Select',
+                    querymain: 'job002',
+                    queryname: 'SelectRemark',
+                    params: {               
+                        FLL_SEQ: $vm.vmData.OL_SEQ
+                    }
                 }
-            }).then(function (res) {
+            ]).then(function (res) {
                 // console.log(res);
             });
+
+            // var _exportName = $filter('date')($vm.vmData.OL_IMPORTDT, 'yyyyMMdd') + ' ' + 
+            //                   $filter('compyFilter')($vm.vmData.OL_CO_CODE) + ' ' + 
+            //                   $vm.vmData.OL_FLIGHTNO;
+
+            // ToolboxApi.ExportExcelBySql({
+            //     templates : 5,
+            //     filename : _exportName,
+            //     querymain: 'job002',
+            //     queryname: 'SelectFlightItemList',
+            //     params: {
+            //         OL_MASTER : $vm.vmData.OL_MASTER,
+            //         OL_IMPORTDT : $filter('date')($vm.vmData.OL_IMPORTDT, 'yyyy-MM-dd'),
+            //         OL_FLIGHTNO : $vm.vmData.OL_FLIGHTNO,
+            //         OL_COUNTRY : $vm.vmData.OL_COUNTRY,                
+            //         FLL_SEQ: $vm.vmData.OL_SEQ
+            //     }
+            // }).then(function (res) {
+            //     // console.log(res);
+            // });
         },
         Return : function(){
             ReturnToEmployeejobsPage();

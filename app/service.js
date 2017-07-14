@@ -214,6 +214,36 @@ angular.module('app')
 	    return deferred.promise
 	},
 
+	this.ExportExcelByMultiSql = function (dataSrc) {
+	    // console.log(dataSrc);
+	    var deferred = $q.defer();
+
+	    Resource.EXPORTEXCELBYMULTISQL.postByArraybuffer(dataSrc,
+	    	function (pSResponse){
+
+	    		var objectUrl = URL.createObjectURL(pSResponse["response"]);
+                var link = document.createElement('a');
+                if (typeof link.download === 'string') {
+                    // Firefox requires the link to be in the body
+                    document.body.appendChild(link); 
+                    link.download = angular.isUndefined(dataSrc[0].filename) ? '未知' : dataSrc[0].filename ;
+                    link.href = objectUrl;
+                    link.click();
+                    // remove the link when done
+                    document.body.removeChild(link); 
+                } else {
+                    location.replace(objectUrl);
+                }
+
+				deferred.resolve(pSResponse);
+			},
+	    	function (pFResponse){
+	    		deferred.reject(pFResponse.data);
+	    	});
+
+	    return deferred.promise
+	},
+
 	this.DownloadFiles = function (dataSrc) {
 	    // console.log(dataSrc);
 	    var deferred = $q.defer();

@@ -46,6 +46,10 @@ module.exports = function(pQueryname, pParams){
 									OL_COUNTRY, \
 									OL_CR_USER, \
 									OL_CR_DATETIME, \
+									OL_TEL, \
+									OL_FAX, \
+									OL_TOTALBAG, \
+									OL_TOTALWEIGHT, \
 									( \
 										SELECT COUNT(1) \
 										FROM ( \

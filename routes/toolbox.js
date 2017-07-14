@@ -130,11 +130,108 @@ router.get('/exportExcelBySql', function(req, res) {
 
                     _params["data"] = JSON.parse(content).returnData;
 
-                    // console.log(_params.data.length);
+                    // console.log(_params);
 
                     tmpXlsObj.GetXls({
                         JsonXls : _params,
                         TmpXlsFilePath : path.join(path.dirname(module.parent.filename), 'templates', templates[req.query["templates"]]), //template xls 路徑(含檔名)
+                        // OutputXlsPath : path.join(path.dirname(module.parent.filename), 'templates', 'test2.xlsx'),
+                        SheetNumber : 1
+                    }, function (err, result){
+                        if (err) {
+                            // Do something with your error...
+                            logger.error('匯出失敗', req.ip, __line+'行', err);
+                            res.status(500).send("匯出失敗");
+                        } else {
+
+                            res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+                            res.setHeader('Content-Length', result.length);
+                            res.setHeader('Expires', '0');
+                            // res.setHeader('Content-Disposition', 'attachment; filename=test.xls');
+                            res.setHeader('Content-Encoding', 'UTF-8');
+                            res.status(200);
+
+                            var buffer = new Buffer(result, "binary");
+
+                            res.end(toArrayBuffer(buffer));
+                        }
+                    });
+                } 
+                catch(err) {
+                    logger.error('匯出失敗', req.ip, __line+'行', err);
+                    res.status(500).send("匯出失敗");
+                }  
+
+            });
+        }else{
+            res.status(post_res.statusCode).send('匯出失敗');
+        }
+    });
+
+    post_req.on('error', function(err) {
+        // Handle error
+        res.status(500).send('匯出失敗');
+    });
+
+    post_req.end(); 
+});
+
+/**
+ * ExportExcelByMultiSql 經由MultiSql匯出Excel
+ */
+router.get('/exportExcelByMultiSql', function(req, res) {
+
+    var _query = []
+    for(var i in req.query){
+        _query.push(req.query[i]);
+    }
+
+    if(_query.length == 0){
+        res.status(post_res.statusCode).send('匯出失敗');
+    }
+
+    // 主要的參數
+    var _params = JSON.parse(_query.shift());
+
+    if(_params["templates"] == undefined){
+        res.status(post_res.statusCode).send('匯出失敗');
+    }
+
+    var post_data = querystring.stringify(_query);
+    
+    var post_options = {
+        host: '127.0.0.1',
+        port: setting.NodeJs.port,
+        path: '/restful/crudByTask?' + post_data,
+        method: 'GET'
+    };
+
+    // Set up the request
+    var post_req = http.request(post_options, function (post_res) {
+
+        // console.log("statusCode: ", post_res.statusCode);
+        //console.log("headers: ", post_res.headers);
+        if(post_res.statusCode == 200){
+            var content = '';
+
+            post_res.setEncoding('utf8');
+
+            post_res.on('data', function(chunk) {
+                content += chunk;
+            });
+
+            post_res.on('end', function() {
+                // console.log(content);
+
+                try {
+                    var _content = JSON.parse(content);
+                    for(var i in _content.returnData){
+                        _params["data" + i] = _content.returnData[i];
+                    }
+
+                    tmpXlsObj.GetXls({
+                        JsonXls : _params,
+                        TmpXlsFilePath : path.join(path.dirname(module.parent.filename), 'templates', templates[_params["templates"]]), //template xls 路徑(含檔名)
                         // OutputXlsPath : path.join(path.dirname(module.parent.filename), 'templates', 'test2.xlsx'),
                         SheetNumber : 1
                     }, function (err, result){
