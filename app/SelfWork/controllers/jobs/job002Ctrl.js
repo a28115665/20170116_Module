@@ -9,23 +9,23 @@ angular.module('app.selfwork').controller('Job002Ctrl', function ($scope, $state
     angular.extend(this, {
         Init : function(){
             // 不正常登入此頁面
-            if($stateParams.data == null){
-                ReturnToEmployeejobsPage();
-            }else{
+            // if($stateParams.data == null){
+            //     ReturnToEmployeejobsPage();
+            // }else{
                 $vm.bigBreadcrumbsItems = $state.current.name.split(".");
                 $vm.bigBreadcrumbsItems.shift();
                 
                 $vm.vmData = $stateParams.data;
 
                 // 測試用
-                // if($vm.vmData == null){
-                //     $vm.vmData = {
-                //         OL_SEQ : 'AdminTest20170418195141'
-                //     };
-                // }
+                if($vm.vmData == null){
+                    $vm.vmData = {
+                        OL_SEQ : 'AdminTest20170418195141'
+                    };
+                }
                 
                 LoadFlightItemList();
-            }
+            // }
         },
         profile : Session.Get(),
         defaultChoice : 'Left',
@@ -34,7 +34,16 @@ angular.module('app.selfwork').controller('Job002Ctrl', function ($scope, $state
             columnDefs: [
                 // { name: 'Index'           , displayName: '序列', width: 50, enableCellEdit: false, enableFiltering: false, headerCellClass: 'text-muted'},
                 { name: 'FLL_ITEM'        , displayName: '序號', enableCellEdit: false },
-                { name: 'BAGNO_MATCH'     , displayName: '內貨', enableCellEdit: false, cellTemplate: $templateCache.get('accessibilityToInternalGoods') },
+                { name: 'BAGNO_MATCH'     , displayName: '內貨', enableCellEdit: false, cellTemplate: $templateCache.get('accessibilityToInternalGoods'), filter: 
+                    {
+                        term: null,
+                        type: uiGridConstants.filter.SELECT,
+                        selectOptions: [
+                            {label:'否', value: '0'},
+                            {label:'是', value: '1'}
+                        ]
+                    }
+                },
                 { name: 'FLL_BAGNO'       , displayName: '袋號', headerCellClass: 'text-primary' },
                 { name: 'FLL_CTN'         , displayName: '件數', headerCellClass: 'text-primary' },
                 { name: 'FLL_WEIGHT'      , displayName: '重量', headerCellClass: 'text-primary' },

@@ -288,16 +288,14 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
             }
         },
         gridMethodForPullGoods : {
-            //編輯
-            modifyData : function(row){
-                console.log(row);
-
+            // 原因
+            viewData : function(row){
                 var modalInstance = $uibModal.open({
                     animation: true,
                     ariaLabelledBy: 'modal-title',
                     ariaDescribedBy: 'modal-body',
-                    templateUrl: 'modifyPullGoodsModalContent.html',
-                    controller: 'ModifyPullGoodsModalInstanceCtrl',
+                    templateUrl: 'viewReasonModalContent.html',
+                    controller: 'ViewReasonModalInstanceCtrl',
                     controllerAs: '$ctrl',
                     // size: 'lg',
                     resolve: {
@@ -308,77 +306,237 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
                 });
 
                 modalInstance.result.then(function(selectedItem) {
-                    console.log(selectedItem);
-
-                    var _d = new Date();
-
-                    RestfulApi.UpdateMSSQLData({
-                        updatename: 'Update',
-                        table: 19,
-                        params: {
-                            PG_MOVED : true,
-                            PG_MASTER : selectedItem.PG_MASTER,
-                            PG_FLIGHTNO : selectedItem.PG_FLIGHTNO,
-                            PG_UP_USER : $vm.profile.U_ID,
-                            PG_UP_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss')
-                        },
-                        condition: {
-                            PG_SEQ : selectedItem.PG_SEQ,
-                            PG_BAGNO : selectedItem.PG_BAGNO
-                        }
-                    }).then(function (res) {
-                        toaster.pop('success', '訊息', '更新成功', 3000);
-                        LoadPullGoods();
-                    });
 
                 }, function() {
                     // $log.info('Modal dismissed at: ' + new Date());
                 });
             },
-            //取消
-            cancelData : function(row){
-                console.log(row);
+            // 編輯
+            modifyData : function(){
 
-                var modalInstance = $uibModal.open({
-                    animation: true,
-                    ariaLabelledBy: 'modal-title',
-                    ariaDescribedBy: 'modal-body',
-                    template: $templateCache.get('isChecked'),
-                    controller: 'IsCheckedModalInstanceCtrl',
-                    controllerAs: '$ctrl',
-                    size: 'sm',
-                    windowClass: 'center-modal',
-                    // appendTo: parentElem,
-                    resolve: {
-                        items: function() {
-                            return row.entity;
-                        },
-                        show: function(){
-                            return {
-                                title : "是否取消"
-                            };
-                        }
-                    }
-                });
+                if($vm.pullGoodsGridApi.selection.getSelectedRows().length > 0){
+                    // console.log($vm.pullGoodsGridApi.selection.getSelectedRows());
 
-                modalInstance.result.then(function(selectedItem) {
-                    // $ctrl.selected = selectedItem;
-                    console.log(selectedItem);
-
-                    RestfulApi.DeleteMSSQLData({
-                        deletename: 'Delete',
-                        table: 19,
-                        params: {
-                            PG_SEQ : selectedItem.PG_SEQ,
-                            PG_BAGNO : selectedItem.PG_BAGNO
-                        }
-                    }).then(function (res) {
-                        toaster.pop('success', '訊息', '取消成功', 3000);
-                        LoadPullGoods();
+                    var modalInstance = $uibModal.open({
+                        animation: true,
+                        ariaLabelledBy: 'modal-title',
+                        ariaDescribedBy: 'modal-body',
+                        templateUrl: 'modifyPullGoodsModalContent.html',
+                        controller: 'ModifyPullGoodsModalInstanceCtrl',
+                        controllerAs: '$ctrl'
+                        // size: 'lg',
                     });
 
-                }, function() {
-                    // $log.info('Modal dismissed at: ' + new Date());
+                    modalInstance.result.then(function(selectedItem) {
+                        console.log(selectedItem);
+
+                        var _d = new Date(),
+                            _tasks = [];
+
+                        for(var i in $vm.pullGoodsGridApi.selection.getSelectedRows()){
+                            _tasks.push({
+                                crudType: 'Update',
+                                table: 19,
+                                params: {
+                                    PG_MOVED : true,
+                                    PG_MASTER : selectedItem.PG_MASTER,
+                                    PG_FLIGHTNO : selectedItem.PG_FLIGHTNO,
+                                    PG_UP_USER : $vm.profile.U_ID,
+                                    PG_UP_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss')
+                                },
+                                condition: {
+                                    PG_SEQ : $vm.pullGoodsGridApi.selection.getSelectedRows()[i].PG_SEQ,
+                                    PG_BAGNO : $vm.pullGoodsGridApi.selection.getSelectedRows()[i].PG_BAGNO
+                                }
+                            });
+                        }
+
+                        RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res){
+                            toaster.pop('success', '訊息', '更新成功', 3000);
+                            LoadPullGoods();
+                        }, function (err) {
+                            toaster.pop('danger', '錯誤', '更新失敗', 3000);
+                        });  
+
+                    }, function() {
+                        // $log.info('Modal dismissed at: ' + new Date());
+                    });
+                }
+
+                // console.log(row);
+
+                // var modalInstance = $uibModal.open({
+                //     animation: true,
+                //     ariaLabelledBy: 'modal-title',
+                //     ariaDescribedBy: 'modal-body',
+                //     templateUrl: 'modifyPullGoodsModalContent.html',
+                //     controller: 'ModifyPullGoodsModalInstanceCtrl',
+                //     controllerAs: '$ctrl',
+                //     // size: 'lg',
+                //     resolve: {
+                //         items: function () {
+                //             return row.entity;
+                //         }
+                //     }
+                // });
+
+                // modalInstance.result.then(function(selectedItem) {
+                //     console.log(selectedItem);
+
+                //     var _d = new Date();
+
+                //     RestfulApi.UpdateMSSQLData({
+                //         updatename: 'Update',
+                //         table: 19,
+                //         params: {
+                //             PG_MOVED : true,
+                //             PG_MASTER : selectedItem.PG_MASTER,
+                //             PG_FLIGHTNO : selectedItem.PG_FLIGHTNO,
+                //             PG_UP_USER : $vm.profile.U_ID,
+                //             PG_UP_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss')
+                //         },
+                //         condition: {
+                //             PG_SEQ : selectedItem.PG_SEQ,
+                //             PG_BAGNO : selectedItem.PG_BAGNO
+                //         }
+                //     }).then(function (res) {
+                //         toaster.pop('success', '訊息', '更新成功', 3000);
+                //         LoadPullGoods();
+                //     });
+
+                // }, function() {
+                //     // $log.info('Modal dismissed at: ' + new Date());
+                // });
+            },
+            //取消
+            cancelData : function(){
+
+                if($vm.pullGoodsGridApi.selection.getSelectedRows().length > 0){
+                    // console.log($vm.pullGoodsGridApi.selection.getSelectedRows());
+
+                    var modalInstance = $uibModal.open({
+                        animation: true,
+                        ariaLabelledBy: 'modal-title',
+                        ariaDescribedBy: 'modal-body',
+                        template: $templateCache.get('isChecked'),
+                        controller: 'IsCheckedModalInstanceCtrl',
+                        controllerAs: '$ctrl',
+                        size: 'sm',
+                        windowClass: 'center-modal',
+                        // appendTo: parentElem,
+                        resolve: {
+                            items: function() {
+                                return {};
+                            },
+                            show: function(){
+                                return {
+                                    title : "是否取消"
+                                };
+                            }
+                        }
+                    });
+
+                    modalInstance.result.then(function(selectedItem) {
+                        console.log(selectedItem);
+
+                        var _d = new Date(),
+                            _tasks = [];
+
+                        for(var i in $vm.pullGoodsGridApi.selection.getSelectedRows()){
+                            _tasks.push({
+                                crudType: 'Delete',
+                                table: 19,
+                                params: {
+                                    PG_SEQ : $vm.pullGoodsGridApi.selection.getSelectedRows()[i].PG_SEQ,
+                                    PG_BAGNO : $vm.pullGoodsGridApi.selection.getSelectedRows()[i].PG_BAGNO
+                                }
+                            });
+                        }
+
+                        RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res){
+                            toaster.pop('success', '訊息', '取消成功', 3000);
+                            LoadPullGoods();
+                        }, function (err) {
+                            toaster.pop('danger', '錯誤', '取消失敗', 3000);
+                        });  
+
+                    }, function() {
+                        // $log.info('Modal dismissed at: ' + new Date());
+                    });
+                }
+                // console.log(row);
+
+                // var modalInstance = $uibModal.open({
+                //     animation: true,
+                //     ariaLabelledBy: 'modal-title',
+                //     ariaDescribedBy: 'modal-body',
+                //     template: $templateCache.get('isChecked'),
+                //     controller: 'IsCheckedModalInstanceCtrl',
+                //     controllerAs: '$ctrl',
+                //     size: 'sm',
+                //     windowClass: 'center-modal',
+                //     // appendTo: parentElem,
+                //     resolve: {
+                //         items: function() {
+                //             return row.entity;
+                //         },
+                //         show: function(){
+                //             return {
+                //                 title : "是否取消"
+                //             };
+                //         }
+                //     }
+                // });
+
+                // modalInstance.result.then(function(selectedItem) {
+                //     // $ctrl.selected = selectedItem;
+                //     console.log(selectedItem);
+
+                //     RestfulApi.DeleteMSSQLData({
+                //         deletename: 'Delete',
+                //         table: 19,
+                //         params: {
+                //             PG_SEQ : selectedItem.PG_SEQ,
+                //             PG_BAGNO : selectedItem.PG_BAGNO
+                //         }
+                //     }).then(function (res) {
+                //         toaster.pop('success', '訊息', '取消成功', 3000);
+                //         LoadPullGoods();
+                //     });
+
+                // }, function() {
+                //     // $log.info('Modal dismissed at: ' + new Date());
+                // });
+            },
+            // 匯出Excel
+            exportExcel : function(){
+                var _exportName = $filter('date')(new Date(), 'yyyyMMdd') + ' 拉貨明細',
+                    _params = {};
+
+                // 選擇筆數匯出
+                if($vm.pullGoodsGridApi.selection.getSelectedRows().length > 0){
+                    var _Seq = [],
+                        _Bagno = [];
+
+                    for(var i in $vm.pullGoodsGridApi.selection.getSelectedRows()){
+                        _Seq.push($vm.pullGoodsGridApi.selection.getSelectedRows()[i].PG_SEQ);
+                        _Bagno.push($vm.pullGoodsGridApi.selection.getSelectedRows()[i].PG_BAGNO);
+                    }
+
+                    _params = {
+                        Seq: "'"+_Seq.join("','")+"'",
+                        Bagno: "'"+_Bagno.join("','")+"'"
+                    };
+                }
+
+                ToolboxApi.ExportExcelBySql({
+                    templates : 9,
+                    filename : _exportName,
+                    querymain: 'assistantJobs',
+                    queryname: 'SelectPullGoods',
+                    params: _params
+                }).then(function (res) {
+                    // console.log(res);
                 });
             }
         },
@@ -406,7 +564,7 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
             paginationPageSizes: [10, 25, 50, 100],
             paginationPageSize: 100,
             onRegisterApi: function(gridApi){
-                $vm.pullGoodsGridApi = gridApi;
+                $vm.masterToBeFilledGridApi = gridApi;
             }
         },
         pullGoodsOptions : {
@@ -421,7 +579,7 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
                 { name: 'PG_MOVED'      , displayName: '移機', cellFilter: 'booleanFilter' },
                 { name: 'PG_FLIGHTNO'   , displayName: '航班(改)' },
                 { name: 'PG_MASTER'     , displayName: '主號(改)' },
-                { name: 'Options'       , displayName: '操作', cellTemplate: $templateCache.get('accessibilityToMCForPullGoods') }
+                { name: 'Options'       , displayName: '操作', width: '5%', cellTemplate: $templateCache.get('accessibilityToVForPullGoods') }
             ],
             enableFiltering: false,
             enableSorting: false,
@@ -500,12 +658,28 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
     };
 
 })
-.controller('ModifyPullGoodsModalInstanceCtrl', function ($uibModalInstance, items) {
+.controller('ModifyPullGoodsModalInstanceCtrl', function ($uibModalInstance) {
+    var $ctrl = this;
+    // $ctrl.mdData = angular.copy(items);
+    $ctrl.mdData = {};
+
+    $ctrl.ok = function() {
+        $ctrl.mdData.FLIGHTNO_START = $ctrl.mdData.FLIGHTNO_START.toUpperCase();
+        $ctrl.mdData.PG_FLIGHTNO = $ctrl.mdData.FLIGHTNO_START + ' ' + $ctrl.mdData.FLIGHTNO_END;
+
+        $uibModalInstance.close($ctrl.mdData);
+    };
+
+    $ctrl.cancel = function() {
+        $uibModalInstance.dismiss('cancel');
+    };
+})
+.controller('ViewReasonModalInstanceCtrl', function ($uibModalInstance, items) {
     var $ctrl = this;
     $ctrl.mdData = angular.copy(items);
 
     $ctrl.ok = function() {
-        $uibModalInstance.close($ctrl.mdData);
+        $uibModalInstance.close();
     };
 
     $ctrl.cancel = function() {

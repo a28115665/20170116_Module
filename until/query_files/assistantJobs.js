@@ -13,11 +13,27 @@ module.exports = function(pQueryname, pParams){
 								   PG_MOVED, \
 								   PG_MASTER, \
 								   PG_FLIGHTNO, \
-								   PG_REASON \
-							FROM ORDER_LIST \
+								   PG_REASON, \
+								   CONVERT(varchar, OL_IMPORTDT, 23 ) AS 'OL_IMPORTDT_EX', \
+								   CO_NAME \
+							FROM ( \
+								SELECT * \
+								FROM ORDER_LIST \
+								OUTTER JOIN COMPY_INFO ON CO_CODE = OL_CO_CODE \
+							) ORDER_LIST \
 							JOIN PULL_GOODS ON \
 							PG_SEQ = OL_SEQ \
-						    WHERE 1=1"
+						    WHERE 1=1";
+							
+			if(pParams["Seq"] !== undefined){
+				_SQLCommand += " AND PG_SEQ IN ("+pParams["Seq"]+") ";
+				delete pParams["Seq"];
+			}
+							
+			if(pParams["Bagno"] !== undefined){
+				_SQLCommand += " AND PG_BAGNO IN ("+pParams["Bagno"]+") ";
+				delete pParams["Bagno"];
+			}
 
 			break;
 

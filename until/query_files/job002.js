@@ -4,7 +4,7 @@ module.exports = function(pQueryname, pParams){
 	switch(pQueryname){
 		case "SelectFlightItemList":
 			_SQLCommand += "SELECT *, \
-								   CASE WHEN DI.IL_BAGNO IS NULL THEN 0 ELSE 1 END AS BAGNO_MATCH, \
+								   CASE WHEN DI.IL_BAGNO IS NULL THEN 0 ELSE 1 END AS BAGNO_MATCH \
 							FROM FLIGHT_ITEM_LIST \
 							LEFT JOIN ( \
 								SELECT DISTINCT(IL_BAGNO) \

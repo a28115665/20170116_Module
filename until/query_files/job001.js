@@ -8,6 +8,7 @@ module.exports = function(pQueryname, pParams){
 									CASE WHEN SPG_SEQ IS NULL OR SPG_TYPE IS NULL THEN 0 ELSE SPG_TYPE END AS 'SPG_SPECIALGOODS', \
 									PG_MOVED, \
 									CASE WHEN DF.FLL_BAGNO IS NULL THEN 0 ELSE 1 END AS BAGNO_MATCH, \
+									CAST(0 AS BIT) AS isSelected, \
 									ITEM_LIST.* \
 							FROM ITEM_LIST \
 							LEFT JOIN ( \

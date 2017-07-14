@@ -1,6 +1,6 @@
 "use strict";
 
-angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, RestfulApi, ToolboxApi, uiGridConstants, $filter, $q) {
+angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, RestfulApi, ToolboxApi, uiGridConstants, $filter, $q, bool) {
     // console.log($stateParams, $state);
 
     var $vm = this,
@@ -19,12 +19,12 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                 $vm.vmData = $stateParams.data;
 
                 // 測試用
-                if($vm.vmData == null){
-                    $vm.vmData = {
-                        OL_SEQ : 'AdminTest20170525190758',
-                        OL_CR_DATETIME : '2017-04-19T10:10:47.906Z'
-                    };
-                }
+                // if($vm.vmData == null){
+                //     $vm.vmData = {
+                //         OL_SEQ : 'AdminTest20170525190758',
+                //         OL_CR_DATETIME : '2017-04-19T10:10:47.906Z'
+                //     };
+                // }
                 
                 LoadItemList();
             }
@@ -63,46 +63,121 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                 });
             },
             // 加入黑名單
-            banData : function(row){
-                console.log(row);
-                var modalInstance = $uibModal.open({
-                    animation: true,
-                    ariaLabelledBy: 'modal-title',
-                    ariaDescribedBy: 'modal-body',
-                    templateUrl: 'opAddBanModalContent.html',
-                    controller: 'OPAddBanModalInstanceCtrl',
-                    controllerAs: '$ctrl',
-                    // size: 'lg',
-                    // appendTo: parentElem,
-                    resolve: {
-                        vmData: function() {
-                            return row.entity;
-                        }
-                    }
-                });
+            banData : function(){
 
-                modalInstance.result.then(function(selectedItem) {
-                    // $ctrl.selected = selectedItem;
-                    console.log(selectedItem);
-                    RestfulApi.InsertMSSQLData({
-                        insertname: 'Insert',
-                        table: 13,
-                        params: {
-                            BLFO_SEQ         : selectedItem.IL_SEQ,
-                            BLFO_NEWBAGNO    : selectedItem.IL_NEWBAGNO,
-                            BLFO_NEWSMALLNO  : selectedItem.IL_NEWSMALLNO,
-                            BLFO_ORDERINDEX  : selectedItem.IL_ORDERINDEX,
-                            BLFO_CR_USER     : $vm.profile.U_ID,
-                            BLFO_CR_DATETIME : $filter('date')(new Date, 'yyyy-MM-dd HH:mm:ss')
+                if($vm.job001GridApi.selection.getSelectedRows().length > 0){
+
+                    if($vm.job001GridApi.selection.getSelectedRows().length > 100){
+                        toaster.pop('warning', '警告', '超過100筆，請重新選擇', 3000);
+                        return;
+                    }
+
+                    var modalInstance = $uibModal.open({
+                        animation: true,
+                        ariaLabelledBy: 'modal-title',
+                        ariaDescribedBy: 'modal-body',
+                        template: $templateCache.get('isChecked'),
+                        controller: 'IsCheckedModalInstanceCtrl',
+                        controllerAs: '$ctrl',
+                        size: 'sm',
+                        windowClass: 'center-modal',
+                        // appendTo: parentElem,
+                        resolve: {
+                            items: function() {
+                                return {};
+                            },
+                            show: function(){
+                                return {
+                                    title : "是否加入黑名單"
+                                }
+                            }
                         }
-                    }).then(function(res) {
-                        // 加入後需要Disabled
-                        row.entity.BLFO_TRACK = true;
                     });
 
-                }, function() {
-                    // $log.info('Modal dismissed at: ' + new Date());
-                });
+                    modalInstance.result.then(function(selectedItem) {
+
+                        var _tasks = [],
+                            _d = new Date();
+
+                        // Insert黑名單
+                        for(var i in $vm.job001GridApi.selection.getSelectedRows()){
+                            // 如果不是黑名單的Row才需要被加入
+                            if($vm.job001GridApi.selection.getSelectedRows()[i].BLFO_TRACK != true){
+                                _tasks.push({
+                                    crudType: 'Insert',
+                                    table: 13,
+                                    params: {
+                                        BLFO_SEQ         : $vm.job001GridApi.selection.getSelectedRows()[i].IL_SEQ,
+                                        BLFO_NEWBAGNO    : $vm.job001GridApi.selection.getSelectedRows()[i].IL_NEWBAGNO,
+                                        BLFO_NEWSMALLNO  : $vm.job001GridApi.selection.getSelectedRows()[i].IL_NEWSMALLNO,
+                                        BLFO_ORDERINDEX  : $vm.job001GridApi.selection.getSelectedRows()[i].IL_ORDERINDEX,
+                                        BLFO_CR_USER     : $vm.profile.U_ID,
+                                        BLFO_CR_DATETIME : $filter('date')(new Date, 'yyyy-MM-dd HH:mm:ss')
+                                    }
+                                });
+                            }
+                        }
+
+                        RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res){
+                            if(res["returnData"].length > 0){
+
+                                for(var i in $vm.job001GridApi.selection.getSelectedRows()){
+                                    if($vm.job001GridApi.selection.getSelectedRows()[i].BLFO_TRACK != true){
+                                        $vm.job001GridApi.selection.getSelectedRows()[i].BLFO_TRACK = true;
+                                    }
+                                }
+                                toaster.pop('success', '訊息', '加入黑名單成功', 3000);
+                            }
+                        }, function (err) {
+                            toaster.pop('danger', '錯誤', '加入黑名單失敗', 3000);
+                        }).finally(function(){
+                            $vm.job001GridApi.selection.clearSelectedRows();
+                        });  
+
+                    }, function() {
+                        // $log.info('Modal dismissed at: ' + new Date());
+                    });
+                }
+
+                // console.log(row);
+                // var modalInstance = $uibModal.open({
+                //     animation: true,
+                //     ariaLabelledBy: 'modal-title',
+                //     ariaDescribedBy: 'modal-body',
+                //     templateUrl: 'opAddBanModalContent.html',
+                //     controller: 'OPAddBanModalInstanceCtrl',
+                //     controllerAs: '$ctrl',
+                //     // size: 'lg',
+                //     // appendTo: parentElem,
+                //     resolve: {
+                //         vmData: function() {
+                //             return row.entity;
+                //         }
+                //     }
+                // });
+
+                // modalInstance.result.then(function(selectedItem) {
+                //     // $ctrl.selected = selectedItem;
+                //     console.log(selectedItem);
+                //     RestfulApi.InsertMSSQLData({
+                //         insertname: 'Insert',
+                //         table: 13,
+                //         params: {
+                //             BLFO_SEQ         : selectedItem.IL_SEQ,
+                //             BLFO_NEWBAGNO    : selectedItem.IL_NEWBAGNO,
+                //             BLFO_NEWSMALLNO  : selectedItem.IL_NEWSMALLNO,
+                //             BLFO_ORDERINDEX  : selectedItem.IL_ORDERINDEX,
+                //             BLFO_CR_USER     : $vm.profile.U_ID,
+                //             BLFO_CR_DATETIME : $filter('date')(new Date, 'yyyy-MM-dd HH:mm:ss')
+                //         }
+                //     }).then(function(res) {
+                //         // 加入後需要Disabled
+                //         row.entity.BLFO_TRACK = true;
+                //     });
+
+                // }, function() {
+                //     // $log.info('Modal dismissed at: ' + new Date());
+                // });
             },
             // 拉貨
             pullGoods : function(row){
@@ -125,7 +200,7 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                 });
 
                 modalInstance.result.then(function(selectedItem) {
-                    // console.log(selectedItem);
+                    console.log(selectedItem);
                     
                     RestfulApi.InsertMSSQLData({
                         insertname: 'Insert',
@@ -263,8 +338,15 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
             data: '$vm.job001Data',
             columnDefs: [
                 { name: 'Index'         , displayName: '序列', width: 50, enableFiltering: false, enableCellEdit: false },
-                { name: 'IL_G1'         , displayName: '報關種類', width: 115, headerCellClass: 'text-primary' },
-                { name: 'IL_MERGENO'    , displayName: '併票號', width: 129, headerCellClass: 'text-primary' },
+                { name: 'isSelected'    , displayName: '選擇', width: 50, enableCellEdit: false, cellFilter: 'booleanFilter', filter: 
+                    {
+                        term: null,
+                        type: uiGridConstants.filter.SELECT,
+                        selectOptions: bool
+                    }
+                },
+                { name: 'IL_G1'         , displayName: '報關種類', width: 80, headerCellClass: 'text-primary' },
+                { name: 'IL_MERGENO'    , displayName: '併票號', width: 80, headerCellClass: 'text-primary' },
                 { name: 'BAGNO_MATCH'   , displayName: '內貨', width: 50, enableCellEdit: false, cellTemplate: $templateCache.get('accessibilityToInternalGoods'), filter: 
                     {
                         term: null,
@@ -275,14 +357,14 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                         ]
                     }
                 },
-                { name: 'IL_BAGNO'      , displayName: '袋號', width: 129, headerCellClass: 'text-primary' },
-                { name: 'IL_SMALLNO'    , displayName: '小號', width: 115, headerCellClass: 'text-primary' },
-                { name: 'IL_NATURE'     , displayName: '品名', width: 115, enableCellEdit: false },
-                { name: 'IL_NATURE_NEW' , displayName: '新品名', width: 115, headerCellClass: 'text-primary' },
-                { name: 'IL_CTN'        , displayName: '件數', width: 115, headerCellClass: 'text-primary' },
-                { name: 'IL_PLACE'      , displayName: '產地', width: 115, enableCellEdit: false },
-                { name: 'IL_NEWPLACE'   , displayName: '新產地', width: 115, headerCellClass: 'text-primary' },
-                { name: 'IL_WEIGHT'     , displayName: '重量', width: 115, enableCellEdit: false, filters: [
+                { name: 'IL_BAGNO'      , displayName: '袋號', width: 80, headerCellClass: 'text-primary' },
+                { name: 'IL_SMALLNO'    , displayName: '小號', width: 110, headerCellClass: 'text-primary' },
+                { name: 'IL_NATURE'     , displayName: '品名', width: 120, enableCellEdit: false },
+                { name: 'IL_NATURE_NEW' , displayName: '新品名', width: 120, headerCellClass: 'text-primary' },
+                { name: 'IL_CTN'        , displayName: '件數', width: 50, headerCellClass: 'text-primary' },
+                { name: 'IL_PLACE'      , displayName: '產地', width: 50, enableCellEdit: false },
+                { name: 'IL_NEWPLACE'   , displayName: '新產地', width: 70, headerCellClass: 'text-primary' },
+                { name: 'IL_WEIGHT'     , displayName: '重量', width: 70, enableCellEdit: false, filters: [
                     {
                         condition: uiGridConstants.filter.GREATER_THAN,
                         placeholder: '最小'
@@ -292,7 +374,7 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                         placeholder: '最大'
                     }
                 ]},
-                { name: 'IL_WEIGHT_NEW' , displayName: '新重量', width: 115, headerCellClass: 'text-primary', filters: [
+                { name: 'IL_WEIGHT_NEW' , displayName: '新重量', width: 70, headerCellClass: 'text-primary', filters: [
                     {
                         condition: uiGridConstants.filter.GREATER_THAN,
                         placeholder: '最小'
@@ -302,7 +384,7 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                         placeholder: '最大'
                     }
                 ]},
-                { name: 'IL_PCS'        , displayName: '數量', width: 115, enableCellEdit: false, filters: [
+                { name: 'IL_PCS'        , displayName: '數量', width: 70, enableCellEdit: false, filters: [
                     {
                         condition: uiGridConstants.filter.GREATER_THAN,
                         placeholder: '最小'
@@ -312,7 +394,7 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                         placeholder: '最大'
                     }  
                 ]},
-                { name: 'IL_NEWPCS'     , displayName: '新數量', width: 115, headerCellClass: 'text-primary', filters: [
+                { name: 'IL_NEWPCS'     , displayName: '新數量', width: 70, headerCellClass: 'text-primary', filters: [
                     {
                         condition: uiGridConstants.filter.GREATER_THAN,
                         placeholder: '最小'
@@ -322,7 +404,7 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                         placeholder: '最大'
                     }
                 ]},
-                { name: 'IL_UNIVALENT'  , displayName: '單價', width: 115, enableCellEdit: false, filters: [
+                { name: 'IL_UNIVALENT'  , displayName: '單價', width: 70, enableCellEdit: false, filters: [
                     {
                         condition: uiGridConstants.filter.GREATER_THAN,
                         placeholder: '最小'
@@ -332,7 +414,7 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                         placeholder: '最大'
                     }
                 ]},
-                { name: 'IL_UNIVALENT_NEW', displayName: '新單價', width: 115, headerCellClass: 'text-primary', filters: [
+                { name: 'IL_UNIVALENT_NEW', displayName: '新單價', width: 70, headerCellClass: 'text-primary', filters: [
                     {
                         condition: uiGridConstants.filter.GREATER_THAN,
                         placeholder: '最小'
@@ -342,7 +424,7 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                         placeholder: '最大'
                     }
                 ]},
-                { name: 'IL_FINALCOST'  , displayName: '完稅價格', width: 115, headerCellClass: 'text-primary', filters: [
+                { name: 'IL_FINALCOST'  , displayName: '完稅價格', width: 80, headerCellClass: 'text-primary', filters: [
                     {
                         condition: uiGridConstants.filter.GREATER_THAN,
                         placeholder: '最小'
@@ -352,23 +434,23 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                         placeholder: '最大'
                     }
                 ]},
-                { name: 'IL_UNIT'       , displayName: '單位', width: 115, enableCellEdit: false },
-                { name: 'IL_NEWUNIT'    , displayName: '新單位', width: 115, headerCellClass: 'text-primary' },
-                { name: 'IL_GETNO'      , displayName: '收件者統編', width: 115, headerCellClass: 'text-primary' },
-                { name: 'IL_EXNO'       , displayName: '匯出統編', width: 115, headerCellClass: 'text-primary' },
-                { name: 'IL_SENDNAME'   , displayName: '寄件人', width: 115, enableCellEdit: false },
-                { name: 'IL_NEWSENDNAME', displayName: '新寄件人', width: 115, headerCellClass: 'text-primary' },
-                { name: 'IL_TAX'        , displayName: '稅費歸屬', width: 115, headerCellClass: 'text-primary' },
-                { name: 'IL_GETNAME'    , displayName: '收件人公司', width: 115, enableCellEdit: false },
-                { name: 'IL_GETNAME_NEW', displayName: '新收件人公司', width: 115, headerCellClass: 'text-primary' },
+                { name: 'IL_UNIT'       , displayName: '單位', width: 70, enableCellEdit: false },
+                { name: 'IL_NEWUNIT'    , displayName: '新單位', width: 70, headerCellClass: 'text-primary' },
+                { name: 'IL_GETNO'      , displayName: '收件者統編', width: 100, headerCellClass: 'text-primary' },
+                { name: 'IL_EXNO'       , displayName: '匯出統編', width: 80, headerCellClass: 'text-primary' },
+                { name: 'IL_SENDNAME'   , displayName: '寄件人', width: 80, enableCellEdit: false },
+                { name: 'IL_NEWSENDNAME', displayName: '新寄件人', width: 80, headerCellClass: 'text-primary' },
+                { name: 'IL_TAX'        , displayName: '稅費歸屬', width: 80, headerCellClass: 'text-primary' },
+                { name: 'IL_GETNAME'    , displayName: '收件人公司', width: 100, enableCellEdit: false },
+                { name: 'IL_GETNAME_NEW', displayName: '新收件人公司', width: 100, headerCellClass: 'text-primary' },
                 { name: 'IL_GETADDRESS' , displayName: '收件地址', width: 300, enableCellEdit: false },
                 { name: 'IL_GETADDRESS_NEW' , displayName: '新收件地址', width: 300, headerCellClass: 'text-primary' },
-                { name: 'IL_GETTEL'     , displayName: '收件電話', width: 115, headerCellClass: 'text-primary' },
-                { name: 'IL_EXTEL'      , displayName: '匯出電話', width: 115, headerCellClass: 'text-primary' },
-                { name: 'IL_TRCOM'      , displayName: '派送公司', width: 115, headerCellClass: 'text-primary' },
-                { name: 'IL_REMARK'     , displayName: '備註', width: 115, headerCellClass: 'text-primary' },
-                { name: 'IL_TAX2'       , displayName: '稅則', width: 115, headerCellClass: 'text-primary' },
-                { name: 'Options'       , displayName: '操作', width: 250, enableCellEdit: false, enableSorting:false, enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToCB'), pinnedRight:true, cellClass: 'cell-class-no-style' }
+                { name: 'IL_GETTEL'     , displayName: '收件電話', width: 100, headerCellClass: 'text-primary' },
+                { name: 'IL_EXTEL'      , displayName: '匯出電話', width: 100, headerCellClass: 'text-primary' },
+                { name: 'IL_TRCOM'      , displayName: '派送公司', width: 100, headerCellClass: 'text-primary' },
+                { name: 'IL_REMARK'     , displayName: '備註', width: 100, headerCellClass: 'text-primary' },
+                { name: 'IL_TAX2'       , displayName: '稅則', width: 100, headerCellClass: 'text-primary' },
+                { name: 'Options'       , displayName: '操作', width: 160, enableCellEdit: false, enableSorting:false, enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToCB'), pinnedRight:true, cellClass: 'cell-class-no-style' }
             ],
             // rowTemplate: '<div> \
             //                 <div ng-repeat="(colRenderIndex, col) in colContainer.renderedColumns track by col.colDef.name" class="ui-grid-cell" ng-class="row.entity.BLFO_TRACK != null ? \'cell-class-pull cell-class-ban\' : \'\'" ui-grid-cell></div> \
@@ -470,6 +552,10 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                     $vm.job001GridApi.rowEdit.setRowsDirty([rowEntity]);
 
                     // console.log('edited row id:' + rowEntity.Index + ' Column:' + colDef.name + ' newValue:' + newValue + ' oldValue:' + oldValue);
+                });
+
+                gridApi.selection.on.rowSelectionChanged($scope, function(rowEntity, colDef, newValue, oldValue){
+                    rowEntity.entity["isSelected"] = rowEntity.isSelected;
                 });
             }
         },

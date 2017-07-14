@@ -108,55 +108,61 @@
 				        <!-- widget content -->
 						<div class="widget-body no-padding">
 
-							<div class="table-responsive">
-
-								<div class="widget-body-toolbar">
-								    <div class="row">
-								        <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
-								        	<form class="form-inline" role="form">
-								                <fieldset>
-								                    <div class="form-group">
-												        <label class="control-label">標籤說明：</label>
-												        <span>
-															<span class="cell-class-ban"> 黑名單</span>
-															<span class="cell-class-pull"> 拉貨</span>
-															<span class="cell-class-special"> 特貨</span>
-															<span class="text-primary"> 可編輯欄位</span>
-												        </span>
-								                    </div>
-								                </fieldset>
-								            </form>
-								        </div>
-								        <div class="col-xs-12 col-sm-12 col-md-8 col-lg-8 text-right">
-								        	<form class="form-inline" role="form">
-								                <fieldset>
-								                    <div class="form-group">
-											            <button class="btn btn-primary"
-											            		ng-click="$vm.MergeNo()">
-											                併票
-											            </button>
-								                    </div>
-								                    <div class="form-group">
-											            <button class="btn btn-danger"
-											            		ng-click="$vm.CancelNo()">
-											                取消併票
-											            </button>
-								                    </div>
-								                    <div class="form-group">
-											            <button class="btn btn-default"
-											            		ng-click="$vm.MultiSpecialGoods()">
-											                特貨標記
-											            </button>
-								                    </div>
-								                </fieldset>
-								            </form>
-								        </div>
-								    </div>
-								</div>
-
-								<div id="grid1" ui-grid="$vm.job001Options" class="my-ui-grid" ui-grid-pagination ui-grid-resize-columns ui-grid-selection ui-grid-pinning ui-grid-edit ui-grid-row-edit ui-grid-auto-resize></div>
-
+							<div class="widget-body-toolbar">
+							    <div class="row">
+							        <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
+							        	<form class="form-inline" role="form">
+							                <fieldset>
+							                    <div class="form-group">
+											        <label class="control-label">標籤說明：</label>
+											        <span>
+														<span class="cell-class-ban"> 黑名單</span>
+														<span class="cell-class-pull"> 拉貨</span>
+														<span class="cell-class-special"> 特貨</span>
+														<span class="text-primary"> 可編輯欄位</span>
+											        </span>
+							                    </div>
+							                </fieldset>
+							            </form>
+							        </div>
+							        <div class="col-xs-12 col-sm-12 col-md-8 col-lg-8 text-right">
+							        	<form class="form-inline" role="form">
+							                <fieldset>
+							                    <div class="form-group">
+										            <button class="btn btn-primary"
+										            		ng-click="$vm.MergeNo()">
+										                併票
+										            </button>
+							                    </div>
+							                    <div class="form-group">
+										            <button class="btn btn-danger"
+										            		ng-click="$vm.CancelNo()">
+										                取消併票
+										            </button>
+							                    </div>
+							                    <div class="form-group">
+										            <button class="btn btn-default"
+										            		ng-click="$vm.MultiSpecialGoods()">
+										                特貨標記
+										            </button>
+							                    </div>
+							                    <div class="form-group">
+										            <button class="btn btn-danger"
+										            		ng-click="$vm.gridMethod.banData()">
+										                加入黑名單
+										            </button>
+							                    </div>
+							                </fieldset>
+							            </form>
+							        </div>
+							    </div>
 							</div>
+
+							<!-- <div class="table-responsive"> -->
+
+							<div id="grid1" ui-grid="$vm.job001Options" class="my-ui-grid" ui-grid-pagination ui-grid-resize-columns ui-grid-selection ui-grid-pinning ui-grid-edit ui-grid-row-edit ui-grid-auto-resize></div>
+
+							<!-- </div> -->
 
 							<!-- widget footer -->
 							<div class="widget-footer">
