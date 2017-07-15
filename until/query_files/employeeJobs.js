@@ -21,6 +21,11 @@ module.exports = function(pQueryname, pParams){
 											GROUP BY IL_BAGNO \
 										) A \
 									) AS 'OL_COUNT', \
+									( \
+										SELECT MAX(IL_SUPPLEMENT_COUNT) \
+										FROM ITEM_LIST \
+										WHERE IL_SEQ = OL_SEQ \
+									) AS 'OL_SUPPLEMENT_COUNT', \
 									W2_OE.OE_PRINCIPAL AS 'W2_PRINCIPAL', \
 									W2_OE.OE_EDATETIME AS 'W2_EDATETIME', \
 									W2_OE.OE_FDATETIME AS 'W2_FDATETIME', \

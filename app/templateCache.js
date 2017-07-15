@@ -55,6 +55,11 @@ angular.module('app')
                             <i class="fa fa-check text-success" ng-if="row.entity.BAGNO_MATCH == 1"> </i> \
                         </div>');
 
+    $templateCache.put('accessibilityToSuppleMent', '\
+                        <div class="ui-grid-cell-contents text-center">\
+                            <span class="label bg-color-red">{{row.entity.OL_SUPPLEMENT_COUNT | suppleMentFilter}}</span>\
+                        </div>');
+
     $templateCache.put('accessibilityToVForPullGoods', '\
                         <div class="ui-grid-cell-contents text-center">\
                             <a href="javascript:void(0);" class="btn btn-primary btn-xs" ng-click="grid.appScope.$vm.gridMethodForPullGoods.viewData(row)"> 原因</a>\

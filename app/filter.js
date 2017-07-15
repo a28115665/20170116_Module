@@ -320,4 +320,16 @@ angular.module('app')
 		return angular.isUndefined(input) ? '' : (parseInt(input)/1024/1024).toFixed(2) + ' MB';
 	};
 
+})
+.filter('suppleMentFilter', function ($filter) {
+
+	return function (input){
+		if (input == null) {
+		    return '';
+		} else {
+		    return '補'+input;
+		}
+
+	};
+
 });

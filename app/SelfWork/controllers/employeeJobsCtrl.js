@@ -260,6 +260,7 @@ angular.module('app.selfwork').controller('EmployeeJobsCtrl', function ($scope, 
         orderListOptions : {
             data:  '$vm.selfWorkData',
             columnDefs: [
+                { name: 'OL_SUPPLEMENT_COUNT'    ,  displayName: '補件', width: 50, cellTemplate: $templateCache.get('accessibilityToSuppleMent') },
                 { name: 'OL_IMPORTDT'            ,  displayName: '進口日期', width: 80, cellFilter: 'dateFilter' },
                 { name: 'OL_CO_CODE'             ,  displayName: '行家', width: 80, cellFilter: 'compyFilter', filter: 
                     {
