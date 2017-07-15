@@ -287,6 +287,33 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
                 $vm.flightItemGridApi = gridApi;
             }
         },
+        masterToBeFilledOptions : {
+            data:  '$vm.masterToBeFilledData',
+            columnDefs: [
+                { name: 'OL_IMPORTDT'            ,  displayName: '進口日期', cellFilter: 'dateFilter' },
+                { name: 'OL_CO_CODE'             ,  displayName: '行家', cellFilter: 'compyFilter', filter: 
+                    {
+                        term: null,
+                        type: uiGridConstants.filter.SELECT,
+                        selectOptions: compy
+                    }
+                },
+                { name: 'OL_FLIGHTNO'            ,  displayName: '航班' },
+                { name: 'OL_MASTER'              ,  displayName: '主號' },
+                { name: 'OL_COUNT'               ,  displayName: '報機單(袋數)', enableCellEdit: false },
+                { name: 'OL_COUNTRY'             ,  displayName: '起運國別' },
+                { name: 'Options'                ,  displayName: '操作', width: '5%', enableCellEdit: false, enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToM') }
+            ],
+            enableFiltering: false,
+            enableSorting: false,
+            enableColumnMenus: false,
+            // enableVerticalScrollbar: false,
+            paginationPageSizes: [10, 25, 50, 100],
+            paginationPageSize: 100,
+            onRegisterApi: function(gridApi){
+                $vm.masterToBeFilledGridApi = gridApi;
+            }
+        },
         gridMethodForPullGoods : {
             // 原因
             viewData : function(row){
@@ -298,6 +325,29 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
                     controller: 'ViewReasonModalInstanceCtrl',
                     controllerAs: '$ctrl',
                     // size: 'lg',
+                    resolve: {
+                        items: function () {
+                            return row.entity;
+                        }
+                    }
+                });
+
+                modalInstance.result.then(function(selectedItem) {
+
+                }, function() {
+                    // $log.info('Modal dismissed at: ' + new Date());
+                });
+            },
+            // 明細
+            detailData : function(row){
+                var modalInstance = $uibModal.open({
+                    animation: true,
+                    ariaLabelledBy: 'modal-title',
+                    ariaDescribedBy: 'modal-body',
+                    templateUrl: 'viewDetailModalContent.html',
+                    controller: 'ViewDetailModalInstanceCtrl',
+                    controllerAs: '$ctrl',
+                    size: 'lg',
                     resolve: {
                         items: function () {
                             return row.entity;
@@ -540,33 +590,6 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
                 });
             }
         },
-        masterToBeFilledOptions : {
-            data:  '$vm.masterToBeFilledData',
-            columnDefs: [
-                { name: 'OL_IMPORTDT'            ,  displayName: '進口日期', cellFilter: 'dateFilter' },
-                { name: 'OL_CO_CODE'             ,  displayName: '行家', cellFilter: 'compyFilter', filter: 
-                    {
-                        term: null,
-                        type: uiGridConstants.filter.SELECT,
-                        selectOptions: compy
-                    }
-                },
-                { name: 'OL_FLIGHTNO'            ,  displayName: '航班' },
-                { name: 'OL_MASTER'              ,  displayName: '主號' },
-                { name: 'OL_COUNT'               ,  displayName: '報機單(袋數)', enableCellEdit: false },
-                { name: 'OL_COUNTRY'             ,  displayName: '起運國別' },
-                { name: 'Options'                ,  displayName: '操作', width: '5%', enableCellEdit: false, enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToM') }
-            ],
-            enableFiltering: false,
-            enableSorting: false,
-            enableColumnMenus: false,
-            // enableVerticalScrollbar: false,
-            paginationPageSizes: [10, 25, 50, 100],
-            paginationPageSize: 100,
-            onRegisterApi: function(gridApi){
-                $vm.masterToBeFilledGridApi = gridApi;
-            }
-        },
         pullGoodsOptions : {
             data:  '$vm.pullGoodsData',
             columnDefs: [
@@ -579,7 +602,7 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
                 { name: 'PG_MOVED'      , displayName: '移機', cellFilter: 'booleanFilter' },
                 { name: 'PG_FLIGHTNO'   , displayName: '航班(改)' },
                 { name: 'PG_MASTER'     , displayName: '主號(改)' },
-                { name: 'Options'       , displayName: '操作', width: '5%', cellTemplate: $templateCache.get('accessibilityToVForPullGoods') }
+                { name: 'Options'       , displayName: '操作', width: '8%', cellTemplate: $templateCache.get('accessibilityToVForPullGoods') }
             ],
             enableFiltering: false,
             enableSorting: false,
@@ -677,6 +700,82 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
 .controller('ViewReasonModalInstanceCtrl', function ($uibModalInstance, items) {
     var $ctrl = this;
     $ctrl.mdData = angular.copy(items);
+
+    $ctrl.ok = function() {
+        $uibModalInstance.close();
+    };
+
+    $ctrl.cancel = function() {
+        $uibModalInstance.dismiss('cancel');
+    };
+})
+.controller('ViewDetailModalInstanceCtrl', function ($uibModalInstance, RestfulApi, items) {
+    var $ctrl = this;
+
+    $ctrl.Init = function(){
+        RestfulApi.SearchMSSQLData({
+            querymain: 'assistantJobs',
+            queryname: 'SelectBagNoDetail',
+            params: {
+                IL_SEQ: items.PG_SEQ,
+                IL_BAGNO: items.PG_BAGNO
+            }
+        }).then(function (res){
+            for(var i=0;i<res["returnData"].length;i++){
+                res["returnData"][i]["Index"] = i+1;
+            }
+            $ctrl.mdData = angular.copy(res["returnData"]);
+        }); 
+    }
+
+    $ctrl.mdDataOption = {
+        data: '$ctrl.mdData',
+        columnDefs: [
+            { name: 'Index'           , displayName: '序列', width: 50},
+            { name: 'IL_G1'           , displayName: '報關種類', width: 80 },
+            { name: 'IL_MERGENO'      , displayName: '併票號', width: 80 },
+            { name: 'IL_BAGNO'        , displayName: '袋號', width: 80 },
+            { name: 'IL_SMALLNO'      , displayName: '小號', width: 110 },
+            { name: 'IL_NATURE'       , displayName: '品名', width: 120 },
+            { name: 'IL_NATURE_NEW'   , displayName: '新品名', width: 120 },
+            { name: 'IL_CTN'          , displayName: '件數', width: 50 },
+            { name: 'IL_PLACE'        , displayName: '產地', width: 50 },
+            { name: 'IL_NEWPLACE'     , displayName: '新產地', width: 70 },
+            { name: 'IL_WEIGHT'       , displayName: '重量', width: 70 },
+            { name: 'IL_WEIGHT_NEW'   , displayName: '新重量', width: 70 },
+            { name: 'IL_PCS'          , displayName: '數量', width: 70 },
+            { name: 'IL_NEWPCS'       , displayName: '新數量', width: 70 },
+            { name: 'IL_UNIVALENT'    , displayName: '單價', width: 70 },
+            { name: 'IL_UNIVALENT_NEW', displayName: '新單價', width: 70 },
+            { name: 'IL_FINALCOST'    , displayName: '完稅價格', width: 80 },
+            { name: 'IL_UNIT'         , displayName: '單位', width: 70 },
+            { name: 'IL_NEWUNIT'      , displayName: '新單位', width: 70 },
+            { name: 'IL_GETNO'        , displayName: '收件者統編', width: 100 },
+            { name: 'IL_EXNO'         , displayName: '匯出統編', width: 80 },
+            { name: 'IL_SENDNAME'     , displayName: '寄件人', width: 80 },
+            { name: 'IL_NEWSENDNAME'  , displayName: '新寄件人', width: 80 },
+            { name: 'IL_TAX'          , displayName: '稅費歸屬', width: 80 },
+            { name: 'IL_GETNAME'      , displayName: '收件人公司', width: 100 },
+            { name: 'IL_GETNAME_NEW'  , displayName: '新收件人公司', width: 100 },
+            { name: 'IL_GETADDRESS'   , displayName: '收件地址', width: 300 },
+            { name: 'IL_GETADDRESS_NEW', displayName: '新收件地址', width: 300 },
+            { name: 'IL_GETTEL'       , displayName: '收件電話', width: 100 },
+            { name: 'IL_EXTEL'        , displayName: '匯出電話', width: 100 },
+            { name: 'IL_TRCOM'        , displayName: '派送公司', width: 100 },
+            { name: 'IL_REMARK'       , displayName: '備註', width: 100 },
+            { name: 'IL_TAX2'         , displayName: '稅則', width: 100 }
+        ],
+        enableFiltering: false,
+        enableSorting: true,
+        enableColumnMenus: false,
+        // enableVerticalScrollbar: false,
+        paginationPageSizes: [50, 100, 150, 200, 250, 300],
+        paginationPageSize: 100,
+        onRegisterApi: function(gridApi){
+            $ctrl.mdDataGridApi = gridApi;
+            // HandleWindowResize($ctrl.job001DataNotMergeNoGridApi);
+        }
+    }
 
     $ctrl.ok = function() {
         $uibModalInstance.close();

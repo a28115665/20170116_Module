@@ -166,6 +166,23 @@ module.exports = function(pQueryname, pParams){
 			_SQLCommand += " ORDER BY FA_SCHEDL_ARRIVALTIME ";
 
 			break;
+
+		case "SelectBagNoDetail":
+			_SQLCommand += "SELECT * \
+							FROM ITEM_LIST \
+						    WHERE 1=1";
+
+			if(pParams["IL_SEQ"] !== undefined){
+				_SQLCommand += " AND IL_SEQ = @IL_SEQ ";
+			}
+
+			if(pParams["IL_BAGNO"] !== undefined){
+				_SQLCommand += " AND IL_BAGNO = @IL_BAGNO ";
+			}
+
+			_SQLCommand += " ORDER BY IL_BAGNO ";
+
+			break;
 	}
 
 	return _SQLCommand;
