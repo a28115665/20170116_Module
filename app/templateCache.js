@@ -115,6 +115,18 @@ angular.module('app')
                         <a href="javascript:void(0);" class="btn btn-success btn-xs" ng-click="grid.appScope.$vm.gridMethod.specialGoods(row)" ng-if="row.entity.SPG_SPECIALGOODS == 2"> 特特貨</a>\
    		  		    </div>');
 
+    $templateCache.put('accessibilityToOverSixName', '\
+                    <div class="ui-grid-cell-contents text-center">\
+                        <span class="label bg-color-red" ng-if="row.entity.GETNAME_COUNT == -1">自訂</span>\
+                        <span class="label" ng-if="row.entity.GETNAME_COUNT != -1">{{row.entity.GETNAME_COUNT}}</span>\
+                    </div>');
+
+    $templateCache.put('accessibilityToOverSixAddress', '\
+                    <div class="ui-grid-cell-contents text-center">\
+                        <span class="label bg-color-red" ng-if="row.entity.GETADDRESS_COUNT == -1">自訂</span>\
+                        <span class="label" ng-if="row.entity.GETADDRESS_COUNT != -1">{{row.entity.GETADDRESS_COUNT}}</span>\
+                    </div>');
+
     $templateCache.put('accessibilityToMForBLFO', '<div class="ui-grid-cell-contents text-center">\
                                             <a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethodForBLFO.modifyData(row)"> {{$parent.$root.getWord(\'Modify\')}}</a>\
                                           </div>');

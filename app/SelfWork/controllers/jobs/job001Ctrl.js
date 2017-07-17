@@ -1525,7 +1525,7 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
         $uibModalInstance.dismiss('cancel');
     };
 })
-.controller('OverSixModalInstanceCtrl', function ($uibModalInstance, $q, $scope, overSixData, type) {
+.controller('OverSixModalInstanceCtrl', function ($uibModalInstance, $q, $scope, $templateCache, overSixData, type) {
     var $ctrl = this;
     $ctrl.type = type;
     $ctrl.mdData = overSixData;
@@ -1565,8 +1565,8 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
             { name: 'IL_TRCOM'        , displayName: '派送公司', width: 100, headerCellClass: 'text-primary' },
             { name: 'IL_REMARK'       , displayName: '備註', width: 100, headerCellClass: 'text-primary' },
             { name: 'IL_TAX2'         , displayName: '稅則', width: 100, headerCellClass: 'text-primary' },
-            { name: 'GETNAME_COUNT'   , displayName: '收件人公司', width: 115, headerCellClass: 'text-danger', enableCellEdit: false, pinnedRight:true },
-            { name: 'GETADDRESS_COUNT', displayName: '收件地址', width: 115, headerCellClass: 'text-danger', enableCellEdit: false, pinnedRight:true }
+            { name: 'GETNAME_COUNT'   , displayName: '收件人公司', width: 100, headerCellClass: 'text-danger', enableCellEdit: false, pinnedRight:true, cellTemplate: $templateCache.get('accessibilityToOverSixName') },
+            { name: 'GETADDRESS_COUNT', displayName: '收件地址', width: 100, headerCellClass: 'text-danger', enableCellEdit: false, pinnedRight:true, cellTemplate: $templateCache.get('accessibilityToOverSixAddress') }
             
             // { name: 'IL_G1'         , displayName: '報關種類', width: 115, headerCellClass: 'text-primary' },
             // { name: 'IL_MERGENO'    , displayName: '併票號', width: 129, headerCellClass: 'text-primary' },

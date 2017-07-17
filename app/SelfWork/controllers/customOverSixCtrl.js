@@ -64,7 +64,7 @@ angular.module('app.selfwork').controller('CustomOverSixCtrl', function ($scope,
             data:  '$vm.overSixData',
             columnDefs: [
                 { name: 'Index'       ,  displayName: '序列', width: 50, enableFiltering: false },
-                { name: 'COS_TYPE'    ,  displayName: '類型', width: 50, cellFilter: 'overSixFilter', filter: 
+                { name: 'COS_TYPE'    ,  displayName: '類型', width: 100, cellFilter: 'overSixFilter', filter: 
                     {
                         term: null,
                         type: uiGridConstants.filter.SELECT,
