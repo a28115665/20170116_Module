@@ -190,6 +190,7 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
         orderListOptions : {
             data:  '$vm.vmData',
             columnDefs: [
+                { name: 'OL_SUPPLEMENT_COUNT'    ,  displayName: '補件', width: 50, cellTemplate: $templateCache.get('accessibilityToSuppleMent') },
                 { name: 'OL_IMPORTDT' ,  displayName: '進口日期', cellFilter: 'dateFilter' },
                 { name: 'OL_CO_CODE'  ,  displayName: '行家', cellFilter: 'compyFilter', filter: 
                     {

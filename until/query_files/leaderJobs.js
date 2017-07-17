@@ -19,6 +19,11 @@ module.exports = function(pQueryname, pParams){
 											GROUP BY IL_BAGNO \
 										) A \
 									) AS 'OL_COUNT', \
+									( \
+										SELECT MAX(IL_SUPPLEMENT_COUNT) \
+										FROM ITEM_LIST \
+										WHERE IL_SEQ = OL_SEQ \
+									) AS 'OL_SUPPLEMENT_COUNT', \
 									OL_CR_USER, \
 									( \
 										CASE WHEN ( \

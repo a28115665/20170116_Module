@@ -66,7 +66,7 @@
 				    <header>
 				        <h2>編輯 </h2>
 				        <div class="widget-toolbar smart-form" role="menu">
-				            <a href-void="" class="btn btn-warning" href="#" ng-click="$vm.OverSix()">超過六次</a>
+				            <a href-void="" class="btn btn-warning" href="#" ng-click="$vm.OverSix()">逾六次</a>
 				        </div>
 				        <div class="widget-toolbar smart-form" role="menu">
 				            <div class="btn-group dropdown" uib-dropdown keyboard-nav is-open="dropdownOpen">
@@ -171,6 +171,9 @@
 								</a> -->								
 								<button class="btn btn-default" type="button" ng-click="$vm.Return()">
 									返回
+								</button>						
+								<button class="btn btn-primary" type="button" ng-if="$vm.vmData.W2_PRINCIPAL == $vm.profile.U_ID && $vm.vmData.W2_FDATETIME == null" ng-click="$vm.Close()">
+									完成
 								</button>
 								<!-- <button class="btn btn-sm btn-warning" type="button" ng-click="$vm.Update()">
 					                <i class="fa fa-save"></i>
@@ -216,7 +219,6 @@
         </div> 
 	</div>
 </script>
-
 
 <script type="text/ng-template" id="pullGoodsModalContent.html">
     <div class="modal-header">
@@ -406,7 +408,7 @@
 
 <script type="text/ng-template" id="overSixModalContent.html">
     <div class="modal-header" ng-Init="$ctrl.MdInit()">
-	    <h3 class="modal-title" id="modal-title">超過六次({{$ctrl.type}})</h3>
+	    <h3 class="modal-title" id="modal-title">逾六次({{$ctrl.type}})</h3>
 	</div>
 	<div class="modal-body no-padding" id="modal-body">
         <div id="grid1" ui-grid="$ctrl.overSixOption" class="my-ui-grid" ui-grid-pagination ui-grid-resize-columns ui-grid-pinning ui-grid-edit ui-grid-row-edit ui-grid-auto-resize></div>

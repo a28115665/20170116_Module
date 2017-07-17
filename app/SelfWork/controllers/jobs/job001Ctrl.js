@@ -17,6 +17,7 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                 $vm.bigBreadcrumbsItems.shift();
 
                 $vm.vmData = $stateParams.data;
+                console.log($vm.vmData);
 
                 // 測試用
                 // if($vm.vmData == null){
@@ -362,7 +363,7 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                 { name: 'IL_SMALLNO'    , displayName: '小號', width: 110, headerCellClass: 'text-primary' },
                 { name: 'IL_NATURE'     , displayName: '品名', width: 120, enableCellEdit: false },
                 { name: 'IL_NATURE_NEW' , displayName: '新品名', width: 120, headerCellClass: 'text-primary' },
-                { name: 'ChangeNature'  , displayName: '改單', width: 50, enableCellEdit: false, cellTemplate: $templateCache.get('accessibilityToChangeNature'), cellClass: 'cell-class-no-style' },
+                { name: 'ChangeNature'  , displayName: '改單', width: 50, enableCellEdit: false, enableSorting:false, cellTemplate: $templateCache.get('accessibilityToChangeNature'), cellClass: 'cell-class-no-style' },
                 { name: 'IL_CTN'        , displayName: '件數', width: 50, headerCellClass: 'text-primary' },
                 { name: 'IL_PLACE'      , displayName: '產地', width: 50, enableCellEdit: false },
                 { name: 'IL_NEWPLACE'   , displayName: '新產地', width: 70, headerCellClass: 'text-primary' },
@@ -1063,6 +1064,51 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
         },
         Return : function(){
             ReturnToEmployeejobsPage();
+        },
+        Close : function(){
+            var modalInstance = $uibModal.open({
+                animation: true,
+                ariaLabelledBy: 'modal-title',
+                ariaDescribedBy: 'modal-body',
+                template: $templateCache.get('isChecked'),
+                controller: 'IsCheckedModalInstanceCtrl',
+                controllerAs: '$ctrl',
+                size: 'sm',
+                windowClass: 'center-modal',
+                // appendTo: parentElem,
+                resolve: {
+                    items: function() {
+                        return {};
+                    },
+                    show: function(){
+                        return {
+                            title : "是否完成"
+                        }
+                    }
+                }
+            });
+
+            modalInstance.result.then(function(selectedItem) {
+                // $ctrl.selected = selectedItem;
+
+                RestfulApi.UpdateMSSQLData({
+                    updatename: 'Update',
+                    table: 22,
+                    params: {
+                        OE_FDATETIME : $filter('date')(new Date(), 'yyyy-MM-dd HH:mm:ss')
+                    },
+                    condition: {
+                        OE_SEQ : $vm.vmData.OL_SEQ,
+                        OE_TYPE : 'R',
+                        OE_PRINCIPAL : $vm.profile.U_ID
+                    }
+                }).then(function (res) {
+                    ReturnToEmployeejobsPage();
+                });
+
+            }, function() {
+                // $log.info('Modal dismissed at: ' + new Date());
+            });
         },
         Update : function(entity){
             // console.log($vm.job001GridApi.rowEdit);

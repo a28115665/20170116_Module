@@ -15,6 +15,28 @@ angular.module('app.selfwork').config(function ($stateProvider){
         }
     })
 
+    .state('app.selfwork.customoversix', {
+        url: '/selfwork/customoversix',
+        data: {
+            title: 'CustomOverSix'
+        },
+        views: {
+            "content@app" : {
+                templateUrl: 'app/SelfWork/views/customOverSix.html',
+                controller: 'CustomOverSixCtrl',
+                controllerAs: '$vm',
+                resolve: {
+                    overSix: function(SysCode) {
+                        return SysCode.get('OverSix');
+                    },
+                    userInfo: function(UserInfo){
+                        return UserInfo.get();
+                    }
+                }
+            }
+        }
+    })
+
     .state('app.selfwork.leaderjobs', {
         url: '/selfwork/leaderjobs',
         data: {
@@ -266,7 +288,9 @@ angular.module('app.selfwork').config(function ($stateProvider){
                 controller: 'Job001Ctrl',
                 controllerAs: '$vm',
                 resolve: {
-
+                    bool: function (SysCode){
+                        return SysCode.get('Boolean');
+                    }
                 }
             }
         }
