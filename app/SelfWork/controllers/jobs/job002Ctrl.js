@@ -9,23 +9,23 @@ angular.module('app.selfwork').controller('Job002Ctrl', function ($scope, $state
     angular.extend(this, {
         Init : function(){
             // 不正常登入此頁面
-            if($stateParams.data == null){
-                ReturnToEmployeejobsPage();
-            }else{
+            // if($stateParams.data == null){
+            //     ReturnToEmployeejobsPage();
+            // }else{
                 $vm.bigBreadcrumbsItems = $state.current.name.split(".");
                 $vm.bigBreadcrumbsItems.shift();
                 
                 $vm.vmData = $stateParams.data;
 
                 // 測試用
-                // if($vm.vmData == null){
-                //     $vm.vmData = {
-                //         OL_SEQ : 'Co0001Co000120170712205825'
-                //     };
-                // }
+                if($vm.vmData == null){
+                    $vm.vmData = {
+                        OL_SEQ : 'Co0001Co000120170712205825'
+                    };
+                }
                 
                 LoadFlightItemList();
-            }
+            // }
         },
         profile : Session.Get(),
         defaultChoice : 'Left',
@@ -62,14 +62,22 @@ angular.module('app.selfwork').controller('Job002Ctrl', function ($scope, $state
             onRegisterApi: function(gridApi){
                 $vm.job002GridApi = gridApi;
 
-                // gridApi.rowEdit.on.saveRow($scope, $vm.Update);
+                gridApi.rowEdit.on.saveRow($scope, $vm.Update);
             }
         },
         ExportExcel: function(){
 
             var _exportName = $filter('date')($vm.vmData.OL_IMPORTDT, 'yyyyMMdd') + ' ' + 
                               $filter('compyFilter')($vm.vmData.OL_CO_CODE) + ' ' + 
-                              $vm.vmData.OL_FLIGHTNO;
+                              $vm.vmData.OL_FLIGHTNO,
+                _totalBag = 0,
+                _totalWeight = 0;
+
+            // 計算件數和重量
+            for(var i in $vm.job002Data){
+                _totalBag += $vm.job002Data[i].FLL_CTN;
+                _totalWeight += $vm.job002Data[i].FLL_WEIGHT;
+            }
 
             ToolboxApi.ExportExcelByMultiSql([
                 {
@@ -81,8 +89,8 @@ angular.module('app.selfwork').controller('Job002Ctrl', function ($scope, $state
                     OL_COUNTRY     : $vm.vmData.OL_COUNTRY, 
                     OL_TEL         : $vm.vmData.OL_TEL, 
                     OL_FAX         : $vm.vmData.OL_FAX, 
-                    OL_TOTALBAG    : $vm.vmData.OL_TOTALBAG, 
-                    OL_TOTALWEIGHT : $vm.vmData.OL_TOTALWEIGHT
+                    OL_TOTALBAG    : _totalBag, 
+                    OL_TOTALWEIGHT : _totalWeight
                 },
                 {
                     crudType: 'Select',

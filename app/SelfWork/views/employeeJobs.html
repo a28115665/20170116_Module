@@ -120,8 +120,11 @@
             </button> 
         </div> 
         <div class="row" ng-if="$ctrl.row.entity.name == '銷艙單'"> 
-        	<button type="button" class="btn btn-info btn-lg btn-block" ng-click="$ctrl.appScope.gridMethodForJob002.viewData($ctrl.row);$ctrl.cancel()"> 
+        	<!--<button type="button" class="btn btn-info btn-lg btn-block" ng-click="$ctrl.appScope.gridMethodForJob002.viewData($ctrl.row);$ctrl.cancel()"> 
                 檢視 
+            </button>--> 
+        	<button type="button" class="btn btn-warning btn-lg btn-block" ng-click="$ctrl.appScope.gridMethodForJob002.fixData($ctrl.row);$ctrl.cancel()"> 
+                修改 
             </button>
             <!--<button type="button" class="btn btn-danger btn-lg btn-block" ng-click="$ctrl.appScope.gridMethodForJob002.rejectData($ctrl.row);$ctrl.cancel()"> 
                 退單 

@@ -17,13 +17,12 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                 $vm.bigBreadcrumbsItems.shift();
 
                 $vm.vmData = $stateParams.data;
-                console.log($vm.vmData);
 
                 // 測試用
                 // if($vm.vmData == null){
                 //     $vm.vmData = {
                 //         OL_SEQ : 'AdminTest20170525190758',
-                //         OL_CR_DATETIME : '2017-04-19T10:10:47.906Z'
+                //         OL_IMPORTDT : '2017-04-19T10:10:47.906Z'
                 //     };
                 // }
                 
@@ -761,11 +760,17 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                         _templates = "0";
                         _queryname = "SelectItemListForEx0";
                         _params["IL_G1"] = "'','X2'";
+                        // 不包含併X3(也就是mergeno是null)
+                        _params["IL_MERGENO"] = null;
                         break;
                     case "0X3":
                         _templates = "0";
                         _queryname = "SelectItemListForEx0";
                         _params["IL_G1"] = "'X3'";
+                        break;
+                    case "0MX3":
+                        _templates = "10";
+                        _queryname = "SelectItemListForEx0MX3";
                         break;
                     case "8":
                         _templates = "8";

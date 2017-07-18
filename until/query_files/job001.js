@@ -46,6 +46,8 @@ module.exports = function(pQueryname, pParams){
 								HAVING COUNT(*) > 1 \
 							) REPEAT_NAME ON REPEAT_NAME.IL_GETNAME_NEW = ITEM_LIST.IL_GETNAME_NEW \
 							WHERE ITEM_LIST.IL_SEQ = @IL_SEQ \
+							AND IL_G1 = '' \
+							AND IL_MERGENO IS NULL \
 							ORDER BY IL_GETNAME_NEW, IL_BAGNO";
 			
 			break;
@@ -60,6 +62,8 @@ module.exports = function(pQueryname, pParams){
 								HAVING COUNT(*) > 1 \
 							) REPEAT_ADDRESS ON REPEAT_ADDRESS.IL_GETADDRESS_NEW = ITEM_LIST.IL_GETADDRESS_NEW \
 							WHERE ITEM_LIST.IL_SEQ = @IL_SEQ \
+							AND IL_G1 = '' \
+							AND IL_MERGENO IS NULL \
 							ORDER BY IL_GETADDRESS_NEW, IL_BAGNO";
 			
 			break;
@@ -78,6 +82,8 @@ module.exports = function(pQueryname, pParams){
 							ON REPEAT_ADDRESS.IL_GETNAME_NEW = ITEM_LIST.IL_GETNAME_NEW \
 							AND REPEAT_ADDRESS.IL_GETADDRESS_NEW = ITEM_LIST.IL_GETADDRESS_NEW \
 							WHERE ITEM_LIST.IL_SEQ = @IL_SEQ \
+							AND IL_G1 = '' \
+							AND IL_MERGENO IS NULL \
 							ORDER BY IL_GETNAME_NEW, IL_GETADDRESS_NEW, IL_BAGNO";
 			
 			break;
@@ -129,6 +135,67 @@ module.exports = function(pQueryname, pParams){
 		
 			break;
 
+
+
+		case "SelectItemListForEx0MX3":
+			_SQLCommand += "SELECT * \
+							FROM ( \
+								SELECT BLFO_TRACK, \
+										CASE WHEN PG_SEQ IS NULL THEN 0 ELSE 1 END AS 'PG_PULLGOODS', \
+										CASE WHEN SPG_SEQ IS NULL OR SPG_TYPE IS NULL THEN NULL ELSE \
+											CASE WHEN SPG_TYPE = 1 THEN '普特貨' \
+											ELSE '特特貨' END \
+										END AS 'SPG_SPECIALGOODS', \
+										PG_MOVED, \
+										OUT_IL.*, \
+										CASE WHEN ROW_NUMBER() OVER(PARTITION BY IL_BAGNO ORDER BY IL_BAGNO) = 1 \
+										THEN IL_BAGNO ELSE NULL END AS 'IL_BAGNOEX_NOREPEAT', \
+										CASE WHEN ROW_NUMBER() OVER(PARTITION BY IL_BAGNO ORDER BY IL_BAGNO) = 1 \
+										THEN( \
+											SELECT COUNT(IL_CTN) \
+											FROM ITEM_LIST IN_IL \
+											WHERE IN_IL.IL_BAGNO = OUT_IL.IL_BAGNO \
+											AND IN_IL.IL_SEQ = @IL_SEQ \
+										) ELSE NULL END AS 'IL_CTN_NOREPEAT', \
+										CASE WHEN ROW_NUMBER() OVER(PARTITION BY IL_BAGNO ORDER BY IL_BAGNO) = 1 \
+										THEN( \
+											SELECT COUNT(IL_WEIGHT_NEW) \
+											FROM ITEM_LIST IN_IL \
+											WHERE IN_IL.IL_BAGNO = OUT_IL.IL_BAGNO \
+											AND IN_IL.IL_SEQ = @IL_SEQ \
+										) ELSE NULL END AS 'IL_WEIGHT_NEW_NOREPEAT', \
+										CASE WHEN ROW_NUMBER() OVER(PARTITION BY IL_BAGNO ORDER BY IL_BAGNO) = 1 \
+										THEN( \
+											SELECT COUNT(IL_NEWPCS) \
+											FROM ITEM_LIST IN_IL \
+											WHERE IN_IL.IL_BAGNO = OUT_IL.IL_BAGNO \
+											AND IN_IL.IL_SEQ = @IL_SEQ \
+										) ELSE NULL END AS 'IL_NEWPCS_NOREPEAT' \
+								FROM ITEM_LIST OUT_IL \
+								LEFT JOIN BLACK_LIST_FROM_OP ON \
+								IL_SEQ = BLFO_SEQ AND \
+								IL_NEWBAGNO = BLFO_NEWBAGNO AND \
+								IL_NEWSMALLNO = BLFO_NEWSMALLNO AND \
+								IL_ORDERINDEX = BLFO_ORDERINDEX \
+								LEFT JOIN PULL_GOODS ON \
+								IL_SEQ = PG_SEQ AND \
+								IL_BAGNO = PG_BAGNO \
+								LEFT JOIN SPECIAL_GOODS ON \
+								IL_SEQ = SPG_SEQ AND \
+								IL_NEWBAGNO = SPG_NEWBAGNO AND \
+								IL_NEWSMALLNO = SPG_NEWSMALLNO AND \
+								IL_ORDERINDEX = SPG_ORDERINDEX \
+								WHERE 1=1 \
+								/*拉貨不匯出*/ \
+								AND PG_SEQ IS NULL \
+								AND IL_SEQ = @IL_SEQ \
+								AND IL_MERGENO IS NOT NULL \
+							) A \
+							WHERE A.IL_BAGNOEX_NOREPEAT IS NOT NULL \
+							ORDER BY IL_BAGNO ";
+		
+			break;
+
 		case "SelectItemListForEx0":
 			_SQLCommand += "SELECT BLFO_TRACK, \
 									CASE WHEN PG_SEQ IS NULL THEN 0 ELSE 1 END AS 'PG_PULLGOODS', \
@@ -161,6 +228,10 @@ module.exports = function(pQueryname, pParams){
 			if(pParams["IL_G1"] !== undefined){
 				_SQLCommand += " AND IL_G1 IN ("+pParams["IL_G1"]+")";
 				delete pParams["IL_G1"];
+			}
+			
+			if(pParams["IL_MERGENO"] !== undefined && pParams["IL_MERGENO"] == null){
+				_SQLCommand += " AND IL_MERGENO IS NULL";
 			}
 
 			if(pParams["IL_SEQ"] !== undefined){
@@ -238,7 +309,8 @@ module.exports = function(pQueryname, pParams){
 							/*LEFT JOIN V_FIRST_HALF_YEAR_TEL VFHYT ON VFHYT.IL_GETTEL = ITEM_LIST.IL_GETTEL*/ \
 							WHERE 1=1 \
 							/*不包含G1 X2 X3*/ \
-							AND IL_G1 = ''";
+							AND IL_G1 = '' \
+							AND IL_MERGENO IS NULL";
 							
 			if(pParams["IL_SEQ"] !== undefined){
 				_SQLCommand += " AND IL_SEQ = @IL_SEQ";
@@ -260,7 +332,8 @@ module.exports = function(pQueryname, pParams){
 							/*LEFT JOIN V_SECOND_HALF_YEAR_TEL VSHYT ON VSHYT.IL_GETTEL = ITEM_LIST.IL_GETTEL*/ \
 							WHERE 1=1 \
 							/*不包含G1 X2 X3*/ \
-							AND IL_G1 = ''";
+							AND IL_G1 = '' \
+							AND IL_MERGENO IS NULL";
 							
 			if(pParams["IL_SEQ"] !== undefined){
 				_SQLCommand += " AND IL_SEQ = @IL_SEQ";

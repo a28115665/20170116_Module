@@ -250,8 +250,14 @@ angular.module('app.selfwork').controller('EmployeeJobsCtrl', function ($scope, 
         },
         gridMethodForJob002 : {
             // 檢視
-            viewData : function(row){
-                console.log(row);
+            // viewData : function(row){
+            //     console.log(row);
+            //     $state.transitionTo("app.selfwork.employeejobs.job002", {
+            //         data: row.entity
+            //     });
+            // }
+            // 修改
+            fixData : function(row){
                 $state.transitionTo("app.selfwork.employeejobs.job002", {
                     data: row.entity
                 });
