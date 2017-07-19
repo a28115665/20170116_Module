@@ -9,23 +9,23 @@ angular.module('app.selfwork').controller('Job002Ctrl', function ($scope, $state
     angular.extend(this, {
         Init : function(){
             // 不正常登入此頁面
-            // if($stateParams.data == null){
-            //     ReturnToEmployeejobsPage();
-            // }else{
+            if($stateParams.data == null){
+                ReturnToEmployeejobsPage();
+            }else{
                 $vm.bigBreadcrumbsItems = $state.current.name.split(".");
                 $vm.bigBreadcrumbsItems.shift();
                 
                 $vm.vmData = $stateParams.data;
 
                 // 測試用
-                if($vm.vmData == null){
-                    $vm.vmData = {
-                        OL_SEQ : 'Co0001Co000120170712205825'
-                    };
-                }
+                // if($vm.vmData == null){
+                //     $vm.vmData = {
+                //         OL_SEQ : 'Co0001Co000120170712205825'
+                //     };
+                // }
                 
                 LoadFlightItemList();
-            // }
+            }
         },
         profile : Session.Get(),
         defaultChoice : 'Left',
@@ -64,6 +64,75 @@ angular.module('app.selfwork').controller('Job002Ctrl', function ($scope, $state
 
                 gridApi.rowEdit.on.saveRow($scope, $vm.Update);
             }
+        },
+        EditorRemark: function(){
+
+            RestfulApi.SearchMSSQLData({
+                querymain: 'job002',
+                queryname: 'SelectRemark',
+                params: {               
+                    FLL_SEQ: $vm.vmData.OL_SEQ
+                }
+            }).then(function (res){
+                console.log(res["returnData"]);
+            
+                var modalInstance = $uibModal.open({
+                    animation: true,
+                    ariaLabelledBy: 'modal-title',
+                    ariaDescribedBy: 'modal-body',
+                    templateUrl: 'editorRemarkModalContent.html',
+                    controller: 'EditorRemarkModalInstanceCtrl',
+                    controllerAs: '$ctrl',
+                    // size: 'sm',
+                    // appendTo: parentElem,
+                    resolve: {
+                        items: function() {
+                            return res["returnData"];
+                        }
+                    }
+                });
+
+                modalInstance.result.then(function(selectedItem) {
+
+                    console.log(selectedItem);
+
+                    var _tasks = [];
+
+                    _tasks.push({
+                        crudType: 'Delete',
+                        table: 28,
+                        params: {
+                            FLLR_SEQ : $vm.vmData.OL_SEQ
+                        }
+                    })
+
+                    for(var i in selectedItem){
+                        _tasks.push({
+                            crudType: 'Insert',
+                            table: 28,
+                            params: {
+                                FLLR_SEQ         : $vm.vmData.OL_SEQ,
+                                FLLR_ROWINDEX    : i,
+                                FLLR_REMARK      : selectedItem[i].text,
+                                FLLR_CR_USER     : $vm.profile.U_ID,
+                                FLLR_CR_DATETIME : $filter('date')(new Date, 'yyyy-MM-dd HH:mm:ss')
+                            }
+                        })
+                    }
+
+                    RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res){
+                        if(res["returnData"].length > 0){
+
+                            toaster.pop('success', '訊息', '底部編輯成功', 3000);
+                        }
+                    }, function (err) {
+                        toaster.pop('danger', '錯誤', '底部編輯失敗', 3000);
+                    });
+
+                }, function() {
+                    // $log.info('Modal dismissed at: ' + new Date());
+                });
+            }); 
         },
         ExportExcel: function(){
 
@@ -112,25 +181,6 @@ angular.module('app.selfwork').controller('Job002Ctrl', function ($scope, $state
                 // console.log(res);
             });
 
-            // var _exportName = $filter('date')($vm.vmData.OL_IMPORTDT, 'yyyyMMdd') + ' ' + 
-            //                   $filter('compyFilter')($vm.vmData.OL_CO_CODE) + ' ' + 
-            //                   $vm.vmData.OL_FLIGHTNO;
-
-            // ToolboxApi.ExportExcelBySql({
-            //     templates : 5,
-            //     filename : _exportName,
-            //     querymain: 'job002',
-            //     queryname: 'SelectFlightItemList',
-            //     params: {
-            //         OL_MASTER : $vm.vmData.OL_MASTER,
-            //         OL_IMPORTDT : $filter('date')($vm.vmData.OL_IMPORTDT, 'yyyy-MM-dd'),
-            //         OL_FLIGHTNO : $vm.vmData.OL_FLIGHTNO,
-            //         OL_COUNTRY : $vm.vmData.OL_COUNTRY,                
-            //         FLL_SEQ: $vm.vmData.OL_SEQ
-            //     }
-            // }).then(function (res) {
-            //     // console.log(res);
-            // });
         },
         Return : function(){
             ReturnToEmployeejobsPage();
@@ -187,4 +237,26 @@ angular.module('app.selfwork').controller('Job002Ctrl', function ($scope, $state
         $state.transitionTo($state.current.parent);
     };
 
+})
+.controller('EditorRemarkModalInstanceCtrl', function ($uibModalInstance, items) {
+    var $ctrl = this;
+
+    $ctrl.Init = function(){
+        $ctrl.mdData = [];
+
+        for(var i in items){
+            $ctrl.mdData.push({
+                id : i,
+                text : items[i].FLLR_REMARK
+            });
+        }
+    }
+
+    $ctrl.ok = function() {
+        $uibModalInstance.close($ctrl.mdData);
+    };
+
+    $ctrl.cancel = function() {
+        $uibModalInstance.dismiss('cancel');
+    };
 });

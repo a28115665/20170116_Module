@@ -9,9 +9,9 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
     angular.extend(this, {
         Init : function(){
             // 不正常登入此頁面
-            if($stateParams.data == null){
-                ReturnToEmployeejobsPage();
-            }else{
+            // if($stateParams.data == null){
+            //     ReturnToEmployeejobsPage();
+            // }else{
 
                 $vm.bigBreadcrumbsItems = $state.current.name.split(".");
                 $vm.bigBreadcrumbsItems.shift();
@@ -19,15 +19,15 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                 $vm.vmData = $stateParams.data;
 
                 // 測試用
-                // if($vm.vmData == null){
-                //     $vm.vmData = {
-                //         OL_SEQ : 'AdminTest20170525190758',
-                //         OL_IMPORTDT : '2017-04-19T10:10:47.906Z'
-                //     };
-                // }
+                if($vm.vmData == null){
+                    $vm.vmData = {
+                        OL_SEQ : 'AdminTest20170525190758',
+                        OL_IMPORTDT : '2017-04-19T10:10:47.906Z'
+                    };
+                }
                 
                 LoadItemList();
-            }
+            // }
         },
         profile : Session.Get(),
         gridMethod : {
@@ -39,7 +39,8 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                 ToolboxApi.ChangeNature({
                     ID : $vm.profile.U_ID,
                     PW : $vm.profile.U_PW,
-                    NATURE : row.entity.IL_NATURE
+                    NATURE : row.entity.IL_NATURE,
+                    NATURE_NEW : row.entity.IL_NATURE_NEW
                 }).then(function (res) {
                     var _returnData = JSON.parse(res["returnData"]),
                         needToUpdate = false;
@@ -482,8 +483,17 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
 
                         _temp = _temp.replace(regex, "%20");
                         rowEntity.IL_GETNAME_NEW = decodeURI(_temp);
+                    }
 
-                        console.log(rowEntity.IL_GETNAME_NEW);
+                    // 新單價 = 新重量 * 100 / 新數量
+                    if(colDef.name == 'IL_WEIGHT_NEW' || colDef.name == 'IL_NEWPCS'){
+                        var _weight = parseFloat(rowEntity.IL_WEIGHT_NEW).toFixed(2),
+                            _pcs = parseInt(rowEntity.IL_NEWPCS);
+
+                        // 如果都不是空值 才開始計算
+                        if(!isNaN(_weight) && !isNaN(_pcs)){
+                            rowEntity.IL_UNIVALENT_NEW = (_weight * 100) / _pcs;
+                        }
                     }
 
                     // 計算稅
@@ -532,24 +542,26 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                             toaster.pop('warning', '警告', '完稅價格超過1500元，請注意', 3000);
                         }
                         
-                        // 當數量不為空 帶出單價
-                        if(!isNaN(_pcs)){
-                            _univalent = Math.round(_finalcost / _pcs);
+                        // 當數量不為空 帶出單價 (會與新單價衝突)
+                        if(colDef.name == 'IL_FINALCOST' || colDef.name == 'IL_NEWPCS' || colDef.name == 'IL_UNIVALENT_NEW'){
+                            if(!isNaN(_pcs)){
+                                _univalent = Math.round(_finalcost / _pcs);
+                            }
                         }
 
                         // 完稅價格
-                        if(colDef.name == 'IL_FINALCOST'){
+                        if(colDef.name == 'IL_FINALCOST' || colDef.name == 'IL_WEIGHT_NEW'){
                             // 避免帳不平 再次計算完稅價格
                             if(!isNaN(_pcs) && !isNaN(_univalent)){
                                 _finalcost = _pcs * _univalent;
                             }
                         }
-                    }
 
-                    // console.log("_univalent:", _univalent," _pcs:" , _pcs," _finalcost:" , _finalcost);
-                    rowEntity.IL_UNIVALENT_NEW = isNaN(_univalent) ? null : _univalent;
-                    rowEntity.IL_NEWPCS = isNaN(_pcs) ? null : _pcs;
-                    rowEntity.IL_FINALCOST = isNaN(_finalcost) ? null : _finalcost;
+                        // console.log("_univalent:", _univalent," _pcs:" , _pcs," _finalcost:" , _finalcost);
+                        rowEntity.IL_UNIVALENT_NEW = isNaN(_univalent) ? null : _univalent;
+                        rowEntity.IL_NEWPCS = isNaN(_pcs) ? null : _pcs;
+                        rowEntity.IL_FINALCOST = isNaN(_finalcost) ? null : _finalcost;
+                    }
 
                     $vm.job001GridApi.rowEdit.setRowsDirty([rowEntity]);
 
@@ -1135,6 +1147,7 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                     IL_CTN             : entity.IL_CTN,
                     IL_NEWPCS          : entity.IL_NEWPCS,
                     IL_NEWUNIT         : entity.IL_NEWUNIT,
+                    IL_WEIGHT_NEW      : entity.IL_WEIGHT_NEW,
                     IL_GETNO           : entity.IL_GETNO,
                     IL_NEWSENDNAME     : entity.IL_NEWSENDNAME,
                     IL_GETNAME_NEW     : entity.IL_GETNAME_NEW,

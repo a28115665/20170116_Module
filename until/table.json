@@ -26,5 +26,6 @@
 	"24" : "FLIGHT_MAIL",
 	"25" : "SYS_CODE",
 	"26" : "SYS_PARM",
-	"27" : "CUSTOM_OVERSIX"
+	"27" : "CUSTOM_OVERSIX",
+	"28" : "FLL_REMARK"
 }

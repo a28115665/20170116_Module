@@ -217,8 +217,8 @@ module.exports = function(pQueryname, pParams){
 								) AS 'W1_COUNT' \
 							FROM COMPY_INFO";
 			
-			delete pParams["IMPORTDT_FROM"];
-			delete pParams["IMPORTDT_TOXX"];
+			// delete pParams["IMPORTDT_FROM"];
+			// delete pParams["IMPORTDT_TOXX"];
 			break;
 
 

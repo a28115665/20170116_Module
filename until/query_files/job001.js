@@ -189,8 +189,14 @@ module.exports = function(pQueryname, pParams){
 								/*拉貨不匯出*/ \
 								AND PG_SEQ IS NULL \
 								AND IL_SEQ = @IL_SEQ \
-								AND IL_MERGENO IS NOT NULL \
-							) A \
+								AND IL_MERGENO IS NOT NULL ";
+				
+			if(pParams["NewSmallNo"] !== undefined){
+				_SQLCommand += " AND IL_NEWSMALLNO IN ("+pParams["NewSmallNo"]+") ";
+				delete pParams["NewSmallNo"];
+			}
+			
+			_SQLCommand += ") A \
 							WHERE A.IL_BAGNOEX_NOREPEAT IS NOT NULL \
 							ORDER BY IL_BAGNO ";
 		

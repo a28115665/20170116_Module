@@ -118,13 +118,13 @@ angular.module('app')
     $templateCache.put('accessibilityToOverSixName', '\
                     <div class="ui-grid-cell-contents text-center">\
                         <span class="label bg-color-red" ng-if="row.entity.GETNAME_COUNT == -1">自訂</span>\
-                        <span class="label" ng-if="row.entity.GETNAME_COUNT != -1">{{row.entity.GETNAME_COUNT}}</span>\
+                        <span class="text-danger" ng-if="row.entity.GETNAME_COUNT != -1">{{row.entity.GETNAME_COUNT}}</span>\
                     </div>');
 
     $templateCache.put('accessibilityToOverSixAddress', '\
                     <div class="ui-grid-cell-contents text-center">\
                         <span class="label bg-color-red" ng-if="row.entity.GETADDRESS_COUNT == -1">自訂</span>\
-                        <span class="label" ng-if="row.entity.GETADDRESS_COUNT != -1">{{row.entity.GETADDRESS_COUNT}}</span>\
+                        <span class="text-danger" ng-if="row.entity.GETADDRESS_COUNT != -1">{{row.entity.GETADDRESS_COUNT}}</span>\
                     </div>');
 
     $templateCache.put('accessibilityToMForBLFO', '<div class="ui-grid-cell-contents text-center">\

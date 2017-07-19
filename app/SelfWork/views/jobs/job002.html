@@ -67,6 +67,7 @@
 				        <h2>編輯 </h2>
 				        
 				        <div class="widget-toolbar smart-form" role="menu">
+				            <a href-void="" class="btn btn-warning" href="#" ng-click="$vm.EditorRemark()">底部編輯</a>
 				            <a href-void="" class="btn btn-success" href="#" ng-click="$vm.ExportExcel()">匯出Excel</a>
 				        </div>
 				    </header>
@@ -106,3 +107,31 @@
 	</section>
 
 </div>
+
+<script type="text/ng-template" id="editorRemarkModalContent.html">
+    <div class="modal-header" ng-init="$ctrl.Init()">
+	    <h3 class="modal-title" id="modal-title">底部編輯</h3>
+	</div>
+	<div class="modal-body" id="modal-body">
+	    <form class="form-horizontal" name="editorRemarkForm">
+			<fieldset>
+				<div class="form-group">
+			        <label class="col-md-2 control-label">內容</label>
+			        <div class="col-md-10">
+			            <tags-input ng-model="$ctrl.mdData" 
+					                placeholder="新增內容(最多三個)"
+					                max-tags="3"
+					                replace-spaces-with-dashes="false"
+					                display-property"text"
+					                required>
+					    </tags-input>
+			        </div>
+			    </div>
+			</fieldset>
+	    </form>
+	</div>
+	<div class="modal-footer">
+	    <button class="btn btn-primary" type="button" ng-click="$ctrl.ok()" ng-disabled="!editorRemarkForm.$valid">{{getWord('OK')}}</button>
+	    <button class="btn btn-default" type="button" ng-click="$ctrl.cancel()">{{getWord('Cancel')}}</button>
+	</div>
+</script>

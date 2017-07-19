@@ -4,6 +4,15 @@ var dbCommand = require('../until/dbCommand.js');
 var dbCommandByTask = require('../until/dbCommandByTask.js');
 var async = require('async');
 var logger = require('../until/log4js.js').logger('restful');
+var winston = require('winston');
+var setting = require('../app.setting.json');
+require('../until/winstonByMssql.js');
+
+winston.add(winston.transports.mssql, {
+    connectionString: "mssql://"+setting.MSSQL.user+":"+setting.MSSQL.password+"@"+setting.MSSQL.server+"/"+setting.MSSQL.database,
+    table: "SYS_DBLOGS"
+});
+winston.remove(winston.transports.Console);
 
 /**
  * Restful 查詢
@@ -11,10 +20,15 @@ var logger = require('../until/log4js.js').logger('restful');
 router.get('/crud', function(req, res) {
     // console.log(req);
     
-    dbCommand.SelectMethod(req.query["querymain"], req.query["queryname"], req.query["params"], function(err, recordset) {
+    dbCommand.SelectMethod(req.query["querymain"], req.query["queryname"], req.query["params"], function(err, recordset, sql) {
+        // winston.log('info', JSON.stringify({
+        //     User : "TEST",
+        //     Msg : "Message is working.",
+        //     Sql : sql
+        // }));
         if (err) {
             // Do something with your error...
-            logger.error('查詢失敗', req.ip, __line+'行', err);
+            logger.error('查詢失敗', req.ip, __line+'行', err, sql);
             res.status(500).send('查詢失敗');
         } else {
             res.header('Cache-Control', 'no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0')
@@ -44,7 +58,7 @@ router.get('/crud', function(req, res) {
 router.post('/crud', function(req, res) {
 
     // console.log("POST: ", req.query);
-    dbCommand.InsertMethod(req.query["insertname"], req.query["table"], req.query["params"], function(err, affected) {
+    dbCommand.InsertMethod(req.query["insertname"], req.query["table"], req.query["params"], function(err, affected, sql) {
         if (err) {
             console.log(err);
             // Do something with your error...
@@ -73,7 +87,7 @@ router.post('/crud', function(req, res) {
 router.put('/crud', function(req, res) {
 
     // console.log("PUT: ", req.query);
-    dbCommand.UpdateMethod(req.query["updatename"], req.query["table"], req.query["params"], req.query["condition"], function(err, affected) {
+    dbCommand.UpdateMethod(req.query["updatename"], req.query["table"], req.query["params"], req.query["condition"], function(err, affected, sql) {
         if (err) {
             console.log(err);
             // Do something with your error...
@@ -102,7 +116,7 @@ router.put('/crud', function(req, res) {
 router.patch('/crud', function(req, res) {
 
     // console.log("PATCH: ", req.query);
-    dbCommand.UpsertMethod(req.query["upsertname"], req.query["table"], req.query["params"], req.query["condition"], function(err, affected) {
+    dbCommand.UpsertMethod(req.query["upsertname"], req.query["table"], req.query["params"], req.query["condition"], function(err, affected, sql) {
         if (err) {
             console.log(err);
             // Do something with your error...
@@ -131,7 +145,7 @@ router.patch('/crud', function(req, res) {
 router.delete('/crud', function(req, res) {
 
     // console.log("DELETE: ", req.query);
-    dbCommand.DeleteMethod(req.query["deletename"], req.query["table"], req.query["params"], function(err, affected) {
+    dbCommand.DeleteMethod(req.query["deletename"], req.query["table"], req.query["params"], function(err, affected, sql) {
         if (err) {
             console.log(err);
             // Do something with your error...
@@ -195,6 +209,7 @@ router.get('/crudByTask', function(req, res) {
     // console.log(tasks);
 
     async.waterfall(tasks, function (err, args) {
+        // console.log(args.statement);
         if (err) {
             // 如果連線失敗就不做Rollback
             if(Object.keys(args).length !== 0){

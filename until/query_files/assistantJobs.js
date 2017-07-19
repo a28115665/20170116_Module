@@ -150,7 +150,7 @@ module.exports = function(pQueryname, pParams){
 			}
 
 			_SQLCommand += " WHERE OL_FDATETIME IS NULL \
-							 AND OL_MASTER IN ('', NULL) ";
+							 AND (OL_MASTER = '' OR OL_MASTER IS NULL) ";
 
 			break;
 

@@ -2,6 +2,7 @@ var sql = require('mssql');
 var setting = require('../app.setting.json');
 var tables = require('./table.json');
 var schemaType = require('./schemaType.js');
+var preparedToStatement = require('./preparedToStatement.js');
 
 /**
  * [將query_files底下所有的statement集中到queryMethods裡]
@@ -42,7 +43,7 @@ var SelectMethod = function (querymain, queryname, params, callback){
 			// 執行SQL，並且回傳值
 		    ps.prepare(SQLCommand, function(err) {
 			    // ... error checks
-			    if(err) return callback(err, null);
+			    if(err) return callback(err, null, preparedToStatement.PrintSql(SQLCommand, _params));
 			    
 			    /*
 			    	recordset -> 回傳值
@@ -50,13 +51,13 @@ var SelectMethod = function (querymain, queryname, params, callback){
 			     */
 				ps.execute(_params, function(err, recordset, affected) {
 					// ... error checks
-					if(err) return callback(err, null);
+					if(err) return callback(err, null, preparedToStatement.PrintSql(SQLCommand, _params));
 
 					ps.unprepare(function(err) {
 					    // ... error checks
-					    if(err) return callback(err, null);
+					    if(err) return callback(err, null, preparedToStatement.PrintSql(SQLCommand, _params));
 
-					    callback(null, recordset);  
+					    callback(null, recordset, preparedToStatement.PrintSql(SQLCommand, _params));  
 					});
 				});
 			});
@@ -141,9 +142,9 @@ var InsertMethod = function (insertname, table, params, callback){
 
 					ps.unprepare(function(err) {
 					    // ... error checks
-					    if(err) return callback(err, null);
+					    if(err) return callback(err, null, preparedToStatement.PrintSql(SQLCommand, _params));
 
-					    callback(null, affected);  
+					    callback(null, affected, preparedToStatement.PrintSql(SQLCommand, _params));  
 					});
 				});
 			});
@@ -243,9 +244,9 @@ var UpdateMethod = function (updatetname, table, params, condition, callback){
 
 					ps.unprepare(function(err) {
 					    // ... error checks
-					    if(err) return callback(err, null);
+					    if(err) return callback(err, null, preparedToStatement.PrintSql(SQLCommand, _psParams));
 
-					    callback(null, affected);  
+					    callback(null, affected, preparedToStatement.PrintSql(SQLCommand, _psParams));  
 					});
 				});
 			});
@@ -341,9 +342,9 @@ var UpsertMethod = function (upsertname, table, params, condition, callback){
 
 					ps.unprepare(function(err) {
 					    // ... error checks
-					    if(err) return callback(err, null);
+					    if(err) return callback(err, null, preparedToStatement.PrintSql(SQLCommand, _psParams));
 
-					    callback(null, affected);  
+					    callback(null, affected, preparedToStatement.PrintSql(SQLCommand, _psParams));  
 					});
 				});
 			});
@@ -408,9 +409,9 @@ var DeleteMethod = function (deletename, table, params, callback){
 
 					ps.unprepare(function(err) {
 					    // ... error checks
-					    if(err) return callback(err, null);
+					    if(err) return callback(err, null, preparedToStatement.PrintSql(SQLCommand, _params));
 
-						callback(null, affected);
+						callback(null, affected, preparedToStatement.PrintSql(SQLCommand, _params));
 					});
 				});
 			});

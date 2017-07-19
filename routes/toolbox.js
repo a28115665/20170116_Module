@@ -421,7 +421,8 @@ router.get('/changeNature', function(req, res) {
                 {
                     "UserId": req.query.ID,
                     "UserPW": req.query.PW,
-                    "Nature": req.query.NATURE
+                    "Nature": req.query.NATURE,
+                    "Nature_NEW": req.query.NATURE_NEW
                 }
             ])
         });
