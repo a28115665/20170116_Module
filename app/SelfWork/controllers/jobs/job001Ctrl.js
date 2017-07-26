@@ -9,9 +9,9 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
     angular.extend(this, {
         Init : function(){
             // 不正常登入此頁面
-            // if($stateParams.data == null){
-            //     ReturnToEmployeejobsPage();
-            // }else{
+            if($stateParams.data == null){
+                ReturnToEmployeejobsPage();
+            }else{
 
                 $vm.bigBreadcrumbsItems = $state.current.name.split(".");
                 $vm.bigBreadcrumbsItems.shift();
@@ -19,15 +19,15 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                 $vm.vmData = $stateParams.data;
 
                 // 測試用
-                if($vm.vmData == null){
-                    $vm.vmData = {
-                        OL_SEQ : 'AdminTest20170525190758',
-                        OL_IMPORTDT : '2017-04-19T10:10:47.906Z'
-                    };
-                }
+                // if($vm.vmData == null){
+                //     $vm.vmData = {
+                //         OL_SEQ : 'AdminTest20170525190758',
+                //         OL_IMPORTDT : '2017-04-19T10:10:47.906Z'
+                //     };
+                // }
                 
                 LoadItemList();
-            // }
+            }
         },
         profile : Session.Get(),
         gridMethod : {
@@ -133,6 +133,7 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                             toaster.pop('danger', '錯誤', '加入黑名單失敗', 3000);
                         }).finally(function(){
                             $vm.job001GridApi.selection.clearSelectedRows();
+                            ClearSelectedColumn();
                         });  
 
                     }, function() {
@@ -362,7 +363,12 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                 { name: 'IL_BAGNO'      , displayName: '袋號', width: 80, headerCellClass: 'text-primary' },
                 { name: 'IL_SMALLNO'    , displayName: '小號', width: 110, headerCellClass: 'text-primary' },
                 { name: 'IL_NATURE'     , displayName: '品名', width: 120, enableCellEdit: false },
-                { name: 'IL_NATURE_NEW' , displayName: '新品名', width: 120, headerCellClass: 'text-primary' },
+                { name: 'IL_NATURE_NEW' , displayName: '新品名', width: 120, headerCellClass: 'text-primary', cellTooltip: function (row, col) 
+                    {
+                        return row.entity.IL_NATURE_NEW
+                    } 
+                },
+                { name: 'IL_TAX2'       , displayName: '稅則', width: 100, headerCellClass: 'text-primary' },
                 { name: 'ChangeNature'  , displayName: '改單', width: 50, enableCellEdit: false, enableSorting:false, cellTemplate: $templateCache.get('accessibilityToChangeNature'), cellClass: 'cell-class-no-style' },
                 { name: 'IL_CTN'        , displayName: '件數', width: 50, headerCellClass: 'text-primary' },
                 { name: 'IL_PLACE'      , displayName: '產地', width: 50, enableCellEdit: false },
@@ -446,13 +452,12 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                 { name: 'IL_TAX'        , displayName: '稅費歸屬', width: 80, headerCellClass: 'text-primary' },
                 { name: 'IL_GETNAME'    , displayName: '收件人公司', width: 100, enableCellEdit: false },
                 { name: 'IL_GETNAME_NEW', displayName: '新收件人公司', width: 100, headerCellClass: 'text-primary' },
-                { name: 'IL_GETADDRESS' , displayName: '收件地址', width: 300, enableCellEdit: false },
+                { name: 'IL_GETADDRESS' , displayName: '收件地址', width: 300, headerCellClass: 'text-primary' },
                 { name: 'IL_GETADDRESS_NEW' , displayName: '新收件地址', width: 300, headerCellClass: 'text-primary' },
                 { name: 'IL_GETTEL'     , displayName: '收件電話', width: 100, headerCellClass: 'text-primary' },
                 { name: 'IL_EXTEL'      , displayName: '匯出電話', width: 100, headerCellClass: 'text-primary' },
                 { name: 'IL_TRCOM'      , displayName: '派送公司', width: 100, headerCellClass: 'text-primary' },
                 { name: 'IL_REMARK'     , displayName: '備註', width: 100, headerCellClass: 'text-primary' },
-                { name: 'IL_TAX2'       , displayName: '稅則', width: 100, headerCellClass: 'text-primary' },
                 { name: 'Options'       , displayName: '操作', width: 120, enableCellEdit: false, enableSorting:false, enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToJob001'), pinnedRight:true, cellClass: 'cell-class-no-style' }
             ],
             // rowTemplate: '<div> \
@@ -630,6 +635,7 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
 
                     $vm.job001GridApi.rowEdit.setRowsDirty($vm.job001GridApi.selection.getSelectedRows());
                     $vm.job001GridApi.selection.clearSelectedRows();
+                    ClearSelectedColumn();
                 }, function() {
                     // $log.info('Modal dismissed at: ' + new Date());
                 });
@@ -646,6 +652,7 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
 
                 $vm.job001GridApi.rowEdit.setRowsDirty($vm.job001GridApi.selection.getSelectedRows());
                 $vm.job001GridApi.selection.clearSelectedRows();
+                ClearSelectedColumn();
             }
         },
         // 特貨註記
@@ -676,7 +683,7 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
 
                     for(var i in $vm.job001GridApi.selection.getSelectedRows()){
 
-                        if(selectedItem.SPG_TYPE == null){
+                        if(angular.isUndefined(selectedItem)){
                             _task.push({
                                 crudType: 'Delete',
                                 table: 20,
@@ -712,7 +719,7 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                         if(res["returnData"].length > 0){
                             // 變更特貨類型
                             for(var i in $vm.job001GridApi.selection.getSelectedRows()){
-                                if(selectedItem.SPG_TYPE == null){
+                                if(angular.isUndefined(selectedItem)){
                                     $vm.job001GridApi.selection.getSelectedRows()[i].SPG_SPECIALGOODS = 0;
                                 }else{
                                     $vm.job001GridApi.selection.getSelectedRows()[i].SPG_SPECIALGOODS = selectedItem.SPG_TYPE;
@@ -720,6 +727,7 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                             }
 
                             $vm.job001GridApi.selection.clearSelectedRows();
+                            ClearSelectedColumn();
                         }
                     });
 
@@ -989,8 +997,12 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                 }); 
             }
         },
-        // 篩選出收件人 收件地址 收件電話 超過六次的資料
-        OverSix : function(){
+        /**
+         * 篩選出收件人 收件地址 收件電話 超過六次的資料
+         * N|A : 收件人 | 地址
+         * N+A : 收件人 + 地址
+         */
+        OverSix : function(pType){
             if(!angular.isUndefined($vm.vmData.OL_IMPORTDT)){
                 var _year = $filter('date')($vm.vmData.OL_IMPORTDT, 'yyyy'),
                     _queryname = null,
@@ -999,12 +1011,30 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                 if($vm.vmData.OL_IMPORTDT < _year+'-06-30T23:59:59.999Z'){
                     console.log('上半年');
                     _type = '上半年';
-                    _queryname = 'SelectOverSixFirst';
+                    // _queryname = 'SelectOverSixFirst';
+
+                    switch(pType){
+                        case "N|A":
+                            _queryname = 'SelectOverSixFirst';
+                            break;
+                        case "N+A":
+                            _queryname = 'SelectOverSixCompoundFirst';
+                            break;
+                    }
                 }
                 if(_year+'-07-01T00:00:00.000Z' < $vm.vmData.OL_IMPORTDT){
                     console.log('下半年');
                     _type = '下半年';
-                    _queryname = 'SelectOverSixSecond';
+                    // _queryname = 'SelectOverSixSecond';
+
+                    switch(pType){
+                        case "N|A":
+                            _queryname = 'SelectOverSixSecond';
+                            break;
+                        case "N+A":
+                            _queryname = 'SelectOverSixCompoundSecond';
+                            break;
+                    }
                 }
 
                 if(_queryname != null){
@@ -1151,6 +1181,7 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                     IL_GETNO           : entity.IL_GETNO,
                     IL_NEWSENDNAME     : entity.IL_NEWSENDNAME,
                     IL_GETNAME_NEW     : entity.IL_GETNAME_NEW,
+                    IL_GETADDRESS      : entity.IL_GETADDRESS,
                     IL_GETADDRESS_NEW  : entity.IL_GETADDRESS_NEW,
                     IL_GETTEL          : entity.IL_GETTEL,
                     IL_UNIVALENT_NEW   : entity.IL_UNIVALENT_NEW,
@@ -1195,6 +1226,15 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
             $vm.job001Data = angular.copy(res["returnData"]);
         }); 
     };
+
+    /**
+     * [ClearSelectedColumn description] isSelected設為否
+     */
+    function ClearSelectedColumn(){
+        for(var i in $vm.job001Data){
+            $vm.job001Data[i].isSelected = false;
+        }
+    }
 
     function ReturnToEmployeejobsPage(){
         $state.transitionTo($state.current.parent);

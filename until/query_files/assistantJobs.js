@@ -60,6 +60,11 @@ module.exports = function(pQueryname, pParams){
 											GROUP BY FLL_BAGNO \
 										) A \
 									) AS 'OL_COUNT', \
+									( \
+										SELECT COUNT(1) \
+										FROM FLIGHT_MAIL_LOGS \
+										WHERE FML_SEQ = OL_SEQ \
+									) AS 'MAIL_COUNT', \
 									W2_OE.OE_PRINCIPAL AS 'W2_PRINCIPAL', \
 									W2_OE.OE_EDATETIME AS 'W2_EDATETIME', \
 									W2_OE.OE_FDATETIME AS 'W2_FDATETIME', \

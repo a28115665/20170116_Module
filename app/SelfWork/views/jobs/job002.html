@@ -67,8 +67,9 @@
 				        <h2>編輯 </h2>
 				        
 				        <div class="widget-toolbar smart-form" role="menu">
-				            <a href-void="" class="btn btn-warning" href="#" ng-click="$vm.EditorRemark()">底部編輯</a>
 				            <a href-void="" class="btn btn-success" href="#" ng-click="$vm.ExportExcel()">匯出Excel</a>
+				            <a href-void="" class="btn btn-warning" href="#" ng-click="$vm.EditorRemark()">底部編輯</a>
+				            <a href-void="" class="btn btn-info" href="#" ng-click="$vm.SendMail()">寄信</a>
 				        </div>
 				    </header>
 				    <!-- widget div-->
@@ -76,11 +77,32 @@
 				        <!-- widget content -->
 						<div class="widget-body no-padding">
 
-							<div class="table-responsive">
-
-								<div id="grid1" ui-grid="$vm.job002Options" class="my-ui-grid" ui-grid-pagination ui-grid-resize-columns ui-grid-edit ui-grid-row-edit></div>
-
+							<div class="widget-body-toolbar">
+							    <div class="row">
+							        <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
+							        </div>
+							        <div class="col-xs-12 col-sm-12 col-md-8 col-lg-8 text-right">
+							        	<form class="form-inline" role="form">
+							                <fieldset>
+							                    <div class="form-group">
+										            <button class="btn btn-primary"
+										            		ng-click="$vm.Add()">
+										                新增
+										            </button>
+							                    </div>
+							                    <div class="form-group">
+										            <button class="btn btn-danger"
+										            		ng-click="$vm.Delete()">
+										                刪除
+										            </button>
+							                    </div>
+							                </fieldset>
+							            </form>
+							        </div>
+							    </div>
 							</div>
+
+							<div id="grid1" ui-grid="$vm.job002Options" class="my-ui-grid" ui-grid-selection ui-grid-resize-columns ui-grid-edit ui-grid-row-edit></div>
 
 							<!-- widget footer -->
 							<div class="widget-footer">
@@ -108,6 +130,60 @@
 
 </div>
 
+<script type="text/ng-template" id="addItemModalContent.html">
+    <div class="modal-header" ng-init="$ctrl.Init()">
+	    <h3 class="modal-title" id="modal-title">新增</h3>
+	</div>
+	<div class="modal-body" id="modal-body">
+	    <form class="form-horizontal" name="addItemForm">
+			<fieldset>
+				<div class="form-group">
+			        <label class="col-md-2 control-label">序號</label>
+			        <div class="col-md-4">
+			        	<input class="form-control" ng-model="$ctrl.mdData.FLL_ITEM" type="text" disabled>
+			        </div>
+			        <label class="col-md-2 control-label"><code>*</code>袋號</label>
+			        <div class="col-md-4">
+			        	<input class="form-control" ng-model="$ctrl.mdData.FLL_BAGNO" type="text" maxlength="8" required>
+			        </div>
+			    </div>
+				<div class="form-group">
+			        <label class="col-md-2 control-label"><code>*</code>件數</label>
+			        <div class="col-md-4">
+			        	<input class="form-control" ng-model="$ctrl.mdData.FLL_CTN" type="number" required>
+			        </div>
+			        <label class="col-md-2 control-label"><code>*</code>重量</label>
+			        <div class="col-md-4">
+			        	<input class="form-control" ng-model="$ctrl.mdData.FLL_WEIGHT" type="number" step="0.01" required>
+			        </div>
+			    </div>
+				<div class="form-group">
+			        <label class="col-md-2 control-label">品名</label>
+			        <div class="col-md-10">
+			        	<input class="form-control" ng-model="$ctrl.mdData.FLL_DESCRIPTION" type="text" maxlength="50">
+			        </div>
+			    </div>
+				<div class="form-group">
+			        <label class="col-md-2 control-label">宣告序號</label>
+			        <div class="col-md-10">
+			        	<input class="form-control" ng-model="$ctrl.mdData.FLL_DECLAREDNO" type="text" maxlength="50">
+			        </div>
+			    </div>
+				<div class="form-group">
+			        <label class="col-md-2 control-label">備註</label>
+			        <div class="col-md-10">
+			        	<input class="form-control" ng-model="$ctrl.mdData.FLL_REMARK" type="text" maxlength="200">
+			        </div>
+			    </div>
+			</fieldset>
+	    </form>
+	</div>
+	<div class="modal-footer">
+	    <button class="btn btn-primary" type="button" ng-click="$ctrl.ok()" ng-disabled="!addItemForm.$valid">{{getWord('OK')}}</button>
+	    <button class="btn btn-default" type="button" ng-click="$ctrl.cancel()">{{getWord('Cancel')}}</button>
+	</div>
+</script>
+
 <script type="text/ng-template" id="editorRemarkModalContent.html">
     <div class="modal-header" ng-init="$ctrl.Init()">
 	    <h3 class="modal-title" id="modal-title">底部編輯</h3>
@@ -132,6 +208,98 @@
 	</div>
 	<div class="modal-footer">
 	    <button class="btn btn-primary" type="button" ng-click="$ctrl.ok()" ng-disabled="!editorRemarkForm.$valid">{{getWord('OK')}}</button>
+	    <button class="btn btn-default" type="button" ng-click="$ctrl.cancel()">{{getWord('Cancel')}}</button>
+	</div>
+</script>
+
+<script type="text/ng-template" id="choiceMailModalContent.html">
+    <div class="modal-header">
+	    <h3 class="modal-title" id="modal-title">寄信目標</h3>
+	</div>
+	<div class="modal-body no-padding" id="modal-body">
+		<div id="grid1" ui-grid="$ctrl.mdDataOptions" ui-grid-pagination ui-grid-resize-columns ui-grid-selection></div>
+	</div>
+	<div class="modal-footer">
+	    <button class="btn btn-primary" type="button" ng-click="$ctrl.ok()" ng-disabled="!($ctrl.mdDataGridApi.selection.getSelectedRows().length > 0)">{{getWord('OK')}}</button>
+	    <button class="btn btn-default" type="button" ng-click="$ctrl.cancel()">{{getWord('Cancel')}}</button>
+	</div>
+</script>
+
+<script type="text/ng-template" id="sendMailModalContent.html">
+    <!-- <div class="modal-header">
+	    <h3 class="modal-title" id="modal-title">寄信目標</h3>
+	</div> -->
+	<div class="modal-body" id="modal-body" ng-init="$ctrl.Init()">
+		<form class="form-horizontal" name="targetEditor">
+			<fieldset>
+				<div class="form-group">
+			        <label class="col-md-2 control-label"><code>*</code>目標名稱</label>
+			        <div class="col-md-10">
+			            <input class="form-control" ng-model="$ctrl.mdData.FM_TARGET" type="text" placeholder="請輸入目標名稱" required>
+			        </div>
+			    </div>
+			    <div class="form-group">
+			        <label class="col-md-2 control-label"><code>*</code>信箱</label>
+			        <div class="col-md-10">
+			            <tags-input ng-model="$ctrl.mdData.FM_MAIL" 
+					                placeholder="新增信箱"
+					                key-property="text"
+					                allowed-tags-pattern="^\w+((-\w+)|(\.\w+))*\@[A-Za-z0-9]+((\.|-)[A-Za-z0-9]+)*\.[A-Za-z]+$"
+					                required>
+					    </tags-input>
+			        </div>
+			    </div>
+				<div class="form-group">
+			        <label class="col-md-2 control-label">預設標題</label>
+			        <div class="col-md-10">
+			            <input class="form-control" ng-model="$ctrl.mdData.FM_TITLE" type="text" placeholder="請輸入預設標題">
+			        </div>
+			    </div>
+			    <div class="form-group">
+			        <label class="col-md-2 control-label">預設內容</label>
+			        <div class="col-md-10">
+			            <summernote ng-model="$ctrl.mdData.FM_CONTENT" config="$ctrl.snOptions"></summernote>
+			        </div>
+			    </div>
+				<!-- <div class="form-group">
+			        <label class="col-md-2 control-label">預設附件</label>
+			        <div class="col-md-10">
+			            <div class="fileUpload btn btn-primary">
+						    <span>選擇檔案</span>
+						    <input type="file" class="upload" nv-file-select=""  uploader="$ctrl.uploader" multiple/>
+						</div>
+			        </div>
+			    </div> -->
+				<div class="form-group" ng-show="$ctrl.mdData.UploadedData.length > 0">
+			        <label class="col-md-2 control-label">預設附件</label>
+			        <div class="col-md-10">
+			            <table class="table" ng-show="$ctrl.uploader.queue.length > 0 || $ctrl.mdData.UploadedData.length > 0">
+						    <thead>
+						        <tr>
+						            <th width="50%">名稱</th>
+						            <th>檔案大小</th>
+						            <th>狀態</th>
+						        </tr>
+						    </thead>
+						    <tbody>
+						    	<tr ng-repeat="uploaded in $ctrl.mdData.UploadedData">
+						    		<td><strong>{{ uploaded.FMAF_O_FILENAME }}</strong></td>
+						            <td>{{ uploaded.FMAF_FILESIZE/1024/1024|number:2 }} MB</td>
+						            <td class="text-center">
+						                <span><i class="glyphicon glyphicon-hdd"></i></span>
+						            </td>
+						        </tr>
+						    </tbody>
+						</table>
+	                    <p class="text-danger">此信件自動夾帶此銷倉單Excel</p>
+			        </div>
+			    </div>
+			</fieldset>
+		</form>
+	</div>
+	<div class="modal-footer">
+	    <button class="btn btn-primary" type="button" ng-click="$ctrl.ok()" ng-show="!$ctrl.sending" ng-disabled="!($ctrl.mdData.FM_MAIL.length > 0)">{{getWord('Send')}}</button>
+	    <a href="javascript:void(0);" class="btn btn-primary disabled" ng-show="$ctrl.sending"> <i class="fa fa-refresh fa-spin"></i></a>
 	    <button class="btn btn-default" type="button" ng-click="$ctrl.cancel()">{{getWord('Cancel')}}</button>
 	</div>
 </script>

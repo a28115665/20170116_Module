@@ -8,6 +8,12 @@ module.exports = function(pQueryname, pParams){
 							WHERE 1=1 ";	
 
 			break;
+		case "SelectOverSixCompound":
+			_SQLCommand += "SELECT * \
+							FROM CUSTOM_OVERSIX_COMPOUND \
+							WHERE 1=1 ";	
+
+			break;
 	}
 
 	return _SQLCommand;

@@ -66,22 +66,35 @@
 				    <header>
 				        <h2>編輯 </h2>
 				        <div class="widget-toolbar smart-form" role="menu">
-				            <a href-void="" class="btn btn-warning" href="#" ng-click="$vm.OverSix()">逾六次</a>
+				            <div class="btn-group dropdown" uib-dropdown keyboard-nav is-open="overSix">
+						        <button id="simple-btn-keyboard-nav" type="button" class="btn btn-warning dropdown-toggle btn-xs" uib-dropdown-toggle>
+						            逾六次 <span class="caret"></span>
+						        </button>
+						        <ul class="dropdown-menu-right" uib-dropdown-menu role="menu" aria-labelledby="simple-btn-keyboard-nav">
+						            <li role="menuitem">
+				                        <a href-void="" href="#" ng-click="$vm.OverSix('N|A');overSix=false">收件者或地址</a>
+						            </li>
+				                    <li>
+				                        <a href-void="" href="#" ng-click="$vm.OverSix('N+A');overSix=false">收件者和地址</a>
+				                    </li>
+						        </ul>
+						    </div>
+				            <!-- <a href-void="" class="btn btn-warning" href="#" ng-click="$vm.OverSix()">逾六次</a> -->
 				        </div>
 				        <div class="widget-toolbar smart-form" role="menu">
-				            <div class="btn-group dropdown" uib-dropdown keyboard-nav is-open="dropdownOpen">
+				            <div class="btn-group dropdown" uib-dropdown keyboard-nav is-open="repeatData">
 						        <button id="simple-btn-keyboard-nav" type="button" class="btn btn-warning dropdown-toggle btn-xs" uib-dropdown-toggle>
 						            找出相同 <span class="caret"></span>
 						        </button>
 						        <ul class="dropdown-menu" uib-dropdown-menu role="menu" aria-labelledby="simple-btn-keyboard-nav">
 						            <li role="menuitem">
-				                        <a href-void="" href="#" ng-click="$vm.RepeatData('N');dropdownOpen=false">收件者</a>
+				                        <a href-void="" href="#" ng-click="$vm.RepeatData('N');repeatData=false">收件者</a>
 						            </li>
 				                    <li>
-				                        <a href-void="" href="#" ng-click="$vm.RepeatData('A');dropdownOpen=false">地址</a>
+				                        <a href-void="" href="#" ng-click="$vm.RepeatData('A');repeatData=false">地址</a>
 				                    </li>
 				                    <li>
-				                        <a href-void="" href="#" ng-click="$vm.RepeatData('N+A');dropdownOpen=false">收件者+地址</a>
+				                        <a href-void="" href="#" ng-click="$vm.RepeatData('N+A');repeatData=false">收件者+地址</a>
 				                    </li>
 						        </ul>
 						    </div>

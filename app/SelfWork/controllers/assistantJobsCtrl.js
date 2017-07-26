@@ -1,6 +1,6 @@
 "use strict";
 
-angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, RestfulApi, $filter, uiGridConstants, compy, $window, ToolboxApi) {
+angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, RestfulApi, $filter, uiGridConstants, compy, bool, $window, ToolboxApi) {
     
     var $vm = this;
 
@@ -150,18 +150,18 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
                 });
             },
             // 寄信
-            sendMail : function(row){
-                console.log(row);
+            // sendMail : function(row){
+            //     console.log(row);
 
-                // ToolboxApi.SendMail({
-                //     // ID : $vm.profile.U_ID,
-                //     // PW : $vm.profile.U_PW,
-                //     // NATURE : row.entity.IL_NATURE
-                // }).then(function (res) {
-                //     console.log(res["returnData"]);
+            //     ToolboxApi.SendMail({
+            //         // ID : $vm.profile.U_ID,
+            //         // PW : $vm.profile.U_PW,
+            //         // NATURE : row.entity.IL_NATURE
+            //     }).then(function (res) {
+            //         console.log(res["returnData"]);
 
-                // });
-            },
+            //     });
+            // },
             // 貨物查看
             viewOrder : function(row){
                 console.log(row);
@@ -270,12 +270,13 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
                 { name: 'FA_ACTL_ARRIVALTIME'    ,  displayName: '真實抵達時間', cellFilter: 'datetimeFilter' },
                 { name: 'FA_ARRIVAL_REMK'        ,  displayName: '狀態', width: 80, cellTemplate: $templateCache.get('accessibilityToArrivalRemark') },
                 { name: 'OL_MASTER'              ,  displayName: '主號', width: 120 },
-                { name: 'OL_COUNT'               ,  displayName: '銷艙單(袋數)', width: 80, enableCellEdit: false },
+                { name: 'OL_COUNT'               ,  displayName: '銷艙單(袋數)', width: 80 },
+                { name: 'MAIL_COUNT'             ,  displayName: '寄信次數', width: 80 },
                 { name: 'OL_COUNTRY'             ,  displayName: '起運國別', width: 80 },
                 // { name: 'ITEM_LIST'           ,  displayName: '報機單', enableFiltering: false, width: '8%', cellTemplate: $templateCache.get('accessibilityToOperaForJob001') },
                 { name: 'FLIGHT_ITEM_LIST'       ,  displayName: '銷艙單', enableFiltering: false, width: '8%', cellTemplate: $templateCache.get('accessibilityToOperaForJob002') },
                 // { name: 'DELIVERY_ITEM_LIST'  ,  displayName: '派送單', enableFiltering: false, width: '8%', cellTemplate: $templateCache.get('accessibilityToOperaForJob003') },
-                { name: 'Options'                ,  displayName: '操作', width: '12%', enableCellEdit: false, enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToMSForAssistantJobs') }
+                { name: 'Options'                ,  displayName: '操作', width: '8%', enableCellEdit: false, enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToMSForAssistantJobs') }
             ],
             enableFiltering: true,
             enableSorting: true,
@@ -312,6 +313,17 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
             paginationPageSize: 100,
             onRegisterApi: function(gridApi){
                 $vm.masterToBeFilledGridApi = gridApi;
+            }
+        },
+        gridMethodForJob001 : {
+            // 檢視(銷艙單)
+            viewData : function(row){
+                console.log(row);
+                row.entity["OL_SEQ"] = row.entity.PG_SEQ;
+
+                $state.transitionTo("app.selfwork.employeejobs.job001", {
+                    data: row.entity
+                });
             }
         },
         gridMethodForPullGoods : {
@@ -594,18 +606,31 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
             data:  '$vm.pullGoodsData',
             columnDefs: [
                 { name: 'OL_IMPORTDT'   , displayName: '進口日期', cellFilter: 'dateFilter' },
-                { name: 'OL_CO_CODE'    , displayName: '行家', cellFilter: 'compyFilter' },
+                { name: 'OL_CO_CODE'    , displayName: '行家', cellFilter: 'compyFilter', cellFilter: 'compyFilter', filter: 
+                    {
+                        term: null,
+                        type: uiGridConstants.filter.SELECT,
+                        selectOptions: compy
+                    }
+                },
                 { name: 'OL_FLIGHTNO'   , displayName: '航班' },
                 { name: 'OL_MASTER'     , displayName: '主號' },
                 { name: 'OL_COUNTRY'    , displayName: '起運國別' },
                 { name: 'PG_BAGNO'      , displayName: '袋號' },
-                { name: 'PG_MOVED'      , displayName: '移機', cellFilter: 'booleanFilter' },
+                { name: 'PG_MOVED'      , displayName: '移機', cellFilter: 'booleanFilter', filter: 
+                    {
+                        term: null,
+                        type: uiGridConstants.filter.SELECT,
+                        selectOptions: bool
+                    }
+                },
                 { name: 'PG_FLIGHTNO'   , displayName: '航班(改)' },
                 { name: 'PG_MASTER'     , displayName: '主號(改)' },
-                { name: 'Options'       , displayName: '操作', width: '8%', cellTemplate: $templateCache.get('accessibilityToVForPullGoods') }
+                { name: 'ITEM_LIST'     , displayName: '報機單', enableFiltering: false, enableSorting: false, width: '8%', cellTemplate: $templateCache.get('accessibilityToOperaForJob001') },
+                { name: 'Options'       , displayName: '操作', width: '8%', enableFiltering: false, enableSorting: false, cellTemplate: $templateCache.get('accessibilityToVForPullGoods') }
             ],
-            enableFiltering: false,
-            enableSorting: false,
+            enableFiltering: true,
+            enableSorting: true,
             enableColumnMenus: false,
             // enableVerticalScrollbar: false,
             paginationPageSizes: [10, 25, 50, 100],

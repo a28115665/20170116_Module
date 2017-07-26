@@ -148,28 +148,43 @@ module.exports = function(pQueryname, pParams){
 										END AS 'SPG_SPECIALGOODS', \
 										PG_MOVED, \
 										OUT_IL.*, \
-										CASE WHEN ROW_NUMBER() OVER(PARTITION BY IL_BAGNO ORDER BY IL_BAGNO) = 1 \
-										THEN IL_BAGNO ELSE NULL END AS 'IL_BAGNOEX_NOREPEAT', \
-										CASE WHEN ROW_NUMBER() OVER(PARTITION BY IL_BAGNO ORDER BY IL_BAGNO) = 1 \
+										CASE WHEN ROW_NUMBER() OVER(PARTITION BY IL_MERGENO ORDER BY IL_MERGENO) = 1 \
+										THEN IL_MERGENO ELSE NULL END AS 'IL_BAGNOEX_NOREPEAT', \
+										CASE WHEN ROW_NUMBER() OVER(PARTITION BY IL_MERGENO ORDER BY IL_MERGENO) = 1 \
 										THEN( \
-											SELECT COUNT(IL_CTN) \
+											SELECT SUM(IL_CTN) \
 											FROM ITEM_LIST IN_IL \
-											WHERE IN_IL.IL_BAGNO = OUT_IL.IL_BAGNO \
+											LEFT JOIN PULL_GOODS ON \
+											IN_IL.IL_SEQ = PG_SEQ AND \
+											IN_IL.IL_BAGNO = PG_BAGNO \
+											WHERE IN_IL.IL_MERGENO = OUT_IL.IL_MERGENO \
 											AND IN_IL.IL_SEQ = @IL_SEQ \
+											/*拉貨不匯出*/ \
+											AND PG_SEQ IS NULL \
 										) ELSE NULL END AS 'IL_CTN_NOREPEAT', \
-										CASE WHEN ROW_NUMBER() OVER(PARTITION BY IL_BAGNO ORDER BY IL_BAGNO) = 1 \
+										CASE WHEN ROW_NUMBER() OVER(PARTITION BY IL_MERGENO ORDER BY IL_MERGENO) = 1 \
 										THEN( \
-											SELECT COUNT(IL_WEIGHT_NEW) \
+											SELECT SUM(IL_WEIGHT_NEW) \
 											FROM ITEM_LIST IN_IL \
-											WHERE IN_IL.IL_BAGNO = OUT_IL.IL_BAGNO \
+											LEFT JOIN PULL_GOODS ON \
+											IN_IL.IL_SEQ = PG_SEQ AND \
+											IN_IL.IL_BAGNO = PG_BAGNO \
+											WHERE IN_IL.IL_MERGENO = OUT_IL.IL_MERGENO \
 											AND IN_IL.IL_SEQ = @IL_SEQ \
+											/*拉貨不匯出*/ \
+											AND PG_SEQ IS NULL \
 										) ELSE NULL END AS 'IL_WEIGHT_NEW_NOREPEAT', \
-										CASE WHEN ROW_NUMBER() OVER(PARTITION BY IL_BAGNO ORDER BY IL_BAGNO) = 1 \
+										CASE WHEN ROW_NUMBER() OVER(PARTITION BY IL_MERGENO ORDER BY IL_MERGENO) = 1 \
 										THEN( \
-											SELECT COUNT(IL_NEWPCS) \
+											SELECT SUM(IL_NEWPCS) \
 											FROM ITEM_LIST IN_IL \
-											WHERE IN_IL.IL_BAGNO = OUT_IL.IL_BAGNO \
+											LEFT JOIN PULL_GOODS ON \
+											IN_IL.IL_SEQ = PG_SEQ AND \
+											IN_IL.IL_BAGNO = PG_BAGNO \
+											WHERE IN_IL.IL_MERGENO = OUT_IL.IL_MERGENO \
 											AND IN_IL.IL_SEQ = @IL_SEQ \
+											/*拉貨不匯出*/ \
+											AND PG_SEQ IS NULL \
 										) ELSE NULL END AS 'IL_NEWPCS_NOREPEAT' \
 								FROM ITEM_LIST OUT_IL \
 								LEFT JOIN BLACK_LIST_FROM_OP ON \
@@ -198,7 +213,7 @@ module.exports = function(pQueryname, pParams){
 			
 			_SQLCommand += ") A \
 							WHERE A.IL_BAGNOEX_NOREPEAT IS NOT NULL \
-							ORDER BY IL_BAGNO ";
+							ORDER BY IL_MERGENO ";
 		
 			break;
 
@@ -336,6 +351,52 @@ module.exports = function(pQueryname, pParams){
 							LEFT JOIN V_SECOND_HALF_YEAR_NAME VSHYN ON VSHYN.IL_GETNAME_NEW = ITEM_LIST.IL_GETNAME_NEW \
 							LEFT JOIN V_SECOND_HALF_YEAR_ADDRESS VSHYA ON VSHYA.IL_GETADDRESS_NEW = ITEM_LIST.IL_GETADDRESS_NEW \
 							/*LEFT JOIN V_SECOND_HALF_YEAR_TEL VSHYT ON VSHYT.IL_GETTEL = ITEM_LIST.IL_GETTEL*/ \
+							WHERE 1=1 \
+							/*不包含G1 X2 X3*/ \
+							AND IL_G1 = '' \
+							AND IL_MERGENO IS NULL";
+							
+			if(pParams["IL_SEQ"] !== undefined){
+				_SQLCommand += " AND IL_SEQ = @IL_SEQ";
+			}
+
+			_SQLCommand += " AND ( GETADDRESS_COUNT IS NOT NULL \
+							OR GETNAME_COUNT IS NOT NULL \
+							/*OR GETTEL_COUNT IS NOT NULL*/ ) ";
+			
+			break;
+		case "SelectOverSixCompoundFirst":
+			_SQLCommand += "SELECT ITEM_LIST.*, \
+								   GETNAME_COUNT, \
+								   GETADDRESS_COUNT \
+								   /*GETTEL_COUNT*/ \
+							FROM ITEM_LIST \
+							LEFT JOIN V_FIRST_HALF_YEAR_ADDRESS_AND_NAME VFHYAAN ON \
+							VFHYAAN.IL_GETNAME_NEW  = ITEM_LIST.IL_GETNAME_NEW AND \
+							VFHYAAN.IL_GETADDRESS_NEW  = ITEM_LIST.IL_GETADDRESS_NEW \
+							WHERE 1=1 \
+							/*不包含G1 X2 X3*/ \
+							AND IL_G1 = '' \
+							AND IL_MERGENO IS NULL";
+							
+			if(pParams["IL_SEQ"] !== undefined){
+				_SQLCommand += " AND IL_SEQ = @IL_SEQ";
+			}
+
+			_SQLCommand += " AND ( GETADDRESS_COUNT IS NOT NULL \
+							OR GETNAME_COUNT IS NOT NULL \
+							/*OR GETTEL_COUNT IS NOT NULL*/ ) ";
+			
+			break;
+		case "SelectOverSixCompoundSecond":
+			_SQLCommand += "SELECT ITEM_LIST.*, \
+								   GETNAME_COUNT, \
+								   GETADDRESS_COUNT \
+								   /*GETTEL_COUNT*/ \
+							FROM ITEM_LIST \
+							LEFT JOIN V_SECOND_HALF_YEAR_ADDRESS_AND_NAME VSHYAAN ON \
+							VSHYAAN.IL_GETNAME_NEW  = ITEM_LIST.IL_GETNAME_NEW AND \
+							VSHYAAN.IL_GETADDRESS_NEW  = ITEM_LIST.IL_GETADDRESS_NEW \
 							WHERE 1=1 \
 							/*不包含G1 X2 X3*/ \
 							AND IL_G1 = '' \

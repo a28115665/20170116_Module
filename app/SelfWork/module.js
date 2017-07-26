@@ -97,6 +97,9 @@ angular.module('app.selfwork').config(function ($stateProvider){
                 resolve: {
                     compy : function(Compy){
                         return Compy.get();
+                    },
+                    bool: function (SysCode){
+                        return SysCode.get('Boolean');
                     }
                 }
             }
@@ -118,7 +121,12 @@ angular.module('app.selfwork').config(function ($stateProvider){
                 controller: 'Job002Ctrl',
                 controllerAs: '$vm',
                 resolve: {
+                    srcipts: function(lazyScript){
+                        return lazyScript.register([
+                            'build/vendor.ui.js'
+                        ])
 
+                    }
                 }
             }
         }

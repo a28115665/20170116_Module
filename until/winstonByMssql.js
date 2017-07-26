@@ -46,12 +46,18 @@ mssql.prototype.name = 'mssql';
 mssql.prototype.log = function (pLevel, pData, meta, callback) {
     var self = this;
     	data = typeof pData == "string" ? JSON.parse(pData) : {},
-    	regex = new RegExp("'","gi");;
+    	regex = new RegExp("'","gi");
 
     return sql.connect(this.connectionString).then(function (connection) {
         var currentDate = moment().format('YYYY-MM-DD HH:mm:ss.SSS');
-        var query = "INSERT INTO " + self.table + " (SDL_DATETIME, SDL_LEVEL, SDL_USER, SDL_MESSAGE, SDL_SQL) VALUES " +
-            "('" + currentDate + "', '" + (pLevel || '') + "', '" + (data.User || '') + "', '" + (data.Msg.replace(regex, "''") || '') + "', '" + (data.Sql.replace(regex, "''") || '') + "')";
+        var query = "INSERT INTO " + self.table + " (SDL_DATETIME, SDL_LEVEL, SDL_USER, SDL_MESSAGE, SDL_SQL, SDL_IP) VALUES " +
+            "('" + currentDate + "', '" + 
+                   (pLevel || '') + "', '" + 
+                   (data.User || '') + "', '" + 
+                   (data.Msg.replace(regex, "''") || '') + "', '" + 
+                   (data.Sql.replace(regex, "''") || '') + "', '" + 
+                   (data.IP || '') + 
+            "')";
 
         var request = new sql.Request();
 
@@ -61,10 +67,10 @@ mssql.prototype.log = function (pLevel, pData, meta, callback) {
             })
             .catch(function (error) {
                 // connection.close();
-                // throw error;
+                throw error;
             });
     })
     .catch(function (error) {
-        // console.error("DB write logs error:", error);
+        console.error("DB write logs error:", error);
     })
 };

@@ -3,7 +3,8 @@ module.exports = function(pQueryname, pParams){
 
 	switch(pQueryname){
 		case "SelectFlightItemList":
-			_SQLCommand += "SELECT *, \
+			_SQLCommand += "SELECT ROW_NUMBER() OVER(PARTITION BY FLL_SEQ ORDER BY cast(FLL_ITEM as int) ASC) AS FLL_INDEX, \
+								   *, \
 								   CASE WHEN DI.IL_BAGNO IS NULL THEN 0 ELSE 1 END AS BAGNO_MATCH \
 							FROM FLIGHT_ITEM_LIST \
 							LEFT JOIN ( \

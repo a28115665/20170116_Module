@@ -14,9 +14,13 @@ var PrintSql = function (sql, params){
 
 	for(var key in params){
 		if(params[key] !== undefined){
-
+			
 			regex = new RegExp("@"+key,"gi");
 
+			if(params[key] == null){
+				regex = new RegExp("=@"+key,"gi");
+        		_sql = _sql.replace(regex, " IS NULL");
+			}
 			if(typeof params[key] == "string"){
         		_sql = _sql.replace(regex, "'" + params[key] + "'");
 			}
