@@ -295,4 +295,23 @@ angular.module('app.settings').config(function ($stateProvider){
         }
     })
 
+    .state('app.settings.syslogs', {
+        url: '/settings/syslogs',
+        data: {
+            title: 'SysLogs'
+        },
+        views: {
+            "content@app" : {
+                templateUrl: 'app/Settings/views/sysLogs.html',
+                controller: 'SysLogsCtrl',
+                controllerAs: '$vm',
+                resolve: {
+                    userInfo: function(UserInfo){
+                        return UserInfo.get();
+                    }
+                }
+            }
+        }
+    })
+
 });

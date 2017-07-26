@@ -209,6 +209,13 @@ angular.module('app')
                             <a href-void="" class="btn btn-danger btn-xs" href="#" ng-class="row.entity.IL_COUNT > 0 ? \'\' : \'disabled\'" ng-click="grid.appScope.$vm.gridMethod.showHistoryCount(row)">{{row.entity.IL_COUNT}}</a> \
                         </div>');
 
+    $templateCache.put('accessibilityToSysLevel', '\
+                        <div class="ui-grid-cell-contents text-center" ng-switch="row.entity.SDL_LEVEL">\
+                            <span class="label bg-color-blue" ng-switch-when="info">{{row.entity.SDL_LEVEL}}</span>\
+                            <span class="label bg-color-red" ng-switch-when="error">{{row.entity.SDL_LEVEL}}</span>\
+                            <span ng-switch-default>{{row.entity.SDL_LEVEL}}</span>\
+                        </div>');
+
     $templateCache.put('isChecked', '\
                         <div class="modal-header bg-color-blueLight">\
                             <h3 class="modal-title text-center">\

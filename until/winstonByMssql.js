@@ -67,10 +67,10 @@ mssql.prototype.log = function (pLevel, pData, meta, callback) {
             })
             .catch(function (error) {
                 // connection.close();
-                throw error;
+                // throw error;
             });
     })
     .catch(function (error) {
-        console.error("DB write logs error:", error);
+        // console.error("DB write logs error:", error);
     })
 };
