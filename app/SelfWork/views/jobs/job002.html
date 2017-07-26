@@ -230,7 +230,7 @@
 	    <h3 class="modal-title" id="modal-title">寄信目標</h3>
 	</div> -->
 	<div class="modal-body" id="modal-body" ng-init="$ctrl.Init()">
-		<form class="form-horizontal" name="targetEditor">
+		<form class="form-horizontal" name="targetEditor" nv-file-drop="" uploader="$ctrl.uploader" filters="queueLimit, queueFilter, sizeFilter">
 			<fieldset>
 				<div class="form-group">
 			        <label class="col-md-2 control-label"><code>*</code>目標名稱</label>
@@ -261,7 +261,7 @@
 			            <summernote ng-model="$ctrl.mdData.FM_CONTENT" config="$ctrl.snOptions"></summernote>
 			        </div>
 			    </div>
-				<!-- <div class="form-group">
+				<div class="form-group">
 			        <label class="col-md-2 control-label">預設附件</label>
 			        <div class="col-md-10">
 			            <div class="fileUpload btn btn-primary">
@@ -269,29 +269,57 @@
 						    <input type="file" class="upload" nv-file-select=""  uploader="$ctrl.uploader" multiple/>
 						</div>
 			        </div>
-			    </div> -->
-				<div class="form-group" ng-show="$ctrl.mdData.UploadedData.length > 0">
-			        <label class="col-md-2 control-label">預設附件</label>
+			    </div>
+				<div class="form-group" ng-show="$ctrl.uploader.queue.length > 0 || $ctrl.mdData.UploadedData.length > 0">
+			        <label class="col-md-2 control-label"></label>
 			        <div class="col-md-10">
 			            <table class="table" ng-show="$ctrl.uploader.queue.length > 0 || $ctrl.mdData.UploadedData.length > 0">
 						    <thead>
 						        <tr>
 						            <th width="50%">名稱</th>
-						            <th>檔案大小</th>
+						            <th ng-show="$ctrl.uploader.isHTML5">檔案大小</th>
+						            <th ng-show="$ctrl.uploader.isHTML5">進度</th>
 						            <th>狀態</th>
+						            <th>操作</th>
 						        </tr>
 						    </thead>
 						    <tbody>
 						    	<tr ng-repeat="uploaded in $ctrl.mdData.UploadedData">
 						    		<td><strong>{{ uploaded.FMAF_O_FILENAME }}</strong></td>
 						            <td>{{ uploaded.FMAF_FILESIZE/1024/1024|number:2 }} MB</td>
+						            <td>
+						                已上傳
+						            </td>
 						            <td class="text-center">
 						                <span><i class="glyphicon glyphicon-hdd"></i></span>
+						            </td>
+						            <td nowrap>
+						                <!-- <button type="button" class="btn btn-danger btn-xs" ng-click="$ctrl.DeleteUploaded(uploaded, $index)">
+						                    <span class="glyphicon glyphicon-trash"></span> 移除
+						                </button> -->
+						            </td>
+						        </tr>
+						        <tr ng-repeat="item in $ctrl.uploader.queue">
+						            <td><strong>{{ item.file.name }}</strong></td>
+						            <td ng-show="$ctrl.uploader.isHTML5" nowrap>{{ item.file.size/1024/1024|number:2 }} MB</td>
+						            <td ng-show="$ctrl.uploader.isHTML5">
+						                <div class="progress" style="margin-bottom: 0;">
+						                    <div class="progress-bar" role="progressbar" ng-style="{ 'width': item.progress + '%' }"></div>
+						                </div>
+						            </td>
+						            <td class="text-center">
+						                <span ng-show="item.isSuccess"><i class="glyphicon glyphicon-ok"></i></span>
+						                <span ng-show="item.isCancel"><i class="glyphicon glyphicon-ban-circle"></i></span>
+						                <span ng-show="item.isError"><i class="glyphicon glyphicon-remove"></i></span>
+						            </td>
+						            <td nowrap>
+						                <button type="button" class="btn btn-warning btn-xs" ng-click="item.remove()">
+						                    <span class="glyphicon glyphicon-ban-circle"></span> 取消
+						                </button>
 						            </td>
 						        </tr>
 						    </tbody>
 						</table>
-	                    <p class="text-danger">此信件自動夾帶此銷倉單Excel</p>
 			        </div>
 			    </div>
 			</fieldset>

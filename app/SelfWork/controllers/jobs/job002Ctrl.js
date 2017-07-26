@@ -9,23 +9,23 @@ angular.module('app.selfwork').controller('Job002Ctrl', function ($scope, $state
     angular.extend(this, {
         Init : function(){
             // 不正常登入此頁面
-            // if($stateParams.data == null){
-            //     ReturnToEmployeejobsPage();
-            // }else{
+            if($stateParams.data == null){
+                ReturnToEmployeejobsPage();
+            }else{
                 $vm.bigBreadcrumbsItems = $state.current.name.split(".");
                 $vm.bigBreadcrumbsItems.shift();
                 
                 $vm.vmData = $stateParams.data;
 
                 // 測試用
-                if($vm.vmData == null){
-                    $vm.vmData = {
-                        OL_SEQ : 'Co0001Co000120170712205825'
-                    };
-                }
+                // if($vm.vmData == null){
+                //     $vm.vmData = {
+                //         OL_SEQ : 'Co0001Co000120170712205825'
+                //     };
+                // }
                 
                 LoadFlightItemList();
-            // }
+            }
         },
         profile : Session.Get(),
         defaultChoice : 'Left',
@@ -337,6 +337,9 @@ angular.module('app.selfwork').controller('Job002Ctrl', function ($scope, $state
                                 $vm.vmData["OL_TOTALWEIGHT"] = $vm.job002GridApi.grid.columns[5].getAggregationValue().toFixed(2);
 
                                 return $vm.vmData;
+                            },
+                            profile: function(){
+                                return $vm.profile
                             }
                         }
                     });
@@ -510,8 +513,10 @@ angular.module('app.selfwork').controller('Job002Ctrl', function ($scope, $state
         $uibModalInstance.dismiss('cancel');
     };
 })
-.controller('SendMailModalInstanceCtrl', function ($uibModalInstance, RestfulApi, ToolboxApi, SUMMERNOT_CONFIG, items, data) {
-    var $ctrl = this;
+.controller('SendMailModalInstanceCtrl', function ($uibModalInstance, RestfulApi, ToolboxApi, SUMMERNOT_CONFIG, $filter, FileUploader, items, data, profile) {
+    var $ctrl = this,
+        _d = new Date(),
+        _filepath = _d.getFullYear() + '\\' + ("0" + (_d.getMonth()+1)).slice(-2) + '\\' + ("0" + _d.getDate()).slice(-2) + '\\';
 
     $ctrl.Init = function(){
         var _mail = angular.copy(items[0].FM_MAIL.split(";"));
@@ -528,9 +533,145 @@ angular.module('app.selfwork').controller('Job002Ctrl', function ($scope, $state
         LoadFMAF();
     }
 
-    // $ctrl.uploader = new FileUploader({
-    //     url: '/toolbox/uploadFile?filePath='+_filepath
+    $ctrl.uploader = new FileUploader({
+        url: '/toolbox/uploadFile?filePath='+_filepath
+    })
+
+    // Upload Filters
+    $ctrl.uploader.filters.push({
+        name: 'queueFilter',
+        fn: function(item /*{File|FileLikeObject}*/, options) {
+            // return this.queue.length < $scope.optionParam.UploadQueue;
+            return this.queue.length < 10;
+        }
+    });
+
+    $ctrl.uploader.filters.push({
+        name: 'sizeFilter',
+        fn: function(item /*{File|FileLikeObject}*/, options) {
+            // return item.size < $scope.optionParam.UploadSize * 1000 * 1000;
+            return item.size < 10 * 1000 * 1000;
+        }
+    });
+
+    // 處理已上傳的部分 : 當相同檔名時，不可上傳
+    $ctrl.uploader.filters.push({
+        name: 'nameFilter',
+        fn: function(item /*{File|FileLikeObject}*/, options) {
+            var uploadedDataLength = ($filter('filter')($ctrl.mdData.UploadedData, {FMAF_O_FILENAME: item.name})).length;
+            
+            if(uploadedDataLength > 0){
+                toaster.pop('info', "訊息", "已上傳過相同的檔名。", 3000);
+                return false;
+            }else{
+                return true;
+            }
+        }
+    });
+
+    // 處理未上傳的部分 : 當相同檔名時，不可上傳
+    FileUploader.FileSelect.prototype.isEmptyAfterSelection = function() {
+        return false;
+    };
+
+    // $ctrl.uploader.filters.push({
+    //     name: 'fileFilter',
+    //     fn: function(item /*{File|FileLikeObject}*/, options) {
+    //         var type = '|' + item.type.slice(item.type.lastIndexOf('/') + 1) + '|',
+    //             typeStr = "|";
+    //         for(var i in $scope.optionParam.UploadType){
+    //             typeStr += $scope.optionParam.UploadType[i] + "|";
+    //         }
+    //         return typeStr.indexOf(type) !== -1;
+    //     }
     // });
+
+    // Upload Callback Methods
+    $ctrl.uploader.onWhenAddingFileFailed = function(item /*{File|FileLikeObject}*/, filter, options) {
+        console.info('onWhenAddingFileFailed', item, filter, options);
+        // var title = "", msg;
+        // switch(filter.name){
+        //     case "fileFilter":
+        //         title = item.name;
+        //         msg = "檔案類型錯誤。";
+        //         break;
+        //     case "sizeFilter":
+        //         title = item.name;
+        //         msg = "上傳檔案超過" + $scope.optionParam.UploadSize + "Mb。";
+        //         break;
+        //     case "queueFilter":
+        //         msg = "上傳數量超過" + $scope.optionParam.UploadQueue + "個。";
+        //         break;
+        // }
+        // toaster.pop('info', title, msg, 3000);
+    };
+    $ctrl.uploader.onAfterAddingFile = function(fileItem) {
+        console.info('onAfterAddingFile', fileItem);
+        var reader = new FileReader();
+
+        reader.onload = function(readerEvt) {
+            var data = readerEvt.target.result;
+            var fileNameArray = fileItem.file.name.split(".");
+            var queueIndex = $ctrl.uploader.queue.indexOf(fileItem);
+            var rename = angular.copy(CryptoJS.MD5(data).toString() + "." + fileNameArray[fileNameArray.length-1]);
+            
+            // Duplicate File
+            // if($filter('filter')($scope.duplicateFile, rename).length > 0){
+            //     $ctrl.uploader.queue[queueIndex].remove();
+            //     toaster.pop('info', '上傳檔案重複', fileItem.file["name"], 3000);
+            // }else{
+                // $scope.duplicateFile.push(rename);
+                // $scope.queueFile.push(rename);
+                fileItem.url += '&rFilename='+rename;
+            // }
+            // var dataFile = forumService.b64toBlob(btoa(data), fileItem.file.type);
+            // fileItem.file = dataFile;
+        };
+
+        reader.readAsBinaryString(fileItem._file);
+    };
+    $ctrl.uploader.onAfterAddingAll = function(addedFileItems) {
+        console.info('onAfterAddingAll', addedFileItems);
+    };
+    $ctrl.uploader.onBeforeUploadItem = function(item) {
+        console.info('onBeforeUploadItem', item);
+    };
+    $ctrl.uploader.onProgressItem = function(fileItem, progress) {
+        console.info('onProgressItem', fileItem, progress);
+    };
+    $ctrl.uploader.onProgressAll = function(progress) {
+        console.info('onProgressAll', progress);
+    };
+    $ctrl.uploader.onSuccessItem = function(fileItem, response, status, headers) {
+        console.info('onSuccessItem', fileItem, response, status, headers);
+    };
+    $ctrl.uploader.onErrorItem = function(fileItem, response, status, headers) {
+        console.info('onErrorItem', fileItem, response, status, headers);
+    };
+    $ctrl.uploader.onCancelItem = function(fileItem, response, status, headers) {
+        console.info('onCancelItem', fileItem, response, status, headers);
+    };
+    $ctrl.uploader.onCompleteItem = function(fileItem, response, status, headers) {
+        console.info('onCompleteItem', fileItem, response, status, headers);
+        if(status == 200){
+            // 儲存使用者每個上傳檔案的資訊
+            $ctrl.mdData.UserUploadedData.push({
+                FMAF_O_FILENAME : response.oFilename,
+                FMAF_R_FILENAME : response.rFilename,
+                FMAF_FILEPATH : response.Filepath,
+                FMAF_FILESIZE : response.Filesize,
+                FMAF_CR_USER : profile.U_ID,
+                FMAF_CR_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss')
+            });
+        }else{
+            toaster.pop('error', "檔案上傳失敗", response.oFilename, 3000);
+        }
+    };
+    $ctrl.uploader.onCompleteAll = function() {
+        console.info('onCompleteAll');
+
+        SendMail();
+    };
     
     function LoadFMAF(){
         RestfulApi.SearchMSSQLData({
@@ -542,23 +683,38 @@ angular.module('app.selfwork').controller('Job002Ctrl', function ($scope, $state
             }
         }).then(function (res){
             // console.log(res["returnData"]);
+            // 信件預設檔案
             $ctrl.mdData.UploadedData = res["returnData"];
+
+            // 使用者上傳檔案
+            $ctrl.mdData.UserUploadedData = [];
         });
     }; 
     
-
-    $ctrl.ok = function() {
-
-        $ctrl.sending = true;
+    function SendMail(){
         ToolboxApi.SendMail({
-            mailContent : $ctrl.mdData,
-            queryContent : data
+            mailContent : $ctrl.mdData
+            // queryContent : data
         }).then(function (res) {
             // console.log(res["returnData"]);
             $uibModalInstance.close(res["returnData"]);
         }).finally(function(){
             $ctrl.sending = false;
         });
+    }
+
+    $ctrl.ok = function() {
+
+        $ctrl.sending = true;
+
+        // 有上傳檔案 先上傳檔案之後再寄信
+        if($ctrl.uploader.getNotUploadedItems().length > 0){
+            $ctrl.uploader.uploadAll();
+        }
+        // 無上傳檔案 直接寄信
+        else{
+            SendMail();
+        }
 
     };
 

@@ -57,7 +57,6 @@ module.exports = function(pQueryname, pParams){
 											FROM FLIGHT_ITEM_LIST \
 											WHERE FLL_SEQ = OL_SEQ \
 											AND FLL_BAGNO IS NOT NULL AND FLL_BAGNO != '' \
-											GROUP BY FLL_BAGNO \
 										) A \
 									) AS 'OL_COUNT', \
 									( \

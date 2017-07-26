@@ -254,7 +254,7 @@ angular.module('app.settings').controller('TargetEditorCtrl', function ($scope, 
     $vm.uploader.filters.push({
         name: 'nameFilter',
         fn: function(item /*{File|FileLikeObject}*/, options) {
-            var uploadedDataLength = ($filter('filter')($vm.vmData.UploadedData, {BBAF_O_FILENAME: item.name})).length;
+            var uploadedDataLength = ($filter('filter')($vm.vmData.UploadedData, {FMAF_O_FILENAME: item.name})).length;
             
             if(uploadedDataLength > 0){
                 toaster.pop('info', "訊息", "已上傳過相同的檔名。", 3000);

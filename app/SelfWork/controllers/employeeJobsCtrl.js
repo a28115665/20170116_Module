@@ -3,7 +3,6 @@
 angular.module('app.selfwork').controller('EmployeeJobsCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, $filter, uiGridConstants, RestfulApi, compy, $q) {
     
     var $vm = this;
-    console.log(Session.Get());
 
 	angular.extend(this, {
         Init : function(){
@@ -310,6 +309,18 @@ angular.module('app.selfwork').controller('EmployeeJobsCtrl', function ($scope, 
                 $vm.selfWorkGridApi = gridApi;
             }
         },
+        // 檢查是否為晚班
+        IsW3 : function(){
+            var _flag = false;
+
+            for(var i in $vm.profile.DEPTS){
+                if($vm.profile.DEPTS[i].SUD_DEPT == "W3"){
+                    _flag = true;
+                }
+            }
+
+            return _flag;
+        }
         // Update : function(entity){
         //     // create a fake promise - normally you'd use the promise returned by $http or $resource
         //     var promise = $q.defer();
