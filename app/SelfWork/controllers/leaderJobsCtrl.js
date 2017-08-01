@@ -122,7 +122,8 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
                             OL_CO_CODE  : selectedItem.OL_CO_CODE,
                             OL_FLIGHTNO : selectedItem.OL_FLIGHTNO,
                             OL_MASTER   : selectedItem.OL_MASTER,
-                            OL_COUNTRY  : selectedItem.OL_COUNTRY
+                            OL_COUNTRY  : selectedItem.OL_COUNTRY,
+                            OL_REASON   : selectedItem.OL_REASON
                         },
                         condition: {
                             OL_SEQ : selectedItem.OL_SEQ
@@ -203,6 +204,11 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
                 { name: 'OL_MASTER'   ,  displayName: '主號' },
                 { name: 'OL_COUNT'    ,  displayName: '報機單(袋數)', width: 80, enableCellEdit: false },
                 { name: 'OL_COUNTRY'  ,  displayName: '起運國別' },
+                { name: 'OL_REASON'              ,  displayName: '描述', width: 100, cellTooltip: function (row, col) 
+                    {
+                        return row.entity.OL_REASON
+                    } 
+                },
                 { name: 'W2_STATUS'   ,  displayName: '報機單狀態', cellTemplate: $templateCache.get('accessibilityToForW2'), filter: 
                     {
                         term: null,
@@ -441,10 +447,67 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
         compyStatisticsOptions : {
             data:  '$vm.compyStatisticsData',
             columnDefs: [
-                { name: 'CO_NAME'  ,  displayName: '行家' },
-                { name: 'W2_COUNT' ,  displayName: '報機單', enableFiltering: false },
-                { name: 'W3_COUNT' ,  displayName: '銷艙單', enableFiltering: false },
-                { name: 'W1_COUNT' ,  displayName: '派送單', enableFiltering: false }
+                { name: 'CO_NAME'      ,  displayName: '行家' },
+                { name: 'W2_COUNT'     ,  displayName: '報機單(件數)', filters: [
+                    {
+                        condition: uiGridConstants.filter.GREATER_THAN,
+                        placeholder: '最小'
+                    },
+                    {
+                        condition: uiGridConstants.filter.LESS_THAN,
+                        placeholder: '最大'
+                    }
+                ]},
+                { name: 'W2_BAG_COUNT' ,  displayName: '報機單(袋數)', filters: [
+                    {
+                        condition: uiGridConstants.filter.GREATER_THAN,
+                        placeholder: '最小'
+                    },
+                    {
+                        condition: uiGridConstants.filter.LESS_THAN,
+                        placeholder: '最大'
+                    }
+                ]},
+                { name: 'W3_COUNT'     ,  displayName: '銷艙單(件數)', filters: [
+                    {
+                        condition: uiGridConstants.filter.GREATER_THAN,
+                        placeholder: '最小'
+                    },
+                    {
+                        condition: uiGridConstants.filter.LESS_THAN,
+                        placeholder: '最大'
+                    }
+                ]},
+                { name: 'W3_BAG_COUNT' ,  displayName: '銷艙單(袋數)', filters: [
+                    {
+                        condition: uiGridConstants.filter.GREATER_THAN,
+                        placeholder: '最小'
+                    },
+                    {
+                        condition: uiGridConstants.filter.LESS_THAN,
+                        placeholder: '最大'
+                    }
+                ]},
+                { name: 'W1_COUNT'     ,  displayName: '派送單(件數)', filters: [
+                    {
+                        condition: uiGridConstants.filter.GREATER_THAN,
+                        placeholder: '最小'
+                    },
+                    {
+                        condition: uiGridConstants.filter.LESS_THAN,
+                        placeholder: '最大'
+                    }
+                ]},
+                { name: 'W1_BAG_COUNT' ,  displayName: '派送單(袋數)', filters: [
+                    {
+                        condition: uiGridConstants.filter.GREATER_THAN,
+                        placeholder: '最小'
+                    },
+                    {
+                        condition: uiGridConstants.filter.LESS_THAN,
+                        placeholder: '最大'
+                    }
+                ]}
             ],
             enableFiltering: true,
             enableSorting: true,

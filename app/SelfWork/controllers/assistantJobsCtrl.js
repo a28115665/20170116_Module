@@ -135,7 +135,8 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
                             OL_CO_CODE  : selectedItem.OL_CO_CODE,
                             OL_FLIGHTNO : selectedItem.OL_FLIGHTNO,
                             OL_MASTER   : selectedItem.OL_MASTER,
-                            OL_COUNTRY  : selectedItem.OL_COUNTRY
+                            OL_COUNTRY  : selectedItem.OL_COUNTRY,
+                            OL_REASON   : selectedItem.OL_REASON
                         },
                         condition: {
                             OL_SEQ : selectedItem.OL_SEQ
@@ -273,6 +274,11 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
                 { name: 'OL_COUNT'               ,  displayName: '銷艙單(袋數)', width: 80 },
                 { name: 'MAIL_COUNT'             ,  displayName: '寄信次數', width: 80 },
                 { name: 'OL_COUNTRY'             ,  displayName: '起運國別', width: 80 },
+                { name: 'OL_REASON'              ,  displayName: '描述', width: 100, cellTooltip: function (row, col) 
+                    {
+                        return row.entity.OL_REASON
+                    } 
+                },
                 // { name: 'ITEM_LIST'           ,  displayName: '報機單', enableFiltering: false, width: '8%', cellTemplate: $templateCache.get('accessibilityToOperaForJob001') },
                 { name: 'FLIGHT_ITEM_LIST'       ,  displayName: '銷艙單', enableFiltering: false, width: '8%', cellTemplate: $templateCache.get('accessibilityToOperaForJob002') },
                 // { name: 'DELIVERY_ITEM_LIST'  ,  displayName: '派送單', enableFiltering: false, width: '8%', cellTemplate: $templateCache.get('accessibilityToOperaForJob003') },
@@ -303,6 +309,11 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
                 { name: 'OL_MASTER'              ,  displayName: '主號' },
                 { name: 'OL_COUNT'               ,  displayName: '報機單(袋數)', enableCellEdit: false },
                 { name: 'OL_COUNTRY'             ,  displayName: '起運國別' },
+                { name: 'OL_REASON'              ,  displayName: '描述', width: 100, cellTooltip: function (row, col) 
+                    {
+                        return row.entity.OL_REASON
+                    } 
+                },
                 { name: 'Options'                ,  displayName: '操作', width: '5%', enableCellEdit: false, enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToM') }
             ],
             enableFiltering: true,
@@ -375,214 +386,433 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
             },
             // 編輯
             modifyData : function(){
-
-                if($vm.pullGoodsGridApi.selection.getSelectedRows().length > 0){
-                    // console.log($vm.pullGoodsGridApi.selection.getSelectedRows());
-
-                    var modalInstance = $uibModal.open({
-                        animation: true,
-                        ariaLabelledBy: 'modal-title',
-                        ariaDescribedBy: 'modal-body',
-                        templateUrl: 'modifyPullGoodsModalContent.html',
-                        controller: 'ModifyPullGoodsModalInstanceCtrl',
-                        controllerAs: '$ctrl'
-                        // size: 'lg',
-                    });
-
-                    modalInstance.result.then(function(selectedItem) {
-                        console.log(selectedItem);
-
-                        var _d = new Date(),
-                            _tasks = [];
-
-                        for(var i in $vm.pullGoodsGridApi.selection.getSelectedRows()){
-                            _tasks.push({
-                                crudType: 'Update',
-                                table: 19,
-                                params: {
-                                    PG_MOVED : true,
-                                    PG_MASTER : selectedItem.PG_MASTER,
-                                    PG_FLIGHTNO : selectedItem.PG_FLIGHTNO,
-                                    PG_UP_USER : $vm.profile.U_ID,
-                                    PG_UP_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss')
-                                },
-                                condition: {
-                                    PG_SEQ : $vm.pullGoodsGridApi.selection.getSelectedRows()[i].PG_SEQ,
-                                    PG_BAGNO : $vm.pullGoodsGridApi.selection.getSelectedRows()[i].PG_BAGNO
-                                }
-                            });
-                        }
-
-                        RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res){
-                            toaster.pop('success', '訊息', '更新成功', 3000);
-                            LoadPullGoods();
-                        }, function (err) {
-                            toaster.pop('danger', '錯誤', '更新失敗', 3000);
-                        });  
-
-                    }, function() {
-                        // $log.info('Modal dismissed at: ' + new Date());
-                    });
+                var _data = $vm.pullGoodsGridApi.selection.getSelectedRows();
+                if(_data.length == 0) {
+                    toaster.pop('info', '訊息', '尚未勾選資料。', 3000);
+                    return;
                 }
 
-                // console.log(row);
+                var _emptyMoved = false;
+                for(var i in _data){
+                    // 檢查移機是否為否
+                    if(_data[i].PG_MOVED){
+                        _emptyMoved = true;
+                        break;
+                    }
+                }
 
-                // var modalInstance = $uibModal.open({
-                //     animation: true,
-                //     ariaLabelledBy: 'modal-title',
-                //     ariaDescribedBy: 'modal-body',
-                //     templateUrl: 'modifyPullGoodsModalContent.html',
-                //     controller: 'ModifyPullGoodsModalInstanceCtrl',
-                //     controllerAs: '$ctrl',
-                //     // size: 'lg',
-                //     resolve: {
-                //         items: function () {
-                //             return row.entity;
-                //         }
-                //     }
-                // });
+                if(_emptyMoved){
+                    toaster.pop('warning', '警告', '有資料已被移機', 3000);
+                    return;
+                }
 
-                // modalInstance.result.then(function(selectedItem) {
-                //     console.log(selectedItem);
+                var modalInstance = $uibModal.open({
+                    animation: true,
+                    ariaLabelledBy: 'modal-title',
+                    ariaDescribedBy: 'modal-body',
+                    templateUrl: 'modifyPullGoodsModalContent.html',
+                    controller: 'ModifyPullGoodsModalInstanceCtrl',
+                    controllerAs: '$ctrl'
+                    // size: 'lg',
+                });
 
-                //     var _d = new Date();
+                modalInstance.result.then(function(selectedItem) {
+                    console.log(selectedItem);
 
-                //     RestfulApi.UpdateMSSQLData({
-                //         updatename: 'Update',
-                //         table: 19,
-                //         params: {
-                //             PG_MOVED : true,
-                //             PG_MASTER : selectedItem.PG_MASTER,
-                //             PG_FLIGHTNO : selectedItem.PG_FLIGHTNO,
-                //             PG_UP_USER : $vm.profile.U_ID,
-                //             PG_UP_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss')
-                //         },
-                //         condition: {
-                //             PG_SEQ : selectedItem.PG_SEQ,
-                //             PG_BAGNO : selectedItem.PG_BAGNO
-                //         }
-                //     }).then(function (res) {
-                //         toaster.pop('success', '訊息', '更新成功', 3000);
-                //         LoadPullGoods();
-                //     });
+                    var _d = new Date(),
+                        _tasks = [];
 
-                // }, function() {
-                //     // $log.info('Modal dismissed at: ' + new Date());
-                // });
-            },
-            //取消
-            cancelData : function(){
-
-                if($vm.pullGoodsGridApi.selection.getSelectedRows().length > 0){
-                    // console.log($vm.pullGoodsGridApi.selection.getSelectedRows());
-
-                    var modalInstance = $uibModal.open({
-                        animation: true,
-                        ariaLabelledBy: 'modal-title',
-                        ariaDescribedBy: 'modal-body',
-                        template: $templateCache.get('isChecked'),
-                        controller: 'IsCheckedModalInstanceCtrl',
-                        controllerAs: '$ctrl',
-                        size: 'sm',
-                        windowClass: 'center-modal',
-                        // appendTo: parentElem,
-                        resolve: {
-                            items: function() {
-                                return {};
+                    for(var i in _data){
+                        _tasks.push({
+                            crudType: 'Update',
+                            table: 19,
+                            params: {
+                                // PG_MOVED : true,
+                                PG_MASTER : selectedItem.PG_MASTER,
+                                PG_FLIGHTNO : selectedItem.PG_FLIGHTNO,
+                                PG_UP_USER : $vm.profile.U_ID,
+                                PG_UP_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss')
                             },
-                            show: function(){
-                                return {
-                                    title : "是否取消"
-                                };
+                            condition: {
+                                PG_SEQ : _data[i].PG_SEQ,
+                                PG_BAGNO : _data[i].PG_BAGNO
                             }
-                        }
-                    });
+                        });
+                    }
 
-                    modalInstance.result.then(function(selectedItem) {
-                        console.log(selectedItem);
+                    RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res){
+                        toaster.pop('success', '訊息', '更新成功', 3000);
+                        LoadPullGoods();
+                    }, function (err) {
+                        toaster.pop('danger', '錯誤', '更新失敗', 3000);
+                    });  
 
-                        var _d = new Date(),
-                            _tasks = [];
-
-                        for(var i in $vm.pullGoodsGridApi.selection.getSelectedRows()){
-                            _tasks.push({
-                                crudType: 'Delete',
-                                table: 19,
-                                params: {
-                                    PG_SEQ : $vm.pullGoodsGridApi.selection.getSelectedRows()[i].PG_SEQ,
-                                    PG_BAGNO : $vm.pullGoodsGridApi.selection.getSelectedRows()[i].PG_BAGNO
-                                }
-                            });
-                        }
-
-                        RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res){
-                            toaster.pop('success', '訊息', '取消成功', 3000);
-                            LoadPullGoods();
-                        }, function (err) {
-                            toaster.pop('danger', '錯誤', '取消失敗', 3000);
-                        });  
-
-                    }, function() {
-                        // $log.info('Modal dismissed at: ' + new Date());
-                    });
+                }, function() {
+                    // $log.info('Modal dismissed at: ' + new Date());
+                });
+            },
+            /**
+             * [cancelPullGoodsData description] 取消拉貨
+             * 刪除PullGoods資料
+             */
+            cancelPullGoodsData : function(){
+                var _data = $vm.pullGoodsGridApi.selection.getSelectedRows();
+                if(_data.length == 0) {
+                    toaster.pop('info', '訊息', '尚未勾選資料。', 3000);
+                    return;
                 }
-                // console.log(row);
 
-                // var modalInstance = $uibModal.open({
-                //     animation: true,
-                //     ariaLabelledBy: 'modal-title',
-                //     ariaDescribedBy: 'modal-body',
-                //     template: $templateCache.get('isChecked'),
-                //     controller: 'IsCheckedModalInstanceCtrl',
-                //     controllerAs: '$ctrl',
-                //     size: 'sm',
-                //     windowClass: 'center-modal',
-                //     // appendTo: parentElem,
-                //     resolve: {
-                //         items: function() {
-                //             return row.entity;
-                //         },
-                //         show: function(){
-                //             return {
-                //                 title : "是否取消"
-                //             };
-                //         }
-                //     }
-                // });
+                var _emptyMoved = false;
+                for(var i in _data){
+                    // 檢查移機是否為否
+                    if(_data[i].PG_MOVED){
+                        _emptyMoved = true;
+                        break;
+                    }
+                }
 
-                // modalInstance.result.then(function(selectedItem) {
-                //     // $ctrl.selected = selectedItem;
-                //     console.log(selectedItem);
+                if(_emptyMoved){
+                    toaster.pop('warning', '警告', '有資料已被移機', 3000);
+                    return;
+                }
 
-                //     RestfulApi.DeleteMSSQLData({
-                //         deletename: 'Delete',
-                //         table: 19,
-                //         params: {
-                //             PG_SEQ : selectedItem.PG_SEQ,
-                //             PG_BAGNO : selectedItem.PG_BAGNO
-                //         }
-                //     }).then(function (res) {
-                //         toaster.pop('success', '訊息', '取消成功', 3000);
-                //         LoadPullGoods();
-                //     });
+                var modalInstance = $uibModal.open({
+                    animation: true,
+                    ariaLabelledBy: 'modal-title',
+                    ariaDescribedBy: 'modal-body',
+                    template: $templateCache.get('isChecked'),
+                    controller: 'IsCheckedModalInstanceCtrl',
+                    controllerAs: '$ctrl',
+                    size: 'sm',
+                    windowClass: 'center-modal',
+                    // appendTo: parentElem,
+                    resolve: {
+                        items: function() {
+                            return {};
+                        },
+                        show: function(){
+                            return {
+                                title : "是否取消拉貨"
+                            };
+                        }
+                    }
+                });
 
-                // }, function() {
-                //     // $log.info('Modal dismissed at: ' + new Date());
-                // });
+                modalInstance.result.then(function(selectedItem) {
+                    console.log(selectedItem);
+
+                    var _d = new Date(),
+                        _tasks = [];
+
+                    for(var i in _data){
+                        _tasks.push({
+                            crudType: 'Delete',
+                            table: 19,
+                            params: {
+                                PG_SEQ : _data[i].PG_SEQ,
+                                PG_BAGNO : _data[i].PG_BAGNO
+                            }
+                        });
+                    }
+
+                    RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res){
+                        toaster.pop('success', '訊息', '取消成功', 3000);
+                        LoadPullGoods();
+                    }, function (err) {
+                        toaster.pop('danger', '錯誤', '取消失敗', 3000);
+                    });  
+
+                }, function() {
+                    // $log.info('Modal dismissed at: ' + new Date());
+                });
+            },
+            /**
+             * [movedData description] 移機
+             * 新增ORDER_LIST
+             * 複製ITEM_LIST
+             * 更新PULL_GODDS
+             */
+            movedData : function(){
+                var _data = $vm.pullGoodsGridApi.selection.getSelectedRows();
+                if(_data.length == 0) {
+                    toaster.pop('info', '訊息', '尚未勾選資料。', 3000);
+                    return;
+                }
+
+                var _emptyFlightNo = false,
+                    _emptyMaster = false,
+                    _emptyMoved = false,
+                    _duplicatFlightNo = false,
+                    _duplicatMaster = false,
+                    _duplicatFlightNoValue = "",
+                    _duplicatMasterValue = "",
+                    _sourceMaster = [],
+                    _seqAndBagno = [],
+                    _bagno = [];
+                for(var i in _data){
+
+                    // 檢查航班(改)是否為空
+                    if(_data[i].PG_FLIGHTNO == null || _data[i].PG_FLIGHTNO == ""){
+                        _emptyFlightNo = true;
+                        break;
+                    }
+                    // 檢查主號(改)是否為空
+                    if(_data[i].PG_MASTER == null || _data[i].PG_MASTER == ""){
+                        _emptyMaster = true;
+                        break;
+                    }
+
+                    // 第一筆資料keep
+                    if(i == 0){
+                        _duplicatFlightNoValue = _data[i].PG_FLIGHTNO;
+                        _duplicatMasterValue = _data[i].PG_MASTER;
+                    }
+                    // 第二筆資料開始檢查
+                    else{
+                        // 檢查航班(改)是否重複
+                        if(_data[i].PG_FLIGHTNO != _duplicatFlightNoValue){
+                            _duplicatFlightNo = true;
+                            break;
+                        }
+                        // 檢查主號(改)是否重複
+                        if(_data[i].PG_MASTER != _duplicatMasterValue){
+                            _duplicatMaster = true;
+                            break;
+                        }
+                    }
+
+                    // 檢查移機是否為否
+                    if(_data[i].PG_MOVED){
+                        _emptyMoved = true;
+                        break;
+                    }
+
+                    _seqAndBagno.push({
+                        IL_SEQ : _data[i].PG_SEQ,
+                        IL_BAGNO : _data[i].PG_BAGNO
+                    });
+
+                    _bagno.push(_data[i].PG_BAGNO);
+                }
+
+                if(_emptyFlightNo){
+                    toaster.pop('warning', '警告', '尚有資料 航班(改) 為空', 3000);
+                    return;
+                }
+
+                if(_emptyMaster){
+                    toaster.pop('warning', '警告', '尚有資料 主號(改) 為空', 3000);
+                    return;
+                }
+
+                if(_duplicatFlightNo){
+                    toaster.pop('warning', '警告', '航班(改) 資料不一致', 3000);
+                    return;
+                }
+
+                if(_duplicatMaster){
+                    toaster.pop('warning', '警告', '主號(改) 資料不一致', 3000);
+                    return;
+                }
+
+                if(_emptyMoved){
+                    toaster.pop('warning', '警告', '有資料已被移機', 3000);
+                    return;
+                }
+
+                var modalInstance = $uibModal.open({
+                    animation: true,
+                    ariaLabelledBy: 'modal-title',
+                    ariaDescribedBy: 'modal-body',
+                    templateUrl: 'addOrderListModalContent.html',
+                    controller: 'AddOrderListModalInstanceCtrl',
+                    controllerAs: '$ctrl',
+                    backdrop: 'static',
+                    // size: 'lg',
+                    // appendTo: parentElem,
+                    resolve: {
+                        items: function() {
+                            var _text = "拉貨("+_bagno.join(", ")+")";
+                            return {
+                                OL_CO_CODE : _data[0].OL_CO_CODE,
+                                OL_MASTER : _duplicatMasterValue,
+                                OL_FLIGHTNO : _duplicatFlightNoValue,
+                                OL_IMPORTDT : $filter('date')(new Date, 'yyyy-MM-dd'),
+                                OL_COUNTRY : _data[0].OL_COUNTRY,
+                                OL_REASON : _text.length > 300 ? "拉貨" : _text
+                            };
+                        },
+                        compy: function() {
+                            return compy;
+                        }
+                    }
+                });
+
+                modalInstance.result.then(function(selectedItem) {
+                    console.log(selectedItem);
+
+                    var _d = new Date,
+                        _tasks = [],
+                        _seq = $vm.profile.U_ID+selectedItem.OL_CO_CODE+$filter('date')(_d, 'yyyyMMddHHmmss');
+
+                    // 新增ORDER_LIST
+                    _tasks.push({
+                        crudType: 'Insert',
+                        table: 18,
+                        params: {
+                            OL_SEQ : _seq,
+                            OL_CO_CODE : selectedItem.OL_CO_CODE,
+                            OL_MASTER : selectedItem.OL_MASTER,
+                            OL_FLIGHTNO : selectedItem.OL_FLIGHTNO,
+                            OL_IMPORTDT : selectedItem.OL_IMPORTDT,
+                            OL_COUNTRY : selectedItem.OL_COUNTRY,
+                            OL_CR_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss'),
+                            OL_CR_USER : $vm.profile.U_ID,
+                            OL_REASON : selectedItem.OL_REASON
+                        }
+                    })
+
+                    // 複製ITEM_LIST
+                    _tasks.push({
+                        crudType: 'Copy',
+                        querymain: 'assistantJobs',
+                        queryname: 'CopyItemList',
+                        table: 9,
+                        params: {
+                            IL_SEQ : _seq,
+                            SeqAndBagno : _seqAndBagno
+                        }
+                    })
+
+                    // 更新PULL_GOODS
+                    _tasks.push({
+                        crudType: 'Update',
+                        table: 19,
+                        params: {
+                            PG_MOVED : true,
+                            PG_MOVED_SEQ : _seq
+                        },
+                        condition: {
+                            PG_MASTER : selectedItem.OL_MASTER,
+                            PG_FLIGHTNO : selectedItem.OL_FLIGHTNO
+                        }
+                    })
+
+                    RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res){
+                        toaster.pop('success', '訊息', '移機成功', 3000);
+                        LoadPullGoods();
+                    }, function (err) {
+                        toaster.pop('danger', '錯誤', '移機失敗', 3000);
+                    });  
+
+                }, function() {
+                    // $log.info('Modal dismissed at: ' + new Date());
+                });
+
+            },
+            /**
+             * [cancelMovedData description] 取消移機
+             * 刪除ORDER_LIST
+             * 更新PULL_GOODS
+             */
+            cancelMovedData : function(){
+                var _data = $vm.pullGoodsGridApi.selection.getSelectedRows();
+                if(_data.length == 0) {
+                    toaster.pop('info', '訊息', '尚未勾選資料。', 3000);
+                    return;
+                }
+
+                var _emptyMoved = false;
+                for(var i in _data){
+                    // 檢查移機是否為否
+                    if(!_data[i].PG_MOVED){
+                        _emptyMoved = true;
+                        break;
+                    }
+                }
+
+                if(_emptyMoved){
+                    toaster.pop('warning', '警告', '有資料未被移機', 3000);
+                    return;
+                }
+
+                var modalInstance = $uibModal.open({
+                    animation: true,
+                    ariaLabelledBy: 'modal-title',
+                    ariaDescribedBy: 'modal-body',
+                    template: $templateCache.get('isChecked'),
+                    controller: 'IsCheckedModalInstanceCtrl',
+                    controllerAs: '$ctrl',
+                    size: 'sm',
+                    windowClass: 'center-modal',
+                    // appendTo: parentElem,
+                    resolve: {
+                        items: function() {
+                            return {};
+                        },
+                        show: function(){
+                            return {
+                                title : "是否取消移機"
+                            };
+                        }
+                    }
+                });
+
+                modalInstance.result.then(function(selectedItem) {
+                    // console.log(_data);
+
+                    var _tasks = [];
+
+                    for(var i in _data){
+                        _tasks.push({
+                            crudType: 'Delete',
+                            table: 18,
+                            params: {
+                                OL_SEQ : _data[i].PG_MOVED_SEQ
+                            }
+                        });
+
+                        _tasks.push({
+                            crudType: 'Update',
+                            table: 19,
+                            params: {
+                                PG_MOVED : false,
+                                PG_MOVED_SEQ : null,
+                                PG_UP_USER : $vm.profile.U_ID,
+                                PG_UP_DATETIME : $filter('date')(new Date, 'yyyy-MM-dd HH:mm:ss')
+                            },
+                            condition: {
+                                PG_SEQ : _data[i].PG_SEQ,
+                                PG_BAGNO : _data[i].PG_BAGNO
+                            }
+                        });
+                    }
+
+                    RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res){
+                        toaster.pop('success', '訊息', '取消移機成功', 3000);
+                        LoadPullGoods();
+                    }, function (err) {
+                        toaster.pop('danger', '錯誤', '取消移機失敗', 3000);
+                    });  
+
+                }, function() {
+                    // $log.info('Modal dismissed at: ' + new Date());
+                });
             },
             // 匯出Excel
             exportExcel : function(){
-                var _exportName = $filter('date')(new Date(), 'yyyyMMdd') + ' 拉貨明細',
+                var _data = $vm.pullGoodsGridApi.selection.getSelectedRows(),
+                    _exportName = $filter('date')(new Date(), 'yyyyMMdd') + ' 拉貨明細',
                     _params = {};
 
                 // 選擇筆數匯出
-                if($vm.pullGoodsGridApi.selection.getSelectedRows().length > 0){
+                if(_data.length > 0){
                     var _Seq = [],
                         _Bagno = [];
 
-                    for(var i in $vm.pullGoodsGridApi.selection.getSelectedRows()){
-                        _Seq.push($vm.pullGoodsGridApi.selection.getSelectedRows()[i].PG_SEQ);
-                        _Bagno.push($vm.pullGoodsGridApi.selection.getSelectedRows()[i].PG_BAGNO);
+                    for(var i in _data){
+                        _Seq.push(_data[i].PG_SEQ);
+                        _Bagno.push(_data[i].PG_BAGNO);
                     }
 
                     _params = {
@@ -626,6 +856,11 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
                 },
                 { name: 'PG_FLIGHTNO'   , displayName: '航班(改)' },
                 { name: 'PG_MASTER'     , displayName: '主號(改)' },
+                { name: 'PG_REASON'     , displayName: '拉貨原因', cellTooltip: function (row, col) 
+                    {
+                        return row.entity.PG_REASON
+                    } 
+                },
                 { name: 'ITEM_LIST'     , displayName: '報機單', enableFiltering: false, enableSorting: false, width: '8%', cellTemplate: $templateCache.get('accessibilityToOperaForJob001') },
                 { name: 'Options'       , displayName: '操作', width: '8%', enableFiltering: false, enableSorting: false, cellTemplate: $templateCache.get('accessibilityToVForPullGoods') }
             ],
@@ -804,6 +1039,34 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
 
     $ctrl.ok = function() {
         $uibModalInstance.close();
+    };
+
+    $ctrl.cancel = function() {
+        $uibModalInstance.dismiss('cancel');
+    };
+})
+.controller('AddOrderListModalInstanceCtrl', function ($uibModalInstance, items, compy) {
+    var $ctrl = this;
+
+    $ctrl.Init = function(){
+        var _flightNo = items.OL_FLIGHTNO != null ? items.OL_FLIGHTNO.split(' ') : [];
+
+        if(_flightNo.length == 2){
+            items.FLIGHTNO_START = _flightNo[0];
+            items.FLIGHTNO_END = _flightNo[1];
+        }
+
+        $ctrl.mdData = angular.copy(items);
+        $ctrl.compy = compy;
+    }
+
+    $ctrl.ok = function() {
+        $ctrl.mdData.FLIGHTNO_START = $ctrl.mdData.FLIGHTNO_START.toUpperCase();
+        $ctrl.mdData.OL_FLIGHTNO = $ctrl.mdData.FLIGHTNO_START + ' ' + $ctrl.mdData.FLIGHTNO_END;
+
+        $ctrl.mdData.OL_COUNTRY = $ctrl.mdData.OL_COUNTRY.toUpperCase();
+
+        $uibModalInstance.close($ctrl.mdData);
     };
 
     $ctrl.cancel = function() {

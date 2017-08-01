@@ -9,6 +9,7 @@ module.exports = function(pQueryname, pParams){
 									OL_FLIGHTNO, \
 									OL_IMPORTDT, \
 									OL_COUNTRY, \
+									OL_REASON, \
 									OL_CR_USER, \
 									OL_CR_DATETIME, \
 									W2_OE.OE_PRINCIPAL AS 'W2_PRINCIPAL', \
@@ -89,6 +90,7 @@ module.exports = function(pQueryname, pParams){
 									 OL_FLIGHTNO, \
 									 OL_IMPORTDT, \
 									 OL_COUNTRY, \
+									 OL_REASON, \
 									 OL_CR_USER, \
 									 OL_CR_DATETIME, \
 									 W2_OE.OE_PRINCIPAL, \

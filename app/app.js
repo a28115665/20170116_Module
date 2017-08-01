@@ -195,34 +195,34 @@ angular.module('app', [
         // });
     });
 
-    // $rootScope.$on('$stateChangeSuccess', function (event, toState, roParams, fromState, fromParams) {
-    //     // 檢視此頁是否有權限進入
-    //     // 無權限就導到default頁面
-    //     // console.log(Session.Get().GRIGHT[toState.name], toState.name);
-    //     if(!angular.isUndefined(Session.Get())){
-    //         if(!Session.Get().GRIGHT[toState.name]){
-    //             // event.preventDefault();
-    //             $state.transitionTo("app.default");
-    //         }
+    $rootScope.$on('$stateChangeSuccess', function (event, toState, roParams, fromState, fromParams) {
+        // 檢視此頁是否有權限進入
+        // 無權限就導到default頁面
+        // console.log(Session.Get().GRIGHT[toState.name], toState.name);
+        if(!angular.isUndefined(Session.Get())){
+            if(!Session.Get().GRIGHT[toState.name]){
+                // event.preventDefault();
+                $state.transitionTo("app.default");
+            }
 
-    //         AuthApi.Version().then(function (res){
-    //             var _version = res["returnData"];
+            AuthApi.Version().then(function (res){
+                var _version = res["returnData"];
 
-    //             // 如果沒有版本
-    //             if(localStorageService.get("LocalVersion") == null){
-    //                 // 加入版本
-    //                 localStorageService.set("LocalVersion", _version);
-    //             }
+                // 如果沒有版本
+                if(localStorageService.get("LocalVersion") == null){
+                    // 加入版本
+                    localStorageService.set("LocalVersion", _version);
+                }
 
-    //             // 如果版本較舊
-    //             if(parseInt(localStorageService.get("LocalVersion")) < _version){
-    //                 // 加入版本
-    //                 localStorageService.set("LocalVersion", _version);
-    //                 // 更新畫面
-    //                 window.location.reload();
-    //             }
-    //         });
-    //     }
-    // });
+                // 如果版本較舊
+                if(parseInt(localStorageService.get("LocalVersion")) < _version){
+                    // 加入版本
+                    localStorageService.set("LocalVersion", _version);
+                    // 更新畫面
+                    window.location.reload();
+                }
+            });
+        }
+    });
 
 });

@@ -270,7 +270,7 @@ var DeleteRequestWithTransaction = function(task, args, callback) {
 };
 
 /**
- * [MergeMatchedUpdateThenInsertRequestWithTransaction description] Transaction For Upsert
+ * [UpsertRequestWithTransaction description] Transaction For Upsert
  * @param {[type]}
  * @param {[type]}
  * @param {Function}
@@ -339,6 +339,35 @@ var UpsertRequestWithTransaction = function(task, args, callback) {
 	}
 	
 	requestSql(request, SQLCommand, psParams, function(err, ret, sql) {
+		args.result.push(ret);
+		args.statement.push(sql);
+		if(err) callback(err, args);
+		else callback(null, args);
+	});
+};
+
+/**
+ * [CopyRequestWithTransaction description] Transaction for copy
+ * @param {[type]}   task     [description]
+ * @param {[type]}   args     [description]
+ * @param {Function} callback [description]
+ */
+var CopyRequestWithTransaction = function(task, args, callback) {
+	// console.log("DeleteRequestWithTransaction:");
+	var request = new sql.Request(args.transaction),
+		SQLCommand = "";
+
+	// INSERT INTO table2
+	// SELECT column1, column2, column3, ...
+	// FROM table1
+	// WHERE params;
+
+	// 依querymain至各檔案下查詢method
+	SQLCommand = "INSERT INTO " + tables[task.table] + " " + queryMethods[task.querymain](task.queryname, task.params);
+	
+	schemaType.SchemaType2(task.params, request, sql);
+	
+	requestSql(request, SQLCommand, task.params, function(err, ret, sql) {
 		args.result.push(ret);
 		args.statement.push(sql);
 		if(err) callback(err, args);
@@ -450,6 +479,7 @@ module.exports = {
     UpdateRequestWithTransaction : UpdateRequestWithTransaction,
 	DeleteRequestWithTransaction : DeleteRequestWithTransaction,
 	UpsertRequestWithTransaction : UpsertRequestWithTransaction,
+	CopyRequestWithTransaction : CopyRequestWithTransaction,
 	TransactionCommit : TransactionCommit,
 	TransactionRollback : TransactionRollback,
 	DisConnect : DisConnect

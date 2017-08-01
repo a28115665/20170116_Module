@@ -168,7 +168,7 @@ angular.module('app.selfwork').controller('Job002Ctrl', function ($scope, $state
         ExportExcel: function(){
 
             var _exportName = $filter('date')($vm.vmData.OL_IMPORTDT, 'yyyyMMdd') + ' ' + 
-                              $filter('compyFilter')($vm.vmData.OL_CO_CODE) + ' ' + 
+                              $vm.vmData.OL_MASTER + ' ' + 
                               $vm.vmData.OL_FLIGHTNO;
                 // _totalBag = 0,
                 // _totalWeight = 0;

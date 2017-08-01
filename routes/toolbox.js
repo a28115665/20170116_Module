@@ -139,7 +139,6 @@ router.get('/exportExcelBySql', function(req, res) {
                         SheetNumber : 1
                     }, function (err, result){
 
-                        console.log(result);
                         if (err) {
                             // Do something with your error...
                             logger.error('匯出失敗', req.ip, __line+'行', err);

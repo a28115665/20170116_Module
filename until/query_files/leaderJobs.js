@@ -9,6 +9,7 @@ module.exports = function(pQueryname, pParams){
 									OL_FLIGHTNO, \
 									OL_IMPORTDT, \
 									OL_COUNTRY, \
+									OL_REASON, \
 									( \
 										SELECT COUNT(1) \
 										FROM ( \
@@ -203,18 +204,50 @@ module.exports = function(pQueryname, pParams){
 								) AS 'W2_COUNT', \
 								( \
 									SELECT COUNT(1) \
+									FROM ( \
+										SELECT IL_BAGNO \
+										FROM ITEM_LIST \
+										JOIN ORDER_LIST ON OL_SEQ = IL_SEQ AND OL_CO_CODE = CO_CODE \
+										WHERE IL_SEQ = OL_SEQ \
+										AND IL_BAGNO IS NOT NULL AND IL_BAGNO != '' \
+										AND '"+pParams["IMPORTDT_FROM"]+"' <= OL_IMPORTDT AND OL_IMPORTDT <= '"+pParams["IMPORTDT_TOXX"]+"' \
+										GROUP BY IL_BAGNO \
+									) A \
+								) AS 'W2_BAG_COUNT', \
+								( \
+									SELECT COUNT(1) \
 									FROM FLIGHT_ITEM_LIST \
 									JOIN ORDER_LIST ON OL_SEQ = FLL_SEQ AND OL_CO_CODE = CO_CODE \
 									/*只抓今天*/ \
 									WHERE '"+pParams["IMPORTDT_FROM"]+"' <= OL_IMPORTDT AND OL_IMPORTDT <= '"+pParams["IMPORTDT_TOXX"]+"' \
 								) AS 'W3_COUNT', \
 								( \
+									SELECT COUNT(FLL_BAGNO) \
+									FROM FLIGHT_ITEM_LIST \
+									JOIN ORDER_LIST ON OL_SEQ = FLL_SEQ AND OL_CO_CODE = CO_CODE \
+									WHERE FLL_SEQ = OL_SEQ \
+									AND FLL_BAGNO IS NOT NULL AND FLL_BAGNO != '' \
+									AND '"+pParams["IMPORTDT_FROM"]+"' <= OL_IMPORTDT AND OL_IMPORTDT <= '"+pParams["IMPORTDT_TOXX"]+"' \
+								) AS 'W3_BAG_COUNT', \
+								( \
 									SELECT COUNT(1) \
 									FROM Delivery_Item_List \
 									JOIN ORDER_LIST ON OL_SEQ = DIL_SEQ AND OL_CO_CODE = CO_CODE \
 									/*只抓今天*/ \
 									WHERE '"+pParams["IMPORTDT_FROM"]+"' <= OL_IMPORTDT AND OL_IMPORTDT <= '"+pParams["IMPORTDT_TOXX"]+"' \
-								) AS 'W1_COUNT' \
+								) AS 'W1_COUNT', \
+								( \
+									SELECT COUNT(1) \
+									FROM ( \
+										SELECT DIL_BAGNO \
+										FROM Delivery_Item_List \
+										JOIN ORDER_LIST ON OL_SEQ = DIL_SEQ AND OL_CO_CODE = CO_CODE \
+										WHERE DIL_SEQ = OL_SEQ \
+										AND DIL_BAGNO IS NOT NULL AND DIL_BAGNO != '' \
+										AND '"+pParams["IMPORTDT_FROM"]+"' <= OL_IMPORTDT AND OL_IMPORTDT <= '"+pParams["IMPORTDT_TOXX"]+"' \
+										GROUP BY DIL_BAGNO \
+									) A \
+								) AS 'W1_BAG_COUNT' \
 							FROM COMPY_INFO";
 			
 			// delete pParams["IMPORTDT_FROM"];

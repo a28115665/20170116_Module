@@ -580,161 +580,172 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
         },
         // 併票
         MergeNo: function(){
-            // console.log($vm.job001GridApi.selection.getSelectedRows());
-            if($vm.job001GridApi.selection.getSelectedRows().length > 0){
-                // 取得第一個袋號當併票號
-                var _mergeNo = $vm.job001GridApi.selection.getSelectedRows()[0].IL_BAGNO,
-                    _natureNew = [],
-                    _bagNo = [];
-
-                // 塞入新品名
-                for(var i in $vm.job001GridApi.selection.getSelectedRows()){
-                    // console.log($vm.job001GridApi.selection.getSelectedRows()[i].IL_NATURE_NEW);
-                    if($vm.job001GridApi.selection.getSelectedRows()[i].IL_NATURE_NEW != null){
-                        _natureNew.push($vm.job001GridApi.selection.getSelectedRows()[i].IL_NATURE_NEW);
-                    }
-
-                    // 算出袋數 重複不塞入
-                    if($filter('filter')(_bagNo, $vm.job001GridApi.selection.getSelectedRows()[i].IL_BAGNO).length == 0){
-                        _bagNo.push($vm.job001GridApi.selection.getSelectedRows()[i].IL_BAGNO);
-                    }
-
-                }
-                var modalInstance = $uibModal.open({
-                    animation: true,
-                    ariaLabelledBy: 'modal-title',
-                    ariaDescribedBy: 'modal-body',
-                    templateUrl: 'mergeNoModalContent.html',
-                    controller: 'MergeNoModalInstanceCtrl',
-                    controllerAs: '$ctrl',
-                    // size: 'lg',
-                    // appendTo: parentElem,
-                    resolve: {
-                        mergeNo: function() {
-                            return _mergeNo;
-                        },
-                        natureNew: function() {
-                            return _natureNew;
-                        },
-                        bagNo: function(){
-                            return _bagNo;
-                        }
-                    }
-                });
-
-                modalInstance.result.then(function(selectedItem) {
-                    // $ctrl.selected = selectedItem;
-                    console.log(selectedItem);
-
-                    // 變更併票號與新品名
-                    for(var i in $vm.job001GridApi.selection.getSelectedRows()){
-                        var _index = $vm.job001GridApi.selection.getSelectedRows()[i].Index;
-                        $vm.job001Data[_index-1].IL_MERGENO = selectedItem.mergeNo;
-                        $vm.job001Data[_index-1].IL_NATURE_NEW = selectedItem.natureNew;
-                    }
-
-                    $vm.job001GridApi.rowEdit.setRowsDirty($vm.job001GridApi.selection.getSelectedRows());
-                    $vm.job001GridApi.selection.clearSelectedRows();
-                    ClearSelectedColumn();
-                }, function() {
-                    // $log.info('Modal dismissed at: ' + new Date());
-                });
+            if($vm.job001GridApi.selection.getSelectedRows().length == 0) {
+                toaster.pop('info', '訊息', '尚未勾選資料。', 3000);
+                return;
             }
-        },
-        // 取消併票
-        CancelNo: function(){
-            if($vm.job001GridApi.selection.getSelectedRows().length > 0){
+
+            // 取得第一個袋號當併票號
+            var _mergeNo = $vm.job001GridApi.selection.getSelectedRows()[0].IL_BAGNO,
+                _natureNew = [],
+                _bagNo = [];
+
+            // 塞入新品名
+            for(var i in $vm.job001GridApi.selection.getSelectedRows()){
+                // console.log($vm.job001GridApi.selection.getSelectedRows()[i].IL_NATURE_NEW);
+                if($vm.job001GridApi.selection.getSelectedRows()[i].IL_NATURE_NEW != null){
+                    _natureNew.push($vm.job001GridApi.selection.getSelectedRows()[i].IL_NATURE_NEW);
+                }
+
+                // 算出袋數 重複不塞入
+                if($filter('filter')(_bagNo, $vm.job001GridApi.selection.getSelectedRows()[i].IL_BAGNO).length == 0){
+                    _bagNo.push($vm.job001GridApi.selection.getSelectedRows()[i].IL_BAGNO);
+                }
+
+            }
+            var modalInstance = $uibModal.open({
+                animation: true,
+                ariaLabelledBy: 'modal-title',
+                ariaDescribedBy: 'modal-body',
+                templateUrl: 'mergeNoModalContent.html',
+                controller: 'MergeNoModalInstanceCtrl',
+                controllerAs: '$ctrl',
+                // size: 'lg',
+                // appendTo: parentElem,
+                resolve: {
+                    mergeNo: function() {
+                        return _mergeNo;
+                    },
+                    natureNew: function() {
+                        return _natureNew;
+                    },
+                    bagNo: function(){
+                        return _bagNo;
+                    }
+                }
+            });
+
+            modalInstance.result.then(function(selectedItem) {
+                // $ctrl.selected = selectedItem;
+                console.log(selectedItem);
+
+                // 變更併票號與新品名
                 for(var i in $vm.job001GridApi.selection.getSelectedRows()){
                     var _index = $vm.job001GridApi.selection.getSelectedRows()[i].Index;
-                    $vm.job001Data[_index-1].IL_MERGENO = null;
-                    // $vm.job001Data[_index-1].IL_NATURE_NEW = null;
+                    $vm.job001Data[_index-1].IL_MERGENO = selectedItem.mergeNo;
+                    $vm.job001Data[_index-1].IL_NATURE_NEW = selectedItem.natureNew;
                 }
 
                 $vm.job001GridApi.rowEdit.setRowsDirty($vm.job001GridApi.selection.getSelectedRows());
                 $vm.job001GridApi.selection.clearSelectedRows();
                 ClearSelectedColumn();
+            }, function() {
+                // $log.info('Modal dismissed at: ' + new Date());
+            });
+        },
+        // 取消併票
+        CancelNo: function(){
+            if($vm.job001GridApi.selection.getSelectedRows().length == 0) {
+                toaster.pop('info', '訊息', '尚未勾選資料。', 3000);
+                return;
             }
+
+            for(var i in $vm.job001GridApi.selection.getSelectedRows()){
+                var _index = $vm.job001GridApi.selection.getSelectedRows()[i].Index;
+                $vm.job001Data[_index-1].IL_MERGENO = null;
+                // $vm.job001Data[_index-1].IL_NATURE_NEW = null;
+            }
+
+            $vm.job001GridApi.rowEdit.setRowsDirty($vm.job001GridApi.selection.getSelectedRows());
+            $vm.job001GridApi.selection.clearSelectedRows();
+            ClearSelectedColumn();
         },
         // 特貨註記
         MultiSpecialGoods: function(){
-            if($vm.job001GridApi.selection.getSelectedRows().length > 0){
-
-                var modalInstance = $uibModal.open({
-                    animation: true,
-                    ariaLabelledBy: 'modal-title',
-                    ariaDescribedBy: 'modal-body',
-                    templateUrl: 'specialGoodsModalContent.html',
-                    controller: 'MultiSpecialGoodsModalInstanceCtrl',
-                    controllerAs: '$ctrl',
-                    size: 'sm',
-                    // appendTo: parentElem,
-                    resolve: {
-                        specialGoods: function(SysCode) {
-                            return SysCode.get('SpecialGoods');
-                        }
-                    }
-                });
-
-                modalInstance.result.then(function(selectedItem) {
-
-                    // console.log(selectedItem);
-
-                    var _task = [];
-
-                    for(var i in $vm.job001GridApi.selection.getSelectedRows()){
-
-                        if(angular.isUndefined(selectedItem)){
-                            _task.push({
-                                crudType: 'Delete',
-                                table: 20,
-                                params: {
-                                    SPG_SEQ         : $vm.job001GridApi.selection.getSelectedRows()[i].IL_SEQ,
-                                    SPG_NEWBAGNO    : $vm.job001GridApi.selection.getSelectedRows()[i].IL_NEWBAGNO,
-                                    SPG_NEWSMALLNO  : $vm.job001GridApi.selection.getSelectedRows()[i].IL_NEWSMALLNO,
-                                    SPG_ORDERINDEX  : $vm.job001GridApi.selection.getSelectedRows()[i].IL_ORDERINDEX
-                                }
-                            });
-                        }else{
-                            _task.push({
-                                crudType: 'Upsert',
-                                table: 20,
-                                params: {
-                                    SPG_TYPE        : selectedItem.SPG_TYPE,
-                                    SPG_CR_USER     : $vm.profile.U_ID,
-                                    SPG_CR_DATETIME : $filter('date')(new Date, 'yyyy-MM-dd HH:mm:ss')
-                                },
-                                condition: {
-                                    SPG_SEQ         : $vm.job001GridApi.selection.getSelectedRows()[i].IL_SEQ,
-                                    SPG_NEWBAGNO    : $vm.job001GridApi.selection.getSelectedRows()[i].IL_NEWBAGNO,
-                                    SPG_NEWSMALLNO  : $vm.job001GridApi.selection.getSelectedRows()[i].IL_NEWSMALLNO,
-                                    SPG_ORDERINDEX  : $vm.job001GridApi.selection.getSelectedRows()[i].IL_ORDERINDEX
-                                }
-                            });
-                        }
-
-                    }
-
-                    RestfulApi.CRUDMSSQLDataByTask(_task).then(function (res){
-
-                        if(res["returnData"].length > 0){
-                            // 變更特貨類型
-                            for(var i in $vm.job001GridApi.selection.getSelectedRows()){
-                                if(angular.isUndefined(selectedItem)){
-                                    $vm.job001GridApi.selection.getSelectedRows()[i].SPG_SPECIALGOODS = 0;
-                                }else{
-                                    $vm.job001GridApi.selection.getSelectedRows()[i].SPG_SPECIALGOODS = selectedItem.SPG_TYPE;
-                                }
-                            }
-
-                            $vm.job001GridApi.selection.clearSelectedRows();
-                            ClearSelectedColumn();
-                        }
-                    });
-
-                }, function() {
-                    // $log.info('Modal dismissed at: ' + new Date());
-                });
+            if($vm.job001GridApi.selection.getSelectedRows().length == 0) {
+                toaster.pop('info', '訊息', '尚未勾選資料。', 3000);
+                return;
             }
+            if($vm.job001GridApi.selection.getSelectedRows().length > 100) {
+                toaster.pop('info', '訊息', '超過100筆，請重新選擇筆數', 3000);
+                return;
+            }
+
+            var modalInstance = $uibModal.open({
+                animation: true,
+                ariaLabelledBy: 'modal-title',
+                ariaDescribedBy: 'modal-body',
+                templateUrl: 'specialGoodsModalContent.html',
+                controller: 'MultiSpecialGoodsModalInstanceCtrl',
+                controllerAs: '$ctrl',
+                size: 'sm',
+                // appendTo: parentElem,
+                resolve: {
+                    specialGoods: function(SysCode) {
+                        return SysCode.get('SpecialGoods');
+                    }
+                }
+            });
+
+            modalInstance.result.then(function(selectedItem) {
+
+                // console.log(selectedItem);
+
+                var _task = [];
+
+                for(var i in $vm.job001GridApi.selection.getSelectedRows()){
+
+                    if(angular.isUndefined(selectedItem)){
+                        _task.push({
+                            crudType: 'Delete',
+                            table: 20,
+                            params: {
+                                SPG_SEQ         : $vm.job001GridApi.selection.getSelectedRows()[i].IL_SEQ,
+                                SPG_NEWBAGNO    : $vm.job001GridApi.selection.getSelectedRows()[i].IL_NEWBAGNO,
+                                SPG_NEWSMALLNO  : $vm.job001GridApi.selection.getSelectedRows()[i].IL_NEWSMALLNO,
+                                SPG_ORDERINDEX  : $vm.job001GridApi.selection.getSelectedRows()[i].IL_ORDERINDEX
+                            }
+                        });
+                    }else{
+                        _task.push({
+                            crudType: 'Upsert',
+                            table: 20,
+                            params: {
+                                SPG_TYPE        : selectedItem.SPG_TYPE,
+                                SPG_CR_USER     : $vm.profile.U_ID,
+                                SPG_CR_DATETIME : $filter('date')(new Date, 'yyyy-MM-dd HH:mm:ss')
+                            },
+                            condition: {
+                                SPG_SEQ         : $vm.job001GridApi.selection.getSelectedRows()[i].IL_SEQ,
+                                SPG_NEWBAGNO    : $vm.job001GridApi.selection.getSelectedRows()[i].IL_NEWBAGNO,
+                                SPG_NEWSMALLNO  : $vm.job001GridApi.selection.getSelectedRows()[i].IL_NEWSMALLNO,
+                                SPG_ORDERINDEX  : $vm.job001GridApi.selection.getSelectedRows()[i].IL_ORDERINDEX
+                            }
+                        });
+                    }
+
+                }
+
+                RestfulApi.CRUDMSSQLDataByTask(_task).then(function (res){
+
+                    if(res["returnData"].length > 0){
+                        // 變更特貨類型
+                        for(var i in $vm.job001GridApi.selection.getSelectedRows()){
+                            if(angular.isUndefined(selectedItem)){
+                                $vm.job001GridApi.selection.getSelectedRows()[i].SPG_SPECIALGOODS = 0;
+                            }else{
+                                $vm.job001GridApi.selection.getSelectedRows()[i].SPG_SPECIALGOODS = selectedItem.SPG_TYPE;
+                            }
+                        }
+
+                        $vm.job001GridApi.selection.clearSelectedRows();
+                        ClearSelectedColumn();
+                    }
+                });
+
+            }, function() {
+                // $log.info('Modal dismissed at: ' + new Date());
+            });
         },
         ExportExcel: function(){
             console.log($vm.vmData);

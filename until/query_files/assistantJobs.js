@@ -3,7 +3,7 @@ module.exports = function(pQueryname, pParams){
 
 	switch(pQueryname){
 		case "SelectPullGoods":
-			_SQLCommand += "SELECT OL_CO_CODE, \
+			_SQLCommand += "SELECT TOP 1000 OL_CO_CODE, \
 								   OL_MASTER, \
 								   OL_FLIGHTNO, \
 								   OL_IMPORTDT, \
@@ -11,6 +11,7 @@ module.exports = function(pQueryname, pParams){
 								   PG_SEQ, \
 								   PG_BAGNO, \
 								   PG_MOVED, \
+								   PG_MOVED_SEQ, \
 								   PG_MASTER, \
 								   PG_FLIGHTNO, \
 								   PG_REASON, \
@@ -48,8 +49,7 @@ module.exports = function(pQueryname, pParams){
 									OL_CR_DATETIME, \
 									OL_TEL, \
 									OL_FAX, \
-									OL_TOTALBAG, \
-									OL_TOTALWEIGHT, \
+									OL_REASON, \
 									( \
 										SELECT COUNT(1) \
 										FROM ( \
@@ -185,6 +185,67 @@ module.exports = function(pQueryname, pParams){
 			}
 
 			_SQLCommand += " ORDER BY IL_BAGNO ";
+
+			break;
+
+		case "CopyItemList":
+			_SQLCommand += "SELECT @IL_SEQ AS IL_SEQ, \
+									IL_G1, \
+									IL_NEWBAGNO, \
+									IL_NEWSMALLNO, \
+									IL_BAGNO, \
+									IL_MERGENO, \
+									IL_SMALLNO, \
+									IL_NATURE, \
+									IL_NATURE_NEW, \
+									IL_CTN, \
+									IL_PLACE, \
+									IL_NEWPLACE, \
+									IL_WEIGHT, \
+									IL_WEIGHT_NEW, \
+									IL_PCS, \
+									IL_NEWPCS, \
+									IL_UNIT, \
+									IL_NEWUNIT, \
+									IL_GETNO, \
+									IL_SENDNAME, \
+									IL_NEWSENDNAME, \
+									IL_GETNAME, \
+									IL_GETADDRESS, \
+									IL_GETTEL, \
+									IL_UNIVALENT, \
+									IL_UNIVALENT_NEW, \
+									IL_FINALCOST, \
+									IL_TAX, \
+									IL_TRCOM, \
+									IL_CR_DATETIME, \
+									IL_CR_USER, \
+									IL_UP_DATETIME, \
+									IL_UP_USER, \
+									IL_ORDERINDEX, \
+									IL_RANDOMTYPE, \
+									IL_RANDOMNATURE, \
+									IL_REMARK, \
+									IL_EXTEL, \
+									IL_EXNO, \
+									IL_TAX2, \
+									IL_GETNAME_NEW, \
+									IL_GETADDRESS_NEW, \
+									IL_HASUNIVALENT, \
+									IL_SUPPLEMENT_COUNT \
+							FROM ITEM_LIST \
+						    WHERE 1=1";
+
+			if(pParams["SeqAndBagno"] !== undefined){
+
+				var _sql = [];
+
+				for(var i in pParams["SeqAndBagno"]){
+					_sql.push("(  IL_SEQ='" + pParams["SeqAndBagno"][i].IL_SEQ + "' AND IL_BAGNO='" + pParams["SeqAndBagno"][i].IL_BAGNO + "')");
+				}
+
+				_SQLCommand += " AND (" + _sql.join(" OR ") +") ";
+			}
 
 			break;
 	}

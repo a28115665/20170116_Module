@@ -271,6 +271,12 @@ angular.module('app')
                                             <input class="form-control" name="OL_COUNTRY" placeholder="請輸入起運國別" ng-model="$ctrl.mdData.OL_COUNTRY" type="text" ui-mask="AA" ui-mask-placeholder> \
                                         </div> \
                                     </div> \
+                                    <div class="form-group"> \
+                                        <label class="col-md-2 control-label">原因</label> \
+                                        <div class="col-md-10"> \
+                                            <textarea class="form-control" rows="3" maxlength="300" ng-model="$ctrl.mdData.OL_REASON" placeholder="字數限制 300字"></textarea> \
+                                        </div> \
+                                    </div> \
                                 </fieldset> \
                             </form> \
                         </div> \

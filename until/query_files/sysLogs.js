@@ -3,7 +3,7 @@ module.exports = function(pQueryname, pParams){
 
 	switch(pQueryname){
 		case "SelectSysLogs":
-			_SQLCommand += "SELECT TOP 1000 * \
+			_SQLCommand += "SELECT TOP 10000 * \
 							FROM SYS_DBLOGS \
 							ORDER BY SDL_ID DESC ";
 			break;

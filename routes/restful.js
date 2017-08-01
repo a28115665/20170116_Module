@@ -308,6 +308,9 @@ router.get('/crudByTask', function(req, res) {
             case "Upsert":
                 tasks.push(async.apply(dbCommandByTask.UpsertRequestWithTransaction, _task));
                 break;
+            case "Copy":
+                tasks.push(async.apply(dbCommandByTask.CopyRequestWithTransaction, _task));
+                break;
             default:
                 break;
         }
