@@ -576,6 +576,12 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                 gridApi.selection.on.rowSelectionChanged($scope, function(rowEntity, colDef, newValue, oldValue){
                     rowEntity.entity["isSelected"] = rowEntity.isSelected;
                 });
+
+                gridApi.selection.on.rowSelectionChangedBatch($scope, function(rowEntity, colDef, newValue, oldValue){
+                    for(var i in rowEntity){
+                        rowEntity[i].entity["isSelected"] = rowEntity[i].isSelected;
+                    }
+                });
             }
         },
         // 併票

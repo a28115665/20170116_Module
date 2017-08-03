@@ -11,7 +11,7 @@
 	    <div class="row">
 
 	        <!-- NEW WIDGET START -->
-            <article class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+            <article class="col-xs-12 col-sm-12 col-md-5ths col-lg-5ths">
 
                 <div class="well well-sm bg-color-greenDark txt-color-white text-center">
                     主號
@@ -20,7 +20,7 @@
 
             </article>
 
-            <article class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+            <article class="col-xs-12 col-sm-12 col-md-5ths col-lg-5ths">
 
                 <div class="well well-sm bg-color-blue txt-color-white text-center">
                     航班
@@ -29,7 +29,7 @@
 
             </article>
 
-            <article class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+            <article class="col-xs-12 col-sm-12 col-md-5ths col-lg-5ths">
 
                 <div class="well well-sm bg-color-teal txt-color-white text-center">
                     進口日期
@@ -38,11 +38,20 @@
 
             </article>
 
-            <article class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+            <article class="col-xs-12 col-sm-12 col-md-5ths col-lg-5ths">
 
                 <div class="well well-sm bg-color-magenta txt-color-white text-center">
                     國別
                     <code>{{$vm.vmData.OL_COUNTRY}}</code>
+                </div>
+
+            </article>
+
+            <article class="col-xs-12 col-sm-12 col-md-5ths col-lg-5ths">
+
+                <div class="well well-sm bg-color-blueLight txt-color-white text-center">
+                    行家
+                    <code>{{$vm.vmData.OL_CO_CODE | compyFilter}}</code>
                 </div>
 
             </article>

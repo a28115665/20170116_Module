@@ -94,7 +94,7 @@ module.exports = function(pQueryname, pParams){
 										CASE WHEN SPG_TYPE = 1 THEN '普特貨'\
 										ELSE '特特貨' END \
 									END AS 'SPG_SPECIALGOODS', \
-									CASE WHEN IL_MERGENO IS NOT NULL THEN '併X3-' + MERGENO + '-' + CONVERT(VARCHAR, IL_MERGENO_COUNT) + '袋' ELSE IL_G1 END AS 'IL_G1EX', \
+									CASE WHEN IL_MERGENO IS NOT NULL AND IL_MERGENO != '' THEN '併X3-' + MERGENO + '-' + CONVERT(VARCHAR, IL_MERGENO_COUNT) + '袋' ELSE IL_G1 END AS 'IL_G1EX', \
 									PG_MOVED, \
 									ITEM_LIST.* \
 							FROM ITEM_LIST \
