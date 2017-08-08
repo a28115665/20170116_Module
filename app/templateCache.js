@@ -235,9 +235,9 @@ angular.module('app')
                             <form class="form-horizontal" name="modifyForm"> \
                                 <fieldset> \
                                     <div class="form-group"> \
-                                        <label class="col-md-2 control-label"><code>*</code>進口日期</label> \
+                                        <label class="col-md-2 control-label">進口日期</label> \
                                         <div class="col-md-10"> \
-                                            <input class="form-control" name="OL_IMPORTDT" type="text" ng-model="$ctrl.mdData.OL_IMPORTDT" ui-mask="9999-99-99" ui-mask-placeholder ui-mask-placeholder-char="_" placeholder="請輸入公佈日期 (西元 年-月-日)" model-view-value="true" is-date required/> \
+                                            <input class="form-control" name="OL_IMPORTDT" type="text" ng-model="$ctrl.mdData.OL_IMPORTDT" ui-mask="9999-99-99" ui-mask-placeholder ui-mask-placeholder-char="_" placeholder="請輸入公佈日期 (西元 年-月-日)" model-view-value="true" is-date/> \
                                         </div> \
                                     </div> \
                                     <div class="form-group"> \
@@ -272,7 +272,7 @@ angular.module('app')
                                         </div> \
                                     </div> \
                                     <div class="form-group"> \
-                                        <label class="col-md-2 control-label">原因</label> \
+                                        <label class="col-md-2 control-label">描述</label> \
                                         <div class="col-md-10"> \
                                             <textarea class="form-control" rows="3" maxlength="300" ng-model="$ctrl.mdData.OL_REASON" placeholder="字數限制 300字"></textarea> \
                                         </div> \

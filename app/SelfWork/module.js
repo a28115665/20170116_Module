@@ -100,6 +100,32 @@ angular.module('app.selfwork').config(function ($stateProvider){
                     },
                     bool: function (SysCode){
                         return SysCode.get('Boolean');
+                    },
+                    opType : function (SysCode){
+                        return SysCode.get('OpType');
+                    }
+                }
+            }
+        }
+    })
+
+    .state('app.selfwork.assistantjobs.job001', {
+        url: '/job001',
+        data: {
+            title: 'Job001'
+        },
+        params: { 
+            data: null
+        },
+        parent: 'app.selfwork.assistantjobs',
+        views: {
+            "content@app" : {
+                templateUrl: 'app/SelfWork/views/jobs/job001.html',
+                controller: 'Job001Ctrl',
+                controllerAs: '$vm',
+                resolve: {
+                    bool: function (SysCode){
+                        return SysCode.get('Boolean');
                     }
                 }
             }

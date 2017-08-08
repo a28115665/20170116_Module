@@ -21,6 +21,14 @@ module.exports = function(pQueryname, pParams){
 										) A \
 									) AS 'OL_COUNT', \
 									( \
+										SELECT COUNT(1) \
+										FROM ( \
+											SELECT FLL_IL_NEWBAGNO \
+											FROM FLIGHT_ITEM_LIST \
+											WHERE FLL_SEQ = OL_SEQ \
+										) A \
+									) AS 'OL_FLL_COUNT', \
+									( \
 										SELECT MAX(IL_SUPPLEMENT_COUNT) \
 										FROM ITEM_LIST \
 										WHERE IL_SEQ = OL_SEQ \

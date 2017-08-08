@@ -295,6 +295,25 @@ angular.module('app.settings').config(function ($stateProvider){
         }
     })
 
+    .state('app.settings.bagnocount', {
+        url: '/settings/bagnocount',
+        data: {
+            title: 'BagnoCount'
+        },
+        views: {
+            "content@app" : {
+                templateUrl: 'app/Settings/views/bagnoCount.html',
+                controller: 'BagnoCountCtrl',
+                controllerAs: '$vm',
+                resolve: {
+                    userInfo: function(UserInfo){
+                        return UserInfo.get();
+                    }
+                }
+            }
+        }
+    })
+
     .state('app.settings.syslogs', {
         url: '/settings/syslogs',
         data: {

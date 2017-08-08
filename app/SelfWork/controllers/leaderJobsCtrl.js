@@ -203,6 +203,7 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
                 { name: 'OL_FLIGHTNO' ,  displayName: '航班' },
                 { name: 'OL_MASTER'   ,  displayName: '主號' },
                 { name: 'OL_COUNT'    ,  displayName: '報機單(袋數)', width: 80, enableCellEdit: false },
+                { name: 'OL_FLL_COUNT',  displayName: '銷倉單(袋數)', width: 80, enableCellEdit: false },
                 { name: 'OL_COUNTRY'  ,  displayName: '起運國別' },
                 { name: 'OL_REASON'              ,  displayName: '描述', width: 100, cellTooltip: function (row, col) 
                     {
@@ -237,19 +238,19 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
                     }
                 },
                 // { name: 'W3'          ,  displayName: '銷艙單負責人', cellFilter: 'userInfoFilter' },
-                { name: 'W1_STATUS'   ,  displayName: '派送單狀態', cellTemplate: $templateCache.get('accessibilityToForW1'), filter: 
-                    {
-                        term: null,
-                        type: uiGridConstants.filter.SELECT,
-                        selectOptions: [
-                            {label:'未派單', value: '0'},
-                            {label:'已派單', value: '1'},
-                            {label:'已編輯', value: '2'},
-                            {label:'已完成', value: '3'},
-                            {label:'非作業員'  , value: '4'}
-                        ]
-                    }
-                },
+                // { name: 'W1_STATUS'   ,  displayName: '派送單狀態', cellTemplate: $templateCache.get('accessibilityToForW1'), filter: 
+                //     {
+                //         term: null,
+                //         type: uiGridConstants.filter.SELECT,
+                //         selectOptions: [
+                //             {label:'未派單', value: '0'},
+                //             {label:'已派單', value: '1'},
+                //             {label:'已編輯', value: '2'},
+                //             {label:'已完成', value: '3'},
+                //             {label:'非作業員'  , value: '4'}
+                //         ]
+                //     }
+                // },
                 // { name: 'W1'          ,  displayName: '派送單負責人', cellFilter: 'userInfoFilter' },
                 { name: 'Options'     ,  displayName: '功能', enableFiltering: false, width: '12%', cellTemplate: $templateCache.get('accessibilityToDMCForLeader') }
             ],

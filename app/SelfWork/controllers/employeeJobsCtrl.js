@@ -133,6 +133,8 @@ angular.module('app.selfwork').controller('EmployeeJobsCtrl', function ($scope, 
                                     OE_EDATETIME : $filter('date')(new Date(), 'yyyy-MM-dd HH:mm:ss')
                                 }
                             }).then(function (res) {
+                                // 讓中班作業區的完成鈕可以亮起
+                                row.entity.W2_PRINCIPAL = $vm.profile.U_ID;
                                 $state.transitionTo("app.selfwork.employeejobs.job001", {
                                     data: row.entity
                                 });

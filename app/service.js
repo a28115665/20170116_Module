@@ -304,6 +304,21 @@ angular.module('app')
 	    return deferred.promise
 	},
 
+	this.DoTax = function (dataSrc) {
+	    // console.log(dataSrc);
+	    var deferred = $q.defer();
+
+	    Resource.DOTAX.get(dataSrc,
+	    	function (pSResponse){
+				deferred.resolve(pSResponse);
+			},
+	    	function (pFResponse){
+	    		deferred.reject(pFResponse.data);
+	    	});
+
+	    return deferred.promise
+	},
+
 	this.ComposeMenu = function (dataSrc) {
 	    // console.log(dataSrc);
 	    var deferred = $q.defer();

@@ -1,6 +1,6 @@
 "use strict";
 
-angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, RestfulApi, $filter, uiGridConstants, compy, bool, $window, ToolboxApi) {
+angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, RestfulApi, $filter, uiGridConstants, compy, bool, opType, $window, ToolboxApi) {
     
     var $vm = this;
 
@@ -252,6 +252,50 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
                 }, function() {
                     // $log.info('Modal dismissed at: ' + new Date());
                 });
+            },
+            // 刪除
+            deleteData : function(row){
+
+                var modalInstance = $uibModal.open({
+                    animation: true,
+                    ariaLabelledBy: 'modal-title',
+                    ariaDescribedBy: 'modal-body',
+                    template: $templateCache.get('isChecked'),
+                    controller: 'IsCheckedModalInstanceCtrl',
+                    controllerAs: '$ctrl',
+                    size: 'sm',
+                    windowClass: 'center-modal',
+                    // appendTo: parentElem,
+                    resolve: {
+                        items: function() {
+                            return row.entity;
+                        },
+                        show: function(){
+                            return {
+                                title : "是否刪除"
+                            }
+                        }
+                    }
+                });
+
+                modalInstance.result.then(function(selectedItem) {
+                    // $ctrl.selected = selectedItem;
+                    console.log(selectedItem);
+
+                    RestfulApi.DeleteMSSQLData({
+                        deletename: 'Delete',
+                        table: 10,
+                        params: {
+                            FLL_SEQ : selectedItem.OL_SEQ
+                        }
+                    }).then(function (res) {
+                        toaster.pop('info', '訊息', '銷倉單刪除成功', 3000);
+                        LoadFlightItem();
+                    });
+
+                }, function() {
+                    // $log.info('Modal dismissed at: ' + new Date());
+                });
             }
         },
         flightItemOptions : {
@@ -314,6 +358,7 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
                         return row.entity.OL_REASON
                     } 
                 },
+                { name: 'ITEM_LIST'              ,  displayName: '報機單', enableFiltering: false, enableSorting: false, width: '8%', cellTemplate: $templateCache.get('accessibilityToOperaForJob001') },
                 { name: 'Options'                ,  displayName: '操作', width: '5%', enableCellEdit: false, enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToM') }
             ],
             enableFiltering: true,
@@ -327,12 +372,16 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
             }
         },
         gridMethodForJob001 : {
-            // 檢視(銷艙單)
+            // 檢視(報機單)
             viewData : function(row){
                 console.log(row);
-                row.entity["OL_SEQ"] = row.entity.PG_SEQ;
 
-                $state.transitionTo("app.selfwork.employeejobs.job001", {
+                // 表示為拉貨
+                if(!angular.isUndefined(row.entity.PG_SEQ)){
+                    row.entity["OL_SEQ"] = row.entity.PG_SEQ;
+                }
+
+                $state.transitionTo("app.selfwork.assistantjobs.job001", {
                     data: row.entity
                 });
             }
@@ -620,6 +669,13 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
                     return;
                 }
 
+                var _oeType = null;
+                for(var i in opType){
+                    if(opType[i].label == '報機單'){
+                        _oeType = opType[i].value;
+                    }
+                }
+
                 var modalInstance = $uibModal.open({
                     animation: true,
                     ariaLabelledBy: 'modal-title',
@@ -639,7 +695,8 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
                                 OL_FLIGHTNO : _duplicatFlightNoValue,
                                 OL_IMPORTDT : $filter('date')(new Date, 'yyyy-MM-dd'),
                                 OL_COUNTRY : _data[0].OL_COUNTRY,
-                                OL_REASON : _text.length > 300 ? "拉貨" : _text
+                                OL_REASON : _text.length > 300 ? "拉貨" : _text,
+                                OE_PRINCIPAL : _data[0].OE_PRINCIPAL
                             };
                         },
                         compy: function() {
@@ -671,6 +728,21 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
                             OL_REASON : selectedItem.OL_REASON
                         }
                     })
+
+                    if(_oeType != null){
+                        // 新增EDITOR
+                        _tasks.push({
+                            crudType: 'Insert',
+                            table: 22,
+                            params: {
+                                OE_SEQ : _seq,
+                                OE_TYPE : _oeType,
+                                OE_PRINCIPAL : selectedItem.OE_PRINCIPAL,
+                                OE_EDATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss'),
+                                OE_FDATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss')
+                            }
+                        })
+                    }
 
                     // 複製ITEM_LIST
                     _tasks.push({
@@ -736,6 +808,13 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
                     return;
                 }
 
+                var _oeType = null;
+                for(var i in opType){
+                    if(opType[i].label == '報機單'){
+                        _oeType = opType[i].value;
+                    }
+                }
+
                 var modalInstance = $uibModal.open({
                     animation: true,
                     ariaLabelledBy: 'modal-title',
@@ -771,6 +850,17 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
                                 OL_SEQ : _data[i].PG_MOVED_SEQ
                             }
                         });
+
+                        // 刪除EDITOR
+                        _tasks.push({
+                            crudType: 'Delete',
+                            table: 22,
+                            params: {
+                                OE_SEQ : _data[i].PG_MOVED_SEQ,
+                                OE_TYPE : _oeType,
+                                OE_PRINCIPAL : _data[i].OE_PRINCIPAL
+                            }
+                        })
 
                         _tasks.push({
                             crudType: 'Update',

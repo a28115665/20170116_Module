@@ -362,7 +362,11 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                 },
                 { name: 'IL_BAGNO'      , displayName: '袋號', width: 80, headerCellClass: 'text-primary' },
                 { name: 'IL_SMALLNO'    , displayName: '小號', width: 110, headerCellClass: 'text-primary' },
-                { name: 'IL_NATURE'     , displayName: '品名', width: 120, enableCellEdit: false },
+                { name: 'IL_NATURE'     , displayName: '品名', width: 120, enableCellEdit: false, cellTooltip: function (row, col) 
+                    {
+                        return row.entity.IL_NATURE
+                    } 
+                },
                 { name: 'IL_NATURE_NEW' , displayName: '新品名', width: 120, headerCellClass: 'text-primary', cellTooltip: function (row, col) 
                     {
                         return row.entity.IL_NATURE_NEW
@@ -497,7 +501,12 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
 
                         // 如果都不是空值 才開始計算
                         if(!isNaN(_weight) && !isNaN(_pcs)){
-                            rowEntity.IL_UNIVALENT_NEW = (_weight * 100) / _pcs;
+                            // 如果數量不為0
+                            if(parseInt(_pcs) != 0){
+                                rowEntity.IL_UNIVALENT_NEW = (_weight * 100) / _pcs;
+                            }else{
+                                rowEntity.IL_UNIVALENT_NEW = 0;
+                            }
                         }
                     }
 
@@ -535,7 +544,7 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                         }
 
                         // 當完稅價格小於100
-                        if(_finalcost < 100){
+                        if(_finalcost < 100 && _finalcost != 0){
                             // 給個新值 100~125
                             var maxNum = 125;  
                             var minNum = 100;  
@@ -550,7 +559,11 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                         // 當數量不為空 帶出單價 (會與新單價衝突)
                         if(colDef.name == 'IL_FINALCOST' || colDef.name == 'IL_NEWPCS' || colDef.name == 'IL_UNIVALENT_NEW'){
                             if(!isNaN(_pcs)){
-                                _univalent = Math.round(_finalcost / _pcs);
+                                if(parseInt(_pcs) != 0){
+                                    _univalent = Math.round(_finalcost / _pcs);
+                                }else{
+                                    _univalent = 0;
+                                }
                             }
                         }
 
@@ -753,6 +766,52 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                 // $log.info('Modal dismissed at: ' + new Date());
             });
         },
+        /**
+         * [DoTax description] 稅則
+         */
+        DoTax: function(){
+            if($vm.job001GridApi.selection.getSelectedRows().length == 0) {
+                toaster.pop('info', '訊息', '尚未勾選資料。', 3000);
+                return;
+            }
+
+            $vm.DoTaxLoading = true;
+
+            var _natureNewList = [];
+            for(var i in $vm.job001GridApi.selection.getSelectedRows()){
+                if($vm.job001GridApi.selection.getSelectedRows()[i].IL_NATURE_NEW != null && $vm.job001GridApi.selection.getSelectedRows()[i].IL_NATURE_NEW != ''){
+                    _natureNewList.push({
+                        "Nature_NEW": $vm.job001GridApi.selection.getSelectedRows()[i].IL_NATURE_NEW,
+                        "RowIndex": $vm.job001GridApi.selection.getSelectedRows()[i].Index
+                    });
+                }
+            }
+
+            if(_natureNewList.length == 0){
+                toaster.pop('info', '訊息', '無新品名資料。', 3000);
+                return;
+            }
+
+            ToolboxApi.DoTax({
+                ID : $vm.profile.U_ID,
+                PW : $vm.profile.U_PW,
+                NATURE_NEW_LIST : _natureNewList
+            }).then(function (res) {
+                var _returnData = JSON.parse(res["returnData"]);
+                // console.log(_returnData);
+
+                for(var i in _returnData){
+                    $vm.job001Data[parseInt(_returnData[i].RowIndex) - 1].IL_TAX2 = _returnData[i].Tax;
+                    $vm.job001Data[parseInt(_returnData[i].RowIndex) - 1].IL_TAXRATE = _returnData[i].TaxRate;
+                    $vm.job001GridApi.rowEdit.setRowsDirty([$vm.job001Data[parseInt(_returnData[i].RowIndex) - 1]]);
+                }
+
+                $vm.job001GridApi.selection.clearSelectedRows();
+
+            }).finally(function() {
+                $vm.DoTaxLoading = false;
+            });
+        },
         ExportExcel: function(){
             console.log($vm.vmData);
 
@@ -850,6 +909,11 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                               $filter('compyFilter')($vm.vmData.OL_CO_CODE) + ' ' +
                               $vm.vmData.OL_FLIGHTNO + ' ' +
                               $vm.vmData.OL_COUNT + '袋';
+
+            // 如果是拉貨 最後要補上原報機日期
+            if($vm.vmData.ORI_OL_IMPORTDT != null){
+                _exportName += ' ' + $filter('date')($vm.vmData.ORI_OL_IMPORTDT, 'yyyyMMdd')
+            }
 
             // 選擇筆數匯出
             if($vm.job001GridApi.selection.getSelectedRows().length > 0){
@@ -1236,7 +1300,7 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                 IL_SEQ: $vm.vmData.OL_SEQ
             }
         }).then(function (res){
-            console.log(res["returnData"]);
+            // console.log(res["returnData"]);
             for(var i=0;i<res["returnData"].length;i++){
                 res["returnData"][i]["Index"] = i+1;
             }

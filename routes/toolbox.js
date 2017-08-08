@@ -709,6 +709,90 @@ router.get('/changeNature', function(req, res) {
 
 });
 
+/**
+ * DoTax 稅則
+ */
+router.get('/doTax', function(req, res) {
+
+    try{        
+        // console.log(res.statusCode, req.query);
+        var _taxData = [];
+        if(req.query.NATURE_NEW_LIST instanceof Array){
+            _taxData = req.query.NATURE_NEW_LIST.map(function(value, index, fullArray){
+                            return JSON.parse(fullArray[index]);
+                        })
+        } else{
+            _taxData = [JSON.parse(req.query.NATURE_NEW_LIST)];
+        }
+
+        // Build the post string from an object
+        var post_data = querystring.stringify({
+            'strJson' : JSON.stringify([
+                {
+                    "UserId": req.query.ID,
+                    "UserPW": req.query.PW,
+                    "Nature_NEW_List": _taxData
+                }
+            ])
+        });
+
+        // An object of options to indicate where to post to
+        var post_options = {
+            host: setting.WebService.doTax.host,
+            port: setting.WebService.doTax.port,
+            path: setting.WebService.doTax.url,
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'Content-Length': Buffer.byteLength(post_data)
+            }
+        };
+
+        // Set up the request
+        var post_req = http.request(post_options, function (post_res) {
+
+            // console.log("statusCode: ", post_res.statusCode);
+            //console.log("headers: ", post_res.headers);
+            if(post_res.statusCode == 200){
+                var content = '';
+
+                post_res.setEncoding('utf8');
+
+                post_res.on('data', function(chunk) {
+                    content += chunk;
+                });
+
+                post_res.on('end', function() {
+                    // console.log(content);
+
+                    res.json({
+                        "returnData": content
+                    });
+                });
+            }else{
+                res.status(post_res.statusCode).send('稅則失敗');
+            }
+        });
+
+        // console.log(post_data);
+        // post the data
+        post_req.write(post_data);
+
+        post_req.on('error', function(err) {
+            console.error(err);
+            // Handle error
+            res.status(500).send('稅則失敗');
+        });
+
+        post_req.end(); 
+
+    } catch(err) {
+        console.error(err);
+        res.status(500).send('稅則失敗');
+    }
+
+});
+
 /*
  * 組成menu
  * 當有U_ID時會產生該ID的menu，如果沒有就產生所有menu

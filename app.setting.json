@@ -21,9 +21,14 @@
 	},
 	"WebService" : {
 		"changeNature" : {
-			"host" : "10.1.31.93",
+			"host" : "10.1.31.42",
 			"port" : "80",
 			"url" : "/EWSWS/WebServiceChangeNature.asmx/GetNewNature"
+		},
+		"doTax" : {
+			"host" : "10.1.31.42",
+			"port" : "80",
+			"url" : "/EWSWS/WebServiceChangeNature.asmx/GetNatureTax"
 		}
 	},
 	"MOTC" : {

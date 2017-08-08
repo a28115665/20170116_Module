@@ -73,7 +73,17 @@ module.exports = function(pQueryname, pParams){
 									W1_OE.OE_FDATETIME AS 'W1_FDATETIME', \
 									FA_SCHEDL_ARRIVALTIME, \
 									FA_ACTL_ARRIVALTIME, \
-									FA_ARRIVAL_REMK \
+									FA_ARRIVAL_REMK, \
+									( \
+										SELECT OL_IMPORTDT \
+										FROM ( \
+											SELECT PG_SEQ, PG_MOVED_SEQ \
+											FROM PULL_GOODS \
+											WHERE PG_MOVED_SEQ = OL_SEQ \
+											GROUP BY PG_SEQ, PG_MOVED_SEQ \
+										) A \
+										LEFT JOIN ORDER_LIST ON OL_SEQ = PG_SEQ \
+									) AS 'ORI_OL_IMPORTDT' \
 							FROM ORDER_LIST \
 							/*報機單*/ \
 							LEFT JOIN ORDER_EDITOR W2_OE ON W2_OE.OE_SEQ = ORDER_LIST.OL_SEQ AND W2_OE.OE_TYPE = 'R' AND (W2_OE.OE_EDATETIME IS NOT NULL OR W2_OE.OE_FDATETIME IS NOT NULL) \

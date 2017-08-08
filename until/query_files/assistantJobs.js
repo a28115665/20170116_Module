@@ -16,7 +16,8 @@ module.exports = function(pQueryname, pParams){
 								   PG_FLIGHTNO, \
 								   PG_REASON, \
 								   CONVERT(varchar, OL_IMPORTDT, 23 ) AS 'OL_IMPORTDT_EX', \
-								   CO_NAME \
+								   CO_NAME, \
+								   W2_OE.OE_PRINCIPAL \
 							FROM ( \
 								SELECT * \
 								FROM ORDER_LIST \
@@ -24,6 +25,8 @@ module.exports = function(pQueryname, pParams){
 							) ORDER_LIST \
 							JOIN PULL_GOODS ON \
 							PG_SEQ = OL_SEQ \
+							/*報機單*/ \
+							LEFT JOIN ORDER_EDITOR W2_OE ON W2_OE.OE_SEQ = ORDER_LIST.OL_SEQ AND W2_OE.OE_TYPE = 'R' AND (W2_OE.OE_EDATETIME IS NOT NULL OR W2_OE.OE_FDATETIME IS NOT NULL) \
 						    WHERE 1=1";
 							
 			if(pParams["Seq"] !== undefined){
@@ -35,6 +38,8 @@ module.exports = function(pQueryname, pParams){
 				_SQLCommand += " AND PG_BAGNO IN ("+pParams["Bagno"]+") ";
 				delete pParams["Bagno"];
 			}
+
+			_SQLCommand += " ORDER BY PG_CR_DATETIME DESC ";
 
 			break;
 
@@ -232,7 +237,8 @@ module.exports = function(pQueryname, pParams){
 									IL_GETNAME_NEW, \
 									IL_GETADDRESS_NEW, \
 									IL_HASUNIVALENT, \
-									IL_SUPPLEMENT_COUNT \
+									IL_SUPPLEMENT_COUNT, \
+									IL_TAXRATE \
 							FROM ITEM_LIST \
 						    WHERE 1=1";
 
