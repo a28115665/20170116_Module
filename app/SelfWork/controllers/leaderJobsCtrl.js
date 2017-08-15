@@ -139,7 +139,7 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
             // 結單
             closeData : function(row){
 
-                if(row.entity.W2_STATUS == 3 || row.entity.W2_STATUS == 4){
+                if(row.entity.W2_STATUS == 3 || row.entity.W2_STATUS == 4 || row.entity.W3_STATUS == 3 || row.entity.W3_STATUS == 4){
                 // if(row.entity.W2_STATUS == 3 && row.entity.W3_STATUS == 3 && row.entity.W1_STATUS == 3){
                     var modalInstance = $uibModal.open({
                         animation: true,

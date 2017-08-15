@@ -1,6 +1,6 @@
 "use strict";
 
-angular.module('app.selfwork').controller('EmployeeJobsCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, $filter, uiGridConstants, RestfulApi, compy, $q) {
+angular.module('app.selfwork').controller('EmployeeJobsCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, $filter, uiGridConstants, RestfulApi, compy, userInfo, $q) {
     
     var $vm = this;
 
@@ -289,7 +289,7 @@ angular.module('app.selfwork').controller('EmployeeJobsCtrl', function ($scope, 
                         return row.entity.OL_REASON
                     } 
                 },
-                { name: 'W2_STATUS'              ,  displayName: '狀態', width: 80, cellTemplate: $templateCache.get('accessibilityToForW2'), filter: 
+                { name: 'W2_STATUS'              ,  displayName: '狀態', width: 80, cellTemplate: $templateCache.get('accessibilityToForW3'), filter: 
                     {
                         term: null,
                         type: uiGridConstants.filter.SELECT,
@@ -300,6 +300,13 @@ angular.module('app.selfwork').controller('EmployeeJobsCtrl', function ($scope, 
                             {label:'已完成', value: '3'},
                             {label:'非作業員'  , value: '4'}
                         ]
+                    }
+                },
+                { name: 'W2_PRINCIPAL'           ,  displayName: '負責人', width: 80, cellFilter: 'userInfoFilter', filter: 
+                    {
+                        term: null,
+                        type: uiGridConstants.filter.SELECT,
+                        selectOptions: userInfo
                     }
                 },
                 { name: 'ITEM_LIST'              ,  displayName: '報機單', enableFiltering: false, width: '8%', cellTemplate: $templateCache.get('accessibilityToOperaForJob001') },

@@ -12,7 +12,7 @@ module.exports = function(pQueryname, pParams){
 								FROM ITEM_LIST \
 								WHERE IL_SEQ = @FLL_SEQ \
 								AND IL_BAGNO != '' \
-							) DI ON IL_BAGNO = FLL_BAGNO \
+							) DI ON IL_BAGNO LIKE FLL_BAGNO + \'%\' \
 							WHERE 1=1 AND FLL_SEQ = @FLL_SEQ \
 							ORDER BY cast(FLL_ITEM as int) ASC";
 

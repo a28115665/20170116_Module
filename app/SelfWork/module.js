@@ -214,6 +214,9 @@ angular.module('app.selfwork').config(function ($stateProvider){
                 resolve: {
                     compy: function(Compy){
                         return Compy.get();
+                    },
+                    userInfo: function(UserInfo){
+                        return UserInfo.get();
                     }
                 }
             }

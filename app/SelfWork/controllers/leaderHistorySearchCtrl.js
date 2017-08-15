@@ -67,6 +67,55 @@ angular.module('app.selfwork').controller('LeaderHistorySearchCtrl', function ($
                 }, function() {
                     // $log.info('Modal dismissed at: ' + new Date());
                 });
+            },
+            releaseData : function(row){
+                console.log(row);
+
+                var modalInstance = $uibModal.open({
+                    animation: true,
+                    ariaLabelledBy: 'modal-title',
+                    ariaDescribedBy: 'modal-body',
+                    template: $templateCache.get('isChecked'),
+                    controller: 'IsCheckedModalInstanceCtrl',
+                    controllerAs: '$ctrl',
+                    size: 'sm',
+                    windowClass: 'center-modal',
+                    // appendTo: parentElem,
+                    resolve: {
+                        items: function() {
+                            return row.entity;
+                        },
+                        show: function(){
+                            return {
+                                title : "是否解案"
+                            }
+                        }
+                    }
+                });
+
+                modalInstance.result.then(function(selectedItem) {
+                    // $ctrl.selected = selectedItem;
+                    console.log(selectedItem);
+
+                    RestfulApi.UpdateMSSQLData({
+                        updatename: 'Update',
+                        table: 18,
+                        params: {
+                            OL_FDATETIME : null,
+                            OL_FUSER     : null
+                        },
+                        condition: {
+                            OL_SEQ : selectedItem.OL_SEQ
+                        }
+                    }).then(function (res) {
+
+                        toaster.pop('success', '訊息', '解案成功。', 3000);
+                        SearchData();
+                    });
+
+                }, function() {
+                    // $log.info('Modal dismissed at: ' + new Date());
+                });
             }
         },
         resultOptions : {
@@ -165,9 +214,11 @@ angular.module('app.selfwork').controller('LeaderHistorySearchCtrl', function ($
         }else{
             // 檢查所有值是否都是空的
             for(var i in pObject){
-                if(pObject[i] != ""){
-                    _isClear = false;
-                    break;
+                if(pObject[i] != null){
+                    if(pObject[i].toString() != ""){
+                        _isClear = false;
+                        break;
+                    }
                 }
             }
 
@@ -188,13 +239,15 @@ angular.module('app.selfwork').controller('LeaderHistorySearchCtrl', function ($
         var _conditions = {};
 
         for(var i in pObject){
-            if(pObject[i] != ""){
-                if(i == "CRDT_FROM"){
-                    _conditions[i] = pObject[i] + ' 00:00:00';
-                }else if(i == "CRDT_TOXX"){
-                    _conditions[i] = pObject[i] + ' 23:59:59';
-                }else{
-                    _conditions[i] = pObject[i];
+            if(pObject[i] != null){
+                if(pObject[i].toString() != ""){
+                    if(i == "CRDT_FROM"){
+                        _conditions[i] = pObject[i] + ' 00:00:00';
+                    }else if(i == "CRDT_TOXX"){
+                        _conditions[i] = pObject[i] + ' 23:59:59';
+                    }else{
+                        _conditions[i] = pObject[i];
+                    }
                 }
             }
         }

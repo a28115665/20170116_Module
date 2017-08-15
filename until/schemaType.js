@@ -76,6 +76,9 @@ function GiveSchemaType(pType, pSql, pSchema, key){
 			case "tinyint":
 				pType = pSql.TinyInt;
 				break;
+			case "decimal":
+				pType = pSql.Decimal(pSchema["NUMERIC_PRECISION"], pSchema["NUMERIC_SCALE"]);
+				break;
 			case "smallint":
 				pType = pSql.SmallInt;
 				break;

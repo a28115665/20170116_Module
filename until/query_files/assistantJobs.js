@@ -63,7 +63,7 @@ module.exports = function(pQueryname, pParams){
 											WHERE FLL_SEQ = OL_SEQ \
 											AND FLL_BAGNO IS NOT NULL AND FLL_BAGNO != '' \
 										) A \
-									) AS 'OL_COUNT', \
+									) AS 'OL_FLL_COUNT', \
 									( \
 										SELECT COUNT(1) \
 										FROM FLIGHT_MAIL_LOGS \
@@ -75,6 +75,38 @@ module.exports = function(pQueryname, pParams){
 									W3_OE.OE_PRINCIPAL AS 'W3_PRINCIPAL', \
 									W3_OE.OE_EDATETIME AS 'W3_EDATETIME', \
 									W3_OE.OE_FDATETIME AS 'W3_FDATETIME', \
+									( \
+										CASE WHEN ( \
+											/*表示已有完成者*/ \
+											SELECT COUNT(1) \
+											FROM ORDER_PRINPL \
+											LEFT JOIN ORDER_EDITOR ON OE_SEQ = OP_SEQ AND OE_TYPE = OP_TYPE \
+											WHERE OP_SEQ = OL_SEQ AND OP_DEPT = 'W3' AND OE_FDATETIME IS NOT NULL AND OP_PRINCIPAL = OE_PRINCIPAL \
+										) > 0 THEN '3' \
+										WHEN ( \
+											/*表示已有完成者，但非作業員*/ \
+											SELECT COUNT(1) \
+											FROM ORDER_PRINPL \
+											LEFT JOIN ORDER_EDITOR ON OE_SEQ = OP_SEQ AND OE_TYPE = OP_TYPE \
+											WHERE OP_SEQ = OL_SEQ AND OP_DEPT = 'W3' AND OE_FDATETIME IS NOT NULL \
+										) > 0 OR W3_OE.OE_FDATETIME IS NOT NULL THEN '4' \
+										WHEN ( \
+											/*表示未有完成者，但有編輯者*/ \
+											SELECT COUNT(1) \
+											FROM ORDER_PRINPL \
+											LEFT JOIN ORDER_EDITOR ON OE_SEQ = OP_SEQ AND OE_TYPE = OP_TYPE \
+											WHERE OP_SEQ = OL_SEQ AND OP_DEPT = 'W3' AND OE_EDATETIME IS NOT NULL \
+										) > 0 THEN '2' \
+										WHEN ( \
+											/*表示未有完成者，未有編輯者，但有負責人(已派單)*/ \
+											SELECT COUNT(1) \
+											FROM ORDER_PRINPL \
+											LEFT JOIN ORDER_EDITOR ON OE_SEQ = OP_SEQ AND OE_TYPE = OP_TYPE \
+											WHERE OP_SEQ = OL_SEQ AND OP_DEPT = 'W3' \
+										) > 0 THEN '1' \
+										/*表示尚未派單*/ \
+										ELSE '0' END \
+									) AS 'W3_STATUS', \
 									W1_OE.OE_PRINCIPAL AS 'W1_PRINCIPAL', \
 									W1_OE.OE_EDATETIME AS 'W1_EDATETIME', \
 									W1_OE.OE_FDATETIME AS 'W1_FDATETIME', \
@@ -128,6 +160,7 @@ module.exports = function(pQueryname, pParams){
 									OL_FLIGHTNO, \
 									OL_IMPORTDT, \
 									OL_COUNTRY, \
+									OL_REASON, \
 									OL_CR_USER, \
 									OL_CR_DATETIME, \
 									( \

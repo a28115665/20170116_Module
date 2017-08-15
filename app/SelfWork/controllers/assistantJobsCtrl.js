@@ -314,14 +314,27 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
                 { name: 'FA_SCHEDL_ARRIVALTIME'  ,  displayName: '預計抵達時間', cellFilter: 'datetimeFilter' },
                 { name: 'FA_ACTL_ARRIVALTIME'    ,  displayName: '真實抵達時間', cellFilter: 'datetimeFilter' },
                 { name: 'FA_ARRIVAL_REMK'        ,  displayName: '狀態', width: 80, cellTemplate: $templateCache.get('accessibilityToArrivalRemark') },
-                { name: 'OL_MASTER'              ,  displayName: '主號', width: 120 },
-                { name: 'OL_COUNT'               ,  displayName: '銷艙單(袋數)', width: 80 },
-                { name: 'MAIL_COUNT'             ,  displayName: '寄信次數', width: 80 },
-                { name: 'OL_COUNTRY'             ,  displayName: '起運國別', width: 80 },
+                { name: 'OL_MASTER'              ,  displayName: '主號', width: 100 },
+                { name: 'OL_FLL_COUNT'           ,  displayName: '銷艙單(袋數)', width: 80 },
+                { name: 'MAIL_COUNT'             ,  displayName: '寄信次數', width: 60 },
+                { name: 'OL_COUNTRY'             ,  displayName: '起運國別', width: 60 },
                 { name: 'OL_REASON'              ,  displayName: '描述', width: 100, cellTooltip: function (row, col) 
                     {
                         return row.entity.OL_REASON
                     } 
+                },
+                { name: 'W3_STATUS'              ,  displayName: '狀態', width: 60, cellTemplate: $templateCache.get('accessibilityToForW3'), filter: 
+                    {
+                        term: null,
+                        type: uiGridConstants.filter.SELECT,
+                        selectOptions: [
+                            // {label:'未派單', value: '0'},
+                            {label:'已派單', value: '1'},
+                            {label:'已編輯', value: '2'},
+                            {label:'已完成', value: '3'},
+                            {label:'非作業員'  , value: '4'}
+                        ]
+                    }
                 },
                 // { name: 'ITEM_LIST'           ,  displayName: '報機單', enableFiltering: false, width: '8%', cellTemplate: $templateCache.get('accessibilityToOperaForJob001') },
                 { name: 'FLIGHT_ITEM_LIST'       ,  displayName: '銷艙單', enableFiltering: false, width: '8%', cellTemplate: $templateCache.get('accessibilityToOperaForJob002') },

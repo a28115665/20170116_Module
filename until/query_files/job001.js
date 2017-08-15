@@ -16,7 +16,7 @@ module.exports = function(pQueryname, pParams){
 								FROM FLIGHT_ITEM_LIST \
 								WHERE FLL_SEQ = @IL_SEQ \
 								AND FLL_BAGNO != '' \
-							) DF ON DF.FLL_BAGNO = IL_BAGNO \
+							) DF ON IL_BAGNO LIKE DF.FLL_BAGNO + \'%\' \
 							LEFT JOIN BLACK_LIST_FROM_OP ON \
 							IL_SEQ = BLFO_SEQ AND \
 							IL_NEWBAGNO = BLFO_NEWBAGNO AND \

@@ -50,8 +50,20 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                         row.entity.IL_NATURE_NEW = _returnData["IL_NATURE_NEW"];
                         needToUpdate = true;
                     }
-                    if(!angular.isUndefined(_returnData["IL_NEWUNIT"])){
+                    if(!angular.isUndefined(_returnData["IL_NEWUNIT"]) || _returnData["IL_NEWUNIT"] != ""){
                         row.entity.IL_NEWUNIT = _returnData["IL_NEWUNIT"];
+                        needToUpdate = true;
+                    }
+                    if(!angular.isUndefined(_returnData["IL_NEWPLACE"]) || _returnData["IL_NEWPLACE"] != ""){
+                        row.entity.IL_NEWPLACE = _returnData["IL_NEWPLACE"];
+                        needToUpdate = true;
+                    }
+                    if(!angular.isUndefined(_returnData["IL_TAX2"]) || _returnData["IL_TAX2"] != ""){
+                        row.entity.IL_TAX2 = _returnData["IL_TAX2"];
+                        needToUpdate = true;
+                    }
+                    if(!angular.isUndefined(_returnData["IL_TAXRATE"]) || _returnData["IL_TAXRATE"] != ""){
+                        row.entity.IL_TAXRATE = _returnData["IL_TAXRATE"];
                         needToUpdate = true;
                     }
 
@@ -1241,6 +1253,7 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
         Update : function(entity){
             // console.log($vm.job001GridApi.rowEdit);
             // console.log($vm.job001GridApi.rowEdit.getDirtyRows($vm.job001GridApi.grid));
+            // console.log(entity);
 
             // create a fake promise - normally you'd use the promise returned by $http or $resource
             var promise = $q.defer();
@@ -1273,6 +1286,7 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                     IL_EXTEL           : entity.IL_EXTEL,
                     IL_EXNO            : entity.IL_EXNO,
                     IL_TAX2            : entity.IL_TAX2,
+                    IL_TAXRATE         : angular.isNumber(entity.IL_TAXRATE) ? entity.IL_TAXRATE : null,
                     IL_UP_DATETIME     : $filter('date')(new Date(), 'yyyy-MM-dd HH:mm:ss'),
                     IL_UP_USER         : $vm.profile.U_ID
                 },
