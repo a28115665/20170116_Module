@@ -17,11 +17,20 @@ module.exports = function(pQueryname, pParams){
 										FROM ( \
 											SELECT IL_BAGNO \
 											FROM ITEM_LIST \
+											LEFT JOIN PULL_GOODS ON \
+											IL_SEQ = PG_SEQ AND \
+											IL_BAGNO = PG_BAGNO \
 											WHERE IL_SEQ = OL_SEQ \
 											AND IL_BAGNO IS NOT NULL AND IL_BAGNO != '' \
+											AND PG_SEQ IS NULL \
 											GROUP BY IL_BAGNO \
 										) A \
 									) AS 'OL_COUNT', \
+									( \
+										SELECT COUNT(1) \
+										FROM PULL_GOODS \
+										WHERE PG_SEQ = OL_SEQ \
+									) AS 'OL_PULL_COUNT', \
 									( \
 										SELECT MAX(IL_SUPPLEMENT_COUNT) \
 										FROM ITEM_LIST \
@@ -119,7 +128,7 @@ module.exports = function(pQueryname, pParams){
 									AND IL_BAGNO IS NOT NULL AND IL_BAGNO != '' \
 									GROUP BY IL_BAGNO \
 								) A ) > 0 \
-							 ORDER BY CASE WHEN FA_SCHEDL_ARRIVALTIME IS NULL THEN 1 ELSE 0 END, FA_SCHEDL_ARRIVALTIME ";
+							 ORDER BY CASE WHEN FA_SCHEDL_ARRIVALTIME IS NULL THEN 1 ELSE 0 END, FA_SCHEDL_ARRIVALTIME, OL_FLIGHTNO ";
 		
 			break;
 		case "SelectOrderEditor":

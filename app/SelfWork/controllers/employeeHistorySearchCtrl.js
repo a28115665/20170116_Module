@@ -1,6 +1,6 @@
 "use strict";
 
-angular.module('app.selfwork').controller('EmployeeHistorySearchCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, RestfulApi, $filter, compy, userInfo, bool, uiGridConstants, localStorageService, ToolboxApi) {
+angular.module('app.selfwork').controller('EmployeeHistorySearchCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, RestfulApi, $filter, compy, userInfo, bool, uiGridConstants, localStorageService, ToolboxApi, OrderStatus) {
     
     var $vm = this;
 
@@ -52,9 +52,9 @@ angular.module('app.selfwork').controller('EmployeeHistorySearchCtrl', function 
                     // $log.info('Modal dismissed at: ' + new Date());
                 });
             },
-            // 下載
-            downloadFiles : function(row){
-
+            // 貨物查看
+            viewOrder : function(row){
+                OrderStatus.Get(row)
             }
         },
         gridMethodForJob001 : {
@@ -90,7 +90,7 @@ angular.module('app.selfwork').controller('EmployeeHistorySearchCtrl', function 
                     }
                 },
                 { name: 'OL_FLIGHTNO' ,  displayName: '航班' },
-                { name: 'OL_MASTER'   ,  displayName: '主號' },
+                { name: 'OL_MASTER'   ,  displayName: '主號', width: 110, cellTemplate: $templateCache.get('accessibilityToMasterForViewOrder') },
                 { name: 'OL_COUNT'    ,  displayName: '報機單(袋數)', enableCellEdit: false },
                 { name: 'OL_COUNTRY'  ,  displayName: '起運國別' },
                 { name: 'OL_REASON'   ,  displayName: '描述', cellTooltip: function (row, col) 

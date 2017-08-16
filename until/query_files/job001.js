@@ -42,6 +42,7 @@ module.exports = function(pQueryname, pParams){
 								SELECT IL_GETNAME_NEW \
 								FROM ITEM_LIST \
 								WHERE IL_SEQ = @IL_SEQ \
+								AND IL_G1 NOT IN ('G1','移倉') \
 								GROUP BY IL_GETNAME_NEW \
 								HAVING COUNT(*) > 1 \
 							) REPEAT_NAME ON REPEAT_NAME.IL_GETNAME_NEW = ITEM_LIST.IL_GETNAME_NEW \
@@ -58,6 +59,7 @@ module.exports = function(pQueryname, pParams){
 								SELECT IL_GETADDRESS_NEW \
 								FROM ITEM_LIST \
 								WHERE IL_SEQ = @IL_SEQ \
+								AND IL_G1 NOT IN ('G1','移倉') \
 								GROUP BY IL_GETADDRESS_NEW \
 								HAVING COUNT(*) > 1 \
 							) REPEAT_ADDRESS ON REPEAT_ADDRESS.IL_GETADDRESS_NEW = ITEM_LIST.IL_GETADDRESS_NEW \
@@ -76,6 +78,7 @@ module.exports = function(pQueryname, pParams){
 								WHERE IL_SEQ = @IL_SEQ \
 								AND IL_GETNAME_NEW IS NOT NULL \
 								AND IL_GETADDRESS_NEW IS NOT NULL \
+								AND IL_G1 NOT IN ('G1','移倉') \
 								GROUP BY IL_GETNAME_NEW, IL_GETADDRESS_NEW \
 								HAVING COUNT(*) > 1 \
 							) REPEAT_ADDRESS \

@@ -95,3 +95,37 @@ angular.module('app')
 .factory('UserInfoByGrade', UserInfoByGradeResolve)
 .factory('UserInfoByCompyDistribution', UserInfoByCompyDistributionResolve)
 .factory('UserInfo', UserInfoResolve)
+// 航班貨況
+.factory('OrderStatus', function ($window, toaster) {
+
+    return {
+        Get: function(row) {
+            if(!angular.isUndefined(row.entity.OL_FLIGHTNO) && !angular.isUndefined(row.entity.OL_MASTER)){
+
+                var _flightNo = row.entity.OL_FLIGHTNO.toUpperCase().split(" "),
+                    _master = row.entity.OL_MASTER.split("-");
+
+                switch(_flightNo[0]){
+                    case "BR":
+                        $window.open('http://www.brcargo.com/ec_web/Default.aspx?TNT_FLAG=Y&AWB_CODE='+_master[0]+'&MAWB_NUMBER='+_master[1]);
+                        break;
+                    case "CI":
+                        $window.open('https://cargo.china-airlines.com/CCNetv2/content/manage/ShipmentTracking.aspx?AwbPfx='+_master[0]+'&AwbNum='+_master[1]+'&checkcode=*7*upHGj');
+                        break;
+                    case "CX":
+                        $window.open('http://www.cathaypacificcargo.com/ManageYourShipment/TrackYourShipment/tabid/108/SingleAWBNo/'+row.entity.OL_MASTER+'/language/en-US/Default.aspx');
+                        break;
+                    case "HX":
+                        $window.open('http://www.hkairlinescargo.com/CargoPortal/sreachYun/zh_TW/'+_master[0]+'/'+_master[1]+'/1/');
+                        break;
+                    default:
+                        toaster.pop('info', '訊息', '此航班代號不在設定內', 3000);
+                        break;
+                }
+            }else{
+                toaster.pop('info', '訊息', '航班或主號不存在', 3000);
+            }
+        }
+    }
+
+})

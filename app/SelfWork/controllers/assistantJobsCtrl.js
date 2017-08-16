@@ -1,6 +1,6 @@
 "use strict";
 
-angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, RestfulApi, $filter, uiGridConstants, compy, bool, opType, $window, ToolboxApi) {
+angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, RestfulApi, $filter, uiGridConstants, compy, bool, opType, OrderStatus, ToolboxApi) {
     
     var $vm = this;
 
@@ -165,33 +165,7 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
             // },
             // 貨物查看
             viewOrder : function(row){
-                console.log(row);
-
-                if(!angular.isUndefined(row.entity.OL_FLIGHTNO) && !angular.isUndefined(row.entity.OL_MASTER)){
-
-                    var _flightNo = row.entity.OL_FLIGHTNO.toUpperCase().split(" "),
-                        _master = row.entity.OL_MASTER.split("-");
-
-                    switch(_flightNo[0]){
-                        case "BR":
-                            $window.open('http://www.brcargo.com/ec_web/Default.aspx?TNT_FLAG=Y&AWB_CODE='+_master[0]+'&MAWB_NUMBER='+_master[1]);
-                            break;
-                        case "CI":
-                            $window.open('https://cargo.china-airlines.com/CCNetv2/content/manage/ShipmentTracking.aspx?AwbPfx='+_master[0]+'&AwbNum='+_master[1]+'&checkcode=*7*upHGj');
-                            break;
-                        case "CX":
-                            $window.open('http://www.cathaypacificcargo.com/ManageYourShipment/TrackYourShipment/tabid/108/SingleAWBNo/'+row.entity.OL_MASTER+'/language/en-US/Default.aspx');
-                            break;
-                        case "HX":
-                            $window.open('http://www.hkairlinescargo.com/CargoPortal/sreachYun/zh_TW/'+_master[0]+'/'+_master[1]+'/1/');
-                            break;
-                        default:
-                            toaster.pop('info', '訊息', '此航班代號不在設定內', 3000);
-                            break;
-                    }
-                }else{
-                    toaster.pop('info', '訊息', '航班或主號不存在', 3000);
-                }
+                OrderStatus.Get(row)
             }
         },
         gridMethodForJob002 : {
@@ -314,7 +288,7 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
                 { name: 'FA_SCHEDL_ARRIVALTIME'  ,  displayName: '預計抵達時間', cellFilter: 'datetimeFilter' },
                 { name: 'FA_ACTL_ARRIVALTIME'    ,  displayName: '真實抵達時間', cellFilter: 'datetimeFilter' },
                 { name: 'FA_ARRIVAL_REMK'        ,  displayName: '狀態', width: 80, cellTemplate: $templateCache.get('accessibilityToArrivalRemark') },
-                { name: 'OL_MASTER'              ,  displayName: '主號', width: 100 },
+                { name: 'OL_MASTER'              ,  displayName: '主號', width: 110, cellTemplate: $templateCache.get('accessibilityToMasterForViewOrder') },
                 { name: 'OL_FLL_COUNT'           ,  displayName: '銷艙單(袋數)', width: 80 },
                 { name: 'MAIL_COUNT'             ,  displayName: '寄信次數', width: 60 },
                 { name: 'OL_COUNTRY'             ,  displayName: '起運國別', width: 60 },
@@ -339,7 +313,7 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
                 // { name: 'ITEM_LIST'           ,  displayName: '報機單', enableFiltering: false, width: '8%', cellTemplate: $templateCache.get('accessibilityToOperaForJob001') },
                 { name: 'FLIGHT_ITEM_LIST'       ,  displayName: '銷艙單', enableFiltering: false, width: '8%', cellTemplate: $templateCache.get('accessibilityToOperaForJob002') },
                 // { name: 'DELIVERY_ITEM_LIST'  ,  displayName: '派送單', enableFiltering: false, width: '8%', cellTemplate: $templateCache.get('accessibilityToOperaForJob003') },
-                { name: 'Options'                ,  displayName: '操作', width: '8%', enableCellEdit: false, enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToMSForAssistantJobs') }
+                { name: 'Options'                ,  displayName: '操作', width: '5%', enableCellEdit: false, enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToMSForAssistantJobs') }
             ],
             enableFiltering: true,
             enableSorting: true,
@@ -418,7 +392,26 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
                 });
 
                 modalInstance.result.then(function(selectedItem) {
+                    console.log(selectedItem);
 
+                    RestfulApi.UpdateMSSQLData({
+                        updatename: 'Update',
+                        table: 19,
+                        params: {
+                            PG_REASON      : selectedItem.PG_REASON,
+                            PG_UP_USER     : $vm.profile.U_ID,
+                            PG_UP_DATETIME : $filter('date')(new Date(), 'yyyy-MM-dd HH:mm:ss')
+                        },
+                        condition: {
+                            PG_SEQ         : selectedItem.PG_SEQ,
+                            PG_BAGNO       : selectedItem.PG_BAGNO
+                        }
+                    }).then(function (res) {
+                        toaster.pop('success', '訊息', '更新成功', 3000);
+                        LoadPullGoods();
+                    }, function (err) {
+                        toaster.pop('danger', '錯誤', '更新失敗', 3000);
+                    });
                 }, function() {
                     // $log.info('Modal dismissed at: ' + new Date());
                 });
@@ -1065,7 +1058,7 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
     $ctrl.mdData = angular.copy(items);
 
     $ctrl.ok = function() {
-        $uibModalInstance.close();
+        $uibModalInstance.close($ctrl.mdData);
     };
 
     $ctrl.cancel = function() {

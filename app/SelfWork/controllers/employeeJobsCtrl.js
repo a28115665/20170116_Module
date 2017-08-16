@@ -1,6 +1,6 @@
 "use strict";
 
-angular.module('app.selfwork').controller('EmployeeJobsCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, $filter, uiGridConstants, RestfulApi, compy, userInfo, $q) {
+angular.module('app.selfwork').controller('EmployeeJobsCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, $filter, uiGridConstants, RestfulApi, compy, userInfo, $q, OrderStatus) {
     
     var $vm = this;
 
@@ -89,6 +89,10 @@ angular.module('app.selfwork').controller('EmployeeJobsCtrl', function ($scope, 
                 }, function() {
                     // $log.info('Modal dismissed at: ' + new Date());
                 });
+            },
+            // 貨物查看
+            viewOrder : function(row){
+                OrderStatus.Get(row)
             }
         },
         gridMethodForJob001 : {
@@ -281,15 +285,16 @@ angular.module('app.selfwork').controller('EmployeeJobsCtrl', function ($scope, 
                 { name: 'FA_SCHEDL_ARRIVALTIME'  ,  displayName: '預計抵達時間', cellFilter: 'datetimeFilter' },
                 { name: 'FA_ACTL_ARRIVALTIME'    ,  displayName: '真實抵達時間', cellFilter: 'datetimeFilter' },
                 { name: 'FA_ARRIVAL_REMK'        ,  displayName: '狀態', width: 60, cellTemplate: $templateCache.get('accessibilityToArrivalRemark') },
-                { name: 'OL_MASTER'              ,  displayName: '主號' },
-                { name: 'OL_COUNT'               ,  displayName: '報機單(袋數)', width: 80, enableCellEdit: false },
-                { name: 'OL_COUNTRY'             ,  displayName: '起運國別', width: 80 },
-                { name: 'OL_REASON'              ,  displayName: '描述', width: 100, cellTooltip: function (row, col) 
+                { name: 'OL_MASTER'              ,  displayName: '主號', width: 110, cellTemplate: $templateCache.get('accessibilityToMasterForViewOrder') },
+                { name: 'OL_COUNT'               ,  displayName: '報機單(袋數)' },
+                { name: 'OL_PULL_COUNT'          ,  displayName: '拉貨(袋數)' },
+                { name: 'OL_COUNTRY'             ,  displayName: '起運國別' },
+                { name: 'OL_REASON'              ,  displayName: '描述', cellTooltip: function (row, col) 
                     {
                         return row.entity.OL_REASON
                     } 
                 },
-                { name: 'W2_STATUS'              ,  displayName: '狀態', width: 80, cellTemplate: $templateCache.get('accessibilityToForW3'), filter: 
+                { name: 'W2_STATUS'              ,  displayName: '狀態', width: 80, cellTemplate: $templateCache.get('accessibilityToForW2'), filter: 
                     {
                         term: null,
                         type: uiGridConstants.filter.SELECT,
