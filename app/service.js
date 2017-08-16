@@ -136,6 +136,20 @@ angular.module('app')
 	    	});
 
 	    return deferred.promise
+	},
+
+	this.Version = function () {
+	    var deferred = $q.defer();
+	    
+	    Resource.VERSION.get({},
+	    	function (pSResponse){
+				deferred.resolve(pSResponse);
+			},
+	    	function (pFResponse){
+	    		deferred.reject(pFResponse.data);
+	    	});
+
+	    return deferred.promise
 	}
 })
 .service('ToolboxApi', function ($http, $q, Resource){
@@ -183,6 +197,36 @@ angular.module('app')
                     // Firefox requires the link to be in the body
                     document.body.appendChild(link); 
                     link.download = angular.isUndefined(dataSrc.filename) ? '未知' : dataSrc.filename ;
+                    link.href = objectUrl;
+                    link.click();
+                    // remove the link when done
+                    document.body.removeChild(link); 
+                } else {
+                    location.replace(objectUrl);
+                }
+
+				deferred.resolve(pSResponse);
+			},
+	    	function (pFResponse){
+	    		deferred.reject(pFResponse.data);
+	    	});
+
+	    return deferred.promise
+	},
+
+	this.ExportExcelByMultiSql = function (dataSrc) {
+	    // console.log(dataSrc);
+	    var deferred = $q.defer();
+
+	    Resource.EXPORTEXCELBYMULTISQL.postByArraybuffer(dataSrc,
+	    	function (pSResponse){
+
+	    		var objectUrl = URL.createObjectURL(pSResponse["response"]);
+                var link = document.createElement('a');
+                if (typeof link.download === 'string') {
+                    // Firefox requires the link to be in the body
+                    document.body.appendChild(link); 
+                    link.download = angular.isUndefined(dataSrc[0].filename) ? '未知' : dataSrc[0].filename ;
                     link.href = objectUrl;
                     link.click();
                     // remove the link when done
@@ -250,6 +294,21 @@ angular.module('app')
 	    var deferred = $q.defer();
 
 	    Resource.CHANGENATURE.get(dataSrc,
+	    	function (pSResponse){
+				deferred.resolve(pSResponse);
+			},
+	    	function (pFResponse){
+	    		deferred.reject(pFResponse.data);
+	    	});
+
+	    return deferred.promise
+	},
+
+	this.DoTax = function (dataSrc) {
+	    // console.log(dataSrc);
+	    var deferred = $q.defer();
+
+	    Resource.DOTAX.get(dataSrc,
 	    	function (pSResponse){
 				deferred.resolve(pSResponse);
 			},

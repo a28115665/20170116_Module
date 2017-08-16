@@ -130,11 +130,115 @@ router.get('/exportExcelBySql', function(req, res) {
 
                     _params["data"] = JSON.parse(content).returnData;
 
-                    // console.log(_params.data.length);
+                    // console.log(_params);
 
                     tmpXlsObj.GetXls({
                         JsonXls : _params,
                         TmpXlsFilePath : path.join(path.dirname(module.parent.filename), 'templates', templates[req.query["templates"]]), //template xls 路徑(含檔名)
+                        // OutputXlsPath : path.join(path.dirname(module.parent.filename), 'templates', 'test2.xlsx'),
+                        SheetNumber : 1
+                    }, function (err, result){
+
+                        if (err) {
+                            // Do something with your error...
+                            logger.error('匯出失敗', req.ip, __line+'行', err);
+                            res.status(500).send("匯出失敗");
+                        } else {
+
+                            try {
+                                res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+                                res.setHeader('Content-Length', result.length);
+                                res.setHeader('Expires', '0');
+                                // res.setHeader('Content-Disposition', 'attachment; filename=test.xls');
+                                res.setHeader('Content-Encoding', 'UTF-8');
+                                res.status(200);
+
+                                var buffer = new Buffer(result, "binary");
+
+                                // res.end(toArrayBuffer(buffer));
+                                res.end(buffer);
+                            } catch(err){
+                                logger.error('匯出失敗', req.ip, __line+'行', err);
+                                res.status(500).send("匯出失敗");
+                            }
+                        }
+                    });
+                } 
+                catch(err) {
+                    logger.error('匯出失敗', req.ip, __line+'行', err);
+                    res.status(500).send("匯出失敗");
+                }  
+
+            });
+        }else{
+            res.status(post_res.statusCode).send('匯出失敗');
+        }
+    });
+
+    post_req.on('error', function(err) {
+        // Handle error
+        res.status(500).send('匯出失敗');
+    });
+
+    post_req.end(); 
+});
+
+/**
+ * ExportExcelByMultiSql 經由MultiSql匯出Excel
+ */
+router.get('/exportExcelByMultiSql', function(req, res) {
+
+    var _query = []
+    for(var i in req.query){
+        _query.push(req.query[i]);
+    }
+
+    if(_query.length == 0){
+        res.status(post_res.statusCode).send('匯出失敗');
+    }
+
+    // 主要的參數
+    var _params = JSON.parse(_query.shift());
+
+    if(_params["templates"] == undefined){
+        res.status(post_res.statusCode).send('匯出失敗');
+    }
+
+    var post_data = querystring.stringify(_query);
+    
+    var post_options = {
+        host: '127.0.0.1',
+        port: setting.NodeJs.port,
+        path: '/restful/crudByTask?' + post_data,
+        method: 'GET'
+    };
+
+    // Set up the request
+    var post_req = http.request(post_options, function (post_res) {
+
+        // console.log("statusCode: ", post_res.statusCode);
+        //console.log("headers: ", post_res.headers);
+        if(post_res.statusCode == 200){
+            var content = '';
+
+            post_res.setEncoding('utf8');
+
+            post_res.on('data', function(chunk) {
+                content += chunk;
+            });
+
+            post_res.on('end', function() {
+                // console.log(content);
+
+                try {
+                    var _content = JSON.parse(content);
+                    for(var i in _content.returnData){
+                        _params["data" + i] = _content.returnData[i];
+                    }
+
+                    tmpXlsObj.GetXls({
+                        JsonXls : _params,
+                        TmpXlsFilePath : path.join(path.dirname(module.parent.filename), 'templates', templates[_params["templates"]]), //template xls 路徑(含檔名)
                         // OutputXlsPath : path.join(path.dirname(module.parent.filename), 'templates', 'test2.xlsx'),
                         SheetNumber : 1
                     }, function (err, result){
@@ -144,16 +248,22 @@ router.get('/exportExcelBySql', function(req, res) {
                             res.status(500).send("匯出失敗");
                         } else {
 
-                            res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-                            res.setHeader('Content-Length', result.length);
-                            res.setHeader('Expires', '0');
-                            // res.setHeader('Content-Disposition', 'attachment; filename=test.xls');
-                            res.setHeader('Content-Encoding', 'UTF-8');
-                            res.status(200);
+                            try {
+                                res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+                                res.setHeader('Content-Length', result.length);
+                                res.setHeader('Expires', '0');
+                                // res.setHeader('Content-Disposition', 'attachment; filename=test.xls');
+                                res.setHeader('Content-Encoding', 'UTF-8');
+                                res.status(200);
 
-                            var buffer = new Buffer(result, "binary");
+                                var buffer = new Buffer(result, "binary");
 
-                            res.end(toArrayBuffer(buffer));
+                                // res.end(toArrayBuffer(buffer));
+                                res.end(buffer);
+                            } catch(err){
+                                logger.error('匯出失敗', req.ip, __line+'行', err);
+                                res.status(500).send("匯出失敗");
+                            }
                         }
                     });
                 } 
@@ -256,6 +366,8 @@ router.get('/downloadFiles', function(req, res) {
 
 /**
  * SendMail 寄信
+ * 1. 取得帳號密碼
+ * 2. 開始寄信
  */
 router.get('/sendMail', function(req, res) {
 
@@ -264,7 +376,7 @@ router.get('/sendMail', function(req, res) {
         querymain : 'aviationMail',
         queryname : 'SelectMailAccount',
         params : JSON.stringify({
-            MA_USER : 'a28115665@gmail.com'
+            MA_USER : setting.GMail.account
         })
     });
     
@@ -291,20 +403,230 @@ router.get('/sendMail', function(req, res) {
 
             post_res.on('end', function() {
                 var account = JSON.parse(content).returnData;
-                // console.log(account);
+                // console.warn(account);
+                // console.warn(req.query);
 
-                res.json({
-                    "returnData": "ok"
-                });
+                if(account.length > 0){
+
+                    // 撈取銷倉單Excel
+                    // var _queryContent = typeof req.query["queryContent"] == "string" ? JSON.parse(req.query["queryContent"]) : {};
+                    var _mailContent = typeof req.query["mailContent"] == "string" ? JSON.parse(req.query["mailContent"]) : {};
+                    
+                    /**
+                     * 開始寄信
+                     * 宣告發信物件
+                     */
+                    var transporter = nodemailer.createTransport({
+                        service: 'Gmail',
+                        auth: {
+                            user: account[0].MA_USER,
+                            pass: account[0].MA_PASS
+                        }
+                    });
+
+                    var _to = [],
+                        _attchments = [];
+
+                    for(var i in _mailContent.FM_MAIL){
+                        _to.push(_mailContent.FM_MAIL[i].text);
+                    }
+
+                    // 信件預設檔案
+                    for(var i in _mailContent.UploadedData){
+                        _attchments.push({
+                            // file on disk as an attachment
+                            filename: _mailContent.UploadedData[i].FMAF_O_FILENAME,
+                            path: _mailContent.UploadedData[i].FMAF_FILEPATH + _mailContent.UploadedData[i].FMAF_R_FILENAME
+                        });
+                    }
+
+                    // 使用者上傳檔案
+                    for(var i in _mailContent.UserUploadedData){
+                        _attchments.push({
+                            // file on disk as an attachment
+                            filename: _mailContent.UserUploadedData[i].FMAF_O_FILENAME,
+                            path: _mailContent.UserUploadedData[i].FMAF_FILEPATH + _mailContent.UserUploadedData[i].FMAF_R_FILENAME
+                        });
+                    }
+
+                    var options = {
+                        //寄件者
+                        from: account[0].MA_USER,
+                        //收件者
+                        to: _to.join(";"), 
+                        //副本
+                        // cc: 'dongfengexpress@gmail.com',
+                        //密件副本
+                        // bcc: 'dongfengexpress@gmail.com',
+                        //主旨
+                        subject: _mailContent.FM_TITLE, // Subject line
+                        //純文字
+                        // text: 'Hello world2', // plaintext body
+                        //嵌入 html 的內文
+                        html: _mailContent.FM_CONTENT, 
+                        //附件檔案
+                        attachments: _attchments
+                    };
+
+                    //發送信件方法
+                    transporter.sendMail(options, function(error, info){
+                        if(error){
+                            logger.error('寄信失敗', req.ip, __line+'行', error);
+                            res.status(500).send('寄信失敗');
+                        }else{
+
+                            res.json({
+                                "returnData": "ok"
+                            });
+                            // console.log('訊息發送: ' + info.response);
+                        }
+                    });
+
+                    // var post_exceldata = querystring.stringify([
+                    //         JSON.stringify({
+                    //             templates      : 5,
+                    //             filename       : _queryContent._exportName,
+                    //             OL_MASTER      : _queryContent.OL_MASTER,
+                    //             OL_IMPORTDT    : _queryContent.OL_IMPORTDT,
+                    //             OL_FLIGHTNO    : _queryContent.OL_FLIGHTNO,
+                    //             OL_COUNTRY     : _queryContent.OL_COUNTRY, 
+                    //             OL_TEL         : _queryContent.OL_TEL, 
+                    //             OL_FAX         : _queryContent.OL_FAX, 
+                    //             OL_TOTALBAG    : _queryContent.OL_TOTALBAG, 
+                    //             OL_TOTALWEIGHT : _queryContent.OL_TOTALWEIGHT
+                    //         }),
+                    //         JSON.stringify({
+                    //             crudType: 'Select',
+                    //             querymain: 'job002',
+                    //             queryname: 'SelectFlightItemList',
+                    //             params: {               
+                    //                 FLL_SEQ: _queryContent.OL_SEQ
+                    //             }
+                    //         }),
+                    //         JSON.stringify({
+                    //             crudType: 'Select',
+                    //             querymain: 'job002',
+                    //             queryname: 'SelectRemark',
+                    //             params: {               
+                    //                 FLL_SEQ: _queryContent.OL_SEQ
+                    //             }
+                    //         })
+                    //     ]);
+
+                    // var post_exceloptions = {
+                    //     host: '127.0.0.1',
+                    //     port: setting.NodeJs.port,
+                    //     path: '/toolbox/exportExcelByMultiSql?' + post_exceldata,
+                    //     method: 'GET'
+                    // };
+
+                    // var post_excelreq = http.request(post_exceloptions, function (post_excelres) {
+                    //     // console.log(post_excelres.statusCode);
+
+                    //     if(post_excelres.statusCode == 200){
+                    //         var excelcontent = [];
+
+                    //         // post_excelres.setEncoding('utf8');
+
+                    //         post_excelres.on('data', function(chunk) {
+                    //             excelcontent.push(chunk);
+                    //         });
+
+                    //         post_excelres.on('end', function() {
+                    //             var buffer = Buffer.concat(excelcontent);
+                    //             // console.warn(buffer.toString('base64'));
+                    //             // logger.error(buffer.toString('base64'));
+
+                    //             /**
+                    //              * 開始寄信
+                    //              * 宣告發信物件
+                    //              */
+                    //             var transporter = nodemailer.createTransport({
+                    //                 service: 'Gmail',
+                    //                 auth: {
+                    //                     user: account[0].MA_USER,
+                    //                     pass: account[0].MA_PASS
+                    //                 }
+                    //             });
+
+                    //             var _to = [],
+                    //                 _attchments = [];
+
+                    //             for(var i in _mailContent.FM_MAIL){
+                    //                 _to.push(_mailContent.FM_MAIL[i].text);
+                    //             }
+
+                    //             for(var i in _mailContent.UploadedData){
+                    //                 _attchments.push({
+                    //                     // file on disk as an attachment
+                    //                     filename: _mailContent.UploadedData[i].FMAF_O_FILENAME,
+                    //                     path: _mailContent.UploadedData[i].FMAF_FILEPATH + _mailContent.UploadedData[i].FMAF_R_FILENAME
+                    //                 });
+                    //             }
+
+                    //             _attchments.push({
+                    //                 filename: _queryContent._exportName + '.xlsx',
+                    //                 content: buffer
+                    //             });
+
+                    //             var options = {
+                    //                 //寄件者
+                    //                 from: account[0].MA_USER,
+                    //                 //收件者
+                    //                 to: _to.join(";"), 
+                    //                 //副本
+                    //                 // cc: 'dongfengexpress@gmail.com',
+                    //                 //密件副本
+                    //                 // bcc: 'dongfengexpress@gmail.com',
+                    //                 //主旨
+                    //                 subject: _mailContent.FM_TITLE, // Subject line
+                    //                 //純文字
+                    //                 // text: 'Hello world2', // plaintext body
+                    //                 //嵌入 html 的內文
+                    //                 html: _mailContent.FM_CONTENT, 
+                    //                 //附件檔案
+                    //                 attachments: _attchments
+                    //             };
+
+                    //             //發送信件方法
+                    //             transporter.sendMail(options, function(error, info){
+                    //                 if(error){
+                    //                     logger.error('寄信失敗', req.ip, __line+'行', error);
+                    //                     res.status(500).send('寄信失敗');
+                    //                 }else{
+
+                    //                     res.json({
+                    //                         "returnData": "ok"
+                    //                     });
+                    //                     // console.log('訊息發送: ' + info.response);
+                    //                 }
+                    //             });
+
+                    //         });
+                    //     }else{
+                    //         res.status(post_excelres.statusCode).send('產生Excel失敗');
+                    //     }
+                    // });
+
+                    // post_excelreq.on('error', function(err) {
+                    //     // Handle error
+                    //     res.status(500).send('產生Excel失敗');
+                    // });
+
+                    // post_excelreq.end(); 
+                }else{
+                    res.status(500).send('查無寄件人帳號密碼');
+                }
+
             });
         }else{
-            res.status(post_res.statusCode).send('寄信失敗');
+            res.status(post_res.statusCode).send('取得帳號密碼');
         }
     });
 
     post_req.on('error', function(err) {
         // Handle error
-        res.status(500).send('寄信失敗');
+        res.status(500).send('取得帳號密碼');
     });
 
     post_req.end(); 
@@ -324,7 +646,8 @@ router.get('/changeNature', function(req, res) {
                 {
                     "UserId": req.query.ID,
                     "UserPW": req.query.PW,
-                    "Nature": req.query.NATURE
+                    "Nature": req.query.NATURE,
+                    "Nature_NEW": req.query.NATURE_NEW == undefined ? "" : req.query.NATURE_NEW
                 }
             ])
         });
@@ -372,6 +695,7 @@ router.get('/changeNature', function(req, res) {
         post_req.write(post_data);
 
         post_req.on('error', function(err) {
+            console.error(err);
             // Handle error
             res.status(500).send('改單失敗');
         });
@@ -379,7 +703,92 @@ router.get('/changeNature', function(req, res) {
         post_req.end(); 
 
     } catch(err) {
+        console.error(err);
         res.status(500).send('改單失敗');
+    }
+
+});
+
+/**
+ * DoTax 稅則
+ */
+router.get('/doTax', function(req, res) {
+
+    try{        
+        // console.log(res.statusCode, req.query);
+        var _taxData = [];
+        if(req.query.NATURE_NEW_LIST instanceof Array){
+            _taxData = req.query.NATURE_NEW_LIST.map(function(value, index, fullArray){
+                            return JSON.parse(fullArray[index]);
+                        })
+        } else{
+            _taxData = [JSON.parse(req.query.NATURE_NEW_LIST)];
+        }
+
+        // Build the post string from an object
+        var post_data = querystring.stringify({
+            'strJson' : JSON.stringify([
+                {
+                    "UserId": req.query.ID,
+                    "UserPW": req.query.PW,
+                    "Nature_NEW_List": _taxData
+                }
+            ])
+        });
+
+        // An object of options to indicate where to post to
+        var post_options = {
+            host: setting.WebService.doTax.host,
+            port: setting.WebService.doTax.port,
+            path: setting.WebService.doTax.url,
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'Content-Length': Buffer.byteLength(post_data)
+            }
+        };
+
+        // Set up the request
+        var post_req = http.request(post_options, function (post_res) {
+
+            // console.log("statusCode: ", post_res.statusCode);
+            //console.log("headers: ", post_res.headers);
+            if(post_res.statusCode == 200){
+                var content = '';
+
+                post_res.setEncoding('utf8');
+
+                post_res.on('data', function(chunk) {
+                    content += chunk;
+                });
+
+                post_res.on('end', function() {
+                    // console.log(content);
+
+                    res.json({
+                        "returnData": content
+                    });
+                });
+            }else{
+                res.status(post_res.statusCode).send('稅則失敗');
+            }
+        });
+
+        // console.log(post_data);
+        // post the data
+        post_req.write(post_data);
+
+        post_req.on('error', function(err) {
+            console.error(err);
+            // Handle error
+            res.status(500).send('稅則失敗');
+        });
+
+        post_req.end(); 
+
+    } catch(err) {
+        console.error(err);
+        res.status(500).send('稅則失敗');
     }
 
 });

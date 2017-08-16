@@ -33,6 +33,7 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
                     AssignOptype();
                     LoadOrderList();
                     LoadPrincipal();
+                    LoadParm();
                     break;
                 case 'hr2':
                     LoadStatistics();
@@ -121,7 +122,8 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
                             OL_CO_CODE  : selectedItem.OL_CO_CODE,
                             OL_FLIGHTNO : selectedItem.OL_FLIGHTNO,
                             OL_MASTER   : selectedItem.OL_MASTER,
-                            OL_COUNTRY  : selectedItem.OL_COUNTRY
+                            OL_COUNTRY  : selectedItem.OL_COUNTRY,
+                            OL_REASON   : selectedItem.OL_REASON
                         },
                         condition: {
                             OL_SEQ : selectedItem.OL_SEQ
@@ -137,7 +139,7 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
             // 結單
             closeData : function(row){
 
-                if(row.entity.W2_STATUS == 3 || row.entity.W2_STATUS == 4){
+                if(row.entity.W2_STATUS == 3 || row.entity.W2_STATUS == 4 || row.entity.W3_STATUS == 3 || row.entity.W3_STATUS == 4){
                 // if(row.entity.W2_STATUS == 3 && row.entity.W3_STATUS == 3 && row.entity.W1_STATUS == 3){
                     var modalInstance = $uibModal.open({
                         animation: true,
@@ -189,6 +191,7 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
         orderListOptions : {
             data:  '$vm.vmData',
             columnDefs: [
+                { name: 'OL_SUPPLEMENT_COUNT'    ,  displayName: '補件', width: 50, cellTemplate: $templateCache.get('accessibilityToSuppleMent') },
                 { name: 'OL_IMPORTDT' ,  displayName: '進口日期', cellFilter: 'dateFilter' },
                 { name: 'OL_CO_CODE'  ,  displayName: '行家', cellFilter: 'compyFilter', filter: 
                     {
@@ -200,7 +203,13 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
                 { name: 'OL_FLIGHTNO' ,  displayName: '航班' },
                 { name: 'OL_MASTER'   ,  displayName: '主號' },
                 { name: 'OL_COUNT'    ,  displayName: '報機單(袋數)', width: 80, enableCellEdit: false },
+                { name: 'OL_FLL_COUNT',  displayName: '銷倉單(袋數)', width: 80, enableCellEdit: false },
                 { name: 'OL_COUNTRY'  ,  displayName: '起運國別' },
+                { name: 'OL_REASON'              ,  displayName: '描述', width: 100, cellTooltip: function (row, col) 
+                    {
+                        return row.entity.OL_REASON
+                    } 
+                },
                 { name: 'W2_STATUS'   ,  displayName: '報機單狀態', cellTemplate: $templateCache.get('accessibilityToForW2'), filter: 
                     {
                         term: null,
@@ -229,19 +238,19 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
                     }
                 },
                 // { name: 'W3'          ,  displayName: '銷艙單負責人', cellFilter: 'userInfoFilter' },
-                { name: 'W1_STATUS'   ,  displayName: '派送單狀態', cellTemplate: $templateCache.get('accessibilityToForW1'), filter: 
-                    {
-                        term: null,
-                        type: uiGridConstants.filter.SELECT,
-                        selectOptions: [
-                            {label:'未派單', value: '0'},
-                            {label:'已派單', value: '1'},
-                            {label:'已編輯', value: '2'},
-                            {label:'已完成', value: '3'},
-                            {label:'非作業員'  , value: '4'}
-                        ]
-                    }
-                },
+                // { name: 'W1_STATUS'   ,  displayName: '派送單狀態', cellTemplate: $templateCache.get('accessibilityToForW1'), filter: 
+                //     {
+                //         term: null,
+                //         type: uiGridConstants.filter.SELECT,
+                //         selectOptions: [
+                //             {label:'未派單', value: '0'},
+                //             {label:'已派單', value: '1'},
+                //             {label:'已編輯', value: '2'},
+                //             {label:'已完成', value: '3'},
+                //             {label:'非作業員'  , value: '4'}
+                //         ]
+                //     }
+                // },
                 // { name: 'W1'          ,  displayName: '派送單負責人', cellFilter: 'userInfoFilter' },
                 { name: 'Options'     ,  displayName: '功能', enableFiltering: false, width: '12%', cellTemplate: $templateCache.get('accessibilityToDMCForLeader') }
             ],
@@ -258,6 +267,30 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
                 $vm.orderListGridApi = gridApi;
 
                 gridApi.rowEdit.on.saveRow($scope, $vm.Update);
+            }
+        },
+        AutoPrincipal : function(){
+            if(!angular.isUndefined($vm.parmData['SPA_AUTOPRIN'])){
+                RestfulApi.UpdateMSSQLData({
+                    updatename: 'Update',
+                    table: 26,
+                    params: {
+                        SPA_AUTOPRIN : $vm.parmData['SPA_AUTOPRIN']
+                    },
+                    condition: {
+                        SPA_KEY : 'eastwind168'
+                    }
+                }).then(function (res) {
+                    
+                    if(res['returnData'] == 1){
+                        if($vm.parmData['SPA_AUTOPRIN']){
+                            toaster.pop('info', '訊息', '開啟自動派單', 3000);
+                        }else{
+                            toaster.pop('info', '訊息', '關閉自動派單', 3000);
+                        }
+                    }
+
+                });
             }
         },
         ChangeDept : function(){
@@ -415,10 +448,67 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
         compyStatisticsOptions : {
             data:  '$vm.compyStatisticsData',
             columnDefs: [
-                { name: 'CO_NAME'  ,  displayName: '行家' },
-                { name: 'W2_COUNT' ,  displayName: '報機單', enableFiltering: false },
-                { name: 'W3_COUNT' ,  displayName: '銷艙單', enableFiltering: false },
-                { name: 'W1_COUNT' ,  displayName: '派送單', enableFiltering: false }
+                { name: 'CO_NAME'      ,  displayName: '行家' },
+                { name: 'W2_COUNT'     ,  displayName: '報機單(件數)', filters: [
+                    {
+                        condition: uiGridConstants.filter.GREATER_THAN,
+                        placeholder: '最小'
+                    },
+                    {
+                        condition: uiGridConstants.filter.LESS_THAN,
+                        placeholder: '最大'
+                    }
+                ]},
+                { name: 'W2_BAG_COUNT' ,  displayName: '報機單(袋數)', filters: [
+                    {
+                        condition: uiGridConstants.filter.GREATER_THAN,
+                        placeholder: '最小'
+                    },
+                    {
+                        condition: uiGridConstants.filter.LESS_THAN,
+                        placeholder: '最大'
+                    }
+                ]},
+                { name: 'W3_COUNT'     ,  displayName: '銷艙單(件數)', filters: [
+                    {
+                        condition: uiGridConstants.filter.GREATER_THAN,
+                        placeholder: '最小'
+                    },
+                    {
+                        condition: uiGridConstants.filter.LESS_THAN,
+                        placeholder: '最大'
+                    }
+                ]},
+                { name: 'W3_BAG_COUNT' ,  displayName: '銷艙單(袋數)', filters: [
+                    {
+                        condition: uiGridConstants.filter.GREATER_THAN,
+                        placeholder: '最小'
+                    },
+                    {
+                        condition: uiGridConstants.filter.LESS_THAN,
+                        placeholder: '最大'
+                    }
+                ]},
+                { name: 'W1_COUNT'     ,  displayName: '派送單(件數)', filters: [
+                    {
+                        condition: uiGridConstants.filter.GREATER_THAN,
+                        placeholder: '最小'
+                    },
+                    {
+                        condition: uiGridConstants.filter.LESS_THAN,
+                        placeholder: '最大'
+                    }
+                ]},
+                { name: 'W1_BAG_COUNT' ,  displayName: '派送單(袋數)', filters: [
+                    {
+                        condition: uiGridConstants.filter.GREATER_THAN,
+                        placeholder: '最小'
+                    },
+                    {
+                        condition: uiGridConstants.filter.LESS_THAN,
+                        placeholder: '最大'
+                    }
+                ]}
             ],
             enableFiltering: true,
             enableSorting: true,
@@ -593,6 +683,18 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
         }).then(function (res){
             console.log(res["returnData"]);
             $vm.compyStatisticsData = res["returnData"];
+        });  
+    };
+
+    function LoadParm(){
+        RestfulApi.SearchMSSQLData({
+            querymain: 'leaderJobs',
+            queryname: 'SelectParm'
+        }).then(function (res){
+            console.log(res["returnData"]);
+            if(res["returnData"].length > 0){
+                $vm.parmData = res["returnData"][0];
+            }
         });  
     };
 

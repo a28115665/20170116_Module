@@ -434,7 +434,7 @@ angular.module('app', [
     localStorageServiceProvider.setStorageType('localStorage');
 })
 
-.run(function ($rootScope, $state, $stateParams, Session, $http, AuthApi) {
+.run(function ($rootScope, $state, $stateParams, Session, $http, AuthApi, localStorageService) {
     // $rootScope.$state = $state;
     // $rootScope.$stateParams = $stateParams;
     // editableOptions.theme = 'bs3';
@@ -490,7 +490,7 @@ angular.module('app', [
         // });
     });
 
-    $rootScope.$on('$stateChangeSuccess', function(event, toState, roParams, fromState, fromParams) {
+    $rootScope.$on('$stateChangeSuccess', function (event, toState, roParams, fromState, fromParams) {
         // 檢視此頁是否有權限進入
         // 無權限就導到default頁面
         // console.log(Session.Get().GRIGHT[toState.name], toState.name);
@@ -499,6 +499,24 @@ angular.module('app', [
                 // event.preventDefault();
                 $state.transitionTo("app.default");
             }
+
+            AuthApi.Version().then(function (res){
+                var _version = res["returnData"];
+
+                // 如果沒有版本
+                if(localStorageService.get("LocalVersion") == null){
+                    // 加入版本
+                    localStorageService.set("LocalVersion", _version);
+                }
+
+                // 如果版本較舊
+                if(parseInt(localStorageService.get("LocalVersion")) < _version){
+                    // 加入版本
+                    localStorageService.set("LocalVersion", _version);
+                    // 更新畫面
+                    window.location.reload();
+                }
+            });
         }
     });
 
@@ -2019,6 +2037,28 @@ angular.module('app.selfwork').config(function ($stateProvider){
         }
     })
 
+    .state('app.selfwork.customoversix', {
+        url: '/selfwork/customoversix',
+        data: {
+            title: 'CustomOverSix'
+        },
+        views: {
+            "content@app" : {
+                templateUrl: 'app/SelfWork/views/customOverSix.html',
+                controller: 'CustomOverSixCtrl',
+                controllerAs: '$vm',
+                resolve: {
+                    overSix: function(SysCode) {
+                        return SysCode.get('OverSix');
+                    },
+                    userInfo: function(UserInfo){
+                        return UserInfo.get();
+                    }
+                }
+            }
+        }
+    })
+
     .state('app.selfwork.leaderjobs', {
         url: '/selfwork/leaderjobs',
         data: {
@@ -2079,6 +2119,35 @@ angular.module('app.selfwork').config(function ($stateProvider){
                 resolve: {
                     compy : function(Compy){
                         return Compy.get();
+                    },
+                    bool: function (SysCode){
+                        return SysCode.get('Boolean');
+                    },
+                    opType : function (SysCode){
+                        return SysCode.get('OpType');
+                    }
+                }
+            }
+        }
+    })
+
+    .state('app.selfwork.assistantjobs.job001', {
+        url: '/job001',
+        data: {
+            title: 'Job001'
+        },
+        params: { 
+            data: null
+        },
+        parent: 'app.selfwork.assistantjobs',
+        views: {
+            "content@app" : {
+                templateUrl: 'app/SelfWork/views/jobs/job001.html',
+                controller: 'Job001Ctrl',
+                controllerAs: '$vm',
+                resolve: {
+                    bool: function (SysCode){
+                        return SysCode.get('Boolean');
                     }
                 }
             }
@@ -2100,7 +2169,12 @@ angular.module('app.selfwork').config(function ($stateProvider){
                 controller: 'Job002Ctrl',
                 controllerAs: '$vm',
                 resolve: {
+                    srcipts: function(lazyScript){
+                        return lazyScript.register([
+                            'build/vendor.ui.js'
+                        ])
 
+                    }
                 }
             }
         }
@@ -2162,6 +2236,9 @@ angular.module('app.selfwork').config(function ($stateProvider){
                 resolve: {
                     compy: function(Compy){
                         return Compy.get();
+                    },
+                    userInfo: function(UserInfo){
+                        return UserInfo.get();
                     }
                 }
             }
@@ -2183,7 +2260,9 @@ angular.module('app.selfwork').config(function ($stateProvider){
                 controller: 'Job001Ctrl',
                 controllerAs: '$vm',
                 resolve: {
-
+                    bool: function (SysCode){
+                        return SysCode.get('Boolean');
+                    }
                 }
             }
         }
@@ -2247,6 +2326,9 @@ angular.module('app.selfwork').config(function ($stateProvider){
                     },
                     bool: function (SysCode){
                         return SysCode.get('Boolean');
+                    },
+                    userInfo: function(UserInfo){
+                        return UserInfo.get();
                     }
                 }
             }
@@ -2268,7 +2350,9 @@ angular.module('app.selfwork').config(function ($stateProvider){
                 controller: 'Job001Ctrl',
                 controllerAs: '$vm',
                 resolve: {
-
+                    bool: function (SysCode){
+                        return SysCode.get('Boolean');
+                    }
                 }
             }
         }
@@ -2669,6 +2753,44 @@ angular.module('app.settings').config(function ($stateProvider){
                 resolve: {
                     bool: function (SysCode){
                         return SysCode.get('Boolean');
+                    }
+                }
+            }
+        }
+    })
+
+    .state('app.settings.bagnocount', {
+        url: '/settings/bagnocount',
+        data: {
+            title: 'BagnoCount'
+        },
+        views: {
+            "content@app" : {
+                templateUrl: 'app/Settings/views/bagnoCount.html',
+                controller: 'BagnoCountCtrl',
+                controllerAs: '$vm',
+                resolve: {
+                    userInfo: function(UserInfo){
+                        return UserInfo.get();
+                    }
+                }
+            }
+        }
+    })
+
+    .state('app.settings.syslogs', {
+        url: '/settings/syslogs',
+        data: {
+            title: 'SysLogs'
+        },
+        views: {
+            "content@app" : {
+                templateUrl: 'app/Settings/views/sysLogs.html',
+                controller: 'SysLogsCtrl',
+                controllerAs: '$vm',
+                resolve: {
+                    userInfo: function(UserInfo){
+                        return UserInfo.get();
                     }
                 }
             }
@@ -3432,6 +3554,7 @@ angular.module('app')
         CRUDBYTASK : $resource('/restful/crudByTask'),
         LOGIN : $resource('/auth/login'),
         LOGOUT : $resource('/auth/logout'),
+        VERSION : $resource('/auth/version'),
         RELOADSESSION : $resource('/auth/reLoadSession'),
         EXPORTEXCELBYVAR : $resource('/toolbox/exportExcelByVar', null, 
             {
@@ -3459,6 +3582,19 @@ angular.module('app')
                 }
             }
         ),
+        EXPORTEXCELBYMULTISQL : $resource('/toolbox/exportExcelByMultiSql', null, 
+            {
+                'postByArraybuffer': { 
+                    method: 'GET',
+                    responseType : 'arraybuffer',
+                    transformResponse: function(data) {
+                        return {
+                            response: new Blob([data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
+                        };
+                    }
+                }
+            }
+        ),
         DOWNLOADFILES : $resource('/toolbox/downloadFiles', null, 
             {
                 'postByArraybuffer': { 
@@ -3474,6 +3610,7 @@ angular.module('app')
         ),
         SENDMAIL : $resource('/toolbox/sendMail'),
         CHANGENATURE : $resource('/toolbox/changeNature'),
+        DOTAX : $resource('/toolbox/doTax'),
         COMPOSEMENU : $resource('/toolbox/composeMenu')
     };
 })
@@ -3483,6 +3620,40 @@ angular.module('app')
 .factory('UserInfoByGrade', UserInfoByGradeResolve)
 .factory('UserInfoByCompyDistribution', UserInfoByCompyDistributionResolve)
 .factory('UserInfo', UserInfoResolve)
+// 航班貨況
+.factory('OrderStatus', function ($window, toaster) {
+
+    return {
+        Get: function(row) {
+            if(!angular.isUndefined(row.entity.OL_FLIGHTNO) && !angular.isUndefined(row.entity.OL_MASTER)){
+
+                var _flightNo = row.entity.OL_FLIGHTNO.toUpperCase().split(" "),
+                    _master = row.entity.OL_MASTER.split("-");
+
+                switch(_flightNo[0]){
+                    case "BR":
+                        $window.open('http://www.brcargo.com/ec_web/Default.aspx?TNT_FLAG=Y&AWB_CODE='+_master[0]+'&MAWB_NUMBER='+_master[1]);
+                        break;
+                    case "CI":
+                        $window.open('https://cargo.china-airlines.com/CCNetv2/content/manage/ShipmentTracking.aspx?AwbPfx='+_master[0]+'&AwbNum='+_master[1]+'&checkcode=*7*upHGj');
+                        break;
+                    case "CX":
+                        $window.open('http://www.cathaypacificcargo.com/ManageYourShipment/TrackYourShipment/tabid/108/SingleAWBNo/'+row.entity.OL_MASTER+'/language/en-US/Default.aspx');
+                        break;
+                    case "HX":
+                        $window.open('http://www.hkairlinescargo.com/CargoPortal/sreachYun/zh_TW/'+_master[0]+'/'+_master[1]+'/1/');
+                        break;
+                    default:
+                        toaster.pop('info', '訊息', '此航班代號不在設定內', 3000);
+                        break;
+                }
+            }else{
+                toaster.pop('info', '訊息', '航班或主號不存在', 3000);
+            }
+        }
+    }
+
+})
 
 angular.module('app')
 .filter('booleanFilter', function (SysCode) {
@@ -3710,6 +3881,39 @@ angular.module('app')
 	return FilterFunction;
 
 })
+.filter('overSixFilter', function (SysCode) {
+
+	var resData = {};
+
+	LoadData();
+
+	var FilterFunction = function (input, isLoad){
+		if(isLoad){
+			LoadData();
+		}
+
+		if (!input) {
+		    return '';
+		} else {
+		    return angular.isUndefined(resData[input]) ? input : resData[input];
+		}
+
+	};
+	
+	function LoadData(){
+		SysCode.get('OverSix').then(function (res){
+			for(var i in res){
+				resData[res[i].value] = res[i].label;
+			}
+		});
+	}
+
+	// 持續偵測
+	FilterFunction.$stateful = true;
+
+	return FilterFunction;
+
+})
 .filter('gradeFilter', function (UserGrade) {
 
 	var resData = {};
@@ -3804,6 +4008,18 @@ angular.module('app')
 
 	return function (input){
 		return angular.isUndefined(input) ? '' : (parseInt(input)/1024/1024).toFixed(2) + ' MB';
+	};
+
+})
+.filter('suppleMentFilter', function ($filter) {
+
+	return function (input){
+		if (input == null) {
+		    return '';
+		} else {
+		    return '補'+input;
+		}
+
 	};
 
 });
@@ -4092,6 +4308,20 @@ function HandleWindowResize (gridApi){
 function CapitalizeFirstLetter(string) {
     return string.charAt(0).toUpperCase() + string.slice(1);
 };
+// 左邊補0
+function padLeft(str,lenght){
+    if(str.length >= lenght)
+       return str;
+    else
+        return padLeft("0" +str,lenght);
+}
+//右邊補0
+function padRight(str,lenght){
+    if(str.length >= lenght)
+        return str;
+    else
+        return padRight(str+"0",lenght);
+}
 angular.module('app')
 .service('RestfulApi', function ($http, $q, Resource){
 
@@ -4230,6 +4460,20 @@ angular.module('app')
 	    	});
 
 	    return deferred.promise
+	},
+
+	this.Version = function () {
+	    var deferred = $q.defer();
+	    
+	    Resource.VERSION.get({},
+	    	function (pSResponse){
+				deferred.resolve(pSResponse);
+			},
+	    	function (pFResponse){
+	    		deferred.reject(pFResponse.data);
+	    	});
+
+	    return deferred.promise
 	}
 })
 .service('ToolboxApi', function ($http, $q, Resource){
@@ -4277,6 +4521,36 @@ angular.module('app')
                     // Firefox requires the link to be in the body
                     document.body.appendChild(link); 
                     link.download = angular.isUndefined(dataSrc.filename) ? '未知' : dataSrc.filename ;
+                    link.href = objectUrl;
+                    link.click();
+                    // remove the link when done
+                    document.body.removeChild(link); 
+                } else {
+                    location.replace(objectUrl);
+                }
+
+				deferred.resolve(pSResponse);
+			},
+	    	function (pFResponse){
+	    		deferred.reject(pFResponse.data);
+	    	});
+
+	    return deferred.promise
+	},
+
+	this.ExportExcelByMultiSql = function (dataSrc) {
+	    // console.log(dataSrc);
+	    var deferred = $q.defer();
+
+	    Resource.EXPORTEXCELBYMULTISQL.postByArraybuffer(dataSrc,
+	    	function (pSResponse){
+
+	    		var objectUrl = URL.createObjectURL(pSResponse["response"]);
+                var link = document.createElement('a');
+                if (typeof link.download === 'string') {
+                    // Firefox requires the link to be in the body
+                    document.body.appendChild(link); 
+                    link.download = angular.isUndefined(dataSrc[0].filename) ? '未知' : dataSrc[0].filename ;
                     link.href = objectUrl;
                     link.click();
                     // remove the link when done
@@ -4354,6 +4628,21 @@ angular.module('app')
 	    return deferred.promise
 	},
 
+	this.DoTax = function (dataSrc) {
+	    // console.log(dataSrc);
+	    var deferred = $q.defer();
+
+	    Resource.DOTAX.get(dataSrc,
+	    	function (pSResponse){
+				deferred.resolve(pSResponse);
+			},
+	    	function (pFResponse){
+	    		deferred.reject(pFResponse.data);
+	    	});
+
+	    return deferred.promise
+	},
+
 	this.ComposeMenu = function (dataSrc) {
 	    // console.log(dataSrc);
 	    var deferred = $q.defer();
@@ -4396,24 +4685,51 @@ angular.module('app')
                                                     <a href="javascript:void(0);" class="btn btn-danger btn-xs" ng-click="grid.appScope.$vm.gridMethod.cancelData(row)"> 取消</a>\
                                               </div>');
 
+    $templateCache.put('accessibilityToDepartRemark', '\
+                        <div class="ui-grid-cell-contents text-center" ng-switch="row.entity.FA_DEPART_REMK">\
+                            <span class="label bg-color-green" ng-switch-when="出發">{{row.entity.FA_DEPART_REMK}}</span>\
+                            <span class="label bg-color-orange" ng-switch-when="檢查">{{row.entity.FA_DEPART_REMK}}</span>\
+                            <span class="label bg-color-blue" ng-switch-when="準時">{{row.entity.FA_DEPART_REMK}}</span>\
+                            <span class="label bg-color-red" ng-switch-when="延誤">{{row.entity.FA_DEPART_REMK}}</span>\
+                            <span class="label bg-color-blueDark" ng-switch-when="取消">{{row.entity.FA_DEPART_REMK}}</span>\
+                            <span class="label bg-color-magenta" ng-switch-when="報到">{{row.entity.FA_DEPART_REMK}}</span>\
+                            <span class="label bg-color-redLight" ng-switch-when="已飛">{{row.entity.FA_DEPART_REMK}}</span>\
+                            <span ng-switch-default>{{row.entity.FA_DEPART_REMK}}</span>\
+                      </div>');
+
     $templateCache.put('accessibilityToArrivalRemark', '\
                         <div class="ui-grid-cell-contents text-center" ng-switch="row.entity.FA_ARRIVAL_REMK">\
                             <span class="label bg-color-green" ng-switch-when="抵達">{{row.entity.FA_ARRIVAL_REMK}}</span>\
                             <span class="label bg-color-orange" ng-switch-when="時間更改">{{row.entity.FA_ARRIVAL_REMK}}</span>\
                             <span class="label bg-color-blue" ng-switch-when="準時">{{row.entity.FA_ARRIVAL_REMK}}</span>\
                             <span class="label bg-color-red" ng-switch-when="延誤">{{row.entity.FA_ARRIVAL_REMK}}</span>\
+                            <span class="label bg-color-blueDark" ng-switch-when="取消">{{row.entity.FA_ARRIVAL_REMK}}</span>\
+                            <span class="label bg-color-magenta" ng-switch-when="提早">{{row.entity.FA_ARRIVAL_REMK}}</span>\
+                            <span class="label bg-color-redLight" ng-switch-when="加班">{{row.entity.FA_ARRIVAL_REMK}}</span>\
                             <span ng-switch-default>{{row.entity.FA_ARRIVAL_REMK}}</span>\
                       </div>');
-    $templateCache.put('accessibilityToMCForPullGoods', '\
+
+    $templateCache.put('accessibilityToInternalGoods', '\
                         <div class="ui-grid-cell-contents text-center">\
-                            <a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethodForPullGoods.modifyData(row)"> 修改</a>\
-                            <a href="javascript:void(0);" class="btn btn-danger btn-xs" ng-click="grid.appScope.$vm.gridMethodForPullGoods.cancelData(row)"> 取消</a>\
+                            <i class="fa fa-remove text-danger" ng-if="row.entity.BAGNO_MATCH == 0"> </i> \
+                            <i class="fa fa-check text-success" ng-if="row.entity.BAGNO_MATCH == 1"> </i> \
+                        </div>');
+
+    $templateCache.put('accessibilityToSuppleMent', '\
+                        <div class="ui-grid-cell-contents text-center">\
+                            <span class="label bg-color-red">{{row.entity.OL_SUPPLEMENT_COUNT | suppleMentFilter}}</span>\
+                        </div>');
+
+    $templateCache.put('accessibilityToVForPullGoods', '\
+                        <div class="ui-grid-cell-contents text-center">\
+                            <a href="javascript:void(0);" class="btn btn-info btn-xs" ng-click="grid.appScope.$vm.gridMethodForPullGoods.viewData(row)"> 原因</a>\
+                            <a href="javascript:void(0);" class="btn btn-primary btn-xs" ng-click="grid.appScope.$vm.gridMethodForPullGoods.detailData(row)"> 明細</a>\
                       </div>');
     $templateCache.put('accessibilityToMSForAssistantJobs', '\
                         <div class="ui-grid-cell-contents text-center">\
                             <a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethod.modifyData(row)"> 修改</a>\
-                            <a href="javascript:void(0);" class="btn btn-info btn-xs" ng-click="grid.appScope.$vm.gridMethod.sendMail(row)"> 寄信</a>\
-                            <a href="javascript:void(0);" class="btn btn-primary btn-xs" ng-click="grid.appScope.$vm.gridMethod.viewOrder(row)"> 航班</a>\
+                            <!-- <a href="javascript:void(0);" class="btn btn-info btn-xs" ng-click="grid.appScope.$vm.gridMethod.sendMail(row)"> 寄信</a> -->\
+                            <!-- <a href="javascript:void(0);" class="btn btn-primary btn-xs" ng-click="grid.appScope.$vm.gridMethod.viewOrder(row)"> 航班</a> -->\
                       </div>');
     $templateCache.put('accessibilityToMSForAssistantJobsSearch', '\
                         <div class="ui-grid-cell-contents text-center">\
@@ -4421,57 +4737,67 @@ angular.module('app')
                             <a href="javascript:void(0);" class="btn btn-primary btn-xs" ng-click="grid.appScope.$vm.gridMethod.viewOrder(row)"> 航班</a>\
                       </div>');
 
+    // 主號可直接航班檢視
+    $templateCache.put('accessibilityToMasterForViewOrder', '\
+                        <div class="ui-grid-cell-contents text-center" ng-switch="row.entity.OL_MASTER">\
+                            <span ng-switch-when="">{{row.entity.OL_MASTER}}</span>\
+                            <a href="javascript:void(0);" ng-switch-default class="btn btn-default btn-xs" ng-click="grid.appScope.$vm.gridMethod.viewOrder(row)"> {{row.entity.OL_MASTER}}</a>\
+                        </div>');
+
 	$templateCache.put('accessibilityToRMC', '\
                         <div class="ui-grid-cell-contents text-center">\
             				<a href="javascript:void(0);" class="btn btn-danger btn-xs" ng-click="grid.appScope.$vm.gridMethod.rejectData(row)" ng-disabled="row.entity.g"> 退單</a>\
             				<a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethod.modifyData(row)"> 編輯</a>\
             				<a href="javascript:void(0);" class="btn btn-primary btn-xs" ng-click="grid.appScope.$vm.gridMethod.closeData(row)" ng-disabled="row.entity.g"> 完成</a>\
                         </div>');
-  $templateCache.put('accessibilityToOperaForJob001', '\
+    $templateCache.put('accessibilityToOperaForJob001', '\
                     <div class="ui-grid-cell-contents text-center">\
                         <a href="javascript:void(0);" class="btn btn-success btn-xs" ng-click="grid.appScope.$vm.gridMethod.gridOperation(row, \'報機單\')"> 工作選項</a>\
                     </div>');
-  $templateCache.put('accessibilityToOperaForJob002', '\
+    $templateCache.put('accessibilityToOperaForJob002', '\
                     <div class="ui-grid-cell-contents text-center">\
                         <a href="javascript:void(0);" class="btn btn-success btn-xs" ng-click="grid.appScope.$vm.gridMethod.gridOperation(row, \'銷艙單\')"> 工作選項</a>\
                     </div>');
-  $templateCache.put('accessibilityToOperaForJob003', '\
+    $templateCache.put('accessibilityToOperaForJob003', '\
                     <div class="ui-grid-cell-contents text-center">\
                         <a href="javascript:void(0);" class="btn btn-success btn-xs" ng-click="grid.appScope.$vm.gridMethod.gridOperation(row, \'派送單\')"> 工作選項</a>\
                     </div>');
-  // $templateCache.put('accessibilityToDMCForJob001', '\
-  //                   <div class="ui-grid-cell-contents text-center">\
-  //                       <a href="javascript:void(0);" class="btn btn-danger btn-xs" ng-click="grid.appScope.$vm.gridMethodForJob001.rejectData(row)" ng-disabled="row.entity.g"> 退單</a>\
-  //                       <a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethodForJob001.modifyData(row)"> 編輯</a>\
-  //                       <a href="javascript:void(0);" class="btn btn-primary btn-xs" ng-click="grid.appScope.$vm.gridMethodForJob001.closeData(row)" ng-disabled="row.entity.g"> 完成</a>\
-  //                       <a href="javascript:void(0);" class="btn btn-danger btn-xs" ng-click="grid.appScope.$vm.gridMethodForJob001.deleteData(row)" ng-disabled="row.entity.g"> 刪除</a>\
-  //                   </div>');
-  // $templateCache.put('accessibilityToDMCForJob002', '\
-  //                   <div class="ui-grid-cell-contents text-center">\
-  //                       <a href="javascript:void(0);" class="btn btn-danger btn-xs" ng-click="grid.appScope.$vm.gridMethodForJob002.rejectData(row)" ng-disabled="row.entity.g"> 退單</a>\
-  //                       <a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethodForJob002.modifyData(row)"> 編輯</a>\
-  //                       <a href="javascript:void(0);" class="btn btn-primary btn-xs" ng-click="grid.appScope.$vm.gridMethodForJob002.closeData(row)" ng-disabled="row.entity.g"> 完成</a>\
-  //                       <a href="javascript:void(0);" class="btn btn-danger btn-xs" ng-click="grid.appScope.$vm.gridMethodForJob002.deleteData(row)" ng-disabled="row.entity.g"> 刪除</a>\
-  //                   </div>');
-  // $templateCache.put('accessibilityToDMCForJob003', '\
-  //                   <div class="ui-grid-cell-contents text-center">\
-  //                       <a href="javascript:void(0);" class="btn btn-danger btn-xs" ng-click="grid.appScope.$vm.gridMethodForJob003.rejectData(row)" ng-disabled="row.entity.g"> 退單</a>\
-  //                       <a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethodForJob003.modifyData(row)"> 編輯</a>\
-  //                       <a href="javascript:void(0);" class="btn btn-primary btn-xs" ng-click="grid.appScope.$vm.gridMethodForJob003.closeData(row)" ng-disabled="row.entity.g"> 完成</a>\
-  //                       <a href="javascript:void(0);" class="btn btn-danger btn-xs" ng-click="grid.appScope.$vm.gridMethodForJob003.deleteData(row)" ng-disabled="row.entity.g"> 刪除</a>\
-  //                   </div>');
-	$templateCache.put('accessibilityToCB', '\
-                    <div class="ui-grid-cell-contents text-center">\
+  
+    $templateCache.put('accessibilityToChangeNature', '\
+                    <div class="ui-grid-cell-contents">\
                         <a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethod.changeNature(row)" ng-hide="row.entity[\'loading\']"> 改單</a>\
                         <a href="javascript:void(0);" class="btn btn-warning btn-xs disabled" ng-show="row.entity[\'loading\']"> <i class="fa fa-refresh fa-spin"></i></a>\
-        				<a href="javascript:void(0);" class="btn btn-danger btn-xs" ng-click="grid.appScope.$vm.gridMethod.banData(row)" ng-class="row.entity.BLFO_TRACK != null ? \'disabled\' : \'\'"> 加入黑名單</a>\
+                    </div>');
+
+	$templateCache.put('accessibilityToJob001', '\
+                    <div class="ui-grid-cell-contents">\
+                        <!--<a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethod.changeNature(row)" ng-hide="row.entity[\'loading\']"> 改單</a>-->\
+                        <!--<a href="javascript:void(0);" class="btn btn-warning btn-xs disabled" ng-show="row.entity[\'loading\']"> <i class="fa fa-refresh fa-spin"></i></a>-->\
+        				<!--<a href="javascript:void(0);" class="btn btn-danger btn-xs" ng-click="grid.appScope.$vm.gridMethod.banData(row)" ng-class="row.entity.BLFO_TRACK != null ? \'disabled\' : \'\'"> 加入黑名單</a>-->\
                         <a href="javascript:void(0);" class="btn btn-primary btn-xs" ng-click="grid.appScope.$vm.gridMethod.pullGoods(row)" ng-class="row.entity.PG_PULLGOODS ? \'disabled\' : \'\'"> 拉貨</a>\
                         <!--<a href="javascript:void(0);" class="btn btn-primary btn-xs" ng-click="grid.appScope.$vm.gridMethod.cancelPullGoods(row)" ng-show="row.entity.PG_PULLGOODS && !row.entity.PG_MOVED"> 恢復</a>-->\
                         <!--<a href="javascript:void(0);" class="btn btn-success btn-xs" ng-click="grid.appScope.$vm.gridMethod.specialGoods(row)" ng-class="row.entity.SPG_SPECIALGOODS != 0 ? \'disabled\' : \'\'"> 特貨</a>-->\
-                        <a href="javascript:void(0);" class="btn btn-default btn-xs" ng-click="grid.appScope.$vm.gridMethod.specialGoods(row)" ng-show="row.entity.SPG_SPECIALGOODS == 0"> 特貨</a>\
-                        <a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethod.specialGoods(row)" ng-show="row.entity.SPG_SPECIALGOODS == 1"> 普特貨</a>\
-                        <a href="javascript:void(0);" class="btn btn-success btn-xs" ng-click="grid.appScope.$vm.gridMethod.specialGoods(row)" ng-show="row.entity.SPG_SPECIALGOODS == 2"> 特特貨</a>\
+                        <a href="javascript:void(0);" class="btn btn-default btn-xs" ng-click="grid.appScope.$vm.gridMethod.specialGoods(row)" ng-if="row.entity.SPG_SPECIALGOODS == 0"> 特貨</a>\
+                        <a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethod.specialGoods(row)" ng-if="row.entity.SPG_SPECIALGOODS == 1"> 普特貨</a>\
+                        <a href="javascript:void(0);" class="btn btn-success btn-xs" ng-click="grid.appScope.$vm.gridMethod.specialGoods(row)" ng-if="row.entity.SPG_SPECIALGOODS == 2"> 特特貨</a>\
    		  		    </div>');
+
+    $templateCache.put('accessibilityToOverSixName', '\
+                    <div class="ui-grid-cell-contents text-center">\
+                        <span class="label bg-color-red" ng-if="row.entity.GETNAME_COUNT == -1">自訂</span>\
+                        <span class="text-danger" ng-if="row.entity.GETNAME_COUNT != -1">{{row.entity.GETNAME_COUNT}}</span>\
+                    </div>');
+
+    $templateCache.put('accessibilityToOverSixAddress', '\
+                    <div class="ui-grid-cell-contents text-center">\
+                        <span class="label bg-color-red" ng-if="row.entity.GETADDRESS_COUNT == -1">自訂</span>\
+                        <span class="text-danger" ng-if="row.entity.GETADDRESS_COUNT != -1">{{row.entity.GETADDRESS_COUNT}}</span>\
+                    </div>');
+
+    $templateCache.put('accessibilityToMForCompound', '\
+                        <div class="ui-grid-cell-contents text-center">\
+                            <a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethodForCompound.modifyData(row)"> {{$parent.$root.getWord(\'Modify\')}}</a>\
+                        </div>');
 
     $templateCache.put('accessibilityToMForBLFO', '<div class="ui-grid-cell-contents text-center">\
                                             <a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethodForBLFO.modifyData(row)"> {{$parent.$root.getWord(\'Modify\')}}</a>\
@@ -4511,17 +4837,17 @@ angular.module('app')
                         </div>');
     $templateCache.put('accessibilityToForW2', '\
                         <div class="ui-grid-cell-contents text-center">\
-                            <i class="fa fa-circle-o" data-tooltip-placement="left" data-uib-tooltip="{{row.entity.W2_PRINCIPAL}}" ng-if="row.entity.W2_STATUS == \'1\'"> </i> \
-                            <i class="fa fa-circle text-warning" data-tooltip-placement="left" data-uib-tooltip="{{row.entity.W2_PRINCIPAL | userInfoFilter}}" ng-if="row.entity.W2_STATUS == \'2\'"> </i> \
-                            <i class="fa fa-circle text-success" data-tooltip-placement="left" data-uib-tooltip="{{row.entity.W2_PRINCIPAL | userInfoFilter}}" ng-if="row.entity.W2_STATUS == \'3\'"> </i> \
-                            <i class="fa fa-circle txt-color-magenta" data-tooltip-placement="left" data-uib-tooltip="{{row.entity.W2_PRINCIPAL | userInfoFilter}}" ng-if="row.entity.W2_STATUS == \'4\'"> </i> \
+                            <i class="fa fa-circle-o" data-tooltip-placement="left" data-uib-tooltip="{{row.entity.W2_PRINCIPAL}}" ng-if="row.entity.W2_STATUS == \'1\' && row.entity.OL_COUNT > 0"> </i> \
+                            <i class="fa fa-circle text-warning" data-tooltip-placement="left" data-uib-tooltip="{{row.entity.W2_PRINCIPAL | userInfoFilter}}" ng-if="row.entity.W2_STATUS == \'2\' && row.entity.OL_COUNT > 0"> </i> \
+                            <i class="fa fa-circle text-success" data-tooltip-placement="left" data-uib-tooltip="{{row.entity.W2_PRINCIPAL | userInfoFilter}}" ng-if="row.entity.W2_STATUS == \'3\' && row.entity.OL_COUNT > 0"> </i> \
+                            <i class="fa fa-circle txt-color-magenta" data-tooltip-placement="left" data-uib-tooltip="{{row.entity.W2_PRINCIPAL | userInfoFilter}}" ng-if="row.entity.W2_STATUS == \'4\' && row.entity.OL_COUNT > 0"> </i> \
                         </div>');
     $templateCache.put('accessibilityToForW3', '\
                         <div class="ui-grid-cell-contents text-center">\
-                            <i class="fa fa-circle-o" data-tooltip-placement="left" data-uib-tooltip="{{row.entity.W3_PRINCIPAL}}" ng-if="row.entity.W3_STATUS == \'1\'"> </i> \
-                            <i class="fa fa-circle text-warning" data-tooltip-placement="left" data-uib-tooltip="{{row.entity.W3_PRINCIPAL}}" ng-if="row.entity.W3_STATUS == \'2\'"> </i> \
-                            <i class="fa fa-circle text-success" data-tooltip-placement="left" data-uib-tooltip="{{row.entity.W3_PRINCIPAL}}" ng-if="row.entity.W3_STATUS == \'3\'"> </i> \
-                            <i class="fa fa-circle txt-color-magenta" data-tooltip-placement="left" data-uib-tooltip="{{row.entity.W3_PRINCIPAL | userInfoFilter}}" ng-if="row.entity.W3_STATUS == \'4\'"> </i> \
+                            <i class="fa fa-circle-o" data-tooltip-placement="left" data-uib-tooltip="{{row.entity.W3_PRINCIPAL}}" ng-if="row.entity.W3_STATUS == \'1\' && row.entity.OL_FLL_COUNT > 0"> </i> \
+                            <i class="fa fa-circle text-warning" data-tooltip-placement="left" data-uib-tooltip="{{row.entity.W3_PRINCIPAL}}" ng-if="row.entity.W3_STATUS == \'2\' && row.entity.OL_FLL_COUNT > 0"> </i> \
+                            <i class="fa fa-circle text-success" data-tooltip-placement="left" data-uib-tooltip="{{row.entity.W3_PRINCIPAL}}" ng-if="row.entity.W3_STATUS == \'3\' && row.entity.OL_FLL_COUNT > 0"> </i> \
+                            <i class="fa fa-circle txt-color-magenta" data-tooltip-placement="left" data-uib-tooltip="{{row.entity.W3_PRINCIPAL | userInfoFilter}}" ng-if="row.entity.W3_STATUS == \'4\' && row.entity.OL_FLL_COUNT > 0"> </i> \
                         </div>');
     $templateCache.put('accessibilityToForW1', '\
                         <div class="ui-grid-cell-contents text-center">\
@@ -4532,14 +4858,15 @@ angular.module('app')
                         </div>');
     $templateCache.put('accessibilityToDMCForLeader', '\
                         <div class="ui-grid-cell-contents text-center">\
-                            <a href="javascript:void(0);" class="btn btn-danger btn-xs" ng-click="grid.appScope.$vm.gridMethod.deleteData(row)" ng-disabled="row.entity.g"> 刪除</a>\
+                            <a href="javascript:void(0);" class="btn btn-danger btn-xs" ng-click="grid.appScope.$vm.gridMethod.deleteData(row)"> 刪除</a>\
                             <a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethod.modifyData(row)"> 修改</a>\
                             <!-- <a href="javascript:void(0);" class="btn btn-primary btn-xs" ng-click="grid.appScope.$vm.gridMethod.closeData(row)" ng-class="(row.entity.W1_STATUS == \'3\' && row.entity.W2_STATUS == \'3\' && row.entity.W3_STATUS == \'3\') ? \'\' : \'disabled\'"> 結單</a> -->\
-                            <a href="javascript:void(0);" class="btn btn-primary btn-xs" ng-click="grid.appScope.$vm.gridMethod.closeData(row)" ng-class="(row.entity.W2_STATUS == \'3\' || row.entity.W2_STATUS == \'4\') ? \'\' : \'disabled\'"> 結單</a>\
+                            <a href="javascript:void(0);" class="btn btn-primary btn-xs" ng-click="grid.appScope.$vm.gridMethod.closeData(row)" ng-class="(row.entity.W2_STATUS == \'3\' || row.entity.W2_STATUS == \'4\' || row.entity.W3_STATUS == \'3\' || row.entity.W3_STATUS == \'4\') ? \'\' : \'disabled\'"> 結單</a>\
                         </div>');
     $templateCache.put('accessibilityToMForLeaderSearch', '\
                         <div class="ui-grid-cell-contents text-center">\
                             <a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethod.modifyData(row)"> 修改</a>\
+                            <a href="javascript:void(0);" class="btn btn-danger btn-xs" ng-click="grid.appScope.$vm.gridMethod.releaseData(row)" ng-if="grid.appScope.$vm.profile.U_GRADE < 10" ng-class="{\'disabled\' : row.entity.OL_FDATETIME == null}"> 解案</a>\
                         </div>');
     $templateCache.put('accessibilityToEdited', '\
                         <div class="ui-grid-cell-contents text-center">\
@@ -4548,6 +4875,13 @@ angular.module('app')
     $templateCache.put('accessibilityToHistoryCount', '\
                         <div class="ui-grid-cell-contents text-center">\
                             <a href-void="" class="btn btn-danger btn-xs" href="#" ng-class="row.entity.IL_COUNT > 0 ? \'\' : \'disabled\'" ng-click="grid.appScope.$vm.gridMethod.showHistoryCount(row)">{{row.entity.IL_COUNT}}</a> \
+                        </div>');
+
+    $templateCache.put('accessibilityToSysLevel', '\
+                        <div class="ui-grid-cell-contents text-center" ng-switch="row.entity.SDL_LEVEL">\
+                            <span class="label bg-color-blue" ng-switch-when="info">{{row.entity.SDL_LEVEL}}</span>\
+                            <span class="label bg-color-red" ng-switch-when="error">{{row.entity.SDL_LEVEL}}</span>\
+                            <span ng-switch-default>{{row.entity.SDL_LEVEL}}</span>\
                         </div>');
 
     $templateCache.put('isChecked', '\
@@ -4569,9 +4903,9 @@ angular.module('app')
                             <form class="form-horizontal" name="modifyForm"> \
                                 <fieldset> \
                                     <div class="form-group"> \
-                                        <label class="col-md-2 control-label"><code>*</code>進口日期</label> \
+                                        <label class="col-md-2 control-label">進口日期</label> \
                                         <div class="col-md-10"> \
-                                            <input class="form-control" name="OL_IMPORTDT" type="text" ng-model="$ctrl.mdData.OL_IMPORTDT" ui-mask="9999-99-99" ui-mask-placeholder ui-mask-placeholder-char="_" placeholder="請輸入公佈日期 (西元 年-月-日)" model-view-value="true" is-date required/> \
+                                            <input class="form-control" name="OL_IMPORTDT" type="text" ng-model="$ctrl.mdData.OL_IMPORTDT" ui-mask="9999-99-99" ui-mask-placeholder ui-mask-placeholder-char="_" placeholder="請輸入公佈日期 (西元 年-月-日)" model-view-value="true" is-date/> \
                                         </div> \
                                     </div> \
                                     <div class="form-group"> \
@@ -4587,7 +4921,7 @@ angular.module('app')
                                             <input class="form-control" name="OL_FLIGHTNO" placeholder="請輸入航班" ng-model="$ctrl.mdData.OL_FLIGHTNO" type="text" ui-mask="AA 9999" ui-mask-placeholder> \
                                         </div> --> \
                                         <div class="col-md-3" ng-class="$ctrl.mdData.FLIGHTNO_END.length && !$ctrl.mdData.FLIGHTNO_START.length ? \' has-error\' : \'\'"> \
-                                            <input class="form-control" ng-model="$ctrl.mdData.FLIGHTNO_START" placeholder="代碼" type="text" ui-mask="AA" ui-mask-placeholder ng-required="$ctrl.mdData.FLIGHTNO_END.length"> \
+                                            <input class="form-control" ng-model="$ctrl.mdData.FLIGHTNO_START" placeholder="代碼" type="text" ui-mask="**" ui-mask-placeholder ng-required="$ctrl.mdData.FLIGHTNO_END.length"> \
                                         </div> \
                                         <div class="col-md-7" ng-class="$ctrl.mdData.FLIGHTNO_START.length && !$ctrl.mdData.FLIGHTNO_END.length ? \' has-error\' : \'\'"> \
                                             <input class="form-control" ng-model="$ctrl.mdData.FLIGHTNO_END" placeholder="號碼" type="text" maxlength="4" ng-required="$ctrl.mdData.FLIGHTNO_START.length"> \
@@ -4596,13 +4930,19 @@ angular.module('app')
                                     <div class="form-group"> \
                                         <label class="col-md-2 control-label">主號</label> \
                                         <div class="col-md-10"> \
-                                            <input class="form-control" name="OL_MASTER" placeholder="請輸入主號" ng-model="$ctrl.mdData.OL_MASTER" type="text" ui-mask="999-99999999" ui-mask-placeholder> \
+                                            <input class="form-control" name="OL_MASTER" placeholder="請輸入主號" model-view-value="true" ng-model="$ctrl.mdData.OL_MASTER" type="text" ui-mask="999-99999999" ui-mask-placeholder> \
                                         </div> \
                                     </div> \
                                     <div class="form-group"> \
                                         <label class="col-md-2 control-label">起運國別</label> \
                                         <div class="col-md-10"> \
                                             <input class="form-control" name="OL_COUNTRY" placeholder="請輸入起運國別" ng-model="$ctrl.mdData.OL_COUNTRY" type="text" ui-mask="AA" ui-mask-placeholder> \
+                                        </div> \
+                                    </div> \
+                                    <div class="form-group"> \
+                                        <label class="col-md-2 control-label">描述</label> \
+                                        <div class="col-md-10"> \
+                                            <textarea class="form-control" rows="3" maxlength="300" ng-model="$ctrl.mdData.OL_REASON" placeholder="字數限制 300字"></textarea> \
                                         </div> \
                                     </div> \
                                 </fieldset> \
@@ -4641,7 +4981,7 @@ angular.module('app')
 })
 .controller('ModifyOrderListModalInstanceCtrl', function ($uibModalInstance, vmData, compy) {
     var $ctrl = this,
-        _flightNo = vmData.OL_FLIGHTNO.split(' ');
+        _flightNo = vmData.OL_FLIGHTNO != null ? vmData.OL_FLIGHTNO.split(' ') : [];
     if(_flightNo.length == 2){
         vmData.FLIGHTNO_START = _flightNo[0];
         vmData.FLIGHTNO_END = _flightNo[1];
@@ -5239,35 +5579,6 @@ angular.module('app.forms').value('formsCommon', {
             }
         }
     });
-'use strict';
-
-angular.module('app.appViews').controller('ProjectsDemoCtrl', function ($scope, projects) {
-
-    $scope.projects = projects.data;
-
-    $scope.tableOptions =  {
-        "data": projects.data.data,
-//            "bDestroy": true,
-        "iDisplayLength": 15,
-        "columns": [
-            {
-                "class":          'details-control',
-                "orderable":      false,
-                "data":           null,
-                "defaultContent": ''
-            },
-            { "data": "name" },
-            { "data": "est" },
-            { "data": "contacts" },
-            { "data": "status" },
-            { "data": "target-actual" },
-            { "data": "starts" },
-            { "data": "ends" },
-            { "data": "tracker" }
-        ],
-        "order": [[1, 'asc']]
-    }
-});
 "use strict";
 
 angular.module('app.auth').controller('MainLoginCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, RestfulApi) {
@@ -5307,10 +5618,31 @@ angular.module('app.auth').directive('loginInfo', function(User, Session){
             // });
             
 			scope.user = angular.copy(Session.Get());
-			scope.user["picture"] = 'styles/img/avatars/sunny.png';
+			scope.user["picture"] = 'styles/img/avatars/eastwind.png';
         }
     }
 })
+
+
+
+'use strict';
+
+angular.module('app.auth').factory('User', function ($http, $q, APP_CONFIG) {
+    var dfd = $q.defer();
+
+    var UserModel = {
+        initialized: dfd.promise,
+        username: undefined,
+        picture: undefined
+    };
+     $http.get(APP_CONFIG.apiRootUrl + '/user.json').then(function(response){
+         UserModel.username = response.data.username;
+         UserModel.picture= response.data.picture;
+         dfd.resolve(UserModel)
+     });
+
+    return UserModel;
+});
 
 "use strict";
 
@@ -5334,27 +5666,6 @@ angular.module('app.auth').controller('LoginCtrl', function ($scope, $state, Goo
         });
     });
 })
-
-
-
-'use strict';
-
-angular.module('app.auth').factory('User', function ($http, $q, APP_CONFIG) {
-    var dfd = $q.defer();
-
-    var UserModel = {
-        initialized: dfd.promise,
-        username: undefined,
-        picture: undefined
-    };
-     $http.get(APP_CONFIG.apiRootUrl + '/user.json').then(function(response){
-         UserModel.username = response.data.username;
-         UserModel.picture= response.data.picture;
-         dfd.resolve(UserModel)
-     });
-
-    return UserModel;
-});
 
 'use strict';
 
@@ -5421,12 +5732,6 @@ angular.module('app.calendar').controller('CalendarCtrl', function ($scope, $log
 
 });
 
-
-"use strict";
-
-angular.module('app.calendar').factory('CalendarEvent', function($resource, APP_CONFIG){
-    return $resource( APP_CONFIG.apiRootUrl + '/events.json', {_id:'@id'})
-});
 "use strict";
 
 angular.module('app.calendar').directive('dragableEvent', function ($log) {
@@ -5582,6 +5887,197 @@ angular.module('app.calendar').directive('fullCalendar', function (CalendarEvent
             scope.changeView = function (period) {
                 $calendar.fullCalendar('changeView', period);
             };
+        }
+    }
+});
+
+"use strict";
+
+angular.module('app.calendar').factory('CalendarEvent', function($resource, APP_CONFIG){
+    return $resource( APP_CONFIG.apiRootUrl + '/events.json', {_id:'@id'})
+});
+"use strict";	
+
+angular.module('app').controller("ActivitiesCtrl", function ActivitiesCtrl($scope, $log, activityService){
+
+	$scope.activeTab = 'default';
+	$scope.currentActivityItems = [];
+	
+	// Getting different type of activites
+	activityService.get(function(data){
+
+		$scope.activities = data.activities;
+		
+	});
+
+
+	$scope.isActive = function(tab){
+		return $scope.activeTab === tab;
+	};
+
+	$scope.setTab = function(activityType){
+		$scope.activeTab = activityType;
+
+		activityService.getbytype(activityType, function(data) {
+
+			$scope.currentActivityItems = data.data;
+
+		});
+
+	};
+
+});
+"use strict";
+
+angular.module('app').directive('activitiesDropdownToggle', function($log) {
+
+	var link = function($scope,$element, attrs){
+		var ajax_dropdown = null;
+
+		$element.on('click',function(){
+			var badge = $(this).find('.badge');
+
+			if (badge.hasClass('bg-color-red')) {
+
+				badge.removeClass('bg-color-red').text(0);
+
+			}
+
+			ajax_dropdown = $(this).next('.ajax-dropdown');
+
+			if (!ajax_dropdown.is(':visible')) {
+
+				ajax_dropdown.fadeIn(150);
+
+				$(this).addClass('active');
+
+			}
+			 else {
+				
+				ajax_dropdown.fadeOut(150);
+				
+				$(this).removeClass('active');
+
+			}
+
+		})
+
+		$(document).mouseup(function(e) {
+			if (ajax_dropdown && !ajax_dropdown.is(e.target) && ajax_dropdown.has(e.target).length === 0) {
+				ajax_dropdown.fadeOut(150);
+				$element.removeClass('active');
+			}
+		});
+	}
+	
+	return{
+		restrict:'EA',
+		link:link
+	}
+});
+"use strict";
+
+angular.module('app').factory('activityService', function($http, $log, APP_CONFIG) {
+
+	function getActivities(callback){
+
+		$http.get(APP_CONFIG.apiRootUrl + '/activities/activity.json').success(function(data){
+
+			callback(data);
+				
+		}).error(function(){
+
+			$log.log('Error');
+			callback([]);
+
+		});
+
+	}
+
+	function getActivitiesByType(type, callback){
+
+		$http.get(APP_CONFIG.apiRootUrl + '/activities/activity-' + type + '.json').success(function(data){
+
+			callback(data);
+				
+		}).error(function(){
+
+			$log.log('Error');
+			callback([]);
+
+		});
+
+	}
+	
+	return{
+		get:function(callback){
+			getActivities(callback);
+		},
+		getbytype:function(type,callback){
+			getActivitiesByType(type, callback);
+		}
+	}
+});
+"use strict";
+
+angular.module('app').controller('TodoCtrl', function ($scope, $timeout, Todo) {
+    $scope.newTodo = undefined;
+
+    $scope.states = ['Critical', 'Important', 'Completed'];
+
+    $scope.todos = Todo.getList().$object;
+
+    // $scope.$watch('todos', function(){ }, true)
+
+    $scope.toggleAdd = function () {
+        if (!$scope.newTodo) {
+            $scope.newTodo = {
+                state: 'Important'
+            };
+        } else {
+            $scope.newTodo = undefined;
+        }
+    };
+
+    $scope.createTodo = function () {
+        $scope.todos.push(
+           Todo.normalize($scope.newTodo)
+        );
+        $scope.newTodo = undefined;
+
+    };
+
+    $scope.deleteTodo = function (todo) {
+        todo.remove().then(function () {
+            $scope.todos.splice($scope.todos.indexOf(todo), 1);
+        });
+
+    };
+
+});
+"use strict";
+
+angular.module('app').factory('Project', function($http, APP_CONFIG){
+    return {
+        list: $http.get(APP_CONFIG.apiRootUrl + '/projects.json')
+    }
+});
+"use strict";
+
+angular.module('app').directive('recentProjects', function(Project){
+    return {
+        restrict: "EA",
+        replace: true,
+        templateUrl: "app/dashboard/projects/recent-projects.tpl.html",
+        scope: true,
+        link: function(scope, element){
+
+            Project.list.then(function(response){
+                scope.projects = response.data;
+            });
+            scope.clearProjects = function(){
+                scope.projects = [];
+            }
         }
     }
 });
@@ -6692,135 +7188,6 @@ angular.module('app.concerns').controller('DailyAlertCtrl', function ($scope, $s
         $uibModalInstance.dismiss('cancel');
     };
 });
-"use strict";	
-
-angular.module('app').controller("ActivitiesCtrl", function ActivitiesCtrl($scope, $log, activityService){
-
-	$scope.activeTab = 'default';
-	$scope.currentActivityItems = [];
-	
-	// Getting different type of activites
-	activityService.get(function(data){
-
-		$scope.activities = data.activities;
-		
-	});
-
-
-	$scope.isActive = function(tab){
-		return $scope.activeTab === tab;
-	};
-
-	$scope.setTab = function(activityType){
-		$scope.activeTab = activityType;
-
-		activityService.getbytype(activityType, function(data) {
-
-			$scope.currentActivityItems = data.data;
-
-		});
-
-	};
-
-});
-"use strict";
-
-angular.module('app').directive('activitiesDropdownToggle', function($log) {
-
-	var link = function($scope,$element, attrs){
-		var ajax_dropdown = null;
-
-		$element.on('click',function(){
-			var badge = $(this).find('.badge');
-
-			if (badge.hasClass('bg-color-red')) {
-
-				badge.removeClass('bg-color-red').text(0);
-
-			}
-
-			ajax_dropdown = $(this).next('.ajax-dropdown');
-
-			if (!ajax_dropdown.is(':visible')) {
-
-				ajax_dropdown.fadeIn(150);
-
-				$(this).addClass('active');
-
-			}
-			 else {
-				
-				ajax_dropdown.fadeOut(150);
-				
-				$(this).removeClass('active');
-
-			}
-
-		})
-
-		$(document).mouseup(function(e) {
-			if (ajax_dropdown && !ajax_dropdown.is(e.target) && ajax_dropdown.has(e.target).length === 0) {
-				ajax_dropdown.fadeOut(150);
-				$element.removeClass('active');
-			}
-		});
-	}
-	
-	return{
-		restrict:'EA',
-		link:link
-	}
-});
-"use strict";
-
-angular.module('app').factory('activityService', function($http, $log, APP_CONFIG) {
-
-	function getActivities(callback){
-
-		$http.get(APP_CONFIG.apiRootUrl + '/activities/activity.json').success(function(data){
-
-			callback(data);
-				
-		}).error(function(){
-
-			$log.log('Error');
-			callback([]);
-
-		});
-
-	}
-
-	function getActivitiesByType(type, callback){
-
-		$http.get(APP_CONFIG.apiRootUrl + '/activities/activity-' + type + '.json').success(function(data){
-
-			callback(data);
-				
-		}).error(function(){
-
-			$log.log('Error');
-			callback([]);
-
-		});
-
-	}
-	
-	return{
-		get:function(callback){
-			getActivities(callback);
-		},
-		getbytype:function(type,callback){
-			getActivitiesByType(type, callback);
-		}
-	}
-});
-"use strict";
-
-angular.module('app').factory('Project', function($http, APP_CONFIG){
-    return {
-        list: $http.get(APP_CONFIG.apiRootUrl + '/projects.json')
-    }
-});
 angular.module("app").run(["$templateCache", function($templateCache) {$templateCache.put("app/app/dashboard/live-feeds.tpl.html","<div jarvis-widget id=\"live-feeds-widget\" data-widget-togglebutton=\"false\" data-widget-editbutton=\"false\"\r\n     data-widget-fullscreenbutton=\"false\" data-widget-colorbutton=\"false\" data-widget-deletebutton=\"false\">\r\n<!-- widget options:\r\nusage: <div class=\"jarviswidget\" id=\"wid-id-0\" data-widget-editbutton=\"false\">\r\n\r\ndata-widget-colorbutton=\"false\"\r\ndata-widget-editbutton=\"false\"\r\ndata-widget-togglebutton=\"false\"\r\ndata-widget-deletebutton=\"false\"\r\ndata-widget-fullscreenbutton=\"false\"\r\ndata-widget-custombutton=\"false\"\r\ndata-widget-collapsed=\"true\"\r\ndata-widget-sortable=\"false\"\r\n\r\n-->\r\n<header>\r\n    <span class=\"widget-icon\"> <i class=\"glyphicon glyphicon-stats txt-color-darken\"></i> </span>\r\n\r\n    <h2>Live Feeds </h2>\r\n\r\n    <ul class=\"nav nav-tabs pull-right in\" id=\"myTab\">\r\n        <li class=\"active\">\r\n            <a data-toggle=\"tab\" href=\"#s1\"><i class=\"fa fa-clock-o\"></i> <span class=\"hidden-mobile hidden-tablet\">Live Stats</span></a>\r\n        </li>\r\n\r\n        <li>\r\n            <a data-toggle=\"tab\" href=\"#s2\"><i class=\"fa fa-facebook\"></i> <span class=\"hidden-mobile hidden-tablet\">Social Network</span></a>\r\n        </li>\r\n\r\n        <li>\r\n            <a data-toggle=\"tab\" href=\"#s3\"><i class=\"fa fa-dollar\"></i> <span class=\"hidden-mobile hidden-tablet\">Revenue</span></a>\r\n        </li>\r\n    </ul>\r\n\r\n</header>\r\n\r\n<!-- widget div-->\r\n<div class=\"no-padding\">\r\n\r\n    <div class=\"widget-body\">\r\n        <!-- content -->\r\n        <div id=\"myTabContent\" class=\"tab-content\">\r\n            <div class=\"tab-pane fade active in padding-10 no-padding-bottom\" id=\"s1\">\r\n                <div class=\"row no-space\">\r\n                    <div class=\"col-xs-12 col-sm-12 col-md-8 col-lg-8\">\r\n														<span class=\"demo-liveupdate-1\"> <span\r\n                                                                class=\"onoffswitch-title\">Live switch</span> <span\r\n                                                                class=\"onoffswitch\">\r\n																<input type=\"checkbox\" name=\"start_interval\" ng-model=\"autoUpdate\"\r\n                                                                       class=\"onoffswitch-checkbox\" id=\"start_interval\">\r\n																<label class=\"onoffswitch-label\" for=\"start_interval\">\r\n                                                                    <span class=\"onoffswitch-inner\"\r\n                                                                          data-swchon-text=\"ON\"\r\n                                                                          data-swchoff-text=\"OFF\"></span>\r\n                                                                    <span class=\"onoffswitch-switch\"></span>\r\n                                                                </label> </span> </span>\r\n\r\n                        <div id=\"updating-chart\" class=\"chart-large txt-color-blue\" flot-basic flot-data=\"liveStats\" flot-options=\"liveStatsOptions\"></div>\r\n\r\n                    </div>\r\n                    <div class=\"col-xs-12 col-sm-12 col-md-4 col-lg-4 show-stats\">\r\n\r\n                        <div class=\"row\">\r\n                            <div class=\"col-xs-6 col-sm-6 col-md-12 col-lg-12\"><span class=\"text\"> My Tasks <span\r\n                                    class=\"pull-right\">130/200</span> </span>\r\n\r\n                                <div class=\"progress\">\r\n                                    <div class=\"progress-bar bg-color-blueDark\" style=\"width: 65%;\"></div>\r\n                                </div>\r\n                            </div>\r\n                            <div class=\"col-xs-6 col-sm-6 col-md-12 col-lg-12\"><span class=\"text\"> Transfered <span\r\n                                    class=\"pull-right\">440 GB</span> </span>\r\n\r\n                                <div class=\"progress\">\r\n                                    <div class=\"progress-bar bg-color-blue\" style=\"width: 34%;\"></div>\r\n                                </div>\r\n                            </div>\r\n                            <div class=\"col-xs-6 col-sm-6 col-md-12 col-lg-12\"><span class=\"text\"> Bugs Squashed<span\r\n                                    class=\"pull-right\">77%</span> </span>\r\n\r\n                                <div class=\"progress\">\r\n                                    <div class=\"progress-bar bg-color-blue\" style=\"width: 77%;\"></div>\r\n                                </div>\r\n                            </div>\r\n                            <div class=\"col-xs-6 col-sm-6 col-md-12 col-lg-12\"><span class=\"text\"> User Testing <span\r\n                                    class=\"pull-right\">7 Days</span> </span>\r\n\r\n                                <div class=\"progress\">\r\n                                    <div class=\"progress-bar bg-color-greenLight\" style=\"width: 84%;\"></div>\r\n                                </div>\r\n                            </div>\r\n\r\n                            <span class=\"show-stat-buttons\"> <span class=\"col-xs-12 col-sm-6 col-md-6 col-lg-6\"> <a\r\n                                    href-void class=\"btn btn-default btn-block hidden-xs\">Generate PDF</a> </span> <span\r\n                                    class=\"col-xs-12 col-sm-6 col-md-6 col-lg-6\"> <a href-void\r\n                                                                                     class=\"btn btn-default btn-block hidden-xs\">Report\r\n                                a bug</a> </span> </span>\r\n\r\n                        </div>\r\n\r\n                    </div>\r\n                </div>\r\n\r\n                <div class=\"show-stat-microcharts\" data-sparkline-container data-easy-pie-chart-container>\r\n                    <div class=\"col-xs-12 col-sm-3 col-md-3 col-lg-3\">\r\n\r\n                        <div class=\"easy-pie-chart txt-color-orangeDark\" data-percent=\"33\" data-pie-size=\"50\">\r\n                            <span class=\"percent percent-sign\">35</span>\r\n                        </div>\r\n                        <span class=\"easy-pie-title\"> Server Load <i class=\"fa fa-caret-up icon-color-bad\"></i> </span>\r\n                        <ul class=\"smaller-stat hidden-sm pull-right\">\r\n                            <li>\r\n                                <span class=\"label bg-color-greenLight\"><i class=\"fa fa-caret-up\"></i> 97%</span>\r\n                            </li>\r\n                            <li>\r\n                                <span class=\"label bg-color-blueLight\"><i class=\"fa fa-caret-down\"></i> 44%</span>\r\n                            </li>\r\n                        </ul>\r\n                        <div class=\"sparkline txt-color-greenLight hidden-sm hidden-md pull-right\"\r\n                             data-sparkline-type=\"line\" data-sparkline-height=\"33px\" data-sparkline-width=\"70px\"\r\n                             data-fill-color=\"transparent\">\r\n                            130, 187, 250, 257, 200, 210, 300, 270, 363, 247, 270, 363, 247\r\n                        </div>\r\n                    </div>\r\n                    <div class=\"col-xs-12 col-sm-3 col-md-3 col-lg-3\">\r\n                        <div class=\"easy-pie-chart txt-color-greenLight\" data-percent=\"78.9\" data-pie-size=\"50\">\r\n                            <span class=\"percent percent-sign\">78.9 </span>\r\n                        </div>\r\n                        <span class=\"easy-pie-title\"> Disk Space <i class=\"fa fa-caret-down icon-color-good\"></i></span>\r\n                        <ul class=\"smaller-stat hidden-sm pull-right\">\r\n                            <li>\r\n                                <span class=\"label bg-color-blueDark\"><i class=\"fa fa-caret-up\"></i> 76%</span>\r\n                            </li>\r\n                            <li>\r\n                                <span class=\"label bg-color-blue\"><i class=\"fa fa-caret-down\"></i> 3%</span>\r\n                            </li>\r\n                        </ul>\r\n                        <div class=\"sparkline txt-color-blue hidden-sm hidden-md pull-right\" data-sparkline-type=\"line\"\r\n                             data-sparkline-height=\"33px\" data-sparkline-width=\"70px\" data-fill-color=\"transparent\">\r\n                            257, 200, 210, 300, 270, 363, 130, 187, 250, 247, 270, 363, 247\r\n                        </div>\r\n                    </div>\r\n                    <div class=\"col-xs-12 col-sm-3 col-md-3 col-lg-3\">\r\n                        <div class=\"easy-pie-chart txt-color-blue\" data-percent=\"23\" data-pie-size=\"50\">\r\n                            <span class=\"percent percent-sign\">23 </span>\r\n                        </div>\r\n                        <span class=\"easy-pie-title\"> Transfered <i class=\"fa fa-caret-up icon-color-good\"></i></span>\r\n                        <ul class=\"smaller-stat hidden-sm pull-right\">\r\n                            <li>\r\n                                <span class=\"label bg-color-darken\">10GB</span>\r\n                            </li>\r\n                            <li>\r\n                                <span class=\"label bg-color-blueDark\"><i class=\"fa fa-caret-up\"></i> 10%</span>\r\n                            </li>\r\n                        </ul>\r\n                        <div class=\"sparkline txt-color-darken hidden-sm hidden-md pull-right\"\r\n                             data-sparkline-type=\"line\" data-sparkline-height=\"33px\" data-sparkline-width=\"70px\"\r\n                             data-fill-color=\"transparent\">\r\n                            200, 210, 363, 247, 300, 270, 130, 187, 250, 257, 363, 247, 270\r\n                        </div>\r\n                    </div>\r\n                    <div class=\"col-xs-12 col-sm-3 col-md-3 col-lg-3\">\r\n                        <div class=\"easy-pie-chart txt-color-darken\" data-percent=\"36\" data-pie-size=\"50\">\r\n                            <span class=\"percent degree-sign\">36 <i class=\"fa fa-caret-up\"></i></span>\r\n                        </div>\r\n                        <span class=\"easy-pie-title\"> Temperature <i\r\n                                class=\"fa fa-caret-down icon-color-good\"></i></span>\r\n                        <ul class=\"smaller-stat hidden-sm pull-right\">\r\n                            <li>\r\n                                <span class=\"label bg-color-red\"><i class=\"fa fa-caret-up\"></i> 124</span>\r\n                            </li>\r\n                            <li>\r\n                                <span class=\"label bg-color-blue\"><i class=\"fa fa-caret-down\"></i> 40 F</span>\r\n                            </li>\r\n                        </ul>\r\n                        <div class=\"sparkline txt-color-red hidden-sm hidden-md pull-right\" data-sparkline-type=\"line\"\r\n                             data-sparkline-height=\"33px\" data-sparkline-width=\"70px\" data-fill-color=\"transparent\">\r\n                            2700, 3631, 2471, 2700, 3631, 2471, 1300, 1877, 2500, 2577, 2000, 2100, 3000\r\n                        </div>\r\n                    </div>\r\n                </div>\r\n\r\n            </div>\r\n            <!-- end s1 tab pane -->\r\n\r\n            <div class=\"tab-pane fade\" id=\"s2\">\r\n                <div class=\"widget-body-toolbar bg-color-white\">\r\n\r\n                    <form class=\"form-inline\" role=\"form\">\r\n\r\n                        <div class=\"form-group\">\r\n                            <label class=\"sr-only\" for=\"s123\">Show From</label>\r\n                            <input type=\"email\" class=\"form-control input-sm\" id=\"s123\" placeholder=\"Show From\">\r\n                        </div>\r\n                        <div class=\"form-group\">\r\n                            <input type=\"email\" class=\"form-control input-sm\" id=\"s124\" placeholder=\"To\">\r\n                        </div>\r\n\r\n                        <div class=\"btn-group hidden-phone pull-right\">\r\n                            <a class=\"btn dropdown-toggle btn-xs btn-default\" data-toggle=\"dropdown\"><i\r\n                                    class=\"fa fa-cog\"></i> More <span class=\"caret\"> </span> </a>\r\n                            <ul class=\"dropdown-menu pull-right\">\r\n                                <li>\r\n                                    <a href-void><i class=\"fa fa-file-text-alt\"></i> Export to PDF</a>\r\n                                </li>\r\n                                <li>\r\n                                    <a href-void><i class=\"fa fa-question-sign\"></i> Help</a>\r\n                                </li>\r\n                            </ul>\r\n                        </div>\r\n\r\n                    </form>\r\n\r\n                </div>\r\n                <div class=\"padding-10\">\r\n                    <div id=\"statsChart\" class=\"chart-large has-legend-unique\" flot-basic flot-data=\"statsData\" flot-options=\"statsDisplayOptions\"></div>\r\n                </div>\r\n\r\n            </div>\r\n            <!-- end s2 tab pane -->\r\n\r\n            <div class=\"tab-pane fade\" id=\"s3\">\r\n\r\n                <div class=\"widget-body-toolbar bg-color-white smart-form\" id=\"rev-toggles\">\r\n\r\n                    <div class=\"inline-group\">\r\n\r\n                        <label for=\"gra-0\" class=\"checkbox\">\r\n                            <input type=\"checkbox\" id=\"gra-0\" ng-model=\"targetsShow\">\r\n                            <i></i> Target </label>\r\n                        <label for=\"gra-1\" class=\"checkbox\">\r\n                            <input type=\"checkbox\" id=\"gra-1\" ng-model=\"actualsShow\">\r\n                            <i></i> Actual </label>\r\n                        <label for=\"gra-2\" class=\"checkbox\">\r\n                            <input type=\"checkbox\" id=\"gra-2\" ng-model=\"signupsShow\">\r\n                            <i></i> Signups </label>\r\n                    </div>\r\n\r\n                    <div class=\"btn-group hidden-phone pull-right\">\r\n                        <a class=\"btn dropdown-toggle btn-xs btn-default\" data-toggle=\"dropdown\"><i\r\n                                class=\"fa fa-cog\"></i> More <span class=\"caret\"> </span> </a>\r\n                        <ul class=\"dropdown-menu pull-right\">\r\n                            <li>\r\n                                <a href-void><i class=\"fa fa-file-text-alt\"></i> Export to PDF</a>\r\n                            </li>\r\n                            <li>\r\n                                <a href-void><i class=\"fa fa-question-sign\"></i> Help</a>\r\n                            </li>\r\n                        </ul>\r\n                    </div>\r\n\r\n                </div>\r\n\r\n                <div class=\"padding-10\">\r\n                    <div id=\"flotcontainer\" class=\"chart-large has-legend-unique\" flot-basic flot-data=\"revenewData\" flot-options=\"revenewDisplayOptions\" ></div>\r\n                </div>\r\n            </div>\r\n            <!-- end s3 tab pane -->\r\n        </div>\r\n\r\n        <!-- end content -->\r\n    </div>\r\n\r\n</div>\r\n<!-- end widget div -->\r\n</div>\r\n");
 $templateCache.put("app/app/layout/layout.tpl.html","<!-- HEADER -->\r\n<div data-smart-include=\"app/layout/partials/header.tpl.html\" class=\"placeholder-header\"></div>\r\n<!-- END HEADER -->\r\n\r\n\r\n<!-- Left panel : Navigation area -->\r\n<!-- Note: This width of the aside area can be adjusted through LESS variables -->\r\n<div data-smart-include=\"app/layout/partials/navigation.tpl.html\" class=\"placeholder-left-panel\"></div>\r\n\r\n<!-- END NAVIGATION -->\r\n\r\n<!-- MAIN PANEL -->\r\n<div id=\"main\" role=\"main\">\r\n    <!-- 小齒輪 -->\r\n    <!-- <demo-states></demo-states> -->\r\n\r\n    <!-- RIBBON -->\r\n    <div id=\"ribbon\">\r\n\r\n		<span class=\"ribbon-button-alignment\">\r\n			<span id=\"refresh\" class=\"btn btn-ribbon\" reset-widgets\r\n                  tooltip-placement=\"bottom\"\r\n                  smart-tooltip-html=\"<i class=\'text-warning fa fa-warning\'></i> Warning! This will reset all your widget settings.\">\r\n				<i class=\"fa fa-refresh\"></i>\r\n			</span>\r\n		</span>\r\n\r\n        <!-- breadcrumb -->\r\n        <state-breadcrumbs></state-breadcrumbs>\r\n        <!-- end breadcrumb -->\r\n\r\n\r\n    </div>\r\n    <!-- END RIBBON -->\r\n\r\n\r\n    <div data-smart-router-animation-wrap=\"content content@app\" data-wrap-for=\"#content\">\r\n        <div data-ui-view=\"content\" data-autoscroll=\"false\"></div>\r\n    </div>\r\n\r\n</div>\r\n<!-- END MAIN PANEL -->\r\n\r\n<!-- PAGE FOOTER -->\r\n<div data-smart-include=\"app/layout/partials/footer.tpl.html\"></div>\r\n\r\n<div data-smart-include=\"app/layout/shortcut/shortcut.tpl.html\"></div>\r\n\r\n<!-- END PAGE FOOTER -->\r\n\r\n\r\n");
 $templateCache.put("app/app/auth/directives/login-info.tpl.html","<div class=\"login-info ng-cloak\">\r\n    <span> <!-- User image size is adjusted inside CSS, it should stay as it -->\r\n        <!-- <a  href=\"\" toggle-shortcut>\r\n            <img ng-src=\"{{user.picture}}\" alt=\"me\" class=\"online\">\r\n                <span>{{user.U_NAME}}\r\n                </span>\r\n            <i class=\"fa fa-angle-down\"></i>\r\n        </a> -->\r\n        <a  href=\"\">\r\n            <img ng-src=\"{{user.picture}}\" alt=\"me\" class=\"online\">\r\n                <span>{{user.U_NAME}}\r\n                </span>\r\n        </a>\r\n     </span>\r\n</div>");
@@ -6830,29 +7197,30 @@ $templateCache.put("app/app/dashboard/projects/recent-projects.tpl.html","<div c
 $templateCache.put("app/app/dashboard/todo/todo-widget.tpl.html","<div id=\"todo-widget\" jarvis-widget data-widget-editbutton=\"false\" data-widget-color=\"blue\"\r\n     ng-controller=\"TodoCtrl\">\r\n    <header>\r\n        <span class=\"widget-icon\"> <i class=\"fa fa-check txt-color-white\"></i> </span>\r\n\r\n        <h2> ToDo\'s </h2>\r\n\r\n        <div class=\"widget-toolbar\">\r\n            <!-- add: non-hidden - to disable auto hide -->\r\n            <button class=\"btn btn-xs btn-default\" ng-class=\"{active: newTodo}\" ng-click=\"toggleAdd()\"><i ng-class=\"{ \'fa fa-plus\': !newTodo, \'fa fa-times\': newTodo}\"></i> Add</button>\r\n\r\n        </div>\r\n    </header>\r\n    <!-- widget div-->\r\n    <div>\r\n        <div class=\"widget-body no-padding smart-form\">\r\n            <!-- content goes here -->\r\n            <div ng-show=\"newTodo\">\r\n                <h5 class=\"todo-group-title\"><i class=\"fa fa-plus-circle\"></i> New Todo</h5>\r\n\r\n                <form name=\"newTodoForm\" class=\"smart-form\">\r\n                    <fieldset>\r\n                        <section>\r\n                            <label class=\"input\">\r\n                                <input type=\"text\" required class=\"input-lg\" ng-model=\"newTodo.title\"\r\n                                       placeholder=\"What needs to be done?\">\r\n                            </label>\r\n                        </section>\r\n                        <section>\r\n                            <div class=\"col-xs-6\">\r\n                                <label class=\"select\">\r\n                                    <select class=\"input-sm\" ng-model=\"newTodo.state\"\r\n                                            ng-options=\"state as state for state in states\"></select> <i></i> </label>\r\n                            </div>\r\n                        </section>\r\n                    </fieldset>\r\n                    <footer>\r\n                        <button ng-disabled=\"newTodoForm.$invalid\" type=\"button\" class=\"btn btn-primary\"\r\n                                ng-click=\"createTodo()\">\r\n                            Add\r\n                        </button>\r\n                        <button type=\"button\" class=\"btn btn-default\" ng-click=\"toggleAdd()\">\r\n                            Cancel\r\n                        </button>\r\n                    </footer>\r\n                </form>\r\n            </div>\r\n\r\n            <todo-list state=\"Critical\"  title=\"Critical Tasks\" icon=\"warning\" todos=\"todos\"></todo-list>\r\n\r\n            <todo-list state=\"Important\" title=\"Important Tasks\" icon=\"exclamation\" todos=\"todos\"></todo-list>\r\n\r\n            <todo-list state=\"Completed\" title=\"Completed Tasks\" icon=\"check\" todos=\"todos\"></todo-list>\r\n\r\n            <!-- end content -->\r\n        </div>\r\n\r\n    </div>\r\n    <!-- end widget div -->\r\n</div>");
 $templateCache.put("app/app/layout/language/language-selector.tpl.html","<ul class=\"header-dropdown-list hidden-xs ng-cloak\" ng-controller=\"LanguagesCtrl\">\r\n    <li class=\"dropdown\" dropdown>\r\n        <a class=\"dropdown-toggle\" data-toggle=\"dropdown\" href> <img src=\"styles/img/blank.gif\" class=\"flag flag-{{currentLanguage.key}}\" alt=\"{{currentLanguage.alt}}\"> <span> {{currentLanguage.title}} </span>\r\n            <i class=\"fa fa-angle-down\"></i> </a>\r\n        <ul class=\"dropdown-menu pull-right\">\r\n            <li ng-class=\"{active: language==currentLanguage}\" ng-repeat=\"language in languages\">\r\n                <a ng-click=\"selectLanguage(language)\"><img src=\"styles/img/blank.gif\" class=\"flag flag-{{language.key}}\" alt=\"{{language.alt}}\"> {{language.title}}</a>\r\n            </li>\r\n        </ul>\r\n    </li>\r\n</ul>\r\n");
 $templateCache.put("app/app/layout/partials/footer.tpl.html","<div class=\"page-footer\">\r\n    <div class=\"row\">\r\n        <div class=\"col-xs-12 col-sm-6\">\r\n            <span class=\"txt-color-white\">東風物流貨運承攬有限公司 © 2017</span>\r\n        </div>\r\n\r\n        <div class=\"col-xs-6 col-sm-6 text-right hidden-xs\">\r\n            <!-- <div class=\"txt-color-white inline-block\">\r\n                <i class=\"txt-color-blueLight hidden-mobile\">Last account activity <i class=\"fa fa-clock-o\"></i>\r\n                    <strong>52 mins ago &nbsp;</strong> </i>\r\n\r\n                <div class=\"btn-group dropup\">\r\n                    <button class=\"btn btn-xs dropdown-toggle bg-color-blue txt-color-white\" data-toggle=\"dropdown\">\r\n                        <i class=\"fa fa-link\"></i> <span class=\"caret\"></span>\r\n                    </button>\r\n                    <ul class=\"dropdown-menu pull-right text-left\">\r\n                        <li>\r\n                            <div class=\"padding-5\">\r\n                                <p class=\"txt-color-darken font-sm no-margin\">Download Progress</p>\r\n\r\n                                <div class=\"progress progress-micro no-margin\">\r\n                                    <div class=\"progress-bar progress-bar-success\" style=\"width: 50%;\"></div>\r\n                                </div>\r\n                            </div>\r\n                        </li>\r\n                        <li class=\"divider\"></li>\r\n                        <li>\r\n                            <div class=\"padding-5\">\r\n                                <p class=\"txt-color-darken font-sm no-margin\">Server Load</p>\r\n\r\n                                <div class=\"progress progress-micro no-margin\">\r\n                                    <div class=\"progress-bar progress-bar-success\" style=\"width: 20%;\"></div>\r\n                                </div>\r\n                            </div>\r\n                        </li>\r\n                        <li class=\"divider\"></li>\r\n                        <li>\r\n                            <div class=\"padding-5\">\r\n                                <p class=\"txt-color-darken font-sm no-margin\">Memory Load <span class=\"text-danger\">*critical*</span>\r\n                                </p>\r\n\r\n                                <div class=\"progress progress-micro no-margin\">\r\n                                    <div class=\"progress-bar progress-bar-danger\" style=\"width: 70%;\"></div>\r\n                                </div>\r\n                            </div>\r\n                        </li>\r\n                        <li class=\"divider\"></li>\r\n                        <li>\r\n                            <div class=\"padding-5\">\r\n                                <button class=\"btn btn-block btn-default\">refresh</button>\r\n                            </div>\r\n                        </li>\r\n                    </ul>\r\n                </div>\r\n            </div> -->\r\n        </div>\r\n    </div>\r\n</div>");
-$templateCache.put("app/app/layout/partials/header.tpl.html","<header id=\"header\">\r\n    <div id=\"logo-group\">\r\n        <!-- PLACE YOUR LOGO HERE -->\r\n        <span id=\"logo\"> <img src=\"styles/img/ews/title_logo.png\" alt=\"東風管理系統\"> </span>\r\n        <!-- END LOGO PLACEHOLDER -->\r\n        <!-- Note: The activity badge color changes when clicked and resets the number to 0\r\n    Suggestion: You may want to set a flag when this happens to tick off all checked messages / notifications -->\r\n        <!-- <span id=\"activity\" class=\"activity-dropdown\" activities-dropdown-toggle> \r\n            <i class=\"fa fa-user\"></i> \r\n            <b class=\"badge bg-color-red\">21</b> \r\n        </span> -->\r\n        <div smart-include=\"app/dashboard/activities/activities.html\"></div>\r\n    </div>\r\n    <!-- <recent-projects></recent-projects> -->\r\n    <!-- pulled right: nav area -->\r\n    <div class=\"pull-right\">\r\n        <!-- collapse menu button -->\r\n        <div id=\"hide-menu\" class=\"btn-header pull-right\">\r\n            <span> <a toggle-menu title=\"Collapse Menu\"><i\r\n                class=\"fa fa-reorder\"></i></a> </span>\r\n        </div>\r\n        <!-- end collapse menu -->\r\n        <!-- #MOBILE -->\r\n        <!-- Top menu profile link : this shows only when top menu is active -->\r\n        <ul id=\"mobile-profile-img\" class=\"header-dropdown-list hidden-xs padding-5\">\r\n            <li class=\"\">\r\n                <a href=\"#\" class=\"dropdown-toggle no-margin userdropdown\" data-toggle=\"dropdown\">\r\n                    <img src=\"styles/img/avatars/sunny.png\" alt=\"John Doe\" class=\"online\" />\r\n                </a>\r\n                <ul class=\"dropdown-menu pull-right\">\r\n                    <li>\r\n                        <a href-void class=\"padding-10 padding-top-0 padding-bottom-0\"><i\r\n                            class=\"fa fa-cog\"></i> Setting</a>\r\n                    </li>\r\n                    <li class=\"divider\"></li>\r\n                    <li>\r\n                        <a ui-sref=\"app.appViews.profileDemo\" class=\"padding-10 padding-top-0 padding-bottom-0\"> <i class=\"fa fa-user\"></i>\r\n                            <u>P</u>rofile</a>\r\n                    </li>\r\n                    <li class=\"divider\"></li>\r\n                    <li>\r\n                        <a href-void class=\"padding-10 padding-top-0 padding-bottom-0\" data-action=\"toggleShortcut\"><i class=\"fa fa-arrow-down\"></i> <u>S</u>hortcut</a>\r\n                    </li>\r\n                    <li class=\"divider\"></li>\r\n                    <li>\r\n                        <a href-void class=\"padding-10 padding-top-0 padding-bottom-0\" data-action=\"launchFullscreen\"><i class=\"fa fa-arrows-alt\"></i> Full <u>S</u>creen</a>\r\n                    </li>\r\n                    <li class=\"divider\"></li>\r\n                    <li>\r\n                        <a href=\"#/login\" class=\"padding-10 padding-top-5 padding-bottom-5\" data-action=\"userLogout\"><i\r\n                            class=\"fa fa-sign-out fa-lg\"></i> <strong><u>L</u>ogout</strong></a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n        </ul>\r\n        <!-- logout button -->\r\n        <div id=\"logout\" class=\"btn-header transparent pull-right\">\r\n            <span> \r\n                <a ui-sref=\"login\" \r\n                   title=\"Sign Out\" \r\n                   data-action=\"userLogout\"\r\n                   data-logout-msg=\"You can improve your security further after logging out by closing this opened browser\">\r\n                   <i class=\"fa fa-sign-out\"></i>\r\n                </a> \r\n            </span>\r\n        </div>\r\n        <!-- end logout button -->\r\n        <!-- search mobile button (this is hidden till mobile view port) -->\r\n        <div id=\"search-mobile\" class=\"btn-header transparent pull-right\" data-search-mobile>\r\n            <span> <a href=\"#\" title=\"Search\"><i class=\"fa fa-search\"></i></a> </span>\r\n        </div>\r\n        <!-- end search mobile button -->\r\n        <!-- input: search field -->\r\n        <!-- <form action=\"#/search\" class=\"header-search pull-right\">\r\n            <input id=\"search-fld\" type=\"text\" name=\"param\" placeholder=\"Find reports and more\" data-autocomplete=\'[\r\n                    \"ActionScript\",\r\n                    \"AppleScript\",\r\n                    \"Asp\",\r\n                    \"BASIC\",\r\n                    \"C\",\r\n                    \"C++\",\r\n                    \"Clojure\",\r\n                    \"COBOL\",\r\n                    \"ColdFusion\",\r\n                    \"Erlang\",\r\n                    \"Fortran\",\r\n                    \"Groovy\",\r\n                    \"Haskell\",\r\n                    \"Java\",\r\n                    \"JavaScript\",\r\n                    \"Lisp\",\r\n                    \"Perl\",\r\n                    \"PHP\",\r\n                    \"Python\",\r\n                    \"Ruby\",\r\n                    \"Scala\",\r\n                    \"Scheme\"]\'>\r\n            <button type=\"submit\">\r\n                <i class=\"fa fa-search\"></i>\r\n            </button>\r\n            <a href=\"$\" id=\"cancel-search-js\" title=\"Cancel Search\"><i class=\"fa fa-times\"></i></a>\r\n        </form> -->\r\n        <!-- end input: search field -->\r\n        <!-- fullscreen button -->\r\n        <div id=\"fullscreen\" class=\"btn-header transparent pull-right\">\r\n            <span> <a full-screen title=\"Full Screen\"><i\r\n                class=\"fa fa-arrows-alt\"></i></a> </span>\r\n        </div>\r\n        <!-- end fullscreen button -->\r\n        <!-- #Voice Command: Start Speech -->\r\n        <!-- <div id=\"speech-btn\" class=\"btn-header transparent pull-right hidden-sm hidden-xs\">\r\n            <div>\r\n                <a title=\"Voice Command\" id=\"voice-command-btn\" speech-recognition><i class=\"fa fa-microphone\"></i></a>\r\n                <div class=\"popover bottom\">\r\n                    <div class=\"arrow\"></div>\r\n                    <div class=\"popover-content\">\r\n                        <h4 class=\"vc-title\">Voice command activated <br>\r\n                        <small>Please speak clearly into the mic</small>\r\n                    </h4>\r\n                        <h4 class=\"vc-title-error text-center\">\r\n                        <i class=\"fa fa-microphone-slash\"></i> Voice command failed\r\n                        <br>\r\n                        <small class=\"txt-color-red\">Must <strong>\"Allow\"</strong> Microphone</small>\r\n                        <br>\r\n                        <small class=\"txt-color-red\">Must have <strong>Internet Connection</strong></small>\r\n                    </h4>\r\n                        <a href-void class=\"btn btn-success\" id=\"speech-help-btn\">See Commands</a>\r\n                        <a href-void class=\"btn bg-color-purple txt-color-white\" onclick=\"$(\'#speech-btn .popover\').fadeOut(50);\">Close Popup</a>\r\n                    </div>\r\n                </div>\r\n            </div>\r\n        </div> -->\r\n        <!-- end voice command -->\r\n        \r\n        <!-- multiple lang dropdown : find all flags in the flags page -->\r\n        <language-selector></language-selector>\r\n        <!-- end multiple lang -->\r\n    </div>\r\n    <!-- end pulled right: nav area -->\r\n</header>\r\n");
-$templateCache.put("app/app/layout/partials/navigation.tpl.html","<aside id=\"left-panel\">\r\n\r\n    <!-- User info -->\r\n    <div login-info></div>\r\n    <!-- end user info -->\r\n\r\n    <!-- <nav data-smart-menu-items=\"/api/menu-items.json\"> -->\r\n    <nav>\r\n        <!-- NOTE: Notice the gaps after each icon usage <i></i>..\r\n        Please note that these links work a bit different than\r\n        traditional href=\"\" links. See documentation for details.\r\n        -->\r\n\r\n        <ul data-smart-menu>\r\n            <li data-menu-collapse>\r\n                <a href=\"#\" title=\"Dashboard\"><i class=\"fa fa-lg fa-fw fa-home\"></i> <span\r\n                        class=\"menu-item-parent\">{{getWord(\'Dashboard\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.dashboard\">{{getWord(\'Analytics Dashboard\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.dashboard-social\">{{getWord(\'Social Wall\')}}</a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\" title=\"Restful\">\r\n                    <i class=\"fa fa-lg fa-fw fa-home\"></i> \r\n                    <span class=\"menu-item-parent\">{{getWord(\'Restful\')}}</span>\r\n                </a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.restful.alantest\">{{getWord(\'AlanTest\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.restful.gridtest\">{{getWord(\'GridTest\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.restful.exceltest\">{{getWord(\'ExcelTest\')}}</a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-ui-sref-active=\"active\">\r\n                <a data-ui-sref=\"app.mainwork\" title=\"MainWork\">\r\n                    <i class=\"fa fa-lg fa-fw fa-newspaper-o\"></i> \r\n                    <span class=\"menu-item-parent\">{{getWord(\'MainWork\')}}</span>\r\n                </a>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\" title=\"SelfWork\">\r\n                    <i class=\"fa fa-lg fa-fw fa-truck\"></i> \r\n                    <span class=\"menu-item-parent\">{{getWord(\'SelfWork\')}}</span>\r\n                </a>\r\n                <ul>\r\n                    <li data-menu-collapse>\r\n                        <a href=\"#\"><i class=\"fa fa-fw fa-folder-open\"></i> {{getWord(\'LeaderOption\')}} </a>\r\n                        <ul>\r\n                            <li data-ui-sref-active=\"active\">\r\n                                <a data-ui-sref=\"app.selfwork.leaderoption.compydistribution\"><i class=\"fa fa-building-o\"></i> {{getWord(\'CompyDistribution\')}}</a>\r\n                            </li>\r\n                            <li data-ui-sref-active=\"active\">\r\n                                <a data-ui-sref=\"app.selfwork.leaderoption.agentsetting\"><i class=\"fa fa-braille\"></i> {{getWord(\'AgentSetting\')}}</a>\r\n                            </li>\r\n                            <li data-ui-sref-active=\"active\">\r\n                                <a data-ui-sref=\"app.selfwork.leaderoption.dailyleave\"><i class=\"fa fa-child\"></i> {{getWord(\'DailyLeave\')}}</a>\r\n                            </li>\r\n                        </ul>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.selfwork.leaderjobs\"><i class=\"fa fa-cubes\"></i> {{getWord(\'LeaderJobs\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.selfwork.leaderhistorysearch\"><i class=\"fa fa-history\"></i> {{getWord(\'LeaderHistorySearch\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.selfwork.assistantjobs\"><i class=\"fa fa-cube\"></i> {{getWord(\'AssistantJobs\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.selfwork.assistanthistorysearch\"><i class=\"fa fa-history\"></i> {{getWord(\'AssistantHistorySearch\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.selfwork.employeejobs\"><i class=\"fa fa-cube\"></i> {{getWord(\'EmployeeJobs\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.selfwork.employeehistorysearch\"><i class=\"fa fa-history\"></i> {{getWord(\'EmployeeHistorySearch\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.selfwork.deliveryjobs\"><i class=\"fa fa-cube\"></i> {{getWord(\'DeliveryJobs\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.selfwork.deliveryhistorysearch\"><i class=\"fa fa-history\"></i> {{getWord(\'DeliveryHistorySearch\')}}</a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\" title=\"Concerns\"><i class=\"fa fa-lg fa-fw fa-address-book-o\"></i> <span\r\n                        class=\"menu-item-parent\">{{getWord(\'Concerns\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.concerns.ban\"><i class=\"fa fa-ban\"></i> {{getWord(\'Ban\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.concerns.dailyalert\"><i class=\"fa fa-bell-o\"></i> {{getWord(\'DailyAlert\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.concerns.banhistorysearch\"><i class=\"fa fa-history\"></i> {{getWord(\'HistorySearch\')}}</a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\" title=\"Settings\"><i class=\"fa fa-lg fa-fw fa-cog\"></i> <span\r\n                        class=\"menu-item-parent\">{{getWord(\'Settings\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.settings.profile\"><i class=\"fa fa-user\"></i> {{getWord(\'Profile\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.settings.accountmanagement\"><i class=\"fa fa-sitemap\"></i> {{getWord(\'AccountManagement\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.settings.billboardeditor\"><i class=\"fa fa-newspaper-o\"></i> {{getWord(\'BillboardEditor\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.settings.externalmanagement\"><i class=\"fa fa-external-link\"></i> {{getWord(\'ExternalManagement\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.settings.aviationmail\"><i class=\"fa fa-envelope-o\"></i> {{getWord(\'AviationMail\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.settings.excompybagno\"><i class=\"fa fa-shopping-bag\"></i> {{getWord(\'ExcompyBagno\')}}</a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse class=\"top-menu-invisible\">\r\n                <a href=\"#\"><i class=\"fa fa-lg fa-fw fa-cube txt-color-blue\"></i> <span class=\"menu-item-parent\">{{getWord(\'SmartAdmin Intel\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.smartAdmin.appLayouts\"><i class=\"fa fa-gear\"></i>\r\n                            {{getWord(\'App Layouts\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.smartAdmin.prebuiltSkins\"><i class=\"fa fa-picture-o\"></i>\r\n                            {{getWord(\'Prebuilt Skins\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.smartAdmin.appLayout\"><i class=\"fa fa-cube\"></i> {{getWord(\'App Settings\')}}</a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-ui-sref-active=\"active\">\r\n                <a data-ui-sref=\"app.inbox.folder\" title=\"Outlook\">\r\n                    <i class=\"fa fa-lg fa-fw fa-inbox\"></i> <span class=\"menu-item-parent\">{{getWord(\'Outlook\')}}</span><span\r\n                        unread-messages-count class=\"badge pull-right inbox-badge\"></span></a>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\"><i class=\"fa fa-lg fa-fw fa-bar-chart-o\"></i> <span class=\"menu-item-parent\">{{getWord(\'Graphs\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.graphs.flot\">{{getWord(\'Flot Chart\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.graphs.morris\">{{getWord(\'Morris Charts\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.graphs.sparkline\">{{getWord(\'Sparkline\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.graphs.easyPieCharts\">{{getWord(\'Easy Pie Charts\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.graphs.dygraphs\">{{getWord(\'Dygraphs\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.graphs.chartjs\">Chart.js</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.graphs.highchartTables\">Highchart Tables <span\r\n                                class=\"badge pull-right inbox-badge bg-color-yellow\">new</span></a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\"><i class=\"fa fa-lg fa-fw fa-table\"></i> <span\r\n                        class=\"menu-item-parent\">{{getWord(\'Tables\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.tables.normal\">{{getWord(\'Normal Tables\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.tables.datatables\">{{getWord(\'Data Tables\')}} <span\r\n                                class=\"badge inbox-badge bg-color-greenLight\">v1.10</span></a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.tables.jqgrid\">{{getWord(\'Jquery Grid\')}}</a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\"><i class=\"fa fa-lg fa-fw fa-pencil-square-o\"></i> <span class=\"menu-item-parent\">{{getWord(\'Forms\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.form.elements\">{{getWord(\'Smart Form Elements\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.form.layouts\">{{getWord(\'Smart Form Layouts\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.form.validation\">{{getWord(\'Smart Form Validation\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.form.bootstrapForms\">{{getWord(\'Bootstrap Form Elements\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.form.bootstrapValidation\">{{getWord(\'Bootstrap Form Validation\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.form.plugins\">{{getWord(\'Form Plugins\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.form.wizards\">{{getWord(\'Wizards\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.form.editors\">{{getWord(\'Bootstrap Editors\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.form.dropzone\">{{getWord(\'Dropzone\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.form.imageEditor\">{{getWord(\'Image Cropping\')}} <span\r\n                                class=\"badge pull-right inbox-badge bg-color-yellow\">new</span></a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\"><i class=\"fa fa-lg fa-fw fa-desktop\"></i> <span class=\"menu-item-parent\">{{getWord(\'UI Elements\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.ui.general\">{{getWord(\'General Elements\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.ui.buttons\">{{getWord(\'Buttons\')}}</a>\r\n                    </li>\r\n                    <li data-menu-collapse>\r\n                        <a href=\"#\">{{getWord(\'Icons\')}}</a>\r\n                        <ul>\r\n                            <li data-ui-sref-active=\"active\">\r\n                                <a data-ui-sref=\"app.ui.iconsFa\"><i class=\"fa fa-plane\"></i> {{getWord(\'Font Awesome\')}}</a>\r\n                            </li>\r\n                            <li data-ui-sref-active=\"active\">\r\n                                <a data-ui-sref=\"app.ui.iconsGlyph\"><i class=\"glyphicon glyphicon-plane\"></i>\r\n                                    {{getWord(\'Glyph Icons\')}}</a>\r\n                            </li>\r\n                            <li data-ui-sref-active=\"active\">\r\n                                <a data-ui-sref=\"app.ui.iconsFlags\"><i class=\"fa fa-flag\"></i> {{getWord(\'Flags\')}}</a>\r\n                            </li>\r\n                        </ul>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.ui.grid\">{{getWord(\'Grid\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.ui.treeView\">{{getWord(\'Tree View\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.ui.nestableLists\">{{getWord(\'Nestable Lists\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.ui.jqueryUi\">{{getWord(\'JQuery UI\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.ui.typography\">{{getWord(\'Typography\')}}</a>\r\n                    </li>\r\n                    <li data-menu-collapse>\r\n                        <a href=\"#\">{{getWord(\'Six Level Menu\')}}</a>\r\n                        <ul>\r\n                            <li data-menu-collapse>\r\n                                <a href=\"#\"><i class=\"fa fa-fw fa-folder-open\"></i> {{getWord(\'Item #2\')}}</a>\r\n                                <ul>\r\n                                    <li data-menu-collapse>\r\n                                        <a href=\"#\"><i class=\"fa fa-fw fa-folder-open\"></i> {{getWord(\'Sub #2.1\')}} </a>\r\n                                        <ul>\r\n                                            <li>\r\n                                                <a href=\"#\"><i class=\"fa fa-fw fa-file-text\"></i> {{getWord(\'Item\r\n                                                    #2.1.1\')}}</a>\r\n                                            </li>\r\n                                            <li data-menu-collapse>\r\n                                                <a href=\"#\"><i class=\"fa fa-fw fa-plus\"></i>{{getWord(\'Expand\')}}</a>\r\n                                                <ul>\r\n                                                    <li>\r\n                                                        <a href=\"#\"><i class=\"fa fa-fw fa-file-text\"></i>\r\n                                                            {{getWord(\'File\')}}</a>\r\n                                                    </li>\r\n                                                    <li>\r\n                                                        <a href=\"#\"><i class=\"fa fa-fw fa-trash-o\"></i>\r\n                                                            {{getWord(\'Delete\')}}</a></li>\r\n                                                </ul>\r\n                                            </li>\r\n                                        </ul>\r\n                                    </li>\r\n                                </ul>\r\n                            </li>\r\n                            <li data-menu-collapse>\r\n                                <a href=\"#\"><i class=\"fa fa-fw fa-folder-open\"></i> {{getWord(\'Item #3\')}}</a>\r\n\r\n                                <ul>\r\n                                    <li data-menu-collapse>\r\n                                        <a href=\"#\"><i class=\"fa fa-fw fa-folder-open\"></i> {{getWord(\'3ed Level\')}}\r\n                                        </a>\r\n                                        <ul>\r\n                                            <li>\r\n                                                <a href=\"#\"><i class=\"fa fa-fw fa-file-text\"></i>\r\n                                                    {{getWord(\'File\')}}</a>\r\n                                            </li>\r\n                                            <li>\r\n                                                <a href=\"#\"><i class=\"fa fa-fw fa-file-text\"></i>\r\n                                                    {{getWord(\'File\')}}</a>\r\n                                            </li>\r\n                                        </ul>\r\n                                    </li>\r\n                                </ul>\r\n\r\n                            </li>\r\n                        </ul>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n\r\n            <li data-ui-sref-active=\"active\">\r\n                <a data-ui-sref=\"app.widgets\" title=\"Widgets\"><i class=\"fa fa-lg fa-fw fa-list-alt\"></i> <span class=\"menu-item-parent\">{{getWord(\'Widgets\')}}</span></a>\r\n            </li>\r\n\r\n\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\">\r\n                    <i class=\"fa fa-lg fa-fw fa-cloud\"><em>3</em></i> <span class=\"menu-item-parent\">{{getWord(\'Cool Features\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.calendar\" title=\"Calendar\"><i\r\n                                class=\"fa fa-lg fa-fw fa-calendar\"></i> <span\r\n                                class=\"menu-item-parent\">{{getWord(\'Calendar\')}}</span></a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.maps\"><i class=\"fa fa-lg fa-fw fa-map-marker\"></i> <span class=\"menu-item-parent\">{{getWord(\'GMap Skins\')}}</span><span\r\n                                class=\"badge bg-color-greenLight pull-right inbox-badge\">9</span></a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\">\r\n                    <i class=\"fa fa-lg fa-fw fa-puzzle-piece\"></i> <span class=\"menu-item-parent\">{{getWord(\'App Views\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.appViews.projects\"><i class=\"fa fa-file-text-o\"></i>\r\n                            {{getWord(\'Projects\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.appViews.blogDemo\"><i class=\"fa fa-paragraph\"></i> {{getWord(\'Blog\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.appViews.galleryDemo\"><i class=\"fa fa-picture-o\"></i>\r\n                            {{getWord(\'Gallery\')}}</a>\r\n                    </li>\r\n\r\n                    <li data-menu-collapse>\r\n                        <a href=\"#\"><i class=\"fa fa-comments\"></i> {{getWord(\'Forum Layout\')}}</a>\r\n                        <ul>\r\n                            <li data-ui-sref-active=\"active\">\r\n                                <a data-ui-sref=\"app.appViews.forumDemo\"><i class=\"fa fa-picture-o\"></i>\r\n                                    {{getWord(\'General View\')}}</a>\r\n                            </li>\r\n                            <li data-ui-sref-active=\"active\">\r\n                                <a data-ui-sref=\"app.appViews.forumTopicDemo\"><i class=\"fa fa-picture-o\"></i>\r\n                                    {{getWord(\'Topic View\')}}</a>\r\n                            </li>\r\n                            <li data-ui-sref-active=\"active\">\r\n                                <a data-ui-sref=\"app.appViews.forumPostDemo\"><i class=\"fa fa-picture-o\"></i>\r\n                                    {{getWord(\'Post View\')}}</a>\r\n                            </li>\r\n                        </ul>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.appViews.profileDemo\"><i class=\"fa fa-group\"></i>\r\n                            {{getWord(\'Profile\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.appViews.timelineDemo\"><i class=\"fa fa-clock-o\"></i>\r\n                            {{getWord(\'Timeline\')}}</a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\">\r\n                    <i class=\"fa fa-lg fa-fw fa-shopping-cart\"></i> <span class=\"menu-item-parent\">{{getWord(\'E-Commerce\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.eCommerce.orders\" title=\"Orders\"> {{getWord(\'Orders\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.eCommerce.products\" title=\"Products View\"> {{getWord(\'Products View\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.eCommerce.detail\" title=\"Products Detail\"> {{getWord(\'Products Detail\')}}</a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\"><i class=\"fa fa-lg fa-fw fa-windows\"></i> <span class=\"menu-item-parent\">{{getWord(\'Miscellaneous\')}}</span></a>\r\n                <ul>\r\n                    <li>\r\n                        <a href=\"http://bootstraphunter.com/smartadmin-landing/\" target=\"_blank\">{{getWord(\'Landing\r\n                            Page\')}} <i class=\"fa fa-external-link\"></i></a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.misc.pricingTable\">{{getWord(\'Pricing Tables\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.misc.invoice\">{{getWord(\'Invoice\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"login\">{{getWord(\'Login\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"register\">{{getWord(\'Register\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"lock\">{{getWord(\'Locked Screen\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.misc.error404\">{{getWord(\'Error 404\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.misc.error500\">{{getWord(\'Error 500\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.misc.blank\">{{getWord(\'Blank Page\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.misc.emailTemplate\">{{getWord(\'Email Template\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.misc.search\">{{getWord(\'Search Page\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.misc.ckeditor\">{{getWord(\'CK Editor\')}}</a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse class=\"chat-users top-menu-invisible\">\r\n                <a href=\"#\"><i class=\"fa fa-lg fa-fw fa-comment-o\"><em class=\"bg-color-pink flash animated\">!</em></i>\r\n                    <span class=\"menu-item-parent\">{{getWord(\'Smart Chat API\')}} <sup>{{getWord(\'beta\')}}</sup></span></a>\r\n                <div aside-chat-widget></div>\r\n            </li>\r\n        </ul>\r\n\r\n        <!-- NOTE: This allows you to pull menu items from server -->\r\n        <!-- <ul data-smart-menu-items=\"/api/menu-items.json\"></ul> -->\r\n    </nav>\r\n\r\n  <span class=\"minifyme\" data-action=\"minifyMenu\" minify-menu>\r\n    <i class=\"fa fa-arrow-circle-left hit\"></i>\r\n  </span>\r\n\r\n</aside>");
+$templateCache.put("app/app/layout/partials/header.tpl.html","<header id=\"header\">\r\n    <div id=\"logo-group\">\r\n        <!-- PLACE YOUR LOGO HERE -->\r\n        <span id=\"logo\"> <img src=\"styles/img/ews/title_logo.png\" alt=\"東風管理系統\"> </span>\r\n        <!-- END LOGO PLACEHOLDER -->\r\n        <!-- Note: The activity badge color changes when clicked and resets the number to 0\r\n    Suggestion: You may want to set a flag when this happens to tick off all checked messages / notifications -->\r\n        <!-- <span id=\"activity\" class=\"activity-dropdown\" activities-dropdown-toggle> \r\n            <i class=\"fa fa-user\"></i> \r\n            <b class=\"badge bg-color-red\">21</b> \r\n        </span> -->\r\n        <div smart-include=\"app/dashboard/activities/activities.html\"></div>\r\n    </div>\r\n    <!-- <recent-projects></recent-projects> -->\r\n    <!-- pulled right: nav area -->\r\n    <div class=\"pull-right\">\r\n        <!-- collapse menu button -->\r\n        <div id=\"hide-menu\" class=\"btn-header pull-right\">\r\n            <span> <a toggle-menu title=\"Collapse Menu\"><i\r\n                class=\"fa fa-reorder\"></i></a> </span>\r\n        </div>\r\n        <!-- end collapse menu -->\r\n        <!-- #MOBILE -->\r\n        <!-- Top menu profile link : this shows only when top menu is active -->\r\n        <ul id=\"mobile-profile-img\" class=\"header-dropdown-list hidden-xs padding-5\">\r\n            <li class=\"\">\r\n                <a href=\"#\" class=\"dropdown-toggle no-margin userdropdown\" data-toggle=\"dropdown\">\r\n                    <img src=\"styles/img/avatars/eastwind.png\" alt=\"John Doe\" class=\"online\" />\r\n                </a>\r\n                <ul class=\"dropdown-menu pull-right\">\r\n                    <li>\r\n                        <a href-void class=\"padding-10 padding-top-0 padding-bottom-0\"><i\r\n                            class=\"fa fa-cog\"></i> Setting</a>\r\n                    </li>\r\n                    <li class=\"divider\"></li>\r\n                    <li>\r\n                        <a ui-sref=\"app.appViews.profileDemo\" class=\"padding-10 padding-top-0 padding-bottom-0\"> <i class=\"fa fa-user\"></i>\r\n                            <u>P</u>rofile</a>\r\n                    </li>\r\n                    <li class=\"divider\"></li>\r\n                    <li>\r\n                        <a href-void class=\"padding-10 padding-top-0 padding-bottom-0\" data-action=\"toggleShortcut\"><i class=\"fa fa-arrow-down\"></i> <u>S</u>hortcut</a>\r\n                    </li>\r\n                    <li class=\"divider\"></li>\r\n                    <li>\r\n                        <a href-void class=\"padding-10 padding-top-0 padding-bottom-0\" data-action=\"launchFullscreen\"><i class=\"fa fa-arrows-alt\"></i> Full <u>S</u>creen</a>\r\n                    </li>\r\n                    <li class=\"divider\"></li>\r\n                    <li>\r\n                        <a href=\"#/login\" class=\"padding-10 padding-top-5 padding-bottom-5\" data-action=\"userLogout\"><i\r\n                            class=\"fa fa-sign-out fa-lg\"></i> <strong><u>L</u>ogout</strong></a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n        </ul>\r\n        <!-- logout button -->\r\n        <div id=\"logout\" class=\"btn-header transparent pull-right\">\r\n            <span> \r\n                <a ui-sref=\"login\" \r\n                   title=\"Sign Out\" \r\n                   data-action=\"userLogout\"\r\n                   data-logout-msg=\"You can improve your security further after logging out by closing this opened browser\">\r\n                   <i class=\"fa fa-sign-out\"></i>\r\n                </a> \r\n            </span>\r\n        </div>\r\n        <!-- end logout button -->\r\n        <!-- search mobile button (this is hidden till mobile view port) -->\r\n        <div id=\"search-mobile\" class=\"btn-header transparent pull-right\" data-search-mobile>\r\n            <span> <a href=\"#\" title=\"Search\"><i class=\"fa fa-search\"></i></a> </span>\r\n        </div>\r\n        <!-- end search mobile button -->\r\n        <!-- input: search field -->\r\n        <!-- <form action=\"#/search\" class=\"header-search pull-right\">\r\n            <input id=\"search-fld\" type=\"text\" name=\"param\" placeholder=\"Find reports and more\" data-autocomplete=\'[\r\n                    \"ActionScript\",\r\n                    \"AppleScript\",\r\n                    \"Asp\",\r\n                    \"BASIC\",\r\n                    \"C\",\r\n                    \"C++\",\r\n                    \"Clojure\",\r\n                    \"COBOL\",\r\n                    \"ColdFusion\",\r\n                    \"Erlang\",\r\n                    \"Fortran\",\r\n                    \"Groovy\",\r\n                    \"Haskell\",\r\n                    \"Java\",\r\n                    \"JavaScript\",\r\n                    \"Lisp\",\r\n                    \"Perl\",\r\n                    \"PHP\",\r\n                    \"Python\",\r\n                    \"Ruby\",\r\n                    \"Scala\",\r\n                    \"Scheme\"]\'>\r\n            <button type=\"submit\">\r\n                <i class=\"fa fa-search\"></i>\r\n            </button>\r\n            <a href=\"$\" id=\"cancel-search-js\" title=\"Cancel Search\"><i class=\"fa fa-times\"></i></a>\r\n        </form> -->\r\n        <!-- end input: search field -->\r\n        <!-- fullscreen button -->\r\n        <div id=\"fullscreen\" class=\"btn-header transparent pull-right\">\r\n            <span> <a full-screen title=\"Full Screen\"><i\r\n                class=\"fa fa-arrows-alt\"></i></a> </span>\r\n        </div>\r\n        <!-- end fullscreen button -->\r\n        <!-- #Voice Command: Start Speech -->\r\n        <!-- <div id=\"speech-btn\" class=\"btn-header transparent pull-right hidden-sm hidden-xs\">\r\n            <div>\r\n                <a title=\"Voice Command\" id=\"voice-command-btn\" speech-recognition><i class=\"fa fa-microphone\"></i></a>\r\n                <div class=\"popover bottom\">\r\n                    <div class=\"arrow\"></div>\r\n                    <div class=\"popover-content\">\r\n                        <h4 class=\"vc-title\">Voice command activated <br>\r\n                        <small>Please speak clearly into the mic</small>\r\n                    </h4>\r\n                        <h4 class=\"vc-title-error text-center\">\r\n                        <i class=\"fa fa-microphone-slash\"></i> Voice command failed\r\n                        <br>\r\n                        <small class=\"txt-color-red\">Must <strong>\"Allow\"</strong> Microphone</small>\r\n                        <br>\r\n                        <small class=\"txt-color-red\">Must have <strong>Internet Connection</strong></small>\r\n                    </h4>\r\n                        <a href-void class=\"btn btn-success\" id=\"speech-help-btn\">See Commands</a>\r\n                        <a href-void class=\"btn bg-color-purple txt-color-white\" onclick=\"$(\'#speech-btn .popover\').fadeOut(50);\">Close Popup</a>\r\n                    </div>\r\n                </div>\r\n            </div>\r\n        </div> -->\r\n        <!-- end voice command -->\r\n        \r\n        <!-- multiple lang dropdown : find all flags in the flags page -->\r\n        <language-selector></language-selector>\r\n        <!-- end multiple lang -->\r\n    </div>\r\n    <!-- end pulled right: nav area -->\r\n</header>\r\n");
+$templateCache.put("app/app/layout/partials/navigation.tpl.html","<aside id=\"left-panel\">\r\n\r\n    <!-- User info -->\r\n    <div login-info></div>\r\n    <!-- end user info -->\r\n\r\n    <nav data-smart-menu-items=\"/api/menu-items.json\">\r\n    <!-- <nav> -->\r\n        <!-- NOTE: Notice the gaps after each icon usage <i></i>..\r\n        Please note that these links work a bit different than\r\n        traditional href=\"\" links. See documentation for details.\r\n        -->\r\n\r\n        <!-- <ul data-smart-menu>\r\n            <li data-menu-collapse>\r\n                <a href=\"#\" title=\"Dashboard\"><i class=\"fa fa-lg fa-fw fa-home\"></i> <span\r\n                        class=\"menu-item-parent\">{{getWord(\'Dashboard\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.dashboard\">{{getWord(\'Analytics Dashboard\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.dashboard-social\">{{getWord(\'Social Wall\')}}</a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\" title=\"Restful\">\r\n                    <i class=\"fa fa-lg fa-fw fa-home\"></i> \r\n                    <span class=\"menu-item-parent\">{{getWord(\'Restful\')}}</span>\r\n                </a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.restful.alantest\">{{getWord(\'AlanTest\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.restful.gridtest\">{{getWord(\'GridTest\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.restful.exceltest\">{{getWord(\'ExcelTest\')}}</a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-ui-sref-active=\"active\">\r\n                <a data-ui-sref=\"app.mainwork\" title=\"MainWork\">\r\n                    <i class=\"fa fa-lg fa-fw fa-newspaper-o\"></i> \r\n                    <span class=\"menu-item-parent\">{{getWord(\'MainWork\')}}</span>\r\n                </a>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\" title=\"SelfWork\">\r\n                    <i class=\"fa fa-lg fa-fw fa-truck\"></i> \r\n                    <span class=\"menu-item-parent\">{{getWord(\'SelfWork\')}}</span>\r\n                </a>\r\n                <ul>\r\n                    <li data-menu-collapse>\r\n                        <a href=\"#\"><i class=\"fa fa-fw fa-folder-open\"></i> {{getWord(\'LeaderOption\')}} </a>\r\n                        <ul>\r\n                            <li data-ui-sref-active=\"active\">\r\n                                <a data-ui-sref=\"app.selfwork.leaderoption.compydistribution\"><i class=\"fa fa-building-o\"></i> {{getWord(\'CompyDistribution\')}}</a>\r\n                            </li>\r\n                            <li data-ui-sref-active=\"active\">\r\n                                <a data-ui-sref=\"app.selfwork.leaderoption.agentsetting\"><i class=\"fa fa-braille\"></i> {{getWord(\'AgentSetting\')}}</a>\r\n                            </li>\r\n                            <li data-ui-sref-active=\"active\">\r\n                                <a data-ui-sref=\"app.selfwork.leaderoption.dailyleave\"><i class=\"fa fa-child\"></i> {{getWord(\'DailyLeave\')}}</a>\r\n                            </li>\r\n                        </ul>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.selfwork.customoversix\"><i class=\"fa fa-cube\"></i> {{getWord(\'CustomOverSix\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.selfwork.leaderjobs\"><i class=\"fa fa-cubes\"></i> {{getWord(\'LeaderJobs\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.selfwork.leaderhistorysearch\"><i class=\"fa fa-history\"></i> {{getWord(\'LeaderHistorySearch\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.selfwork.assistantjobs\"><i class=\"fa fa-cube\"></i> {{getWord(\'AssistantJobs\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.selfwork.assistanthistorysearch\"><i class=\"fa fa-history\"></i> {{getWord(\'AssistantHistorySearch\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.selfwork.employeejobs\"><i class=\"fa fa-cube\"></i> {{getWord(\'EmployeeJobs\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.selfwork.employeehistorysearch\"><i class=\"fa fa-history\"></i> {{getWord(\'EmployeeHistorySearch\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.selfwork.deliveryjobs\"><i class=\"fa fa-cube\"></i> {{getWord(\'DeliveryJobs\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.selfwork.deliveryhistorysearch\"><i class=\"fa fa-history\"></i> {{getWord(\'DeliveryHistorySearch\')}}</a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\" title=\"Concerns\"><i class=\"fa fa-lg fa-fw fa-address-book-o\"></i> <span\r\n                        class=\"menu-item-parent\">{{getWord(\'Concerns\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.concerns.ban\"><i class=\"fa fa-ban\"></i> {{getWord(\'Ban\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.concerns.dailyalert\"><i class=\"fa fa-bell-o\"></i> {{getWord(\'DailyAlert\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.concerns.banhistorysearch\"><i class=\"fa fa-history\"></i> {{getWord(\'HistorySearch\')}}</a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\" title=\"Settings\"><i class=\"fa fa-lg fa-fw fa-cog\"></i> <span\r\n                        class=\"menu-item-parent\">{{getWord(\'Settings\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.settings.profile\"><i class=\"fa fa-user\"></i> {{getWord(\'Profile\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.settings.accountmanagement\"><i class=\"fa fa-sitemap\"></i> {{getWord(\'AccountManagement\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.settings.billboardeditor\"><i class=\"fa fa-newspaper-o\"></i> {{getWord(\'BillboardEditor\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.settings.externalmanagement\"><i class=\"fa fa-external-link\"></i> {{getWord(\'ExternalManagement\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.settings.aviationmail\"><i class=\"fa fa-envelope-o\"></i> {{getWord(\'AviationMail\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.settings.excompybagno\"><i class=\"fa fa-shopping-bag\"></i> {{getWord(\'ExcompyBagno\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.settings.bagnocount\"><i class=\"fa fa-hourglass-half\"></i> {{getWord(\'BagnoCount\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.settings.syslogs\"><i class=\"fa fa-database\"></i> {{getWord(\'SysLogs\')}}</a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse class=\"top-menu-invisible\">\r\n                <a href=\"#\"><i class=\"fa fa-lg fa-fw fa-cube txt-color-blue\"></i> <span class=\"menu-item-parent\">{{getWord(\'SmartAdmin Intel\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.smartAdmin.appLayouts\"><i class=\"fa fa-gear\"></i>\r\n                            {{getWord(\'App Layouts\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.smartAdmin.prebuiltSkins\"><i class=\"fa fa-picture-o\"></i>\r\n                            {{getWord(\'Prebuilt Skins\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.smartAdmin.appLayout\"><i class=\"fa fa-cube\"></i> {{getWord(\'App Settings\')}}</a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-ui-sref-active=\"active\">\r\n                <a data-ui-sref=\"app.inbox.folder\" title=\"Outlook\">\r\n                    <i class=\"fa fa-lg fa-fw fa-inbox\"></i> <span class=\"menu-item-parent\">{{getWord(\'Outlook\')}}</span><span\r\n                        unread-messages-count class=\"badge pull-right inbox-badge\"></span></a>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\"><i class=\"fa fa-lg fa-fw fa-bar-chart-o\"></i> <span class=\"menu-item-parent\">{{getWord(\'Graphs\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.graphs.flot\">{{getWord(\'Flot Chart\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.graphs.morris\">{{getWord(\'Morris Charts\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.graphs.sparkline\">{{getWord(\'Sparkline\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.graphs.easyPieCharts\">{{getWord(\'Easy Pie Charts\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.graphs.dygraphs\">{{getWord(\'Dygraphs\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.graphs.chartjs\">Chart.js</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.graphs.highchartTables\">Highchart Tables <span\r\n                                class=\"badge pull-right inbox-badge bg-color-yellow\">new</span></a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\"><i class=\"fa fa-lg fa-fw fa-table\"></i> <span\r\n                        class=\"menu-item-parent\">{{getWord(\'Tables\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.tables.normal\">{{getWord(\'Normal Tables\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.tables.datatables\">{{getWord(\'Data Tables\')}} <span\r\n                                class=\"badge inbox-badge bg-color-greenLight\">v1.10</span></a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.tables.jqgrid\">{{getWord(\'Jquery Grid\')}}</a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\"><i class=\"fa fa-lg fa-fw fa-pencil-square-o\"></i> <span class=\"menu-item-parent\">{{getWord(\'Forms\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.form.elements\">{{getWord(\'Smart Form Elements\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.form.layouts\">{{getWord(\'Smart Form Layouts\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.form.validation\">{{getWord(\'Smart Form Validation\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.form.bootstrapForms\">{{getWord(\'Bootstrap Form Elements\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.form.bootstrapValidation\">{{getWord(\'Bootstrap Form Validation\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.form.plugins\">{{getWord(\'Form Plugins\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.form.wizards\">{{getWord(\'Wizards\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.form.editors\">{{getWord(\'Bootstrap Editors\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.form.dropzone\">{{getWord(\'Dropzone\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.form.imageEditor\">{{getWord(\'Image Cropping\')}} <span\r\n                                class=\"badge pull-right inbox-badge bg-color-yellow\">new</span></a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\"><i class=\"fa fa-lg fa-fw fa-desktop\"></i> <span class=\"menu-item-parent\">{{getWord(\'UI Elements\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.ui.general\">{{getWord(\'General Elements\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.ui.buttons\">{{getWord(\'Buttons\')}}</a>\r\n                    </li>\r\n                    <li data-menu-collapse>\r\n                        <a href=\"#\">{{getWord(\'Icons\')}}</a>\r\n                        <ul>\r\n                            <li data-ui-sref-active=\"active\">\r\n                                <a data-ui-sref=\"app.ui.iconsFa\"><i class=\"fa fa-plane\"></i> {{getWord(\'Font Awesome\')}}</a>\r\n                            </li>\r\n                            <li data-ui-sref-active=\"active\">\r\n                                <a data-ui-sref=\"app.ui.iconsGlyph\"><i class=\"glyphicon glyphicon-plane\"></i>\r\n                                    {{getWord(\'Glyph Icons\')}}</a>\r\n                            </li>\r\n                            <li data-ui-sref-active=\"active\">\r\n                                <a data-ui-sref=\"app.ui.iconsFlags\"><i class=\"fa fa-flag\"></i> {{getWord(\'Flags\')}}</a>\r\n                            </li>\r\n                        </ul>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.ui.grid\">{{getWord(\'Grid\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.ui.treeView\">{{getWord(\'Tree View\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.ui.nestableLists\">{{getWord(\'Nestable Lists\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.ui.jqueryUi\">{{getWord(\'JQuery UI\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.ui.typography\">{{getWord(\'Typography\')}}</a>\r\n                    </li>\r\n                    <li data-menu-collapse>\r\n                        <a href=\"#\">{{getWord(\'Six Level Menu\')}}</a>\r\n                        <ul>\r\n                            <li data-menu-collapse>\r\n                                <a href=\"#\"><i class=\"fa fa-fw fa-folder-open\"></i> {{getWord(\'Item #2\')}}</a>\r\n                                <ul>\r\n                                    <li data-menu-collapse>\r\n                                        <a href=\"#\"><i class=\"fa fa-fw fa-folder-open\"></i> {{getWord(\'Sub #2.1\')}} </a>\r\n                                        <ul>\r\n                                            <li>\r\n                                                <a href=\"#\"><i class=\"fa fa-fw fa-file-text\"></i> {{getWord(\'Item\r\n                                                    #2.1.1\')}}</a>\r\n                                            </li>\r\n                                            <li data-menu-collapse>\r\n                                                <a href=\"#\"><i class=\"fa fa-fw fa-plus\"></i>{{getWord(\'Expand\')}}</a>\r\n                                                <ul>\r\n                                                    <li>\r\n                                                        <a href=\"#\"><i class=\"fa fa-fw fa-file-text\"></i>\r\n                                                            {{getWord(\'File\')}}</a>\r\n                                                    </li>\r\n                                                    <li>\r\n                                                        <a href=\"#\"><i class=\"fa fa-fw fa-trash-o\"></i>\r\n                                                            {{getWord(\'Delete\')}}</a></li>\r\n                                                </ul>\r\n                                            </li>\r\n                                        </ul>\r\n                                    </li>\r\n                                </ul>\r\n                            </li>\r\n                            <li data-menu-collapse>\r\n                                <a href=\"#\"><i class=\"fa fa-fw fa-folder-open\"></i> {{getWord(\'Item #3\')}}</a>\r\n\r\n                                <ul>\r\n                                    <li data-menu-collapse>\r\n                                        <a href=\"#\"><i class=\"fa fa-fw fa-folder-open\"></i> {{getWord(\'3ed Level\')}}\r\n                                        </a>\r\n                                        <ul>\r\n                                            <li>\r\n                                                <a href=\"#\"><i class=\"fa fa-fw fa-file-text\"></i>\r\n                                                    {{getWord(\'File\')}}</a>\r\n                                            </li>\r\n                                            <li>\r\n                                                <a href=\"#\"><i class=\"fa fa-fw fa-file-text\"></i>\r\n                                                    {{getWord(\'File\')}}</a>\r\n                                            </li>\r\n                                        </ul>\r\n                                    </li>\r\n                                </ul>\r\n\r\n                            </li>\r\n                        </ul>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n\r\n            <li data-ui-sref-active=\"active\">\r\n                <a data-ui-sref=\"app.widgets\" title=\"Widgets\"><i class=\"fa fa-lg fa-fw fa-list-alt\"></i> <span class=\"menu-item-parent\">{{getWord(\'Widgets\')}}</span></a>\r\n            </li>\r\n\r\n\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\">\r\n                    <i class=\"fa fa-lg fa-fw fa-cloud\"><em>3</em></i> <span class=\"menu-item-parent\">{{getWord(\'Cool Features\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.calendar\" title=\"Calendar\"><i\r\n                                class=\"fa fa-lg fa-fw fa-calendar\"></i> <span\r\n                                class=\"menu-item-parent\">{{getWord(\'Calendar\')}}</span></a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.maps\"><i class=\"fa fa-lg fa-fw fa-map-marker\"></i> <span class=\"menu-item-parent\">{{getWord(\'GMap Skins\')}}</span><span\r\n                                class=\"badge bg-color-greenLight pull-right inbox-badge\">9</span></a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\">\r\n                    <i class=\"fa fa-lg fa-fw fa-puzzle-piece\"></i> <span class=\"menu-item-parent\">{{getWord(\'App Views\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.appViews.projects\"><i class=\"fa fa-file-text-o\"></i>\r\n                            {{getWord(\'Projects\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.appViews.blogDemo\"><i class=\"fa fa-paragraph\"></i> {{getWord(\'Blog\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.appViews.galleryDemo\"><i class=\"fa fa-picture-o\"></i>\r\n                            {{getWord(\'Gallery\')}}</a>\r\n                    </li>\r\n\r\n                    <li data-menu-collapse>\r\n                        <a href=\"#\"><i class=\"fa fa-comments\"></i> {{getWord(\'Forum Layout\')}}</a>\r\n                        <ul>\r\n                            <li data-ui-sref-active=\"active\">\r\n                                <a data-ui-sref=\"app.appViews.forumDemo\"><i class=\"fa fa-picture-o\"></i>\r\n                                    {{getWord(\'General View\')}}</a>\r\n                            </li>\r\n                            <li data-ui-sref-active=\"active\">\r\n                                <a data-ui-sref=\"app.appViews.forumTopicDemo\"><i class=\"fa fa-picture-o\"></i>\r\n                                    {{getWord(\'Topic View\')}}</a>\r\n                            </li>\r\n                            <li data-ui-sref-active=\"active\">\r\n                                <a data-ui-sref=\"app.appViews.forumPostDemo\"><i class=\"fa fa-picture-o\"></i>\r\n                                    {{getWord(\'Post View\')}}</a>\r\n                            </li>\r\n                        </ul>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.appViews.profileDemo\"><i class=\"fa fa-group\"></i>\r\n                            {{getWord(\'Profile\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.appViews.timelineDemo\"><i class=\"fa fa-clock-o\"></i>\r\n                            {{getWord(\'Timeline\')}}</a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\">\r\n                    <i class=\"fa fa-lg fa-fw fa-shopping-cart\"></i> <span class=\"menu-item-parent\">{{getWord(\'E-Commerce\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.eCommerce.orders\" title=\"Orders\"> {{getWord(\'Orders\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.eCommerce.products\" title=\"Products View\"> {{getWord(\'Products View\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.eCommerce.detail\" title=\"Products Detail\"> {{getWord(\'Products Detail\')}}</a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\"><i class=\"fa fa-lg fa-fw fa-windows\"></i> <span class=\"menu-item-parent\">{{getWord(\'Miscellaneous\')}}</span></a>\r\n                <ul>\r\n                    <li>\r\n                        <a href=\"http://bootstraphunter.com/smartadmin-landing/\" target=\"_blank\">{{getWord(\'Landing\r\n                            Page\')}} <i class=\"fa fa-external-link\"></i></a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.misc.pricingTable\">{{getWord(\'Pricing Tables\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.misc.invoice\">{{getWord(\'Invoice\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"login\">{{getWord(\'Login\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"register\">{{getWord(\'Register\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"lock\">{{getWord(\'Locked Screen\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.misc.error404\">{{getWord(\'Error 404\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.misc.error500\">{{getWord(\'Error 500\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.misc.blank\">{{getWord(\'Blank Page\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.misc.emailTemplate\">{{getWord(\'Email Template\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.misc.search\">{{getWord(\'Search Page\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.misc.ckeditor\">{{getWord(\'CK Editor\')}}</a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse class=\"chat-users top-menu-invisible\">\r\n                <a href=\"#\"><i class=\"fa fa-lg fa-fw fa-comment-o\"><em class=\"bg-color-pink flash animated\">!</em></i>\r\n                    <span class=\"menu-item-parent\">{{getWord(\'Smart Chat API\')}} <sup>{{getWord(\'beta\')}}</sup></span></a>\r\n                <div aside-chat-widget></div>\r\n            </li>\r\n        </ul> -->\r\n\r\n        <!-- NOTE: This allows you to pull menu items from server -->\r\n        <!-- <ul data-smart-menu-items=\"/api/menu-items.json\"></ul> -->\r\n    </nav>\r\n\r\n  <span class=\"minifyme\" data-action=\"minifyMenu\" minify-menu>\r\n    <i class=\"fa fa-arrow-circle-left hit\"></i>\r\n  </span>\r\n\r\n</aside>");
 $templateCache.put("app/app/layout/partials/sub-header.tpl.html","<div class=\"col-xs-12 col-sm-5 col-md-5 col-lg-8\" data-sparkline-container>\r\n    <ul id=\"sparks\" class=\"\">\r\n        <li class=\"sparks-info\">\r\n            <h5> My Income <span class=\"txt-color-blue\">$47,171</span></h5>\r\n            <div class=\"sparkline txt-color-blue hidden-mobile hidden-md hidden-sm\">\r\n                1300, 1877, 2500, 2577, 2000, 2100, 3000, 2700, 3631, 2471, 2700, 3631, 2471\r\n            </div>\r\n        </li>\r\n        <li class=\"sparks-info\">\r\n            <h5> Site Traffic <span class=\"txt-color-purple\"><i class=\"fa fa-arrow-circle-up\"></i>&nbsp;45%</span></h5>\r\n            <div class=\"sparkline txt-color-purple hidden-mobile hidden-md hidden-sm\">\r\n                110,150,300,130,400,240,220,310,220,300, 270, 210\r\n            </div>\r\n        </li>\r\n        <li class=\"sparks-info\">\r\n            <h5> Site Orders <span class=\"txt-color-greenDark\"><i class=\"fa fa-shopping-cart\"></i>&nbsp;2447</span></h5>\r\n            <div class=\"sparkline txt-color-greenDark hidden-mobile hidden-md hidden-sm\">\r\n                110,150,300,130,400,240,220,310,220,300, 270, 210\r\n            </div>\r\n        </li>\r\n    </ul>\r\n</div>\r\n			");
 $templateCache.put("app/app/layout/partials/voice-commands.tpl.html","<!-- TRIGGER BUTTON:\r\n<a href=\"/my-ajax-page.html\" data-toggle=\"modal\" data-target=\"#remoteModal\" class=\"btn btn-default\">Open Modal</a>  -->\r\n\r\n<!-- MODAL PLACE HOLDER\r\n<div class=\"modal fade\" id=\"remoteModal\" tabindex=\"-1\" role=\"dialog\" aria-labelledby=\"remoteModalLabel\" aria-hidden=\"true\">\r\n<div class=\"modal-dialog\">\r\n<div class=\"modal-content\"></div>\r\n</div>\r\n</div>   -->\r\n<!--////////////////////////////////////-->\r\n\r\n<!--<div class=\"modal-header\">\r\n<button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-hidden=\"true\">\r\n&times;\r\n</button>\r\n<h4 class=\"modal-title\" id=\"myModalLabel\">Command List</h4>\r\n</div>-->\r\n<div class=\"modal-body\">\r\n\r\n	<h1><i class=\"fa fa-microphone text-muted\"></i>&nbsp;&nbsp; SmartAdmin Voice Command</h1>\r\n	<hr class=\"simple\">\r\n	<h5>Instruction</h5>\r\n\r\n	Click <span class=\"text-success\">\"Allow\"</span> to access your microphone and activate Voice Command.\r\n	You will notice a <span class=\"text-primary\"><strong>BLUE</strong> Flash</span> on the microphone icon indicating activation.\r\n	The icon will appear <span class=\"text-danger\"><strong>RED</strong></span> <span class=\"label label-danger\"><i class=\"fa fa-microphone fa-lg\"></i></span> if you <span class=\"text-danger\">\"Deny\"</span> access or don\'t have any microphone installed.\r\n	<br>\r\n	<br>\r\n	As a security precaution, your browser will disconnect the microphone every 60 to 120 seconds (sooner if not being used). In which case Voice Command will prompt you again to <span class=\"text-success\">\"Allow\"</span> or <span class=\"text-danger\">\"Deny\"</span> access to your microphone.\r\n	<br>\r\n	<br>\r\n	If you host your page over <strong>http<span class=\"text-success\">s</span></strong> (secure socket layer) protocol you can wave this security measure and have an unintrupted Voice Command.\r\n	<br>\r\n	<br>\r\n	<h5>Commands</h5>\r\n	<ul>\r\n		<li>\r\n			<strong>\'show\' </strong> then say the <strong>*page*</strong> you want to go to. For example <strong>\"show inbox\"</strong> or <strong>\"show calendar\"</strong>\r\n		</li>\r\n		<li>\r\n			<strong>\'mute\' </strong> - mutes all sound effects for the theme.\r\n		</li>\r\n		<li>\r\n			<strong>\'sound on\'</strong> - unmutes all sound effects for the theme.\r\n		</li>\r\n		<li>\r\n			<span class=\"text-danger\"><strong>\'stop\'</strong></span> - deactivates voice command.\r\n		</li>\r\n		<li>\r\n			<span class=\"text-primary\"><strong>\'help\'</strong></span> - brings up the command list\r\n		</li>\r\n		<li>\r\n			<span class=\"text-danger\"><strong>\'got it\'</strong></span> - closes help modal\r\n		</li>\r\n		<li>\r\n			<strong>\'hide navigation\'</strong> - toggle navigation collapse\r\n		</li>\r\n		<li>\r\n			<strong>\'show navigation\'</strong> - toggle navigation to open (can be used again to close)\r\n		</li>\r\n		<li>\r\n			<strong>\'scroll up\'</strong> - scrolls to the top of the page\r\n		</li>\r\n		<li>\r\n			<strong>\'scroll down\'</strong> - scrollts to the bottom of the page\r\n		</li>\r\n		<li>\r\n			<strong>\'go back\' </strong> - goes back in history (history -1 click)\r\n		</li>\r\n		<li>\r\n			<strong>\'logout\'</strong> - logs you out\r\n		</li>\r\n	</ul>\r\n	<br>\r\n	<h5>Adding your own commands</h5>\r\n	Voice Command supports up to 80 languages. Adding your own commands is extreamly easy. All commands are stored inside <strong>app.config.js</strong> file under the <code>var commands = {...}</code>. \r\n\r\n	<hr class=\"simple\">\r\n	<div class=\"text-right\">\r\n		<button type=\"button\" class=\"btn btn-success btn-lg\" data-dismiss=\"modal\">\r\n			Got it!\r\n		</button>\r\n	</div>\r\n\r\n</div>\r\n<!--<div class=\"modal-footer\">\r\n<button type=\"button\" class=\"btn btn-primary\" data-dismiss=\"modal\">Got it!</button>\r\n</div> -->");
 $templateCache.put("app/app/layout/shortcut/shortcut.tpl.html","<div id=\"shortcut\">\r\n	<ul>\r\n		<li>\r\n			<a href=\"#/inbox/\" class=\"jarvismetro-tile big-cubes bg-color-blue\"> <span class=\"iconbox\"> <i class=\"fa fa-envelope fa-4x\"></i> <span>Mail <span class=\"label pull-right bg-color-darken\">14</span></span> </span> </a>\r\n		</li>\r\n		<li>\r\n			<a href=\"#/calendar\" class=\"jarvismetro-tile big-cubes bg-color-orangeDark\"> <span class=\"iconbox\"> <i class=\"fa fa-calendar fa-4x\"></i> <span>Calendar</span> </span> </a>\r\n		</li>\r\n		<li>\r\n			<a href=\"#/maps\" class=\"jarvismetro-tile big-cubes bg-color-purple\"> <span class=\"iconbox\"> <i class=\"fa fa-map-marker fa-4x\"></i> <span>Maps</span> </span> </a>\r\n		</li>\r\n		<li>\r\n			<a href=\"#/invoice\" class=\"jarvismetro-tile big-cubes bg-color-blueDark\"> <span class=\"iconbox\"> <i class=\"fa fa-book fa-4x\"></i> <span>Invoice <span class=\"label pull-right bg-color-darken\">99</span></span> </span> </a>\r\n		</li>\r\n		<li>\r\n			<a href=\"#/gallery\" class=\"jarvismetro-tile big-cubes bg-color-greenLight\"> <span class=\"iconbox\"> <i class=\"fa fa-picture-o fa-4x\"></i> <span>Gallery </span> </span> </a>\r\n		</li>\r\n		<li>\r\n			<a href=\"#/profile\" class=\"jarvismetro-tile big-cubes selected bg-color-pinkDark\"> <span class=\"iconbox\"> <i class=\"fa fa-user fa-4x\"></i> <span>My Profile </span> </span> </a>\r\n		</li>\r\n	</ul>\r\n</div>");
 $templateCache.put("app/public/app/dashboard/live-feeds.tpl.html","<div jarvis-widget id=\"live-feeds-widget\" data-widget-togglebutton=\"false\" data-widget-editbutton=\"false\"\r\n     data-widget-fullscreenbutton=\"false\" data-widget-colorbutton=\"false\" data-widget-deletebutton=\"false\">\r\n<!-- widget options:\r\nusage: <div class=\"jarviswidget\" id=\"wid-id-0\" data-widget-editbutton=\"false\">\r\n\r\ndata-widget-colorbutton=\"false\"\r\ndata-widget-editbutton=\"false\"\r\ndata-widget-togglebutton=\"false\"\r\ndata-widget-deletebutton=\"false\"\r\ndata-widget-fullscreenbutton=\"false\"\r\ndata-widget-custombutton=\"false\"\r\ndata-widget-collapsed=\"true\"\r\ndata-widget-sortable=\"false\"\r\n\r\n-->\r\n<header>\r\n    <span class=\"widget-icon\"> <i class=\"glyphicon glyphicon-stats txt-color-darken\"></i> </span>\r\n\r\n    <h2>Live Feeds </h2>\r\n\r\n    <ul class=\"nav nav-tabs pull-right in\" id=\"myTab\">\r\n        <li class=\"active\">\r\n            <a data-toggle=\"tab\" href=\"#s1\"><i class=\"fa fa-clock-o\"></i> <span class=\"hidden-mobile hidden-tablet\">Live Stats</span></a>\r\n        </li>\r\n\r\n        <li>\r\n            <a data-toggle=\"tab\" href=\"#s2\"><i class=\"fa fa-facebook\"></i> <span class=\"hidden-mobile hidden-tablet\">Social Network</span></a>\r\n        </li>\r\n\r\n        <li>\r\n            <a data-toggle=\"tab\" href=\"#s3\"><i class=\"fa fa-dollar\"></i> <span class=\"hidden-mobile hidden-tablet\">Revenue</span></a>\r\n        </li>\r\n    </ul>\r\n\r\n</header>\r\n\r\n<!-- widget div-->\r\n<div class=\"no-padding\">\r\n\r\n    <div class=\"widget-body\">\r\n        <!-- content -->\r\n        <div id=\"myTabContent\" class=\"tab-content\">\r\n            <div class=\"tab-pane fade active in padding-10 no-padding-bottom\" id=\"s1\">\r\n                <div class=\"row no-space\">\r\n                    <div class=\"col-xs-12 col-sm-12 col-md-8 col-lg-8\">\r\n														<span class=\"demo-liveupdate-1\"> <span\r\n                                                                class=\"onoffswitch-title\">Live switch</span> <span\r\n                                                                class=\"onoffswitch\">\r\n																<input type=\"checkbox\" name=\"start_interval\" ng-model=\"autoUpdate\"\r\n                                                                       class=\"onoffswitch-checkbox\" id=\"start_interval\">\r\n																<label class=\"onoffswitch-label\" for=\"start_interval\">\r\n                                                                    <span class=\"onoffswitch-inner\"\r\n                                                                          data-swchon-text=\"ON\"\r\n                                                                          data-swchoff-text=\"OFF\"></span>\r\n                                                                    <span class=\"onoffswitch-switch\"></span>\r\n                                                                </label> </span> </span>\r\n\r\n                        <div id=\"updating-chart\" class=\"chart-large txt-color-blue\" flot-basic flot-data=\"liveStats\" flot-options=\"liveStatsOptions\"></div>\r\n\r\n                    </div>\r\n                    <div class=\"col-xs-12 col-sm-12 col-md-4 col-lg-4 show-stats\">\r\n\r\n                        <div class=\"row\">\r\n                            <div class=\"col-xs-6 col-sm-6 col-md-12 col-lg-12\"><span class=\"text\"> My Tasks <span\r\n                                    class=\"pull-right\">130/200</span> </span>\r\n\r\n                                <div class=\"progress\">\r\n                                    <div class=\"progress-bar bg-color-blueDark\" style=\"width: 65%;\"></div>\r\n                                </div>\r\n                            </div>\r\n                            <div class=\"col-xs-6 col-sm-6 col-md-12 col-lg-12\"><span class=\"text\"> Transfered <span\r\n                                    class=\"pull-right\">440 GB</span> </span>\r\n\r\n                                <div class=\"progress\">\r\n                                    <div class=\"progress-bar bg-color-blue\" style=\"width: 34%;\"></div>\r\n                                </div>\r\n                            </div>\r\n                            <div class=\"col-xs-6 col-sm-6 col-md-12 col-lg-12\"><span class=\"text\"> Bugs Squashed<span\r\n                                    class=\"pull-right\">77%</span> </span>\r\n\r\n                                <div class=\"progress\">\r\n                                    <div class=\"progress-bar bg-color-blue\" style=\"width: 77%;\"></div>\r\n                                </div>\r\n                            </div>\r\n                            <div class=\"col-xs-6 col-sm-6 col-md-12 col-lg-12\"><span class=\"text\"> User Testing <span\r\n                                    class=\"pull-right\">7 Days</span> </span>\r\n\r\n                                <div class=\"progress\">\r\n                                    <div class=\"progress-bar bg-color-greenLight\" style=\"width: 84%;\"></div>\r\n                                </div>\r\n                            </div>\r\n\r\n                            <span class=\"show-stat-buttons\"> <span class=\"col-xs-12 col-sm-6 col-md-6 col-lg-6\"> <a\r\n                                    href-void class=\"btn btn-default btn-block hidden-xs\">Generate PDF</a> </span> <span\r\n                                    class=\"col-xs-12 col-sm-6 col-md-6 col-lg-6\"> <a href-void\r\n                                                                                     class=\"btn btn-default btn-block hidden-xs\">Report\r\n                                a bug</a> </span> </span>\r\n\r\n                        </div>\r\n\r\n                    </div>\r\n                </div>\r\n\r\n                <div class=\"show-stat-microcharts\" data-sparkline-container data-easy-pie-chart-container>\r\n                    <div class=\"col-xs-12 col-sm-3 col-md-3 col-lg-3\">\r\n\r\n                        <div class=\"easy-pie-chart txt-color-orangeDark\" data-percent=\"33\" data-pie-size=\"50\">\r\n                            <span class=\"percent percent-sign\">35</span>\r\n                        </div>\r\n                        <span class=\"easy-pie-title\"> Server Load <i class=\"fa fa-caret-up icon-color-bad\"></i> </span>\r\n                        <ul class=\"smaller-stat hidden-sm pull-right\">\r\n                            <li>\r\n                                <span class=\"label bg-color-greenLight\"><i class=\"fa fa-caret-up\"></i> 97%</span>\r\n                            </li>\r\n                            <li>\r\n                                <span class=\"label bg-color-blueLight\"><i class=\"fa fa-caret-down\"></i> 44%</span>\r\n                            </li>\r\n                        </ul>\r\n                        <div class=\"sparkline txt-color-greenLight hidden-sm hidden-md pull-right\"\r\n                             data-sparkline-type=\"line\" data-sparkline-height=\"33px\" data-sparkline-width=\"70px\"\r\n                             data-fill-color=\"transparent\">\r\n                            130, 187, 250, 257, 200, 210, 300, 270, 363, 247, 270, 363, 247\r\n                        </div>\r\n                    </div>\r\n                    <div class=\"col-xs-12 col-sm-3 col-md-3 col-lg-3\">\r\n                        <div class=\"easy-pie-chart txt-color-greenLight\" data-percent=\"78.9\" data-pie-size=\"50\">\r\n                            <span class=\"percent percent-sign\">78.9 </span>\r\n                        </div>\r\n                        <span class=\"easy-pie-title\"> Disk Space <i class=\"fa fa-caret-down icon-color-good\"></i></span>\r\n                        <ul class=\"smaller-stat hidden-sm pull-right\">\r\n                            <li>\r\n                                <span class=\"label bg-color-blueDark\"><i class=\"fa fa-caret-up\"></i> 76%</span>\r\n                            </li>\r\n                            <li>\r\n                                <span class=\"label bg-color-blue\"><i class=\"fa fa-caret-down\"></i> 3%</span>\r\n                            </li>\r\n                        </ul>\r\n                        <div class=\"sparkline txt-color-blue hidden-sm hidden-md pull-right\" data-sparkline-type=\"line\"\r\n                             data-sparkline-height=\"33px\" data-sparkline-width=\"70px\" data-fill-color=\"transparent\">\r\n                            257, 200, 210, 300, 270, 363, 130, 187, 250, 247, 270, 363, 247\r\n                        </div>\r\n                    </div>\r\n                    <div class=\"col-xs-12 col-sm-3 col-md-3 col-lg-3\">\r\n                        <div class=\"easy-pie-chart txt-color-blue\" data-percent=\"23\" data-pie-size=\"50\">\r\n                            <span class=\"percent percent-sign\">23 </span>\r\n                        </div>\r\n                        <span class=\"easy-pie-title\"> Transfered <i class=\"fa fa-caret-up icon-color-good\"></i></span>\r\n                        <ul class=\"smaller-stat hidden-sm pull-right\">\r\n                            <li>\r\n                                <span class=\"label bg-color-darken\">10GB</span>\r\n                            </li>\r\n                            <li>\r\n                                <span class=\"label bg-color-blueDark\"><i class=\"fa fa-caret-up\"></i> 10%</span>\r\n                            </li>\r\n                        </ul>\r\n                        <div class=\"sparkline txt-color-darken hidden-sm hidden-md pull-right\"\r\n                             data-sparkline-type=\"line\" data-sparkline-height=\"33px\" data-sparkline-width=\"70px\"\r\n                             data-fill-color=\"transparent\">\r\n                            200, 210, 363, 247, 300, 270, 130, 187, 250, 257, 363, 247, 270\r\n                        </div>\r\n                    </div>\r\n                    <div class=\"col-xs-12 col-sm-3 col-md-3 col-lg-3\">\r\n                        <div class=\"easy-pie-chart txt-color-darken\" data-percent=\"36\" data-pie-size=\"50\">\r\n                            <span class=\"percent degree-sign\">36 <i class=\"fa fa-caret-up\"></i></span>\r\n                        </div>\r\n                        <span class=\"easy-pie-title\"> Temperature <i\r\n                                class=\"fa fa-caret-down icon-color-good\"></i></span>\r\n                        <ul class=\"smaller-stat hidden-sm pull-right\">\r\n                            <li>\r\n                                <span class=\"label bg-color-red\"><i class=\"fa fa-caret-up\"></i> 124</span>\r\n                            </li>\r\n                            <li>\r\n                                <span class=\"label bg-color-blue\"><i class=\"fa fa-caret-down\"></i> 40 F</span>\r\n                            </li>\r\n                        </ul>\r\n                        <div class=\"sparkline txt-color-red hidden-sm hidden-md pull-right\" data-sparkline-type=\"line\"\r\n                             data-sparkline-height=\"33px\" data-sparkline-width=\"70px\" data-fill-color=\"transparent\">\r\n                            2700, 3631, 2471, 2700, 3631, 2471, 1300, 1877, 2500, 2577, 2000, 2100, 3000\r\n                        </div>\r\n                    </div>\r\n                </div>\r\n\r\n            </div>\r\n            <!-- end s1 tab pane -->\r\n\r\n            <div class=\"tab-pane fade\" id=\"s2\">\r\n                <div class=\"widget-body-toolbar bg-color-white\">\r\n\r\n                    <form class=\"form-inline\" role=\"form\">\r\n\r\n                        <div class=\"form-group\">\r\n                            <label class=\"sr-only\" for=\"s123\">Show From</label>\r\n                            <input type=\"email\" class=\"form-control input-sm\" id=\"s123\" placeholder=\"Show From\">\r\n                        </div>\r\n                        <div class=\"form-group\">\r\n                            <input type=\"email\" class=\"form-control input-sm\" id=\"s124\" placeholder=\"To\">\r\n                        </div>\r\n\r\n                        <div class=\"btn-group hidden-phone pull-right\">\r\n                            <a class=\"btn dropdown-toggle btn-xs btn-default\" data-toggle=\"dropdown\"><i\r\n                                    class=\"fa fa-cog\"></i> More <span class=\"caret\"> </span> </a>\r\n                            <ul class=\"dropdown-menu pull-right\">\r\n                                <li>\r\n                                    <a href-void><i class=\"fa fa-file-text-alt\"></i> Export to PDF</a>\r\n                                </li>\r\n                                <li>\r\n                                    <a href-void><i class=\"fa fa-question-sign\"></i> Help</a>\r\n                                </li>\r\n                            </ul>\r\n                        </div>\r\n\r\n                    </form>\r\n\r\n                </div>\r\n                <div class=\"padding-10\">\r\n                    <div id=\"statsChart\" class=\"chart-large has-legend-unique\" flot-basic flot-data=\"statsData\" flot-options=\"statsDisplayOptions\"></div>\r\n                </div>\r\n\r\n            </div>\r\n            <!-- end s2 tab pane -->\r\n\r\n            <div class=\"tab-pane fade\" id=\"s3\">\r\n\r\n                <div class=\"widget-body-toolbar bg-color-white smart-form\" id=\"rev-toggles\">\r\n\r\n                    <div class=\"inline-group\">\r\n\r\n                        <label for=\"gra-0\" class=\"checkbox\">\r\n                            <input type=\"checkbox\" id=\"gra-0\" ng-model=\"targetsShow\">\r\n                            <i></i> Target </label>\r\n                        <label for=\"gra-1\" class=\"checkbox\">\r\n                            <input type=\"checkbox\" id=\"gra-1\" ng-model=\"actualsShow\">\r\n                            <i></i> Actual </label>\r\n                        <label for=\"gra-2\" class=\"checkbox\">\r\n                            <input type=\"checkbox\" id=\"gra-2\" ng-model=\"signupsShow\">\r\n                            <i></i> Signups </label>\r\n                    </div>\r\n\r\n                    <div class=\"btn-group hidden-phone pull-right\">\r\n                        <a class=\"btn dropdown-toggle btn-xs btn-default\" data-toggle=\"dropdown\"><i\r\n                                class=\"fa fa-cog\"></i> More <span class=\"caret\"> </span> </a>\r\n                        <ul class=\"dropdown-menu pull-right\">\r\n                            <li>\r\n                                <a href-void><i class=\"fa fa-file-text-alt\"></i> Export to PDF</a>\r\n                            </li>\r\n                            <li>\r\n                                <a href-void><i class=\"fa fa-question-sign\"></i> Help</a>\r\n                            </li>\r\n                        </ul>\r\n                    </div>\r\n\r\n                </div>\r\n\r\n                <div class=\"padding-10\">\r\n                    <div id=\"flotcontainer\" class=\"chart-large has-legend-unique\" flot-basic flot-data=\"revenewData\" flot-options=\"revenewDisplayOptions\" ></div>\r\n                </div>\r\n            </div>\r\n            <!-- end s3 tab pane -->\r\n        </div>\r\n\r\n        <!-- end content -->\r\n    </div>\r\n\r\n</div>\r\n<!-- end widget div -->\r\n</div>\r\n");
 $templateCache.put("app/public/app/layout/layout.tpl.html","<!-- HEADER -->\r\n<div data-smart-include=\"app/layout/partials/header.tpl.html\" class=\"placeholder-header\"></div>\r\n<!-- END HEADER -->\r\n\r\n\r\n<!-- Left panel : Navigation area -->\r\n<!-- Note: This width of the aside area can be adjusted through LESS variables -->\r\n<div data-smart-include=\"app/layout/partials/navigation.tpl.html\" class=\"placeholder-left-panel\"></div>\r\n\r\n<!-- END NAVIGATION -->\r\n\r\n<!-- MAIN PANEL -->\r\n<div id=\"main\" role=\"main\">\r\n    <!-- 小齒輪 -->\r\n    <!-- <demo-states></demo-states> -->\r\n\r\n    <!-- RIBBON -->\r\n    <div id=\"ribbon\">\r\n\r\n		<span class=\"ribbon-button-alignment\">\r\n			<span id=\"refresh\" class=\"btn btn-ribbon\" reset-widgets\r\n                  tooltip-placement=\"bottom\"\r\n                  smart-tooltip-html=\"<i class=\'text-warning fa fa-warning\'></i> Warning! This will reset all your widget settings.\">\r\n				<i class=\"fa fa-refresh\"></i>\r\n			</span>\r\n		</span>\r\n\r\n        <!-- breadcrumb -->\r\n        <state-breadcrumbs></state-breadcrumbs>\r\n        <!-- end breadcrumb -->\r\n\r\n\r\n    </div>\r\n    <!-- END RIBBON -->\r\n\r\n\r\n    <div data-smart-router-animation-wrap=\"content content@app\" data-wrap-for=\"#content\">\r\n        <div data-ui-view=\"content\" data-autoscroll=\"false\"></div>\r\n    </div>\r\n\r\n</div>\r\n<!-- END MAIN PANEL -->\r\n\r\n<!-- PAGE FOOTER -->\r\n<div data-smart-include=\"app/layout/partials/footer.tpl.html\"></div>\r\n\r\n<div data-smart-include=\"app/layout/shortcut/shortcut.tpl.html\"></div>\r\n\r\n<!-- END PAGE FOOTER -->\r\n\r\n\r\n");
+$templateCache.put("app/app/dashboard/todo/directives/todo-list.tpl.html","<div>\r\n    <h5 class=\"todo-group-title\"><i class=\"fa fa-{{icon}}\"></i> {{title}} (\r\n        <small class=\"num-of-tasks\">{{scopeItems.length}}</small>\r\n        )\r\n    </h5>\r\n    <ul class=\"todo\">\r\n        <li ng-class=\"{complete: todo.completedAt}\" ng-repeat=\"todo in todos | orderBy: todo._id | filter: filter  track by todo._id\" >\r\n    	<span class=\"handle\"> <label class=\"checkbox\">\r\n            <input type=\"checkbox\" ng-click=\"todo.toggle()\" ng-checked=\"todo.completedAt\"\r\n                   name=\"checkbox-inline\">\r\n            <i></i> </label> </span>\r\n\r\n            <p>\r\n                <strong>Ticket #{{$index + 1}}</strong> - {{todo.title}}\r\n                <span class=\"text-muted\" ng-if=\"todo.description\">{{todo.description}}</span>\r\n                <span class=\"date\">{{todo.createdAt | date}} &dash; <a ng-click=\"deleteTodo(todo)\" class=\"text-muted\"><i\r\n                        class=\"fa fa-trash\"></i></a></span>\r\n\r\n            </p>\r\n        </li>\r\n    </ul>\r\n</div>");
 $templateCache.put("app/app/dashboard/chat/directives/aside-chat-widget.tpl.html","<ul>\r\n    <li>\r\n        <div class=\"display-users\">\r\n            <input class=\"form-control chat-user-filter\" placeholder=\"Filter\" type=\"text\">\r\n            <dl>\r\n                <dt>\r\n                    <a href=\"#\" class=\"usr\"\r\n                       data-chat-id=\"cha1\"\r\n                       data-chat-fname=\"Sadi\"\r\n                       data-chat-lname=\"Orlaf\"\r\n                       data-chat-status=\"busy\"\r\n                       data-chat-alertmsg=\"Sadi Orlaf is in a meeting. Please do not disturb!\"\r\n                       data-chat-alertshow=\"true\"\r\n                       popover-trigger=\"hover\"\r\n                       popover-placement=\"right\"\r\n                       smart-popover-html=\"\r\n										<div class=\'usr-card\'>\r\n											<img src=\'styles/img/avatars/5.png\' alt=\'Sadi Orlaf\'>\r\n											<div class=\'usr-card-content\'>\r\n												<h3>Sadi Orlaf</h3>\r\n												<p>Marketing Executive</p>\r\n											</div>\r\n										</div>\r\n									\">\r\n                        <i></i>Sadi Orlaf\r\n                    </a>\r\n                </dt>\r\n                <dt>\r\n                    <a href=\"#\" class=\"usr\"\r\n                       data-chat-id=\"cha2\"\r\n                       data-chat-fname=\"Jessica\"\r\n                       data-chat-lname=\"Dolof\"\r\n                       data-chat-status=\"online\"\r\n                       data-chat-alertmsg=\"\"\r\n                       data-chat-alertshow=\"false\"\r\n                       popover-trigger=\"hover\"\r\n                       popover-placement=\"right\"\r\n                       smart-popover-html=\"\r\n										<div class=\'usr-card\'>\r\n											<img src=\'styles/img/avatars/1.png\' alt=\'Jessica Dolof\'>\r\n											<div class=\'usr-card-content\'>\r\n												<h3>Jessica Dolof</h3>\r\n												<p>Sales Administrator</p>\r\n											</div>\r\n										</div>\r\n									\">\r\n                        <i></i>Jessica Dolof\r\n                    </a>\r\n                </dt>\r\n                <dt>\r\n                    <a href=\"#\" class=\"usr\"\r\n                       data-chat-id=\"cha3\"\r\n                       data-chat-fname=\"Zekarburg\"\r\n                       data-chat-lname=\"Almandalie\"\r\n                       data-chat-status=\"online\"\r\n                       popover-trigger=\"hover\"\r\n                       popover-placement=\"right\"\r\n                       smart-popover-html=\"\r\n										<div class=\'usr-card\'>\r\n											<img src=\'styles/img/avatars/3.png\' alt=\'Zekarburg Almandalie\'>\r\n											<div class=\'usr-card-content\'>\r\n												<h3>Zekarburg Almandalie</h3>\r\n												<p>Sales Admin</p>\r\n											</div>\r\n										</div>\r\n									\">\r\n                        <i></i>Zekarburg Almandalie\r\n                    </a>\r\n                </dt>\r\n                <dt>\r\n                    <a href=\"#\" class=\"usr\"\r\n                       data-chat-id=\"cha4\"\r\n                       data-chat-fname=\"Barley\"\r\n                       data-chat-lname=\"Krazurkth\"\r\n                       data-chat-status=\"away\"\r\n                       popover-trigger=\"hover\"\r\n                       popover-placement=\"right\"\r\n                       smart-popover-html=\"\r\n										<div class=\'usr-card\'>\r\n											<img src=\'styles/img/avatars/4.png\' alt=\'Barley Krazurkth\'>\r\n											<div class=\'usr-card-content\'>\r\n												<h3>Barley Krazurkth</h3>\r\n												<p>Sales Director</p>\r\n											</div>\r\n										</div>\r\n									\">\r\n                        <i></i>Barley Krazurkth\r\n                    </a>\r\n                </dt>\r\n                <dt>\r\n                    <a href=\"#\" class=\"usr offline\"\r\n                       data-chat-id=\"cha5\"\r\n                       data-chat-fname=\"Farhana\"\r\n                       data-chat-lname=\"Amrin\"\r\n                       data-chat-status=\"incognito\"\r\n                       popover-trigger=\"hover\"\r\n                       popover-placement=\"right\"\r\n                       smart-popover-html=\"\r\n										<div class=\'usr-card\'>\r\n											<img src=\'styles/img/avatars/female.png\' alt=\'Farhana Amrin\'>\r\n											<div class=\'usr-card-content\'>\r\n												<h3>Farhana Amrin</h3>\r\n												<p>Support Admin <small><i class=\'fa fa-music\'></i> Playing Beethoven Classics</small></p>\r\n											</div>\r\n										</div>\r\n									\">\r\n                        <i></i>Farhana Amrin (offline)\r\n                    </a>\r\n                </dt>\r\n                <dt>\r\n                    <a href=\"#\" class=\"usr offline\"\r\n                       data-chat-id=\"cha6\"\r\n                       data-chat-fname=\"Lezley\"\r\n                       data-chat-lname=\"Jacob\"\r\n                       data-chat-status=\"incognito\"\r\n                       popover-trigger=\"hover\"\r\n                       popover-placement=\"right\"\r\n                       smart-popover-html=\"\r\n										<div class=\'usr-card\'>\r\n											<img src=\'styles/img/avatars/male.png\' alt=\'Lezley Jacob\'>\r\n											<div class=\'usr-card-content\'>\r\n												<h3>Lezley Jacob</h3>\r\n												<p>Sales Director</p>\r\n											</div>\r\n										</div>\r\n									\">\r\n                        <i></i>Lezley Jacob (offline)\r\n                    </a>\r\n                </dt>\r\n            </dl>\r\n\r\n\r\n            <!--<a href=\"chat.html\" class=\"btn btn-xs btn-default btn-block sa-chat-learnmore-btn\">About the API</a>-->\r\n        </div>\r\n    </li>\r\n</ul>");
 $templateCache.put("app/app/dashboard/chat/directives/chat-users.tpl.html","<div id=\"chat-container\" ng-class=\"{open: open}\">\r\n    <span class=\"chat-list-open-close\" ng-click=\"openToggle()\"><i class=\"fa fa-user\"></i><b>!</b></span>\r\n\r\n    <div class=\"chat-list-body custom-scroll\">\r\n        <ul id=\"chat-users\">\r\n            <li ng-repeat=\"chatUser in chatUsers | filter: chatUserFilter\">\r\n                <a ng-click=\"messageTo(chatUser)\"><img ng-src=\"{{chatUser.picture}}\">{{chatUser.username}} <span\r\n                        class=\"badge badge-inverse\">{{chatUser.username.length}}</span><span class=\"state\"><i\r\n                        class=\"fa fa-circle txt-color-green pull-right\"></i></span></a>\r\n            </li>\r\n        </ul>\r\n    </div>\r\n    <div class=\"chat-list-footer\">\r\n        <div class=\"control-group\">\r\n            <form class=\"smart-form\">\r\n                <section>\r\n                    <label class=\"input\" >\r\n                        <input type=\"text\" ng-model=\"chatUserFilter\" id=\"filter-chat-list\" placeholder=\"Filter\">\r\n                    </label>\r\n                </section>\r\n            </form>\r\n        </div>\r\n    </div>\r\n</div>");
 $templateCache.put("app/app/dashboard/chat/directives/chat-widget.tpl.html","<div id=\"chat-widget\" jarvis-widget data-widget-color=\"blueDark\" data-widget-editbutton=\"false\"\r\n     data-widget-fullscreenbutton=\"false\">\r\n\r\n\r\n    <header>\r\n        <span class=\"widget-icon\"> <i class=\"fa fa-comments txt-color-white\"></i> </span>\r\n\r\n        <h2> SmartMessage </h2>\r\n\r\n        <div class=\"widget-toolbar\">\r\n            <!-- add: non-hidden - to disable auto hide -->\r\n\r\n            <div class=\"btn-group\" data-dropdown>\r\n                <button class=\"btn dropdown-toggle btn-xs btn-success\" data-toggle=\"dropdown\">\r\n                    Status <i class=\"fa fa-caret-down\"></i>\r\n                </button>\r\n                <ul class=\"dropdown-menu pull-right js-status-update\">\r\n                    <li>\r\n                        <a href-void><i class=\"fa fa-circle txt-color-green\"></i> Online</a>\r\n                    </li>\r\n                    <li>\r\n                        <a href-void><i class=\"fa fa-circle txt-color-red\"></i> Busy</a>\r\n                    </li>\r\n                    <li>\r\n                        <a href-void><i class=\"fa fa-circle txt-color-orange\"></i> Away</a>\r\n                    </li>\r\n                    <li class=\"divider\"></li>\r\n                    <li>\r\n                        <a href-void><i class=\"fa fa-power-off\"></i> Log Off</a>\r\n                    </li>\r\n                </ul>\r\n            </div>\r\n        </div>\r\n    </header>\r\n\r\n    <!-- widget div-->\r\n    <div>\r\n        <div class=\"widget-body widget-hide-overflow no-padding\">\r\n            <!-- content goes here -->\r\n\r\n            <chat-users></chat-users>\r\n\r\n            <!-- CHAT BODY -->\r\n            <div id=\"chat-body\" class=\"chat-body custom-scroll\">\r\n                <ul>\r\n                    <li class=\"message\" ng-repeat=\"message in chatMessages\">\r\n                        <img class=\"message-picture online\" ng-src=\"{{message.user.picture}}\">\r\n\r\n                        <div class=\"message-text\">\r\n                            <time>\r\n                                {{message.date | date }}\r\n                            </time>\r\n                            <a ng-click=\"messageTo(message.user)\" class=\"username\">{{message.user.username}}</a>\r\n                            <div ng-bind-html=\"message.body\"></div>\r\n\r\n                        </div>\r\n                    </li>\r\n                </ul>\r\n            </div>\r\n\r\n            <!-- CHAT FOOTER -->\r\n            <div class=\"chat-footer\">\r\n\r\n                <!-- CHAT TEXTAREA -->\r\n                <div class=\"textarea-div\">\r\n\r\n                    <div class=\"typearea\">\r\n                        <textarea placeholder=\"Write a reply...\" id=\"textarea-expand\"\r\n                                  class=\"custom-scroll\" ng-model=\"newMessage\"></textarea>\r\n                    </div>\r\n\r\n                </div>\r\n\r\n                <!-- CHAT REPLY/SEND -->\r\n											<span class=\"textarea-controls\">\r\n												<button class=\"btn btn-sm btn-primary pull-right\" ng-click=\"sendMessage()\">\r\n                                                    Reply\r\n                                                </button> <span class=\"pull-right smart-form\"\r\n                                                                style=\"margin-top: 3px; margin-right: 10px;\"> <label\r\n                                                    class=\"checkbox pull-right\">\r\n                                                <input type=\"checkbox\" name=\"subscription\" id=\"subscription\">\r\n                                                <i></i>Press <strong> ENTER </strong> to send </label> </span> <a\r\n                                                    href-void class=\"pull-left\"><i\r\n                                                    class=\"fa fa-camera fa-fw fa-lg\"></i></a> </span>\r\n\r\n            </div>\r\n\r\n            <!-- end content -->\r\n        </div>\r\n\r\n    </div>\r\n    <!-- end widget div -->\r\n</div>");
-$templateCache.put("app/app/dashboard/todo/directives/todo-list.tpl.html","<div>\r\n    <h5 class=\"todo-group-title\"><i class=\"fa fa-{{icon}}\"></i> {{title}} (\r\n        <small class=\"num-of-tasks\">{{scopeItems.length}}</small>\r\n        )\r\n    </h5>\r\n    <ul class=\"todo\">\r\n        <li ng-class=\"{complete: todo.completedAt}\" ng-repeat=\"todo in todos | orderBy: todo._id | filter: filter  track by todo._id\" >\r\n    	<span class=\"handle\"> <label class=\"checkbox\">\r\n            <input type=\"checkbox\" ng-click=\"todo.toggle()\" ng-checked=\"todo.completedAt\"\r\n                   name=\"checkbox-inline\">\r\n            <i></i> </label> </span>\r\n\r\n            <p>\r\n                <strong>Ticket #{{$index + 1}}</strong> - {{todo.title}}\r\n                <span class=\"text-muted\" ng-if=\"todo.description\">{{todo.description}}</span>\r\n                <span class=\"date\">{{todo.createdAt | date}} &dash; <a ng-click=\"deleteTodo(todo)\" class=\"text-muted\"><i\r\n                        class=\"fa fa-trash\"></i></a></span>\r\n\r\n            </p>\r\n        </li>\r\n    </ul>\r\n</div>");
 $templateCache.put("app/public/app/auth/directives/login-info.tpl.html","<div class=\"login-info ng-cloak\">\r\n    <span> <!-- User image size is adjusted inside CSS, it should stay as it -->\r\n        <!-- <a  href=\"\" toggle-shortcut>\r\n            <img ng-src=\"{{user.picture}}\" alt=\"me\" class=\"online\">\r\n                <span>{{user.U_NAME}}\r\n                </span>\r\n            <i class=\"fa fa-angle-down\"></i>\r\n        </a> -->\r\n        <a  href=\"\">\r\n            <img ng-src=\"{{user.picture}}\" alt=\"me\" class=\"online\">\r\n                <span>{{user.U_NAME}}\r\n                </span>\r\n        </a>\r\n     </span>\r\n</div>");
-$templateCache.put("app/public/app/calendar/directives/full-calendar.tpl.html","<div jarvis-widget data-widget-color=\"blueDark\">\r\n    <header>\r\n        <span class=\"widget-icon\"> <i class=\"fa fa-calendar\"></i> </span>\r\n\r\n        <h2> My Events </h2>\r\n\r\n        <div class=\"widget-toolbar\">\r\n            <!-- add: non-hidden - to disable auto hide -->\r\n            <div class=\"btn-group dropdown\" dropdown >\r\n                <button class=\"btn dropdown-toggle btn-xs btn-default\" data-toggle=\"dropdown\">\r\n                    Showing <i class=\"fa fa-caret-down\"></i>\r\n                </button>\r\n                <ul class=\"dropdown-menu js-status-update pull-right\">\r\n                    <li>\r\n                        <a ng-click=\"changeView(\'month\')\">Month</a>\r\n                    </li>\r\n                    <li>\r\n                        <a ng-click=\"changeView(\'agendaWeek\')\">Agenda</a>\r\n                    </li>\r\n                    <li>\r\n                        <a ng-click=\"changeView(\'agendaDay\')\">Today</a>\r\n                    </li>\r\n                </ul>\r\n            </div>\r\n        </div>\r\n    </header>\r\n\r\n    <!-- widget div-->\r\n    <div>\r\n        <div class=\"widget-body no-padding\">\r\n            <!-- content goes here -->\r\n            <div class=\"widget-body-toolbar\">\r\n\r\n                <div id=\"calendar-buttons\">\r\n\r\n                    <div class=\"btn-group\">\r\n                        <a ng-click=\"prev()\" class=\"btn btn-default btn-xs\"><i\r\n                                class=\"fa fa-chevron-left\"></i></a>\r\n                        <a ng-click=\"next()\" class=\"btn btn-default btn-xs\"><i\r\n                                class=\"fa fa-chevron-right\"></i></a>\r\n                    </div>\r\n                </div>\r\n            </div>\r\n            <div id=\"calendar\"></div>\r\n\r\n            <!-- end content -->\r\n        </div>\r\n\r\n    </div>\r\n    <!-- end widget div -->\r\n</div>\r\n");
 $templateCache.put("app/public/app/calendar/views/calendar.tpl.html","<!-- MAIN CONTENT -->\r\n<div id=\"content\">\r\n\r\n    <div class=\"row\">\r\n        <big-breadcrumbs items=\"[\'Home\', \'Calendar\']\" class=\"col-xs-12 col-sm-7 col-md-7 col-lg-4\"></big-breadcrumbs>\r\n        <div smart-include=\"app/layout/partials/sub-header.tpl.html\"></div>\r\n    </div>\r\n    <!-- widget grid -->\r\n    <section id=\"widget-grid\" widget-grid>\r\n        <!-- row -->\r\n        <div class=\"row\" ng-controller=\"CalendarCtrl\" >\r\n\r\n\r\n            <div class=\"col-sm-12 col-md-12 col-lg-3\">\r\n                <!-- new widget -->\r\n                <div class=\"jarviswidget jarviswidget-color-blueDark\">\r\n                    <header>\r\n                        <h2> Add Events </h2>\r\n                    </header>\r\n\r\n                    <!-- widget div-->\r\n                    <div>\r\n\r\n                        <div class=\"widget-body\">\r\n                            <!-- content goes here -->\r\n\r\n                            <form id=\"add-event-form\">\r\n                                <fieldset>\r\n\r\n                                    <div class=\"form-group\">\r\n                                        <label>Select Event Icon</label>\r\n                                        <div class=\"btn-group btn-group-sm btn-group-justified\" data-toggle=\"buttons\" > <!--  -->\r\n                                            <label class=\"btn btn-default active\">\r\n                                                <input type=\"radio\" name=\"iconselect\" id=\"icon-1\" value=\"fa-info\" radio-toggle ng-model=\"newEvent.icon\">\r\n                                                <i class=\"fa fa-info text-muted\"></i> </label>\r\n                                            <label class=\"btn btn-default\">\r\n                                                <input type=\"radio\" name=\"iconselect\" id=\"icon-2\" value=\"fa-warning\" radio-toggle  ng-model=\"newEvent.icon\">\r\n                                                <i class=\"fa fa-warning text-muted\"></i> </label>\r\n                                            <label class=\"btn btn-default\">\r\n                                                <input type=\"radio\" name=\"iconselect\" id=\"icon-3\" value=\"fa-check\" radio-toggle  ng-model=\"newEvent.icon\">\r\n                                                <i class=\"fa fa-check text-muted\"></i> </label>\r\n                                            <label class=\"btn btn-default\">\r\n                                                <input type=\"radio\" name=\"iconselect\" id=\"icon-4\" value=\"fa-user\" radio-toggle  ng-model=\"newEvent.icon\">\r\n                                                <i class=\"fa fa-user text-muted\"></i> </label>\r\n                                            <label class=\"btn btn-default\">\r\n                                                <input type=\"radio\" name=\"iconselect\" id=\"icon-5\" value=\"fa-lock\" radio-toggle  ng-model=\"newEvent.icon\">\r\n                                                <i class=\"fa fa-lock text-muted\"></i> </label>\r\n                                            <label class=\"btn btn-default\">\r\n                                                <input type=\"radio\" name=\"iconselect\" id=\"icon-6\" value=\"fa-clock-o\" radio-toggle  ng-model=\"newEvent.icon\">\r\n                                                <i class=\"fa fa-clock-o text-muted\"></i> </label>\r\n                                        </div>\r\n                                    </div>\r\n\r\n                                    <div class=\"form-group\">\r\n                                        <label>Event Title</label>\r\n                                        <input ng-model=\"newEvent.title\" class=\"form-control\"  id=\"title\" name=\"title\" maxlength=\"40\" type=\"text\" placeholder=\"Event Title\">\r\n                                    </div>\r\n                                    <div class=\"form-group\">\r\n                                        <label>Event Description</label>\r\n                                        <textarea  ng-model=\"newEvent.description\" class=\"form-control\" placeholder=\"Please be brief\" rows=\"3\" maxlength=\"40\" id=\"description\"></textarea>\r\n                                        <p class=\"note\">Maxlength is set to 40 characters</p>\r\n                                    </div>\r\n\r\n                                    <div class=\"form-group\">\r\n                                        <label>Select Event Color</label>\r\n                                        <div class=\"btn-group btn-group-justified btn-select-tick\" data-toggle=\"buttons\" >\r\n                                            <label class=\"btn bg-color-darken active\">\r\n                                                <input   ng-model=\"newEvent.className\" radio-toggle   type=\"radio\" name=\"priority\" id=\"option1\" value=\"bg-color-darken txt-color-white\" >\r\n                                                <i class=\"fa fa-check txt-color-white\"></i> </label>\r\n                                            <label class=\"btn bg-color-blue\">\r\n                                                <input  ng-model=\"newEvent.className\" radio-toggle   type=\"radio\" name=\"priority\" id=\"option2\" value=\"bg-color-blue txt-color-white\">\r\n                                                <i class=\"fa fa-check txt-color-white\"></i> </label>\r\n                                            <label class=\"btn bg-color-orange\">\r\n                                                <input  ng-model=\"newEvent.className\" radio-toggle   type=\"radio\" name=\"priority\" id=\"option3\" value=\"bg-color-orange txt-color-white\">\r\n                                                <i class=\"fa fa-check txt-color-white\"></i> </label>\r\n                                            <label class=\"btn bg-color-greenLight\">\r\n                                                <input  ng-model=\"newEvent.className\" radio-toggle   type=\"radio\" name=\"priority\" id=\"option4\" value=\"bg-color-greenLight txt-color-white\">\r\n                                                <i class=\"fa fa-check txt-color-white\"></i> </label>\r\n                                            <label class=\"btn bg-color-blueLight\">\r\n                                                <input  ng-model=\"newEvent.className\" radio-toggle   type=\"radio\" name=\"priority\" id=\"option5\" value=\"bg-color-blueLight txt-color-white\">\r\n                                                <i class=\"fa fa-check txt-color-white\"></i> </label>\r\n                                            <label class=\"btn bg-color-red\">\r\n                                                <input  ng-model=\"newEvent.className\" radio-toggle   type=\"radio\" name=\"priority\" id=\"option6\" value=\"bg-color-red txt-color-white\">\r\n                                                <i class=\"fa fa-check txt-color-white\"></i> </label>\r\n                                        </div>\r\n                                    </div>\r\n\r\n                                </fieldset>\r\n                                <div class=\"form-actions\">\r\n                                    <div class=\"row\">\r\n                                        <div class=\"col-md-12\">\r\n                                            <button class=\"btn btn-default\" type=\"button\" id=\"add-event\" ng-click=\"addEvent()\" >\r\n                                                Add Event\r\n                                            </button>\r\n                                        </div>\r\n                                    </div>\r\n                                </div>\r\n                            </form>\r\n\r\n                            <!-- end content -->\r\n                        </div>\r\n\r\n                    </div>\r\n                    <!-- end widget div -->\r\n                </div>\r\n                <!-- end widget -->\r\n\r\n                <div class=\"well well-sm\" id=\"event-container\">\r\n                    <form>\r\n                        <legend>\r\n                            Draggable Events\r\n                        </legend>\r\n                        <ul id=\'external-events\' class=\"list-unstyled\">\r\n\r\n                            <li ng-repeat=\"event in eventsExternal\" dragable-event>\r\n                                <span class=\"{{event.className}}\" \r\n                                    data-description=\"{{event.description}}\"\r\n                                    data-icon=\"{{event.icon}}\"\r\n                                >\r\n                                {{event.title}}</span>\r\n                            </li>\r\n                            \r\n                        </ul>\r\n\r\n                        <!-- <ul id=\'external-events\' class=\"list-unstyled\">\r\n                            <li>\r\n                                <span class=\"bg-color-darken txt-color-white\" data-description=\"Currently busy\" data-icon=\"fa-time\">Office Meeting</span>\r\n                            </li>\r\n                            <li>\r\n                                <span class=\"bg-color-blue txt-color-white\" data-description=\"No Description\" data-icon=\"fa-pie\">Lunch Break</span>\r\n                            </li>\r\n                            <li>\r\n                                <span class=\"bg-color-red txt-color-white\" data-description=\"Urgent Tasks\" data-icon=\"fa-alert\">URGENT</span>\r\n                            </li>\r\n                        </ul> -->\r\n\r\n                        <div class=\"checkbox\">\r\n                            <label>\r\n                                <input type=\"checkbox\" id=\"drop-remove\" class=\"checkbox style-0\" checked=\"checked\">\r\n                                <span>remove after drop</span> </label>\r\n\r\n                        </div>\r\n                    </form>\r\n\r\n                </div>\r\n            </div>\r\n\r\n\r\n            <article class=\"col-sm-12 col-md-12 col-lg-9\">\r\n                <full-calendar id=\"main-calendar-widget\" data-events=\"events\"></full-calendar>\r\n            </article>\r\n        </div>\r\n    </section>\r\n</div>");
+$templateCache.put("app/public/app/calendar/directives/full-calendar.tpl.html","");
+$templateCache.put("app/public/app/dashboard/projects/recent-projects.tpl.html","<div class=\"project-context hidden-xs dropdown\" dropdown>\r\n\r\n    <span class=\"label\">{{getWord(\'Projects\')}}:</span>\r\n    <span class=\"project-selector dropdown-toggle\" data-toggle=\"dropdown\">{{getWord(\'Recent projects\')}} <i ng-if=\"projects.length\"\r\n            class=\"fa fa-angle-down\"></i></span>\r\n\r\n    <ul class=\"dropdown-menu\" ng-if=\"projects.length\">\r\n        <li ng-repeat=\"project in projects\">\r\n            <a href=\"{{project.href}}\">{{project.title}}</a>\r\n        </li>\r\n        <li class=\"divider\"></li>\r\n        <li>\r\n            <a ng-click=\"clearProjects()\"><i class=\"fa fa-power-off\"></i> Clear</a>\r\n        </li>\r\n    </ul>\r\n\r\n</div>");
 $templateCache.put("app/public/app/dashboard/todo/todo-widget.tpl.html","<div id=\"todo-widget\" jarvis-widget data-widget-editbutton=\"false\" data-widget-color=\"blue\"\r\n     ng-controller=\"TodoCtrl\">\r\n    <header>\r\n        <span class=\"widget-icon\"> <i class=\"fa fa-check txt-color-white\"></i> </span>\r\n\r\n        <h2> ToDo\'s </h2>\r\n\r\n        <div class=\"widget-toolbar\">\r\n            <!-- add: non-hidden - to disable auto hide -->\r\n            <button class=\"btn btn-xs btn-default\" ng-class=\"{active: newTodo}\" ng-click=\"toggleAdd()\"><i ng-class=\"{ \'fa fa-plus\': !newTodo, \'fa fa-times\': newTodo}\"></i> Add</button>\r\n\r\n        </div>\r\n    </header>\r\n    <!-- widget div-->\r\n    <div>\r\n        <div class=\"widget-body no-padding smart-form\">\r\n            <!-- content goes here -->\r\n            <div ng-show=\"newTodo\">\r\n                <h5 class=\"todo-group-title\"><i class=\"fa fa-plus-circle\"></i> New Todo</h5>\r\n\r\n                <form name=\"newTodoForm\" class=\"smart-form\">\r\n                    <fieldset>\r\n                        <section>\r\n                            <label class=\"input\">\r\n                                <input type=\"text\" required class=\"input-lg\" ng-model=\"newTodo.title\"\r\n                                       placeholder=\"What needs to be done?\">\r\n                            </label>\r\n                        </section>\r\n                        <section>\r\n                            <div class=\"col-xs-6\">\r\n                                <label class=\"select\">\r\n                                    <select class=\"input-sm\" ng-model=\"newTodo.state\"\r\n                                            ng-options=\"state as state for state in states\"></select> <i></i> </label>\r\n                            </div>\r\n                        </section>\r\n                    </fieldset>\r\n                    <footer>\r\n                        <button ng-disabled=\"newTodoForm.$invalid\" type=\"button\" class=\"btn btn-primary\"\r\n                                ng-click=\"createTodo()\">\r\n                            Add\r\n                        </button>\r\n                        <button type=\"button\" class=\"btn btn-default\" ng-click=\"toggleAdd()\">\r\n                            Cancel\r\n                        </button>\r\n                    </footer>\r\n                </form>\r\n            </div>\r\n\r\n            <todo-list state=\"Critical\"  title=\"Critical Tasks\" icon=\"warning\" todos=\"todos\"></todo-list>\r\n\r\n            <todo-list state=\"Important\" title=\"Important Tasks\" icon=\"exclamation\" todos=\"todos\"></todo-list>\r\n\r\n            <todo-list state=\"Completed\" title=\"Completed Tasks\" icon=\"check\" todos=\"todos\"></todo-list>\r\n\r\n            <!-- end content -->\r\n        </div>\r\n\r\n    </div>\r\n    <!-- end widget div -->\r\n</div>");
-$templateCache.put("app/public/app/layout/language/language-selector.tpl.html","<ul class=\"header-dropdown-list hidden-xs ng-cloak\" ng-controller=\"LanguagesCtrl\">\r\n    <li class=\"dropdown\" dropdown>\r\n        <a class=\"dropdown-toggle\" data-toggle=\"dropdown\" href> <img src=\"styles/img/blank.gif\" class=\"flag flag-{{currentLanguage.key}}\" alt=\"{{currentLanguage.alt}}\"> <span> {{currentLanguage.title}} </span>\r\n            <i class=\"fa fa-angle-down\"></i> </a>\r\n        <ul class=\"dropdown-menu pull-right\">\r\n            <li ng-class=\"{active: language==currentLanguage}\" ng-repeat=\"language in languages\">\r\n                <a ng-click=\"selectLanguage(language)\"><img src=\"styles/img/blank.gif\" class=\"flag flag-{{language.key}}\" alt=\"{{language.alt}}\"> {{language.title}}</a>\r\n            </li>\r\n        </ul>\r\n    </li>\r\n</ul>\r\n");
 $templateCache.put("app/public/app/layout/partials/footer.tpl.html","<div class=\"page-footer\">\r\n    <div class=\"row\">\r\n        <div class=\"col-xs-12 col-sm-6\">\r\n            <span class=\"txt-color-white\">東風物流貨運承攬有限公司 © 2017</span>\r\n        </div>\r\n\r\n        <div class=\"col-xs-6 col-sm-6 text-right hidden-xs\">\r\n            <!-- <div class=\"txt-color-white inline-block\">\r\n                <i class=\"txt-color-blueLight hidden-mobile\">Last account activity <i class=\"fa fa-clock-o\"></i>\r\n                    <strong>52 mins ago &nbsp;</strong> </i>\r\n\r\n                <div class=\"btn-group dropup\">\r\n                    <button class=\"btn btn-xs dropdown-toggle bg-color-blue txt-color-white\" data-toggle=\"dropdown\">\r\n                        <i class=\"fa fa-link\"></i> <span class=\"caret\"></span>\r\n                    </button>\r\n                    <ul class=\"dropdown-menu pull-right text-left\">\r\n                        <li>\r\n                            <div class=\"padding-5\">\r\n                                <p class=\"txt-color-darken font-sm no-margin\">Download Progress</p>\r\n\r\n                                <div class=\"progress progress-micro no-margin\">\r\n                                    <div class=\"progress-bar progress-bar-success\" style=\"width: 50%;\"></div>\r\n                                </div>\r\n                            </div>\r\n                        </li>\r\n                        <li class=\"divider\"></li>\r\n                        <li>\r\n                            <div class=\"padding-5\">\r\n                                <p class=\"txt-color-darken font-sm no-margin\">Server Load</p>\r\n\r\n                                <div class=\"progress progress-micro no-margin\">\r\n                                    <div class=\"progress-bar progress-bar-success\" style=\"width: 20%;\"></div>\r\n                                </div>\r\n                            </div>\r\n                        </li>\r\n                        <li class=\"divider\"></li>\r\n                        <li>\r\n                            <div class=\"padding-5\">\r\n                                <p class=\"txt-color-darken font-sm no-margin\">Memory Load <span class=\"text-danger\">*critical*</span>\r\n                                </p>\r\n\r\n                                <div class=\"progress progress-micro no-margin\">\r\n                                    <div class=\"progress-bar progress-bar-danger\" style=\"width: 70%;\"></div>\r\n                                </div>\r\n                            </div>\r\n                        </li>\r\n                        <li class=\"divider\"></li>\r\n                        <li>\r\n                            <div class=\"padding-5\">\r\n                                <button class=\"btn btn-block btn-default\">refresh</button>\r\n                            </div>\r\n                        </li>\r\n                    </ul>\r\n                </div>\r\n            </div> -->\r\n        </div>\r\n    </div>\r\n</div>");
-$templateCache.put("app/public/app/layout/partials/header.tpl.html","<header id=\"header\">\r\n    <div id=\"logo-group\">\r\n        <!-- PLACE YOUR LOGO HERE -->\r\n        <span id=\"logo\"> <img src=\"styles/img/ews/title_logo.png\" alt=\"東風管理系統\"> </span>\r\n        <!-- END LOGO PLACEHOLDER -->\r\n        <!-- Note: The activity badge color changes when clicked and resets the number to 0\r\n    Suggestion: You may want to set a flag when this happens to tick off all checked messages / notifications -->\r\n        <!-- <span id=\"activity\" class=\"activity-dropdown\" activities-dropdown-toggle> \r\n            <i class=\"fa fa-user\"></i> \r\n            <b class=\"badge bg-color-red\">21</b> \r\n        </span> -->\r\n        <div smart-include=\"app/dashboard/activities/activities.html\"></div>\r\n    </div>\r\n    <!-- <recent-projects></recent-projects> -->\r\n    <!-- pulled right: nav area -->\r\n    <div class=\"pull-right\">\r\n        <!-- collapse menu button -->\r\n        <div id=\"hide-menu\" class=\"btn-header pull-right\">\r\n            <span> <a toggle-menu title=\"Collapse Menu\"><i\r\n                class=\"fa fa-reorder\"></i></a> </span>\r\n        </div>\r\n        <!-- end collapse menu -->\r\n        <!-- #MOBILE -->\r\n        <!-- Top menu profile link : this shows only when top menu is active -->\r\n        <ul id=\"mobile-profile-img\" class=\"header-dropdown-list hidden-xs padding-5\">\r\n            <li class=\"\">\r\n                <a href=\"#\" class=\"dropdown-toggle no-margin userdropdown\" data-toggle=\"dropdown\">\r\n                    <img src=\"styles/img/avatars/sunny.png\" alt=\"John Doe\" class=\"online\" />\r\n                </a>\r\n                <ul class=\"dropdown-menu pull-right\">\r\n                    <li>\r\n                        <a href-void class=\"padding-10 padding-top-0 padding-bottom-0\"><i\r\n                            class=\"fa fa-cog\"></i> Setting</a>\r\n                    </li>\r\n                    <li class=\"divider\"></li>\r\n                    <li>\r\n                        <a ui-sref=\"app.appViews.profileDemo\" class=\"padding-10 padding-top-0 padding-bottom-0\"> <i class=\"fa fa-user\"></i>\r\n                            <u>P</u>rofile</a>\r\n                    </li>\r\n                    <li class=\"divider\"></li>\r\n                    <li>\r\n                        <a href-void class=\"padding-10 padding-top-0 padding-bottom-0\" data-action=\"toggleShortcut\"><i class=\"fa fa-arrow-down\"></i> <u>S</u>hortcut</a>\r\n                    </li>\r\n                    <li class=\"divider\"></li>\r\n                    <li>\r\n                        <a href-void class=\"padding-10 padding-top-0 padding-bottom-0\" data-action=\"launchFullscreen\"><i class=\"fa fa-arrows-alt\"></i> Full <u>S</u>creen</a>\r\n                    </li>\r\n                    <li class=\"divider\"></li>\r\n                    <li>\r\n                        <a href=\"#/login\" class=\"padding-10 padding-top-5 padding-bottom-5\" data-action=\"userLogout\"><i\r\n                            class=\"fa fa-sign-out fa-lg\"></i> <strong><u>L</u>ogout</strong></a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n        </ul>\r\n        <!-- logout button -->\r\n        <div id=\"logout\" class=\"btn-header transparent pull-right\">\r\n            <span> \r\n                <a ui-sref=\"login\" \r\n                   title=\"Sign Out\" \r\n                   data-action=\"userLogout\"\r\n                   data-logout-msg=\"You can improve your security further after logging out by closing this opened browser\">\r\n                   <i class=\"fa fa-sign-out\"></i>\r\n                </a> \r\n            </span>\r\n        </div>\r\n        <!-- end logout button -->\r\n        <!-- search mobile button (this is hidden till mobile view port) -->\r\n        <div id=\"search-mobile\" class=\"btn-header transparent pull-right\" data-search-mobile>\r\n            <span> <a href=\"#\" title=\"Search\"><i class=\"fa fa-search\"></i></a> </span>\r\n        </div>\r\n        <!-- end search mobile button -->\r\n        <!-- input: search field -->\r\n        <!-- <form action=\"#/search\" class=\"header-search pull-right\">\r\n            <input id=\"search-fld\" type=\"text\" name=\"param\" placeholder=\"Find reports and more\" data-autocomplete=\'[\r\n                    \"ActionScript\",\r\n                    \"AppleScript\",\r\n                    \"Asp\",\r\n                    \"BASIC\",\r\n                    \"C\",\r\n                    \"C++\",\r\n                    \"Clojure\",\r\n                    \"COBOL\",\r\n                    \"ColdFusion\",\r\n                    \"Erlang\",\r\n                    \"Fortran\",\r\n                    \"Groovy\",\r\n                    \"Haskell\",\r\n                    \"Java\",\r\n                    \"JavaScript\",\r\n                    \"Lisp\",\r\n                    \"Perl\",\r\n                    \"PHP\",\r\n                    \"Python\",\r\n                    \"Ruby\",\r\n                    \"Scala\",\r\n                    \"Scheme\"]\'>\r\n            <button type=\"submit\">\r\n                <i class=\"fa fa-search\"></i>\r\n            </button>\r\n            <a href=\"$\" id=\"cancel-search-js\" title=\"Cancel Search\"><i class=\"fa fa-times\"></i></a>\r\n        </form> -->\r\n        <!-- end input: search field -->\r\n        <!-- fullscreen button -->\r\n        <div id=\"fullscreen\" class=\"btn-header transparent pull-right\">\r\n            <span> <a full-screen title=\"Full Screen\"><i\r\n                class=\"fa fa-arrows-alt\"></i></a> </span>\r\n        </div>\r\n        <!-- end fullscreen button -->\r\n        <!-- #Voice Command: Start Speech -->\r\n        <!-- <div id=\"speech-btn\" class=\"btn-header transparent pull-right hidden-sm hidden-xs\">\r\n            <div>\r\n                <a title=\"Voice Command\" id=\"voice-command-btn\" speech-recognition><i class=\"fa fa-microphone\"></i></a>\r\n                <div class=\"popover bottom\">\r\n                    <div class=\"arrow\"></div>\r\n                    <div class=\"popover-content\">\r\n                        <h4 class=\"vc-title\">Voice command activated <br>\r\n                        <small>Please speak clearly into the mic</small>\r\n                    </h4>\r\n                        <h4 class=\"vc-title-error text-center\">\r\n                        <i class=\"fa fa-microphone-slash\"></i> Voice command failed\r\n                        <br>\r\n                        <small class=\"txt-color-red\">Must <strong>\"Allow\"</strong> Microphone</small>\r\n                        <br>\r\n                        <small class=\"txt-color-red\">Must have <strong>Internet Connection</strong></small>\r\n                    </h4>\r\n                        <a href-void class=\"btn btn-success\" id=\"speech-help-btn\">See Commands</a>\r\n                        <a href-void class=\"btn bg-color-purple txt-color-white\" onclick=\"$(\'#speech-btn .popover\').fadeOut(50);\">Close Popup</a>\r\n                    </div>\r\n                </div>\r\n            </div>\r\n        </div> -->\r\n        <!-- end voice command -->\r\n        \r\n        <!-- multiple lang dropdown : find all flags in the flags page -->\r\n        <language-selector></language-selector>\r\n        <!-- end multiple lang -->\r\n    </div>\r\n    <!-- end pulled right: nav area -->\r\n</header>\r\n");
-$templateCache.put("app/public/app/layout/partials/navigation.tpl.html","<aside id=\"left-panel\">\r\n\r\n    <!-- User info -->\r\n    <div login-info></div>\r\n    <!-- end user info -->\r\n\r\n    <!-- <nav data-smart-menu-items=\"/api/menu-items.json\"> -->\r\n    <nav>\r\n        <!-- NOTE: Notice the gaps after each icon usage <i></i>..\r\n        Please note that these links work a bit different than\r\n        traditional href=\"\" links. See documentation for details.\r\n        -->\r\n\r\n        <ul data-smart-menu>\r\n            <li data-menu-collapse>\r\n                <a href=\"#\" title=\"Dashboard\"><i class=\"fa fa-lg fa-fw fa-home\"></i> <span\r\n                        class=\"menu-item-parent\">{{getWord(\'Dashboard\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.dashboard\">{{getWord(\'Analytics Dashboard\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.dashboard-social\">{{getWord(\'Social Wall\')}}</a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\" title=\"Restful\">\r\n                    <i class=\"fa fa-lg fa-fw fa-home\"></i> \r\n                    <span class=\"menu-item-parent\">{{getWord(\'Restful\')}}</span>\r\n                </a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.restful.alantest\">{{getWord(\'AlanTest\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.restful.gridtest\">{{getWord(\'GridTest\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.restful.exceltest\">{{getWord(\'ExcelTest\')}}</a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-ui-sref-active=\"active\">\r\n                <a data-ui-sref=\"app.mainwork\" title=\"MainWork\">\r\n                    <i class=\"fa fa-lg fa-fw fa-newspaper-o\"></i> \r\n                    <span class=\"menu-item-parent\">{{getWord(\'MainWork\')}}</span>\r\n                </a>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\" title=\"SelfWork\">\r\n                    <i class=\"fa fa-lg fa-fw fa-truck\"></i> \r\n                    <span class=\"menu-item-parent\">{{getWord(\'SelfWork\')}}</span>\r\n                </a>\r\n                <ul>\r\n                    <li data-menu-collapse>\r\n                        <a href=\"#\"><i class=\"fa fa-fw fa-folder-open\"></i> {{getWord(\'LeaderOption\')}} </a>\r\n                        <ul>\r\n                            <li data-ui-sref-active=\"active\">\r\n                                <a data-ui-sref=\"app.selfwork.leaderoption.compydistribution\"><i class=\"fa fa-building-o\"></i> {{getWord(\'CompyDistribution\')}}</a>\r\n                            </li>\r\n                            <li data-ui-sref-active=\"active\">\r\n                                <a data-ui-sref=\"app.selfwork.leaderoption.agentsetting\"><i class=\"fa fa-braille\"></i> {{getWord(\'AgentSetting\')}}</a>\r\n                            </li>\r\n                            <li data-ui-sref-active=\"active\">\r\n                                <a data-ui-sref=\"app.selfwork.leaderoption.dailyleave\"><i class=\"fa fa-child\"></i> {{getWord(\'DailyLeave\')}}</a>\r\n                            </li>\r\n                        </ul>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.selfwork.leaderjobs\"><i class=\"fa fa-cubes\"></i> {{getWord(\'LeaderJobs\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.selfwork.leaderhistorysearch\"><i class=\"fa fa-history\"></i> {{getWord(\'LeaderHistorySearch\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.selfwork.assistantjobs\"><i class=\"fa fa-cube\"></i> {{getWord(\'AssistantJobs\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.selfwork.assistanthistorysearch\"><i class=\"fa fa-history\"></i> {{getWord(\'AssistantHistorySearch\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.selfwork.employeejobs\"><i class=\"fa fa-cube\"></i> {{getWord(\'EmployeeJobs\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.selfwork.employeehistorysearch\"><i class=\"fa fa-history\"></i> {{getWord(\'EmployeeHistorySearch\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.selfwork.deliveryjobs\"><i class=\"fa fa-cube\"></i> {{getWord(\'DeliveryJobs\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.selfwork.deliveryhistorysearch\"><i class=\"fa fa-history\"></i> {{getWord(\'DeliveryHistorySearch\')}}</a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\" title=\"Concerns\"><i class=\"fa fa-lg fa-fw fa-address-book-o\"></i> <span\r\n                        class=\"menu-item-parent\">{{getWord(\'Concerns\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.concerns.ban\"><i class=\"fa fa-ban\"></i> {{getWord(\'Ban\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.concerns.dailyalert\"><i class=\"fa fa-bell-o\"></i> {{getWord(\'DailyAlert\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.concerns.banhistorysearch\"><i class=\"fa fa-history\"></i> {{getWord(\'HistorySearch\')}}</a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\" title=\"Settings\"><i class=\"fa fa-lg fa-fw fa-cog\"></i> <span\r\n                        class=\"menu-item-parent\">{{getWord(\'Settings\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.settings.profile\"><i class=\"fa fa-user\"></i> {{getWord(\'Profile\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.settings.accountmanagement\"><i class=\"fa fa-sitemap\"></i> {{getWord(\'AccountManagement\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.settings.billboardeditor\"><i class=\"fa fa-newspaper-o\"></i> {{getWord(\'BillboardEditor\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.settings.externalmanagement\"><i class=\"fa fa-external-link\"></i> {{getWord(\'ExternalManagement\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.settings.aviationmail\"><i class=\"fa fa-envelope-o\"></i> {{getWord(\'AviationMail\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.settings.excompybagno\"><i class=\"fa fa-shopping-bag\"></i> {{getWord(\'ExcompyBagno\')}}</a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse class=\"top-menu-invisible\">\r\n                <a href=\"#\"><i class=\"fa fa-lg fa-fw fa-cube txt-color-blue\"></i> <span class=\"menu-item-parent\">{{getWord(\'SmartAdmin Intel\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.smartAdmin.appLayouts\"><i class=\"fa fa-gear\"></i>\r\n                            {{getWord(\'App Layouts\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.smartAdmin.prebuiltSkins\"><i class=\"fa fa-picture-o\"></i>\r\n                            {{getWord(\'Prebuilt Skins\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.smartAdmin.appLayout\"><i class=\"fa fa-cube\"></i> {{getWord(\'App Settings\')}}</a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-ui-sref-active=\"active\">\r\n                <a data-ui-sref=\"app.inbox.folder\" title=\"Outlook\">\r\n                    <i class=\"fa fa-lg fa-fw fa-inbox\"></i> <span class=\"menu-item-parent\">{{getWord(\'Outlook\')}}</span><span\r\n                        unread-messages-count class=\"badge pull-right inbox-badge\"></span></a>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\"><i class=\"fa fa-lg fa-fw fa-bar-chart-o\"></i> <span class=\"menu-item-parent\">{{getWord(\'Graphs\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.graphs.flot\">{{getWord(\'Flot Chart\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.graphs.morris\">{{getWord(\'Morris Charts\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.graphs.sparkline\">{{getWord(\'Sparkline\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.graphs.easyPieCharts\">{{getWord(\'Easy Pie Charts\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.graphs.dygraphs\">{{getWord(\'Dygraphs\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.graphs.chartjs\">Chart.js</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.graphs.highchartTables\">Highchart Tables <span\r\n                                class=\"badge pull-right inbox-badge bg-color-yellow\">new</span></a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\"><i class=\"fa fa-lg fa-fw fa-table\"></i> <span\r\n                        class=\"menu-item-parent\">{{getWord(\'Tables\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.tables.normal\">{{getWord(\'Normal Tables\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.tables.datatables\">{{getWord(\'Data Tables\')}} <span\r\n                                class=\"badge inbox-badge bg-color-greenLight\">v1.10</span></a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.tables.jqgrid\">{{getWord(\'Jquery Grid\')}}</a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\"><i class=\"fa fa-lg fa-fw fa-pencil-square-o\"></i> <span class=\"menu-item-parent\">{{getWord(\'Forms\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.form.elements\">{{getWord(\'Smart Form Elements\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.form.layouts\">{{getWord(\'Smart Form Layouts\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.form.validation\">{{getWord(\'Smart Form Validation\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.form.bootstrapForms\">{{getWord(\'Bootstrap Form Elements\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.form.bootstrapValidation\">{{getWord(\'Bootstrap Form Validation\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.form.plugins\">{{getWord(\'Form Plugins\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.form.wizards\">{{getWord(\'Wizards\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.form.editors\">{{getWord(\'Bootstrap Editors\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.form.dropzone\">{{getWord(\'Dropzone\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.form.imageEditor\">{{getWord(\'Image Cropping\')}} <span\r\n                                class=\"badge pull-right inbox-badge bg-color-yellow\">new</span></a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\"><i class=\"fa fa-lg fa-fw fa-desktop\"></i> <span class=\"menu-item-parent\">{{getWord(\'UI Elements\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.ui.general\">{{getWord(\'General Elements\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.ui.buttons\">{{getWord(\'Buttons\')}}</a>\r\n                    </li>\r\n                    <li data-menu-collapse>\r\n                        <a href=\"#\">{{getWord(\'Icons\')}}</a>\r\n                        <ul>\r\n                            <li data-ui-sref-active=\"active\">\r\n                                <a data-ui-sref=\"app.ui.iconsFa\"><i class=\"fa fa-plane\"></i> {{getWord(\'Font Awesome\')}}</a>\r\n                            </li>\r\n                            <li data-ui-sref-active=\"active\">\r\n                                <a data-ui-sref=\"app.ui.iconsGlyph\"><i class=\"glyphicon glyphicon-plane\"></i>\r\n                                    {{getWord(\'Glyph Icons\')}}</a>\r\n                            </li>\r\n                            <li data-ui-sref-active=\"active\">\r\n                                <a data-ui-sref=\"app.ui.iconsFlags\"><i class=\"fa fa-flag\"></i> {{getWord(\'Flags\')}}</a>\r\n                            </li>\r\n                        </ul>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.ui.grid\">{{getWord(\'Grid\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.ui.treeView\">{{getWord(\'Tree View\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.ui.nestableLists\">{{getWord(\'Nestable Lists\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.ui.jqueryUi\">{{getWord(\'JQuery UI\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.ui.typography\">{{getWord(\'Typography\')}}</a>\r\n                    </li>\r\n                    <li data-menu-collapse>\r\n                        <a href=\"#\">{{getWord(\'Six Level Menu\')}}</a>\r\n                        <ul>\r\n                            <li data-menu-collapse>\r\n                                <a href=\"#\"><i class=\"fa fa-fw fa-folder-open\"></i> {{getWord(\'Item #2\')}}</a>\r\n                                <ul>\r\n                                    <li data-menu-collapse>\r\n                                        <a href=\"#\"><i class=\"fa fa-fw fa-folder-open\"></i> {{getWord(\'Sub #2.1\')}} </a>\r\n                                        <ul>\r\n                                            <li>\r\n                                                <a href=\"#\"><i class=\"fa fa-fw fa-file-text\"></i> {{getWord(\'Item\r\n                                                    #2.1.1\')}}</a>\r\n                                            </li>\r\n                                            <li data-menu-collapse>\r\n                                                <a href=\"#\"><i class=\"fa fa-fw fa-plus\"></i>{{getWord(\'Expand\')}}</a>\r\n                                                <ul>\r\n                                                    <li>\r\n                                                        <a href=\"#\"><i class=\"fa fa-fw fa-file-text\"></i>\r\n                                                            {{getWord(\'File\')}}</a>\r\n                                                    </li>\r\n                                                    <li>\r\n                                                        <a href=\"#\"><i class=\"fa fa-fw fa-trash-o\"></i>\r\n                                                            {{getWord(\'Delete\')}}</a></li>\r\n                                                </ul>\r\n                                            </li>\r\n                                        </ul>\r\n                                    </li>\r\n                                </ul>\r\n                            </li>\r\n                            <li data-menu-collapse>\r\n                                <a href=\"#\"><i class=\"fa fa-fw fa-folder-open\"></i> {{getWord(\'Item #3\')}}</a>\r\n\r\n                                <ul>\r\n                                    <li data-menu-collapse>\r\n                                        <a href=\"#\"><i class=\"fa fa-fw fa-folder-open\"></i> {{getWord(\'3ed Level\')}}\r\n                                        </a>\r\n                                        <ul>\r\n                                            <li>\r\n                                                <a href=\"#\"><i class=\"fa fa-fw fa-file-text\"></i>\r\n                                                    {{getWord(\'File\')}}</a>\r\n                                            </li>\r\n                                            <li>\r\n                                                <a href=\"#\"><i class=\"fa fa-fw fa-file-text\"></i>\r\n                                                    {{getWord(\'File\')}}</a>\r\n                                            </li>\r\n                                        </ul>\r\n                                    </li>\r\n                                </ul>\r\n\r\n                            </li>\r\n                        </ul>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n\r\n            <li data-ui-sref-active=\"active\">\r\n                <a data-ui-sref=\"app.widgets\" title=\"Widgets\"><i class=\"fa fa-lg fa-fw fa-list-alt\"></i> <span class=\"menu-item-parent\">{{getWord(\'Widgets\')}}</span></a>\r\n            </li>\r\n\r\n\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\">\r\n                    <i class=\"fa fa-lg fa-fw fa-cloud\"><em>3</em></i> <span class=\"menu-item-parent\">{{getWord(\'Cool Features\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.calendar\" title=\"Calendar\"><i\r\n                                class=\"fa fa-lg fa-fw fa-calendar\"></i> <span\r\n                                class=\"menu-item-parent\">{{getWord(\'Calendar\')}}</span></a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.maps\"><i class=\"fa fa-lg fa-fw fa-map-marker\"></i> <span class=\"menu-item-parent\">{{getWord(\'GMap Skins\')}}</span><span\r\n                                class=\"badge bg-color-greenLight pull-right inbox-badge\">9</span></a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\">\r\n                    <i class=\"fa fa-lg fa-fw fa-puzzle-piece\"></i> <span class=\"menu-item-parent\">{{getWord(\'App Views\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.appViews.projects\"><i class=\"fa fa-file-text-o\"></i>\r\n                            {{getWord(\'Projects\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.appViews.blogDemo\"><i class=\"fa fa-paragraph\"></i> {{getWord(\'Blog\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.appViews.galleryDemo\"><i class=\"fa fa-picture-o\"></i>\r\n                            {{getWord(\'Gallery\')}}</a>\r\n                    </li>\r\n\r\n                    <li data-menu-collapse>\r\n                        <a href=\"#\"><i class=\"fa fa-comments\"></i> {{getWord(\'Forum Layout\')}}</a>\r\n                        <ul>\r\n                            <li data-ui-sref-active=\"active\">\r\n                                <a data-ui-sref=\"app.appViews.forumDemo\"><i class=\"fa fa-picture-o\"></i>\r\n                                    {{getWord(\'General View\')}}</a>\r\n                            </li>\r\n                            <li data-ui-sref-active=\"active\">\r\n                                <a data-ui-sref=\"app.appViews.forumTopicDemo\"><i class=\"fa fa-picture-o\"></i>\r\n                                    {{getWord(\'Topic View\')}}</a>\r\n                            </li>\r\n                            <li data-ui-sref-active=\"active\">\r\n                                <a data-ui-sref=\"app.appViews.forumPostDemo\"><i class=\"fa fa-picture-o\"></i>\r\n                                    {{getWord(\'Post View\')}}</a>\r\n                            </li>\r\n                        </ul>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.appViews.profileDemo\"><i class=\"fa fa-group\"></i>\r\n                            {{getWord(\'Profile\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.appViews.timelineDemo\"><i class=\"fa fa-clock-o\"></i>\r\n                            {{getWord(\'Timeline\')}}</a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\">\r\n                    <i class=\"fa fa-lg fa-fw fa-shopping-cart\"></i> <span class=\"menu-item-parent\">{{getWord(\'E-Commerce\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.eCommerce.orders\" title=\"Orders\"> {{getWord(\'Orders\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.eCommerce.products\" title=\"Products View\"> {{getWord(\'Products View\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.eCommerce.detail\" title=\"Products Detail\"> {{getWord(\'Products Detail\')}}</a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\"><i class=\"fa fa-lg fa-fw fa-windows\"></i> <span class=\"menu-item-parent\">{{getWord(\'Miscellaneous\')}}</span></a>\r\n                <ul>\r\n                    <li>\r\n                        <a href=\"http://bootstraphunter.com/smartadmin-landing/\" target=\"_blank\">{{getWord(\'Landing\r\n                            Page\')}} <i class=\"fa fa-external-link\"></i></a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.misc.pricingTable\">{{getWord(\'Pricing Tables\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.misc.invoice\">{{getWord(\'Invoice\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"login\">{{getWord(\'Login\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"register\">{{getWord(\'Register\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"lock\">{{getWord(\'Locked Screen\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.misc.error404\">{{getWord(\'Error 404\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.misc.error500\">{{getWord(\'Error 500\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.misc.blank\">{{getWord(\'Blank Page\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.misc.emailTemplate\">{{getWord(\'Email Template\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.misc.search\">{{getWord(\'Search Page\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.misc.ckeditor\">{{getWord(\'CK Editor\')}}</a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse class=\"chat-users top-menu-invisible\">\r\n                <a href=\"#\"><i class=\"fa fa-lg fa-fw fa-comment-o\"><em class=\"bg-color-pink flash animated\">!</em></i>\r\n                    <span class=\"menu-item-parent\">{{getWord(\'Smart Chat API\')}} <sup>{{getWord(\'beta\')}}</sup></span></a>\r\n                <div aside-chat-widget></div>\r\n            </li>\r\n        </ul>\r\n\r\n        <!-- NOTE: This allows you to pull menu items from server -->\r\n        <!-- <ul data-smart-menu-items=\"/api/menu-items.json\"></ul> -->\r\n    </nav>\r\n\r\n  <span class=\"minifyme\" data-action=\"minifyMenu\" minify-menu>\r\n    <i class=\"fa fa-arrow-circle-left hit\"></i>\r\n  </span>\r\n\r\n</aside>");
+$templateCache.put("app/public/app/layout/partials/header.tpl.html","<header id=\"header\">\r\n    <div id=\"logo-group\">\r\n        <!-- PLACE YOUR LOGO HERE -->\r\n        <span id=\"logo\"> <img src=\"styles/img/ews/title_logo.png\" alt=\"東風管理系統\"> </span>\r\n        <!-- END LOGO PLACEHOLDER -->\r\n        <!-- Note: The activity badge color changes when clicked and resets the number to 0\r\n    Suggestion: You may want to set a flag when this happens to tick off all checked messages / notifications -->\r\n        <!-- <span id=\"activity\" class=\"activity-dropdown\" activities-dropdown-toggle> \r\n            <i class=\"fa fa-user\"></i> \r\n            <b class=\"badge bg-color-red\">21</b> \r\n        </span> -->\r\n        <div smart-include=\"app/dashboard/activities/activities.html\"></div>\r\n    </div>\r\n    <!-- <recent-projects></recent-projects> -->\r\n    <!-- pulled right: nav area -->\r\n    <div class=\"pull-right\">\r\n        <!-- collapse menu button -->\r\n        <div id=\"hide-menu\" class=\"btn-header pull-right\">\r\n            <span> <a toggle-menu title=\"Collapse Menu\"><i\r\n                class=\"fa fa-reorder\"></i></a> </span>\r\n        </div>\r\n        <!-- end collapse menu -->\r\n        <!-- #MOBILE -->\r\n        <!-- Top menu profile link : this shows only when top menu is active -->\r\n        <ul id=\"mobile-profile-img\" class=\"header-dropdown-list hidden-xs padding-5\">\r\n            <li class=\"\">\r\n                <a href=\"#\" class=\"dropdown-toggle no-margin userdropdown\" data-toggle=\"dropdown\">\r\n                    <img src=\"styles/img/avatars/eastwind.png\" alt=\"John Doe\" class=\"online\" />\r\n                </a>\r\n                <ul class=\"dropdown-menu pull-right\">\r\n                    <li>\r\n                        <a href-void class=\"padding-10 padding-top-0 padding-bottom-0\"><i\r\n                            class=\"fa fa-cog\"></i> Setting</a>\r\n                    </li>\r\n                    <li class=\"divider\"></li>\r\n                    <li>\r\n                        <a ui-sref=\"app.appViews.profileDemo\" class=\"padding-10 padding-top-0 padding-bottom-0\"> <i class=\"fa fa-user\"></i>\r\n                            <u>P</u>rofile</a>\r\n                    </li>\r\n                    <li class=\"divider\"></li>\r\n                    <li>\r\n                        <a href-void class=\"padding-10 padding-top-0 padding-bottom-0\" data-action=\"toggleShortcut\"><i class=\"fa fa-arrow-down\"></i> <u>S</u>hortcut</a>\r\n                    </li>\r\n                    <li class=\"divider\"></li>\r\n                    <li>\r\n                        <a href-void class=\"padding-10 padding-top-0 padding-bottom-0\" data-action=\"launchFullscreen\"><i class=\"fa fa-arrows-alt\"></i> Full <u>S</u>creen</a>\r\n                    </li>\r\n                    <li class=\"divider\"></li>\r\n                    <li>\r\n                        <a href=\"#/login\" class=\"padding-10 padding-top-5 padding-bottom-5\" data-action=\"userLogout\"><i\r\n                            class=\"fa fa-sign-out fa-lg\"></i> <strong><u>L</u>ogout</strong></a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n        </ul>\r\n        <!-- logout button -->\r\n        <div id=\"logout\" class=\"btn-header transparent pull-right\">\r\n            <span> \r\n                <a ui-sref=\"login\" \r\n                   title=\"Sign Out\" \r\n                   data-action=\"userLogout\"\r\n                   data-logout-msg=\"You can improve your security further after logging out by closing this opened browser\">\r\n                   <i class=\"fa fa-sign-out\"></i>\r\n                </a> \r\n            </span>\r\n        </div>\r\n        <!-- end logout button -->\r\n        <!-- search mobile button (this is hidden till mobile view port) -->\r\n        <div id=\"search-mobile\" class=\"btn-header transparent pull-right\" data-search-mobile>\r\n            <span> <a href=\"#\" title=\"Search\"><i class=\"fa fa-search\"></i></a> </span>\r\n        </div>\r\n        <!-- end search mobile button -->\r\n        <!-- input: search field -->\r\n        <!-- <form action=\"#/search\" class=\"header-search pull-right\">\r\n            <input id=\"search-fld\" type=\"text\" name=\"param\" placeholder=\"Find reports and more\" data-autocomplete=\'[\r\n                    \"ActionScript\",\r\n                    \"AppleScript\",\r\n                    \"Asp\",\r\n                    \"BASIC\",\r\n                    \"C\",\r\n                    \"C++\",\r\n                    \"Clojure\",\r\n                    \"COBOL\",\r\n                    \"ColdFusion\",\r\n                    \"Erlang\",\r\n                    \"Fortran\",\r\n                    \"Groovy\",\r\n                    \"Haskell\",\r\n                    \"Java\",\r\n                    \"JavaScript\",\r\n                    \"Lisp\",\r\n                    \"Perl\",\r\n                    \"PHP\",\r\n                    \"Python\",\r\n                    \"Ruby\",\r\n                    \"Scala\",\r\n                    \"Scheme\"]\'>\r\n            <button type=\"submit\">\r\n                <i class=\"fa fa-search\"></i>\r\n            </button>\r\n            <a href=\"$\" id=\"cancel-search-js\" title=\"Cancel Search\"><i class=\"fa fa-times\"></i></a>\r\n        </form> -->\r\n        <!-- end input: search field -->\r\n        <!-- fullscreen button -->\r\n        <div id=\"fullscreen\" class=\"btn-header transparent pull-right\">\r\n            <span> <a full-screen title=\"Full Screen\"><i\r\n                class=\"fa fa-arrows-alt\"></i></a> </span>\r\n        </div>\r\n        <!-- end fullscreen button -->\r\n        <!-- #Voice Command: Start Speech -->\r\n        <!-- <div id=\"speech-btn\" class=\"btn-header transparent pull-right hidden-sm hidden-xs\">\r\n            <div>\r\n                <a title=\"Voice Command\" id=\"voice-command-btn\" speech-recognition><i class=\"fa fa-microphone\"></i></a>\r\n                <div class=\"popover bottom\">\r\n                    <div class=\"arrow\"></div>\r\n                    <div class=\"popover-content\">\r\n                        <h4 class=\"vc-title\">Voice command activated <br>\r\n                        <small>Please speak clearly into the mic</small>\r\n                    </h4>\r\n                        <h4 class=\"vc-title-error text-center\">\r\n                        <i class=\"fa fa-microphone-slash\"></i> Voice command failed\r\n                        <br>\r\n                        <small class=\"txt-color-red\">Must <strong>\"Allow\"</strong> Microphone</small>\r\n                        <br>\r\n                        <small class=\"txt-color-red\">Must have <strong>Internet Connection</strong></small>\r\n                    </h4>\r\n                        <a href-void class=\"btn btn-success\" id=\"speech-help-btn\">See Commands</a>\r\n                        <a href-void class=\"btn bg-color-purple txt-color-white\" onclick=\"$(\'#speech-btn .popover\').fadeOut(50);\">Close Popup</a>\r\n                    </div>\r\n                </div>\r\n            </div>\r\n        </div> -->\r\n        <!-- end voice command -->\r\n        \r\n        <!-- multiple lang dropdown : find all flags in the flags page -->\r\n        <language-selector></language-selector>\r\n        <!-- end multiple lang -->\r\n    </div>\r\n    <!-- end pulled right: nav area -->\r\n</header>\r\n");
+$templateCache.put("app/public/app/layout/partials/navigation.tpl.html","<aside id=\"left-panel\">\r\n\r\n    <!-- User info -->\r\n    <div login-info></div>\r\n    <!-- end user info -->\r\n\r\n    <nav data-smart-menu-items=\"/api/menu-items.json\">\r\n    <!-- <nav> -->\r\n        <!-- NOTE: Notice the gaps after each icon usage <i></i>..\r\n        Please note that these links work a bit different than\r\n        traditional href=\"\" links. See documentation for details.\r\n        -->\r\n\r\n        <!-- <ul data-smart-menu>\r\n            <li data-menu-collapse>\r\n                <a href=\"#\" title=\"Dashboard\"><i class=\"fa fa-lg fa-fw fa-home\"></i> <span\r\n                        class=\"menu-item-parent\">{{getWord(\'Dashboard\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.dashboard\">{{getWord(\'Analytics Dashboard\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.dashboard-social\">{{getWord(\'Social Wall\')}}</a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\" title=\"Restful\">\r\n                    <i class=\"fa fa-lg fa-fw fa-home\"></i> \r\n                    <span class=\"menu-item-parent\">{{getWord(\'Restful\')}}</span>\r\n                </a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.restful.alantest\">{{getWord(\'AlanTest\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.restful.gridtest\">{{getWord(\'GridTest\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.restful.exceltest\">{{getWord(\'ExcelTest\')}}</a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-ui-sref-active=\"active\">\r\n                <a data-ui-sref=\"app.mainwork\" title=\"MainWork\">\r\n                    <i class=\"fa fa-lg fa-fw fa-newspaper-o\"></i> \r\n                    <span class=\"menu-item-parent\">{{getWord(\'MainWork\')}}</span>\r\n                </a>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\" title=\"SelfWork\">\r\n                    <i class=\"fa fa-lg fa-fw fa-truck\"></i> \r\n                    <span class=\"menu-item-parent\">{{getWord(\'SelfWork\')}}</span>\r\n                </a>\r\n                <ul>\r\n                    <li data-menu-collapse>\r\n                        <a href=\"#\"><i class=\"fa fa-fw fa-folder-open\"></i> {{getWord(\'LeaderOption\')}} </a>\r\n                        <ul>\r\n                            <li data-ui-sref-active=\"active\">\r\n                                <a data-ui-sref=\"app.selfwork.leaderoption.compydistribution\"><i class=\"fa fa-building-o\"></i> {{getWord(\'CompyDistribution\')}}</a>\r\n                            </li>\r\n                            <li data-ui-sref-active=\"active\">\r\n                                <a data-ui-sref=\"app.selfwork.leaderoption.agentsetting\"><i class=\"fa fa-braille\"></i> {{getWord(\'AgentSetting\')}}</a>\r\n                            </li>\r\n                            <li data-ui-sref-active=\"active\">\r\n                                <a data-ui-sref=\"app.selfwork.leaderoption.dailyleave\"><i class=\"fa fa-child\"></i> {{getWord(\'DailyLeave\')}}</a>\r\n                            </li>\r\n                        </ul>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.selfwork.customoversix\"><i class=\"fa fa-cube\"></i> {{getWord(\'CustomOverSix\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.selfwork.leaderjobs\"><i class=\"fa fa-cubes\"></i> {{getWord(\'LeaderJobs\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.selfwork.leaderhistorysearch\"><i class=\"fa fa-history\"></i> {{getWord(\'LeaderHistorySearch\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.selfwork.assistantjobs\"><i class=\"fa fa-cube\"></i> {{getWord(\'AssistantJobs\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.selfwork.assistanthistorysearch\"><i class=\"fa fa-history\"></i> {{getWord(\'AssistantHistorySearch\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.selfwork.employeejobs\"><i class=\"fa fa-cube\"></i> {{getWord(\'EmployeeJobs\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.selfwork.employeehistorysearch\"><i class=\"fa fa-history\"></i> {{getWord(\'EmployeeHistorySearch\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.selfwork.deliveryjobs\"><i class=\"fa fa-cube\"></i> {{getWord(\'DeliveryJobs\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.selfwork.deliveryhistorysearch\"><i class=\"fa fa-history\"></i> {{getWord(\'DeliveryHistorySearch\')}}</a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\" title=\"Concerns\"><i class=\"fa fa-lg fa-fw fa-address-book-o\"></i> <span\r\n                        class=\"menu-item-parent\">{{getWord(\'Concerns\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.concerns.ban\"><i class=\"fa fa-ban\"></i> {{getWord(\'Ban\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.concerns.dailyalert\"><i class=\"fa fa-bell-o\"></i> {{getWord(\'DailyAlert\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.concerns.banhistorysearch\"><i class=\"fa fa-history\"></i> {{getWord(\'HistorySearch\')}}</a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\" title=\"Settings\"><i class=\"fa fa-lg fa-fw fa-cog\"></i> <span\r\n                        class=\"menu-item-parent\">{{getWord(\'Settings\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.settings.profile\"><i class=\"fa fa-user\"></i> {{getWord(\'Profile\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.settings.accountmanagement\"><i class=\"fa fa-sitemap\"></i> {{getWord(\'AccountManagement\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.settings.billboardeditor\"><i class=\"fa fa-newspaper-o\"></i> {{getWord(\'BillboardEditor\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.settings.externalmanagement\"><i class=\"fa fa-external-link\"></i> {{getWord(\'ExternalManagement\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.settings.aviationmail\"><i class=\"fa fa-envelope-o\"></i> {{getWord(\'AviationMail\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.settings.excompybagno\"><i class=\"fa fa-shopping-bag\"></i> {{getWord(\'ExcompyBagno\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.settings.bagnocount\"><i class=\"fa fa-hourglass-half\"></i> {{getWord(\'BagnoCount\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.settings.syslogs\"><i class=\"fa fa-database\"></i> {{getWord(\'SysLogs\')}}</a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse class=\"top-menu-invisible\">\r\n                <a href=\"#\"><i class=\"fa fa-lg fa-fw fa-cube txt-color-blue\"></i> <span class=\"menu-item-parent\">{{getWord(\'SmartAdmin Intel\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.smartAdmin.appLayouts\"><i class=\"fa fa-gear\"></i>\r\n                            {{getWord(\'App Layouts\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.smartAdmin.prebuiltSkins\"><i class=\"fa fa-picture-o\"></i>\r\n                            {{getWord(\'Prebuilt Skins\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.smartAdmin.appLayout\"><i class=\"fa fa-cube\"></i> {{getWord(\'App Settings\')}}</a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-ui-sref-active=\"active\">\r\n                <a data-ui-sref=\"app.inbox.folder\" title=\"Outlook\">\r\n                    <i class=\"fa fa-lg fa-fw fa-inbox\"></i> <span class=\"menu-item-parent\">{{getWord(\'Outlook\')}}</span><span\r\n                        unread-messages-count class=\"badge pull-right inbox-badge\"></span></a>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\"><i class=\"fa fa-lg fa-fw fa-bar-chart-o\"></i> <span class=\"menu-item-parent\">{{getWord(\'Graphs\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.graphs.flot\">{{getWord(\'Flot Chart\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.graphs.morris\">{{getWord(\'Morris Charts\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.graphs.sparkline\">{{getWord(\'Sparkline\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.graphs.easyPieCharts\">{{getWord(\'Easy Pie Charts\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.graphs.dygraphs\">{{getWord(\'Dygraphs\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.graphs.chartjs\">Chart.js</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.graphs.highchartTables\">Highchart Tables <span\r\n                                class=\"badge pull-right inbox-badge bg-color-yellow\">new</span></a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\"><i class=\"fa fa-lg fa-fw fa-table\"></i> <span\r\n                        class=\"menu-item-parent\">{{getWord(\'Tables\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.tables.normal\">{{getWord(\'Normal Tables\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.tables.datatables\">{{getWord(\'Data Tables\')}} <span\r\n                                class=\"badge inbox-badge bg-color-greenLight\">v1.10</span></a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.tables.jqgrid\">{{getWord(\'Jquery Grid\')}}</a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\"><i class=\"fa fa-lg fa-fw fa-pencil-square-o\"></i> <span class=\"menu-item-parent\">{{getWord(\'Forms\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.form.elements\">{{getWord(\'Smart Form Elements\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.form.layouts\">{{getWord(\'Smart Form Layouts\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.form.validation\">{{getWord(\'Smart Form Validation\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.form.bootstrapForms\">{{getWord(\'Bootstrap Form Elements\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.form.bootstrapValidation\">{{getWord(\'Bootstrap Form Validation\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.form.plugins\">{{getWord(\'Form Plugins\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.form.wizards\">{{getWord(\'Wizards\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.form.editors\">{{getWord(\'Bootstrap Editors\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.form.dropzone\">{{getWord(\'Dropzone\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.form.imageEditor\">{{getWord(\'Image Cropping\')}} <span\r\n                                class=\"badge pull-right inbox-badge bg-color-yellow\">new</span></a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\"><i class=\"fa fa-lg fa-fw fa-desktop\"></i> <span class=\"menu-item-parent\">{{getWord(\'UI Elements\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.ui.general\">{{getWord(\'General Elements\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.ui.buttons\">{{getWord(\'Buttons\')}}</a>\r\n                    </li>\r\n                    <li data-menu-collapse>\r\n                        <a href=\"#\">{{getWord(\'Icons\')}}</a>\r\n                        <ul>\r\n                            <li data-ui-sref-active=\"active\">\r\n                                <a data-ui-sref=\"app.ui.iconsFa\"><i class=\"fa fa-plane\"></i> {{getWord(\'Font Awesome\')}}</a>\r\n                            </li>\r\n                            <li data-ui-sref-active=\"active\">\r\n                                <a data-ui-sref=\"app.ui.iconsGlyph\"><i class=\"glyphicon glyphicon-plane\"></i>\r\n                                    {{getWord(\'Glyph Icons\')}}</a>\r\n                            </li>\r\n                            <li data-ui-sref-active=\"active\">\r\n                                <a data-ui-sref=\"app.ui.iconsFlags\"><i class=\"fa fa-flag\"></i> {{getWord(\'Flags\')}}</a>\r\n                            </li>\r\n                        </ul>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.ui.grid\">{{getWord(\'Grid\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.ui.treeView\">{{getWord(\'Tree View\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.ui.nestableLists\">{{getWord(\'Nestable Lists\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.ui.jqueryUi\">{{getWord(\'JQuery UI\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.ui.typography\">{{getWord(\'Typography\')}}</a>\r\n                    </li>\r\n                    <li data-menu-collapse>\r\n                        <a href=\"#\">{{getWord(\'Six Level Menu\')}}</a>\r\n                        <ul>\r\n                            <li data-menu-collapse>\r\n                                <a href=\"#\"><i class=\"fa fa-fw fa-folder-open\"></i> {{getWord(\'Item #2\')}}</a>\r\n                                <ul>\r\n                                    <li data-menu-collapse>\r\n                                        <a href=\"#\"><i class=\"fa fa-fw fa-folder-open\"></i> {{getWord(\'Sub #2.1\')}} </a>\r\n                                        <ul>\r\n                                            <li>\r\n                                                <a href=\"#\"><i class=\"fa fa-fw fa-file-text\"></i> {{getWord(\'Item\r\n                                                    #2.1.1\')}}</a>\r\n                                            </li>\r\n                                            <li data-menu-collapse>\r\n                                                <a href=\"#\"><i class=\"fa fa-fw fa-plus\"></i>{{getWord(\'Expand\')}}</a>\r\n                                                <ul>\r\n                                                    <li>\r\n                                                        <a href=\"#\"><i class=\"fa fa-fw fa-file-text\"></i>\r\n                                                            {{getWord(\'File\')}}</a>\r\n                                                    </li>\r\n                                                    <li>\r\n                                                        <a href=\"#\"><i class=\"fa fa-fw fa-trash-o\"></i>\r\n                                                            {{getWord(\'Delete\')}}</a></li>\r\n                                                </ul>\r\n                                            </li>\r\n                                        </ul>\r\n                                    </li>\r\n                                </ul>\r\n                            </li>\r\n                            <li data-menu-collapse>\r\n                                <a href=\"#\"><i class=\"fa fa-fw fa-folder-open\"></i> {{getWord(\'Item #3\')}}</a>\r\n\r\n                                <ul>\r\n                                    <li data-menu-collapse>\r\n                                        <a href=\"#\"><i class=\"fa fa-fw fa-folder-open\"></i> {{getWord(\'3ed Level\')}}\r\n                                        </a>\r\n                                        <ul>\r\n                                            <li>\r\n                                                <a href=\"#\"><i class=\"fa fa-fw fa-file-text\"></i>\r\n                                                    {{getWord(\'File\')}}</a>\r\n                                            </li>\r\n                                            <li>\r\n                                                <a href=\"#\"><i class=\"fa fa-fw fa-file-text\"></i>\r\n                                                    {{getWord(\'File\')}}</a>\r\n                                            </li>\r\n                                        </ul>\r\n                                    </li>\r\n                                </ul>\r\n\r\n                            </li>\r\n                        </ul>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n\r\n            <li data-ui-sref-active=\"active\">\r\n                <a data-ui-sref=\"app.widgets\" title=\"Widgets\"><i class=\"fa fa-lg fa-fw fa-list-alt\"></i> <span class=\"menu-item-parent\">{{getWord(\'Widgets\')}}</span></a>\r\n            </li>\r\n\r\n\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\">\r\n                    <i class=\"fa fa-lg fa-fw fa-cloud\"><em>3</em></i> <span class=\"menu-item-parent\">{{getWord(\'Cool Features\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.calendar\" title=\"Calendar\"><i\r\n                                class=\"fa fa-lg fa-fw fa-calendar\"></i> <span\r\n                                class=\"menu-item-parent\">{{getWord(\'Calendar\')}}</span></a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.maps\"><i class=\"fa fa-lg fa-fw fa-map-marker\"></i> <span class=\"menu-item-parent\">{{getWord(\'GMap Skins\')}}</span><span\r\n                                class=\"badge bg-color-greenLight pull-right inbox-badge\">9</span></a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\">\r\n                    <i class=\"fa fa-lg fa-fw fa-puzzle-piece\"></i> <span class=\"menu-item-parent\">{{getWord(\'App Views\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.appViews.projects\"><i class=\"fa fa-file-text-o\"></i>\r\n                            {{getWord(\'Projects\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.appViews.blogDemo\"><i class=\"fa fa-paragraph\"></i> {{getWord(\'Blog\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.appViews.galleryDemo\"><i class=\"fa fa-picture-o\"></i>\r\n                            {{getWord(\'Gallery\')}}</a>\r\n                    </li>\r\n\r\n                    <li data-menu-collapse>\r\n                        <a href=\"#\"><i class=\"fa fa-comments\"></i> {{getWord(\'Forum Layout\')}}</a>\r\n                        <ul>\r\n                            <li data-ui-sref-active=\"active\">\r\n                                <a data-ui-sref=\"app.appViews.forumDemo\"><i class=\"fa fa-picture-o\"></i>\r\n                                    {{getWord(\'General View\')}}</a>\r\n                            </li>\r\n                            <li data-ui-sref-active=\"active\">\r\n                                <a data-ui-sref=\"app.appViews.forumTopicDemo\"><i class=\"fa fa-picture-o\"></i>\r\n                                    {{getWord(\'Topic View\')}}</a>\r\n                            </li>\r\n                            <li data-ui-sref-active=\"active\">\r\n                                <a data-ui-sref=\"app.appViews.forumPostDemo\"><i class=\"fa fa-picture-o\"></i>\r\n                                    {{getWord(\'Post View\')}}</a>\r\n                            </li>\r\n                        </ul>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.appViews.profileDemo\"><i class=\"fa fa-group\"></i>\r\n                            {{getWord(\'Profile\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.appViews.timelineDemo\"><i class=\"fa fa-clock-o\"></i>\r\n                            {{getWord(\'Timeline\')}}</a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\">\r\n                    <i class=\"fa fa-lg fa-fw fa-shopping-cart\"></i> <span class=\"menu-item-parent\">{{getWord(\'E-Commerce\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.eCommerce.orders\" title=\"Orders\"> {{getWord(\'Orders\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.eCommerce.products\" title=\"Products View\"> {{getWord(\'Products View\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.eCommerce.detail\" title=\"Products Detail\"> {{getWord(\'Products Detail\')}}</a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\"><i class=\"fa fa-lg fa-fw fa-windows\"></i> <span class=\"menu-item-parent\">{{getWord(\'Miscellaneous\')}}</span></a>\r\n                <ul>\r\n                    <li>\r\n                        <a href=\"http://bootstraphunter.com/smartadmin-landing/\" target=\"_blank\">{{getWord(\'Landing\r\n                            Page\')}} <i class=\"fa fa-external-link\"></i></a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.misc.pricingTable\">{{getWord(\'Pricing Tables\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.misc.invoice\">{{getWord(\'Invoice\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"login\">{{getWord(\'Login\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"register\">{{getWord(\'Register\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"lock\">{{getWord(\'Locked Screen\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.misc.error404\">{{getWord(\'Error 404\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.misc.error500\">{{getWord(\'Error 500\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.misc.blank\">{{getWord(\'Blank Page\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.misc.emailTemplate\">{{getWord(\'Email Template\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.misc.search\">{{getWord(\'Search Page\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.misc.ckeditor\">{{getWord(\'CK Editor\')}}</a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse class=\"chat-users top-menu-invisible\">\r\n                <a href=\"#\"><i class=\"fa fa-lg fa-fw fa-comment-o\"><em class=\"bg-color-pink flash animated\">!</em></i>\r\n                    <span class=\"menu-item-parent\">{{getWord(\'Smart Chat API\')}} <sup>{{getWord(\'beta\')}}</sup></span></a>\r\n                <div aside-chat-widget></div>\r\n            </li>\r\n        </ul> -->\r\n\r\n        <!-- NOTE: This allows you to pull menu items from server -->\r\n        <!-- <ul data-smart-menu-items=\"/api/menu-items.json\"></ul> -->\r\n    </nav>\r\n\r\n  <span class=\"minifyme\" data-action=\"minifyMenu\" minify-menu>\r\n    <i class=\"fa fa-arrow-circle-left hit\"></i>\r\n  </span>\r\n\r\n</aside>");
 $templateCache.put("app/public/app/layout/partials/sub-header.tpl.html","<div class=\"col-xs-12 col-sm-5 col-md-5 col-lg-8\" data-sparkline-container>\r\n    <ul id=\"sparks\" class=\"\">\r\n        <li class=\"sparks-info\">\r\n            <h5> My Income <span class=\"txt-color-blue\">$47,171</span></h5>\r\n            <div class=\"sparkline txt-color-blue hidden-mobile hidden-md hidden-sm\">\r\n                1300, 1877, 2500, 2577, 2000, 2100, 3000, 2700, 3631, 2471, 2700, 3631, 2471\r\n            </div>\r\n        </li>\r\n        <li class=\"sparks-info\">\r\n            <h5> Site Traffic <span class=\"txt-color-purple\"><i class=\"fa fa-arrow-circle-up\"></i>&nbsp;45%</span></h5>\r\n            <div class=\"sparkline txt-color-purple hidden-mobile hidden-md hidden-sm\">\r\n                110,150,300,130,400,240,220,310,220,300, 270, 210\r\n            </div>\r\n        </li>\r\n        <li class=\"sparks-info\">\r\n            <h5> Site Orders <span class=\"txt-color-greenDark\"><i class=\"fa fa-shopping-cart\"></i>&nbsp;2447</span></h5>\r\n            <div class=\"sparkline txt-color-greenDark hidden-mobile hidden-md hidden-sm\">\r\n                110,150,300,130,400,240,220,310,220,300, 270, 210\r\n            </div>\r\n        </li>\r\n    </ul>\r\n</div>\r\n			");
 $templateCache.put("app/public/app/layout/partials/voice-commands.tpl.html","<!-- TRIGGER BUTTON:\r\n<a href=\"/my-ajax-page.html\" data-toggle=\"modal\" data-target=\"#remoteModal\" class=\"btn btn-default\">Open Modal</a>  -->\r\n\r\n<!-- MODAL PLACE HOLDER\r\n<div class=\"modal fade\" id=\"remoteModal\" tabindex=\"-1\" role=\"dialog\" aria-labelledby=\"remoteModalLabel\" aria-hidden=\"true\">\r\n<div class=\"modal-dialog\">\r\n<div class=\"modal-content\"></div>\r\n</div>\r\n</div>   -->\r\n<!--////////////////////////////////////-->\r\n\r\n<!--<div class=\"modal-header\">\r\n<button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-hidden=\"true\">\r\n&times;\r\n</button>\r\n<h4 class=\"modal-title\" id=\"myModalLabel\">Command List</h4>\r\n</div>-->\r\n<div class=\"modal-body\">\r\n\r\n	<h1><i class=\"fa fa-microphone text-muted\"></i>&nbsp;&nbsp; SmartAdmin Voice Command</h1>\r\n	<hr class=\"simple\">\r\n	<h5>Instruction</h5>\r\n\r\n	Click <span class=\"text-success\">\"Allow\"</span> to access your microphone and activate Voice Command.\r\n	You will notice a <span class=\"text-primary\"><strong>BLUE</strong> Flash</span> on the microphone icon indicating activation.\r\n	The icon will appear <span class=\"text-danger\"><strong>RED</strong></span> <span class=\"label label-danger\"><i class=\"fa fa-microphone fa-lg\"></i></span> if you <span class=\"text-danger\">\"Deny\"</span> access or don\'t have any microphone installed.\r\n	<br>\r\n	<br>\r\n	As a security precaution, your browser will disconnect the microphone every 60 to 120 seconds (sooner if not being used). In which case Voice Command will prompt you again to <span class=\"text-success\">\"Allow\"</span> or <span class=\"text-danger\">\"Deny\"</span> access to your microphone.\r\n	<br>\r\n	<br>\r\n	If you host your page over <strong>http<span class=\"text-success\">s</span></strong> (secure socket layer) protocol you can wave this security measure and have an unintrupted Voice Command.\r\n	<br>\r\n	<br>\r\n	<h5>Commands</h5>\r\n	<ul>\r\n		<li>\r\n			<strong>\'show\' </strong> then say the <strong>*page*</strong> you want to go to. For example <strong>\"show inbox\"</strong> or <strong>\"show calendar\"</strong>\r\n		</li>\r\n		<li>\r\n			<strong>\'mute\' </strong> - mutes all sound effects for the theme.\r\n		</li>\r\n		<li>\r\n			<strong>\'sound on\'</strong> - unmutes all sound effects for the theme.\r\n		</li>\r\n		<li>\r\n			<span class=\"text-danger\"><strong>\'stop\'</strong></span> - deactivates voice command.\r\n		</li>\r\n		<li>\r\n			<span class=\"text-primary\"><strong>\'help\'</strong></span> - brings up the command list\r\n		</li>\r\n		<li>\r\n			<span class=\"text-danger\"><strong>\'got it\'</strong></span> - closes help modal\r\n		</li>\r\n		<li>\r\n			<strong>\'hide navigation\'</strong> - toggle navigation collapse\r\n		</li>\r\n		<li>\r\n			<strong>\'show navigation\'</strong> - toggle navigation to open (can be used again to close)\r\n		</li>\r\n		<li>\r\n			<strong>\'scroll up\'</strong> - scrolls to the top of the page\r\n		</li>\r\n		<li>\r\n			<strong>\'scroll down\'</strong> - scrollts to the bottom of the page\r\n		</li>\r\n		<li>\r\n			<strong>\'go back\' </strong> - goes back in history (history -1 click)\r\n		</li>\r\n		<li>\r\n			<strong>\'logout\'</strong> - logs you out\r\n		</li>\r\n	</ul>\r\n	<br>\r\n	<h5>Adding your own commands</h5>\r\n	Voice Command supports up to 80 languages. Adding your own commands is extreamly easy. All commands are stored inside <strong>app.config.js</strong> file under the <code>var commands = {...}</code>. \r\n\r\n	<hr class=\"simple\">\r\n	<div class=\"text-right\">\r\n		<button type=\"button\" class=\"btn btn-success btn-lg\" data-dismiss=\"modal\">\r\n			Got it!\r\n		</button>\r\n	</div>\r\n\r\n</div>\r\n<!--<div class=\"modal-footer\">\r\n<button type=\"button\" class=\"btn btn-primary\" data-dismiss=\"modal\">Got it!</button>\r\n</div> -->");
 $templateCache.put("app/public/app/layout/shortcut/shortcut.tpl.html","<div id=\"shortcut\">\r\n	<ul>\r\n		<li>\r\n			<a href=\"#/inbox/\" class=\"jarvismetro-tile big-cubes bg-color-blue\"> <span class=\"iconbox\"> <i class=\"fa fa-envelope fa-4x\"></i> <span>Mail <span class=\"label pull-right bg-color-darken\">14</span></span> </span> </a>\r\n		</li>\r\n		<li>\r\n			<a href=\"#/calendar\" class=\"jarvismetro-tile big-cubes bg-color-orangeDark\"> <span class=\"iconbox\"> <i class=\"fa fa-calendar fa-4x\"></i> <span>Calendar</span> </span> </a>\r\n		</li>\r\n		<li>\r\n			<a href=\"#/maps\" class=\"jarvismetro-tile big-cubes bg-color-purple\"> <span class=\"iconbox\"> <i class=\"fa fa-map-marker fa-4x\"></i> <span>Maps</span> </span> </a>\r\n		</li>\r\n		<li>\r\n			<a href=\"#/invoice\" class=\"jarvismetro-tile big-cubes bg-color-blueDark\"> <span class=\"iconbox\"> <i class=\"fa fa-book fa-4x\"></i> <span>Invoice <span class=\"label pull-right bg-color-darken\">99</span></span> </span> </a>\r\n		</li>\r\n		<li>\r\n			<a href=\"#/gallery\" class=\"jarvismetro-tile big-cubes bg-color-greenLight\"> <span class=\"iconbox\"> <i class=\"fa fa-picture-o fa-4x\"></i> <span>Gallery </span> </span> </a>\r\n		</li>\r\n		<li>\r\n			<a href=\"#/profile\" class=\"jarvismetro-tile big-cubes selected bg-color-pinkDark\"> <span class=\"iconbox\"> <i class=\"fa fa-user fa-4x\"></i> <span>My Profile </span> </span> </a>\r\n		</li>\r\n	</ul>\r\n</div>");
-$templateCache.put("app/public/app/dashboard/projects/recent-projects.tpl.html","<div class=\"project-context hidden-xs dropdown\" dropdown>\r\n\r\n    <span class=\"label\">{{getWord(\'Projects\')}}:</span>\r\n    <span class=\"project-selector dropdown-toggle\" data-toggle=\"dropdown\">{{getWord(\'Recent projects\')}} <i ng-if=\"projects.length\"\r\n            class=\"fa fa-angle-down\"></i></span>\r\n\r\n    <ul class=\"dropdown-menu\" ng-if=\"projects.length\">\r\n        <li ng-repeat=\"project in projects\">\r\n            <a href=\"{{project.href}}\">{{project.title}}</a>\r\n        </li>\r\n        <li class=\"divider\"></li>\r\n        <li>\r\n            <a ng-click=\"clearProjects()\"><i class=\"fa fa-power-off\"></i> Clear</a>\r\n        </li>\r\n    </ul>\r\n\r\n</div>");
+$templateCache.put("app/public/app/layout/language/language-selector.tpl.html","<ul class=\"header-dropdown-list hidden-xs ng-cloak\" ng-controller=\"LanguagesCtrl\">\r\n    <li class=\"dropdown\" dropdown>\r\n        <a class=\"dropdown-toggle\" data-toggle=\"dropdown\" href> <img src=\"styles/img/blank.gif\" class=\"flag flag-{{currentLanguage.key}}\" alt=\"{{currentLanguage.alt}}\"> <span> {{currentLanguage.title}} </span>\r\n            <i class=\"fa fa-angle-down\"></i> </a>\r\n        <ul class=\"dropdown-menu pull-right\">\r\n            <li ng-class=\"{active: language==currentLanguage}\" ng-repeat=\"language in languages\">\r\n                <a ng-click=\"selectLanguage(language)\"><img src=\"styles/img/blank.gif\" class=\"flag flag-{{language.key}}\" alt=\"{{language.alt}}\"> {{language.title}}</a>\r\n            </li>\r\n        </ul>\r\n    </li>\r\n</ul>\r\n");
+$templateCache.put("app/app/_common/layout/directives/demo/demo-states.tpl.html","<div class=\"demo\"><span id=\"demo-setting\"><i class=\"fa fa-cog txt-color-blueDark\"></i></span>\r\n\r\n    <form>\r\n        <legend class=\"no-padding margin-bottom-10\">Layout Options</legend>\r\n        <section>\r\n            <label><input type=\"checkbox\" ng-model=\"fixedHeader\"\r\n                          class=\"checkbox style-0\"><span>Fixed Header</span></label>\r\n            <label><input type=\"checkbox\"\r\n                          ng-model=\"fixedNavigation\"\r\n                          class=\"checkbox style-0\"><span>Fixed Navigation</span></label>\r\n            <label><input type=\"checkbox\"\r\n                          ng-model=\"fixedRibbon\"\r\n                          class=\"checkbox style-0\"><span>Fixed Ribbon</span></label>\r\n            <label><input type=\"checkbox\"\r\n                          ng-model=\"fixedPageFooter\"\r\n                          class=\"checkbox style-0\"><span>Fixed Footer</span></label>\r\n            <label><input type=\"checkbox\"\r\n                          ng-model=\"insideContainer\"\r\n                          class=\"checkbox style-0\"><span>Inside <b>.container</b></span></label>\r\n            <label><input type=\"checkbox\"\r\n                          ng-model=\"rtl\"\r\n                          class=\"checkbox style-0\"><span>RTL</span></label>\r\n            <label><input type=\"checkbox\"\r\n                          ng-model=\"menuOnTop\"\r\n                          class=\"checkbox style-0\"><span>Menu on <b>top</b></span></label>\r\n            <label><input type=\"checkbox\"\r\n                          ng-model=\"colorblindFriendly\"\r\n                          class=\"checkbox style-0\"><span>For Colorblind <div\r\n                    class=\"font-xs text-right\">(experimental)\r\n            </div></span>\r\n            </label><span id=\"smart-bgimages\"></span></section>\r\n        <section><h6 class=\"margin-top-10 semi-bold margin-bottom-5\">Clear Localstorage</h6><a\r\n                ng-click=\"factoryReset()\" class=\"btn btn-xs btn-block btn-primary\" id=\"reset-smart-widget\"><i\r\n                class=\"fa fa-refresh\"></i> Factory Reset</a></section>\r\n\r\n        <h6 class=\"margin-top-10 semi-bold margin-bottom-5\">SmartAdmin Skins</h6>\r\n\r\n\r\n        <section id=\"smart-styles\">\r\n            <a ng-repeat=\"skin in skins\" ng-click=\"setSkin(skin)\" class=\"{{skin.class}}\" style=\"{{skin.style}}\"><i ng-if=\"skin.name == $parent.smartSkin\" class=\"fa fa-check fa-fw\"></i> {{skin.label}} <sup ng-if=\"skin.beta\">beta</sup></a>\r\n        </section>\r\n    </form>\r\n</div>");
 $templateCache.put("app/app/_common/forms/directives/bootstrap-validation/bootstrap-attribute-form.tpl.html","<form id=\"attributeForm\" class=\"form-horizontal\"\r\n      data-bv-message=\"This value is not valid\"\r\n      data-bv-feedbackicons-valid=\"glyphicon glyphicon-ok\"\r\n      data-bv-feedbackicons-invalid=\"glyphicon glyphicon-remove\"\r\n      data-bv-feedbackicons-validating=\"glyphicon glyphicon-refresh\">\r\n\r\n    <fieldset>\r\n        <legend>\r\n            Set validator options via HTML attributes\r\n        </legend>\r\n\r\n        <div class=\"alert alert-warning\">\r\n            <code>&lt; input\r\n                data-bv-validatorname\r\n                data-bv-validatorname-validatoroption=\"...\" / &gt;</code>\r\n\r\n            <br>\r\n            <br>\r\n            More validator options can be found here:\r\n            <a href=\"http://bootstrapvalidator.com/validators/\" target=\"_blank\">http://bootstrapvalidator.com/validators/</a>\r\n        </div>\r\n\r\n        <div class=\"form-group\">\r\n            <label class=\"col-lg-3 control-label\">Full name</label>\r\n            <div class=\"col-lg-4\">\r\n                <input type=\"text\" class=\"form-control\" name=\"firstName\" placeholder=\"First name\"\r\n                       data-bv-notempty=\"true\"\r\n                       data-bv-notempty-message=\"The first name is required and cannot be empty\" />\r\n            </div>\r\n            <div class=\"col-lg-4\">\r\n                <input type=\"text\" class=\"form-control\" name=\"lastName\" placeholder=\"Last name\"\r\n                       data-bv-notempty=\"true\"\r\n                       data-bv-notempty-message=\"The last name is required and cannot be empty\" />\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n\r\n    <fieldset>\r\n        <div class=\"form-group\">\r\n            <label class=\"col-lg-3 control-label\">Username</label>\r\n            <div class=\"col-lg-5\">\r\n                <input type=\"text\" class=\"form-control\" name=\"username\"\r\n                       data-bv-message=\"The username is not valid\"\r\n\r\n                       data-bv-notempty=\"true\"\r\n                       data-bv-notempty-message=\"The username is required and cannot be empty\"\r\n\r\n                       data-bv-regexp=\"true\"\r\n                       data-bv-regexp-regexp=\"^[a-zA-Z0-9_\\.]+$\"\r\n                       data-bv-regexp-message=\"The username can only consist of alphabetical, number, dot and underscore\"\r\n\r\n                       data-bv-stringlength=\"true\"\r\n                       data-bv-stringlength-min=\"6\"\r\n                       data-bv-stringlength-max=\"30\"\r\n                       data-bv-stringlength-message=\"The username must be more than 6 and less than 30 characters long\"\r\n\r\n                       data-bv-different=\"true\"\r\n                       data-bv-different-field=\"password\"\r\n                       data-bv-different-message=\"The username and password cannot be the same as each other\" />\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n\r\n    <fieldset>\r\n        <div class=\"form-group\">\r\n            <label class=\"col-lg-3 control-label\">Email address</label>\r\n            <div class=\"col-lg-5\">\r\n                <input class=\"form-control\" name=\"email\" type=\"email\"\r\n                       data-bv-emailaddress=\"true\"\r\n                       data-bv-emailaddress-message=\"The input is not a valid email address\" />\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n\r\n    <fieldset>\r\n        <div class=\"form-group\">\r\n            <label class=\"col-lg-3 control-label\">Password</label>\r\n            <div class=\"col-lg-5\">\r\n                <input type=\"password\" class=\"form-control\" name=\"password\"\r\n                       data-bv-notempty=\"true\"\r\n                       data-bv-notempty-message=\"The password is required and cannot be empty\"\r\n\r\n                       data-bv-identical=\"true\"\r\n                       data-bv-identical-field=\"confirmPassword\"\r\n                       data-bv-identical-message=\"The password and its confirm are not the same\"\r\n\r\n                       data-bv-different=\"true\"\r\n                       data-bv-different-field=\"username\"\r\n                       data-bv-different-message=\"The password cannot be the same as username\" />\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n\r\n    <fieldset>\r\n        <div class=\"form-group\">\r\n            <label class=\"col-lg-3 control-label\">Retype password</label>\r\n            <div class=\"col-lg-5\">\r\n                <input type=\"password\" class=\"form-control\" name=\"confirmPassword\"\r\n                       data-bv-notempty=\"true\"\r\n                       data-bv-notempty-message=\"The confirm password is required and cannot be empty\"\r\n\r\n                       data-bv-identical=\"true\"\r\n                       data-bv-identical-field=\"password\"\r\n                       data-bv-identical-message=\"The password and its confirm are not the same\"\r\n\r\n                       data-bv-different=\"true\"\r\n                       data-bv-different-field=\"username\"\r\n                       data-bv-different-message=\"The password cannot be the same as username\" />\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n\r\n    <fieldset>\r\n        <div class=\"form-group\">\r\n            <label class=\"col-lg-3 control-label\">Languages</label>\r\n            <div class=\"col-lg-5\">\r\n                <div class=\"checkbox\">\r\n                    <label>\r\n                        <input type=\"checkbox\" name=\"languages[]\" value=\"english\"\r\n                               data-bv-message=\"Please specify at least one language you can speak\"\r\n                               data-bv-notempty=\"true\" />\r\n                        English </label>\r\n                </div>\r\n                <div class=\"checkbox\">\r\n                    <label>\r\n                        <input type=\"checkbox\" name=\"languages[]\" value=\"french\" />\r\n                        French </label>\r\n                </div>\r\n                <div class=\"checkbox\">\r\n                    <label>\r\n                        <input type=\"checkbox\" name=\"languages[]\" value=\"german\" />\r\n                        German </label>\r\n                </div>\r\n                <div class=\"checkbox\">\r\n                    <label>\r\n                        <input type=\"checkbox\" name=\"languages[]\" value=\"russian\" />\r\n                        Russian </label>\r\n                </div>\r\n                <div class=\"checkbox\">\r\n                    <label>\r\n                        <input type=\"checkbox\" name=\"languages[]\" value=\"other\" />\r\n                        Other </label>\r\n                </div>\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n\r\n    <div class=\"form-actions\">\r\n        <div class=\"row\">\r\n            <div class=\"col-md-12\">\r\n                <button class=\"btn btn-default\" type=\"submit\">\r\n                    <i class=\"fa fa-eye\"></i>\r\n                    Validate\r\n                </button>\r\n            </div>\r\n        </div>\r\n    </div>\r\n\r\n</form>\r\n     ");
 $templateCache.put("app/app/_common/forms/directives/bootstrap-validation/bootstrap-button-group-form.tpl.html","<form id=\"buttonGroupForm\" method=\"post\" class=\"form-horizontal\">\r\n\r\n    <fieldset>\r\n        <legend>\r\n            Default Form Elements\r\n        </legend>\r\n        <div class=\"form-group\">\r\n            <label class=\"col-lg-3 control-label\">Gender</label>\r\n            <div class=\"col-lg-9\">\r\n                <div class=\"btn-group\" data-toggle=\"buttons\">\r\n                    <label class=\"btn btn-default\">\r\n                        <input type=\"radio\" name=\"gender\" value=\"male\" />\r\n                        Male </label>\r\n                    <label class=\"btn btn-default\">\r\n                        <input type=\"radio\" name=\"gender\" value=\"female\" />\r\n                        Female </label>\r\n                    <label class=\"btn btn-default\">\r\n                        <input type=\"radio\" name=\"gender\" value=\"other\" />\r\n                        Other </label>\r\n                </div>\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n\r\n    <fieldset>\r\n        <div class=\"form-group\">\r\n            <label class=\"col-lg-3 control-label\">Languages</label>\r\n            <div class=\"col-lg-9\">\r\n                <div class=\"btn-group\" data-toggle=\"buttons\">\r\n                    <label class=\"btn btn-default\">\r\n                        <input type=\"checkbox\" name=\"languages[]\" value=\"english\" />\r\n                        English </label>\r\n                    <label class=\"btn btn-default\">\r\n                        <input type=\"checkbox\" name=\"languages[]\" value=\"german\" />\r\n                        German </label>\r\n                    <label class=\"btn btn-default\">\r\n                        <input type=\"checkbox\" name=\"languages[]\" value=\"french\" />\r\n                        French </label>\r\n                    <label class=\"btn btn-default\">\r\n                        <input type=\"checkbox\" name=\"languages[]\" value=\"russian\" />\r\n                        Russian </label>\r\n                    <label class=\"btn btn-default\">\r\n                        <input type=\"checkbox\" name=\"languages[]\" value=\"italian\">\r\n                        Italian </label>\r\n                </div>\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n\r\n    <div class=\"form-actions\">\r\n        <div class=\"row\">\r\n            <div class=\"col-md-12\">\r\n                <button class=\"btn btn-default\" type=\"submit\">\r\n                    <i class=\"fa fa-eye\"></i>\r\n                    Validate\r\n                </button>\r\n            </div>\r\n        </div>\r\n    </div>\r\n\r\n</form>\r\n");
 $templateCache.put("app/app/_common/forms/directives/bootstrap-validation/bootstrap-contact-form.tpl.html","<form id=\"contactForm\" method=\"post\" class=\"form-horizontal\">\r\n\r\n    <fieldset>\r\n        <legend>Showing messages in custom area</legend>\r\n        <div class=\"form-group\">\r\n            <label class=\"col-md-3 control-label\">Full name</label>\r\n            <div class=\"col-md-6\">\r\n                <input type=\"text\" class=\"form-control\" name=\"fullName\" />\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n\r\n    <fieldset>\r\n        <div class=\"form-group\">\r\n            <label class=\"col-md-3 control-label\">Email</label>\r\n            <div class=\"col-md-6\">\r\n                <input type=\"text\" class=\"form-control\" name=\"email\" />\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n\r\n    <fieldset>\r\n        <div class=\"form-group\">\r\n            <label class=\"col-md-3 control-label\">Title</label>\r\n            <div class=\"col-md-6\">\r\n                <input type=\"text\" class=\"form-control\" name=\"title\" />\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n\r\n    <fieldset>\r\n        <div class=\"form-group\">\r\n            <label class=\"col-md-3 control-label\">Content</label>\r\n            <div class=\"col-md-6\">\r\n                <textarea class=\"form-control\" name=\"content\" rows=\"5\"></textarea>\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n\r\n    <fieldset>\r\n        <!-- #messages is where the messages are placed inside -->\r\n        <div class=\"form-group\">\r\n            <div class=\"col-md-9 col-md-offset-3\">\r\n                <div id=\"messages\"></div>\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n\r\n    <div class=\"form-actions\">\r\n        <div class=\"row\">\r\n            <div class=\"col-md-12\">\r\n                <button class=\"btn btn-default\" type=\"submit\">\r\n                    <i class=\"fa fa-eye\"></i>\r\n                    Validate\r\n                </button>\r\n            </div>\r\n        </div>\r\n    </div>\r\n\r\n</form>\r\n");
@@ -6860,74 +7228,46 @@ $templateCache.put("app/app/_common/forms/directives/bootstrap-validation/bootst
 $templateCache.put("app/app/_common/forms/directives/bootstrap-validation/bootstrap-product-form.tpl.html","<form id=\"productForm\" class=\"form-horizontal\">\r\n\r\n    <fieldset>\r\n        <legend>\r\n            Default Form Elements\r\n        </legend>\r\n        <div class=\"form-group\">\r\n            <label class=\"col-xs-2 col-lg-3 control-label\">Price</label>\r\n            <div class=\"col-xs-9 col-lg-6 inputGroupContainer\">\r\n                <div class=\"input-group\">\r\n                    <input type=\"text\" class=\"form-control\" name=\"price\" />\r\n                    <span class=\"input-group-addon\">$</span>\r\n                </div>\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n\r\n    <fieldset>\r\n        <div class=\"form-group\">\r\n            <label class=\"col-xs-2 col-lg-3 control-label\">Amount</label>\r\n            <div class=\"col-xs-9 col-lg-6 inputGroupContainer\">\r\n                <div class=\"input-group\">\r\n                    <span class=\"input-group-addon\">&#8364;</span>\r\n                    <input type=\"text\" class=\"form-control\" name=\"amount\" />\r\n                </div>\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n\r\n    <fieldset>\r\n        <div class=\"form-group\">\r\n            <label class=\"col-xs-2 col-lg-3 control-label\">Color</label>\r\n            <div class=\"col-xs-9 col-lg-6 selectContainer\">\r\n                <select class=\"form-control\" name=\"color\">\r\n                    <option value=\"\">Choose a color</option>\r\n                    <option value=\"blue\">Blue</option>\r\n                    <option value=\"green\">Green</option>\r\n                    <option value=\"red\">Red</option>\r\n                    <option value=\"yellow\">Yellow</option>\r\n                    <option value=\"white\">White</option>\r\n                </select>\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n\r\n    <fieldset>\r\n        <div class=\"form-group\">\r\n            <label class=\"col-xs-2 col-lg-3 control-label\">Size</label>\r\n            <div class=\"col-xs-9 col-lg-6 selectContainer\">\r\n                <select class=\"form-control\" name=\"size\">\r\n                    <option value=\"\">Choose a size</option>\r\n                    <option value=\"S\">S</option>\r\n                    <option value=\"M\">M</option>\r\n                    <option value=\"L\">L</option>\r\n                    <option value=\"XL\">XL</option>\r\n                </select>\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n\r\n    <div class=\"form-actions\">\r\n        <div class=\"row\">\r\n            <div class=\"col-md-12\">\r\n                <button class=\"btn btn-default\" type=\"submit\">\r\n                    <i class=\"fa fa-eye\"></i>\r\n                    Validate\r\n                </button>\r\n            </div>\r\n        </div>\r\n    </div>\r\n</form>\r\n\r\n");
 $templateCache.put("app/app/_common/forms/directives/bootstrap-validation/bootstrap-profile-form.tpl.html","<form id=\"profileForm\">\r\n\r\n    <fieldset>\r\n        <legend>\r\n            Default Form Elements\r\n        </legend>\r\n        <div class=\"form-group\">\r\n            <label>Email address</label>\r\n            <input type=\"text\" class=\"form-control\" name=\"email\" />\r\n        </div>\r\n    </fieldset>\r\n    <fieldset>\r\n        <div class=\"form-group\">\r\n            <label>Password</label>\r\n            <input type=\"password\" class=\"form-control\" name=\"password\" />\r\n        </div>\r\n    </fieldset>\r\n\r\n    <div class=\"form-actions\">\r\n        <div class=\"row\">\r\n            <div class=\"col-md-12\">\r\n                <button class=\"btn btn-default\" type=\"submit\">\r\n                    <i class=\"fa fa-eye\"></i>\r\n                    Validate\r\n                </button>\r\n            </div>\r\n        </div>\r\n    </div>\r\n</form>\r\n");
 $templateCache.put("app/app/_common/forms/directives/bootstrap-validation/bootstrap-toggling-form.tpl.html","<form id=\"togglingForm\" method=\"post\" class=\"form-horizontal\">\r\n\r\n    <fieldset>\r\n        <legend>\r\n            Default Form Elements\r\n        </legend>\r\n        <div class=\"form-group\">\r\n            <label class=\"col-lg-3 control-label\">Full name <sup>*</sup></label>\r\n            <div class=\"col-lg-4\">\r\n                <input type=\"text\" class=\"form-control\" name=\"firstName\" placeholder=\"First name\" />\r\n            </div>\r\n            <div class=\"col-lg-4\">\r\n                <input type=\"text\" class=\"form-control\" name=\"lastName\" placeholder=\"Last name\" />\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n\r\n    <fieldset>\r\n        <div class=\"form-group\">\r\n            <label class=\"col-lg-3 control-label\">Company <sup>*</sup></label>\r\n            <div class=\"col-lg-5\">\r\n                <input type=\"text\" class=\"form-control\" name=\"company\"\r\n                       required data-bv-notempty-message=\"The company name is required\" />\r\n            </div>\r\n            <div class=\"col-lg-2\">\r\n                <button type=\"button\" class=\"btn btn-info btn-sm\" data-toggle=\"#jobInfo\">\r\n                    Add more info\r\n                </button>\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n\r\n    <!-- These fields will not be validated as long as they are not visible -->\r\n    <div id=\"jobInfo\" style=\"display: none;\">\r\n        <fieldset>\r\n            <div class=\"form-group\">\r\n                <label class=\"col-lg-3 control-label\">Job title <sup>*</sup></label>\r\n                <div class=\"col-lg-5\">\r\n                    <input type=\"text\" class=\"form-control\" name=\"job\" />\r\n                </div>\r\n            </div>\r\n        </fieldset>\r\n\r\n        <fieldset>\r\n            <div class=\"form-group\">\r\n                <label class=\"col-lg-3 control-label\">Department <sup>*</sup></label>\r\n                <div class=\"col-lg-5\">\r\n                    <input type=\"text\" class=\"form-control\" name=\"department\" />\r\n                </div>\r\n            </div>\r\n        </fieldset>\r\n    </div>\r\n\r\n    <fieldset>\r\n        <div class=\"form-group\">\r\n            <label class=\"col-lg-3 control-label\">Mobile phone <sup>*</sup></label>\r\n            <div class=\"col-lg-5\">\r\n                <input type=\"text\" class=\"form-control\" name=\"mobilePhone\" />\r\n            </div>\r\n            <div class=\"col-lg-2\">\r\n                <button type=\"button\" class=\"btn btn-info btn-sm\" data-toggle=\"#phoneInfo\">\r\n                    Add more phone numbers\r\n                </button>\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n    <!-- These fields will not be validated as long as they are not visible -->\r\n    <div id=\"phoneInfo\" style=\"display: none;\">\r\n\r\n        <fieldset>\r\n            <div class=\"form-group\">\r\n                <label class=\"col-lg-3 control-label\">Home phone</label>\r\n                <div class=\"col-lg-5\">\r\n                    <input type=\"text\" class=\"form-control\" name=\"homePhone\" />\r\n                </div>\r\n            </div>\r\n        </fieldset>\r\n        <fieldset>\r\n            <div class=\"form-group\">\r\n                <label class=\"col-lg-3 control-label\">Office phone</label>\r\n                <div class=\"col-lg-5\">\r\n                    <input type=\"text\" class=\"form-control\" name=\"officePhone\" />\r\n                </div>\r\n            </div>\r\n        </fieldset>\r\n    </div>\r\n\r\n    <div class=\"form-actions\">\r\n        <div class=\"row\">\r\n            <div class=\"col-md-12\">\r\n                <button class=\"btn btn-default\" type=\"submit\">\r\n                    <i class=\"fa fa-eye\"></i>\r\n                    Validate\r\n                </button>\r\n            </div>\r\n        </div>\r\n    </div>\r\n</form>");
-$templateCache.put("app/app/_common/layout/directives/demo/demo-states.tpl.html","<div class=\"demo\"><span id=\"demo-setting\"><i class=\"fa fa-cog txt-color-blueDark\"></i></span>\r\n\r\n    <form>\r\n        <legend class=\"no-padding margin-bottom-10\">Layout Options</legend>\r\n        <section>\r\n            <label><input type=\"checkbox\" ng-model=\"fixedHeader\"\r\n                          class=\"checkbox style-0\"><span>Fixed Header</span></label>\r\n            <label><input type=\"checkbox\"\r\n                          ng-model=\"fixedNavigation\"\r\n                          class=\"checkbox style-0\"><span>Fixed Navigation</span></label>\r\n            <label><input type=\"checkbox\"\r\n                          ng-model=\"fixedRibbon\"\r\n                          class=\"checkbox style-0\"><span>Fixed Ribbon</span></label>\r\n            <label><input type=\"checkbox\"\r\n                          ng-model=\"fixedPageFooter\"\r\n                          class=\"checkbox style-0\"><span>Fixed Footer</span></label>\r\n            <label><input type=\"checkbox\"\r\n                          ng-model=\"insideContainer\"\r\n                          class=\"checkbox style-0\"><span>Inside <b>.container</b></span></label>\r\n            <label><input type=\"checkbox\"\r\n                          ng-model=\"rtl\"\r\n                          class=\"checkbox style-0\"><span>RTL</span></label>\r\n            <label><input type=\"checkbox\"\r\n                          ng-model=\"menuOnTop\"\r\n                          class=\"checkbox style-0\"><span>Menu on <b>top</b></span></label>\r\n            <label><input type=\"checkbox\"\r\n                          ng-model=\"colorblindFriendly\"\r\n                          class=\"checkbox style-0\"><span>For Colorblind <div\r\n                    class=\"font-xs text-right\">(experimental)\r\n            </div></span>\r\n            </label><span id=\"smart-bgimages\"></span></section>\r\n        <section><h6 class=\"margin-top-10 semi-bold margin-bottom-5\">Clear Localstorage</h6><a\r\n                ng-click=\"factoryReset()\" class=\"btn btn-xs btn-block btn-primary\" id=\"reset-smart-widget\"><i\r\n                class=\"fa fa-refresh\"></i> Factory Reset</a></section>\r\n\r\n        <h6 class=\"margin-top-10 semi-bold margin-bottom-5\">SmartAdmin Skins</h6>\r\n\r\n\r\n        <section id=\"smart-styles\">\r\n            <a ng-repeat=\"skin in skins\" ng-click=\"setSkin(skin)\" class=\"{{skin.class}}\" style=\"{{skin.style}}\"><i ng-if=\"skin.name == $parent.smartSkin\" class=\"fa fa-check fa-fw\"></i> {{skin.label}} <sup ng-if=\"skin.beta\">beta</sup></a>\r\n        </section>\r\n    </form>\r\n</div>");
+$templateCache.put("app/public/app/dashboard/todo/directives/todo-list.tpl.html","<div>\r\n    <h5 class=\"todo-group-title\"><i class=\"fa fa-{{icon}}\"></i> {{title}} (\r\n        <small class=\"num-of-tasks\">{{scopeItems.length}}</small>\r\n        )\r\n    </h5>\r\n    <ul class=\"todo\">\r\n        <li ng-class=\"{complete: todo.completedAt}\" ng-repeat=\"todo in todos | orderBy: todo._id | filter: filter  track by todo._id\" >\r\n    	<span class=\"handle\"> <label class=\"checkbox\">\r\n            <input type=\"checkbox\" ng-click=\"todo.toggle()\" ng-checked=\"todo.completedAt\"\r\n                   name=\"checkbox-inline\">\r\n            <i></i> </label> </span>\r\n\r\n            <p>\r\n                <strong>Ticket #{{$index + 1}}</strong> - {{todo.title}}\r\n                <span class=\"text-muted\" ng-if=\"todo.description\">{{todo.description}}</span>\r\n                <span class=\"date\">{{todo.createdAt | date}} &dash; <a ng-click=\"deleteTodo(todo)\" class=\"text-muted\"><i\r\n                        class=\"fa fa-trash\"></i></a></span>\r\n\r\n            </p>\r\n        </li>\r\n    </ul>\r\n</div>");
 $templateCache.put("app/public/app/dashboard/chat/directives/aside-chat-widget.tpl.html","<ul>\r\n    <li>\r\n        <div class=\"display-users\">\r\n            <input class=\"form-control chat-user-filter\" placeholder=\"Filter\" type=\"text\">\r\n            <dl>\r\n                <dt>\r\n                    <a href=\"#\" class=\"usr\"\r\n                       data-chat-id=\"cha1\"\r\n                       data-chat-fname=\"Sadi\"\r\n                       data-chat-lname=\"Orlaf\"\r\n                       data-chat-status=\"busy\"\r\n                       data-chat-alertmsg=\"Sadi Orlaf is in a meeting. Please do not disturb!\"\r\n                       data-chat-alertshow=\"true\"\r\n                       popover-trigger=\"hover\"\r\n                       popover-placement=\"right\"\r\n                       smart-popover-html=\"\r\n										<div class=\'usr-card\'>\r\n											<img src=\'styles/img/avatars/5.png\' alt=\'Sadi Orlaf\'>\r\n											<div class=\'usr-card-content\'>\r\n												<h3>Sadi Orlaf</h3>\r\n												<p>Marketing Executive</p>\r\n											</div>\r\n										</div>\r\n									\">\r\n                        <i></i>Sadi Orlaf\r\n                    </a>\r\n                </dt>\r\n                <dt>\r\n                    <a href=\"#\" class=\"usr\"\r\n                       data-chat-id=\"cha2\"\r\n                       data-chat-fname=\"Jessica\"\r\n                       data-chat-lname=\"Dolof\"\r\n                       data-chat-status=\"online\"\r\n                       data-chat-alertmsg=\"\"\r\n                       data-chat-alertshow=\"false\"\r\n                       popover-trigger=\"hover\"\r\n                       popover-placement=\"right\"\r\n                       smart-popover-html=\"\r\n										<div class=\'usr-card\'>\r\n											<img src=\'styles/img/avatars/1.png\' alt=\'Jessica Dolof\'>\r\n											<div class=\'usr-card-content\'>\r\n												<h3>Jessica Dolof</h3>\r\n												<p>Sales Administrator</p>\r\n											</div>\r\n										</div>\r\n									\">\r\n                        <i></i>Jessica Dolof\r\n                    </a>\r\n                </dt>\r\n                <dt>\r\n                    <a href=\"#\" class=\"usr\"\r\n                       data-chat-id=\"cha3\"\r\n                       data-chat-fname=\"Zekarburg\"\r\n                       data-chat-lname=\"Almandalie\"\r\n                       data-chat-status=\"online\"\r\n                       popover-trigger=\"hover\"\r\n                       popover-placement=\"right\"\r\n                       smart-popover-html=\"\r\n										<div class=\'usr-card\'>\r\n											<img src=\'styles/img/avatars/3.png\' alt=\'Zekarburg Almandalie\'>\r\n											<div class=\'usr-card-content\'>\r\n												<h3>Zekarburg Almandalie</h3>\r\n												<p>Sales Admin</p>\r\n											</div>\r\n										</div>\r\n									\">\r\n                        <i></i>Zekarburg Almandalie\r\n                    </a>\r\n                </dt>\r\n                <dt>\r\n                    <a href=\"#\" class=\"usr\"\r\n                       data-chat-id=\"cha4\"\r\n                       data-chat-fname=\"Barley\"\r\n                       data-chat-lname=\"Krazurkth\"\r\n                       data-chat-status=\"away\"\r\n                       popover-trigger=\"hover\"\r\n                       popover-placement=\"right\"\r\n                       smart-popover-html=\"\r\n										<div class=\'usr-card\'>\r\n											<img src=\'styles/img/avatars/4.png\' alt=\'Barley Krazurkth\'>\r\n											<div class=\'usr-card-content\'>\r\n												<h3>Barley Krazurkth</h3>\r\n												<p>Sales Director</p>\r\n											</div>\r\n										</div>\r\n									\">\r\n                        <i></i>Barley Krazurkth\r\n                    </a>\r\n                </dt>\r\n                <dt>\r\n                    <a href=\"#\" class=\"usr offline\"\r\n                       data-chat-id=\"cha5\"\r\n                       data-chat-fname=\"Farhana\"\r\n                       data-chat-lname=\"Amrin\"\r\n                       data-chat-status=\"incognito\"\r\n                       popover-trigger=\"hover\"\r\n                       popover-placement=\"right\"\r\n                       smart-popover-html=\"\r\n										<div class=\'usr-card\'>\r\n											<img src=\'styles/img/avatars/female.png\' alt=\'Farhana Amrin\'>\r\n											<div class=\'usr-card-content\'>\r\n												<h3>Farhana Amrin</h3>\r\n												<p>Support Admin <small><i class=\'fa fa-music\'></i> Playing Beethoven Classics</small></p>\r\n											</div>\r\n										</div>\r\n									\">\r\n                        <i></i>Farhana Amrin (offline)\r\n                    </a>\r\n                </dt>\r\n                <dt>\r\n                    <a href=\"#\" class=\"usr offline\"\r\n                       data-chat-id=\"cha6\"\r\n                       data-chat-fname=\"Lezley\"\r\n                       data-chat-lname=\"Jacob\"\r\n                       data-chat-status=\"incognito\"\r\n                       popover-trigger=\"hover\"\r\n                       popover-placement=\"right\"\r\n                       smart-popover-html=\"\r\n										<div class=\'usr-card\'>\r\n											<img src=\'styles/img/avatars/male.png\' alt=\'Lezley Jacob\'>\r\n											<div class=\'usr-card-content\'>\r\n												<h3>Lezley Jacob</h3>\r\n												<p>Sales Director</p>\r\n											</div>\r\n										</div>\r\n									\">\r\n                        <i></i>Lezley Jacob (offline)\r\n                    </a>\r\n                </dt>\r\n            </dl>\r\n\r\n\r\n            <!--<a href=\"chat.html\" class=\"btn btn-xs btn-default btn-block sa-chat-learnmore-btn\">About the API</a>-->\r\n        </div>\r\n    </li>\r\n</ul>");
 $templateCache.put("app/public/app/dashboard/chat/directives/chat-users.tpl.html","<div id=\"chat-container\" ng-class=\"{open: open}\">\r\n    <span class=\"chat-list-open-close\" ng-click=\"openToggle()\"><i class=\"fa fa-user\"></i><b>!</b></span>\r\n\r\n    <div class=\"chat-list-body custom-scroll\">\r\n        <ul id=\"chat-users\">\r\n            <li ng-repeat=\"chatUser in chatUsers | filter: chatUserFilter\">\r\n                <a ng-click=\"messageTo(chatUser)\"><img ng-src=\"{{chatUser.picture}}\">{{chatUser.username}} <span\r\n                        class=\"badge badge-inverse\">{{chatUser.username.length}}</span><span class=\"state\"><i\r\n                        class=\"fa fa-circle txt-color-green pull-right\"></i></span></a>\r\n            </li>\r\n        </ul>\r\n    </div>\r\n    <div class=\"chat-list-footer\">\r\n        <div class=\"control-group\">\r\n            <form class=\"smart-form\">\r\n                <section>\r\n                    <label class=\"input\" >\r\n                        <input type=\"text\" ng-model=\"chatUserFilter\" id=\"filter-chat-list\" placeholder=\"Filter\">\r\n                    </label>\r\n                </section>\r\n            </form>\r\n        </div>\r\n    </div>\r\n</div>");
 $templateCache.put("app/public/app/dashboard/chat/directives/chat-widget.tpl.html","<div id=\"chat-widget\" jarvis-widget data-widget-color=\"blueDark\" data-widget-editbutton=\"false\"\r\n     data-widget-fullscreenbutton=\"false\">\r\n\r\n\r\n    <header>\r\n        <span class=\"widget-icon\"> <i class=\"fa fa-comments txt-color-white\"></i> </span>\r\n\r\n        <h2> SmartMessage </h2>\r\n\r\n        <div class=\"widget-toolbar\">\r\n            <!-- add: non-hidden - to disable auto hide -->\r\n\r\n            <div class=\"btn-group\" data-dropdown>\r\n                <button class=\"btn dropdown-toggle btn-xs btn-success\" data-toggle=\"dropdown\">\r\n                    Status <i class=\"fa fa-caret-down\"></i>\r\n                </button>\r\n                <ul class=\"dropdown-menu pull-right js-status-update\">\r\n                    <li>\r\n                        <a href-void><i class=\"fa fa-circle txt-color-green\"></i> Online</a>\r\n                    </li>\r\n                    <li>\r\n                        <a href-void><i class=\"fa fa-circle txt-color-red\"></i> Busy</a>\r\n                    </li>\r\n                    <li>\r\n                        <a href-void><i class=\"fa fa-circle txt-color-orange\"></i> Away</a>\r\n                    </li>\r\n                    <li class=\"divider\"></li>\r\n                    <li>\r\n                        <a href-void><i class=\"fa fa-power-off\"></i> Log Off</a>\r\n                    </li>\r\n                </ul>\r\n            </div>\r\n        </div>\r\n    </header>\r\n\r\n    <!-- widget div-->\r\n    <div>\r\n        <div class=\"widget-body widget-hide-overflow no-padding\">\r\n            <!-- content goes here -->\r\n\r\n            <chat-users></chat-users>\r\n\r\n            <!-- CHAT BODY -->\r\n            <div id=\"chat-body\" class=\"chat-body custom-scroll\">\r\n                <ul>\r\n                    <li class=\"message\" ng-repeat=\"message in chatMessages\">\r\n                        <img class=\"message-picture online\" ng-src=\"{{message.user.picture}}\">\r\n\r\n                        <div class=\"message-text\">\r\n                            <time>\r\n                                {{message.date | date }}\r\n                            </time>\r\n                            <a ng-click=\"messageTo(message.user)\" class=\"username\">{{message.user.username}}</a>\r\n                            <div ng-bind-html=\"message.body\"></div>\r\n\r\n                        </div>\r\n                    </li>\r\n                </ul>\r\n            </div>\r\n\r\n            <!-- CHAT FOOTER -->\r\n            <div class=\"chat-footer\">\r\n\r\n                <!-- CHAT TEXTAREA -->\r\n                <div class=\"textarea-div\">\r\n\r\n                    <div class=\"typearea\">\r\n                        <textarea placeholder=\"Write a reply...\" id=\"textarea-expand\"\r\n                                  class=\"custom-scroll\" ng-model=\"newMessage\"></textarea>\r\n                    </div>\r\n\r\n                </div>\r\n\r\n                <!-- CHAT REPLY/SEND -->\r\n											<span class=\"textarea-controls\">\r\n												<button class=\"btn btn-sm btn-primary pull-right\" ng-click=\"sendMessage()\">\r\n                                                    Reply\r\n                                                </button> <span class=\"pull-right smart-form\"\r\n                                                                style=\"margin-top: 3px; margin-right: 10px;\"> <label\r\n                                                    class=\"checkbox pull-right\">\r\n                                                <input type=\"checkbox\" name=\"subscription\" id=\"subscription\">\r\n                                                <i></i>Press <strong> ENTER </strong> to send </label> </span> <a\r\n                                                    href-void class=\"pull-left\"><i\r\n                                                    class=\"fa fa-camera fa-fw fa-lg\"></i></a> </span>\r\n\r\n            </div>\r\n\r\n            <!-- end content -->\r\n        </div>\r\n\r\n    </div>\r\n    <!-- end widget div -->\r\n</div>");
-$templateCache.put("app/public/app/dashboard/todo/directives/todo-list.tpl.html","<div>\r\n    <h5 class=\"todo-group-title\"><i class=\"fa fa-{{icon}}\"></i> {{title}} (\r\n        <small class=\"num-of-tasks\">{{scopeItems.length}}</small>\r\n        )\r\n    </h5>\r\n    <ul class=\"todo\">\r\n        <li ng-class=\"{complete: todo.completedAt}\" ng-repeat=\"todo in todos | orderBy: todo._id | filter: filter  track by todo._id\" >\r\n    	<span class=\"handle\"> <label class=\"checkbox\">\r\n            <input type=\"checkbox\" ng-click=\"todo.toggle()\" ng-checked=\"todo.completedAt\"\r\n                   name=\"checkbox-inline\">\r\n            <i></i> </label> </span>\r\n\r\n            <p>\r\n                <strong>Ticket #{{$index + 1}}</strong> - {{todo.title}}\r\n                <span class=\"text-muted\" ng-if=\"todo.description\">{{todo.description}}</span>\r\n                <span class=\"date\">{{todo.createdAt | date}} &dash; <a ng-click=\"deleteTodo(todo)\" class=\"text-muted\"><i\r\n                        class=\"fa fa-trash\"></i></a></span>\r\n\r\n            </p>\r\n        </li>\r\n    </ul>\r\n</div>");
+$templateCache.put("app/public/app/_common/layout/directives/demo/demo-states.tpl.html","<div class=\"demo\"><span id=\"demo-setting\"><i class=\"fa fa-cog txt-color-blueDark\"></i></span>\r\n\r\n    <form>\r\n        <legend class=\"no-padding margin-bottom-10\">Layout Options</legend>\r\n        <section>\r\n            <label><input type=\"checkbox\" ng-model=\"fixedHeader\"\r\n                          class=\"checkbox style-0\"><span>Fixed Header</span></label>\r\n            <label><input type=\"checkbox\"\r\n                          ng-model=\"fixedNavigation\"\r\n                          class=\"checkbox style-0\"><span>Fixed Navigation</span></label>\r\n            <label><input type=\"checkbox\"\r\n                          ng-model=\"fixedRibbon\"\r\n                          class=\"checkbox style-0\"><span>Fixed Ribbon</span></label>\r\n            <label><input type=\"checkbox\"\r\n                          ng-model=\"fixedPageFooter\"\r\n                          class=\"checkbox style-0\"><span>Fixed Footer</span></label>\r\n            <label><input type=\"checkbox\"\r\n                          ng-model=\"insideContainer\"\r\n                          class=\"checkbox style-0\"><span>Inside <b>.container</b></span></label>\r\n            <label><input type=\"checkbox\"\r\n                          ng-model=\"rtl\"\r\n                          class=\"checkbox style-0\"><span>RTL</span></label>\r\n            <label><input type=\"checkbox\"\r\n                          ng-model=\"menuOnTop\"\r\n                          class=\"checkbox style-0\"><span>Menu on <b>top</b></span></label>\r\n            <label><input type=\"checkbox\"\r\n                          ng-model=\"colorblindFriendly\"\r\n                          class=\"checkbox style-0\"><span>For Colorblind <div\r\n                    class=\"font-xs text-right\">(experimental)\r\n            </div></span>\r\n            </label><span id=\"smart-bgimages\"></span></section>\r\n        <section><h6 class=\"margin-top-10 semi-bold margin-bottom-5\">Clear Localstorage</h6><a\r\n                ng-click=\"factoryReset()\" class=\"btn btn-xs btn-block btn-primary\" id=\"reset-smart-widget\"><i\r\n                class=\"fa fa-refresh\"></i> Factory Reset</a></section>\r\n\r\n        <h6 class=\"margin-top-10 semi-bold margin-bottom-5\">SmartAdmin Skins</h6>\r\n\r\n\r\n        <section id=\"smart-styles\">\r\n            <a ng-repeat=\"skin in skins\" ng-click=\"setSkin(skin)\" class=\"{{skin.class}}\" style=\"{{skin.style}}\"><i ng-if=\"skin.name == $parent.smartSkin\" class=\"fa fa-check fa-fw\"></i> {{skin.label}} <sup ng-if=\"skin.beta\">beta</sup></a>\r\n        </section>\r\n    </form>\r\n</div>");
 $templateCache.put("app/public/app/_common/forms/directives/bootstrap-validation/bootstrap-attribute-form.tpl.html","<form id=\"attributeForm\" class=\"form-horizontal\"\r\n      data-bv-message=\"This value is not valid\"\r\n      data-bv-feedbackicons-valid=\"glyphicon glyphicon-ok\"\r\n      data-bv-feedbackicons-invalid=\"glyphicon glyphicon-remove\"\r\n      data-bv-feedbackicons-validating=\"glyphicon glyphicon-refresh\">\r\n\r\n    <fieldset>\r\n        <legend>\r\n            Set validator options via HTML attributes\r\n        </legend>\r\n\r\n        <div class=\"alert alert-warning\">\r\n            <code>&lt; input\r\n                data-bv-validatorname\r\n                data-bv-validatorname-validatoroption=\"...\" / &gt;</code>\r\n\r\n            <br>\r\n            <br>\r\n            More validator options can be found here:\r\n            <a href=\"http://bootstrapvalidator.com/validators/\" target=\"_blank\">http://bootstrapvalidator.com/validators/</a>\r\n        </div>\r\n\r\n        <div class=\"form-group\">\r\n            <label class=\"col-lg-3 control-label\">Full name</label>\r\n            <div class=\"col-lg-4\">\r\n                <input type=\"text\" class=\"form-control\" name=\"firstName\" placeholder=\"First name\"\r\n                       data-bv-notempty=\"true\"\r\n                       data-bv-notempty-message=\"The first name is required and cannot be empty\" />\r\n            </div>\r\n            <div class=\"col-lg-4\">\r\n                <input type=\"text\" class=\"form-control\" name=\"lastName\" placeholder=\"Last name\"\r\n                       data-bv-notempty=\"true\"\r\n                       data-bv-notempty-message=\"The last name is required and cannot be empty\" />\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n\r\n    <fieldset>\r\n        <div class=\"form-group\">\r\n            <label class=\"col-lg-3 control-label\">Username</label>\r\n            <div class=\"col-lg-5\">\r\n                <input type=\"text\" class=\"form-control\" name=\"username\"\r\n                       data-bv-message=\"The username is not valid\"\r\n\r\n                       data-bv-notempty=\"true\"\r\n                       data-bv-notempty-message=\"The username is required and cannot be empty\"\r\n\r\n                       data-bv-regexp=\"true\"\r\n                       data-bv-regexp-regexp=\"^[a-zA-Z0-9_\\.]+$\"\r\n                       data-bv-regexp-message=\"The username can only consist of alphabetical, number, dot and underscore\"\r\n\r\n                       data-bv-stringlength=\"true\"\r\n                       data-bv-stringlength-min=\"6\"\r\n                       data-bv-stringlength-max=\"30\"\r\n                       data-bv-stringlength-message=\"The username must be more than 6 and less than 30 characters long\"\r\n\r\n                       data-bv-different=\"true\"\r\n                       data-bv-different-field=\"password\"\r\n                       data-bv-different-message=\"The username and password cannot be the same as each other\" />\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n\r\n    <fieldset>\r\n        <div class=\"form-group\">\r\n            <label class=\"col-lg-3 control-label\">Email address</label>\r\n            <div class=\"col-lg-5\">\r\n                <input class=\"form-control\" name=\"email\" type=\"email\"\r\n                       data-bv-emailaddress=\"true\"\r\n                       data-bv-emailaddress-message=\"The input is not a valid email address\" />\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n\r\n    <fieldset>\r\n        <div class=\"form-group\">\r\n            <label class=\"col-lg-3 control-label\">Password</label>\r\n            <div class=\"col-lg-5\">\r\n                <input type=\"password\" class=\"form-control\" name=\"password\"\r\n                       data-bv-notempty=\"true\"\r\n                       data-bv-notempty-message=\"The password is required and cannot be empty\"\r\n\r\n                       data-bv-identical=\"true\"\r\n                       data-bv-identical-field=\"confirmPassword\"\r\n                       data-bv-identical-message=\"The password and its confirm are not the same\"\r\n\r\n                       data-bv-different=\"true\"\r\n                       data-bv-different-field=\"username\"\r\n                       data-bv-different-message=\"The password cannot be the same as username\" />\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n\r\n    <fieldset>\r\n        <div class=\"form-group\">\r\n            <label class=\"col-lg-3 control-label\">Retype password</label>\r\n            <div class=\"col-lg-5\">\r\n                <input type=\"password\" class=\"form-control\" name=\"confirmPassword\"\r\n                       data-bv-notempty=\"true\"\r\n                       data-bv-notempty-message=\"The confirm password is required and cannot be empty\"\r\n\r\n                       data-bv-identical=\"true\"\r\n                       data-bv-identical-field=\"password\"\r\n                       data-bv-identical-message=\"The password and its confirm are not the same\"\r\n\r\n                       data-bv-different=\"true\"\r\n                       data-bv-different-field=\"username\"\r\n                       data-bv-different-message=\"The password cannot be the same as username\" />\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n\r\n    <fieldset>\r\n        <div class=\"form-group\">\r\n            <label class=\"col-lg-3 control-label\">Languages</label>\r\n            <div class=\"col-lg-5\">\r\n                <div class=\"checkbox\">\r\n                    <label>\r\n                        <input type=\"checkbox\" name=\"languages[]\" value=\"english\"\r\n                               data-bv-message=\"Please specify at least one language you can speak\"\r\n                               data-bv-notempty=\"true\" />\r\n                        English </label>\r\n                </div>\r\n                <div class=\"checkbox\">\r\n                    <label>\r\n                        <input type=\"checkbox\" name=\"languages[]\" value=\"french\" />\r\n                        French </label>\r\n                </div>\r\n                <div class=\"checkbox\">\r\n                    <label>\r\n                        <input type=\"checkbox\" name=\"languages[]\" value=\"german\" />\r\n                        German </label>\r\n                </div>\r\n                <div class=\"checkbox\">\r\n                    <label>\r\n                        <input type=\"checkbox\" name=\"languages[]\" value=\"russian\" />\r\n                        Russian </label>\r\n                </div>\r\n                <div class=\"checkbox\">\r\n                    <label>\r\n                        <input type=\"checkbox\" name=\"languages[]\" value=\"other\" />\r\n                        Other </label>\r\n                </div>\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n\r\n    <div class=\"form-actions\">\r\n        <div class=\"row\">\r\n            <div class=\"col-md-12\">\r\n                <button class=\"btn btn-default\" type=\"submit\">\r\n                    <i class=\"fa fa-eye\"></i>\r\n                    Validate\r\n                </button>\r\n            </div>\r\n        </div>\r\n    </div>\r\n\r\n</form>\r\n     ");
 $templateCache.put("app/public/app/_common/forms/directives/bootstrap-validation/bootstrap-button-group-form.tpl.html","<form id=\"buttonGroupForm\" method=\"post\" class=\"form-horizontal\">\r\n\r\n    <fieldset>\r\n        <legend>\r\n            Default Form Elements\r\n        </legend>\r\n        <div class=\"form-group\">\r\n            <label class=\"col-lg-3 control-label\">Gender</label>\r\n            <div class=\"col-lg-9\">\r\n                <div class=\"btn-group\" data-toggle=\"buttons\">\r\n                    <label class=\"btn btn-default\">\r\n                        <input type=\"radio\" name=\"gender\" value=\"male\" />\r\n                        Male </label>\r\n                    <label class=\"btn btn-default\">\r\n                        <input type=\"radio\" name=\"gender\" value=\"female\" />\r\n                        Female </label>\r\n                    <label class=\"btn btn-default\">\r\n                        <input type=\"radio\" name=\"gender\" value=\"other\" />\r\n                        Other </label>\r\n                </div>\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n\r\n    <fieldset>\r\n        <div class=\"form-group\">\r\n            <label class=\"col-lg-3 control-label\">Languages</label>\r\n            <div class=\"col-lg-9\">\r\n                <div class=\"btn-group\" data-toggle=\"buttons\">\r\n                    <label class=\"btn btn-default\">\r\n                        <input type=\"checkbox\" name=\"languages[]\" value=\"english\" />\r\n                        English </label>\r\n                    <label class=\"btn btn-default\">\r\n                        <input type=\"checkbox\" name=\"languages[]\" value=\"german\" />\r\n                        German </label>\r\n                    <label class=\"btn btn-default\">\r\n                        <input type=\"checkbox\" name=\"languages[]\" value=\"french\" />\r\n                        French </label>\r\n                    <label class=\"btn btn-default\">\r\n                        <input type=\"checkbox\" name=\"languages[]\" value=\"russian\" />\r\n                        Russian </label>\r\n                    <label class=\"btn btn-default\">\r\n                        <input type=\"checkbox\" name=\"languages[]\" value=\"italian\">\r\n                        Italian </label>\r\n                </div>\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n\r\n    <div class=\"form-actions\">\r\n        <div class=\"row\">\r\n            <div class=\"col-md-12\">\r\n                <button class=\"btn btn-default\" type=\"submit\">\r\n                    <i class=\"fa fa-eye\"></i>\r\n                    Validate\r\n                </button>\r\n            </div>\r\n        </div>\r\n    </div>\r\n\r\n</form>\r\n");
 $templateCache.put("app/public/app/_common/forms/directives/bootstrap-validation/bootstrap-contact-form.tpl.html","<form id=\"contactForm\" method=\"post\" class=\"form-horizontal\">\r\n\r\n    <fieldset>\r\n        <legend>Showing messages in custom area</legend>\r\n        <div class=\"form-group\">\r\n            <label class=\"col-md-3 control-label\">Full name</label>\r\n            <div class=\"col-md-6\">\r\n                <input type=\"text\" class=\"form-control\" name=\"fullName\" />\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n\r\n    <fieldset>\r\n        <div class=\"form-group\">\r\n            <label class=\"col-md-3 control-label\">Email</label>\r\n            <div class=\"col-md-6\">\r\n                <input type=\"text\" class=\"form-control\" name=\"email\" />\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n\r\n    <fieldset>\r\n        <div class=\"form-group\">\r\n            <label class=\"col-md-3 control-label\">Title</label>\r\n            <div class=\"col-md-6\">\r\n                <input type=\"text\" class=\"form-control\" name=\"title\" />\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n\r\n    <fieldset>\r\n        <div class=\"form-group\">\r\n            <label class=\"col-md-3 control-label\">Content</label>\r\n            <div class=\"col-md-6\">\r\n                <textarea class=\"form-control\" name=\"content\" rows=\"5\"></textarea>\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n\r\n    <fieldset>\r\n        <!-- #messages is where the messages are placed inside -->\r\n        <div class=\"form-group\">\r\n            <div class=\"col-md-9 col-md-offset-3\">\r\n                <div id=\"messages\"></div>\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n\r\n    <div class=\"form-actions\">\r\n        <div class=\"row\">\r\n            <div class=\"col-md-12\">\r\n                <button class=\"btn btn-default\" type=\"submit\">\r\n                    <i class=\"fa fa-eye\"></i>\r\n                    Validate\r\n                </button>\r\n            </div>\r\n        </div>\r\n    </div>\r\n\r\n</form>\r\n");
 $templateCache.put("app/public/app/_common/forms/directives/bootstrap-validation/bootstrap-movie-form.tpl.html","\r\n<form id=\"movieForm\" method=\"post\">\r\n\r\n    <fieldset>\r\n        <legend>\r\n            Default Form Elements\r\n        </legend>\r\n        <div class=\"form-group\">\r\n            <div class=\"row\">\r\n                <div class=\"col-md-8\">\r\n                    <label class=\"control-label\">Movie title</label>\r\n                    <input type=\"text\" class=\"form-control\" name=\"title\" />\r\n                </div>\r\n\r\n                <div class=\"col-md-4 selectContainer\">\r\n                    <label class=\"control-label\">Genre</label>\r\n                    <select class=\"form-control\" name=\"genre\">\r\n                        <option value=\"\">Choose a genre</option>\r\n                        <option value=\"action\">Action</option>\r\n                        <option value=\"comedy\">Comedy</option>\r\n                        <option value=\"horror\">Horror</option>\r\n                        <option value=\"romance\">Romance</option>\r\n                    </select>\r\n                </div>\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n\r\n    <fieldset>\r\n        <div class=\"form-group\">\r\n            <div class=\"row\">\r\n                <div class=\"col-sm-12 col-md-4\">\r\n                    <label class=\"control-label\">Director</label>\r\n                    <input type=\"text\" class=\"form-control\" name=\"director\" />\r\n                </div>\r\n\r\n                <div class=\"col-sm-12 col-md-4\">\r\n                    <label class=\"control-label\">Writer</label>\r\n                    <input type=\"text\" class=\"form-control\" name=\"writer\" />\r\n                </div>\r\n\r\n                <div class=\"col-sm-12 col-md-4\">\r\n                    <label class=\"control-label\">Producer</label>\r\n                    <input type=\"text\" class=\"form-control\" name=\"producer\" />\r\n                </div>\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n\r\n    <fieldset>\r\n        <div class=\"form-group\">\r\n            <div class=\"row\">\r\n                <div class=\"col-sm-12 col-md-6\">\r\n                    <label class=\"control-label\">Website</label>\r\n                    <input type=\"text\" class=\"form-control\" name=\"website\" />\r\n                </div>\r\n\r\n                <div class=\"col-sm-12 col-md-6\">\r\n                    <label class=\"control-label\">Youtube trailer</label>\r\n                    <input type=\"text\" class=\"form-control\" name=\"trailer\" />\r\n                </div>\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n\r\n    <fieldset>\r\n        <div class=\"form-group\">\r\n            <label class=\"control-label\">Review</label>\r\n            <textarea class=\"form-control\" name=\"review\" rows=\"8\"></textarea>\r\n        </div>\r\n    </fieldset>\r\n\r\n    <fieldset>\r\n        <div class=\"form-group\">\r\n\r\n            <div class=\"row\">\r\n                <div class=\"col-sm-12 col-md-12\">\r\n                    <label class=\"control-label\">Rating</label>\r\n                </div>\r\n\r\n                <div class=\"col-sm-12 col-md-10\">\r\n\r\n                    <label class=\"radio radio-inline no-margin\">\r\n                        <input type=\"radio\" name=\"rating\" value=\"terrible\" class=\"radiobox style-2\" />\r\n                        <span>Terrible</span> </label>\r\n\r\n                    <label class=\"radio radio-inline\">\r\n                        <input type=\"radio\" name=\"rating\" value=\"watchable\" class=\"radiobox style-2\" />\r\n                        <span>Watchable</span> </label>\r\n                    <label class=\"radio radio-inline\">\r\n                        <input type=\"radio\" name=\"rating\" value=\"best\" class=\"radiobox style-2\" />\r\n                        <span>Best ever</span> </label>\r\n\r\n                </div>\r\n\r\n            </div>\r\n\r\n        </div>\r\n    </fieldset>\r\n\r\n    <div class=\"form-actions\">\r\n        <div class=\"row\">\r\n            <div class=\"col-md-12\">\r\n                <button class=\"btn btn-default\" type=\"submit\">\r\n                    <i class=\"fa fa-eye\"></i>\r\n                    Validate\r\n                </button>\r\n            </div>\r\n        </div>\r\n    </div>\r\n\r\n</form>\r\n\r\n ");
 $templateCache.put("app/public/app/_common/forms/directives/bootstrap-validation/bootstrap-product-form.tpl.html","<form id=\"productForm\" class=\"form-horizontal\">\r\n\r\n    <fieldset>\r\n        <legend>\r\n            Default Form Elements\r\n        </legend>\r\n        <div class=\"form-group\">\r\n            <label class=\"col-xs-2 col-lg-3 control-label\">Price</label>\r\n            <div class=\"col-xs-9 col-lg-6 inputGroupContainer\">\r\n                <div class=\"input-group\">\r\n                    <input type=\"text\" class=\"form-control\" name=\"price\" />\r\n                    <span class=\"input-group-addon\">$</span>\r\n                </div>\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n\r\n    <fieldset>\r\n        <div class=\"form-group\">\r\n            <label class=\"col-xs-2 col-lg-3 control-label\">Amount</label>\r\n            <div class=\"col-xs-9 col-lg-6 inputGroupContainer\">\r\n                <div class=\"input-group\">\r\n                    <span class=\"input-group-addon\">&#8364;</span>\r\n                    <input type=\"text\" class=\"form-control\" name=\"amount\" />\r\n                </div>\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n\r\n    <fieldset>\r\n        <div class=\"form-group\">\r\n            <label class=\"col-xs-2 col-lg-3 control-label\">Color</label>\r\n            <div class=\"col-xs-9 col-lg-6 selectContainer\">\r\n                <select class=\"form-control\" name=\"color\">\r\n                    <option value=\"\">Choose a color</option>\r\n                    <option value=\"blue\">Blue</option>\r\n                    <option value=\"green\">Green</option>\r\n                    <option value=\"red\">Red</option>\r\n                    <option value=\"yellow\">Yellow</option>\r\n                    <option value=\"white\">White</option>\r\n                </select>\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n\r\n    <fieldset>\r\n        <div class=\"form-group\">\r\n            <label class=\"col-xs-2 col-lg-3 control-label\">Size</label>\r\n            <div class=\"col-xs-9 col-lg-6 selectContainer\">\r\n                <select class=\"form-control\" name=\"size\">\r\n                    <option value=\"\">Choose a size</option>\r\n                    <option value=\"S\">S</option>\r\n                    <option value=\"M\">M</option>\r\n                    <option value=\"L\">L</option>\r\n                    <option value=\"XL\">XL</option>\r\n                </select>\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n\r\n    <div class=\"form-actions\">\r\n        <div class=\"row\">\r\n            <div class=\"col-md-12\">\r\n                <button class=\"btn btn-default\" type=\"submit\">\r\n                    <i class=\"fa fa-eye\"></i>\r\n                    Validate\r\n                </button>\r\n            </div>\r\n        </div>\r\n    </div>\r\n</form>\r\n\r\n");
 $templateCache.put("app/public/app/_common/forms/directives/bootstrap-validation/bootstrap-profile-form.tpl.html","<form id=\"profileForm\">\r\n\r\n    <fieldset>\r\n        <legend>\r\n            Default Form Elements\r\n        </legend>\r\n        <div class=\"form-group\">\r\n            <label>Email address</label>\r\n            <input type=\"text\" class=\"form-control\" name=\"email\" />\r\n        </div>\r\n    </fieldset>\r\n    <fieldset>\r\n        <div class=\"form-group\">\r\n            <label>Password</label>\r\n            <input type=\"password\" class=\"form-control\" name=\"password\" />\r\n        </div>\r\n    </fieldset>\r\n\r\n    <div class=\"form-actions\">\r\n        <div class=\"row\">\r\n            <div class=\"col-md-12\">\r\n                <button class=\"btn btn-default\" type=\"submit\">\r\n                    <i class=\"fa fa-eye\"></i>\r\n                    Validate\r\n                </button>\r\n            </div>\r\n        </div>\r\n    </div>\r\n</form>\r\n");
-$templateCache.put("app/public/app/_common/forms/directives/bootstrap-validation/bootstrap-toggling-form.tpl.html","<form id=\"togglingForm\" method=\"post\" class=\"form-horizontal\">\r\n\r\n    <fieldset>\r\n        <legend>\r\n            Default Form Elements\r\n        </legend>\r\n        <div class=\"form-group\">\r\n            <label class=\"col-lg-3 control-label\">Full name <sup>*</sup></label>\r\n            <div class=\"col-lg-4\">\r\n                <input type=\"text\" class=\"form-control\" name=\"firstName\" placeholder=\"First name\" />\r\n            </div>\r\n            <div class=\"col-lg-4\">\r\n                <input type=\"text\" class=\"form-control\" name=\"lastName\" placeholder=\"Last name\" />\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n\r\n    <fieldset>\r\n        <div class=\"form-group\">\r\n            <label class=\"col-lg-3 control-label\">Company <sup>*</sup></label>\r\n            <div class=\"col-lg-5\">\r\n                <input type=\"text\" class=\"form-control\" name=\"company\"\r\n                       required data-bv-notempty-message=\"The company name is required\" />\r\n            </div>\r\n            <div class=\"col-lg-2\">\r\n                <button type=\"button\" class=\"btn btn-info btn-sm\" data-toggle=\"#jobInfo\">\r\n                    Add more info\r\n                </button>\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n\r\n    <!-- These fields will not be validated as long as they are not visible -->\r\n    <div id=\"jobInfo\" style=\"display: none;\">\r\n        <fieldset>\r\n            <div class=\"form-group\">\r\n                <label class=\"col-lg-3 control-label\">Job title <sup>*</sup></label>\r\n                <div class=\"col-lg-5\">\r\n                    <input type=\"text\" class=\"form-control\" name=\"job\" />\r\n                </div>\r\n            </div>\r\n        </fieldset>\r\n\r\n        <fieldset>\r\n            <div class=\"form-group\">\r\n                <label class=\"col-lg-3 control-label\">Department <sup>*</sup></label>\r\n                <div class=\"col-lg-5\">\r\n                    <input type=\"text\" class=\"form-control\" name=\"department\" />\r\n                </div>\r\n            </div>\r\n        </fieldset>\r\n    </div>\r\n\r\n    <fieldset>\r\n        <div class=\"form-group\">\r\n            <label class=\"col-lg-3 control-label\">Mobile phone <sup>*</sup></label>\r\n            <div class=\"col-lg-5\">\r\n                <input type=\"text\" class=\"form-control\" name=\"mobilePhone\" />\r\n            </div>\r\n            <div class=\"col-lg-2\">\r\n                <button type=\"button\" class=\"btn btn-info btn-sm\" data-toggle=\"#phoneInfo\">\r\n                    Add more phone numbers\r\n                </button>\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n    <!-- These fields will not be validated as long as they are not visible -->\r\n    <div id=\"phoneInfo\" style=\"display: none;\">\r\n\r\n        <fieldset>\r\n            <div class=\"form-group\">\r\n                <label class=\"col-lg-3 control-label\">Home phone</label>\r\n                <div class=\"col-lg-5\">\r\n                    <input type=\"text\" class=\"form-control\" name=\"homePhone\" />\r\n                </div>\r\n            </div>\r\n        </fieldset>\r\n        <fieldset>\r\n            <div class=\"form-group\">\r\n                <label class=\"col-lg-3 control-label\">Office phone</label>\r\n                <div class=\"col-lg-5\">\r\n                    <input type=\"text\" class=\"form-control\" name=\"officePhone\" />\r\n                </div>\r\n            </div>\r\n        </fieldset>\r\n    </div>\r\n\r\n    <div class=\"form-actions\">\r\n        <div class=\"row\">\r\n            <div class=\"col-md-12\">\r\n                <button class=\"btn btn-default\" type=\"submit\">\r\n                    <i class=\"fa fa-eye\"></i>\r\n                    Validate\r\n                </button>\r\n            </div>\r\n        </div>\r\n    </div>\r\n</form>");
-$templateCache.put("app/public/app/_common/layout/directives/demo/demo-states.tpl.html","<div class=\"demo\"><span id=\"demo-setting\"><i class=\"fa fa-cog txt-color-blueDark\"></i></span>\r\n\r\n    <form>\r\n        <legend class=\"no-padding margin-bottom-10\">Layout Options</legend>\r\n        <section>\r\n            <label><input type=\"checkbox\" ng-model=\"fixedHeader\"\r\n                          class=\"checkbox style-0\"><span>Fixed Header</span></label>\r\n            <label><input type=\"checkbox\"\r\n                          ng-model=\"fixedNavigation\"\r\n                          class=\"checkbox style-0\"><span>Fixed Navigation</span></label>\r\n            <label><input type=\"checkbox\"\r\n                          ng-model=\"fixedRibbon\"\r\n                          class=\"checkbox style-0\"><span>Fixed Ribbon</span></label>\r\n            <label><input type=\"checkbox\"\r\n                          ng-model=\"fixedPageFooter\"\r\n                          class=\"checkbox style-0\"><span>Fixed Footer</span></label>\r\n            <label><input type=\"checkbox\"\r\n                          ng-model=\"insideContainer\"\r\n                          class=\"checkbox style-0\"><span>Inside <b>.container</b></span></label>\r\n            <label><input type=\"checkbox\"\r\n                          ng-model=\"rtl\"\r\n                          class=\"checkbox style-0\"><span>RTL</span></label>\r\n            <label><input type=\"checkbox\"\r\n                          ng-model=\"menuOnTop\"\r\n                          class=\"checkbox style-0\"><span>Menu on <b>top</b></span></label>\r\n            <label><input type=\"checkbox\"\r\n                          ng-model=\"colorblindFriendly\"\r\n                          class=\"checkbox style-0\"><span>For Colorblind <div\r\n                    class=\"font-xs text-right\">(experimental)\r\n            </div></span>\r\n            </label><span id=\"smart-bgimages\"></span></section>\r\n        <section><h6 class=\"margin-top-10 semi-bold margin-bottom-5\">Clear Localstorage</h6><a\r\n                ng-click=\"factoryReset()\" class=\"btn btn-xs btn-block btn-primary\" id=\"reset-smart-widget\"><i\r\n                class=\"fa fa-refresh\"></i> Factory Reset</a></section>\r\n\r\n        <h6 class=\"margin-top-10 semi-bold margin-bottom-5\">SmartAdmin Skins</h6>\r\n\r\n\r\n        <section id=\"smart-styles\">\r\n            <a ng-repeat=\"skin in skins\" ng-click=\"setSkin(skin)\" class=\"{{skin.class}}\" style=\"{{skin.style}}\"><i ng-if=\"skin.name == $parent.smartSkin\" class=\"fa fa-check fa-fw\"></i> {{skin.label}} <sup ng-if=\"skin.beta\">beta</sup></a>\r\n        </section>\r\n    </form>\r\n</div>");}]);
-"use strict";
+$templateCache.put("app/public/app/_common/forms/directives/bootstrap-validation/bootstrap-toggling-form.tpl.html","<form id=\"togglingForm\" method=\"post\" class=\"form-horizontal\">\r\n\r\n    <fieldset>\r\n        <legend>\r\n            Default Form Elements\r\n        </legend>\r\n        <div class=\"form-group\">\r\n            <label class=\"col-lg-3 control-label\">Full name <sup>*</sup></label>\r\n            <div class=\"col-lg-4\">\r\n                <input type=\"text\" class=\"form-control\" name=\"firstName\" placeholder=\"First name\" />\r\n            </div>\r\n            <div class=\"col-lg-4\">\r\n                <input type=\"text\" class=\"form-control\" name=\"lastName\" placeholder=\"Last name\" />\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n\r\n    <fieldset>\r\n        <div class=\"form-group\">\r\n            <label class=\"col-lg-3 control-label\">Company <sup>*</sup></label>\r\n            <div class=\"col-lg-5\">\r\n                <input type=\"text\" class=\"form-control\" name=\"company\"\r\n                       required data-bv-notempty-message=\"The company name is required\" />\r\n            </div>\r\n            <div class=\"col-lg-2\">\r\n                <button type=\"button\" class=\"btn btn-info btn-sm\" data-toggle=\"#jobInfo\">\r\n                    Add more info\r\n                </button>\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n\r\n    <!-- These fields will not be validated as long as they are not visible -->\r\n    <div id=\"jobInfo\" style=\"display: none;\">\r\n        <fieldset>\r\n            <div class=\"form-group\">\r\n                <label class=\"col-lg-3 control-label\">Job title <sup>*</sup></label>\r\n                <div class=\"col-lg-5\">\r\n                    <input type=\"text\" class=\"form-control\" name=\"job\" />\r\n                </div>\r\n            </div>\r\n        </fieldset>\r\n\r\n        <fieldset>\r\n            <div class=\"form-group\">\r\n                <label class=\"col-lg-3 control-label\">Department <sup>*</sup></label>\r\n                <div class=\"col-lg-5\">\r\n                    <input type=\"text\" class=\"form-control\" name=\"department\" />\r\n                </div>\r\n            </div>\r\n        </fieldset>\r\n    </div>\r\n\r\n    <fieldset>\r\n        <div class=\"form-group\">\r\n            <label class=\"col-lg-3 control-label\">Mobile phone <sup>*</sup></label>\r\n            <div class=\"col-lg-5\">\r\n                <input type=\"text\" class=\"form-control\" name=\"mobilePhone\" />\r\n            </div>\r\n            <div class=\"col-lg-2\">\r\n                <button type=\"button\" class=\"btn btn-info btn-sm\" data-toggle=\"#phoneInfo\">\r\n                    Add more phone numbers\r\n                </button>\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n    <!-- These fields will not be validated as long as they are not visible -->\r\n    <div id=\"phoneInfo\" style=\"display: none;\">\r\n\r\n        <fieldset>\r\n            <div class=\"form-group\">\r\n                <label class=\"col-lg-3 control-label\">Home phone</label>\r\n                <div class=\"col-lg-5\">\r\n                    <input type=\"text\" class=\"form-control\" name=\"homePhone\" />\r\n                </div>\r\n            </div>\r\n        </fieldset>\r\n        <fieldset>\r\n            <div class=\"form-group\">\r\n                <label class=\"col-lg-3 control-label\">Office phone</label>\r\n                <div class=\"col-lg-5\">\r\n                    <input type=\"text\" class=\"form-control\" name=\"officePhone\" />\r\n                </div>\r\n            </div>\r\n        </fieldset>\r\n    </div>\r\n\r\n    <div class=\"form-actions\">\r\n        <div class=\"row\">\r\n            <div class=\"col-md-12\">\r\n                <button class=\"btn btn-default\" type=\"submit\">\r\n                    <i class=\"fa fa-eye\"></i>\r\n                    Validate\r\n                </button>\r\n            </div>\r\n        </div>\r\n    </div>\r\n</form>");}]);
+'use strict';
 
-angular.module('app').directive('recentProjects', function(Project){
-    return {
-        restrict: "EA",
-        replace: true,
-        templateUrl: "app/dashboard/projects/recent-projects.tpl.html",
-        scope: true,
-        link: function(scope, element){
+angular.module('app.appViews').controller('ProjectsDemoCtrl', function ($scope, projects) {
 
-            Project.list.then(function(response){
-                scope.projects = response.data;
-            });
-            scope.clearProjects = function(){
-                scope.projects = [];
-            }
-        }
+    $scope.projects = projects.data;
+
+    $scope.tableOptions =  {
+        "data": projects.data.data,
+//            "bDestroy": true,
+        "iDisplayLength": 15,
+        "columns": [
+            {
+                "class":          'details-control',
+                "orderable":      false,
+                "data":           null,
+                "defaultContent": ''
+            },
+            { "data": "name" },
+            { "data": "est" },
+            { "data": "contacts" },
+            { "data": "status" },
+            { "data": "target-actual" },
+            { "data": "starts" },
+            { "data": "ends" },
+            { "data": "tracker" }
+        ],
+        "order": [[1, 'asc']]
     }
-});
-"use strict";
-
-angular.module('app').controller('TodoCtrl', function ($scope, $timeout, Todo) {
-    $scope.newTodo = undefined;
-
-    $scope.states = ['Critical', 'Important', 'Completed'];
-
-    $scope.todos = Todo.getList().$object;
-
-    // $scope.$watch('todos', function(){ }, true)
-
-    $scope.toggleAdd = function () {
-        if (!$scope.newTodo) {
-            $scope.newTodo = {
-                state: 'Important'
-            };
-        } else {
-            $scope.newTodo = undefined;
-        }
-    };
-
-    $scope.createTodo = function () {
-        $scope.todos.push(
-           Todo.normalize($scope.newTodo)
-        );
-        $scope.newTodo = undefined;
-
-    };
-
-    $scope.deleteTodo = function (todo) {
-        todo.remove().then(function () {
-            $scope.todos.splice($scope.todos.indexOf(todo), 1);
-        });
-
-    };
-
 });
 'use strict';
 
@@ -7564,323 +7904,6 @@ angular.module('app.graphs').controller('FlotCtrl', function ($scope) {
 });
 "use strict";
 
-angular.module('app.inbox').directive('messageLabels', function (InboxConfig) {
-    return {
-        replace: true,
-        restrict: 'AE',
-        link: function (scope, element) {
-
-            if (scope.message.labels && scope.message.labels.length) {
-                InboxConfig.success(function (config) {
-                    var html = _.map(scope.message.labels, function (label) {
-                        return '<span class="label bg-color-'+config.labels[label].color +'">' + config.labels[label].name + '</span>';
-                    }).join('');
-                    element.replaceWith(html);
-                });
-
-            } else {
-                element.replaceWith('');
-            }
-        }
-    }
-});
-"use strict";
-
-angular.module('app.inbox').directive('unreadMessagesCount', function(InboxConfig){
-    return {
-        restrict: 'A',
-        link: function(scope, element){
-            InboxConfig.success(function(config){
-                element.html(_.find(config.folders, {key: 'inbox'}).unread);
-            })
-        }
-    }
-});
-"use strict";
-
-angular.module('app.inbox').factory('InboxConfig', function($http, APP_CONFIG){
-    return $http.get(APP_CONFIG.apiRootUrl + '/inbox.json');
-})
-"use strict";
-
-angular.module('app.inbox').factory('InboxMessage', function($resource, APP_CONFIG){
-   var InboxMessage = $resource(APP_CONFIG.apiRootUrl + '/messages.json/:id', {'id': '@_id'}, {
-        get:{
-            url: APP_CONFIG.apiRootUrl + '/message.json',
-            isArray: false
-        }
-    });
-
-    _.extend(InboxMessage.prototype, {
-        selected: false,
-        hasAttachments: function(){
-            return (_.isArray(this.attachments) && this.attachments.length)
-        },
-        fullAttachmentsTootlip: function(){
-            return 'FILES: ' + _.pluck(this.attachments, 'name').join(', ');
-        },
-        getBodyTeaser: function(){
-            var clearBody  = this.body.replace(/<[^<>]+?>/gm, ' ').replace(/(\s{2}|\n)/gm, ' ');
-
-            var teaserMaxLength = 55 - this.subject.length;
-
-            return clearBody.length > teaserMaxLength ? clearBody.substring(0, teaserMaxLength) + '...' : clearBody;
-        }
-    });
-
-    return InboxMessage;
-
-});
-"use strict";
-
-angular.module('app').controller("LanguagesCtrl",  function LanguagesCtrl($scope, $rootScope, $log, Language, APP_CONFIG){
-
-    $rootScope.lang = $rootScope.lang || {};
-    
-    Language.getLanguages(function(data){
-
-        var languageNumber = 0;
-        data.forEach(function(value, index, fullArray){
-            if(value.key == APP_CONFIG.view_lang){
-                languageNumber = index;
-            }
-        });
-
-        $rootScope.currentLanguage = data[languageNumber];
-
-        $rootScope.languages = data;
-
-        Language.getLang(data[languageNumber].key, function(data){
-
-            $rootScope.lang = data;
-        });
-
-    });
-
-    $scope.selectLanguage = function(language){
-        $rootScope.currentLanguage = language;
-        
-        Language.getLang(language.key,function(data){
-
-            $rootScope.lang = data;
-            
-        });
-    }
-
-    $rootScope.getWord = function(key){
-        if(angular.isDefined($rootScope.lang[key])){
-            return $rootScope.lang[key];
-        } 
-        else {
-            return key;
-        }
-    }
-
-});
-"use strict";
-
-angular.module('app').factory('Language', function($http, APP_CONFIG){
-
-	function getLanguage(key, callback) {
-
-		$http.get(APP_CONFIG.apiRootUrl + '/langs/' + key + '.json').success(function(data){
-
-			callback(data);
-			
-		}).error(function(){
-
-			$log.log('Error');
-			callback([]);
-
-		});
-
-	}
-
-	function getLanguages(callback) {
-
-		$http.get(APP_CONFIG.apiRootUrl + '/languages.json').success(function(data){
-
-			callback(data);
-			
-		}).error(function(){
-
-			$log.log('Error');
-			callback([]);
-
-		});
-
-	}
-
-	return {
-		getLang: function(type, callback) {
-			getLanguage(type, callback);
-		},
-		getLanguages:function(callback){
-			getLanguages(callback);
-		}
-	}
-
-});
-"use strict";
-
-angular.module('app').directive('languageSelector', function(Language){
-    return {
-        restrict: "EA",
-        replace: true,
-        templateUrl: "app/layout/language/language-selector.tpl.html",
-        scope: true
-    }
-});
-"use strict";
-
-angular.module('app').directive('toggleShortcut', function($log,$timeout) {
-
-	var initDomEvents = function($element){
-
-		var shortcut_dropdown = $('#shortcut');
-
-		$element.on('click',function(){
-		
-			if (shortcut_dropdown.is(":visible")) {
-				shortcut_buttons_hide();
-			} else {
-				shortcut_buttons_show();
-			}
-
-		})
-
-		shortcut_dropdown.find('a').click(function(e) {
-			e.preventDefault();
-			window.location = $(this).attr('href');
-			setTimeout(shortcut_buttons_hide, 300);
-		});
-
-		
-
-		// SHORTCUT buttons goes away if mouse is clicked outside of the area
-		$(document).mouseup(function(e) {
-			if (shortcut_dropdown && !shortcut_dropdown.is(e.target) && shortcut_dropdown.has(e.target).length === 0) {
-				shortcut_buttons_hide();
-			}
-		});
-
-		// SHORTCUT ANIMATE HIDE
-		function shortcut_buttons_hide() {
-			shortcut_dropdown.animate({
-				height : "hide"
-			}, 300, "easeOutCirc");
-			$('body').removeClass('shortcut-on');
-
-		}
-
-		// SHORTCUT ANIMATE SHOW
-		function shortcut_buttons_show() {
-			shortcut_dropdown.animate({
-				height : "show"
-			}, 200, "easeOutCirc");
-			$('body').addClass('shortcut-on');
-		}
-	}
-
-	var link = function($scope,$element){
-		$timeout(function(){
-			initDomEvents($element);
-		});
-	}
-
-	return{
-		restrict:'EA',
-		link:link
-	}
-})
-'use strict';
-
-angular.module('app.maps').controller('MapsDemoCtrl',
-    function ($scope, $http, $q, SmartMapStyle, uiGmapGoogleMapApi) {
-
-
-        $scope.styles = SmartMapStyle.styles;
-
-        $scope.setType = function (key) {
-            SmartMapStyle.getMapType(key).then(function (type) {
-                $scope.map.control.getGMap().mapTypes.set(key, type);
-                $scope.map.control.getGMap().setMapTypeId(key);
-            });
-            $scope.currentType = key;
-        };
-
-
-        $scope.map = {
-            center: {latitude: 45, longitude: -73},
-            zoom: 8,
-            control: {}
-        };
-
-
-        uiGmapGoogleMapApi.then(function (maps) {
-
-            })
-            .then(function () {
-                return SmartMapStyle.getMapType('colorful')
-            }).then(function () {
-            $scope.setType('colorful')
-        });
-
-
-
-    });
-"use strict";
-
-
-angular.module('app.maps').factory('SmartMapStyle', function ($q, $http, APP_CONFIG) {
-
-    var styles = {
-        'colorful': { name: 'Colorful', url: APP_CONFIG.apiRootUrl + '/maps/colorful.json'},
-        'greyscale': { name: 'greyscale', url: APP_CONFIG.apiRootUrl + '/maps/greyscale.json'},
-        'metro': { name: 'metro', url: APP_CONFIG.apiRootUrl + '/maps/metro.json'},
-        'mono-color': { name: 'mono-color', url: APP_CONFIG.apiRootUrl + '/maps/mono-color.json'},
-        'monochrome': { name: 'monochrome', url: APP_CONFIG.apiRootUrl + '/maps/monochrome.json'},
-        'nightvision': { name: 'Nightvision', url: APP_CONFIG.apiRootUrl + '/maps/nightvision.json'},
-        'nightvision-highlight': { name: 'nightvision-highlight', url: APP_CONFIG.apiRootUrl + '/maps/nightvision-highlight.json'},
-        'old-paper': { name: 'Old Paper', url: APP_CONFIG.apiRootUrl + '/maps/old-paper.json'}
-    };
-
-
-    function getMapType(key){
-        var keyData = styles[key];
-
-        if(!keyData.cache){
-            keyData.cache = createMapType(keyData)
-        }
-
-        return keyData.cache;
-    }
-
-    function createMapType(keyData){
-        var dfd = $q.defer();
-        $http.get(keyData.url).then(function(resp){
-            var styleData = resp.data;
-            var type = new google.maps.StyledMapType(styleData, {name: keyData.name})
-            dfd.resolve(type);
-        }, function(reason){
-            console.error(reason);
-            dfd.reject(reason);
-        });
-
-        return dfd.promise;
-    }
-
-
-    return {
-        getMapType: getMapType,
-        styles: styles
-    }
-
-
-
-});
-"use strict";
-
 angular.module('app.mainwork').controller('MainWorkCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, RestfulApi, ToolboxApi) {
     
     $scope.barChartData = _.range(2).map(function (barNum) {
@@ -8127,22 +8150,324 @@ angular.module('app.mainwork').controller('MainWorkCtrl', function ($scope, $sta
 });
 "use strict";
 
-angular.module('app.restful').controller('ExcelTestCtrl', function ($scope, $stateParams, $state, ToolboxApi, Session, toaster, $uibModal) {
+angular.module('app.inbox').directive('messageLabels', function (InboxConfig) {
+    return {
+        replace: true,
+        restrict: 'AE',
+        link: function (scope, element) {
 
-    var $vm = this;
+            if (scope.message.labels && scope.message.labels.length) {
+                InboxConfig.success(function (config) {
+                    var html = _.map(scope.message.labels, function (label) {
+                        return '<span class="label bg-color-'+config.labels[label].color +'">' + config.labels[label].name + '</span>';
+                    }).join('');
+                    element.replaceWith(html);
+                });
 
-    ToolboxApi.ExportExcelByVar({
-    	
-    }).then(function (res) {
-        console.log("s", res);
-    }, function (err) {
-        console.log("f", res);
-    });
+            } else {
+                element.replaceWith('');
+            }
+        }
+    }
 });
-
 "use strict";
 
-angular.module('app.selfwork').controller('AssistantHistorySearchCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, RestfulApi, $filter, bool, compy, uiGridConstants, localStorageService, ToolboxApi, $window) {
+angular.module('app.inbox').directive('unreadMessagesCount', function(InboxConfig){
+    return {
+        restrict: 'A',
+        link: function(scope, element){
+            InboxConfig.success(function(config){
+                element.html(_.find(config.folders, {key: 'inbox'}).unread);
+            })
+        }
+    }
+});
+"use strict";
+
+angular.module('app.inbox').factory('InboxConfig', function($http, APP_CONFIG){
+    return $http.get(APP_CONFIG.apiRootUrl + '/inbox.json');
+})
+"use strict";
+
+angular.module('app.inbox').factory('InboxMessage', function($resource, APP_CONFIG){
+   var InboxMessage = $resource(APP_CONFIG.apiRootUrl + '/messages.json/:id', {'id': '@_id'}, {
+        get:{
+            url: APP_CONFIG.apiRootUrl + '/message.json',
+            isArray: false
+        }
+    });
+
+    _.extend(InboxMessage.prototype, {
+        selected: false,
+        hasAttachments: function(){
+            return (_.isArray(this.attachments) && this.attachments.length)
+        },
+        fullAttachmentsTootlip: function(){
+            return 'FILES: ' + _.pluck(this.attachments, 'name').join(', ');
+        },
+        getBodyTeaser: function(){
+            var clearBody  = this.body.replace(/<[^<>]+?>/gm, ' ').replace(/(\s{2}|\n)/gm, ' ');
+
+            var teaserMaxLength = 55 - this.subject.length;
+
+            return clearBody.length > teaserMaxLength ? clearBody.substring(0, teaserMaxLength) + '...' : clearBody;
+        }
+    });
+
+    return InboxMessage;
+
+});
+'use strict';
+
+angular.module('app.maps').controller('MapsDemoCtrl',
+    function ($scope, $http, $q, SmartMapStyle, uiGmapGoogleMapApi) {
+
+
+        $scope.styles = SmartMapStyle.styles;
+
+        $scope.setType = function (key) {
+            SmartMapStyle.getMapType(key).then(function (type) {
+                $scope.map.control.getGMap().mapTypes.set(key, type);
+                $scope.map.control.getGMap().setMapTypeId(key);
+            });
+            $scope.currentType = key;
+        };
+
+
+        $scope.map = {
+            center: {latitude: 45, longitude: -73},
+            zoom: 8,
+            control: {}
+        };
+
+
+        uiGmapGoogleMapApi.then(function (maps) {
+
+            })
+            .then(function () {
+                return SmartMapStyle.getMapType('colorful')
+            }).then(function () {
+            $scope.setType('colorful')
+        });
+
+
+
+    });
+"use strict";
+
+
+angular.module('app.maps').factory('SmartMapStyle', function ($q, $http, APP_CONFIG) {
+
+    var styles = {
+        'colorful': { name: 'Colorful', url: APP_CONFIG.apiRootUrl + '/maps/colorful.json'},
+        'greyscale': { name: 'greyscale', url: APP_CONFIG.apiRootUrl + '/maps/greyscale.json'},
+        'metro': { name: 'metro', url: APP_CONFIG.apiRootUrl + '/maps/metro.json'},
+        'mono-color': { name: 'mono-color', url: APP_CONFIG.apiRootUrl + '/maps/mono-color.json'},
+        'monochrome': { name: 'monochrome', url: APP_CONFIG.apiRootUrl + '/maps/monochrome.json'},
+        'nightvision': { name: 'Nightvision', url: APP_CONFIG.apiRootUrl + '/maps/nightvision.json'},
+        'nightvision-highlight': { name: 'nightvision-highlight', url: APP_CONFIG.apiRootUrl + '/maps/nightvision-highlight.json'},
+        'old-paper': { name: 'Old Paper', url: APP_CONFIG.apiRootUrl + '/maps/old-paper.json'}
+    };
+
+
+    function getMapType(key){
+        var keyData = styles[key];
+
+        if(!keyData.cache){
+            keyData.cache = createMapType(keyData)
+        }
+
+        return keyData.cache;
+    }
+
+    function createMapType(keyData){
+        var dfd = $q.defer();
+        $http.get(keyData.url).then(function(resp){
+            var styleData = resp.data;
+            var type = new google.maps.StyledMapType(styleData, {name: keyData.name})
+            dfd.resolve(type);
+        }, function(reason){
+            console.error(reason);
+            dfd.reject(reason);
+        });
+
+        return dfd.promise;
+    }
+
+
+    return {
+        getMapType: getMapType,
+        styles: styles
+    }
+
+
+
+});
+"use strict";
+
+angular.module('app').controller("LanguagesCtrl",  function LanguagesCtrl($scope, $rootScope, $log, Language, APP_CONFIG){
+
+    $rootScope.lang = $rootScope.lang || {};
+    
+    Language.getLanguages(function(data){
+
+        var languageNumber = 0;
+        data.forEach(function(value, index, fullArray){
+            if(value.key == APP_CONFIG.view_lang){
+                languageNumber = index;
+            }
+        });
+
+        $rootScope.currentLanguage = data[languageNumber];
+
+        $rootScope.languages = data;
+
+        Language.getLang(data[languageNumber].key, function(data){
+
+            $rootScope.lang = data;
+        });
+
+    });
+
+    $scope.selectLanguage = function(language){
+        $rootScope.currentLanguage = language;
+        
+        Language.getLang(language.key,function(data){
+
+            $rootScope.lang = data;
+            
+        });
+    }
+
+    $rootScope.getWord = function(key){
+        if(angular.isDefined($rootScope.lang[key])){
+            return $rootScope.lang[key];
+        } 
+        else {
+            return key;
+        }
+    }
+
+});
+"use strict";
+
+angular.module('app').factory('Language', function($http, APP_CONFIG){
+
+	function getLanguage(key, callback) {
+
+		$http.get(APP_CONFIG.apiRootUrl + '/langs/' + key + '.json').success(function(data){
+
+			callback(data);
+			
+		}).error(function(){
+
+			$log.log('Error');
+			callback([]);
+
+		});
+
+	}
+
+	function getLanguages(callback) {
+
+		$http.get(APP_CONFIG.apiRootUrl + '/languages.json').success(function(data){
+
+			callback(data);
+			
+		}).error(function(){
+
+			$log.log('Error');
+			callback([]);
+
+		});
+
+	}
+
+	return {
+		getLang: function(type, callback) {
+			getLanguage(type, callback);
+		},
+		getLanguages:function(callback){
+			getLanguages(callback);
+		}
+	}
+
+});
+"use strict";
+
+angular.module('app').directive('languageSelector', function(Language){
+    return {
+        restrict: "EA",
+        replace: true,
+        templateUrl: "app/layout/language/language-selector.tpl.html",
+        scope: true
+    }
+});
+"use strict";
+
+angular.module('app').directive('toggleShortcut', function($log,$timeout) {
+
+	var initDomEvents = function($element){
+
+		var shortcut_dropdown = $('#shortcut');
+
+		$element.on('click',function(){
+		
+			if (shortcut_dropdown.is(":visible")) {
+				shortcut_buttons_hide();
+			} else {
+				shortcut_buttons_show();
+			}
+
+		})
+
+		shortcut_dropdown.find('a').click(function(e) {
+			e.preventDefault();
+			window.location = $(this).attr('href');
+			setTimeout(shortcut_buttons_hide, 300);
+		});
+
+		
+
+		// SHORTCUT buttons goes away if mouse is clicked outside of the area
+		$(document).mouseup(function(e) {
+			if (shortcut_dropdown && !shortcut_dropdown.is(e.target) && shortcut_dropdown.has(e.target).length === 0) {
+				shortcut_buttons_hide();
+			}
+		});
+
+		// SHORTCUT ANIMATE HIDE
+		function shortcut_buttons_hide() {
+			shortcut_dropdown.animate({
+				height : "hide"
+			}, 300, "easeOutCirc");
+			$('body').removeClass('shortcut-on');
+
+		}
+
+		// SHORTCUT ANIMATE SHOW
+		function shortcut_buttons_show() {
+			shortcut_dropdown.animate({
+				height : "show"
+			}, 200, "easeOutCirc");
+			$('body').addClass('shortcut-on');
+		}
+	}
+
+	var link = function($scope,$element){
+		$timeout(function(){
+			initDomEvents($element);
+		});
+	}
+
+	return{
+		restrict:'EA',
+		link:link
+	}
+})
+"use strict";
+
+angular.module('app.selfwork').controller('AssistantHistorySearchCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, RestfulApi, $filter, bool, compy, uiGridConstants, localStorageService, ToolboxApi, OrderStatus) {
     
     var $vm = this;
 
@@ -8229,7 +8554,8 @@ angular.module('app.selfwork').controller('AssistantHistorySearchCtrl', function
                             OL_CO_CODE  : selectedItem.OL_CO_CODE,
                             OL_FLIGHTNO : selectedItem.OL_FLIGHTNO,
                             OL_MASTER   : selectedItem.OL_MASTER,
-                            OL_COUNTRY  : selectedItem.OL_COUNTRY
+                            OL_COUNTRY  : selectedItem.OL_COUNTRY,
+                            OL_REASON   : selectedItem.OL_REASON
                         },
                         condition: {
                             OL_SEQ : selectedItem.OL_SEQ
@@ -8248,33 +8574,7 @@ angular.module('app.selfwork').controller('AssistantHistorySearchCtrl', function
             },
             // 貨物查看
             viewOrder : function(row){
-                console.log(row);
-
-                if(!angular.isUndefined(row.entity.OL_FLIGHTNO) && !angular.isUndefined(row.entity.OL_MASTER)){
-
-                    var _flightNo = row.entity.OL_FLIGHTNO.toUpperCase().split(" "),
-                        _master = row.entity.OL_MASTER.split("-");
-
-                    switch(_flightNo[0]){
-                        case "BR":
-                            $window.open('http://www.brcargo.com/ec_web/Default.aspx?TNT_FLAG=Y&AWB_CODE='+_master[0]+'&MAWB_NUMBER='+_master[1]);
-                            break;
-                        case "CI":
-                            $window.open('https://cargo.china-airlines.com/CCNetv2/content/manage/ShipmentTracking.aspx?AwbPfx='+_master[0]+'&AwbNum='+_master[1]+'&checkcode=*7*upHGj');
-                            break;
-                        case "CX":
-                            $window.open('http://www.cathaypacificcargo.com/ManageYourShipment/TrackYourShipment/tabid/108/SingleAWBNo/'+row.entity.OL_MASTER+'/language/en-US/Default.aspx');
-                            break;
-                        case "HX":
-                            $window.open('http://www.hkairlinescargo.com/CargoPortal/sreachYun/zh_TW/'+_master[0]+'/'+_master[1]+'/1/');
-                            break;
-                        default:
-                            toaster.pop('info', '訊息', '此航班代號不在設定內', 3000);
-                            break;
-                    }
-                }else{
-                    toaster.pop('info', '訊息', '航班或主號不存在', 3000);
-                }
+                OrderStatus.Get(row);
             }
         },
         gridMethodForJob002 : {
@@ -8300,8 +8600,13 @@ angular.module('app.selfwork').controller('AssistantHistorySearchCtrl', function
                 // { name: 'FA_SCHEDL_ARRIVALTIME'  ,  displayName: '預計抵達時間', cellFilter: 'datetimeFilter' },
                 // { name: 'FA_ACTL_ARRIVALTIME'    ,  displayName: '真實抵達時間', cellFilter: 'datetimeFilter' },
                 // { name: 'FA_ARRIVAL_REMK'        ,  displayName: '狀態', width: 80, cellTemplate: $templateCache.get('accessibilityToArrivalRemark') },
-                { name: 'OL_MASTER'              ,  displayName: '主號' },
+                { name: 'OL_MASTER'              ,  displayName: '主號', width: 110, cellTemplate: $templateCache.get('accessibilityToMasterForViewOrder') },
                 { name: 'OL_COUNTRY'             ,  displayName: '起運國別' },
+                { name: 'OL_REASON'              ,  displayName: '描述', cellTooltip: function (row, col) 
+                    {
+                        return row.entity.OL_REASON
+                    } 
+                },
                 { name: 'FLIGHT_ITEM_LIST'       ,  displayName: '銷艙單', enableFiltering: false, width: '8%', cellTemplate: $templateCache.get('accessibilityToOperaForJob002') },
                 { name: 'Options'                ,  displayName: '操作', width: '12%', enableCellEdit: false, enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToMSForAssistantJobs') }
                 // 保留寫法
@@ -8383,9 +8688,11 @@ angular.module('app.selfwork').controller('AssistantHistorySearchCtrl', function
         }else{
             // 檢查所有值是否都是空的
             for(var i in pObject){
-                if(pObject[i] != ""){
-                    _isClear = false;
-                    break;
+                if(pObject[i] != null){
+                    if(pObject[i].toString() != ""){
+                        _isClear = false;
+                        break;
+                    }
                 }
             }
 
@@ -8406,13 +8713,15 @@ angular.module('app.selfwork').controller('AssistantHistorySearchCtrl', function
         var _conditions = {};
 
         for(var i in pObject){
-            if(pObject[i] != ""){
-                if(i == "CRDT_FROM"){
-                    _conditions[i] = pObject[i] + ' 00:00:00';
-                }else if(i == "CRDT_TOXX"){
-                    _conditions[i] = pObject[i] + ' 23:59:59';
-                }else{
-                    _conditions[i] = pObject[i];
+            if(pObject[i] != null){
+                if(pObject[i].toString() != ""){
+                    if(i == "CRDT_FROM"){
+                        _conditions[i] = pObject[i] + ' 00:00:00';
+                    }else if(i == "CRDT_TOXX"){
+                        _conditions[i] = pObject[i] + ' 23:59:59';
+                    }else{
+                        _conditions[i] = pObject[i];
+                    }
                 }
             }
         }
@@ -8431,7 +8740,7 @@ angular.module('app.selfwork').controller('AssistantHistorySearchCtrl', function
 });
 "use strict";
 
-angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, RestfulApi, $filter, uiGridConstants, compy, $window, ToolboxApi) {
+angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, RestfulApi, $filter, uiGridConstants, compy, bool, opType, OrderStatus, ToolboxApi) {
     
     var $vm = this;
 
@@ -8442,7 +8751,7 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
             $vm.LoadData();
         },
         profile : Session.Get(),
-        defaultTab : 'hr1',
+        defaultTab : 'hr2',
         TabSwitch : function(pTabID){
             return pTabID == $vm.defaultTab ? 'active' : '';
         },
@@ -8459,7 +8768,7 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
                     // LoadPullGoods();
                     break;
                 case 'hr4':
-                    // LoadPullGoods();
+                    LoadMasterToBeFilled();
                     break;
                 case 'hr5':
                     LoadPullGoods();
@@ -8469,15 +8778,20 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
         flightArrivalOptions : {
             data:  '$vm.flightArrivalData',
             columnDefs: [
+                { name: 'Index'                  ,  displayName: '序列', width: 50, enableFiltering: false },
                 { name: 'FA_FLIGHTDATE'          ,  displayName: '起飛日期', cellFilter: 'dateFilter', width: 80 },
                 { name: 'FA_AIR_LINEID'          ,  displayName: '航空代號', width: 80 },
                 { name: 'FA_FLIGHTNUM'           ,  displayName: '貨機號碼', width: 80 },
                 { name: 'FA_DEPART_AIRTID'       ,  displayName: '起飛來源', width: 80 },
                 { name: 'FA_ARRIVAL_AIRPTID'     ,  displayName: '抵達目的', width: 80 },
+                { name: 'FA_SCHEDL_DEPARTTIME'   ,  displayName: '預計起飛時間', cellFilter: 'datetimeFilter' },
+                { name: 'FA_ACTL_DEPARTTIME'     ,  displayName: '真實起飛時間', cellFilter: 'datetimeFilter' },
+                { name: 'FA_DEPART_REMK'         ,  displayName: '起飛狀態', width: 80, cellTemplate: $templateCache.get('accessibilityToDepartRemark') },
+                { name: 'FA_DEPART_GATE'         ,  displayName: '起飛登機口', width: 80 },
                 { name: 'FA_SCHEDL_ARRIVALTIME'  ,  displayName: '預計抵達時間', cellFilter: 'datetimeFilter' },
                 { name: 'FA_ACTL_ARRIVALTIME'    ,  displayName: '真實抵達時間', cellFilter: 'datetimeFilter' },
-                { name: 'FA_ARRIVAL_REMK'        ,  displayName: '狀態', width: 80, cellTemplate: $templateCache.get('accessibilityToArrivalRemark') },
-                { name: 'FA_ARRIVAL_GATE'        ,  displayName: '登機口', width: 80 },
+                { name: 'FA_ARRIVAL_REMK'        ,  displayName: '抵達狀態', width: 80, cellTemplate: $templateCache.get('accessibilityToArrivalRemark') },
+                { name: 'FA_ARRIVAL_GATE'        ,  displayName: '抵達登機口', width: 80 },
                 { name: 'FA_UP_DATETIME'         ,  displayName: '資料更新時間', cellFilter: 'datetimeFilter' }
             ],
             enableFiltering: true,
@@ -8561,13 +8875,15 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
                             OL_CO_CODE  : selectedItem.OL_CO_CODE,
                             OL_FLIGHTNO : selectedItem.OL_FLIGHTNO,
                             OL_MASTER   : selectedItem.OL_MASTER,
-                            OL_COUNTRY  : selectedItem.OL_COUNTRY
+                            OL_COUNTRY  : selectedItem.OL_COUNTRY,
+                            OL_REASON   : selectedItem.OL_REASON
                         },
                         condition: {
                             OL_SEQ : selectedItem.OL_SEQ
                         }
                     }).then(function (res) {
                         LoadFlightItem();
+                        LoadMasterToBeFilled();
                     });
 
                 }, function() {
@@ -8575,52 +8891,32 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
                 });
             },
             // 寄信
-            sendMail : function(row){
-                console.log(row);
+            // sendMail : function(row){
+            //     console.log(row);
 
-                // ToolboxApi.SendMail({
-                //     // ID : $vm.profile.U_ID,
-                //     // PW : $vm.profile.U_PW,
-                //     // NATURE : row.entity.IL_NATURE
-                // }).then(function (res) {
-                //     console.log(res["returnData"]);
+            //     ToolboxApi.SendMail({
+            //         // ID : $vm.profile.U_ID,
+            //         // PW : $vm.profile.U_PW,
+            //         // NATURE : row.entity.IL_NATURE
+            //     }).then(function (res) {
+            //         console.log(res["returnData"]);
 
-                // });
-            },
+            //     });
+            // },
             // 貨物查看
             viewOrder : function(row){
-                console.log(row);
-
-                if(!angular.isUndefined(row.entity.OL_FLIGHTNO) && !angular.isUndefined(row.entity.OL_MASTER)){
-
-                    var _flightNo = row.entity.OL_FLIGHTNO.toUpperCase().split(" "),
-                        _master = row.entity.OL_MASTER.split("-");
-
-                    switch(_flightNo[0]){
-                        case "BR":
-                            $window.open('http://www.brcargo.com/ec_web/Default.aspx?TNT_FLAG=Y&AWB_CODE='+_master[0]+'&MAWB_NUMBER='+_master[1]);
-                            break;
-                        case "CI":
-                            $window.open('https://cargo.china-airlines.com/CCNetv2/content/manage/ShipmentTracking.aspx?AwbPfx='+_master[0]+'&AwbNum='+_master[1]+'&checkcode=*7*upHGj');
-                            break;
-                        case "CX":
-                            $window.open('http://www.cathaypacificcargo.com/ManageYourShipment/TrackYourShipment/tabid/108/SingleAWBNo/'+row.entity.OL_MASTER+'/language/en-US/Default.aspx');
-                            break;
-                        case "HX":
-                            $window.open('http://www.hkairlinescargo.com/CargoPortal/sreachYun/zh_TW/'+_master[0]+'/'+_master[1]+'/1/');
-                            break;
-                        default:
-                            toaster.pop('info', '訊息', '此航班代號不在設定內', 3000);
-                            break;
-                    }
-                }else{
-                    toaster.pop('info', '訊息', '航班或主號不存在', 3000);
-                }
+                OrderStatus.Get(row)
             }
         },
         gridMethodForJob002 : {
             // 檢視
-            viewData : function(row){
+            // viewData : function(row){
+            //     $state.transitionTo("app.selfwork.assistantjobs.job002", {
+            //         data: row.entity
+            //     });
+            // },
+            // 修改
+            fixData : function(row){
                 $state.transitionTo("app.selfwork.assistantjobs.job002", {
                     data: row.entity
                 });
@@ -8670,91 +8966,9 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
                 }, function() {
                     // $log.info('Modal dismissed at: ' + new Date());
                 });
-            }
-        },
-        flightItemOptions : {
-            data:  '$vm.flightItemData',
-            columnDefs: [
-                { name: 'OL_IMPORTDT'            ,  displayName: '進口日期', width: 80, cellFilter: 'dateFilter' },
-                { name: 'OL_CO_CODE'             ,  displayName: '行家', width: 80, cellFilter: 'compyFilter', filter: 
-                    {
-                        term: null,
-                        type: uiGridConstants.filter.SELECT,
-                        selectOptions: compy
-                    }
-                },
-                { name: 'OL_FLIGHTNO'            ,  displayName: '航班', width: 80 },
-                { name: 'FA_SCHEDL_ARRIVALTIME'  ,  displayName: '預計抵達時間', cellFilter: 'datetimeFilter' },
-                { name: 'FA_ACTL_ARRIVALTIME'    ,  displayName: '真實抵達時間', cellFilter: 'datetimeFilter' },
-                { name: 'FA_ARRIVAL_REMK'        ,  displayName: '狀態', width: 80, cellTemplate: $templateCache.get('accessibilityToArrivalRemark') },
-                { name: 'OL_MASTER'              ,  displayName: '主號', width: 120 },
-                { name: 'OL_COUNTRY'             ,  displayName: '起運國別', width: 80 },
-                // { name: 'ITEM_LIST'           ,  displayName: '報機單', enableFiltering: false, width: '8%', cellTemplate: $templateCache.get('accessibilityToOperaForJob001') },
-                { name: 'FLIGHT_ITEM_LIST'       ,  displayName: '銷艙單', enableFiltering: false, width: '8%', cellTemplate: $templateCache.get('accessibilityToOperaForJob002') },
-                // { name: 'DELIVERY_ITEM_LIST'  ,  displayName: '派送單', enableFiltering: false, width: '8%', cellTemplate: $templateCache.get('accessibilityToOperaForJob003') },
-                { name: 'Options'                ,  displayName: '操作', width: '12%', enableCellEdit: false, enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToMSForAssistantJobs') }
-            ],
-            enableFiltering: true,
-            enableSorting: true,
-            enableColumnMenus: false,
-            // enableVerticalScrollbar: false,
-            paginationPageSizes: [10, 25, 50, 100],
-            paginationPageSize: 100,
-            onRegisterApi: function(gridApi){
-                $vm.flightItemGridApi = gridApi;
-            }
-        },
-        gridMethodForPullGoods : {
-            //編輯
-            modifyData : function(row){
-                console.log(row);
-
-                var modalInstance = $uibModal.open({
-                    animation: true,
-                    ariaLabelledBy: 'modal-title',
-                    ariaDescribedBy: 'modal-body',
-                    templateUrl: 'modifyPullGoodsModalContent.html',
-                    controller: 'ModifyPullGoodsModalInstanceCtrl',
-                    controllerAs: '$ctrl',
-                    // size: 'lg',
-                    resolve: {
-                        items: function () {
-                            return row.entity;
-                        }
-                    }
-                });
-
-                modalInstance.result.then(function(selectedItem) {
-                    console.log(selectedItem);
-
-                    var _d = new Date();
-
-                    RestfulApi.UpdateMSSQLData({
-                        updatename: 'Update',
-                        table: 19,
-                        params: {
-                            PG_MOVED : true,
-                            PG_MASTER : selectedItem.PG_MASTER,
-                            PG_FLIGHTNO : selectedItem.PG_FLIGHTNO,
-                            PG_UP_USER : $vm.profile.U_ID,
-                            PG_UP_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss')
-                        },
-                        condition: {
-                            PG_SEQ : selectedItem.PG_SEQ,
-                            PG_BAGNO : selectedItem.PG_BAGNO
-                        }
-                    }).then(function (res) {
-                        toaster.pop('success', '訊息', '更新成功', 3000);
-                        LoadPullGoods();
-                    });
-
-                }, function() {
-                    // $log.info('Modal dismissed at: ' + new Date());
-                });
             },
-            //取消
-            cancelData : function(row){
-                console.log(row);
+            // 刪除
+            deleteData : function(row){
 
                 var modalInstance = $uibModal.open({
                     animation: true,
@@ -8772,8 +8986,8 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
                         },
                         show: function(){
                             return {
-                                title : "是否取消"
-                            };
+                                title : "是否刪除"
+                            }
                         }
                     }
                 });
@@ -8784,14 +8998,13 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
 
                     RestfulApi.DeleteMSSQLData({
                         deletename: 'Delete',
-                        table: 19,
+                        table: 10,
                         params: {
-                            PG_SEQ : selectedItem.PG_SEQ,
-                            PG_BAGNO : selectedItem.PG_BAGNO
+                            FLL_SEQ : selectedItem.OL_SEQ
                         }
                     }).then(function (res) {
-                        toaster.pop('success', '訊息', '取消成功', 3000);
-                        LoadPullGoods();
+                        toaster.pop('info', '訊息', '銷倉單刪除成功', 3000);
+                        LoadFlightItem();
                     });
 
                 }, function() {
@@ -8799,22 +9012,696 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
                 });
             }
         },
+        flightItemOptions : {
+            data:  '$vm.flightItemData',
+            columnDefs: [
+                { name: 'OL_IMPORTDT'            ,  displayName: '進口日期', width: 80, cellFilter: 'dateFilter' },
+                { name: 'OL_CO_CODE'             ,  displayName: '發銷艙單行家', width: 110, cellFilter: 'compyFilter', filter: 
+                    {
+                        term: null,
+                        type: uiGridConstants.filter.SELECT,
+                        selectOptions: compy
+                    }
+                },
+                { name: 'OL_FLIGHTNO'            ,  displayName: '航班', width: 80 },
+                { name: 'FA_ACTL_DEPARTTIME'     ,  displayName: '真實起飛時間', cellFilter: 'datetimeFilter' },
+                { name: 'FA_SCHEDL_ARRIVALTIME'  ,  displayName: '預計抵達時間', cellFilter: 'datetimeFilter' },
+                { name: 'FA_ACTL_ARRIVALTIME'    ,  displayName: '真實抵達時間', cellFilter: 'datetimeFilter' },
+                { name: 'FA_ARRIVAL_REMK'        ,  displayName: '狀態', width: 80, cellTemplate: $templateCache.get('accessibilityToArrivalRemark') },
+                { name: 'OL_MASTER'              ,  displayName: '主號', width: 110, cellTemplate: $templateCache.get('accessibilityToMasterForViewOrder') },
+                { name: 'OL_FLL_COUNT'           ,  displayName: '銷艙單(袋數)', width: 80 },
+                { name: 'MAIL_COUNT'             ,  displayName: '寄信次數', width: 60 },
+                { name: 'OL_COUNTRY'             ,  displayName: '起運國別', width: 60 },
+                { name: 'OL_REASON'              ,  displayName: '描述', width: 100, cellTooltip: function (row, col) 
+                    {
+                        return row.entity.OL_REASON
+                    } 
+                },
+                { name: 'W3_STATUS'              ,  displayName: '狀態', width: 60, cellTemplate: $templateCache.get('accessibilityToForW3'), filter: 
+                    {
+                        term: null,
+                        type: uiGridConstants.filter.SELECT,
+                        selectOptions: [
+                            // {label:'未派單', value: '0'},
+                            {label:'已派單', value: '1'},
+                            {label:'已編輯', value: '2'},
+                            {label:'已完成', value: '3'},
+                            {label:'非作業員'  , value: '4'}
+                        ]
+                    }
+                },
+                // { name: 'ITEM_LIST'           ,  displayName: '報機單', enableFiltering: false, width: '8%', cellTemplate: $templateCache.get('accessibilityToOperaForJob001') },
+                { name: 'FLIGHT_ITEM_LIST'       ,  displayName: '銷艙單', enableFiltering: false, width: '8%', cellTemplate: $templateCache.get('accessibilityToOperaForJob002') },
+                // { name: 'DELIVERY_ITEM_LIST'  ,  displayName: '派送單', enableFiltering: false, width: '8%', cellTemplate: $templateCache.get('accessibilityToOperaForJob003') },
+                { name: 'Options'                ,  displayName: '操作', width: '5%', enableCellEdit: false, enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToMSForAssistantJobs') }
+            ],
+            enableFiltering: true,
+            enableSorting: true,
+            enableColumnMenus: false,
+            // enableVerticalScrollbar: false,
+            paginationPageSizes: [10, 25, 50, 100],
+            paginationPageSize: 100,
+            onRegisterApi: function(gridApi){
+                $vm.flightItemGridApi = gridApi;
+            }
+        },
+        masterToBeFilledOptions : {
+            data:  '$vm.masterToBeFilledData',
+            columnDefs: [
+                { name: 'OL_IMPORTDT'            ,  displayName: '進口日期', cellFilter: 'dateFilter' },
+                { name: 'OL_CO_CODE'             ,  displayName: '行家', cellFilter: 'compyFilter', filter: 
+                    {
+                        term: null,
+                        type: uiGridConstants.filter.SELECT,
+                        selectOptions: compy
+                    }
+                },
+                { name: 'OL_FLIGHTNO'            ,  displayName: '航班' },
+                { name: 'OL_MASTER'              ,  displayName: '主號' },
+                { name: 'OL_COUNT'               ,  displayName: '報機單(袋數)', enableCellEdit: false },
+                { name: 'OL_COUNTRY'             ,  displayName: '起運國別' },
+                { name: 'OL_REASON'              ,  displayName: '描述', width: 100, cellTooltip: function (row, col) 
+                    {
+                        return row.entity.OL_REASON
+                    } 
+                },
+                { name: 'ITEM_LIST'              ,  displayName: '報機單', enableFiltering: false, enableSorting: false, width: '8%', cellTemplate: $templateCache.get('accessibilityToOperaForJob001') },
+                { name: 'Options'                ,  displayName: '操作', width: '5%', enableCellEdit: false, enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToM') }
+            ],
+            enableFiltering: true,
+            enableSorting: true,
+            enableColumnMenus: false,
+            // enableVerticalScrollbar: false,
+            paginationPageSizes: [10, 25, 50, 100],
+            paginationPageSize: 100,
+            onRegisterApi: function(gridApi){
+                $vm.masterToBeFilledGridApi = gridApi;
+            }
+        },
+        gridMethodForJob001 : {
+            // 檢視(報機單)
+            viewData : function(row){
+                console.log(row);
+
+                // 表示為拉貨
+                if(!angular.isUndefined(row.entity.PG_SEQ)){
+                    row.entity["OL_SEQ"] = row.entity.PG_SEQ;
+                }
+
+                $state.transitionTo("app.selfwork.assistantjobs.job001", {
+                    data: row.entity
+                });
+            }
+        },
+        gridMethodForPullGoods : {
+            // 原因
+            viewData : function(row){
+                var modalInstance = $uibModal.open({
+                    animation: true,
+                    ariaLabelledBy: 'modal-title',
+                    ariaDescribedBy: 'modal-body',
+                    templateUrl: 'viewReasonModalContent.html',
+                    controller: 'ViewReasonModalInstanceCtrl',
+                    controllerAs: '$ctrl',
+                    // size: 'lg',
+                    resolve: {
+                        items: function () {
+                            return row.entity;
+                        }
+                    }
+                });
+
+                modalInstance.result.then(function(selectedItem) {
+                    console.log(selectedItem);
+
+                    RestfulApi.UpdateMSSQLData({
+                        updatename: 'Update',
+                        table: 19,
+                        params: {
+                            PG_REASON      : selectedItem.PG_REASON,
+                            PG_UP_USER     : $vm.profile.U_ID,
+                            PG_UP_DATETIME : $filter('date')(new Date(), 'yyyy-MM-dd HH:mm:ss')
+                        },
+                        condition: {
+                            PG_SEQ         : selectedItem.PG_SEQ,
+                            PG_BAGNO       : selectedItem.PG_BAGNO
+                        }
+                    }).then(function (res) {
+                        toaster.pop('success', '訊息', '更新成功', 3000);
+                        LoadPullGoods();
+                    }, function (err) {
+                        toaster.pop('danger', '錯誤', '更新失敗', 3000);
+                    });
+                }, function() {
+                    // $log.info('Modal dismissed at: ' + new Date());
+                });
+            },
+            // 明細
+            detailData : function(row){
+                var modalInstance = $uibModal.open({
+                    animation: true,
+                    ariaLabelledBy: 'modal-title',
+                    ariaDescribedBy: 'modal-body',
+                    templateUrl: 'viewDetailModalContent.html',
+                    controller: 'ViewDetailModalInstanceCtrl',
+                    controllerAs: '$ctrl',
+                    size: 'lg',
+                    resolve: {
+                        items: function () {
+                            return row.entity;
+                        }
+                    }
+                });
+
+                modalInstance.result.then(function(selectedItem) {
+
+                }, function() {
+                    // $log.info('Modal dismissed at: ' + new Date());
+                });
+            },
+            // 編輯
+            modifyData : function(){
+                var _data = $vm.pullGoodsGridApi.selection.getSelectedRows();
+                if(_data.length == 0) {
+                    toaster.pop('info', '訊息', '尚未勾選資料。', 3000);
+                    return;
+                }
+
+                var _emptyMoved = false;
+                for(var i in _data){
+                    // 檢查移機是否為否
+                    if(_data[i].PG_MOVED){
+                        _emptyMoved = true;
+                        break;
+                    }
+                }
+
+                if(_emptyMoved){
+                    toaster.pop('warning', '警告', '有資料已被移機', 3000);
+                    return;
+                }
+
+                var modalInstance = $uibModal.open({
+                    animation: true,
+                    ariaLabelledBy: 'modal-title',
+                    ariaDescribedBy: 'modal-body',
+                    templateUrl: 'modifyPullGoodsModalContent.html',
+                    controller: 'ModifyPullGoodsModalInstanceCtrl',
+                    controllerAs: '$ctrl'
+                    // size: 'lg',
+                });
+
+                modalInstance.result.then(function(selectedItem) {
+                    console.log(selectedItem);
+
+                    var _d = new Date(),
+                        _tasks = [];
+
+                    for(var i in _data){
+                        _tasks.push({
+                            crudType: 'Update',
+                            table: 19,
+                            params: {
+                                // PG_MOVED : true,
+                                PG_MASTER : selectedItem.PG_MASTER,
+                                PG_FLIGHTNO : selectedItem.PG_FLIGHTNO,
+                                PG_UP_USER : $vm.profile.U_ID,
+                                PG_UP_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss')
+                            },
+                            condition: {
+                                PG_SEQ : _data[i].PG_SEQ,
+                                PG_BAGNO : _data[i].PG_BAGNO
+                            }
+                        });
+                    }
+
+                    RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res){
+                        toaster.pop('success', '訊息', '更新成功', 3000);
+                        LoadPullGoods();
+                    }, function (err) {
+                        toaster.pop('danger', '錯誤', '更新失敗', 3000);
+                    });  
+
+                }, function() {
+                    // $log.info('Modal dismissed at: ' + new Date());
+                });
+            },
+            /**
+             * [cancelPullGoodsData description] 取消拉貨
+             * 刪除PullGoods資料
+             */
+            cancelPullGoodsData : function(){
+                var _data = $vm.pullGoodsGridApi.selection.getSelectedRows();
+                if(_data.length == 0) {
+                    toaster.pop('info', '訊息', '尚未勾選資料。', 3000);
+                    return;
+                }
+
+                var _emptyMoved = false;
+                for(var i in _data){
+                    // 檢查移機是否為否
+                    if(_data[i].PG_MOVED){
+                        _emptyMoved = true;
+                        break;
+                    }
+                }
+
+                if(_emptyMoved){
+                    toaster.pop('warning', '警告', '有資料已被移機', 3000);
+                    return;
+                }
+
+                var modalInstance = $uibModal.open({
+                    animation: true,
+                    ariaLabelledBy: 'modal-title',
+                    ariaDescribedBy: 'modal-body',
+                    template: $templateCache.get('isChecked'),
+                    controller: 'IsCheckedModalInstanceCtrl',
+                    controllerAs: '$ctrl',
+                    size: 'sm',
+                    windowClass: 'center-modal',
+                    // appendTo: parentElem,
+                    resolve: {
+                        items: function() {
+                            return {};
+                        },
+                        show: function(){
+                            return {
+                                title : "是否取消拉貨"
+                            };
+                        }
+                    }
+                });
+
+                modalInstance.result.then(function(selectedItem) {
+                    console.log(selectedItem);
+
+                    var _d = new Date(),
+                        _tasks = [];
+
+                    for(var i in _data){
+                        _tasks.push({
+                            crudType: 'Delete',
+                            table: 19,
+                            params: {
+                                PG_SEQ : _data[i].PG_SEQ,
+                                PG_BAGNO : _data[i].PG_BAGNO
+                            }
+                        });
+                    }
+
+                    RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res){
+                        toaster.pop('success', '訊息', '取消成功', 3000);
+                        LoadPullGoods();
+                    }, function (err) {
+                        toaster.pop('danger', '錯誤', '取消失敗', 3000);
+                    });  
+
+                }, function() {
+                    // $log.info('Modal dismissed at: ' + new Date());
+                });
+            },
+            /**
+             * [movedData description] 移機
+             * 新增ORDER_LIST
+             * 複製ITEM_LIST
+             * 更新PULL_GODDS
+             */
+            movedData : function(){
+                var _data = $vm.pullGoodsGridApi.selection.getSelectedRows();
+                if(_data.length == 0) {
+                    toaster.pop('info', '訊息', '尚未勾選資料。', 3000);
+                    return;
+                }
+
+                var _emptyFlightNo = false,
+                    _emptyMaster = false,
+                    _emptyMoved = false,
+                    _duplicatFlightNo = false,
+                    _duplicatMaster = false,
+                    _duplicatFlightNoValue = "",
+                    _duplicatMasterValue = "",
+                    _sourceMaster = [],
+                    _seqAndBagno = [],
+                    _bagno = [];
+                for(var i in _data){
+
+                    // 檢查航班(改)是否為空
+                    if(_data[i].PG_FLIGHTNO == null || _data[i].PG_FLIGHTNO == ""){
+                        _emptyFlightNo = true;
+                        break;
+                    }
+                    // 檢查主號(改)是否為空
+                    if(_data[i].PG_MASTER == null || _data[i].PG_MASTER == ""){
+                        _emptyMaster = true;
+                        break;
+                    }
+
+                    // 第一筆資料keep
+                    if(i == 0){
+                        _duplicatFlightNoValue = _data[i].PG_FLIGHTNO;
+                        _duplicatMasterValue = _data[i].PG_MASTER;
+                    }
+                    // 第二筆資料開始檢查
+                    else{
+                        // 檢查航班(改)是否重複
+                        if(_data[i].PG_FLIGHTNO != _duplicatFlightNoValue){
+                            _duplicatFlightNo = true;
+                            break;
+                        }
+                        // 檢查主號(改)是否重複
+                        if(_data[i].PG_MASTER != _duplicatMasterValue){
+                            _duplicatMaster = true;
+                            break;
+                        }
+                    }
+
+                    // 檢查移機是否為否
+                    if(_data[i].PG_MOVED){
+                        _emptyMoved = true;
+                        break;
+                    }
+
+                    _seqAndBagno.push({
+                        IL_SEQ : _data[i].PG_SEQ,
+                        IL_BAGNO : _data[i].PG_BAGNO
+                    });
+
+                    _bagno.push(_data[i].PG_BAGNO);
+                }
+
+                if(_emptyFlightNo){
+                    toaster.pop('warning', '警告', '尚有資料 航班(改) 為空', 3000);
+                    return;
+                }
+
+                if(_emptyMaster){
+                    toaster.pop('warning', '警告', '尚有資料 主號(改) 為空', 3000);
+                    return;
+                }
+
+                if(_duplicatFlightNo){
+                    toaster.pop('warning', '警告', '航班(改) 資料不一致', 3000);
+                    return;
+                }
+
+                if(_duplicatMaster){
+                    toaster.pop('warning', '警告', '主號(改) 資料不一致', 3000);
+                    return;
+                }
+
+                if(_emptyMoved){
+                    toaster.pop('warning', '警告', '有資料已被移機', 3000);
+                    return;
+                }
+
+                var _oeType = null;
+                for(var i in opType){
+                    if(opType[i].label == '報機單'){
+                        _oeType = opType[i].value;
+                    }
+                }
+
+                var modalInstance = $uibModal.open({
+                    animation: true,
+                    ariaLabelledBy: 'modal-title',
+                    ariaDescribedBy: 'modal-body',
+                    templateUrl: 'addOrderListModalContent.html',
+                    controller: 'AddOrderListModalInstanceCtrl',
+                    controllerAs: '$ctrl',
+                    backdrop: 'static',
+                    // size: 'lg',
+                    // appendTo: parentElem,
+                    resolve: {
+                        items: function() {
+                            var _text = "拉貨("+_bagno.join(", ")+")";
+                            return {
+                                OL_CO_CODE : _data[0].OL_CO_CODE,
+                                OL_MASTER : _duplicatMasterValue,
+                                OL_FLIGHTNO : _duplicatFlightNoValue,
+                                OL_IMPORTDT : $filter('date')(new Date, 'yyyy-MM-dd'),
+                                OL_COUNTRY : _data[0].OL_COUNTRY,
+                                OL_REASON : _text.length > 300 ? "拉貨" : _text,
+                                OE_PRINCIPAL : _data[0].OE_PRINCIPAL
+                            };
+                        },
+                        compy: function() {
+                            return compy;
+                        }
+                    }
+                });
+
+                modalInstance.result.then(function(selectedItem) {
+                    console.log(selectedItem);
+
+                    var _d = new Date,
+                        _tasks = [],
+                        _seq = $vm.profile.U_ID+selectedItem.OL_CO_CODE+$filter('date')(_d, 'yyyyMMddHHmmss');
+
+                    // 新增ORDER_LIST
+                    _tasks.push({
+                        crudType: 'Insert',
+                        table: 18,
+                        params: {
+                            OL_SEQ : _seq,
+                            OL_CO_CODE : selectedItem.OL_CO_CODE,
+                            OL_MASTER : selectedItem.OL_MASTER,
+                            OL_FLIGHTNO : selectedItem.OL_FLIGHTNO,
+                            OL_IMPORTDT : selectedItem.OL_IMPORTDT,
+                            OL_COUNTRY : selectedItem.OL_COUNTRY,
+                            OL_CR_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss'),
+                            OL_CR_USER : $vm.profile.U_ID,
+                            OL_REASON : selectedItem.OL_REASON
+                        }
+                    })
+
+                    if(_oeType != null){
+                        // 新增EDITOR
+                        _tasks.push({
+                            crudType: 'Insert',
+                            table: 22,
+                            params: {
+                                OE_SEQ : _seq,
+                                OE_TYPE : _oeType,
+                                OE_PRINCIPAL : selectedItem.OE_PRINCIPAL,
+                                OE_EDATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss'),
+                                OE_FDATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss')
+                            }
+                        })
+                    }
+
+                    // 複製ITEM_LIST
+                    _tasks.push({
+                        crudType: 'Copy',
+                        querymain: 'assistantJobs',
+                        queryname: 'CopyItemList',
+                        table: 9,
+                        params: {
+                            IL_SEQ : _seq,
+                            SeqAndBagno : _seqAndBagno
+                        }
+                    })
+
+                    // 更新PULL_GOODS
+                    _tasks.push({
+                        crudType: 'Update',
+                        table: 19,
+                        params: {
+                            PG_MOVED : true,
+                            PG_MOVED_SEQ : _seq
+                        },
+                        condition: {
+                            PG_MASTER : selectedItem.OL_MASTER,
+                            PG_FLIGHTNO : selectedItem.OL_FLIGHTNO
+                        }
+                    })
+
+                    RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res){
+                        toaster.pop('success', '訊息', '移機成功', 3000);
+                        LoadPullGoods();
+                    }, function (err) {
+                        toaster.pop('danger', '錯誤', '移機失敗', 3000);
+                    });  
+
+                }, function() {
+                    // $log.info('Modal dismissed at: ' + new Date());
+                });
+
+            },
+            /**
+             * [cancelMovedData description] 取消移機
+             * 刪除ORDER_LIST
+             * 更新PULL_GOODS
+             */
+            cancelMovedData : function(){
+                var _data = $vm.pullGoodsGridApi.selection.getSelectedRows();
+                if(_data.length == 0) {
+                    toaster.pop('info', '訊息', '尚未勾選資料。', 3000);
+                    return;
+                }
+
+                var _emptyMoved = false;
+                for(var i in _data){
+                    // 檢查移機是否為否
+                    if(!_data[i].PG_MOVED){
+                        _emptyMoved = true;
+                        break;
+                    }
+                }
+
+                if(_emptyMoved){
+                    toaster.pop('warning', '警告', '有資料未被移機', 3000);
+                    return;
+                }
+
+                var _oeType = null;
+                for(var i in opType){
+                    if(opType[i].label == '報機單'){
+                        _oeType = opType[i].value;
+                    }
+                }
+
+                var modalInstance = $uibModal.open({
+                    animation: true,
+                    ariaLabelledBy: 'modal-title',
+                    ariaDescribedBy: 'modal-body',
+                    template: $templateCache.get('isChecked'),
+                    controller: 'IsCheckedModalInstanceCtrl',
+                    controllerAs: '$ctrl',
+                    size: 'sm',
+                    windowClass: 'center-modal',
+                    // appendTo: parentElem,
+                    resolve: {
+                        items: function() {
+                            return {};
+                        },
+                        show: function(){
+                            return {
+                                title : "是否取消移機"
+                            };
+                        }
+                    }
+                });
+
+                modalInstance.result.then(function(selectedItem) {
+                    // console.log(_data);
+
+                    var _tasks = [];
+
+                    for(var i in _data){
+                        _tasks.push({
+                            crudType: 'Delete',
+                            table: 18,
+                            params: {
+                                OL_SEQ : _data[i].PG_MOVED_SEQ
+                            }
+                        });
+
+                        // 刪除EDITOR
+                        _tasks.push({
+                            crudType: 'Delete',
+                            table: 22,
+                            params: {
+                                OE_SEQ : _data[i].PG_MOVED_SEQ,
+                                OE_TYPE : _oeType,
+                                OE_PRINCIPAL : _data[i].OE_PRINCIPAL
+                            }
+                        })
+
+                        _tasks.push({
+                            crudType: 'Update',
+                            table: 19,
+                            params: {
+                                PG_MOVED : false,
+                                PG_MOVED_SEQ : null,
+                                PG_UP_USER : $vm.profile.U_ID,
+                                PG_UP_DATETIME : $filter('date')(new Date, 'yyyy-MM-dd HH:mm:ss')
+                            },
+                            condition: {
+                                PG_SEQ : _data[i].PG_SEQ,
+                                PG_BAGNO : _data[i].PG_BAGNO
+                            }
+                        });
+                    }
+
+                    RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res){
+                        toaster.pop('success', '訊息', '取消移機成功', 3000);
+                        LoadPullGoods();
+                    }, function (err) {
+                        toaster.pop('danger', '錯誤', '取消移機失敗', 3000);
+                    });  
+
+                }, function() {
+                    // $log.info('Modal dismissed at: ' + new Date());
+                });
+            },
+            // 匯出Excel
+            exportExcel : function(){
+                var _data = $vm.pullGoodsGridApi.selection.getSelectedRows(),
+                    _exportName = $filter('date')(new Date(), 'yyyyMMdd') + ' 拉貨明細',
+                    _params = {};
+
+                // 選擇筆數匯出
+                if(_data.length > 0){
+                    var _Seq = [],
+                        _Bagno = [];
+
+                    for(var i in _data){
+                        _Seq.push(_data[i].PG_SEQ);
+                        _Bagno.push(_data[i].PG_BAGNO);
+                    }
+
+                    _params = {
+                        Seq: "'"+_Seq.join("','")+"'",
+                        Bagno: "'"+_Bagno.join("','")+"'"
+                    };
+                }
+
+                ToolboxApi.ExportExcelBySql({
+                    templates : 9,
+                    filename : _exportName,
+                    querymain: 'assistantJobs',
+                    queryname: 'SelectPullGoods',
+                    params: _params
+                }).then(function (res) {
+                    // console.log(res);
+                });
+            }
+        },
         pullGoodsOptions : {
             data:  '$vm.pullGoodsData',
             columnDefs: [
                 { name: 'OL_IMPORTDT'   , displayName: '進口日期', cellFilter: 'dateFilter' },
-                { name: 'OL_CO_CODE'    , displayName: '行家', cellFilter: 'compyFilter' },
+                { name: 'OL_CO_CODE'    , displayName: '行家', cellFilter: 'compyFilter', cellFilter: 'compyFilter', filter: 
+                    {
+                        term: null,
+                        type: uiGridConstants.filter.SELECT,
+                        selectOptions: compy
+                    }
+                },
                 { name: 'OL_FLIGHTNO'   , displayName: '航班' },
                 { name: 'OL_MASTER'     , displayName: '主號' },
                 { name: 'OL_COUNTRY'    , displayName: '起運國別' },
                 { name: 'PG_BAGNO'      , displayName: '袋號' },
-                { name: 'PG_MOVED'      , displayName: '移機', cellFilter: 'booleanFilter' },
+                { name: 'PG_MOVED'      , displayName: '移機', cellFilter: 'booleanFilter', filter: 
+                    {
+                        term: null,
+                        type: uiGridConstants.filter.SELECT,
+                        selectOptions: bool
+                    }
+                },
                 { name: 'PG_FLIGHTNO'   , displayName: '航班(改)' },
                 { name: 'PG_MASTER'     , displayName: '主號(改)' },
-                { name: 'Options'       , displayName: '操作', cellTemplate: $templateCache.get('accessibilityToMCForPullGoods') }
+                { name: 'PG_REASON'     , displayName: '拉貨原因', cellTooltip: function (row, col) 
+                    {
+                        return row.entity.PG_REASON
+                    } 
+                },
+                { name: 'ITEM_LIST'     , displayName: '報機單', enableFiltering: false, enableSorting: false, width: '8%', cellTemplate: $templateCache.get('accessibilityToOperaForJob001') },
+                { name: 'Options'       , displayName: '操作', width: '8%', enableFiltering: false, enableSorting: false, cellTemplate: $templateCache.get('accessibilityToVForPullGoods') }
             ],
-            enableFiltering: false,
-            enableSorting: false,
+            enableFiltering: true,
+            enableSorting: true,
             enableColumnMenus: false,
             // enableVerticalScrollbar: false,
             paginationPageSizes: [10, 25, 50, 100],
@@ -8834,6 +9721,9 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
             }
         }).then(function (res){
             console.log(res["returnData"]);
+            for(var i=0;i<res["returnData"].length;i++){
+                res["returnData"][i]["Index"] = i+1;
+            }
             $vm.flightArrivalData = res["returnData"];
         }); 
     };
@@ -8846,18 +9736,33 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
             console.log(res["returnData"]);
             $vm.flightItemData = res["returnData"];
 
-            var _showFixMaster = false,
-                _fixMasterCount = 0;
-            for(var i in $vm.flightItemData){
-                if($vm.flightItemData[i].OL_MASTER == ""){
-                    _showFixMaster = true;
-                    _fixMasterCount += 1;
-                }
-            }
+            // var _showFixMaster = false,
+            //     _fixMasterCount = 0;
+            // for(var i in $vm.flightItemData){
+            //     if($vm.flightItemData[i].OL_MASTER == "" || $vm.flightItemData[i].OL_MASTER == null){
+            //         _showFixMaster = true;
+            //         _fixMasterCount += 1;
+            //     }
+            // }
 
-            if(_showFixMaster){
-                toaster.pop('info', '訊息', '尚有 '+_fixMasterCount+' 單需主號待補', 3000);
+            // if(_showFixMaster){
+            //     toaster.pop('info', '訊息', '尚有 '+_fixMasterCount+' 單需主號待補', 3000);
+            // }
+        }); 
+    };
+
+    function LoadMasterToBeFilled(){
+        RestfulApi.SearchMSSQLData({
+            querymain: 'assistantJobs',
+            queryname: 'SelectMasterToBeFilled',
+            params: {
+                U_ID : $vm.profile.U_ID,
+                U_GRADE : $vm.profile.U_GRADE
+                // DEPTS : $vm.profile.DEPTS
             }
+        }).then(function (res){
+            console.log(res["returnData"]);
+            $vm.masterToBeFilledData = res["returnData"];
         }); 
     };
 
@@ -8872,7 +9777,576 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
     };
 
 })
-.controller('ModifyPullGoodsModalInstanceCtrl', function ($uibModalInstance, items) {
+.controller('ModifyPullGoodsModalInstanceCtrl', function ($uibModalInstance) {
+    var $ctrl = this;
+    // $ctrl.mdData = angular.copy(items);
+    $ctrl.mdData = {};
+
+    $ctrl.ok = function() {
+        $ctrl.mdData.FLIGHTNO_START = $ctrl.mdData.FLIGHTNO_START.toUpperCase();
+        $ctrl.mdData.PG_FLIGHTNO = $ctrl.mdData.FLIGHTNO_START + ' ' + $ctrl.mdData.FLIGHTNO_END;
+
+        $uibModalInstance.close($ctrl.mdData);
+    };
+
+    $ctrl.cancel = function() {
+        $uibModalInstance.dismiss('cancel');
+    };
+})
+.controller('ViewReasonModalInstanceCtrl', function ($uibModalInstance, items) {
+    var $ctrl = this;
+    $ctrl.mdData = angular.copy(items);
+
+    $ctrl.ok = function() {
+        $uibModalInstance.close($ctrl.mdData);
+    };
+
+    $ctrl.cancel = function() {
+        $uibModalInstance.dismiss('cancel');
+    };
+})
+.controller('ViewDetailModalInstanceCtrl', function ($uibModalInstance, RestfulApi, items) {
+    var $ctrl = this;
+
+    $ctrl.Init = function(){
+        RestfulApi.SearchMSSQLData({
+            querymain: 'assistantJobs',
+            queryname: 'SelectBagNoDetail',
+            params: {
+                IL_SEQ: items.PG_SEQ,
+                IL_BAGNO: items.PG_BAGNO
+            }
+        }).then(function (res){
+            for(var i=0;i<res["returnData"].length;i++){
+                res["returnData"][i]["Index"] = i+1;
+            }
+            $ctrl.mdData = angular.copy(res["returnData"]);
+        }); 
+    }
+
+    $ctrl.mdDataOption = {
+        data: '$ctrl.mdData',
+        columnDefs: [
+            { name: 'Index'           , displayName: '序列', width: 50},
+            { name: 'IL_G1'           , displayName: '報關種類', width: 80 },
+            { name: 'IL_MERGENO'      , displayName: '併票號', width: 80 },
+            { name: 'IL_BAGNO'        , displayName: '袋號', width: 80 },
+            { name: 'IL_SMALLNO'      , displayName: '小號', width: 110 },
+            { name: 'IL_NATURE'       , displayName: '品名', width: 120 },
+            { name: 'IL_NATURE_NEW'   , displayName: '新品名', width: 120 },
+            { name: 'IL_CTN'          , displayName: '件數', width: 50 },
+            { name: 'IL_PLACE'        , displayName: '產地', width: 50 },
+            { name: 'IL_NEWPLACE'     , displayName: '新產地', width: 70 },
+            { name: 'IL_WEIGHT'       , displayName: '重量', width: 70 },
+            { name: 'IL_WEIGHT_NEW'   , displayName: '新重量', width: 70 },
+            { name: 'IL_PCS'          , displayName: '數量', width: 70 },
+            { name: 'IL_NEWPCS'       , displayName: '新數量', width: 70 },
+            { name: 'IL_UNIVALENT'    , displayName: '單價', width: 70 },
+            { name: 'IL_UNIVALENT_NEW', displayName: '新單價', width: 70 },
+            { name: 'IL_FINALCOST'    , displayName: '完稅價格', width: 80 },
+            { name: 'IL_UNIT'         , displayName: '單位', width: 70 },
+            { name: 'IL_NEWUNIT'      , displayName: '新單位', width: 70 },
+            { name: 'IL_GETNO'        , displayName: '收件者統編', width: 100 },
+            { name: 'IL_EXNO'         , displayName: '匯出統編', width: 80 },
+            { name: 'IL_SENDNAME'     , displayName: '寄件人', width: 80 },
+            { name: 'IL_NEWSENDNAME'  , displayName: '新寄件人', width: 80 },
+            { name: 'IL_TAX'          , displayName: '稅費歸屬', width: 80 },
+            { name: 'IL_GETNAME'      , displayName: '收件人公司', width: 100 },
+            { name: 'IL_GETNAME_NEW'  , displayName: '新收件人公司', width: 100 },
+            { name: 'IL_GETADDRESS'   , displayName: '收件地址', width: 300 },
+            { name: 'IL_GETADDRESS_NEW', displayName: '新收件地址', width: 300 },
+            { name: 'IL_GETTEL'       , displayName: '收件電話', width: 100 },
+            { name: 'IL_EXTEL'        , displayName: '匯出電話', width: 100 },
+            { name: 'IL_TRCOM'        , displayName: '派送公司', width: 100 },
+            { name: 'IL_REMARK'       , displayName: '備註', width: 100 },
+            { name: 'IL_TAX2'         , displayName: '稅則', width: 100 }
+        ],
+        enableFiltering: false,
+        enableSorting: true,
+        enableColumnMenus: false,
+        // enableVerticalScrollbar: false,
+        paginationPageSizes: [50, 100, 150, 200, 250, 300],
+        paginationPageSize: 100,
+        onRegisterApi: function(gridApi){
+            $ctrl.mdDataGridApi = gridApi;
+            // HandleWindowResize($ctrl.job001DataNotMergeNoGridApi);
+        }
+    }
+
+    $ctrl.ok = function() {
+        $uibModalInstance.close();
+    };
+
+    $ctrl.cancel = function() {
+        $uibModalInstance.dismiss('cancel');
+    };
+})
+.controller('AddOrderListModalInstanceCtrl', function ($uibModalInstance, items, compy) {
+    var $ctrl = this;
+
+    $ctrl.Init = function(){
+        var _flightNo = items.OL_FLIGHTNO != null ? items.OL_FLIGHTNO.split(' ') : [];
+
+        if(_flightNo.length == 2){
+            items.FLIGHTNO_START = _flightNo[0];
+            items.FLIGHTNO_END = _flightNo[1];
+        }
+
+        $ctrl.mdData = angular.copy(items);
+        $ctrl.compy = compy;
+    }
+
+    $ctrl.ok = function() {
+        $ctrl.mdData.FLIGHTNO_START = $ctrl.mdData.FLIGHTNO_START.toUpperCase();
+        $ctrl.mdData.OL_FLIGHTNO = $ctrl.mdData.FLIGHTNO_START + ' ' + $ctrl.mdData.FLIGHTNO_END;
+
+        $ctrl.mdData.OL_COUNTRY = $ctrl.mdData.OL_COUNTRY.toUpperCase();
+
+        $uibModalInstance.close($ctrl.mdData);
+    };
+
+    $ctrl.cancel = function() {
+        $uibModalInstance.dismiss('cancel');
+    };
+});
+"use strict";
+
+angular.module('app.selfwork').controller('CustomOverSixCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, RestfulApi, $filter, uiGridConstants, overSix, userInfo, $window, ToolboxApi) {
+    
+    var $vm = this;
+
+	angular.extend(this, {
+        Init : function(){
+            $scope.ShowTabs = true;
+
+            $vm.LoadData();
+        },
+        profile : Session.Get(),
+        defaultTab : 'hr1',
+        TabSwitch : function(pTabID){
+            return pTabID == $vm.defaultTab ? 'active' : '';
+        },
+        LoadData : function(){
+            switch($vm.defaultTab){
+                case 'hr1':
+                    LoadOverSix();
+                    break;
+                case 'hr2':
+                    LoadOverSixCompound();
+                    break;
+            }
+        },
+        gridMethod : {
+            // 修改
+            modifyData : function(row){
+                // console.log(row);
+
+                var modalInstance = $uibModal.open({
+                    animation: true,
+                    ariaLabelledBy: 'modal-title',
+                    ariaDescribedBy: 'modal-body',
+                    templateUrl: 'modifyOverSixModalContent.html',
+                    controller: 'ModifyOverSixModalInstanceCtrl',
+                    controllerAs: '$ctrl',
+                    // size: 'sm',
+                    // appendTo: parentElem,
+                    resolve: {
+                        items: function(){
+                            return row.entity;
+                        },
+                        overSix: function() {
+                            return overSix;
+                        }
+                    }
+                });
+
+                modalInstance.result.then(function(selectedItem) {
+
+                    console.log(selectedItem);
+
+                    RestfulApi.UpdateMSSQLData({
+                        updatename: 'Update',
+                        table: 27,
+                        params: {
+                            COS_CONTENT     : selectedItem.COS_CONTENT,
+                            COS_UP_USER     : $vm.profile.U_ID,
+                            COS_UP_DATETIME : $filter('date')(new Date, 'yyyy-MM-dd HH:mm:ss')
+                        },
+                        condition: {
+                            COS_ID     : selectedItem.COS_ID
+                        }
+                    }).then(function (res) {
+
+                        LoadOverSix();
+
+                    });
+
+                }, function() {
+                    // $log.info('Modal dismissed at: ' + new Date());
+                });
+                
+            }
+        },
+        overSixOptions : {
+            data:  '$vm.overSixData',
+            columnDefs: [
+                { name: 'Index'       ,  displayName: '序列', width: 50, enableFiltering: false },
+                { name: 'COS_TYPE'    ,  displayName: '類型', width: 100, cellFilter: 'overSixFilter', filter: 
+                    {
+                        term: null,
+                        type: uiGridConstants.filter.SELECT,
+                        selectOptions: overSix
+                    }
+                },
+                { name: 'COS_CONTENT' ,  displayName: '內容' },
+                { name: 'COS_CR_USER' ,  displayName: '建置人員', width: 100, cellFilter: 'userInfoFilter', filter: 
+                    {
+                        term: null,
+                        type: uiGridConstants.filter.SELECT,
+                        selectOptions: userInfo
+                    }
+                },
+                { name: 'Options'     ,  displayName: '操作', width: '5%', enableSorting:false, enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToM') }
+            ],
+            enableFiltering: true,
+            enableSorting: true,
+            enableColumnMenus: false,
+            // enableVerticalScrollbar: false,
+            enableRowSelection: true,
+            enableSelectAll: true,
+            paginationPageSizes: [50, 100, 150, 200, 250, 300],
+            paginationPageSize: 100,
+            onRegisterApi: function(gridApi){
+                $vm.overSixGridApi = gridApi;
+            }
+        },
+        Add : function(){
+            var modalInstance = $uibModal.open({
+                animation: true,
+                ariaLabelledBy: 'modal-title',
+                ariaDescribedBy: 'modal-body',
+                templateUrl: 'addOverSixModalContent.html',
+                controller: 'AddOverSixModalInstanceCtrl',
+                controllerAs: '$ctrl',
+                // size: 'sm',
+                // appendTo: parentElem,
+                resolve: {
+                    overSix: function() {
+                        return overSix;
+                    }
+                }
+            });
+
+            modalInstance.result.then(function(selectedItem) {
+
+                console.log(selectedItem);
+
+                RestfulApi.InsertMSSQLData({
+                    insertname: 'Insert',
+                    table: 27,
+                    params: {
+                        COS_TYPE        : selectedItem.COS_TYPE,
+                        COS_CONTENT     : selectedItem.COS_CONTENT,
+                        COS_CR_USER     : $vm.profile.U_ID,
+                        COS_CR_DATETIME : $filter('date')(new Date, 'yyyy-MM-dd HH:mm:ss')
+                    }
+                }).then(function(res) {
+
+                    LoadOverSix();
+
+                });
+
+            }, function() {
+                // $log.info('Modal dismissed at: ' + new Date());
+            });
+        },
+        Delete : function(){
+            if($vm.overSixGridApi.selection.getSelectedRows().length > 0){
+                var modalInstance = $uibModal.open({
+                    animation: true,
+                    ariaLabelledBy: 'modal-title',
+                    ariaDescribedBy: 'modal-body',
+                    template: $templateCache.get('isChecked'),
+                    controller: 'IsCheckedModalInstanceCtrl',
+                    controllerAs: '$ctrl',
+                    size: 'sm',
+                    windowClass: 'center-modal',
+                    // appendTo: parentElem,
+                    resolve: {
+                        items: function() {
+                            return {};
+                        },
+                        show: function(){
+                            return {
+                                title : "是否刪除"
+                            }
+                        }
+                    }
+                });
+
+                modalInstance.result.then(function(selectedItem) {
+                    // $ctrl.selected = selectedItem;
+                    var _task = [];
+
+                    for(var i in $vm.overSixGridApi.selection.getSelectedRows()){
+                        _task.push({
+                            crudType: 'Delete',
+                            table: 27,
+                            params: {
+                                COS_ID : $vm.overSixGridApi.selection.getSelectedRows()[i].COS_ID
+                            }
+                        });
+                    }
+
+                    RestfulApi.CRUDMSSQLDataByTask(_task).then(function (res){
+
+                        if(res["returnData"].length > 0){
+
+                            LoadOverSix();
+
+                        }
+                    });
+
+                }, function() {
+                    // $log.info('Modal dismissed at: ' + new Date());
+                });
+
+            }
+        },
+        gridMethodForCompound : {
+            modifyData : function(row){
+                // console.log(row);
+
+                var modalInstance = $uibModal.open({
+                    animation: true,
+                    ariaLabelledBy: 'modal-title',
+                    ariaDescribedBy: 'modal-body',
+                    templateUrl: 'modifyOverSixCompoundModalContent.html',
+                    controller: 'ModifyOverSixCompoundModalInstanceCtrl',
+                    controllerAs: '$ctrl',
+                    // size: 'sm',
+                    // appendTo: parentElem,
+                    resolve: {
+                        items: function(){
+                            return row.entity;
+                        }
+                    }
+                });
+
+                modalInstance.result.then(function(selectedItem) {
+
+                    console.log(selectedItem);
+
+                    RestfulApi.UpdateMSSQLData({
+                        updatename: 'Update',
+                        table: 29,
+                        params: {
+                            COSC_NAME        : selectedItem.COSC_NAME,
+                            COSC_ADDRESS     : selectedItem.COSC_ADDRESS,
+                            COSC_UP_USER     : $vm.profile.U_ID,
+                            COSC_UP_DATETIME : $filter('date')(new Date, 'yyyy-MM-dd HH:mm:ss')
+                        },
+                        condition: {
+                            COSC_ID     : selectedItem.COSC_ID
+                        }
+                    }).then(function (res) {
+
+                        LoadOverSixCompound();
+
+                    });
+
+                }, function() {
+                    // $log.info('Modal dismissed at: ' + new Date());
+                });
+            }
+        },
+        overSixCompoundOptions : {
+            data:  '$vm.overSixCompoundData',
+            columnDefs: [
+                { name: 'Index'        ,  displayName: '序列', width: 50, enableFiltering: false },
+                { name: 'COSC_NAME'    ,  displayName: '收件者' },
+                { name: 'COSC_ADDRESS' ,  displayName: '地址' },
+                { name: 'COSC_CR_USER' ,  displayName: '建置人員', width: 100, cellFilter: 'userInfoFilter', filter: 
+                    {
+                        term: null,
+                        type: uiGridConstants.filter.SELECT,
+                        selectOptions: userInfo
+                    }
+                },
+                { name: 'Options'      ,  displayName: '操作', width: '5%', enableSorting:false, enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToMForCompound') }
+            ],
+            enableFiltering: true,
+            enableSorting: true,
+            enableColumnMenus: false,
+            // enableVerticalScrollbar: false,
+            enableRowSelection: true,
+            enableSelectAll: true,
+            paginationPageSizes: [50, 100, 150, 200, 250, 300],
+            paginationPageSize: 100,
+            onRegisterApi: function(gridApi){
+                $vm.overSixCompoundGridApi = gridApi;
+            }
+        },
+        AddCompound : function(){
+            var modalInstance = $uibModal.open({
+                animation: true,
+                ariaLabelledBy: 'modal-title',
+                ariaDescribedBy: 'modal-body',
+                templateUrl: 'addOverSixCompoundModalContent.html',
+                controller: 'AddOverSixCompoundModalInstanceCtrl',
+                controllerAs: '$ctrl',
+                // size: 'sm',
+                // appendTo: parentElem,
+                // resolve: {
+                // }
+            });
+
+            modalInstance.result.then(function(selectedItem) {
+
+                // console.log(selectedItem);
+
+                RestfulApi.InsertMSSQLData({
+                    insertname: 'Insert',
+                    table: 29,
+                    params: {
+                        COSC_NAME        : selectedItem.COSC_NAME,
+                        COSC_ADDRESS     : selectedItem.COSC_ADDRESS,
+                        COSC_CR_USER     : $vm.profile.U_ID,
+                        COSC_CR_DATETIME : $filter('date')(new Date, 'yyyy-MM-dd HH:mm:ss')
+                    }
+                }).then(function(res) {
+
+                    LoadOverSixCompound();
+
+                });
+
+            }, function() {
+                // $log.info('Modal dismissed at: ' + new Date());
+            });
+        },
+        DeleteCompound : function(){
+            if($vm.overSixCompoundGridApi.selection.getSelectedRows().length > 0){
+                var modalInstance = $uibModal.open({
+                    animation: true,
+                    ariaLabelledBy: 'modal-title',
+                    ariaDescribedBy: 'modal-body',
+                    template: $templateCache.get('isChecked'),
+                    controller: 'IsCheckedModalInstanceCtrl',
+                    controllerAs: '$ctrl',
+                    size: 'sm',
+                    windowClass: 'center-modal',
+                    // appendTo: parentElem,
+                    resolve: {
+                        items: function() {
+                            return {};
+                        },
+                        show: function(){
+                            return {
+                                title : "是否刪除"
+                            }
+                        }
+                    }
+                });
+
+                modalInstance.result.then(function(selectedItem) {
+                    // $ctrl.selected = selectedItem;
+                    var _task = [];
+
+                    for(var i in $vm.overSixCompoundGridApi.selection.getSelectedRows()){
+                        _task.push({
+                            crudType: 'Delete',
+                            table: 29,
+                            params: {
+                                COSC_ID : $vm.overSixCompoundGridApi.selection.getSelectedRows()[i].COSC_ID
+                            }
+                        });
+                    }
+
+                    RestfulApi.CRUDMSSQLDataByTask(_task).then(function (res){
+
+                        if(res["returnData"].length > 0){
+
+                            LoadOverSixCompound();
+
+                        }
+                    });
+
+                }, function() {
+                    // $log.info('Modal dismissed at: ' + new Date());
+                });
+
+            }
+        }
+    });
+
+    function LoadOverSix(){
+        RestfulApi.SearchMSSQLData({
+            querymain: 'customOverSix',
+            queryname: 'SelectOverSix'
+        }).then(function (res){
+            console.log(res["returnData"]);
+            for(var i=0;i<res["returnData"].length;i++){
+                res["returnData"][i]["Index"] = i+1;
+            }
+            $vm.overSixData = angular.copy(res["returnData"]);
+        }); 
+    };
+
+    function LoadOverSixCompound(){
+        RestfulApi.SearchMSSQLData({
+            querymain: 'customOverSix',
+            queryname: 'SelectOverSixCompound'
+        }).then(function (res){
+            console.log(res["returnData"]);
+            for(var i=0;i<res["returnData"].length;i++){
+                res["returnData"][i]["Index"] = i+1;
+            }
+            $vm.overSixCompoundData = angular.copy(res["returnData"]);
+        }); 
+    }
+
+})
+.controller('AddOverSixModalInstanceCtrl', function ($uibModalInstance, overSix) {
+    var $ctrl = this;
+    // $ctrl.mdData = angular.copy(items);
+    $ctrl.mdData = {};
+    $ctrl.overSixData = overSix;
+
+    $ctrl.ok = function() {
+        $uibModalInstance.close($ctrl.mdData);
+    };
+
+    $ctrl.cancel = function() {
+        $uibModalInstance.dismiss('cancel');
+    };
+})
+.controller('ModifyOverSixModalInstanceCtrl', function ($uibModalInstance, items, overSix) {
+    var $ctrl = this;
+    $ctrl.mdData = angular.copy(items);
+    $ctrl.overSixData = overSix;
+
+    $ctrl.ok = function() {
+        $uibModalInstance.close($ctrl.mdData);
+    };
+
+    $ctrl.cancel = function() {
+        $uibModalInstance.dismiss('cancel');
+    };
+})
+.controller('AddOverSixCompoundModalInstanceCtrl', function ($uibModalInstance) {
+    var $ctrl = this;
+    // $ctrl.mdData = angular.copy(items);
+    $ctrl.mdData = {};
+
+    $ctrl.ok = function() {
+        $uibModalInstance.close($ctrl.mdData);
+    };
+
+    $ctrl.cancel = function() {
+        $uibModalInstance.dismiss('cancel');
+    };
+})
+.controller('ModifyOverSixCompoundModalInstanceCtrl', function ($uibModalInstance, items) {
     var $ctrl = this;
     $ctrl.mdData = angular.copy(items);
 
@@ -8961,6 +10435,11 @@ angular.module('app.selfwork').controller('DeliveryHistorySearchCtrl', function 
                 { name: 'OL_FLIGHTNO' ,  displayName: '航班' },
                 { name: 'OL_MASTER'   ,  displayName: '主號' },
                 { name: 'OL_COUNTRY'  ,  displayName: '起運國別' },
+                { name: 'OL_REASON'   ,  displayName: '描述', cellTooltip: function (row, col) 
+                    {
+                        return row.entity.OL_REASON
+                    } 
+                },
                 { name: 'DELIVERY_ITEM_LIST' ,  displayName: '派送單', enableFiltering: false, width: '8%', cellTemplate: $templateCache.get('accessibilityToOperaForJob003') }
             ],
             enableFiltering: true,
@@ -9038,9 +10517,11 @@ angular.module('app.selfwork').controller('DeliveryHistorySearchCtrl', function 
         }else{
             // 檢查所有值是否都是空的
             for(var i in pObject){
-                if(pObject[i] != ""){
-                    _isClear = false;
-                    break;
+                if(pObject[i] != null){
+                    if(pObject[i].toString() != ""){
+                        _isClear = false;
+                        break;
+                    }
                 }
             }
 
@@ -9061,13 +10542,15 @@ angular.module('app.selfwork').controller('DeliveryHistorySearchCtrl', function 
         var _conditions = {};
 
         for(var i in pObject){
-            if(pObject[i] != ""){
-                if(i == "CRDT_FROM"){
-                    _conditions[i] = pObject[i] + ' 00:00:00';
-                }else if(i == "CRDT_TOXX"){
-                    _conditions[i] = pObject[i] + ' 23:59:59';
-                }else{
-                    _conditions[i] = pObject[i];
+            if(pObject[i] != null){
+                if(pObject[i].toString() != ""){
+                    if(i == "CRDT_FROM"){
+                        _conditions[i] = pObject[i] + ' 00:00:00';
+                    }else if(i == "CRDT_TOXX"){
+                        _conditions[i] = pObject[i] + ' 23:59:59';
+                    }else{
+                        _conditions[i] = pObject[i];
+                    }
                 }
             }
         }
@@ -9162,7 +10645,8 @@ angular.module('app.selfwork').controller('DeliveryJobsCtrl', function ($scope, 
                             OL_CO_CODE  : selectedItem.OL_CO_CODE,
                             OL_FLIGHTNO : selectedItem.OL_FLIGHTNO,
                             OL_MASTER   : selectedItem.OL_MASTER,
-                            OL_COUNTRY  : selectedItem.OL_COUNTRY
+                            OL_COUNTRY  : selectedItem.OL_COUNTRY,
+                            OL_REASON   : selectedItem.OL_REASON
                         },
                         condition: {
                             OL_SEQ : selectedItem.OL_SEQ
@@ -9344,6 +10828,11 @@ angular.module('app.selfwork').controller('DeliveryJobsCtrl', function ($scope, 
                 { name: 'OL_FLIGHTNO' ,  displayName: '航班' },
                 { name: 'OL_MASTER'   ,  displayName: '主號' },
                 { name: 'OL_COUNTRY'  ,  displayName: '起運國別' },
+                { name: 'OL_REASON'   ,  displayName: '描述', width: 100, cellTooltip: function (row, col) 
+                    {
+                        return row.entity.OL_REASON
+                    } 
+                },
                 // { name: 'ITEM_LIST'          ,  displayName: '報機單', enableFiltering: false, width: '8%', cellTemplate: $templateCache.get('accessibilityToOperaForJob001') },
                 // { name: 'FLIGHT_ITEM_LIST'   ,  displayName: '銷艙單', enableFiltering: false, width: '8%', cellTemplate: $templateCache.get('accessibilityToOperaForJob002') },
                 { name: 'DELIVERY_ITEM_LIST' ,  displayName: '派送單', enableFiltering: false, width: '8%', cellTemplate: $templateCache.get('accessibilityToOperaForJob003') },
@@ -9379,7 +10868,7 @@ angular.module('app.selfwork').controller('DeliveryJobsCtrl', function ($scope, 
 });
 "use strict";
 
-angular.module('app.selfwork').controller('EmployeeHistorySearchCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, RestfulApi, $filter, compy, bool, uiGridConstants, localStorageService, ToolboxApi) {
+angular.module('app.selfwork').controller('EmployeeHistorySearchCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, RestfulApi, $filter, compy, userInfo, bool, uiGridConstants, localStorageService, ToolboxApi, OrderStatus) {
     
     var $vm = this;
 
@@ -9431,9 +10920,9 @@ angular.module('app.selfwork').controller('EmployeeHistorySearchCtrl', function 
                     // $log.info('Modal dismissed at: ' + new Date());
                 });
             },
-            // 下載
-            downloadFiles : function(row){
-
+            // 貨物查看
+            viewOrder : function(row){
+                OrderStatus.Get(row)
             }
         },
         gridMethodForJob001 : {
@@ -9469,10 +10958,34 @@ angular.module('app.selfwork').controller('EmployeeHistorySearchCtrl', function 
                     }
                 },
                 { name: 'OL_FLIGHTNO' ,  displayName: '航班' },
-                { name: 'OL_MASTER'   ,  displayName: '主號' },
+                { name: 'OL_MASTER'   ,  displayName: '主號', width: 110, cellTemplate: $templateCache.get('accessibilityToMasterForViewOrder') },
                 { name: 'OL_COUNT'    ,  displayName: '報機單(袋數)', enableCellEdit: false },
                 { name: 'OL_COUNTRY'  ,  displayName: '起運國別' },
-                { name: 'W2_PRINCIPAL',  displayName: '負責人', cellFilter: 'userInfoFilter' },
+                { name: 'OL_REASON'   ,  displayName: '描述', cellTooltip: function (row, col) 
+                    {
+                        return row.entity.OL_REASON
+                    } 
+                },
+                { name: 'W2_STATUS'              ,  displayName: '狀態', width: 80, cellTemplate: $templateCache.get('accessibilityToForW2'), filter: 
+                    {
+                        term: null,
+                        type: uiGridConstants.filter.SELECT,
+                        selectOptions: [
+                            // {label:'未派單', value: '0'},
+                            {label:'已派單', value: '1'},
+                            {label:'已編輯', value: '2'},
+                            {label:'已完成', value: '3'},
+                            {label:'非作業員'  , value: '4'}
+                        ]
+                    }
+                },
+                { name: 'W2_PRINCIPAL',  displayName: '負責人', cellFilter: 'userInfoFilter', filter: 
+                    {
+                        term: null,
+                        type: uiGridConstants.filter.SELECT,
+                        selectOptions: userInfo
+                    }
+                },
                 { name: 'ITEM_LIST'          ,  displayName: '報機單', enableFiltering: false, width: '8%', cellTemplate: $templateCache.get('accessibilityToOperaForJob001') },
                 { name: 'FLIGHT_ITEM_LIST'   ,  displayName: '銷艙單', enableFiltering: false, width: '8%', cellTemplate: $templateCache.get('accessibilityToOperaForJob002') },
                 // { name: 'Options'       , displayName: '下載', width: '5%', enableCellEdit: false, enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToOnceDownload') }
@@ -9523,7 +11036,7 @@ angular.module('app.selfwork').controller('EmployeeHistorySearchCtrl', function 
         // 紀錄查詢條件
         localStorageService.set("EmployeeHistorySearch", $vm.vmData);
         
-        console.log($vm._params);
+        // console.log($vm._params);
 
         RestfulApi.SearchMSSQLData({
             querymain: 'employeeHistorySearch',
@@ -9552,9 +11065,11 @@ angular.module('app.selfwork').controller('EmployeeHistorySearchCtrl', function 
         }else{
             // 檢查所有值是否都是空的
             for(var i in pObject){
-                if(pObject[i] != ""){
-                    _isClear = false;
-                    break;
+                if(pObject[i] != null){
+                    if(pObject[i].toString() != ""){
+                        _isClear = false;
+                        break;
+                    }
                 }
             }
 
@@ -9575,13 +11090,15 @@ angular.module('app.selfwork').controller('EmployeeHistorySearchCtrl', function 
         var _conditions = {};
 
         for(var i in pObject){
-            if(pObject[i] != ""){
-                if(i == "CRDT_FROM"){
-                    _conditions[i] = pObject[i] + ' 00:00:00';
-                }else if(i == "CRDT_TOXX"){
-                    _conditions[i] = pObject[i] + ' 23:59:59';
-                }else{
-                    _conditions[i] = pObject[i];
+            if(pObject[i] != null){
+                if(pObject[i].toString() != ""){
+                    if(i == "CRDT_FROM"){
+                        _conditions[i] = pObject[i] + ' 00:00:00';
+                    }else if(i == "CRDT_TOXX"){
+                        _conditions[i] = pObject[i] + ' 23:59:59';
+                    }else{
+                        _conditions[i] = pObject[i];
+                    }
                 }
             }
         }
@@ -9600,10 +11117,9 @@ angular.module('app.selfwork').controller('EmployeeHistorySearchCtrl', function 
 });
 "use strict";
 
-angular.module('app.selfwork').controller('EmployeeJobsCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, $filter, uiGridConstants, RestfulApi, compy, $q) {
+angular.module('app.selfwork').controller('EmployeeJobsCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, $filter, uiGridConstants, RestfulApi, compy, userInfo, $q, OrderStatus) {
     
     var $vm = this;
-    console.log(Session.Get());
 
 	angular.extend(this, {
         Init : function(){
@@ -9677,7 +11193,8 @@ angular.module('app.selfwork').controller('EmployeeJobsCtrl', function ($scope, 
                             OL_CO_CODE  : selectedItem.OL_CO_CODE,
                             OL_FLIGHTNO : selectedItem.OL_FLIGHTNO,
                             OL_MASTER   : selectedItem.OL_MASTER,
-                            OL_COUNTRY  : selectedItem.OL_COUNTRY
+                            OL_COUNTRY  : selectedItem.OL_COUNTRY,
+                            OL_REASON   : selectedItem.OL_REASON
                         },
                         condition: {
                             OL_SEQ : selectedItem.OL_SEQ
@@ -9689,6 +11206,10 @@ angular.module('app.selfwork').controller('EmployeeJobsCtrl', function ($scope, 
                 }, function() {
                     // $log.info('Modal dismissed at: ' + new Date());
                 });
+            },
+            // 貨物查看
+            viewOrder : function(row){
+                OrderStatus.Get(row)
             }
         },
         gridMethodForJob001 : {
@@ -9733,6 +11254,8 @@ angular.module('app.selfwork').controller('EmployeeJobsCtrl', function ($scope, 
                                     OE_EDATETIME : $filter('date')(new Date(), 'yyyy-MM-dd HH:mm:ss')
                                 }
                             }).then(function (res) {
+                                // 讓中班作業區的完成鈕可以亮起
+                                row.entity.W2_PRINCIPAL = $vm.profile.U_ID;
                                 $state.transitionTo("app.selfwork.employeejobs.job001", {
                                     data: row.entity
                                 });
@@ -9850,8 +11373,14 @@ angular.module('app.selfwork').controller('EmployeeJobsCtrl', function ($scope, 
         },
         gridMethodForJob002 : {
             // 檢視
-            viewData : function(row){
-                console.log(row);
+            // viewData : function(row){
+            //     console.log(row);
+            //     $state.transitionTo("app.selfwork.employeejobs.job002", {
+            //         data: row.entity
+            //     });
+            // }
+            // 修改
+            fixData : function(row){
                 $state.transitionTo("app.selfwork.employeejobs.job002", {
                     data: row.entity
                 });
@@ -9860,6 +11389,7 @@ angular.module('app.selfwork').controller('EmployeeJobsCtrl', function ($scope, 
         orderListOptions : {
             data:  '$vm.selfWorkData',
             columnDefs: [
+                { name: 'OL_SUPPLEMENT_COUNT'    ,  displayName: '補件', width: 50, cellTemplate: $templateCache.get('accessibilityToSuppleMent') },
                 { name: 'OL_IMPORTDT'            ,  displayName: '進口日期', width: 80, cellFilter: 'dateFilter' },
                 { name: 'OL_CO_CODE'             ,  displayName: '行家', width: 80, cellFilter: 'compyFilter', filter: 
                     {
@@ -9872,9 +11402,15 @@ angular.module('app.selfwork').controller('EmployeeJobsCtrl', function ($scope, 
                 { name: 'FA_SCHEDL_ARRIVALTIME'  ,  displayName: '預計抵達時間', cellFilter: 'datetimeFilter' },
                 { name: 'FA_ACTL_ARRIVALTIME'    ,  displayName: '真實抵達時間', cellFilter: 'datetimeFilter' },
                 { name: 'FA_ARRIVAL_REMK'        ,  displayName: '狀態', width: 60, cellTemplate: $templateCache.get('accessibilityToArrivalRemark') },
-                { name: 'OL_MASTER'              ,  displayName: '主號' },
-                { name: 'OL_COUNT'               ,  displayName: '報機單(袋數)', width: 80, enableCellEdit: false },
-                { name: 'OL_COUNTRY'             ,  displayName: '起運國別', width: 80 },
+                { name: 'OL_MASTER'              ,  displayName: '主號', width: 110, cellTemplate: $templateCache.get('accessibilityToMasterForViewOrder') },
+                { name: 'OL_COUNT'               ,  displayName: '報機單(袋數)' },
+                { name: 'OL_PULL_COUNT'          ,  displayName: '拉貨(袋數)' },
+                { name: 'OL_COUNTRY'             ,  displayName: '起運國別' },
+                { name: 'OL_REASON'              ,  displayName: '描述', cellTooltip: function (row, col) 
+                    {
+                        return row.entity.OL_REASON
+                    } 
+                },
                 { name: 'W2_STATUS'              ,  displayName: '狀態', width: 80, cellTemplate: $templateCache.get('accessibilityToForW2'), filter: 
                     {
                         term: null,
@@ -9888,13 +11424,20 @@ angular.module('app.selfwork').controller('EmployeeJobsCtrl', function ($scope, 
                         ]
                     }
                 },
+                { name: 'W2_PRINCIPAL'           ,  displayName: '負責人', width: 80, cellFilter: 'userInfoFilter', filter: 
+                    {
+                        term: null,
+                        type: uiGridConstants.filter.SELECT,
+                        selectOptions: userInfo
+                    }
+                },
                 { name: 'ITEM_LIST'              ,  displayName: '報機單', enableFiltering: false, width: '8%', cellTemplate: $templateCache.get('accessibilityToOperaForJob001') },
                 { name: 'FLIGHT_ITEM_LIST'       ,  displayName: '銷艙單', enableFiltering: false, width: '8%', cellTemplate: $templateCache.get('accessibilityToOperaForJob002') },
                 // { name: 'DELIVERY_ITEM_LIST'  ,  displayName: '派送單', enableFiltering: false, width: '8%', cellTemplate: $templateCache.get('accessibilityToOperaForJob003') },
                 { name: 'Options'                ,  displayName: '操作', width: '5%', enableCellEdit: false, enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToM') }
             ],
             enableFiltering: true,
-            enableSorting: false,
+            enableSorting: true,
             enableColumnMenus: false,
             // enableVerticalScrollbar: false,
             paginationPageSizes: [10, 25, 50, 100],
@@ -9903,6 +11446,18 @@ angular.module('app.selfwork').controller('EmployeeJobsCtrl', function ($scope, 
                 $vm.selfWorkGridApi = gridApi;
             }
         },
+        // 檢查是否為晚班
+        IsW3 : function(){
+            var _flag = false;
+
+            for(var i in $vm.profile.DEPTS){
+                if($vm.profile.DEPTS[i].SUD_DEPT == "W3"){
+                    _flag = true;
+                }
+            }
+
+            return _flag;
+        }
         // Update : function(entity){
         //     // create a fake promise - normally you'd use the promise returned by $http or $resource
         //     var promise = $q.defer();
@@ -9983,6 +11538,104 @@ angular.module('app.selfwork').controller('LeaderHistorySearchCtrl', function ($
         profile : Session.Get(),
         boolData : bool,
         compyData : compy,
+        gridMethod : {
+            modifyData : function(row){
+                var modalInstance = $uibModal.open({
+                    animation: true,
+                    ariaLabelledBy: 'modal-title',
+                    ariaDescribedBy: 'modal-body',
+                    template: $templateCache.get('modifyOrderList'),
+                    controller: 'ModifyOrderListModalInstanceCtrl',
+                    controllerAs: '$ctrl',
+                    // size: 'sm',
+                    // windowClass: 'center-modal',
+                    // appendTo: parentElem,
+                    resolve: {
+                        vmData: function() {
+                            return row.entity;
+                        },
+                        compy: function() {
+                            return compy;
+                        }
+                    }
+                });
+
+                modalInstance.result.then(function(selectedItem) {
+                    // $ctrl.selected = selectedItem;
+                    console.log(selectedItem);
+
+                    RestfulApi.UpdateMSSQLData({
+                        updatename: 'Update',
+                        table: 18,
+                        params: {
+                            OL_IMPORTDT : selectedItem.OL_IMPORTDT,
+                            OL_CO_CODE  : selectedItem.OL_CO_CODE,
+                            OL_FLIGHTNO : selectedItem.OL_FLIGHTNO,
+                            OL_MASTER   : selectedItem.OL_MASTER,
+                            OL_COUNTRY  : selectedItem.OL_COUNTRY,
+                            OL_REASON   : selectedItem.OL_REASON
+                        },
+                        condition: {
+                            OL_SEQ : selectedItem.OL_SEQ
+                        }
+                    }).then(function (res) {
+                        SearchData();
+                    });
+
+                }, function() {
+                    // $log.info('Modal dismissed at: ' + new Date());
+                });
+            },
+            releaseData : function(row){
+                console.log(row);
+
+                var modalInstance = $uibModal.open({
+                    animation: true,
+                    ariaLabelledBy: 'modal-title',
+                    ariaDescribedBy: 'modal-body',
+                    template: $templateCache.get('isChecked'),
+                    controller: 'IsCheckedModalInstanceCtrl',
+                    controllerAs: '$ctrl',
+                    size: 'sm',
+                    windowClass: 'center-modal',
+                    // appendTo: parentElem,
+                    resolve: {
+                        items: function() {
+                            return row.entity;
+                        },
+                        show: function(){
+                            return {
+                                title : "是否解案"
+                            }
+                        }
+                    }
+                });
+
+                modalInstance.result.then(function(selectedItem) {
+                    // $ctrl.selected = selectedItem;
+                    console.log(selectedItem);
+
+                    RestfulApi.UpdateMSSQLData({
+                        updatename: 'Update',
+                        table: 18,
+                        params: {
+                            OL_FDATETIME : null,
+                            OL_FUSER     : null
+                        },
+                        condition: {
+                            OL_SEQ : selectedItem.OL_SEQ
+                        }
+                    }).then(function (res) {
+
+                        toaster.pop('success', '訊息', '解案成功。', 3000);
+                        SearchData();
+                    });
+
+                }, function() {
+                    // $log.info('Modal dismissed at: ' + new Date());
+                });
+            }
+        },
         resultOptions : {
             data:  '$vm.resultData',
             columnDefs: [
@@ -9997,6 +11650,11 @@ angular.module('app.selfwork').controller('LeaderHistorySearchCtrl', function ($
                 { name: 'OL_FLIGHTNO' ,  displayName: '航班' },
                 { name: 'OL_MASTER'   ,  displayName: '主號' },
                 { name: 'OL_COUNTRY'  ,  displayName: '起運國別' },
+                { name: 'OL_REASON'   ,  displayName: '描述', cellTooltip: function (row, col) 
+                    {
+                        return row.entity.OL_REASON
+                    } 
+                },
                 { name: 'Options'     ,  displayName: '功能', enableFiltering: false, width: '12%', cellTemplate: $templateCache.get('accessibilityToMForLeaderSearch') }
             ],
             enableFiltering: true,
@@ -10074,9 +11732,11 @@ angular.module('app.selfwork').controller('LeaderHistorySearchCtrl', function ($
         }else{
             // 檢查所有值是否都是空的
             for(var i in pObject){
-                if(pObject[i] != ""){
-                    _isClear = false;
-                    break;
+                if(pObject[i] != null){
+                    if(pObject[i].toString() != ""){
+                        _isClear = false;
+                        break;
+                    }
                 }
             }
 
@@ -10097,13 +11757,15 @@ angular.module('app.selfwork').controller('LeaderHistorySearchCtrl', function ($
         var _conditions = {};
 
         for(var i in pObject){
-            if(pObject[i] != ""){
-                if(i == "CRDT_FROM"){
-                    _conditions[i] = pObject[i] + ' 00:00:00';
-                }else if(i == "CRDT_TOXX"){
-                    _conditions[i] = pObject[i] + ' 23:59:59';
-                }else{
-                    _conditions[i] = pObject[i];
+            if(pObject[i] != null){
+                if(pObject[i].toString() != ""){
+                    if(i == "CRDT_FROM"){
+                        _conditions[i] = pObject[i] + ' 00:00:00';
+                    }else if(i == "CRDT_TOXX"){
+                        _conditions[i] = pObject[i] + ' 23:59:59';
+                    }else{
+                        _conditions[i] = pObject[i];
+                    }
                 }
             }
         }
@@ -10155,6 +11817,7 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
                     AssignOptype();
                     LoadOrderList();
                     LoadPrincipal();
+                    LoadParm();
                     break;
                 case 'hr2':
                     LoadStatistics();
@@ -10243,7 +11906,8 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
                             OL_CO_CODE  : selectedItem.OL_CO_CODE,
                             OL_FLIGHTNO : selectedItem.OL_FLIGHTNO,
                             OL_MASTER   : selectedItem.OL_MASTER,
-                            OL_COUNTRY  : selectedItem.OL_COUNTRY
+                            OL_COUNTRY  : selectedItem.OL_COUNTRY,
+                            OL_REASON   : selectedItem.OL_REASON
                         },
                         condition: {
                             OL_SEQ : selectedItem.OL_SEQ
@@ -10259,7 +11923,7 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
             // 結單
             closeData : function(row){
 
-                if(row.entity.W2_STATUS == 3 || row.entity.W2_STATUS == 4){
+                if(row.entity.W2_STATUS == 3 || row.entity.W2_STATUS == 4 || row.entity.W3_STATUS == 3 || row.entity.W3_STATUS == 4){
                 // if(row.entity.W2_STATUS == 3 && row.entity.W3_STATUS == 3 && row.entity.W1_STATUS == 3){
                     var modalInstance = $uibModal.open({
                         animation: true,
@@ -10311,6 +11975,7 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
         orderListOptions : {
             data:  '$vm.vmData',
             columnDefs: [
+                { name: 'OL_SUPPLEMENT_COUNT'    ,  displayName: '補件', width: 50, cellTemplate: $templateCache.get('accessibilityToSuppleMent') },
                 { name: 'OL_IMPORTDT' ,  displayName: '進口日期', cellFilter: 'dateFilter' },
                 { name: 'OL_CO_CODE'  ,  displayName: '行家', cellFilter: 'compyFilter', filter: 
                     {
@@ -10322,7 +11987,13 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
                 { name: 'OL_FLIGHTNO' ,  displayName: '航班' },
                 { name: 'OL_MASTER'   ,  displayName: '主號' },
                 { name: 'OL_COUNT'    ,  displayName: '報機單(袋數)', width: 80, enableCellEdit: false },
+                { name: 'OL_FLL_COUNT',  displayName: '銷倉單(袋數)', width: 80, enableCellEdit: false },
                 { name: 'OL_COUNTRY'  ,  displayName: '起運國別' },
+                { name: 'OL_REASON'              ,  displayName: '描述', width: 100, cellTooltip: function (row, col) 
+                    {
+                        return row.entity.OL_REASON
+                    } 
+                },
                 { name: 'W2_STATUS'   ,  displayName: '報機單狀態', cellTemplate: $templateCache.get('accessibilityToForW2'), filter: 
                     {
                         term: null,
@@ -10351,19 +12022,19 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
                     }
                 },
                 // { name: 'W3'          ,  displayName: '銷艙單負責人', cellFilter: 'userInfoFilter' },
-                { name: 'W1_STATUS'   ,  displayName: '派送單狀態', cellTemplate: $templateCache.get('accessibilityToForW1'), filter: 
-                    {
-                        term: null,
-                        type: uiGridConstants.filter.SELECT,
-                        selectOptions: [
-                            {label:'未派單', value: '0'},
-                            {label:'已派單', value: '1'},
-                            {label:'已編輯', value: '2'},
-                            {label:'已完成', value: '3'},
-                            {label:'非作業員'  , value: '4'}
-                        ]
-                    }
-                },
+                // { name: 'W1_STATUS'   ,  displayName: '派送單狀態', cellTemplate: $templateCache.get('accessibilityToForW1'), filter: 
+                //     {
+                //         term: null,
+                //         type: uiGridConstants.filter.SELECT,
+                //         selectOptions: [
+                //             {label:'未派單', value: '0'},
+                //             {label:'已派單', value: '1'},
+                //             {label:'已編輯', value: '2'},
+                //             {label:'已完成', value: '3'},
+                //             {label:'非作業員'  , value: '4'}
+                //         ]
+                //     }
+                // },
                 // { name: 'W1'          ,  displayName: '派送單負責人', cellFilter: 'userInfoFilter' },
                 { name: 'Options'     ,  displayName: '功能', enableFiltering: false, width: '12%', cellTemplate: $templateCache.get('accessibilityToDMCForLeader') }
             ],
@@ -10380,6 +12051,30 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
                 $vm.orderListGridApi = gridApi;
 
                 gridApi.rowEdit.on.saveRow($scope, $vm.Update);
+            }
+        },
+        AutoPrincipal : function(){
+            if(!angular.isUndefined($vm.parmData['SPA_AUTOPRIN'])){
+                RestfulApi.UpdateMSSQLData({
+                    updatename: 'Update',
+                    table: 26,
+                    params: {
+                        SPA_AUTOPRIN : $vm.parmData['SPA_AUTOPRIN']
+                    },
+                    condition: {
+                        SPA_KEY : 'eastwind168'
+                    }
+                }).then(function (res) {
+                    
+                    if(res['returnData'] == 1){
+                        if($vm.parmData['SPA_AUTOPRIN']){
+                            toaster.pop('info', '訊息', '開啟自動派單', 3000);
+                        }else{
+                            toaster.pop('info', '訊息', '關閉自動派單', 3000);
+                        }
+                    }
+
+                });
             }
         },
         ChangeDept : function(){
@@ -10537,10 +12232,67 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
         compyStatisticsOptions : {
             data:  '$vm.compyStatisticsData',
             columnDefs: [
-                { name: 'CO_NAME'  ,  displayName: '行家' },
-                { name: 'W2_COUNT' ,  displayName: '報機單', enableFiltering: false },
-                { name: 'W3_COUNT' ,  displayName: '銷艙單', enableFiltering: false },
-                { name: 'W1_COUNT' ,  displayName: '派送單', enableFiltering: false }
+                { name: 'CO_NAME'      ,  displayName: '行家' },
+                { name: 'W2_COUNT'     ,  displayName: '報機單(件數)', filters: [
+                    {
+                        condition: uiGridConstants.filter.GREATER_THAN,
+                        placeholder: '最小'
+                    },
+                    {
+                        condition: uiGridConstants.filter.LESS_THAN,
+                        placeholder: '最大'
+                    }
+                ]},
+                { name: 'W2_BAG_COUNT' ,  displayName: '報機單(袋數)', filters: [
+                    {
+                        condition: uiGridConstants.filter.GREATER_THAN,
+                        placeholder: '最小'
+                    },
+                    {
+                        condition: uiGridConstants.filter.LESS_THAN,
+                        placeholder: '最大'
+                    }
+                ]},
+                { name: 'W3_COUNT'     ,  displayName: '銷艙單(件數)', filters: [
+                    {
+                        condition: uiGridConstants.filter.GREATER_THAN,
+                        placeholder: '最小'
+                    },
+                    {
+                        condition: uiGridConstants.filter.LESS_THAN,
+                        placeholder: '最大'
+                    }
+                ]},
+                { name: 'W3_BAG_COUNT' ,  displayName: '銷艙單(袋數)', filters: [
+                    {
+                        condition: uiGridConstants.filter.GREATER_THAN,
+                        placeholder: '最小'
+                    },
+                    {
+                        condition: uiGridConstants.filter.LESS_THAN,
+                        placeholder: '最大'
+                    }
+                ]},
+                { name: 'W1_COUNT'     ,  displayName: '派送單(件數)', filters: [
+                    {
+                        condition: uiGridConstants.filter.GREATER_THAN,
+                        placeholder: '最小'
+                    },
+                    {
+                        condition: uiGridConstants.filter.LESS_THAN,
+                        placeholder: '最大'
+                    }
+                ]},
+                { name: 'W1_BAG_COUNT' ,  displayName: '派送單(袋數)', filters: [
+                    {
+                        condition: uiGridConstants.filter.GREATER_THAN,
+                        placeholder: '最小'
+                    },
+                    {
+                        condition: uiGridConstants.filter.LESS_THAN,
+                        placeholder: '最大'
+                    }
+                ]}
             ],
             enableFiltering: true,
             enableSorting: true,
@@ -10715,6 +12467,18 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
         }).then(function (res){
             console.log(res["returnData"]);
             $vm.compyStatisticsData = res["returnData"];
+        });  
+    };
+
+    function LoadParm(){
+        RestfulApi.SearchMSSQLData({
+            querymain: 'leaderJobs',
+            queryname: 'SelectParm'
+        }).then(function (res){
+            console.log(res["returnData"]);
+            if(res["returnData"].length > 0){
+                $vm.parmData = res["returnData"][0];
+            }
         });  
     };
 
@@ -11096,6 +12860,53 @@ angular.module('app.settings').controller('AviationMailCtrl', function ($scope, 
     };
 
 });
+"use strict";
+
+angular.module('app.settings').controller('BagnoCountCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, RestfulApi, uiGridConstants, $filter) {
+    // console.log($stateParams, $state);
+
+    var $vm = this;
+
+    angular.extend(this, {
+        Init : function(){
+            LoadBagnoCount();
+        },
+        profile : Session.Get(),
+        // 更新
+        Update: function(){
+
+            RestfulApi.UpdateMSSQLData({
+                updatename: 'Update',
+                table: 32,
+                params: {
+                    ILC_CURRENT     : $vm.vmData.ILC_CURRENT,
+                    ILC_MAX         : $vm.vmData.ILC_MAX,
+                    ILC_UP_USER     : $vm.profile.U_ID,
+                    ILC_UP_DATETIME : $filter('date')(new Date, 'yyyy-MM-dd HH:mm:ss')
+                },
+                condition: {
+                    ILC_ID         : $vm.vmData.ILC_ID
+                }
+            }).then(function (res) {
+                toaster.pop('success', '訊息', '更新新寄件人編碼成功', 3000);
+            }, function (err) {
+
+            });
+
+        }
+    });
+
+    function LoadBagnoCount(){
+        RestfulApi.SearchMSSQLData({
+            querymain: 'bagnoCount',
+            queryname: 'SelectBagnoCount'
+        }).then(function (res){
+            // console.log(res["returnData"]);
+            $vm.vmData = res["returnData"][0];
+        }); 
+    };
+
+})
 "use strict";
 
 angular.module('app.settings').controller('BillboardEditorCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, RestfulApi, bool, ioType, uiGridConstants) {
@@ -12586,6 +14397,133 @@ angular.module('app.settings').controller('ProfileCtrl', function ($scope, $stat
     };
 });
 
+"use strict";
+
+angular.module('app.settings').controller('SysLogsCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, RestfulApi, uiGridConstants, $filter, userInfo) {
+    // console.log($stateParams, $state);
+
+    var $vm = this;
+
+    angular.extend(this, {
+        Init : function(){
+            LoadSysLogs();
+        },
+        profile : Session.Get(),
+        sysLogsOptions : {
+            data: '$vm.sysLogsData',
+            columnDefs: [
+                { name: 'Index'        , displayName: '序列', width: 50, enableFiltering: false },
+                { name: 'SDL_DATETIME' , displayName: '時間', width: 150, cellFilter: 'datetimeFilter' },
+                { name: 'SDL_LEVEL'    , displayName: '等級', width: 70, cellTemplate: $templateCache.get('accessibilityToSysLevel') },
+                { name: 'SDL_MESSAGE'  , displayName: '訊息', cellTooltip: function (row, col) 
+                    {
+                        return row.entity.SDL_MESSAGE
+                    } 
+                },
+                { name: 'SDL_SQL'      , displayName: 'SQL', cellTooltip: function (row, col) 
+                    {
+                        return row.entity.SDL_SQL
+                    } 
+                },
+                { name: 'SDL_USER'     , displayName: '人員', width: 100, cellFilter: 'userInfoFilter', filter: 
+                    {
+                        term: null,
+                        type: uiGridConstants.filter.SELECT,
+                        selectOptions: userInfo
+                    }
+                },
+                { name: 'SDL_IP'       , displayName: 'IP', width: 120 }
+            ],
+            enableFiltering: true,
+            enableSorting: true,
+            enableColumnMenus: false,
+            // enableVerticalScrollbar: false,
+            paginationPageSizes: [50, 100, 150, 200, 250, 300],
+            paginationPageSize: 100,
+            onRegisterApi: function(gridApi){
+                $vm.sysLogsGridApi = gridApi;
+            }
+        },
+        // 匯出Excel
+        ExportExcel: function(){
+
+            var _exportName = $filter('date')($vm.vmData.OL_IMPORTDT, 'yyyyMMdd') + ' ' + 
+                              $filter('compyFilter')($vm.vmData.OL_CO_CODE) + ' ' + 
+                              $vm.vmData.OL_FLIGHTNO;
+                // _totalBag = 0,
+                // _totalWeight = 0;
+
+            // 計算件數和重量
+            // for(var i in $vm.job002Data){
+            //     _totalBag += $vm.job002Data[i].FLL_CTN;
+            //     _totalWeight += $vm.job002Data[i].FLL_WEIGHT;
+            // }
+
+            ToolboxApi.ExportExcelByMultiSql([
+                {
+                    templates      : 5,
+                    filename       : _exportName,
+                    OL_MASTER      : $vm.vmData.OL_MASTER,
+                    OL_IMPORTDT    : $filter('date')($vm.vmData.OL_IMPORTDT, 'yyyy-MM-dd'),
+                    OL_FLIGHTNO    : $vm.vmData.OL_FLIGHTNO,
+                    OL_COUNTRY     : $vm.vmData.OL_COUNTRY, 
+                    OL_TEL         : $vm.vmData.OL_TEL, 
+                    OL_FAX         : $vm.vmData.OL_FAX, 
+                    OL_TOTALBAG    : $vm.job002GridApi.grid.columns[4].getAggregationValue(), 
+                    OL_TOTALWEIGHT : $vm.job002GridApi.grid.columns[5].getAggregationValue().toFixed(2)
+                },
+                {
+                    crudType: 'Select',
+                    querymain: 'job002',
+                    queryname: 'SelectFlightItemList',
+                    params: {               
+                        FLL_SEQ: $vm.vmData.OL_SEQ
+                    }
+                },
+                {
+                    crudType: 'Select',
+                    querymain: 'job002',
+                    queryname: 'SelectRemark',
+                    params: {               
+                        FLL_SEQ: $vm.vmData.OL_SEQ
+                    }
+                }
+            ]).then(function (res) {
+                // console.log(res);
+            });
+
+        }
+    });
+
+    function LoadSysLogs(){
+        RestfulApi.SearchMSSQLData({
+            querymain: 'sysLogs',
+            queryname: 'SelectSysLogs'
+        }).then(function (res){
+            console.log(res["returnData"]);
+            for(var i=0;i<res["returnData"].length;i++){
+                res["returnData"][i]["Index"] = i+1;
+            }
+            $vm.sysLogsData = res["returnData"];
+        }); 
+    };
+
+})
+"use strict";
+
+angular.module('app.restful').controller('ExcelTestCtrl', function ($scope, $stateParams, $state, ToolboxApi, Session, toaster, $uibModal) {
+
+    var $vm = this;
+
+    ToolboxApi.ExportExcelByVar({
+    	
+    }).then(function (res) {
+        console.log("s", res);
+    }, function (err) {
+        console.log("f", res);
+    });
+});
+
 /**
  * Created by griga on 2/9/16.
  */
@@ -13689,421 +15627,6 @@ angular.module('app.auth').directive('googleSignin', function ($rootScope, Googl
     };
 });
 
-"use strict";
-
-angular.module('app.concerns').controller('ResultBanCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, $timeout, uiGridConstants, RestfulApi, $filter, compy, localStorageService, ToolboxApi) {
-    
-    var $vm = this,
-        columnDefs = [
-            { name: 'IL_COUNT'      , displayName: '歷史歷程', width: 75, enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToHistoryCount') },
-            { name: 'BAN_TYPE'      , displayName: '名單類型', width: 100, filter: 
-                {
-                    term: "通報",
-                    type: uiGridConstants.filter.SELECT,
-                    selectOptions: [
-                        {label:"通報", value:"通報"},
-                        {label:"自訂", value:"自訂"}
-                    ]
-                }
-            },
-            { name: 'OL_IMPORTDT'            ,  displayName: '進口日期', width: 80, cellFilter: 'dateFilter' },
-            { name: 'OL_CO_CODE'             ,  displayName: '行家', width: 80, cellFilter: 'compyFilter', filter: 
-                {
-                    term: null,
-                    type: uiGridConstants.filter.SELECT,
-                    selectOptions: compy
-                }
-            },
-            { name: 'OL_FLIGHTNO'            ,  displayName: '航班', width: 80 },
-            { name: 'OL_MASTER'              ,  displayName: '主號', width: 120 },
-            { name: 'OL_COUNTRY'             ,  displayName: '起運國別', width: 80 },
-            { name: 'IL_G1'         , displayName: '報關種類', width: 115 },
-            { name: 'IL_MERGENO'    , displayName: '併票號', width: 129 },
-            { name: 'IL_BAGNO'      , displayName: '袋號', width: 129 },
-            { name: 'IL_SMALLNO'    , displayName: '小號', width: 115 },
-            { name: 'IL_NATURE'     , displayName: '品名', width: 115 },
-            { name: 'IL_NATURE_NEW' , displayName: '新品名', width: 115 },
-            { name: 'IL_CTN'        , displayName: '件數', width: 115 },
-            { name: 'IL_PLACE'      , displayName: '產地', width: 115 },
-            { name: 'IL_NEWPLACE'   , displayName: '新產地', width: 115 },
-            { name: 'IL_WEIGHT'     , displayName: '重量', width: 115 },
-            { name: 'IL_WEIGHT_NEW' , displayName: '新重量', width: 115 },
-            { name: 'IL_PCS'        , displayName: '數量', width: 115 },
-            { name: 'IL_NEWPCS'     , displayName: '新數量', width: 115 },
-            { name: 'IL_UNIT'       , displayName: '單位', width: 115 },
-            { name: 'IL_NEWUNIT'    , displayName: '新單位', width: 115 },
-            { name: 'IL_GETNO'      , displayName: '收件者統編', width: 115 },
-            { name: 'IL_SENDNAME'   , displayName: '寄件人或公司', width: 115 },
-            { name: 'IL_NEWSENDNAME', displayName: '新寄件人或公司', width: 115 },
-            { name: 'IL_GETNAME'    , displayName: '收件人公司', width: 115 },
-            { name: 'IL_GETADDRESS' , displayName: '收件地址', width: 300 },
-            { name: 'IL_GETTEL'     , displayName: '收件電話', width: 115 },
-            { name: 'IL_UNIVALENT'  , displayName: '單價', width: 115 },
-            { name: 'IL_UNIVALENT_NEW', displayName: '新單價', width: 115 },
-            { name: 'IL_FINALCOST'  , displayName: '完稅價格', width: 115 },
-            { name: 'IL_TAX'        , displayName: '稅則', width: 115 },
-            { name: 'IL_TRCOM'      , displayName: '派送公司', width: 115 },
-            { name: 'IL_REMARK'     , displayName: '備註', width: 115 }
-        ];
-
-	angular.extend(this, {
-        Init : function(){
-
-            if($stateParams.data == null){
-                ReturnToBanHistorySearchPage();
-            }else{
-                $scope.ShowTabs = true;
-                
-                $vm.bigBreadcrumbsItems = $state.current.name.split(".");
-                $vm.bigBreadcrumbsItems.shift();
-
-                $vm.vmData = $stateParams.data;
-                $vm.params = CombineConditions(localStorageService.get("BanHistorySearch"));
-
-                $vm.LoadData();
-                console.log($vm.params);
-            }
-
-        },
-        profile : Session.Get(),
-        defaultTab : 'hr1',
-        TabSwitch : function(pTabID){
-            return pTabID == $vm.defaultTab ? 'active' : '';
-        },
-        LoadData : function(){
-            console.log($vm.defaultTab);
-            switch($vm.defaultTab){
-                case 'hr1':
-                    LoadCaseA();
-                    break;
-                case 'hr2':
-                    LoadCaseB();
-                    break;
-                case 'hr3':
-                    LoadCaseC();
-                    break;
-                case 'hr4':
-                    LoadCaseD();
-                    break;
-            }
-        },
-        gridMethod : {
-            // 顯示歷史黑名單
-            showHistoryCount : function(row){
-                console.log(row);
-                var modalInstance = $uibModal.open({
-                    animation: true,
-                    ariaLabelledBy: 'modal-title',
-                    ariaDescribedBy: 'modal-body',
-                    templateUrl: 'showHistoryCountModalContent.html',
-                    controller: 'ShowHistoryCountModalInstanceCtrl',
-                    controllerAs: '$ctrl',
-                    size: 'lg',
-                    // appendTo: parentElem,
-                    resolve: {
-                        item: function() {
-                            return row.entity;
-                        },
-                        type: function(){
-                            return $vm.defaultTab;   
-                        },
-                        compy: function(){
-                            return compy;
-                        }
-                    }
-                });
-
-                modalInstance.result.then(function(selectedItem) {
-                    // $ctrl.selected = selectedItem;
-                    console.log(selectedItem);
-
-                }, function() {
-                    // $log.info('Modal dismissed at: ' + new Date());
-                });
-            }
-        },
-        caseAOptions : {
-            data:  '$vm.caseAData',
-            columnDefs: columnDefs,
-            enableFiltering: true,
-            enableSorting: true,
-            enableColumnMenus: false,
-            // enableVerticalScrollbar: false,
-            paginationPageSizes: [10, 25, 50, 100],
-            paginationPageSize: 100,
-            onRegisterApi: function(gridApi){
-                $vm.caseAGridApi = gridApi;
-            }
-        },
-        caseBOptions : {
-            data:  '$vm.caseBData',
-            columnDefs: columnDefs,
-            enableFiltering: true,
-            enableSorting: true,
-            enableColumnMenus: false,
-            // enableVerticalScrollbar: false,
-            paginationPageSizes: [10, 25, 50, 100],
-            paginationPageSize: 100,
-            onRegisterApi: function(gridApi){
-                $vm.caseBGridApi = gridApi;
-            }
-        },
-        caseCOptions : {
-            data:  '$vm.caseCData',
-            columnDefs: columnDefs,
-            enableFiltering: true,
-            enableSorting: true,
-            enableColumnMenus: false,
-            // enableVerticalScrollbar: false,
-            paginationPageSizes: [10, 25, 50, 100],
-            paginationPageSize: 100,
-            onRegisterApi: function(gridApi){
-                $vm.caseCGridApi = gridApi;
-            }
-        },
-        caseDOptions : {
-            data:  '$vm.caseDData',
-            columnDefs: columnDefs,
-            enableFiltering: true,
-            enableSorting: true,
-            enableColumnMenus: false,
-            // enableVerticalScrollbar: false,
-            paginationPageSizes: [10, 25, 50, 100],
-            paginationPageSize: 100,
-            onRegisterApi: function(gridApi){
-                $vm.caseDGridApi = gridApi;
-            }
-        },
-        Return : function(){
-            ReturnToBanHistorySearchPage();
-        },
-        ExportExcel : function(){
-
-            var _exportName = null,
-                _queryname = null;
-
-            switch($vm.defaultTab){
-                case 'hr1':
-                    _exportName = $filter('date')(new Date(), 'yyyyMMdd') + ' ' + $scope.getWord($state.current.data.title) + ' A類型';
-                    _queryname = "SelectCaseA";
-                    break;
-                case 'hr2':
-                    _exportName = $filter('date')(new Date(), 'yyyyMMdd') + ' ' + $scope.getWord($state.current.data.title) + ' B類型';
-                    _queryname = "SelectCaseB";
-                    break;
-                case 'hr3':
-                    _exportName = $filter('date')(new Date(), 'yyyyMMdd') + ' ' + $scope.getWord($state.current.data.title) + ' C類型';
-                    _queryname = "SelectCaseC";
-                    break;
-                case 'hr4':
-                    _exportName = $filter('date')(new Date(), 'yyyyMMdd') + ' ' + $scope.getWord($state.current.data.title) + ' D類型';
-                    _queryname = "SelectCaseD";
-                    break;
-            }
-
-            if(_exportName != null){
-                ToolboxApi.ExportExcelBySql({
-                    templates : 3,
-                    filename : _exportName,
-                    querymain: 'banHistorySearch',
-                    queryname: _queryname,
-                    params: $vm.params
-                }).then(function (res) {
-                    // console.log(res);
-                });
-            }
-        }
-    });
-
-    function LoadCaseA(){
-        RestfulApi.SearchMSSQLData({
-            querymain: 'banHistorySearch',
-            queryname: 'SelectCaseA',
-            params: $vm.params
-        }).then(function (res){
-            console.log(res["returnData"]);
-            $vm.caseAData = res["returnData"];
-        }); 
-    }
-
-    function LoadCaseB(){
-        RestfulApi.SearchMSSQLData({
-            querymain: 'banHistorySearch',
-            queryname: 'SelectCaseB',
-            params: $vm.params
-        }).then(function (res){
-            console.log(res["returnData"]);
-            $vm.caseBData = res["returnData"];
-        }); 
-    }
-
-    function LoadCaseC(){
-        RestfulApi.SearchMSSQLData({
-            querymain: 'banHistorySearch',
-            queryname: 'SelectCaseC',
-            params: $vm.params
-        }).then(function (res){
-            console.log(res["returnData"]);
-            $vm.caseCData = res["returnData"];
-        }); 
-    }
-
-    function LoadCaseD(){
-        RestfulApi.SearchMSSQLData({
-            querymain: 'banHistorySearch',
-            queryname: 'SelectCaseD',
-            params: $vm.params
-        }).then(function (res){
-            console.log(res["returnData"]);
-            $vm.caseDData = res["returnData"];
-        }); 
-    }
-
-    /**
-     * CombineConditions 條件組合
-     * @param {[type]}
-     */
-    function CombineConditions(pObject){
-        var _conditions = {};
-
-        for(var i in pObject){
-            if(pObject[i] != ""){
-                _conditions[i] = pObject[i];
-            }
-        }
-
-        return _conditions;
-    }
-
-    function ReturnToBanHistorySearchPage(){
-        $state.transitionTo($state.current.parent);
-    }
-})
-.controller('ShowHistoryCountModalInstanceCtrl', function ($uibModalInstance, item, type, RestfulApi, uiGridConstants, compy) {
-    var $ctrl = this;
-
-    $ctrl.Init = function(){
-        LoadHistoryCount(type);
-    };
-
-    $ctrl.mdDataOption = {
-        data:  '$ctrl.mdData',
-        columnDefs: [
-            { name: 'OL_IMPORTDT'            ,  displayName: '進口日期', width: 80, cellFilter: 'dateFilter' },
-            { name: 'OL_CO_CODE'             ,  displayName: '行家', width: 80, cellFilter: 'compyFilter', filter: 
-                {
-                    term: null,
-                    type: uiGridConstants.filter.SELECT,
-                    selectOptions: compy
-                }
-            },
-            { name: 'OL_FLIGHTNO'            ,  displayName: '航班', width: 80 },
-            { name: 'OL_MASTER'              ,  displayName: '主號', width: 120 },
-            { name: 'OL_COUNTRY'             ,  displayName: '起運國別', width: 80 },
-            { name: 'IL_G1'         , displayName: '報關種類', width: 115 },
-            { name: 'IL_MERGENO'    , displayName: '併票號', width: 129 },
-            { name: 'IL_BAGNO'      , displayName: '袋號', width: 129 },
-            { name: 'IL_SMALLNO'    , displayName: '小號', width: 115 },
-            { name: 'IL_NATURE'     , displayName: '品名', width: 115 },
-            { name: 'IL_NATURE_NEW' , displayName: '新品名', width: 115 },
-            { name: 'IL_CTN'        , displayName: '件數', width: 115 },
-            { name: 'IL_PLACE'      , displayName: '產地', width: 115 },
-            { name: 'IL_NEWPLACE'   , displayName: '新產地', width: 115 },
-            { name: 'IL_WEIGHT'     , displayName: '重量', width: 115 },
-            { name: 'IL_WEIGHT_NEW' , displayName: '新重量', width: 115 },
-            { name: 'IL_PCS'        , displayName: '數量', width: 115 },
-            { name: 'IL_NEWPCS'     , displayName: '新數量', width: 115 },
-            { name: 'IL_UNIT'       , displayName: '單位', width: 115 },
-            { name: 'IL_NEWUNIT'    , displayName: '新單位', width: 115 },
-            { name: 'IL_GETNO'      , displayName: '收件者統編', width: 115 },
-            { name: 'IL_SENDNAME'   , displayName: '寄件人或公司', width: 115 },
-            { name: 'IL_NEWSENDNAME', displayName: '新寄件人或公司', width: 115 },
-            { name: 'IL_GETNAME'    , displayName: '收件人公司', width: 115 },
-            { name: 'IL_GETADDRESS' , displayName: '收件地址', width: 300 },
-            { name: 'IL_GETTEL'     , displayName: '收件電話', width: 115 },
-            { name: 'IL_UNIVALENT'  , displayName: '單價', width: 115 },
-            { name: 'IL_UNIVALENT_NEW', displayName: '新單價', width: 115 },
-            { name: 'IL_FINALCOST'  , displayName: '完稅價格', width: 115 },
-            { name: 'IL_TAX'        , displayName: '稅則', width: 115 },
-            { name: 'IL_TRCOM'      , displayName: '派送公司', width: 115 },
-            { name: 'IL_REMARK'     , displayName: '備註', width: 115 }
-        ],
-        enableFiltering: true,
-        enableSorting: true,
-        enableColumnMenus: false,
-        // enableVerticalScrollbar: false,
-        paginationPageSizes: [10, 25, 50, 100],
-        paginationPageSize: 100,
-        onRegisterApi: function(gridApi){
-            $ctrl.mdDataGridApi = gridApi;
-        }
-    }
-
-    function LoadHistoryCount(pType){
-        var _params = {};
-
-        switch(pType){
-            case 'hr1':
-                _params = {
-                    IL_GETNAME : item.IL_GETNAME,
-                    IL_GETADDRESS : item.IL_GETADDRESS,
-                    IL_SEQ : item.IL_SEQ,
-                    IL_NEWBAGNO : item.IL_NEWBAGNO,
-                    IL_NEWSMALLNO : item.IL_NEWSMALLNO,
-                    IL_ORDERINDEX : item.IL_ORDERINDEX
-                };
-                break;
-            case 'hr2':
-                _params = {
-                    IL_GETADDRESS : item.IL_GETADDRESS,
-                    IL_GETTEL : item.IL_GETTEL,
-                    IL_SEQ : item.IL_SEQ,
-                    IL_NEWBAGNO : item.IL_NEWBAGNO,
-                    IL_NEWSMALLNO : item.IL_NEWSMALLNO,
-                    IL_ORDERINDEX : item.IL_ORDERINDEX
-                };
-                break;
-            case 'hr3':
-                _params = {
-                    IL_GETNAME : item.IL_GETNAME,
-                    IL_GETTEL : item.IL_GETTEL,
-                    IL_SEQ : item.IL_SEQ,
-                    IL_NEWBAGNO : item.IL_NEWBAGNO,
-                    IL_NEWSMALLNO : item.IL_NEWSMALLNO,
-                    IL_ORDERINDEX : item.IL_ORDERINDEX
-                };
-                break;
-            case 'hr4':
-                _params = {
-                    IL_GETNAME : item.IL_GETNAME,
-                    IL_GETADDRESS : item.IL_GETADDRESS,
-                    IL_GETTEL : item.IL_GETTEL,
-                    IL_SEQ : item.IL_SEQ,
-                    IL_NEWBAGNO : item.IL_NEWBAGNO,
-                    IL_NEWSMALLNO : item.IL_NEWSMALLNO,
-                    IL_ORDERINDEX : item.IL_ORDERINDEX
-                };
-                break;
-        }
-
-        RestfulApi.SearchMSSQLData({
-            querymain: 'banHistorySearch',
-            queryname: 'SelectItemList',
-            params: _params
-        }).then(function (res){
-            console.log(res["returnData"]);
-            $ctrl.mdData = res["returnData"];
-        }); 
-    }
-
-    $ctrl.ok = function() {
-        $uibModalInstance.close($ctrl.mdData);
-    };
-
-    $ctrl.cancel = function() {
-        $uibModalInstance.dismiss('cancel');
-    };
-});
 'use strict';
 
 angular.module('app.chat').factory('ChatApi', function ($q, $rootScope, User, $http, APP_CONFIG) {
@@ -14852,6 +16375,421 @@ angular.module('app').factory('Todo', function (Restangular, APP_CONFIG, $httpBa
 
     return Todo
 });
+"use strict";
+
+angular.module('app.concerns').controller('ResultBanCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, $timeout, uiGridConstants, RestfulApi, $filter, compy, localStorageService, ToolboxApi) {
+    
+    var $vm = this,
+        columnDefs = [
+            { name: 'IL_COUNT'      , displayName: '歷史歷程', width: 75, enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToHistoryCount') },
+            { name: 'BAN_TYPE'      , displayName: '名單類型', width: 100, filter: 
+                {
+                    term: "通報",
+                    type: uiGridConstants.filter.SELECT,
+                    selectOptions: [
+                        {label:"通報", value:"通報"},
+                        {label:"自訂", value:"自訂"}
+                    ]
+                }
+            },
+            { name: 'OL_IMPORTDT'            ,  displayName: '進口日期', width: 80, cellFilter: 'dateFilter' },
+            { name: 'OL_CO_CODE'             ,  displayName: '行家', width: 80, cellFilter: 'compyFilter', filter: 
+                {
+                    term: null,
+                    type: uiGridConstants.filter.SELECT,
+                    selectOptions: compy
+                }
+            },
+            { name: 'OL_FLIGHTNO'            ,  displayName: '航班', width: 80 },
+            { name: 'OL_MASTER'              ,  displayName: '主號', width: 120 },
+            { name: 'OL_COUNTRY'             ,  displayName: '起運國別', width: 80 },
+            { name: 'IL_G1'         , displayName: '報關種類', width: 115 },
+            { name: 'IL_MERGENO'    , displayName: '併票號', width: 129 },
+            { name: 'IL_BAGNO'      , displayName: '袋號', width: 129 },
+            { name: 'IL_SMALLNO'    , displayName: '小號', width: 115 },
+            { name: 'IL_NATURE'     , displayName: '品名', width: 115 },
+            { name: 'IL_NATURE_NEW' , displayName: '新品名', width: 115 },
+            { name: 'IL_CTN'        , displayName: '件數', width: 115 },
+            { name: 'IL_PLACE'      , displayName: '產地', width: 115 },
+            { name: 'IL_NEWPLACE'   , displayName: '新產地', width: 115 },
+            { name: 'IL_WEIGHT'     , displayName: '重量', width: 115 },
+            { name: 'IL_WEIGHT_NEW' , displayName: '新重量', width: 115 },
+            { name: 'IL_PCS'        , displayName: '數量', width: 115 },
+            { name: 'IL_NEWPCS'     , displayName: '新數量', width: 115 },
+            { name: 'IL_UNIT'       , displayName: '單位', width: 115 },
+            { name: 'IL_NEWUNIT'    , displayName: '新單位', width: 115 },
+            { name: 'IL_GETNO'      , displayName: '收件者統編', width: 115 },
+            { name: 'IL_SENDNAME'   , displayName: '寄件人或公司', width: 115 },
+            { name: 'IL_NEWSENDNAME', displayName: '新寄件人或公司', width: 115 },
+            { name: 'IL_GETNAME'    , displayName: '收件人公司', width: 115 },
+            { name: 'IL_GETADDRESS' , displayName: '收件地址', width: 300 },
+            { name: 'IL_GETTEL'     , displayName: '收件電話', width: 115 },
+            { name: 'IL_UNIVALENT'  , displayName: '單價', width: 115 },
+            { name: 'IL_UNIVALENT_NEW', displayName: '新單價', width: 115 },
+            { name: 'IL_FINALCOST'  , displayName: '完稅價格', width: 115 },
+            { name: 'IL_TAX'        , displayName: '稅則', width: 115 },
+            { name: 'IL_TRCOM'      , displayName: '派送公司', width: 115 },
+            { name: 'IL_REMARK'     , displayName: '備註', width: 115 }
+        ];
+
+	angular.extend(this, {
+        Init : function(){
+
+            if($stateParams.data == null){
+                ReturnToBanHistorySearchPage();
+            }else{
+                $scope.ShowTabs = true;
+                
+                $vm.bigBreadcrumbsItems = $state.current.name.split(".");
+                $vm.bigBreadcrumbsItems.shift();
+
+                $vm.vmData = $stateParams.data;
+                $vm.params = CombineConditions(localStorageService.get("BanHistorySearch"));
+
+                $vm.LoadData();
+                console.log($vm.params);
+            }
+
+        },
+        profile : Session.Get(),
+        defaultTab : 'hr1',
+        TabSwitch : function(pTabID){
+            return pTabID == $vm.defaultTab ? 'active' : '';
+        },
+        LoadData : function(){
+            console.log($vm.defaultTab);
+            switch($vm.defaultTab){
+                case 'hr1':
+                    LoadCaseA();
+                    break;
+                case 'hr2':
+                    LoadCaseB();
+                    break;
+                case 'hr3':
+                    LoadCaseC();
+                    break;
+                case 'hr4':
+                    LoadCaseD();
+                    break;
+            }
+        },
+        gridMethod : {
+            // 顯示歷史黑名單
+            showHistoryCount : function(row){
+                console.log(row);
+                var modalInstance = $uibModal.open({
+                    animation: true,
+                    ariaLabelledBy: 'modal-title',
+                    ariaDescribedBy: 'modal-body',
+                    templateUrl: 'showHistoryCountModalContent.html',
+                    controller: 'ShowHistoryCountModalInstanceCtrl',
+                    controllerAs: '$ctrl',
+                    size: 'lg',
+                    // appendTo: parentElem,
+                    resolve: {
+                        item: function() {
+                            return row.entity;
+                        },
+                        type: function(){
+                            return $vm.defaultTab;   
+                        },
+                        compy: function(){
+                            return compy;
+                        }
+                    }
+                });
+
+                modalInstance.result.then(function(selectedItem) {
+                    // $ctrl.selected = selectedItem;
+                    console.log(selectedItem);
+
+                }, function() {
+                    // $log.info('Modal dismissed at: ' + new Date());
+                });
+            }
+        },
+        caseAOptions : {
+            data:  '$vm.caseAData',
+            columnDefs: columnDefs,
+            enableFiltering: true,
+            enableSorting: true,
+            enableColumnMenus: false,
+            // enableVerticalScrollbar: false,
+            paginationPageSizes: [10, 25, 50, 100],
+            paginationPageSize: 100,
+            onRegisterApi: function(gridApi){
+                $vm.caseAGridApi = gridApi;
+            }
+        },
+        caseBOptions : {
+            data:  '$vm.caseBData',
+            columnDefs: columnDefs,
+            enableFiltering: true,
+            enableSorting: true,
+            enableColumnMenus: false,
+            // enableVerticalScrollbar: false,
+            paginationPageSizes: [10, 25, 50, 100],
+            paginationPageSize: 100,
+            onRegisterApi: function(gridApi){
+                $vm.caseBGridApi = gridApi;
+            }
+        },
+        caseCOptions : {
+            data:  '$vm.caseCData',
+            columnDefs: columnDefs,
+            enableFiltering: true,
+            enableSorting: true,
+            enableColumnMenus: false,
+            // enableVerticalScrollbar: false,
+            paginationPageSizes: [10, 25, 50, 100],
+            paginationPageSize: 100,
+            onRegisterApi: function(gridApi){
+                $vm.caseCGridApi = gridApi;
+            }
+        },
+        caseDOptions : {
+            data:  '$vm.caseDData',
+            columnDefs: columnDefs,
+            enableFiltering: true,
+            enableSorting: true,
+            enableColumnMenus: false,
+            // enableVerticalScrollbar: false,
+            paginationPageSizes: [10, 25, 50, 100],
+            paginationPageSize: 100,
+            onRegisterApi: function(gridApi){
+                $vm.caseDGridApi = gridApi;
+            }
+        },
+        Return : function(){
+            ReturnToBanHistorySearchPage();
+        },
+        ExportExcel : function(){
+
+            var _exportName = null,
+                _queryname = null;
+
+            switch($vm.defaultTab){
+                case 'hr1':
+                    _exportName = $filter('date')(new Date(), 'yyyyMMdd') + ' ' + $scope.getWord($state.current.data.title) + ' A類型';
+                    _queryname = "SelectCaseA";
+                    break;
+                case 'hr2':
+                    _exportName = $filter('date')(new Date(), 'yyyyMMdd') + ' ' + $scope.getWord($state.current.data.title) + ' B類型';
+                    _queryname = "SelectCaseB";
+                    break;
+                case 'hr3':
+                    _exportName = $filter('date')(new Date(), 'yyyyMMdd') + ' ' + $scope.getWord($state.current.data.title) + ' C類型';
+                    _queryname = "SelectCaseC";
+                    break;
+                case 'hr4':
+                    _exportName = $filter('date')(new Date(), 'yyyyMMdd') + ' ' + $scope.getWord($state.current.data.title) + ' D類型';
+                    _queryname = "SelectCaseD";
+                    break;
+            }
+
+            if(_exportName != null){
+                ToolboxApi.ExportExcelBySql({
+                    templates : 3,
+                    filename : _exportName,
+                    querymain: 'banHistorySearch',
+                    queryname: _queryname,
+                    params: $vm.params
+                }).then(function (res) {
+                    // console.log(res);
+                });
+            }
+        }
+    });
+
+    function LoadCaseA(){
+        RestfulApi.SearchMSSQLData({
+            querymain: 'banHistorySearch',
+            queryname: 'SelectCaseA',
+            params: $vm.params
+        }).then(function (res){
+            console.log(res["returnData"]);
+            $vm.caseAData = res["returnData"];
+        }); 
+    }
+
+    function LoadCaseB(){
+        RestfulApi.SearchMSSQLData({
+            querymain: 'banHistorySearch',
+            queryname: 'SelectCaseB',
+            params: $vm.params
+        }).then(function (res){
+            console.log(res["returnData"]);
+            $vm.caseBData = res["returnData"];
+        }); 
+    }
+
+    function LoadCaseC(){
+        RestfulApi.SearchMSSQLData({
+            querymain: 'banHistorySearch',
+            queryname: 'SelectCaseC',
+            params: $vm.params
+        }).then(function (res){
+            console.log(res["returnData"]);
+            $vm.caseCData = res["returnData"];
+        }); 
+    }
+
+    function LoadCaseD(){
+        RestfulApi.SearchMSSQLData({
+            querymain: 'banHistorySearch',
+            queryname: 'SelectCaseD',
+            params: $vm.params
+        }).then(function (res){
+            console.log(res["returnData"]);
+            $vm.caseDData = res["returnData"];
+        }); 
+    }
+
+    /**
+     * CombineConditions 條件組合
+     * @param {[type]}
+     */
+    function CombineConditions(pObject){
+        var _conditions = {};
+
+        for(var i in pObject){
+            if(pObject[i] != ""){
+                _conditions[i] = pObject[i];
+            }
+        }
+
+        return _conditions;
+    }
+
+    function ReturnToBanHistorySearchPage(){
+        $state.transitionTo($state.current.parent);
+    }
+})
+.controller('ShowHistoryCountModalInstanceCtrl', function ($uibModalInstance, item, type, RestfulApi, uiGridConstants, compy) {
+    var $ctrl = this;
+
+    $ctrl.Init = function(){
+        LoadHistoryCount(type);
+    };
+
+    $ctrl.mdDataOption = {
+        data:  '$ctrl.mdData',
+        columnDefs: [
+            { name: 'OL_IMPORTDT'            ,  displayName: '進口日期', width: 80, cellFilter: 'dateFilter' },
+            { name: 'OL_CO_CODE'             ,  displayName: '行家', width: 80, cellFilter: 'compyFilter', filter: 
+                {
+                    term: null,
+                    type: uiGridConstants.filter.SELECT,
+                    selectOptions: compy
+                }
+            },
+            { name: 'OL_FLIGHTNO'            ,  displayName: '航班', width: 80 },
+            { name: 'OL_MASTER'              ,  displayName: '主號', width: 120 },
+            { name: 'OL_COUNTRY'             ,  displayName: '起運國別', width: 80 },
+            { name: 'IL_G1'         , displayName: '報關種類', width: 115 },
+            { name: 'IL_MERGENO'    , displayName: '併票號', width: 129 },
+            { name: 'IL_BAGNO'      , displayName: '袋號', width: 129 },
+            { name: 'IL_SMALLNO'    , displayName: '小號', width: 115 },
+            { name: 'IL_NATURE'     , displayName: '品名', width: 115 },
+            { name: 'IL_NATURE_NEW' , displayName: '新品名', width: 115 },
+            { name: 'IL_CTN'        , displayName: '件數', width: 115 },
+            { name: 'IL_PLACE'      , displayName: '產地', width: 115 },
+            { name: 'IL_NEWPLACE'   , displayName: '新產地', width: 115 },
+            { name: 'IL_WEIGHT'     , displayName: '重量', width: 115 },
+            { name: 'IL_WEIGHT_NEW' , displayName: '新重量', width: 115 },
+            { name: 'IL_PCS'        , displayName: '數量', width: 115 },
+            { name: 'IL_NEWPCS'     , displayName: '新數量', width: 115 },
+            { name: 'IL_UNIT'       , displayName: '單位', width: 115 },
+            { name: 'IL_NEWUNIT'    , displayName: '新單位', width: 115 },
+            { name: 'IL_GETNO'      , displayName: '收件者統編', width: 115 },
+            { name: 'IL_SENDNAME'   , displayName: '寄件人或公司', width: 115 },
+            { name: 'IL_NEWSENDNAME', displayName: '新寄件人或公司', width: 115 },
+            { name: 'IL_GETNAME'    , displayName: '收件人公司', width: 115 },
+            { name: 'IL_GETADDRESS' , displayName: '收件地址', width: 300 },
+            { name: 'IL_GETTEL'     , displayName: '收件電話', width: 115 },
+            { name: 'IL_UNIVALENT'  , displayName: '單價', width: 115 },
+            { name: 'IL_UNIVALENT_NEW', displayName: '新單價', width: 115 },
+            { name: 'IL_FINALCOST'  , displayName: '完稅價格', width: 115 },
+            { name: 'IL_TAX'        , displayName: '稅則', width: 115 },
+            { name: 'IL_TRCOM'      , displayName: '派送公司', width: 115 },
+            { name: 'IL_REMARK'     , displayName: '備註', width: 115 }
+        ],
+        enableFiltering: true,
+        enableSorting: true,
+        enableColumnMenus: false,
+        // enableVerticalScrollbar: false,
+        paginationPageSizes: [10, 25, 50, 100],
+        paginationPageSize: 100,
+        onRegisterApi: function(gridApi){
+            $ctrl.mdDataGridApi = gridApi;
+        }
+    }
+
+    function LoadHistoryCount(pType){
+        var _params = {};
+
+        switch(pType){
+            case 'hr1':
+                _params = {
+                    IL_GETNAME : item.IL_GETNAME,
+                    IL_GETADDRESS : item.IL_GETADDRESS,
+                    IL_SEQ : item.IL_SEQ,
+                    IL_NEWBAGNO : item.IL_NEWBAGNO,
+                    IL_NEWSMALLNO : item.IL_NEWSMALLNO,
+                    IL_ORDERINDEX : item.IL_ORDERINDEX
+                };
+                break;
+            case 'hr2':
+                _params = {
+                    IL_GETADDRESS : item.IL_GETADDRESS,
+                    IL_GETTEL : item.IL_GETTEL,
+                    IL_SEQ : item.IL_SEQ,
+                    IL_NEWBAGNO : item.IL_NEWBAGNO,
+                    IL_NEWSMALLNO : item.IL_NEWSMALLNO,
+                    IL_ORDERINDEX : item.IL_ORDERINDEX
+                };
+                break;
+            case 'hr3':
+                _params = {
+                    IL_GETNAME : item.IL_GETNAME,
+                    IL_GETTEL : item.IL_GETTEL,
+                    IL_SEQ : item.IL_SEQ,
+                    IL_NEWBAGNO : item.IL_NEWBAGNO,
+                    IL_NEWSMALLNO : item.IL_NEWSMALLNO,
+                    IL_ORDERINDEX : item.IL_ORDERINDEX
+                };
+                break;
+            case 'hr4':
+                _params = {
+                    IL_GETNAME : item.IL_GETNAME,
+                    IL_GETADDRESS : item.IL_GETADDRESS,
+                    IL_GETTEL : item.IL_GETTEL,
+                    IL_SEQ : item.IL_SEQ,
+                    IL_NEWBAGNO : item.IL_NEWBAGNO,
+                    IL_NEWSMALLNO : item.IL_NEWSMALLNO,
+                    IL_ORDERINDEX : item.IL_ORDERINDEX
+                };
+                break;
+        }
+
+        RestfulApi.SearchMSSQLData({
+            querymain: 'banHistorySearch',
+            queryname: 'SelectItemList',
+            params: _params
+        }).then(function (res){
+            console.log(res["returnData"]);
+            $ctrl.mdData = res["returnData"];
+        }); 
+    }
+
+    $ctrl.ok = function() {
+        $uibModalInstance.close($ctrl.mdData);
+    };
+
+    $ctrl.cancel = function() {
+        $uibModalInstance.dismiss('cancel');
+    };
+});
 'use strict';
 
 angular.module('app.graphs').directive('chartjsBarChart', function () {
@@ -15333,18 +17271,6 @@ angular.module('app.graphs').directive('dygraphsNoRollTimestamp', function (Dygr
         }
     }
 });
-'use strict';
-
-angular.module('app.graphs').directive('highchartTable', function (lazyScript) {
-    return {
-        restrict: 'A',
-        link: function (scope, element) {
-            lazyScript.register('build/vendor.graphs.js').then(function(){
-                element.highchartTable();
-            })
-        }
-    }
-});
 "use strict";
 
 angular.module('app.graphs').directive('flotAutoUpdatingChart', function($timeout, FlotConfig){
@@ -15784,6 +17710,18 @@ angular.module('app.graphs').directive('flotSiteStatsChart', function(FlotConfig
                 }
             });
 
+        }
+    }
+});
+'use strict';
+
+angular.module('app.graphs').directive('highchartTable', function (lazyScript) {
+    return {
+        restrict: 'A',
+        link: function (scope, element) {
+            lazyScript.register('build/vendor.graphs.js').then(function(){
+                element.highchartTable();
+            })
         }
     }
 });
@@ -17022,7 +18960,7 @@ angular.module('app.graphs').directive('vectorMap', function () {
 });
 "use strict";
 
-angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, RestfulApi, ToolboxApi, uiGridConstants, $filter, $q) {
+angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, RestfulApi, ToolboxApi, uiGridConstants, $filter, $q, bool) {
     // console.log($stateParams, $state);
 
     var $vm = this,
@@ -17044,7 +18982,7 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                 // if($vm.vmData == null){
                 //     $vm.vmData = {
                 //         OL_SEQ : 'AdminTest20170525190758',
-                //         OL_CR_DATETIME : '2017-04-19T10:10:47.906Z'
+                //         OL_IMPORTDT : '2017-04-19T10:10:47.906Z'
                 //     };
                 // }
                 
@@ -17061,7 +18999,8 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                 ToolboxApi.ChangeNature({
                     ID : $vm.profile.U_ID,
                     PW : $vm.profile.U_PW,
-                    NATURE : row.entity.IL_NATURE
+                    NATURE : row.entity.IL_NATURE,
+                    NATURE_NEW : row.entity.IL_NATURE_NEW
                 }).then(function (res) {
                     var _returnData = JSON.parse(res["returnData"]),
                         needToUpdate = false;
@@ -17071,8 +19010,20 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                         row.entity.IL_NATURE_NEW = _returnData["IL_NATURE_NEW"];
                         needToUpdate = true;
                     }
-                    if(!angular.isUndefined(_returnData["IL_NEWUNIT"])){
+                    if(!angular.isUndefined(_returnData["IL_NEWUNIT"]) || _returnData["IL_NEWUNIT"] != ""){
                         row.entity.IL_NEWUNIT = _returnData["IL_NEWUNIT"];
+                        needToUpdate = true;
+                    }
+                    if(!angular.isUndefined(_returnData["IL_NEWPLACE"]) || _returnData["IL_NEWPLACE"] != ""){
+                        row.entity.IL_NEWPLACE = _returnData["IL_NEWPLACE"];
+                        needToUpdate = true;
+                    }
+                    if(!angular.isUndefined(_returnData["IL_TAX2"]) || _returnData["IL_TAX2"] != ""){
+                        row.entity.IL_TAX2 = _returnData["IL_TAX2"];
+                        needToUpdate = true;
+                    }
+                    if(!angular.isUndefined(_returnData["IL_TAXRATE"]) || _returnData["IL_TAXRATE"] != ""){
+                        row.entity.IL_TAXRATE = _returnData["IL_TAXRATE"];
                         needToUpdate = true;
                     }
 
@@ -17085,46 +19036,122 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                 });
             },
             // 加入黑名單
-            banData : function(row){
-                console.log(row);
-                var modalInstance = $uibModal.open({
-                    animation: true,
-                    ariaLabelledBy: 'modal-title',
-                    ariaDescribedBy: 'modal-body',
-                    templateUrl: 'opAddBanModalContent.html',
-                    controller: 'OPAddBanModalInstanceCtrl',
-                    controllerAs: '$ctrl',
-                    // size: 'lg',
-                    // appendTo: parentElem,
-                    resolve: {
-                        vmData: function() {
-                            return row.entity;
-                        }
-                    }
-                });
+            banData : function(){
 
-                modalInstance.result.then(function(selectedItem) {
-                    // $ctrl.selected = selectedItem;
-                    console.log(selectedItem);
-                    RestfulApi.InsertMSSQLData({
-                        insertname: 'Insert',
-                        table: 13,
-                        params: {
-                            BLFO_SEQ         : selectedItem.IL_SEQ,
-                            BLFO_NEWBAGNO    : selectedItem.IL_NEWBAGNO,
-                            BLFO_NEWSMALLNO  : selectedItem.IL_NEWSMALLNO,
-                            BLFO_ORDERINDEX  : selectedItem.IL_ORDERINDEX,
-                            BLFO_CR_USER     : $vm.profile.U_ID,
-                            BLFO_CR_DATETIME : $filter('date')(new Date, 'yyyy-MM-dd HH:mm:ss')
+                if($vm.job001GridApi.selection.getSelectedRows().length > 0){
+
+                    if($vm.job001GridApi.selection.getSelectedRows().length > 100){
+                        toaster.pop('warning', '警告', '超過100筆，請重新選擇', 3000);
+                        return;
+                    }
+
+                    var modalInstance = $uibModal.open({
+                        animation: true,
+                        ariaLabelledBy: 'modal-title',
+                        ariaDescribedBy: 'modal-body',
+                        template: $templateCache.get('isChecked'),
+                        controller: 'IsCheckedModalInstanceCtrl',
+                        controllerAs: '$ctrl',
+                        size: 'sm',
+                        windowClass: 'center-modal',
+                        // appendTo: parentElem,
+                        resolve: {
+                            items: function() {
+                                return {};
+                            },
+                            show: function(){
+                                return {
+                                    title : "是否加入黑名單"
+                                }
+                            }
                         }
-                    }).then(function(res) {
-                        // 加入後需要Disabled
-                        row.entity.BLFO_TRACK = true;
                     });
 
-                }, function() {
-                    // $log.info('Modal dismissed at: ' + new Date());
-                });
+                    modalInstance.result.then(function(selectedItem) {
+
+                        var _tasks = [],
+                            _d = new Date();
+
+                        // Insert黑名單
+                        for(var i in $vm.job001GridApi.selection.getSelectedRows()){
+                            // 如果不是黑名單的Row才需要被加入
+                            if($vm.job001GridApi.selection.getSelectedRows()[i].BLFO_TRACK != true){
+                                _tasks.push({
+                                    crudType: 'Insert',
+                                    table: 13,
+                                    params: {
+                                        BLFO_SEQ         : $vm.job001GridApi.selection.getSelectedRows()[i].IL_SEQ,
+                                        BLFO_NEWBAGNO    : $vm.job001GridApi.selection.getSelectedRows()[i].IL_NEWBAGNO,
+                                        BLFO_NEWSMALLNO  : $vm.job001GridApi.selection.getSelectedRows()[i].IL_NEWSMALLNO,
+                                        BLFO_ORDERINDEX  : $vm.job001GridApi.selection.getSelectedRows()[i].IL_ORDERINDEX,
+                                        BLFO_CR_USER     : $vm.profile.U_ID,
+                                        BLFO_CR_DATETIME : $filter('date')(new Date, 'yyyy-MM-dd HH:mm:ss')
+                                    }
+                                });
+                            }
+                        }
+
+                        RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res){
+                            if(res["returnData"].length > 0){
+
+                                for(var i in $vm.job001GridApi.selection.getSelectedRows()){
+                                    if($vm.job001GridApi.selection.getSelectedRows()[i].BLFO_TRACK != true){
+                                        $vm.job001GridApi.selection.getSelectedRows()[i].BLFO_TRACK = true;
+                                    }
+                                }
+                                toaster.pop('success', '訊息', '加入黑名單成功', 3000);
+                            }
+                        }, function (err) {
+                            toaster.pop('danger', '錯誤', '加入黑名單失敗', 3000);
+                        }).finally(function(){
+                            $vm.job001GridApi.selection.clearSelectedRows();
+                            ClearSelectedColumn();
+                        });  
+
+                    }, function() {
+                        // $log.info('Modal dismissed at: ' + new Date());
+                    });
+                }
+
+                // console.log(row);
+                // var modalInstance = $uibModal.open({
+                //     animation: true,
+                //     ariaLabelledBy: 'modal-title',
+                //     ariaDescribedBy: 'modal-body',
+                //     templateUrl: 'opAddBanModalContent.html',
+                //     controller: 'OPAddBanModalInstanceCtrl',
+                //     controllerAs: '$ctrl',
+                //     // size: 'lg',
+                //     // appendTo: parentElem,
+                //     resolve: {
+                //         vmData: function() {
+                //             return row.entity;
+                //         }
+                //     }
+                // });
+
+                // modalInstance.result.then(function(selectedItem) {
+                //     // $ctrl.selected = selectedItem;
+                //     console.log(selectedItem);
+                //     RestfulApi.InsertMSSQLData({
+                //         insertname: 'Insert',
+                //         table: 13,
+                //         params: {
+                //             BLFO_SEQ         : selectedItem.IL_SEQ,
+                //             BLFO_NEWBAGNO    : selectedItem.IL_NEWBAGNO,
+                //             BLFO_NEWSMALLNO  : selectedItem.IL_NEWSMALLNO,
+                //             BLFO_ORDERINDEX  : selectedItem.IL_ORDERINDEX,
+                //             BLFO_CR_USER     : $vm.profile.U_ID,
+                //             BLFO_CR_DATETIME : $filter('date')(new Date, 'yyyy-MM-dd HH:mm:ss')
+                //         }
+                //     }).then(function(res) {
+                //         // 加入後需要Disabled
+                //         row.entity.BLFO_TRACK = true;
+                //     });
+
+                // }, function() {
+                //     // $log.info('Modal dismissed at: ' + new Date());
+                // });
             },
             // 拉貨
             pullGoods : function(row){
@@ -17147,7 +19174,7 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                 });
 
                 modalInstance.result.then(function(selectedItem) {
-                    // console.log(selectedItem);
+                    console.log(selectedItem);
                     
                     RestfulApi.InsertMSSQLData({
                         insertname: 'Insert',
@@ -17284,17 +19311,45 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
         job001Options : {
             data: '$vm.job001Data',
             columnDefs: [
+                { name: 'isSelected'    , displayName: '選擇', width: 50, enableCellEdit: false, cellFilter: 'booleanFilter', filter: 
+                    {
+                        term: null,
+                        type: uiGridConstants.filter.SELECT,
+                        selectOptions: bool
+                    }
+                },
+                { name: 'IL_SUPPLEMENT_COUNT', displayName: '補件', width: 50, enableCellEdit: false },
                 { name: 'Index'         , displayName: '序列', width: 50, enableFiltering: false, enableCellEdit: false },
-                { name: 'IL_G1'         , displayName: '報關種類', width: 115, headerCellClass: 'text-primary' },
-                { name: 'IL_MERGENO'    , displayName: '併票號', width: 129, headerCellClass: 'text-primary' },
-                { name: 'IL_BAGNO'      , displayName: '袋號', width: 129, headerCellClass: 'text-primary' },
-                { name: 'IL_SMALLNO'    , displayName: '小號', width: 115, headerCellClass: 'text-primary' },
-                { name: 'IL_NATURE'     , displayName: '品名', width: 115, enableCellEdit: false },
-                { name: 'IL_NATURE_NEW' , displayName: '新品名', width: 115, headerCellClass: 'text-primary' },
-                { name: 'IL_CTN'        , displayName: '件數', width: 115, headerCellClass: 'text-primary' },
-                { name: 'IL_PLACE'      , displayName: '產地', width: 115, enableCellEdit: false },
-                { name: 'IL_NEWPLACE'   , displayName: '新產地', width: 115, headerCellClass: 'text-primary' },
-                { name: 'IL_WEIGHT'     , displayName: '重量', width: 115, enableCellEdit: false, filters: [
+                { name: 'IL_G1'         , displayName: '報關種類', width: 80, headerCellClass: 'text-primary' },
+                { name: 'IL_MERGENO'    , displayName: '併票號', width: 80, headerCellClass: 'text-primary' },
+                { name: 'BAGNO_MATCH'   , displayName: '內貨', width: 50, enableCellEdit: false, cellTemplate: $templateCache.get('accessibilityToInternalGoods'), filter: 
+                    {
+                        term: null,
+                        type: uiGridConstants.filter.SELECT,
+                        selectOptions: [
+                            {label:'否', value: '0'},
+                            {label:'是', value: '1'}
+                        ]
+                    }
+                },
+                { name: 'IL_BAGNO'      , displayName: '袋號', width: 80, headerCellClass: 'text-primary' },
+                { name: 'IL_SMALLNO'    , displayName: '小號', width: 110, headerCellClass: 'text-primary' },
+                { name: 'IL_NATURE'     , displayName: '品名', width: 120, enableCellEdit: false, cellTooltip: function (row, col) 
+                    {
+                        return row.entity.IL_NATURE
+                    } 
+                },
+                { name: 'IL_NATURE_NEW' , displayName: '新品名', width: 120, headerCellClass: 'text-primary', cellTooltip: function (row, col) 
+                    {
+                        return row.entity.IL_NATURE_NEW
+                    } 
+                },
+                { name: 'IL_TAX2'       , displayName: '稅則', width: 100, headerCellClass: 'text-primary' },
+                { name: 'ChangeNature'  , displayName: '改單', width: 50, enableCellEdit: false, enableSorting:false, cellTemplate: $templateCache.get('accessibilityToChangeNature'), cellClass: 'cell-class-no-style' },
+                { name: 'IL_CTN'        , displayName: '件數', width: 50, headerCellClass: 'text-primary' },
+                { name: 'IL_PLACE'      , displayName: '產地', width: 50, enableCellEdit: false },
+                { name: 'IL_NEWPLACE'   , displayName: '新產地', width: 70, headerCellClass: 'text-primary' },
+                { name: 'IL_WEIGHT'     , displayName: '重量', width: 70, enableCellEdit: false, filters: [
                     {
                         condition: uiGridConstants.filter.GREATER_THAN,
                         placeholder: '最小'
@@ -17304,7 +19359,7 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                         placeholder: '最大'
                     }
                 ]},
-                { name: 'IL_WEIGHT_NEW' , displayName: '新重量', width: 115, headerCellClass: 'text-primary', filters: [
+                { name: 'IL_WEIGHT_NEW' , displayName: '新重量', width: 70, headerCellClass: 'text-primary', filters: [
                     {
                         condition: uiGridConstants.filter.GREATER_THAN,
                         placeholder: '最小'
@@ -17314,7 +19369,7 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                         placeholder: '最大'
                     }
                 ]},
-                { name: 'IL_PCS'        , displayName: '數量', width: 115, enableCellEdit: false, filters: [
+                { name: 'IL_PCS'        , displayName: '數量', width: 70, enableCellEdit: false, filters: [
                     {
                         condition: uiGridConstants.filter.GREATER_THAN,
                         placeholder: '最小'
@@ -17324,7 +19379,7 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                         placeholder: '最大'
                     }  
                 ]},
-                { name: 'IL_NEWPCS'     , displayName: '新數量', width: 115, headerCellClass: 'text-primary', filters: [
+                { name: 'IL_NEWPCS'     , displayName: '新數量', width: 70, headerCellClass: 'text-primary', filters: [
                     {
                         condition: uiGridConstants.filter.GREATER_THAN,
                         placeholder: '最小'
@@ -17334,7 +19389,7 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                         placeholder: '最大'
                     }
                 ]},
-                { name: 'IL_UNIVALENT'  , displayName: '單價', width: 115, enableCellEdit: false, filters: [
+                { name: 'IL_UNIVALENT'  , displayName: '單價', width: 70, enableCellEdit: false, filters: [
                     {
                         condition: uiGridConstants.filter.GREATER_THAN,
                         placeholder: '最小'
@@ -17344,7 +19399,7 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                         placeholder: '最大'
                     }
                 ]},
-                { name: 'IL_UNIVALENT_NEW', displayName: '新單價', width: 115, headerCellClass: 'text-primary', filters: [
+                { name: 'IL_UNIVALENT_NEW', displayName: '新單價', width: 70, headerCellClass: 'text-primary', filters: [
                     {
                         condition: uiGridConstants.filter.GREATER_THAN,
                         placeholder: '最小'
@@ -17354,24 +19409,32 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                         placeholder: '最大'
                     }
                 ]},
-                { name: 'IL_FINALCOST'  , displayName: '完稅價格', width: 115, headerCellClass: 'text-primary' },
-                { name: 'IL_UNIT'       , displayName: '單位', width: 115, enableCellEdit: false },
-                { name: 'IL_NEWUNIT'    , displayName: '新單位', width: 115, headerCellClass: 'text-primary' },
-                { name: 'IL_GETNO'      , displayName: '收件者統編', width: 115, headerCellClass: 'text-primary' },
-                { name: 'IL_EXNO'       , displayName: '匯出統編', width: 115, headerCellClass: 'text-primary' },
-                { name: 'IL_SENDNAME'   , displayName: '寄件人', width: 115, enableCellEdit: false },
-                { name: 'IL_NEWSENDNAME', displayName: '新寄件人', width: 115, headerCellClass: 'text-primary' },
-                { name: 'IL_TAX'        , displayName: '稅費歸屬', width: 115, headerCellClass: 'text-primary' },
-                { name: 'IL_GETNAME'    , displayName: '收件人公司', width: 115, enableCellEdit: false },
-                { name: 'IL_GETNAME_NEW', displayName: '新收件人公司', width: 115, headerCellClass: 'text-primary' },
-                { name: 'IL_GETADDRESS' , displayName: '收件地址', width: 300, enableCellEdit: false },
+                { name: 'IL_FINALCOST'  , displayName: '完稅價格', width: 80, headerCellClass: 'text-primary', filters: [
+                    {
+                        condition: uiGridConstants.filter.GREATER_THAN,
+                        placeholder: '最小'
+                    },
+                    {
+                        condition: uiGridConstants.filter.LESS_THAN,
+                        placeholder: '最大'
+                    }
+                ]},
+                { name: 'IL_UNIT'       , displayName: '單位', width: 70, enableCellEdit: false },
+                { name: 'IL_NEWUNIT'    , displayName: '新單位', width: 70, headerCellClass: 'text-primary' },
+                { name: 'IL_GETNO'      , displayName: '收件者統編', width: 100, headerCellClass: 'text-primary' },
+                { name: 'IL_EXNO'       , displayName: '匯出統編', width: 80, headerCellClass: 'text-primary' },
+                { name: 'IL_SENDNAME'   , displayName: '寄件人', width: 80, enableCellEdit: false },
+                { name: 'IL_NEWSENDNAME', displayName: '新寄件人', width: 80, headerCellClass: 'text-primary' },
+                { name: 'IL_TAX'        , displayName: '稅費歸屬', width: 80, headerCellClass: 'text-primary' },
+                { name: 'IL_GETNAME'    , displayName: '收件人公司', width: 100, enableCellEdit: false },
+                { name: 'IL_GETNAME_NEW', displayName: '新收件人公司', width: 100, headerCellClass: 'text-primary' },
+                { name: 'IL_GETADDRESS' , displayName: '收件地址', width: 300, headerCellClass: 'text-primary' },
                 { name: 'IL_GETADDRESS_NEW' , displayName: '新收件地址', width: 300, headerCellClass: 'text-primary' },
-                { name: 'IL_GETTEL'     , displayName: '收件電話', width: 115, headerCellClass: 'text-primary' },
-                { name: 'IL_EXTEL'      , displayName: '匯出電話', width: 115, headerCellClass: 'text-primary' },
-                { name: 'IL_TRCOM'      , displayName: '派送公司', width: 115, headerCellClass: 'text-primary' },
-                { name: 'IL_REMARK'     , displayName: '備註', width: 115, headerCellClass: 'text-primary' },
-                { name: 'IL_TAX2'       , displayName: '稅則', width: 115, headerCellClass: 'text-primary' },
-                { name: 'Options'       , displayName: '操作', width: 240, enableCellEdit: false, enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToCB'), pinnedRight:true, cellClass: 'cell-class-no-style' }
+                { name: 'IL_GETTEL'     , displayName: '收件電話', width: 100, headerCellClass: 'text-primary' },
+                { name: 'IL_EXTEL'      , displayName: '匯出電話', width: 100, headerCellClass: 'text-primary' },
+                { name: 'IL_TRCOM'      , displayName: '派送公司', width: 100, headerCellClass: 'text-primary' },
+                { name: 'IL_REMARK'     , displayName: '備註', width: 100, headerCellClass: 'text-primary' },
+                { name: 'Options'       , displayName: '操作', width: 120, enableCellEdit: false, enableSorting:false, enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToJob001'), pinnedRight:true, cellClass: 'cell-class-no-style' }
             ],
             // rowTemplate: '<div> \
             //                 <div ng-repeat="(colRenderIndex, col) in colContainer.renderedColumns track by col.colDef.name" class="ui-grid-cell" ng-class="row.entity.BLFO_TRACK != null ? \'cell-class-pull cell-class-ban\' : \'\'" ui-grid-cell></div> \
@@ -17395,6 +19458,31 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
 
                 gridApi.edit.on.afterCellEdit($scope, function(rowEntity, colDef, newValue, oldValue){
 
+                    if(colDef.name == 'IL_GETNAME_NEW'){
+                        var _temp = encodeURI(rowEntity.IL_GETNAME_NEW),
+                            regex = /%09/gi;
+
+                        _temp = _temp.replace(regex, "%20");
+                        rowEntity.IL_GETNAME_NEW = decodeURI(_temp);
+                    }
+
+                    // 新單價 = 新重量 * 100 / 新數量
+                    if(colDef.name == 'IL_WEIGHT_NEW' || colDef.name == 'IL_NEWPCS'){
+                        var _weight = parseFloat(rowEntity.IL_WEIGHT_NEW).toFixed(2),
+                            _pcs = parseInt(rowEntity.IL_NEWPCS);
+
+                        // 如果都不是空值 才開始計算
+                        if(!isNaN(_weight) && !isNaN(_pcs)){
+                            // 如果數量不為0
+                            if(parseInt(_pcs) != 0){
+                                rowEntity.IL_UNIVALENT_NEW = (_weight * 100) / _pcs;
+                            }else{
+                                rowEntity.IL_UNIVALENT_NEW = 0;
+                            }
+                        }
+                    }
+
+                    // 計算稅
                     var _univalent = parseInt(rowEntity.IL_UNIVALENT_NEW),
                         _pcs = parseInt(rowEntity.IL_NEWPCS),
                         _finalcost = parseInt(rowEntity.IL_FINALCOST),
@@ -17428,7 +19516,7 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                         }
 
                         // 當完稅價格小於100
-                        if(_finalcost < 100){
+                        if(_finalcost < 100 && _finalcost != 0){
                             // 給個新值 100~125
                             var maxNum = 125;  
                             var minNum = 100;  
@@ -17440,103 +19528,261 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                             toaster.pop('warning', '警告', '完稅價格超過1500元，請注意', 3000);
                         }
                         
-                        // 當數量不為空 帶出單價
-                        if(!isNaN(_pcs)){
-                            _univalent = Math.round(_finalcost / _pcs);
+                        // 當數量不為空 帶出單價 (會與新單價衝突)
+                        if(colDef.name == 'IL_FINALCOST' || colDef.name == 'IL_NEWPCS' || colDef.name == 'IL_UNIVALENT_NEW'){
+                            if(!isNaN(_pcs)){
+                                if(parseInt(_pcs) != 0){
+                                    _univalent = Math.round(_finalcost / _pcs);
+                                }else{
+                                    _univalent = 0;
+                                }
+                            }
                         }
 
                         // 完稅價格
-                        if(colDef.name == 'IL_FINALCOST'){
+                        if(colDef.name == 'IL_FINALCOST' || colDef.name == 'IL_WEIGHT_NEW'){
                             // 避免帳不平 再次計算完稅價格
                             if(!isNaN(_pcs) && !isNaN(_univalent)){
                                 _finalcost = _pcs * _univalent;
                             }
                         }
+
+                        // console.log("_univalent:", _univalent," _pcs:" , _pcs," _finalcost:" , _finalcost);
+                        rowEntity.IL_UNIVALENT_NEW = isNaN(_univalent) ? null : _univalent;
+                        rowEntity.IL_NEWPCS = isNaN(_pcs) ? null : _pcs;
+                        rowEntity.IL_FINALCOST = isNaN(_finalcost) ? null : _finalcost;
                     }
 
-                    // console.log("_univalent:", _univalent," _pcs:" , _pcs," _finalcost:" , _finalcost);
-                    rowEntity.IL_UNIVALENT_NEW = isNaN(_univalent) ? null : _univalent;
-                    rowEntity.IL_NEWPCS = isNaN(_pcs) ? null : _pcs;
-                    rowEntity.IL_FINALCOST = isNaN(_finalcost) ? null : _finalcost;
+                    $vm.job001GridApi.rowEdit.setRowsDirty([rowEntity]);
 
                     // console.log('edited row id:' + rowEntity.Index + ' Column:' + colDef.name + ' newValue:' + newValue + ' oldValue:' + oldValue);
+                });
+
+                gridApi.selection.on.rowSelectionChanged($scope, function(rowEntity, colDef, newValue, oldValue){
+                    rowEntity.entity["isSelected"] = rowEntity.isSelected;
+                });
+
+                gridApi.selection.on.rowSelectionChangedBatch($scope, function(rowEntity, colDef, newValue, oldValue){
+                    for(var i in rowEntity){
+                        rowEntity[i].entity["isSelected"] = rowEntity[i].isSelected;
+                    }
                 });
             }
         },
         // 併票
         MergeNo: function(){
-            // console.log($vm.job001GridApi.selection.getSelectedRows());
-            if($vm.job001GridApi.selection.getSelectedRows().length > 0){
-                // 取得第一個袋號當併票號
-                var _mergeNo = $vm.job001GridApi.selection.getSelectedRows()[0].IL_BAGNO,
-                    _natureNew = [],
-                    _bagNo = [];
-
-                // 塞入新品名
-                for(var i in $vm.job001GridApi.selection.getSelectedRows()){
-                    // console.log($vm.job001GridApi.selection.getSelectedRows()[i].IL_NATURE_NEW);
-                    if($vm.job001GridApi.selection.getSelectedRows()[i].IL_NATURE_NEW != null){
-                        _natureNew.push($vm.job001GridApi.selection.getSelectedRows()[i].IL_NATURE_NEW);
-                    }
-
-                    // 算出袋數 重複不塞入
-                    if($filter('filter')(_bagNo, $vm.job001GridApi.selection.getSelectedRows()[i].IL_BAGNO).length == 0){
-                        _bagNo.push($vm.job001GridApi.selection.getSelectedRows()[i].IL_BAGNO);
-                    }
-
-                }
-                var modalInstance = $uibModal.open({
-                    animation: true,
-                    ariaLabelledBy: 'modal-title',
-                    ariaDescribedBy: 'modal-body',
-                    templateUrl: 'mergeNoModalContent.html',
-                    controller: 'MergeNoModalInstanceCtrl',
-                    controllerAs: '$ctrl',
-                    // size: 'lg',
-                    // appendTo: parentElem,
-                    resolve: {
-                        mergeNo: function() {
-                            return _mergeNo;
-                        },
-                        natureNew: function() {
-                            return _natureNew;
-                        },
-                        bagNo: function(){
-                            return _bagNo;
-                        }
-                    }
-                });
-
-                modalInstance.result.then(function(selectedItem) {
-                    // $ctrl.selected = selectedItem;
-                    console.log(selectedItem);
-
-                    // 變更併票號與新品名
-                    for(var i in $vm.job001GridApi.selection.getSelectedRows()){
-                        var _index = $vm.job001GridApi.selection.getSelectedRows()[i].Index;
-                        $vm.job001Data[_index-1].IL_MERGENO = selectedItem.mergeNo;
-                        $vm.job001Data[_index-1].IL_NATURE_NEW = selectedItem.natureNew;
-                    }
-
-                    $vm.job001GridApi.rowEdit.setRowsDirty($vm.job001GridApi.selection.getSelectedRows());
-                    $vm.job001GridApi.selection.clearSelectedRows();
-                }, function() {
-                    // $log.info('Modal dismissed at: ' + new Date());
-                });
+            if($vm.job001GridApi.selection.getSelectedRows().length == 0) {
+                toaster.pop('info', '訊息', '尚未勾選資料。', 3000);
+                return;
             }
-        },
-        // 取消併票
-        CancelNo: function(){
-            if($vm.job001GridApi.selection.getSelectedRows().length > 0){
+
+            // 取得第一個袋號當併票號
+            var _mergeNo = $vm.job001GridApi.selection.getSelectedRows()[0].IL_BAGNO,
+                _natureNew = [],
+                _bagNo = [];
+
+            // 塞入新品名
+            for(var i in $vm.job001GridApi.selection.getSelectedRows()){
+                // console.log($vm.job001GridApi.selection.getSelectedRows()[i].IL_NATURE_NEW);
+                if($vm.job001GridApi.selection.getSelectedRows()[i].IL_NATURE_NEW != null){
+                    _natureNew.push($vm.job001GridApi.selection.getSelectedRows()[i].IL_NATURE_NEW);
+                }
+
+                // 算出袋數 重複不塞入
+                if($filter('filter')(_bagNo, $vm.job001GridApi.selection.getSelectedRows()[i].IL_BAGNO).length == 0){
+                    _bagNo.push($vm.job001GridApi.selection.getSelectedRows()[i].IL_BAGNO);
+                }
+
+            }
+            var modalInstance = $uibModal.open({
+                animation: true,
+                ariaLabelledBy: 'modal-title',
+                ariaDescribedBy: 'modal-body',
+                templateUrl: 'mergeNoModalContent.html',
+                controller: 'MergeNoModalInstanceCtrl',
+                controllerAs: '$ctrl',
+                // size: 'lg',
+                // appendTo: parentElem,
+                resolve: {
+                    mergeNo: function() {
+                        return _mergeNo;
+                    },
+                    natureNew: function() {
+                        return _natureNew;
+                    },
+                    bagNo: function(){
+                        return _bagNo;
+                    }
+                }
+            });
+
+            modalInstance.result.then(function(selectedItem) {
+                // $ctrl.selected = selectedItem;
+                console.log(selectedItem);
+
+                // 變更併票號與新品名
                 for(var i in $vm.job001GridApi.selection.getSelectedRows()){
                     var _index = $vm.job001GridApi.selection.getSelectedRows()[i].Index;
-                    $vm.job001Data[_index-1].IL_MERGENO = null;
-                    // $vm.job001Data[_index-1].IL_NATURE_NEW = null;
+                    $vm.job001Data[_index-1].IL_MERGENO = selectedItem.mergeNo;
+                    $vm.job001Data[_index-1].IL_NATURE_NEW = selectedItem.natureNew;
                 }
 
                 $vm.job001GridApi.rowEdit.setRowsDirty($vm.job001GridApi.selection.getSelectedRows());
                 $vm.job001GridApi.selection.clearSelectedRows();
+                ClearSelectedColumn();
+            }, function() {
+                // $log.info('Modal dismissed at: ' + new Date());
+            });
+        },
+        // 取消併票
+        CancelNo: function(){
+            if($vm.job001GridApi.selection.getSelectedRows().length == 0) {
+                toaster.pop('info', '訊息', '尚未勾選資料。', 3000);
+                return;
             }
+
+            for(var i in $vm.job001GridApi.selection.getSelectedRows()){
+                var _index = $vm.job001GridApi.selection.getSelectedRows()[i].Index;
+                $vm.job001Data[_index-1].IL_MERGENO = null;
+                // $vm.job001Data[_index-1].IL_NATURE_NEW = null;
+            }
+
+            $vm.job001GridApi.rowEdit.setRowsDirty($vm.job001GridApi.selection.getSelectedRows());
+            $vm.job001GridApi.selection.clearSelectedRows();
+            ClearSelectedColumn();
+        },
+        // 特貨註記
+        MultiSpecialGoods: function(){
+            if($vm.job001GridApi.selection.getSelectedRows().length == 0) {
+                toaster.pop('info', '訊息', '尚未勾選資料。', 3000);
+                return;
+            }
+            if($vm.job001GridApi.selection.getSelectedRows().length > 100) {
+                toaster.pop('info', '訊息', '超過100筆，請重新選擇筆數', 3000);
+                return;
+            }
+
+            var modalInstance = $uibModal.open({
+                animation: true,
+                ariaLabelledBy: 'modal-title',
+                ariaDescribedBy: 'modal-body',
+                templateUrl: 'specialGoodsModalContent.html',
+                controller: 'MultiSpecialGoodsModalInstanceCtrl',
+                controllerAs: '$ctrl',
+                size: 'sm',
+                // appendTo: parentElem,
+                resolve: {
+                    specialGoods: function(SysCode) {
+                        return SysCode.get('SpecialGoods');
+                    }
+                }
+            });
+
+            modalInstance.result.then(function(selectedItem) {
+
+                // console.log(selectedItem);
+
+                var _task = [];
+
+                for(var i in $vm.job001GridApi.selection.getSelectedRows()){
+
+                    if(angular.isUndefined(selectedItem)){
+                        _task.push({
+                            crudType: 'Delete',
+                            table: 20,
+                            params: {
+                                SPG_SEQ         : $vm.job001GridApi.selection.getSelectedRows()[i].IL_SEQ,
+                                SPG_NEWBAGNO    : $vm.job001GridApi.selection.getSelectedRows()[i].IL_NEWBAGNO,
+                                SPG_NEWSMALLNO  : $vm.job001GridApi.selection.getSelectedRows()[i].IL_NEWSMALLNO,
+                                SPG_ORDERINDEX  : $vm.job001GridApi.selection.getSelectedRows()[i].IL_ORDERINDEX
+                            }
+                        });
+                    }else{
+                        _task.push({
+                            crudType: 'Upsert',
+                            table: 20,
+                            params: {
+                                SPG_TYPE        : selectedItem.SPG_TYPE,
+                                SPG_CR_USER     : $vm.profile.U_ID,
+                                SPG_CR_DATETIME : $filter('date')(new Date, 'yyyy-MM-dd HH:mm:ss')
+                            },
+                            condition: {
+                                SPG_SEQ         : $vm.job001GridApi.selection.getSelectedRows()[i].IL_SEQ,
+                                SPG_NEWBAGNO    : $vm.job001GridApi.selection.getSelectedRows()[i].IL_NEWBAGNO,
+                                SPG_NEWSMALLNO  : $vm.job001GridApi.selection.getSelectedRows()[i].IL_NEWSMALLNO,
+                                SPG_ORDERINDEX  : $vm.job001GridApi.selection.getSelectedRows()[i].IL_ORDERINDEX
+                            }
+                        });
+                    }
+
+                }
+
+                RestfulApi.CRUDMSSQLDataByTask(_task).then(function (res){
+
+                    if(res["returnData"].length > 0){
+                        // 變更特貨類型
+                        for(var i in $vm.job001GridApi.selection.getSelectedRows()){
+                            if(angular.isUndefined(selectedItem)){
+                                $vm.job001GridApi.selection.getSelectedRows()[i].SPG_SPECIALGOODS = 0;
+                            }else{
+                                $vm.job001GridApi.selection.getSelectedRows()[i].SPG_SPECIALGOODS = selectedItem.SPG_TYPE;
+                            }
+                        }
+
+                        $vm.job001GridApi.selection.clearSelectedRows();
+                        ClearSelectedColumn();
+                    }
+                });
+
+            }, function() {
+                // $log.info('Modal dismissed at: ' + new Date());
+            });
+        },
+        /**
+         * [DoTax description] 稅則
+         */
+        DoTax: function(){
+            if($vm.job001GridApi.selection.getSelectedRows().length == 0) {
+                toaster.pop('info', '訊息', '尚未勾選資料。', 3000);
+                return;
+            }
+
+            $vm.DoTaxLoading = true;
+
+            var _natureNewList = [];
+            for(var i in $vm.job001GridApi.selection.getSelectedRows()){
+                if($vm.job001GridApi.selection.getSelectedRows()[i].IL_NATURE_NEW != null && $vm.job001GridApi.selection.getSelectedRows()[i].IL_NATURE_NEW != ''){
+                    _natureNewList.push({
+                        "Nature_NEW": $vm.job001GridApi.selection.getSelectedRows()[i].IL_NATURE_NEW,
+                        "RowIndex": $vm.job001GridApi.selection.getSelectedRows()[i].Index
+                    });
+                }
+            }
+
+            if(_natureNewList.length == 0){
+                toaster.pop('info', '訊息', '無新品名資料。', 3000);
+                return;
+            }
+
+            ToolboxApi.DoTax({
+                ID : $vm.profile.U_ID,
+                PW : $vm.profile.U_PW,
+                NATURE_NEW_LIST : _natureNewList
+            }).then(function (res) {
+                var _returnData = JSON.parse(res["returnData"]);
+                // console.log(_returnData);
+
+                for(var i in _returnData){
+                    $vm.job001Data[parseInt(_returnData[i].RowIndex) - 1].IL_TAX2 = _returnData[i].Tax;
+                    $vm.job001Data[parseInt(_returnData[i].RowIndex) - 1].IL_TAXRATE = _returnData[i].TaxRate;
+                    $vm.job001GridApi.rowEdit.setRowsDirty([$vm.job001Data[parseInt(_returnData[i].RowIndex) - 1]]);
+                }
+
+                $vm.job001GridApi.selection.clearSelectedRows();
+
+            }).finally(function() {
+                $vm.DoTaxLoading = false;
+            });
         },
         ExportExcel: function(){
             console.log($vm.vmData);
@@ -17582,11 +19828,17 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                         _templates = "0";
                         _queryname = "SelectItemListForEx0";
                         _params["IL_G1"] = "'','X2'";
+                        // 不包含併X3(也就是mergeno是null)
+                        _params["IL_MERGENO"] = null;
                         break;
                     case "0X3":
                         _templates = "0";
                         _queryname = "SelectItemListForEx0";
                         _params["IL_G1"] = "'X3'";
+                        break;
+                    case "0MX3":
+                        _templates = "10";
+                        _queryname = "SelectItemListForEx0MX3";
                         break;
                     case "8":
                         _templates = "8";
@@ -17629,6 +19881,11 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                               $filter('compyFilter')($vm.vmData.OL_CO_CODE) + ' ' +
                               $vm.vmData.OL_FLIGHTNO + ' ' +
                               $vm.vmData.OL_COUNT + '袋';
+
+            // 如果是拉貨 最後要補上原報機日期
+            if($vm.vmData.ORI_OL_IMPORTDT != null){
+                _exportName += ' ' + $filter('date')($vm.vmData.ORI_OL_IMPORTDT, 'yyyyMMdd')
+            }
 
             // 選擇筆數匯出
             if($vm.job001GridApi.selection.getSelectedRows().length > 0){
@@ -17688,6 +19945,7 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                 templateUrl: 'mergeNoResultModalContent.html',
                 controller: 'MergeNoResultModalInstanceCtrl',
                 controllerAs: '$ctrl',
+                backdrop: 'static',
                 size: 'lg',
                 // appendTo: parentElem,
                 resolve: {
@@ -17703,91 +19961,101 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                 // $log.info('Modal dismissed at: ' + new Date());
             });
         },
-        // 顯示收件者相同結果
-        RepeatName : function(){
-            RestfulApi.SearchMSSQLData({
-                querymain: 'job001',
-                queryname: 'SelectRepeatName',
-                params: {
-                    IL_SEQ: $vm.vmData.OL_SEQ
-                }
-            }).then(function (res){
-                // console.log(res["returnData"]);
-                if(res["returnData"].length > 0){
-                    var modalInstance = $uibModal.open({
-                        animation: true,
-                        ariaLabelledBy: 'modal-title',
-                        ariaDescribedBy: 'modal-body',
-                        templateUrl: 'repeatNameModalContent.html',
-                        controller: 'RepeatNameModalInstanceCtrl',
-                        controllerAs: '$ctrl',
-                        size: 'lg',
-                        // appendTo: parentElem,
-                        resolve: {
-                            repeatNameData: function() {
-                                return res["returnData"];
-                            }
-                        }
-                    });
+        /**
+         * 依類型找出相同
+         * N : 收件人
+         * A : 地址
+         * N+A : 收件人 + 地址
+         */
+        RepeatData : function(pType){
 
-                    modalInstance.result.then(function(selectedItem) {
-                        console.log(selectedItem);
+            var _queryname = null;
+            switch(pType){
+                case "N":
+                    _queryname = 'SelectRepeatName';
+                    break;
+                case "A":
+                    _queryname = 'SelectRepeatAddress';
+                    break;
+                case "N+A":
+                    _queryname = 'SelectRepeatNameAndAddress';
+                    break;
+            }
 
-                        if(selectedItem.length > 0){
-                            var _getDirtyData = [];
-                            for(var i in selectedItem){
-
-                                var _beUpdate = $filter('filter')($vm.job001Data, { 
-                                    IL_SEQ : selectedItem[i].entity.IL_SEQ,
-                                    IL_NEWBAGNO : selectedItem[i].entity.IL_NEWBAGNO,
-                                    IL_NEWSMALLNO : selectedItem[i].entity.IL_NEWSMALLNO,
-                                    IL_ORDERINDEX : selectedItem[i].entity.IL_ORDERINDEX
-                                });
-
-                                if(_beUpdate.length > 0){
-                                    var _index = _beUpdate[0].Index - 1;
-
-                                    // 更新收件者相同的值
-                                    $vm.job001Data[_index].IL_G1             = selectedItem[i].entity.IL_G1;
-                                    $vm.job001Data[_index].IL_MERGENO        = selectedItem[i].entity.IL_MERGENO;
-                                    $vm.job001Data[_index].IL_BAGNO          = selectedItem[i].entity.IL_BAGNO;
-                                    $vm.job001Data[_index].IL_SMALLNO        = selectedItem[i].entity.IL_SMALLNO;
-                                    $vm.job001Data[_index].IL_NATURE_NEW     = selectedItem[i].entity.IL_NATURE_NEW;
-                                    $vm.job001Data[_index].IL_CTN            = selectedItem[i].entity.IL_CTN;
-                                    $vm.job001Data[_index].IL_PLACE          = selectedItem[i].entity.IL_PLACE;
-                                    $vm.job001Data[_index].IL_WEIGHT_NEW     = selectedItem[i].entity.IL_WEIGHT_NEW;
-                                    $vm.job001Data[_index].IL_NEWPCS         = selectedItem[i].entity.IL_NEWPCS;
-                                    $vm.job001Data[_index].IL_NEWUNIT        = selectedItem[i].entity.IL_NEWUNIT;
-                                    $vm.job001Data[_index].IL_GETNO          = selectedItem[i].entity.IL_GETNO;
-                                    $vm.job001Data[_index].IL_NEWSENDNAME    = selectedItem[i].entity.IL_NEWSENDNAME;
-                                    $vm.job001Data[_index].IL_GETNAME_NEW    = selectedItem[i].entity.IL_GETNAME_NEW;
-                                    $vm.job001Data[_index].IL_GETADDRESS_NEW = selectedItem[i].entity.IL_GETADDRESS_NEW;
-                                    $vm.job001Data[_index].IL_GETTEL         = selectedItem[i].entity.IL_GETTEL;
-                                    $vm.job001Data[_index].IL_UNIVALENT_NEW  = selectedItem[i].entity.IL_UNIVALENT_NEW;
-                                    $vm.job001Data[_index].IL_FINALCOST      = selectedItem[i].entity.IL_FINALCOST;
-                                    $vm.job001Data[_index].IL_TAX            = selectedItem[i].entity.IL_TAX;
-                                    $vm.job001Data[_index].IL_TRCOM          = selectedItem[i].entity.IL_TRCOM;
-                                    $vm.job001Data[_index].IL_REMARK         = selectedItem[i].entity.IL_REMARK;
-                                    $vm.job001Data[_index].IL_EXTEL          = selectedItem[i].entity.IL_EXTEL;
-                                    $vm.job001Data[_index].IL_EXNO           = selectedItem[i].entity.IL_EXNO;
-                                    $vm.job001Data[_index].IL_TAX2           = selectedItem[i].entity.IL_TAX2;
-
-                                    _getDirtyData.push($vm.job001Data[_index]);
+            if (_queryname != null){ 
+                RestfulApi.SearchMSSQLData({
+                    querymain: 'job001',
+                    queryname: _queryname,
+                    params: {
+                        IL_SEQ: $vm.vmData.OL_SEQ
+                    }
+                }).then(function (res){
+                    // console.log(res["returnData"]);
+                    if(res["returnData"].length > 0){
+                        var modalInstance = $uibModal.open({
+                            animation: true,
+                            ariaLabelledBy: 'modal-title',
+                            ariaDescribedBy: 'modal-body',
+                            templateUrl: 'repeatDataModalContent.html',
+                            controller: 'RepeatDataModalInstanceCtrl',
+                            controllerAs: '$ctrl',
+                            backdrop: 'static',
+                            size: 'lg',
+                            // appendTo: parentElem,
+                            resolve: {
+                                repeatData: function() {
+                                    return res["returnData"];
                                 }
                             }
-                            $vm.job001GridApi.rowEdit.setRowsDirty(_getDirtyData);
-                        }
+                        });
 
-                    }, function() {
-                        // $log.info('Modal dismissed at: ' + new Date());
-                    });
-                }else{
-                    toaster.pop('info', '訊息', '無重複收件者名稱', 3000);
-                }
-            }); 
+                        modalInstance.result.then(function(selectedItem) {
+                            console.log(selectedItem);
+
+                            if(selectedItem.length > 0){
+                                var _getDirtyData = [];
+                                for(var i in selectedItem){
+
+                                    var _beUpdate = $filter('filter')($vm.job001Data, { 
+                                        IL_SEQ : selectedItem[i].entity.IL_SEQ,
+                                        IL_NEWBAGNO : selectedItem[i].entity.IL_NEWBAGNO,
+                                        IL_NEWSMALLNO : selectedItem[i].entity.IL_NEWSMALLNO,
+                                        IL_ORDERINDEX : selectedItem[i].entity.IL_ORDERINDEX
+                                    });
+
+                                    if(_beUpdate.length > 0){
+                                        var _index = _beUpdate[0].Index - 1;
+
+                                        // 更新收件者相同的值
+                                        for(var j in $vm.job001GridApi.grid.columns){
+                                            var _colDef = $vm.job001GridApi.grid.columns[j].colDef;
+                                            if(_colDef.enableCellEdit){
+                                                console.log(_colDef.name);
+                                                $vm.job001Data[_index][_colDef.name] = selectedItem[i].entity[_colDef.name];
+                                            }
+                                        }
+
+                                        _getDirtyData.push($vm.job001Data[_index]);
+                                    }
+                                }
+                                $vm.job001GridApi.rowEdit.setRowsDirty(_getDirtyData);
+                            }
+
+                        }, function() {
+                            // $log.info('Modal dismissed at: ' + new Date());
+                        });
+                    }else{
+                        toaster.pop('info', '訊息', '無重複收件者名稱', 3000);
+                    }
+                }); 
+            }
         },
-        // 篩選出收件人 收件地址 收件電話 超過六次的資料
-        OverSix : function(){
+        /**
+         * 篩選出收件人 收件地址 收件電話 超過六次的資料
+         * N|A : 收件人 | 地址
+         * N+A : 收件人 + 地址
+         */
+        OverSix : function(pType){
             if(!angular.isUndefined($vm.vmData.OL_IMPORTDT)){
                 var _year = $filter('date')($vm.vmData.OL_IMPORTDT, 'yyyy'),
                     _queryname = null,
@@ -17796,12 +20064,30 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                 if($vm.vmData.OL_IMPORTDT < _year+'-06-30T23:59:59.999Z'){
                     console.log('上半年');
                     _type = '上半年';
-                    _queryname = 'SelectOverSixFirst';
+                    // _queryname = 'SelectOverSixFirst';
+
+                    switch(pType){
+                        case "N|A":
+                            _queryname = 'SelectOverSixFirst';
+                            break;
+                        case "N+A":
+                            _queryname = 'SelectOverSixCompoundFirst';
+                            break;
+                    }
                 }
                 if(_year+'-07-01T00:00:00.000Z' < $vm.vmData.OL_IMPORTDT){
                     console.log('下半年');
                     _type = '下半年';
-                    _queryname = 'SelectOverSixSecond';
+                    // _queryname = 'SelectOverSixSecond';
+
+                    switch(pType){
+                        case "N|A":
+                            _queryname = 'SelectOverSixSecond';
+                            break;
+                        case "N+A":
+                            _queryname = 'SelectOverSixCompoundSecond';
+                            break;
+                    }
                 }
 
                 if(_queryname != null){
@@ -17821,6 +20107,7 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                                 templateUrl: 'overSixModalContent.html',
                                 controller: 'OverSixModalInstanceCtrl',
                                 controllerAs: '$ctrl',
+                                backdrop: 'static',
                                 size: 'lg',
                                 // appendTo: parentElem,
                                 resolve: {
@@ -17851,29 +20138,13 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                                             var _index = _beUpdate[0].Index - 1;
 
                                             // 更新超過六次的值
-                                            $vm.job001Data[_index].IL_G1             = selectedItem[i].entity.IL_G1;
-                                            $vm.job001Data[_index].IL_MERGENO        = selectedItem[i].entity.IL_MERGENO;
-                                            $vm.job001Data[_index].IL_BAGNO          = selectedItem[i].entity.IL_BAGNO;
-                                            $vm.job001Data[_index].IL_SMALLNO        = selectedItem[i].entity.IL_SMALLNO;
-                                            $vm.job001Data[_index].IL_NATURE_NEW     = selectedItem[i].entity.IL_NATURE_NEW;
-                                            $vm.job001Data[_index].IL_CTN            = selectedItem[i].entity.IL_CTN;
-                                            $vm.job001Data[_index].IL_PLACE          = selectedItem[i].entity.IL_PLACE;
-                                            $vm.job001Data[_index].IL_WEIGHT_NEW     = selectedItem[i].entity.IL_WEIGHT_NEW;
-                                            $vm.job001Data[_index].IL_NEWPCS         = selectedItem[i].entity.IL_NEWPCS;
-                                            $vm.job001Data[_index].IL_NEWUNIT        = selectedItem[i].entity.IL_NEWUNIT;
-                                            $vm.job001Data[_index].IL_GETNO          = selectedItem[i].entity.IL_GETNO;
-                                            $vm.job001Data[_index].IL_NEWSENDNAME    = selectedItem[i].entity.IL_NEWSENDNAME;
-                                            $vm.job001Data[_index].IL_GETNAME_NEW    = selectedItem[i].entity.IL_GETNAME_NEW;
-                                            $vm.job001Data[_index].IL_GETADDRESS_NEW = selectedItem[i].entity.IL_GETADDRESS_NEW;
-                                            $vm.job001Data[_index].IL_GETTEL         = selectedItem[i].entity.IL_GETTEL;
-                                            $vm.job001Data[_index].IL_UNIVALENT_NEW  = selectedItem[i].entity.IL_UNIVALENT_NEW;
-                                            $vm.job001Data[_index].IL_FINALCOST      = selectedItem[i].entity.IL_FINALCOST;
-                                            $vm.job001Data[_index].IL_TAX            = selectedItem[i].entity.IL_TAX;
-                                            $vm.job001Data[_index].IL_TRCOM          = selectedItem[i].entity.IL_TRCOM;
-                                            $vm.job001Data[_index].IL_REMARK         = selectedItem[i].entity.IL_REMARK;
-                                            $vm.job001Data[_index].IL_EXTEL          = selectedItem[i].entity.IL_EXTEL;
-                                            $vm.job001Data[_index].IL_EXNO           = selectedItem[i].entity.IL_EXNO;
-                                            $vm.job001Data[_index].IL_TAX2           = selectedItem[i].entity.IL_TAX2;
+                                            for(var j in $vm.job001GridApi.grid.columns){
+                                                var _colDef = $vm.job001GridApi.grid.columns[j].colDef;
+                                                if(_colDef.enableCellEdit){
+                                                    console.log(_colDef.name);
+                                                    $vm.job001Data[_index][_colDef.name] = selectedItem[i].entity[_colDef.name];
+                                                }
+                                            }
 
                                             _getDirtyData.push($vm.job001Data[_index]);
                                         }
@@ -17894,9 +20165,55 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
         Return : function(){
             ReturnToEmployeejobsPage();
         },
+        Close : function(){
+            var modalInstance = $uibModal.open({
+                animation: true,
+                ariaLabelledBy: 'modal-title',
+                ariaDescribedBy: 'modal-body',
+                template: $templateCache.get('isChecked'),
+                controller: 'IsCheckedModalInstanceCtrl',
+                controllerAs: '$ctrl',
+                size: 'sm',
+                windowClass: 'center-modal',
+                // appendTo: parentElem,
+                resolve: {
+                    items: function() {
+                        return {};
+                    },
+                    show: function(){
+                        return {
+                            title : "是否完成"
+                        }
+                    }
+                }
+            });
+
+            modalInstance.result.then(function(selectedItem) {
+                // $ctrl.selected = selectedItem;
+
+                RestfulApi.UpdateMSSQLData({
+                    updatename: 'Update',
+                    table: 22,
+                    params: {
+                        OE_FDATETIME : $filter('date')(new Date(), 'yyyy-MM-dd HH:mm:ss')
+                    },
+                    condition: {
+                        OE_SEQ : $vm.vmData.OL_SEQ,
+                        OE_TYPE : 'R',
+                        OE_PRINCIPAL : $vm.profile.U_ID
+                    }
+                }).then(function (res) {
+                    ReturnToEmployeejobsPage();
+                });
+
+            }, function() {
+                // $log.info('Modal dismissed at: ' + new Date());
+            });
+        },
         Update : function(entity){
             // console.log($vm.job001GridApi.rowEdit);
             // console.log($vm.job001GridApi.rowEdit.getDirtyRows($vm.job001GridApi.grid));
+            // console.log(entity);
 
             // create a fake promise - normally you'd use the promise returned by $http or $resource
             var promise = $q.defer();
@@ -17910,24 +20227,17 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                     IL_MERGENO         : entity.IL_MERGENO,
                     IL_BAGNO           : entity.IL_BAGNO,
                     IL_SMALLNO         : entity.IL_SMALLNO,
-                    IL_NATURE          : entity.IL_NATURE,
                     IL_NATURE_NEW      : entity.IL_NATURE_NEW,
                     IL_CTN             : entity.IL_CTN,
-                    IL_PLACE           : entity.IL_PLACE,
-                    IL_NEWPLACE        : entity.IL_NEWPLACE,
-                    IL_WEIGHT          : entity.IL_WEIGHT,
-                    IL_WEIGHT_NEW      : entity.IL_WEIGHT_NEW,
-                    IL_PCS             : entity.IL_PCS,
                     IL_NEWPCS          : entity.IL_NEWPCS,
-                    IL_UNIT            : entity.IL_UNIT,
                     IL_NEWUNIT         : entity.IL_NEWUNIT,
+                    IL_WEIGHT_NEW      : entity.IL_WEIGHT_NEW,
                     IL_GETNO           : entity.IL_GETNO,
-                    IL_SENDNAME        : entity.IL_SENDNAME,
                     IL_NEWSENDNAME     : entity.IL_NEWSENDNAME,
                     IL_GETNAME_NEW     : entity.IL_GETNAME_NEW,
+                    IL_GETADDRESS      : entity.IL_GETADDRESS,
                     IL_GETADDRESS_NEW  : entity.IL_GETADDRESS_NEW,
                     IL_GETTEL          : entity.IL_GETTEL,
-                    IL_UNIVALENT       : entity.IL_UNIVALENT,
                     IL_UNIVALENT_NEW   : entity.IL_UNIVALENT_NEW,
                     IL_FINALCOST       : entity.IL_FINALCOST,
                     IL_TAX             : entity.IL_TAX,
@@ -17936,6 +20246,7 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                     IL_EXTEL           : entity.IL_EXTEL,
                     IL_EXNO            : entity.IL_EXNO,
                     IL_TAX2            : entity.IL_TAX2,
+                    IL_TAXRATE         : angular.isNumber(entity.IL_TAXRATE) ? entity.IL_TAXRATE : null,
                     IL_UP_DATETIME     : $filter('date')(new Date(), 'yyyy-MM-dd HH:mm:ss'),
                     IL_UP_USER         : $vm.profile.U_ID
                 },
@@ -17963,13 +20274,22 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                 IL_SEQ: $vm.vmData.OL_SEQ
             }
         }).then(function (res){
-            console.log(res["returnData"]);
+            // console.log(res["returnData"]);
             for(var i=0;i<res["returnData"].length;i++){
                 res["returnData"][i]["Index"] = i+1;
             }
             $vm.job001Data = angular.copy(res["returnData"]);
         }); 
     };
+
+    /**
+     * [ClearSelectedColumn description] isSelected設為否
+     */
+    function ClearSelectedColumn(){
+        for(var i in $vm.job001Data){
+            $vm.job001Data[i].isSelected = false;
+        }
+    }
 
     function ReturnToEmployeejobsPage(){
         $state.transitionTo($state.current.parent);
@@ -18034,7 +20354,6 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
     };
 })
 .controller('SpecialGoodsModalInstanceCtrl', function ($uibModalInstance, items, specialGoods) {
-    console.log(items);
     var $ctrl = this;
 
     $ctrl.Init = function(){
@@ -18046,6 +20365,21 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
         }
     }
 
+
+    $ctrl.ok = function() {
+        $uibModalInstance.close($ctrl.mdData);
+    };
+
+    $ctrl.cancel = function() {
+        $uibModalInstance.dismiss('cancel');
+    };
+})
+.controller('MultiSpecialGoodsModalInstanceCtrl', function ($uibModalInstance, specialGoods) {
+    var $ctrl = this;
+
+    $ctrl.Init = function(){
+        $ctrl.specialGoodsData = specialGoods;
+    }
 
     $ctrl.ok = function() {
         $uibModalInstance.close($ctrl.mdData);
@@ -18145,38 +20479,38 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
         data: '$ctrl.job001DataNotMergeNo',
         columnDefs: [
             { name: 'Index'           , displayName: '序列', width: 50},
-            { name: 'IL_G1'           , displayName: '報關種類', width: 115 },
-            { name: 'IL_MERGENO'      , displayName: '併票號', width: 129 },
-            { name: 'IL_BAGNO'        , displayName: '袋號', width: 129 },
-            { name: 'IL_SMALLNO'      , displayName: '小號', width: 115 },
-            { name: 'IL_NATURE'       , displayName: '品名', width: 115 },
-            { name: 'IL_NATURE_NEW'   , displayName: '新品名', width: 115 },
-            { name: 'IL_CTN'          , displayName: '件數', width: 115 },
-            { name: 'IL_PLACE'        , displayName: '產地', width: 115 },
-            { name: 'IL_NEWPLACE'     , displayName: '新產地', width: 115 },
-            { name: 'IL_WEIGHT'       , displayName: '重量', width: 115 },
-            { name: 'IL_WEIGHT_NEW'   , displayName: '新重量', width: 115 },
-            { name: 'IL_PCS'          , displayName: '數量', width: 115 },
-            { name: 'IL_NEWPCS'       , displayName: '新數量', width: 115 },
-            { name: 'IL_UNIVALENT'    , displayName: '單價', width: 115 },
-            { name: 'IL_UNIVALENT_NEW', displayName: '新單價', width: 115 },
-            { name: 'IL_FINALCOST'    , displayName: '完稅價格', width: 115 },
-            { name: 'IL_UNIT'         , displayName: '單位', width: 115 },
-            { name: 'IL_NEWUNIT'      , displayName: '新單位', width: 115 },
-            { name: 'IL_GETNO'        , displayName: '收件者統編', width: 115 },
-            { name: 'IL_EXNO'         , displayName: '匯出統編', width: 115 },
-            { name: 'IL_SENDNAME'     , displayName: '寄件人', width: 115 },
-            { name: 'IL_NEWSENDNAME'  , displayName: '新寄件人', width: 115 },
-            { name: 'IL_TAX'          , displayName: '稅費歸屬', width: 115 },
-            { name: 'IL_GETNAME'      , displayName: '收件人公司', width: 115 },
-            { name: 'IL_GETNAME_NEW'  , displayName: '新收件人公司', width: 115 },
+            { name: 'IL_G1'           , displayName: '報關種類', width: 80 },
+            { name: 'IL_MERGENO'      , displayName: '併票號', width: 80 },
+            { name: 'IL_BAGNO'        , displayName: '袋號', width: 80 },
+            { name: 'IL_SMALLNO'      , displayName: '小號', width: 110 },
+            { name: 'IL_NATURE'       , displayName: '品名', width: 120 },
+            { name: 'IL_NATURE_NEW'   , displayName: '新品名', width: 120 },
+            { name: 'IL_CTN'          , displayName: '件數', width: 50 },
+            { name: 'IL_PLACE'        , displayName: '產地', width: 50 },
+            { name: 'IL_NEWPLACE'     , displayName: '新產地', width: 70 },
+            { name: 'IL_WEIGHT'       , displayName: '重量', width: 70 },
+            { name: 'IL_WEIGHT_NEW'   , displayName: '新重量', width: 70 },
+            { name: 'IL_PCS'          , displayName: '數量', width: 70 },
+            { name: 'IL_NEWPCS'       , displayName: '新數量', width: 70 },
+            { name: 'IL_UNIVALENT'    , displayName: '單價', width: 70 },
+            { name: 'IL_UNIVALENT_NEW', displayName: '新單價', width: 70 },
+            { name: 'IL_FINALCOST'    , displayName: '完稅價格', width: 80 },
+            { name: 'IL_UNIT'         , displayName: '單位', width: 70 },
+            { name: 'IL_NEWUNIT'      , displayName: '新單位', width: 70 },
+            { name: 'IL_GETNO'        , displayName: '收件者統編', width: 100 },
+            { name: 'IL_EXNO'         , displayName: '匯出統編', width: 80 },
+            { name: 'IL_SENDNAME'     , displayName: '寄件人', width: 80 },
+            { name: 'IL_NEWSENDNAME'  , displayName: '新寄件人', width: 80 },
+            { name: 'IL_TAX'          , displayName: '稅費歸屬', width: 80 },
+            { name: 'IL_GETNAME'      , displayName: '收件人公司', width: 100 },
+            { name: 'IL_GETNAME_NEW'  , displayName: '新收件人公司', width: 100 },
             { name: 'IL_GETADDRESS'   , displayName: '收件地址', width: 300 },
             { name: 'IL_GETADDRESS_NEW', displayName: '新收件地址', width: 300 },
-            { name: 'IL_GETTEL'       , displayName: '收件電話', width: 115 },
-            { name: 'IL_EXTEL'        , displayName: '匯出電話', width: 115 },
-            { name: 'IL_TRCOM'        , displayName: '派送公司', width: 115 },
-            { name: 'IL_REMARK'       , displayName: '備註', width: 115 },
-            { name: 'IL_TAX2'         , displayName: '稅則', width: 115 }
+            { name: 'IL_GETTEL'       , displayName: '收件電話', width: 100 },
+            { name: 'IL_EXTEL'        , displayName: '匯出電話', width: 100 },
+            { name: 'IL_TRCOM'        , displayName: '派送公司', width: 100 },
+            { name: 'IL_REMARK'       , displayName: '備註', width: 100 },
+            { name: 'IL_TAX2'         , displayName: '稅則', width: 100 }
         ],
         enableFiltering: false,
         enableSorting: true,
@@ -18211,45 +20545,78 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
         $uibModalInstance.dismiss('cancel');
     };
 })
-.controller('RepeatNameModalInstanceCtrl', function ($uibModalInstance, $q, $scope, repeatNameData) {
+.controller('RepeatDataModalInstanceCtrl', function ($uibModalInstance, $q, $scope, repeatData) {
     var $ctrl = this;
-    $ctrl.mdData = repeatNameData;
+    $ctrl.mdData = repeatData;
 
-    $ctrl.repeatNameOption = {
+    $ctrl.repeatDataOption = {
         data: '$ctrl.mdData',
         columnDefs: [
-            { name: 'IL_G1'         , displayName: '報關種類', width: 115, headerCellClass: 'text-primary' },
-            { name: 'IL_MERGENO'    , displayName: '併票號', width: 129, headerCellClass: 'text-primary' },
-            { name: 'IL_BAGNO'      , displayName: '袋號', width: 129, headerCellClass: 'text-primary' },
-            { name: 'IL_SMALLNO'    , displayName: '小號', width: 115, headerCellClass: 'text-primary' },
-            { name: 'IL_NATURE'     , displayName: '品名', width: 115, enableCellEdit: false },
-            { name: 'IL_NATURE_NEW' , displayName: '新品名', width: 115, headerCellClass: 'text-primary' },
-            { name: 'IL_CTN'        , displayName: '件數', width: 115, headerCellClass: 'text-primary' },
-            { name: 'IL_PLACE'      , displayName: '產地', width: 115, enableCellEdit: false },
-            { name: 'IL_NEWPLACE'   , displayName: '新產地', width: 115, headerCellClass: 'text-primary' },
-            { name: 'IL_WEIGHT'     , displayName: '重量', width: 115, enableCellEdit: false },
-            { name: 'IL_WEIGHT_NEW' , displayName: '新重量', width: 115, headerCellClass: 'text-primary' },
-            { name: 'IL_PCS'        , displayName: '數量', width: 115, enableCellEdit: false },
-            { name: 'IL_NEWPCS'     , displayName: '新數量', width: 115, headerCellClass: 'text-primary' },
-            { name: 'IL_UNIVALENT'  , displayName: '單價', width: 115, enableCellEdit: false },
-            { name: 'IL_UNIVALENT_NEW', displayName: '新單價', width: 115, headerCellClass: 'text-primary' },
-            { name: 'IL_FINALCOST'  , displayName: '完稅價格', width: 115, headerCellClass: 'text-primary' },
-            { name: 'IL_UNIT'       , displayName: '單位', width: 115, enableCellEdit: false },
-            { name: 'IL_NEWUNIT'    , displayName: '新單位', width: 115, headerCellClass: 'text-primary' },
-            { name: 'IL_GETNO'      , displayName: '收件者統編', width: 115, headerCellClass: 'text-primary' },
-            { name: 'IL_EXNO'       , displayName: '匯出統編', width: 115, headerCellClass: 'text-primary' },
-            { name: 'IL_SENDNAME'   , displayName: '寄件人', width: 115, enableCellEdit: false },
-            { name: 'IL_NEWSENDNAME', displayName: '新寄件人', width: 115, headerCellClass: 'text-primary' },
-            { name: 'IL_TAX'        , displayName: '稅費歸屬', width: 115, headerCellClass: 'text-primary' },
-            { name: 'IL_GETNAME'    , displayName: '收件人公司', width: 115, enableCellEdit: false },
-            { name: 'IL_GETNAME_NEW', displayName: '新收件人公司', width: 115, headerCellClass: 'text-primary' },
-            { name: 'IL_GETADDRESS' , displayName: '收件地址', width: 300, enableCellEdit: false },
-            { name: 'IL_GETADDRESS_NEW' , displayName: '新收件地址', width: 300, headerCellClass: 'text-primary' },
-            { name: 'IL_GETTEL'     , displayName: '收件電話', width: 115, headerCellClass: 'text-primary' },
-            { name: 'IL_EXTEL'      , displayName: '匯出電話', width: 115, headerCellClass: 'text-primary' },
-            { name: 'IL_TRCOM'      , displayName: '派送公司', width: 115, headerCellClass: 'text-primary' },
-            { name: 'IL_REMARK'     , displayName: '備註', width: 115, headerCellClass: 'text-primary' },
-            { name: 'IL_TAX2'       , displayName: '稅則', width: 115, headerCellClass: 'text-primary' }
+            { name: 'IL_G1'           , displayName: '報關種類', width: 80, headerCellClass: 'text-primary' },
+            { name: 'IL_MERGENO'      , displayName: '併票號', width: 80, headerCellClass: 'text-primary' },
+            { name: 'IL_BAGNO'        , displayName: '袋號', width: 80, headerCellClass: 'text-primary' },
+            { name: 'IL_SMALLNO'      , displayName: '小號', width: 110, headerCellClass: 'text-primary' },
+            { name: 'IL_NATURE'       , displayName: '品名', width: 120, enableCellEdit: false },
+            { name: 'IL_NATURE_NEW'   , displayName: '新品名', width: 120, headerCellClass: 'text-primary' },
+            { name: 'IL_CTN'          , displayName: '件數', width: 50, headerCellClass: 'text-primary' },
+            { name: 'IL_PLACE'        , displayName: '產地', width: 50, enableCellEdit: false },
+            { name: 'IL_NEWPLACE'     , displayName: '新產地', width: 70, headerCellClass: 'text-primary' },
+            { name: 'IL_WEIGHT'       , displayName: '重量', width: 70, enableCellEdit: false },
+            { name: 'IL_WEIGHT_NEW'   , displayName: '新重量', width: 70, headerCellClass: 'text-primary' },
+            { name: 'IL_PCS'          , displayName: '數量', width: 70, enableCellEdit: false },
+            { name: 'IL_NEWPCS'       , displayName: '新數量', width: 70, headerCellClass: 'text-primary' },
+            { name: 'IL_UNIVALENT'    , displayName: '單價', width: 70, enableCellEdit: false },
+            { name: 'IL_UNIVALENT_NEW', displayName: '新單價', width: 70, headerCellClass: 'text-primary' },
+            { name: 'IL_FINALCOST'    , displayName: '完稅價格', width: 80, headerCellClass: 'text-primary' },
+            { name: 'IL_UNIT'         , displayName: '單位', width: 70, enableCellEdit: false },
+            { name: 'IL_NEWUNIT'      , displayName: '新單位', width: 70, headerCellClass: 'text-primary' },
+            { name: 'IL_GETNO'        , displayName: '收件者統編', width: 100, headerCellClass: 'text-primary' },
+            { name: 'IL_EXNO'         , displayName: '匯出統編', width: 80, headerCellClass: 'text-primary' },
+            { name: 'IL_SENDNAME'     , displayName: '寄件人', width: 80, enableCellEdit: false },
+            { name: 'IL_NEWSENDNAME'  , displayName: '新寄件人', width: 80, headerCellClass: 'text-primary' },
+            { name: 'IL_TAX'          , displayName: '稅費歸屬', width: 80, headerCellClass: 'text-primary' },
+            { name: 'IL_GETNAME'      , displayName: '收件人公司', width: 100, enableCellEdit: false },
+            { name: 'IL_GETNAME_NEW'  , displayName: '新收件人公司', width: 100, headerCellClass: 'text-primary' },
+            { name: 'IL_GETADDRESS'   , displayName: '收件地址', width: 300, enableCellEdit: false },
+            { name: 'IL_GETADDRESS_NEW', displayName: '新收件地址', width: 300, headerCellClass: 'text-primary' },
+            { name: 'IL_GETTEL'       , displayName: '收件電話', width: 100, headerCellClass: 'text-primary' },
+            { name: 'IL_EXTEL'        , displayName: '匯出電話', width: 100, headerCellClass: 'text-primary' },
+            { name: 'IL_TRCOM'        , displayName: '派送公司', width: 100, headerCellClass: 'text-primary' },
+            { name: 'IL_REMARK'       , displayName: '備註', width: 100, headerCellClass: 'text-primary' },
+            { name: 'IL_TAX2'         , displayName: '稅則', width: 100, headerCellClass: 'text-primary' }
+
+            // { name: 'IL_G1'         , displayName: '報關種類', width: 115, headerCellClass: 'text-primary' },
+            // { name: 'IL_MERGENO'    , displayName: '併票號', width: 129, headerCellClass: 'text-primary' },
+            // { name: 'IL_BAGNO'      , displayName: '袋號', width: 129, headerCellClass: 'text-primary' },
+            // { name: 'IL_SMALLNO'    , displayName: '小號', width: 115, headerCellClass: 'text-primary' },
+            // { name: 'IL_NATURE'     , displayName: '品名', width: 115, enableCellEdit: false },
+            // { name: 'IL_NATURE_NEW' , displayName: '新品名', width: 115, headerCellClass: 'text-primary' },
+            // { name: 'IL_CTN'        , displayName: '件數', width: 115, headerCellClass: 'text-primary' },
+            // { name: 'IL_PLACE'      , displayName: '產地', width: 115, enableCellEdit: false },
+            // { name: 'IL_NEWPLACE'   , displayName: '新產地', width: 115, headerCellClass: 'text-primary' },
+            // { name: 'IL_WEIGHT'     , displayName: '重量', width: 115, enableCellEdit: false },
+            // { name: 'IL_WEIGHT_NEW' , displayName: '新重量', width: 115, headerCellClass: 'text-primary' },
+            // { name: 'IL_PCS'        , displayName: '數量', width: 115, enableCellEdit: false },
+            // { name: 'IL_NEWPCS'     , displayName: '新數量', width: 115, headerCellClass: 'text-primary' },
+            // { name: 'IL_UNIVALENT'  , displayName: '單價', width: 115, enableCellEdit: false },
+            // { name: 'IL_UNIVALENT_NEW', displayName: '新單價', width: 115, headerCellClass: 'text-primary' },
+            // { name: 'IL_FINALCOST'  , displayName: '完稅價格', width: 115, headerCellClass: 'text-primary' },
+            // { name: 'IL_UNIT'       , displayName: '單位', width: 115, enableCellEdit: false },
+            // { name: 'IL_NEWUNIT'    , displayName: '新單位', width: 115, headerCellClass: 'text-primary' },
+            // { name: 'IL_GETNO'      , displayName: '收件者統編', width: 115, headerCellClass: 'text-primary' },
+            // { name: 'IL_EXNO'       , displayName: '匯出統編', width: 115, headerCellClass: 'text-primary' },
+            // { name: 'IL_SENDNAME'   , displayName: '寄件人', width: 115, enableCellEdit: false },
+            // { name: 'IL_NEWSENDNAME', displayName: '新寄件人', width: 115, headerCellClass: 'text-primary' },
+            // { name: 'IL_TAX'        , displayName: '稅費歸屬', width: 115, headerCellClass: 'text-primary' },
+            // { name: 'IL_GETNAME'    , displayName: '收件人公司', width: 115, enableCellEdit: false },
+            // { name: 'IL_GETNAME_NEW', displayName: '新收件人公司', width: 115, headerCellClass: 'text-primary' },
+            // { name: 'IL_GETADDRESS' , displayName: '收件地址', width: 300, enableCellEdit: false },
+            // { name: 'IL_GETADDRESS_NEW' , displayName: '新收件地址', width: 300, headerCellClass: 'text-primary' },
+            // { name: 'IL_GETTEL'     , displayName: '收件電話', width: 115, headerCellClass: 'text-primary' },
+            // { name: 'IL_EXTEL'      , displayName: '匯出電話', width: 115, headerCellClass: 'text-primary' },
+            // { name: 'IL_TRCOM'      , displayName: '派送公司', width: 115, headerCellClass: 'text-primary' },
+            // { name: 'IL_REMARK'     , displayName: '備註', width: 115, headerCellClass: 'text-primary' },
+            // { name: 'IL_TAX2'       , displayName: '稅則', width: 115, headerCellClass: 'text-primary' }
         ],
         enableFiltering: false,
         enableSorting: true,
@@ -18259,19 +20626,19 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
         paginationPageSize: 100,
         rowEditWaitInterval: -1,
         onRegisterApi: function(gridApi){
-            $ctrl.repeatNameGridApi = gridApi;
+            $ctrl.repeatDataGridApi = gridApi;
         }
     }
 
     $ctrl.ok = function() {
-        $uibModalInstance.close($ctrl.repeatNameGridApi.rowEdit.getDirtyRows());
+        $uibModalInstance.close($ctrl.repeatDataGridApi.rowEdit.getDirtyRows());
     };
 
     $ctrl.cancel = function() {
         $uibModalInstance.dismiss('cancel');
     };
 })
-.controller('OverSixModalInstanceCtrl', function ($uibModalInstance, $q, $scope, overSixData, type) {
+.controller('OverSixModalInstanceCtrl', function ($uibModalInstance, $q, $scope, $templateCache, overSixData, type) {
     var $ctrl = this;
     $ctrl.type = type;
     $ctrl.mdData = overSixData;
@@ -18279,40 +20646,75 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
     $ctrl.overSixOption = {
         data: '$ctrl.mdData',
         columnDefs: [
-            { name: 'IL_G1'         , displayName: '報關種類', width: 115, headerCellClass: 'text-primary' },
-            { name: 'IL_MERGENO'    , displayName: '併票號', width: 129, headerCellClass: 'text-primary' },
-            { name: 'IL_BAGNO'      , displayName: '袋號', width: 129, headerCellClass: 'text-primary' },
-            { name: 'IL_SMALLNO'    , displayName: '小號', width: 115, headerCellClass: 'text-primary' },
-            { name: 'IL_NATURE'     , displayName: '品名', width: 115, enableCellEdit: false },
-            { name: 'IL_NATURE_NEW' , displayName: '新品名', width: 115, headerCellClass: 'text-primary' },
-            { name: 'IL_CTN'        , displayName: '件數', width: 115, headerCellClass: 'text-primary' },
-            { name: 'IL_PLACE'      , displayName: '產地', width: 115, enableCellEdit: false },
-            { name: 'IL_NEWPLACE'   , displayName: '新產地', width: 115, headerCellClass: 'text-primary' },
-            { name: 'IL_WEIGHT'     , displayName: '重量', width: 115, enableCellEdit: false },
-            { name: 'IL_WEIGHT_NEW' , displayName: '新重量', width: 115, headerCellClass: 'text-primary' },
-            { name: 'IL_PCS'        , displayName: '數量', width: 115, enableCellEdit: false },
-            { name: 'IL_NEWPCS'     , displayName: '新數量', width: 115, headerCellClass: 'text-primary' },
-            { name: 'IL_UNIVALENT'  , displayName: '單價', width: 115, enableCellEdit: false },
-            { name: 'IL_UNIVALENT_NEW', displayName: '新單價', width: 115, headerCellClass: 'text-primary' },
-            { name: 'IL_FINALCOST'  , displayName: '完稅價格', width: 115, headerCellClass: 'text-primary' },
-            { name: 'IL_UNIT'       , displayName: '單位', width: 115, enableCellEdit: false },
-            { name: 'IL_NEWUNIT'    , displayName: '新單位', width: 115, headerCellClass: 'text-primary' },
-            { name: 'IL_GETNO'      , displayName: '收件者統編', width: 115, headerCellClass: 'text-primary' },
-            { name: 'IL_EXNO'       , displayName: '匯出統編', width: 115, headerCellClass: 'text-primary' },
-            { name: 'IL_SENDNAME'   , displayName: '寄件人', width: 115, enableCellEdit: false },
-            { name: 'IL_NEWSENDNAME', displayName: '新寄件人', width: 115, headerCellClass: 'text-primary' },
-            { name: 'IL_TAX'        , displayName: '稅費歸屬', width: 115, headerCellClass: 'text-primary' },
-            { name: 'IL_GETNAME'    , displayName: '收件人公司', width: 115, enableCellEdit: false },
-            { name: 'IL_GETNAME_NEW', displayName: '新收件人公司', width: 115, headerCellClass: 'text-primary' },
-            { name: 'IL_GETADDRESS' , displayName: '收件地址', width: 300, enableCellEdit: false },
-            { name: 'IL_GETADDRESS_NEW' , displayName: '新收件地址', width: 300, headerCellClass: 'text-primary' },
-            { name: 'IL_GETTEL'     , displayName: '收件電話', width: 115, headerCellClass: 'text-primary' },
-            { name: 'IL_EXTEL'      , displayName: '匯出電話', width: 115, headerCellClass: 'text-primary' },
-            { name: 'IL_TRCOM'      , displayName: '派送公司', width: 115, headerCellClass: 'text-primary' },
-            { name: 'IL_REMARK'     , displayName: '備註', width: 115, headerCellClass: 'text-primary' },
-            { name: 'IL_TAX2'       , displayName: '稅則', width: 115, headerCellClass: 'text-primary' },
-            { name: 'GETNAME_COUNT'   , displayName: '收件人公司', width: 115, headerCellClass: 'text-danger', enableCellEdit: false, pinnedRight:true },
-            { name: 'GETADDRESS_COUNT', displayName: '收件地址', width: 115, headerCellClass: 'text-danger', enableCellEdit: false, pinnedRight:true }
+            { name: 'IL_G1'           , displayName: '報關種類', width: 80, headerCellClass: 'text-primary' },
+            { name: 'IL_MERGENO'      , displayName: '併票號', width: 80, headerCellClass: 'text-primary' },
+            { name: 'IL_BAGNO'        , displayName: '袋號', width: 80, headerCellClass: 'text-primary' },
+            { name: 'IL_SMALLNO'      , displayName: '小號', width: 110, headerCellClass: 'text-primary' },
+            { name: 'IL_NATURE'       , displayName: '品名', width: 120, enableCellEdit: false },
+            { name: 'IL_NATURE_NEW'   , displayName: '新品名', width: 120, headerCellClass: 'text-primary' },
+            { name: 'IL_CTN'          , displayName: '件數', width: 50, headerCellClass: 'text-primary' },
+            { name: 'IL_PLACE'        , displayName: '產地', width: 50, enableCellEdit: false },
+            { name: 'IL_NEWPLACE'     , displayName: '新產地', width: 70, headerCellClass: 'text-primary' },
+            { name: 'IL_WEIGHT'       , displayName: '重量', width: 70, enableCellEdit: false },
+            { name: 'IL_WEIGHT_NEW'   , displayName: '新重量', width: 70, headerCellClass: 'text-primary' },
+            { name: 'IL_PCS'          , displayName: '數量', width: 70, enableCellEdit: false },
+            { name: 'IL_NEWPCS'       , displayName: '新數量', width: 70, headerCellClass: 'text-primary' },
+            { name: 'IL_UNIVALENT'    , displayName: '單價', width: 70, enableCellEdit: false },
+            { name: 'IL_UNIVALENT_NEW', displayName: '新單價', width: 70, headerCellClass: 'text-primary' },
+            { name: 'IL_FINALCOST'    , displayName: '完稅價格', width: 80, headerCellClass: 'text-primary' },
+            { name: 'IL_UNIT'         , displayName: '單位', width: 70, enableCellEdit: false },
+            { name: 'IL_NEWUNIT'      , displayName: '新單位', width: 70, headerCellClass: 'text-primary' },
+            { name: 'IL_GETNO'        , displayName: '收件者統編', width: 100, headerCellClass: 'text-primary' },
+            { name: 'IL_EXNO'         , displayName: '匯出統編', width: 80, headerCellClass: 'text-primary' },
+            { name: 'IL_SENDNAME'     , displayName: '寄件人', width: 80, enableCellEdit: false },
+            { name: 'IL_NEWSENDNAME'  , displayName: '新寄件人', width: 80, headerCellClass: 'text-primary' },
+            { name: 'IL_TAX'          , displayName: '稅費歸屬', width: 80, headerCellClass: 'text-primary' },
+            { name: 'IL_GETNAME'      , displayName: '收件人公司', width: 100, enableCellEdit: false },
+            { name: 'IL_GETNAME_NEW'  , displayName: '新收件人公司', width: 100, headerCellClass: 'text-primary' },
+            { name: 'IL_GETADDRESS'   , displayName: '收件地址', width: 300, enableCellEdit: false },
+            { name: 'IL_GETADDRESS_NEW', displayName: '新收件地址', width: 300, headerCellClass: 'text-primary' },
+            { name: 'IL_GETTEL'       , displayName: '收件電話', width: 100, headerCellClass: 'text-primary' },
+            { name: 'IL_EXTEL'        , displayName: '匯出電話', width: 100, headerCellClass: 'text-primary' },
+            { name: 'IL_TRCOM'        , displayName: '派送公司', width: 100, headerCellClass: 'text-primary' },
+            { name: 'IL_REMARK'       , displayName: '備註', width: 100, headerCellClass: 'text-primary' },
+            { name: 'IL_TAX2'         , displayName: '稅則', width: 100, headerCellClass: 'text-primary' },
+            { name: 'GETNAME_COUNT'   , displayName: '收件人公司', width: 100, headerCellClass: 'text-danger', enableCellEdit: false, pinnedRight:true, cellTemplate: $templateCache.get('accessibilityToOverSixName') },
+            { name: 'GETADDRESS_COUNT', displayName: '收件地址', width: 100, headerCellClass: 'text-danger', enableCellEdit: false, pinnedRight:true, cellTemplate: $templateCache.get('accessibilityToOverSixAddress') }
+            
+            // { name: 'IL_G1'         , displayName: '報關種類', width: 115, headerCellClass: 'text-primary' },
+            // { name: 'IL_MERGENO'    , displayName: '併票號', width: 129, headerCellClass: 'text-primary' },
+            // { name: 'IL_BAGNO'      , displayName: '袋號', width: 129, headerCellClass: 'text-primary' },
+            // { name: 'IL_SMALLNO'    , displayName: '小號', width: 115, headerCellClass: 'text-primary' },
+            // { name: 'IL_NATURE'     , displayName: '品名', width: 115, enableCellEdit: false },
+            // { name: 'IL_NATURE_NEW' , displayName: '新品名', width: 115, headerCellClass: 'text-primary' },
+            // { name: 'IL_CTN'        , displayName: '件數', width: 115, headerCellClass: 'text-primary' },
+            // { name: 'IL_PLACE'      , displayName: '產地', width: 115, enableCellEdit: false },
+            // { name: 'IL_NEWPLACE'   , displayName: '新產地', width: 115, headerCellClass: 'text-primary' },
+            // { name: 'IL_WEIGHT'     , displayName: '重量', width: 115, enableCellEdit: false },
+            // { name: 'IL_WEIGHT_NEW' , displayName: '新重量', width: 115, headerCellClass: 'text-primary' },
+            // { name: 'IL_PCS'        , displayName: '數量', width: 115, enableCellEdit: false },
+            // { name: 'IL_NEWPCS'     , displayName: '新數量', width: 115, headerCellClass: 'text-primary' },
+            // { name: 'IL_UNIVALENT'  , displayName: '單價', width: 115, enableCellEdit: false },
+            // { name: 'IL_UNIVALENT_NEW', displayName: '新單價', width: 115, headerCellClass: 'text-primary' },
+            // { name: 'IL_FINALCOST'  , displayName: '完稅價格', width: 115, headerCellClass: 'text-primary' },
+            // { name: 'IL_UNIT'       , displayName: '單位', width: 115, enableCellEdit: false },
+            // { name: 'IL_NEWUNIT'    , displayName: '新單位', width: 115, headerCellClass: 'text-primary' },
+            // { name: 'IL_GETNO'      , displayName: '收件者統編', width: 115, headerCellClass: 'text-primary' },
+            // { name: 'IL_EXNO'       , displayName: '匯出統編', width: 115, headerCellClass: 'text-primary' },
+            // { name: 'IL_SENDNAME'   , displayName: '寄件人', width: 115, enableCellEdit: false },
+            // { name: 'IL_NEWSENDNAME', displayName: '新寄件人', width: 115, headerCellClass: 'text-primary' },
+            // { name: 'IL_TAX'        , displayName: '稅費歸屬', width: 115, headerCellClass: 'text-primary' },
+            // { name: 'IL_GETNAME'    , displayName: '收件人公司', width: 115, enableCellEdit: false },
+            // { name: 'IL_GETNAME_NEW', displayName: '新收件人公司', width: 115, headerCellClass: 'text-primary' },
+            // { name: 'IL_GETADDRESS' , displayName: '收件地址', width: 300, enableCellEdit: false },
+            // { name: 'IL_GETADDRESS_NEW' , displayName: '新收件地址', width: 300, headerCellClass: 'text-primary' },
+            // { name: 'IL_GETTEL'     , displayName: '收件電話', width: 115, headerCellClass: 'text-primary' },
+            // { name: 'IL_EXTEL'      , displayName: '匯出電話', width: 115, headerCellClass: 'text-primary' },
+            // { name: 'IL_TRCOM'      , displayName: '派送公司', width: 115, headerCellClass: 'text-primary' },
+            // { name: 'IL_REMARK'     , displayName: '備註', width: 115, headerCellClass: 'text-primary' },
+            // { name: 'IL_TAX2'       , displayName: '稅則', width: 115, headerCellClass: 'text-primary' },
+            // { name: 'GETNAME_COUNT'   , displayName: '收件人公司', width: 115, headerCellClass: 'text-danger', enableCellEdit: false, pinnedRight:true },
+            // { name: 'GETADDRESS_COUNT', displayName: '收件地址', width: 115, headerCellClass: 'text-danger', enableCellEdit: false, pinnedRight:true }
 
         ],
         enableFiltering: false,
@@ -18357,7 +20759,7 @@ angular.module('app.selfwork').controller('Job002Ctrl', function ($scope, $state
                 // 測試用
                 // if($vm.vmData == null){
                 //     $vm.vmData = {
-                //         OL_SEQ : 'AdminTest20170418195141'
+                //         OL_SEQ : 'Co0001Co000120170712205825'
                 //     };
                 // }
                 
@@ -18370,13 +20772,23 @@ angular.module('app.selfwork').controller('Job002Ctrl', function ($scope, $state
             data: '$vm.job002Data',
             columnDefs: [
                 // { name: 'Index'           , displayName: '序列', width: 50, enableCellEdit: false, enableFiltering: false, headerCellClass: 'text-muted'},
-                { name: 'FLL_ITEM'        , displayName: '序號' },
-                { name: 'FLL_BAGNO'       , displayName: '袋號' },
-                { name: 'FLL_CTN'         , displayName: '件數' },
-                { name: 'FLL_WEIGHT'      , displayName: '重量' },
-                { name: 'FLL_DESCRIPTION' , displayName: '品名' },
-                { name: 'FLL_DECLAREDNO'  , displayName: '宣告序號' },
-                { name: 'FLL_REMARK'      , displayName: '備註' }
+                { name: 'FLL_ITEM'        , displayName: '序號', enableCellEdit: false },
+                { name: 'BAGNO_MATCH'     , displayName: '內貨', enableCellEdit: false, cellTemplate: $templateCache.get('accessibilityToInternalGoods'), filter: 
+                    {
+                        term: null,
+                        type: uiGridConstants.filter.SELECT,
+                        selectOptions: [
+                            {label:'否', value: '0'},
+                            {label:'是', value: '1'}
+                        ]
+                    }
+                },
+                { name: 'FLL_BAGNO'       , displayName: '袋號', headerCellClass: 'text-primary' },
+                { name: 'FLL_CTN'         , displayName: '件數', headerCellClass: 'text-primary', aggregationType: uiGridConstants.aggregationTypes.sum },
+                { name: 'FLL_WEIGHT'      , displayName: '重量', headerCellClass: 'text-primary', aggregationType: uiGridConstants.aggregationTypes.sum, footerCellFilter: 'number: 2' },
+                { name: 'FLL_DESCRIPTION' , displayName: '品名', headerCellClass: 'text-primary' },
+                { name: 'FLL_DECLAREDNO'  , displayName: '宣告序號', headerCellClass: 'text-primary' },
+                { name: 'FLL_REMARK'      , displayName: '備註', headerCellClass: 'text-primary' }
             ],
             enableFiltering: true,
             enableSorting: true,
@@ -18384,34 +20796,327 @@ angular.module('app.selfwork').controller('Job002Ctrl', function ($scope, $state
             // enableVerticalScrollbar: false,
 		    enableRowSelection: true,
     		enableSelectAll: true,
-            paginationPageSizes: [50, 100, 150, 200, 250, 300],
-            paginationPageSize: 100,
+            showColumnFooter: true,
+            // paginationPageSizes: [50, 100, 150, 200, 250, 300],
+            // paginationPageSize: 100,
             onRegisterApi: function(gridApi){
                 $vm.job002GridApi = gridApi;
 
-                // gridApi.rowEdit.on.saveRow($scope, $vm.Update);
+                gridApi.rowEdit.on.saveRow($scope, $vm.Update);
             }
         },
-        ExportExcel: function(){
-            var _exportName = $filter('date')($vm.vmData.OL_IMPORTDT, 'yyyyMMdd') + ' ' + 
-                              $filter('compyFilter')($vm.vmData.OL_CO_CODE) + ' ' + 
-                              $vm.vmData.OL_FLIGHTNO;
+        // 新增
+        Add: function(){
 
-            ToolboxApi.ExportExcelBySql({
-                templates : 5,
-                filename : _exportName,
-                querymain: 'job002',
-                queryname: 'SelectFlightItemList',
-                params: {
-                    OL_MASTER : $vm.vmData.OL_MASTER,
-                    OL_IMPORTDT : $filter('date')($vm.vmData.OL_IMPORTDT, 'yyyy-MM-dd'),
-                    OL_FLIGHTNO : $vm.vmData.OL_FLIGHTNO,
-                    OL_COUNTRY : $vm.vmData.OL_COUNTRY,                
-                    FLL_SEQ: $vm.vmData.OL_SEQ
+            var modalInstance = $uibModal.open({
+                animation: true,
+                ariaLabelledBy: 'modal-title',
+                ariaDescribedBy: 'modal-body',
+                templateUrl: 'addItemModalContent.html',
+                controller: 'AddItemModalInstanceCtrl',
+                controllerAs: '$ctrl',
+                // size: 'lg',
+                // appendTo: parentElem,
+                resolve: {
+                    items: function() {
+                        return $vm.job002Data;
+                    }
                 }
-            }).then(function (res) {
+            });
+
+            modalInstance.result.then(function(selectedItem) {
+                // console.log(selectedItem);
+
+                selectedItem["FLL_CR_USER"] = $vm.profile.U_ID;
+                selectedItem["FLL_CR_DATETIME"] = $filter('date')(new Date, 'yyyy-MM-dd HH:mm:ss');
+                
+                RestfulApi.InsertMSSQLData({
+                    insertname: 'Insert',
+                    table: 10,
+                    params: selectedItem
+                }).then(function (res) {
+                    if(res["returnData"] == 1){
+                        LoadFlightItemList();
+                        toaster.pop('success', '訊息', '新增成功', 3000);
+                    }
+                });
+
+            }, function() {
+                // $log.info('Modal dismissed at: ' + new Date());
+            });
+        },
+        // 刪除
+        Delete: function(){
+            if($vm.job002GridApi.selection.getSelectedRows().length > 0){
+
+                var modalInstance = $uibModal.open({
+                    animation: true,
+                    ariaLabelledBy: 'modal-title',
+                    ariaDescribedBy: 'modal-body',
+                    template: $templateCache.get('isChecked'),
+                    controller: 'IsCheckedModalInstanceCtrl',
+                    controllerAs: '$ctrl',
+                    size: 'sm',
+                    windowClass: 'center-modal',
+                    // appendTo: parentElem,
+                    resolve: {
+                        items: function() {
+                            return {};
+                        },
+                        show: function(){
+                            return {
+                                title : "是否刪除"
+                            }
+                        }
+                    }
+                });
+
+                modalInstance.result.then(function(selectedItem) {
+
+                    var _tasks = [];
+
+                    for(var i in $vm.job002GridApi.selection.getSelectedRows()){
+                        _tasks.push({
+                            crudType: 'Delete',
+                            table: 10,
+                            params: {
+                                FLL_SEQ         : $vm.job002GridApi.selection.getSelectedRows()[i].FLL_SEQ,
+                                FLL_IL_NEWBAGNO : $vm.job002GridApi.selection.getSelectedRows()[i].FLL_IL_NEWBAGNO
+                            }
+                        })
+                    }
+
+                    RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res){
+                        if(res["returnData"].length > 0){
+
+                            LoadFlightItemList();
+                            toaster.pop('success', '訊息', '刪除成功', 3000);
+                        }
+                    }, function (err) {
+                        toaster.pop('danger', '錯誤', '刪除失敗', 3000);
+                    }).finally(function(){
+                        $vm.job002GridApi.selection.clearSelectedRows();
+                    }); 
+
+                }, function() {
+                    // $log.info('Modal dismissed at: ' + new Date());
+                });
+            }
+        },
+        // 匯出Excel
+        ExportExcel: function(){
+
+            var _exportName = $filter('date')($vm.vmData.OL_IMPORTDT, 'yyyyMMdd') + ' ' + 
+                              $vm.vmData.OL_MASTER + ' ' + 
+                              $vm.vmData.OL_FLIGHTNO;
+                // _totalBag = 0,
+                // _totalWeight = 0;
+
+            // 計算件數和重量
+            // for(var i in $vm.job002Data){
+            //     _totalBag += $vm.job002Data[i].FLL_CTN;
+            //     _totalWeight += $vm.job002Data[i].FLL_WEIGHT;
+            // }
+
+            ToolboxApi.ExportExcelByMultiSql([
+                {
+                    templates      : 5,
+                    filename       : _exportName,
+                    OL_MASTER      : $vm.vmData.OL_MASTER,
+                    OL_IMPORTDT    : $filter('date')($vm.vmData.OL_IMPORTDT, 'yyyy-MM-dd'),
+                    OL_FLIGHTNO    : $vm.vmData.OL_FLIGHTNO,
+                    OL_COUNTRY     : $vm.vmData.OL_COUNTRY, 
+                    OL_TEL         : $vm.vmData.OL_TEL, 
+                    OL_FAX         : $vm.vmData.OL_FAX, 
+                    OL_TOTALBAG    : $vm.job002GridApi.grid.columns[4].getAggregationValue(), 
+                    OL_TOTALWEIGHT : $vm.job002GridApi.grid.columns[5].getAggregationValue().toFixed(2)
+                },
+                {
+                    crudType: 'Select',
+                    querymain: 'job002',
+                    queryname: 'SelectFlightItemList',
+                    params: {               
+                        FLL_SEQ: $vm.vmData.OL_SEQ
+                    }
+                },
+                {
+                    crudType: 'Select',
+                    querymain: 'job002',
+                    queryname: 'SelectRemark',
+                    params: {               
+                        FLL_SEQ: $vm.vmData.OL_SEQ
+                    }
+                }
+            ]).then(function (res) {
                 // console.log(res);
             });
+
+        },
+        // 底部編輯
+        EditorRemark: function(){
+
+            RestfulApi.SearchMSSQLData({
+                querymain: 'job002',
+                queryname: 'SelectRemark',
+                params: {               
+                    FLL_SEQ: $vm.vmData.OL_SEQ
+                }
+            }).then(function (res){
+                console.log(res["returnData"]);
+            
+                var modalInstance = $uibModal.open({
+                    animation: true,
+                    ariaLabelledBy: 'modal-title',
+                    ariaDescribedBy: 'modal-body',
+                    templateUrl: 'editorRemarkModalContent.html',
+                    controller: 'EditorRemarkModalInstanceCtrl',
+                    controllerAs: '$ctrl',
+                    // size: 'sm',
+                    // appendTo: parentElem,
+                    resolve: {
+                        items: function() {
+                            return res["returnData"];
+                        }
+                    }
+                });
+
+                modalInstance.result.then(function(selectedItem) {
+
+                    console.log(selectedItem);
+
+                    var _tasks = [];
+
+                    _tasks.push({
+                        crudType: 'Delete',
+                        table: 28,
+                        params: {
+                            FLLR_SEQ : $vm.vmData.OL_SEQ
+                        }
+                    })
+
+                    for(var i in selectedItem){
+                        _tasks.push({
+                            crudType: 'Insert',
+                            table: 28,
+                            params: {
+                                FLLR_SEQ         : $vm.vmData.OL_SEQ,
+                                FLLR_ROWINDEX    : i,
+                                FLLR_REMARK      : selectedItem[i].text,
+                                FLLR_CR_USER     : $vm.profile.U_ID,
+                                FLLR_CR_DATETIME : $filter('date')(new Date, 'yyyy-MM-dd HH:mm:ss')
+                            }
+                        })
+                    }
+
+                    RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res){
+                        if(res["returnData"].length > 0){
+
+                            toaster.pop('success', '訊息', '底部編輯成功', 3000);
+                        }
+                    }, function (err) {
+                        toaster.pop('danger', '錯誤', '底部編輯失敗', 3000);
+                    });
+
+                }, function() {
+                    // $log.info('Modal dismissed at: ' + new Date());
+                });
+            }); 
+        },
+        // 寄信
+        SendMail: function(){
+
+            RestfulApi.SearchMSSQLData({
+                querymain: 'aviationMail',
+                queryname: 'SelectFlightMail'
+            }).then(function (res){
+                // console.log(res["returnData"]);
+
+                var modalInstance = $uibModal.open({
+                    animation: true,
+                    ariaLabelledBy: 'modal-title',
+                    ariaDescribedBy: 'modal-body',
+                    templateUrl: 'choiceMailModalContent.html',
+                    controller: 'ChoiceMailModalInstanceCtrl',
+                    controllerAs: '$ctrl',
+                    size: 'lg',
+                    backdrop: 'static',
+                    resolve: {
+                        items: function() {
+                            return res["returnData"];
+                        }
+                    }
+                });
+
+                modalInstance.result.then(function(selectedItem) {
+                    // console.log(selectedItem);
+                    var _flightMail = selectedItem;
+
+                    modalInstance = $uibModal.open({
+                        animation: true,
+                        ariaLabelledBy: 'modal-title',
+                        ariaDescribedBy: 'modal-body',
+                        templateUrl: 'sendMailModalContent.html',
+                        controller: 'SendMailModalInstanceCtrl',
+                        controllerAs: '$ctrl',
+                        size: 'lg',
+                        backdrop: 'static',
+                        resolve: {
+                            items: function() {
+                                return _flightMail;
+                            },
+                            data: function(){
+
+                                var _exportName = $filter('date')($vm.vmData.OL_IMPORTDT, 'yyyyMMdd') + ' ' + 
+                                                  $filter('compyFilter')($vm.vmData.OL_CO_CODE) + ' ' + 
+                                                  $vm.vmData.OL_FLIGHTNO;
+
+                                $vm.vmData["_exportName"] = _exportName;
+                                $vm.vmData["OL_IMPORTDT"] = $filter('date')($vm.vmData.OL_IMPORTDT, 'yyyy-MM-dd');
+                                $vm.vmData["OL_TOTALBAG"] = $vm.job002GridApi.grid.columns[4].getAggregationValue();
+                                $vm.vmData["OL_TOTALWEIGHT"] = $vm.job002GridApi.grid.columns[5].getAggregationValue().toFixed(2);
+
+                                return $vm.vmData;
+                            },
+                            profile: function(){
+                                return $vm.profile
+                            }
+                        }
+                    });
+
+                    modalInstance.result.then(function(selectedItem) {
+                        console.log(_flightMail);
+
+                        if(selectedItem == "ok"){
+
+                            RestfulApi.InsertMSSQLData({
+                                insertname: 'Insert',
+                                table: 31,
+                                params: {
+                                    FML_SEQ : $vm.vmData.OL_SEQ,
+                                    FML_SENDER  : $vm.profile.U_ID,
+                                    FML_SEND_DATETIME : $filter('date')(new Date(), 'yyyy-MM-dd HH:mm:ss'),
+                                    FML_CR_USER : _flightMail[0].FM_CR_USER,
+                                    FML_CR_DATETIME : _flightMail[0].FM_CR_DATETIME
+                                }
+                            }).then(function(_res) {
+
+                                if(_res["returnData"] == 1){
+                                    toaster.pop('success', '訊息', '寄信成功', 3000);
+                                }
+
+                            });
+                            
+                        }else{
+                            toaster.pop('danger', '錯誤', '寄信失敗', 3000);
+                        }
+                    }, function() {
+                        // $log.info('Modal dismissed at: ' + new Date());
+                    });
+
+                }, function() {
+                    // $log.info('Modal dismissed at: ' + new Date());
+                });
+            }); 
         },
         Return : function(){
             ReturnToEmployeejobsPage();
@@ -18425,7 +21130,7 @@ angular.module('app.selfwork').controller('Job002Ctrl', function ($scope, $state
                 updatename: 'Update',
                 table: 10,
                 params: {
-                    FLL_ITEM         : entity.FLL_ITEM,
+                    // FLL_ITEM         : entity.FLL_ITEM,
                     FLL_BAGNO        : entity.FLL_BAGNO,
                     FLL_CTN          : entity.FLL_CTN,
                     FLL_WEIGHT       : entity.FLL_WEIGHT,
@@ -18468,6 +21173,293 @@ angular.module('app.selfwork').controller('Job002Ctrl', function ($scope, $state
         $state.transitionTo($state.current.parent);
     };
 
+})
+.controller('AddItemModalInstanceCtrl', function ($uibModalInstance, items) {
+    var $ctrl = this;
+
+    $ctrl.Init = function(){
+        var _length = items.length;
+        if(_length > 0){
+            var _temp = items[_length-1];
+            $ctrl.mdData = {
+                FLL_SEQ : _temp.FLL_SEQ,
+                FLL_ITEM : parseInt(_temp.FLL_ITEM) + 1,
+                FLL_IL_NEWBAGNO : _temp.FLL_SEQ + padLeft("0" + parseInt(_temp.FLL_ITEM), 3),
+                FLL_DESCRIPTION : "CONSOL SAMPLE",
+                FLL_DECLAREDNO : "",
+                FLL_REMARK : "請進遠雄快遞倉"
+            };
+        }
+    }
+
+    $ctrl.ok = function() {
+        $uibModalInstance.close($ctrl.mdData);
+    };
+
+    $ctrl.cancel = function() {
+        $uibModalInstance.dismiss('cancel');
+    };
+})
+.controller('EditorRemarkModalInstanceCtrl', function ($uibModalInstance, items) {
+    var $ctrl = this;
+
+    $ctrl.Init = function(){
+        $ctrl.mdData = [];
+
+        for(var i in items){
+            $ctrl.mdData.push({
+                id : i,
+                text : items[i].FLLR_REMARK
+            });
+        }
+    }
+
+    $ctrl.ok = function() {
+        $uibModalInstance.close($ctrl.mdData);
+    };
+
+    $ctrl.cancel = function() {
+        $uibModalInstance.dismiss('cancel');
+    };
+})
+.controller('ChoiceMailModalInstanceCtrl', function ($uibModalInstance, items) {
+    var $ctrl = this;
+    $ctrl.mdData = items;
+
+    $ctrl.mdDataOptions = {
+        data:  '$ctrl.mdData',
+        columnDefs: [
+            { name: 'FM_TARGET', displayName: '目標名稱', width: '100' },
+            { name: 'FM_MAIL'  , displayName: '信箱' }
+        ],
+        enableFiltering: true,
+        enableSorting: true,
+        enableColumnMenus: false,
+        multiSelect: false,
+        // enableVerticalScrollbar: false,
+        paginationPageSizes: [10, 25, 50, 100],
+        paginationPageSize: 100,
+        onRegisterApi: function(gridApi){
+            $ctrl.mdDataGridApi = gridApi;
+        }
+    }
+
+    $ctrl.ok = function() {
+        $uibModalInstance.close($ctrl.mdDataGridApi.selection.getSelectedRows());
+    };
+
+    $ctrl.cancel = function() {
+        $uibModalInstance.dismiss('cancel');
+    };
+})
+.controller('SendMailModalInstanceCtrl', function ($uibModalInstance, RestfulApi, ToolboxApi, SUMMERNOT_CONFIG, $filter, FileUploader, items, data, profile) {
+    var $ctrl = this,
+        _d = new Date(),
+        _filepath = _d.getFullYear() + '\\' + ("0" + (_d.getMonth()+1)).slice(-2) + '\\' + ("0" + _d.getDate()).slice(-2) + '\\';
+
+    $ctrl.Init = function(){
+        var _mail = angular.copy(items[0].FM_MAIL.split(";"));
+        items[0].FM_MAIL = [];
+        for(var i in _mail){
+            items[0].FM_MAIL.push({
+                text : _mail[i]
+            });
+        }
+
+        $ctrl.mdData = angular.copy(items[0]);
+        $ctrl.snOptions = SUMMERNOT_CONFIG;
+
+        LoadFMAF();
+    }
+
+    $ctrl.uploader = new FileUploader({
+        url: '/toolbox/uploadFile?filePath='+_filepath
+    })
+
+    // Upload Filters
+    $ctrl.uploader.filters.push({
+        name: 'queueFilter',
+        fn: function(item /*{File|FileLikeObject}*/, options) {
+            // return this.queue.length < $scope.optionParam.UploadQueue;
+            return this.queue.length < 10;
+        }
+    });
+
+    $ctrl.uploader.filters.push({
+        name: 'sizeFilter',
+        fn: function(item /*{File|FileLikeObject}*/, options) {
+            // return item.size < $scope.optionParam.UploadSize * 1000 * 1000;
+            return item.size < 10 * 1000 * 1000;
+        }
+    });
+
+    // 處理已上傳的部分 : 當相同檔名時，不可上傳
+    $ctrl.uploader.filters.push({
+        name: 'nameFilter',
+        fn: function(item /*{File|FileLikeObject}*/, options) {
+            var uploadedDataLength = ($filter('filter')($ctrl.mdData.UploadedData, {FMAF_O_FILENAME: item.name})).length;
+            
+            if(uploadedDataLength > 0){
+                toaster.pop('info', "訊息", "已上傳過相同的檔名。", 3000);
+                return false;
+            }else{
+                return true;
+            }
+        }
+    });
+
+    // 處理未上傳的部分 : 當相同檔名時，不可上傳
+    FileUploader.FileSelect.prototype.isEmptyAfterSelection = function() {
+        return false;
+    };
+
+    // $ctrl.uploader.filters.push({
+    //     name: 'fileFilter',
+    //     fn: function(item /*{File|FileLikeObject}*/, options) {
+    //         var type = '|' + item.type.slice(item.type.lastIndexOf('/') + 1) + '|',
+    //             typeStr = "|";
+    //         for(var i in $scope.optionParam.UploadType){
+    //             typeStr += $scope.optionParam.UploadType[i] + "|";
+    //         }
+    //         return typeStr.indexOf(type) !== -1;
+    //     }
+    // });
+
+    // Upload Callback Methods
+    $ctrl.uploader.onWhenAddingFileFailed = function(item /*{File|FileLikeObject}*/, filter, options) {
+        console.info('onWhenAddingFileFailed', item, filter, options);
+        // var title = "", msg;
+        // switch(filter.name){
+        //     case "fileFilter":
+        //         title = item.name;
+        //         msg = "檔案類型錯誤。";
+        //         break;
+        //     case "sizeFilter":
+        //         title = item.name;
+        //         msg = "上傳檔案超過" + $scope.optionParam.UploadSize + "Mb。";
+        //         break;
+        //     case "queueFilter":
+        //         msg = "上傳數量超過" + $scope.optionParam.UploadQueue + "個。";
+        //         break;
+        // }
+        // toaster.pop('info', title, msg, 3000);
+    };
+    $ctrl.uploader.onAfterAddingFile = function(fileItem) {
+        console.info('onAfterAddingFile', fileItem);
+        var reader = new FileReader();
+
+        reader.onload = function(readerEvt) {
+            var data = readerEvt.target.result;
+            var fileNameArray = fileItem.file.name.split(".");
+            var queueIndex = $ctrl.uploader.queue.indexOf(fileItem);
+            var rename = angular.copy(CryptoJS.MD5(data).toString() + "." + fileNameArray[fileNameArray.length-1]);
+            
+            // Duplicate File
+            // if($filter('filter')($scope.duplicateFile, rename).length > 0){
+            //     $ctrl.uploader.queue[queueIndex].remove();
+            //     toaster.pop('info', '上傳檔案重複', fileItem.file["name"], 3000);
+            // }else{
+                // $scope.duplicateFile.push(rename);
+                // $scope.queueFile.push(rename);
+                fileItem.url += '&rFilename='+rename;
+            // }
+            // var dataFile = forumService.b64toBlob(btoa(data), fileItem.file.type);
+            // fileItem.file = dataFile;
+        };
+
+        reader.readAsBinaryString(fileItem._file);
+    };
+    $ctrl.uploader.onAfterAddingAll = function(addedFileItems) {
+        console.info('onAfterAddingAll', addedFileItems);
+    };
+    $ctrl.uploader.onBeforeUploadItem = function(item) {
+        console.info('onBeforeUploadItem', item);
+    };
+    $ctrl.uploader.onProgressItem = function(fileItem, progress) {
+        console.info('onProgressItem', fileItem, progress);
+    };
+    $ctrl.uploader.onProgressAll = function(progress) {
+        console.info('onProgressAll', progress);
+    };
+    $ctrl.uploader.onSuccessItem = function(fileItem, response, status, headers) {
+        console.info('onSuccessItem', fileItem, response, status, headers);
+    };
+    $ctrl.uploader.onErrorItem = function(fileItem, response, status, headers) {
+        console.info('onErrorItem', fileItem, response, status, headers);
+    };
+    $ctrl.uploader.onCancelItem = function(fileItem, response, status, headers) {
+        console.info('onCancelItem', fileItem, response, status, headers);
+    };
+    $ctrl.uploader.onCompleteItem = function(fileItem, response, status, headers) {
+        console.info('onCompleteItem', fileItem, response, status, headers);
+        if(status == 200){
+            // 儲存使用者每個上傳檔案的資訊
+            $ctrl.mdData.UserUploadedData.push({
+                FMAF_O_FILENAME : response.oFilename,
+                FMAF_R_FILENAME : response.rFilename,
+                FMAF_FILEPATH : response.Filepath,
+                FMAF_FILESIZE : response.Filesize,
+                FMAF_CR_USER : profile.U_ID,
+                FMAF_CR_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss')
+            });
+        }else{
+            toaster.pop('error', "檔案上傳失敗", response.oFilename, 3000);
+        }
+    };
+    $ctrl.uploader.onCompleteAll = function() {
+        console.info('onCompleteAll');
+
+        SendMail();
+    };
+    
+    function LoadFMAF(){
+        RestfulApi.SearchMSSQLData({
+            querymain: 'targetEditor',
+            queryname: 'SelectFMAF',
+            params: {
+                FMAF_CR_USER: $ctrl.mdData.FM_CR_USER,
+                FMAF_CR_DATETIME: $ctrl.mdData.FM_CR_DATETIME
+            }
+        }).then(function (res){
+            // console.log(res["returnData"]);
+            // 信件預設檔案
+            $ctrl.mdData.UploadedData = res["returnData"];
+
+            // 使用者上傳檔案
+            $ctrl.mdData.UserUploadedData = [];
+        });
+    }; 
+    
+    function SendMail(){
+        ToolboxApi.SendMail({
+            mailContent : $ctrl.mdData
+            // queryContent : data
+        }).then(function (res) {
+            // console.log(res["returnData"]);
+            $uibModalInstance.close(res["returnData"]);
+        }).finally(function(){
+            $ctrl.sending = false;
+        });
+    }
+
+    $ctrl.ok = function() {
+
+        $ctrl.sending = true;
+
+        // 有上傳檔案 先上傳檔案之後再寄信
+        if($ctrl.uploader.getNotUploadedItems().length > 0){
+            $ctrl.uploader.uploadAll();
+        }
+        // 無上傳檔案 直接寄信
+        else{
+            SendMail();
+        }
+
+    };
+
+    $ctrl.cancel = function() {
+        $uibModalInstance.dismiss('cancel');
+    };
 });
 "use strict";
 
@@ -19529,6 +22521,405 @@ angular.module('app.selfwork.leaderoption').controller('DailyLeaveCtrl', functio
 })
 "use strict";
 
+angular.module('app.settings').controller('TargetEditorCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, RestfulApi, $filter, FileUploader, SUMMERNOT_CONFIG) {
+    
+    var $vm = this,
+        _tasks = [],
+        _d = new Date(),
+        _filepath = _d.getFullYear() + '\\' + ("0" + (_d.getMonth()+1)).slice(-2) + '\\' + ("0" + _d.getDate()).slice(-2) + '\\';
+
+	angular.extend(this, {
+        Init : function(){
+            if($stateParams.data == null){
+                $vm.vmData = {
+                    "IU" : "Add"
+                }
+            }else{
+                $vm.vmData = $stateParams.data;
+                $vm.vmData["IU"] = "Update";
+
+                var _mail = angular.copy($vm.vmData.FM_MAIL.split(";"));
+                $vm.vmData.FM_MAIL = [];
+                for(var i in _mail){
+                    $vm.vmData.FM_MAIL.push({
+                        text : _mail[i]
+                    });
+                }
+
+                _d = $vm.vmData["FM_CR_DATETIME"].replace(/\Z/g, '');
+
+                // 附件
+                LoadFMAF();
+
+            }
+            console.log($vm.vmData);
+        },
+        profile : Session.Get(),
+        snOptions : SUMMERNOT_CONFIG,
+        uploader : new FileUploader({
+            url: '/toolbox/uploadFile?filePath='+_filepath
+        }),
+        Return : function(){
+            ReturnToAviationMail();
+        },
+        Add : function(){
+            var _mail = angular.copy($vm.vmData.FM_MAIL),
+                _mailObjectToArray = [];
+            for(var i in _mail){
+                _mailObjectToArray.push(_mail[i].text);
+            }
+
+            // 檢查信件是否有資料
+            if(_mailObjectToArray.length > 0){
+                
+                // Insert 主表
+                _tasks.push({
+                    crudType: 'Insert',
+                    table: 24,
+                    params: {
+                        FM_TARGET : $vm.vmData.FM_TARGET,
+                        FM_MAIL : _mailObjectToArray.join(";"),
+                        FM_TITLE : $vm.vmData.FM_TITLE,
+                        FM_CONTENT : $vm.vmData.FM_CONTENT,
+                        FM_CR_USER : $vm.profile.U_ID,
+                        FM_CR_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss')
+                    }
+                });
+
+                // 有上傳檔案 先上傳檔案之後再Insert DB
+                if($vm.uploader.getNotUploadedItems().length > 0){
+                    $vm.uploader.uploadAll();
+                }
+                // 無上傳檔案 直接Insert DB
+                else{
+                    RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res) {
+                        // console.log(res);
+                        ReturnToAviationMail();
+
+                        toaster.pop('success', '訊息', '新增目標成功', 3000);
+                    }, function (err) {
+                        console.log(err);
+                    });
+                }
+
+                // RestfulApi.InsertMSSQLData({
+                //     insertname: 'Insert',
+                //     table: 24,
+                //     params: {
+                //         FM_TARGET : $vm.vmData.FM_TARGET,
+                //         FM_MAIL : _mailObjectToArray.join(";"),
+                //         FM_TITLE : $vm.vmData.FM_TITLE,
+                //         FM_CONTENT : $vm.vmData.FM_CONTENT,
+                //         FM_CR_USER : $vm.profile.U_ID,
+                //         FM_CR_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss')
+                //     }
+                // }).then(function(res) {
+                //     console.log(res);
+
+                //     if(res["returnData"] == 1){
+                //         ReturnToAviationMail();
+
+                //         toaster.pop('success', '訊息', '新增目標成功', 3000);
+                //     }
+
+                // });
+            }else{
+                toaster.pop('danger', '失敗', '沒有任何信件', 3000);
+            }
+        },
+        Update : function(){
+            console.log($vm.vmData);
+
+            var _mail = angular.copy($vm.vmData.FM_MAIL),
+                _mailObjectToArray = [];
+            for(var i in _mail){
+                _mailObjectToArray.push(_mail[i].text);
+            }
+
+            // 檢查信件是否有資料
+            if(_mailObjectToArray.length > 0){
+
+                // Update 主表
+                _tasks.push({
+                    crudType: 'Update',
+                    table: 24,
+                    params: {
+                        FM_TARGET : $vm.vmData.FM_TARGET,
+                        FM_MAIL : _mailObjectToArray.join(";"),
+                        FM_TITLE : $vm.vmData.FM_TITLE,
+                        FM_CONTENT : $vm.vmData.FM_CONTENT,
+                        FM_UP_USER : $vm.profile.U_ID,
+                        FM_UP_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss')
+                    },
+                    condition: {
+                        FM_CR_USER : $vm.vmData.FM_CR_USER,
+                        FM_CR_DATETIME : $vm.vmData.FM_CR_DATETIME
+                    }
+                });
+
+                // 有上傳檔案 先上傳檔案之後再Insert DB
+                if($vm.uploader.getNotUploadedItems().length > 0){
+                    $vm.uploader.uploadAll();
+                }
+                // 無上傳檔案 直接Insert DB
+                else{
+                    RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res) {
+                        console.log(res);
+
+                        ReturnToAviationMail();
+
+                        toaster.pop('success', '訊息', '更新目標成功', 3000);
+                    }, function (err) {
+                        console.log(err);
+                    });
+                }
+
+                // RestfulApi.UpdateMSSQLData({
+                //     updatename: 'Update',
+                //     table: 24,
+                //     params: {
+                //         FM_TARGET : $vm.vmData.FM_TARGET,
+                //         FM_MAIL : _mailObjectToArray.join(";"),
+                //         FM_TITLE : $vm.vmData.FM_TITLE,
+                //         FM_CONTENT : $vm.vmData.FM_CONTENT,
+                //         FM_UP_USER : $vm.profile.U_ID,
+                //         FM_UP_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss')
+                //     },
+                //     condition: {
+                //         FM_CR_USER : $vm.vmData.FM_CR_USER,
+                //         FM_CR_DATETIME : $vm.vmData.FM_CR_DATETIME
+                //     }
+                // }).then(function(res) {
+                //     console.log(res);
+
+                //     if(res["returnData"] == 1){
+                //         ReturnToAviationMail();
+
+                //         toaster.pop('success', '訊息', '更新目標成功', 3000);
+                //     }
+
+                // });
+            }else{
+                toaster.pop('danger', '失敗', '沒有任何信件', 3000);
+            }
+        },
+        /**
+         * [DeleteUploaded description] 刪除已上傳檔案
+         * @param {[type]} pDeleteUploaded [description] 檔案
+         * @param {[type]} pIndex          [description] array index
+         */
+        DeleteUploaded : function(pDeleteUploaded, pIndex){
+            var modalInstance = $uibModal.open({
+                animation: true,
+                ariaLabelledBy: 'modal-title',
+                ariaDescribedBy: 'modal-body',
+                template: $templateCache.get('isChecked'),
+                controller: 'IsCheckedModalInstanceCtrl',
+                controllerAs: '$ctrl',
+                size: 'sm',
+                windowClass: 'center-modal',
+                // appendTo: parentElem,
+                resolve: {
+                    items: function() {
+                        return pDeleteUploaded;
+                    },
+                    show: function(){
+                        return {
+                            title : "是否刪除"
+                        };
+                    }
+                }
+            });
+
+            modalInstance.result.then(function(selectedItem) {
+                // console.log(selectedItem);
+
+                RestfulApi.UpdateMSSQLData({
+                    updatename: 'Update',
+                    table: 30,
+                    params: {
+                        FMAF_SOFT_DELETE : true
+                    },
+                    condition: {
+                        FMAF_ID : selectedItem.BBAF_ID
+                    }
+                }).then(function (res) {
+                    $vm.vmData.UploadedData.splice(pIndex, 1);
+                }, function (err) {
+
+                });
+            }, function() {
+                // $log.info('Modal dismissed at: ' + new Date());
+            });
+        },
+    });
+
+    // Upload Filters
+    $vm.uploader.filters.push({
+        name: 'queueFilter',
+        fn: function(item /*{File|FileLikeObject}*/, options) {
+            // return this.queue.length < $scope.optionParam.UploadQueue;
+            return this.queue.length < 10;
+        }
+    });
+
+    $vm.uploader.filters.push({
+        name: 'sizeFilter',
+        fn: function(item /*{File|FileLikeObject}*/, options) {
+            // return item.size < $scope.optionParam.UploadSize * 1000 * 1000;
+            return item.size < 10 * 1000 * 1000;
+        }
+    });
+
+    // 處理已上傳的部分 : 當相同檔名時，不可上傳
+    $vm.uploader.filters.push({
+        name: 'nameFilter',
+        fn: function(item /*{File|FileLikeObject}*/, options) {
+            var uploadedDataLength = ($filter('filter')($vm.vmData.UploadedData, {FMAF_O_FILENAME: item.name})).length;
+            
+            if(uploadedDataLength > 0){
+                toaster.pop('info', "訊息", "已上傳過相同的檔名。", 3000);
+                return false;
+            }else{
+                return true;
+            }
+        }
+    });
+
+    // 處理未上傳的部分 : 當相同檔名時，不可上傳
+    FileUploader.FileSelect.prototype.isEmptyAfterSelection = function() {
+        return false;
+    };
+
+    // $vm.uploader.filters.push({
+    //     name: 'fileFilter',
+    //     fn: function(item /*{File|FileLikeObject}*/, options) {
+    //         var type = '|' + item.type.slice(item.type.lastIndexOf('/') + 1) + '|',
+    //             typeStr = "|";
+    //         for(var i in $scope.optionParam.UploadType){
+    //             typeStr += $scope.optionParam.UploadType[i] + "|";
+    //         }
+    //         return typeStr.indexOf(type) !== -1;
+    //     }
+    // });
+
+    // Upload Callback Methods
+    $vm.uploader.onWhenAddingFileFailed = function(item /*{File|FileLikeObject}*/, filter, options) {
+        console.info('onWhenAddingFileFailed', item, filter, options);
+        // var title = "", msg;
+        // switch(filter.name){
+        //     case "fileFilter":
+        //         title = item.name;
+        //         msg = "檔案類型錯誤。";
+        //         break;
+        //     case "sizeFilter":
+        //         title = item.name;
+        //         msg = "上傳檔案超過" + $scope.optionParam.UploadSize + "Mb。";
+        //         break;
+        //     case "queueFilter":
+        //         msg = "上傳數量超過" + $scope.optionParam.UploadQueue + "個。";
+        //         break;
+        // }
+        // toaster.pop('info', title, msg, 3000);
+    };
+    $vm.uploader.onAfterAddingFile = function(fileItem) {
+        console.info('onAfterAddingFile', fileItem);
+        var reader = new FileReader();
+
+        reader.onload = function(readerEvt) {
+            var data = readerEvt.target.result;
+            var fileNameArray = fileItem.file.name.split(".");
+            var queueIndex = $vm.uploader.queue.indexOf(fileItem);
+            var rename = angular.copy(CryptoJS.MD5(data).toString() + "." + fileNameArray[fileNameArray.length-1]);
+            
+            // Duplicate File
+            // if($filter('filter')($scope.duplicateFile, rename).length > 0){
+            //     $vm.uploader.queue[queueIndex].remove();
+            //     toaster.pop('info', '上傳檔案重複', fileItem.file["name"], 3000);
+            // }else{
+                // $scope.duplicateFile.push(rename);
+                // $scope.queueFile.push(rename);
+                fileItem.url += '&rFilename='+rename;
+            // }
+            // var dataFile = forumService.b64toBlob(btoa(data), fileItem.file.type);
+            // fileItem.file = dataFile;
+        };
+
+        reader.readAsBinaryString(fileItem._file);
+    };
+    $vm.uploader.onAfterAddingAll = function(addedFileItems) {
+        console.info('onAfterAddingAll', addedFileItems);
+    };
+    $vm.uploader.onBeforeUploadItem = function(item) {
+        console.info('onBeforeUploadItem', item);
+    };
+    $vm.uploader.onProgressItem = function(fileItem, progress) {
+        console.info('onProgressItem', fileItem, progress);
+    };
+    $vm.uploader.onProgressAll = function(progress) {
+        console.info('onProgressAll', progress);
+    };
+    $vm.uploader.onSuccessItem = function(fileItem, response, status, headers) {
+        console.info('onSuccessItem', fileItem, response, status, headers);
+    };
+    $vm.uploader.onErrorItem = function(fileItem, response, status, headers) {
+        console.info('onErrorItem', fileItem, response, status, headers);
+    };
+    $vm.uploader.onCancelItem = function(fileItem, response, status, headers) {
+        console.info('onCancelItem', fileItem, response, status, headers);
+    };
+    $vm.uploader.onCompleteItem = function(fileItem, response, status, headers) {
+        console.info('onCompleteItem', fileItem, response, status, headers);
+        if(status == 200){
+            // 儲存每個上傳檔案的資訊
+            _tasks.push({
+                crudType: 'Insert',
+                table: 30,
+                params: {
+                    FMAF_O_FILENAME : response.oFilename,
+                    FMAF_R_FILENAME : response.rFilename,
+                    FMAF_FILEPATH : response.Filepath,
+                    FMAF_FILESIZE : response.Filesize,
+                    FMAF_CR_USER : $vm.profile.U_ID,
+                    FMAF_CR_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss')
+                }
+            });
+        }else{
+            toaster.pop('error', "檔案上傳失敗", response.oFilename, 3000);
+        }
+    };
+    $vm.uploader.onCompleteAll = function() {
+        console.info('onCompleteAll');
+
+        RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res) {
+            console.log(res);
+            ReturnToAviationMail();
+        }, function (err) {
+            console.log(err);
+        });
+    };
+
+    function LoadFMAF(){
+        RestfulApi.SearchMSSQLData({
+            querymain: 'targetEditor',
+            queryname: 'SelectFMAF',
+            params: {
+                FMAF_CR_USER: $vm.vmData.FM_CR_USER,
+                FMAF_CR_DATETIME: $vm.vmData.FM_CR_DATETIME
+            }
+        }).then(function (res){
+            console.log(res["returnData"]);
+            $vm.vmData.UploadedData = res["returnData"];
+        });
+    };
+
+    function ReturnToAviationMail(){
+        $state.transitionTo($state.current.parent);
+    };
+
+})
+"use strict";
+
 angular.module('app.settings').controller('AccountCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, RestfulApi, $filter, bool, role, userGrade, $templateCache) {
 
     var $vm = this,
@@ -20154,121 +23545,6 @@ angular.module('app.settings').controller('GroupCtrl', function ($scope, $stateP
         $uibModalInstance.dismiss('cancel');
     };
 });
-"use strict";
-
-angular.module('app.settings').controller('TargetEditorCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, RestfulApi, $filter, SUMMERNOT_CONFIG) {
-    
-    var $vm = this;
-
-	angular.extend(this, {
-        Init : function(){
-            if($stateParams.data == null){
-                $vm.vmData = {
-                    "IU" : "Add"
-                }
-            }else{
-                $vm.vmData = $stateParams.data;
-                $vm.vmData["IU"] = "Update";
-
-                var _mail = angular.copy($vm.vmData.FM_MAIL.split(";"));
-                $vm.vmData.FM_MAIL = [];
-                for(var i in _mail){
-                    $vm.vmData.FM_MAIL.push({
-                        text : _mail[i]
-                    });
-                }
-
-            }
-            console.log($vm.vmData);
-        },
-        profile : Session.Get(),
-        snOptions : SUMMERNOT_CONFIG,
-        Return : function(){
-            ReturnToAviationMail();
-        },
-        Add : function(){
-            var _mail = angular.copy($vm.vmData.FM_MAIL),
-                _mailObjectToArray = [];
-            for(var i in _mail){
-                _mailObjectToArray.push(_mail[i].text);
-            }
-
-            // 檢查信件是否有資料
-            if(_mailObjectToArray.length > 0){
-                // $vm.vmData.FM_MAIL = _mailObjectToArray.join("; ");
-
-                RestfulApi.InsertMSSQLData({
-                    insertname: 'Insert',
-                    table: 24,
-                    params: {
-                        FM_TARGET : $vm.vmData.FM_TARGET,
-                        FM_MAIL : _mailObjectToArray.join(";"),
-                        FM_TITLE : $vm.vmData.FM_TITLE,
-                        FM_CONTENT : $vm.vmData.FM_CONTENT,
-                        FM_CR_USER : $vm.profile.U_ID,
-                        FM_CR_DATETIME : $filter('date')(new Date(), 'yyyy-MM-dd HH:mm:ss')
-                    }
-                }).then(function(res) {
-                    console.log(res);
-
-                    if(res["returnData"] == 1){
-                        ReturnToAviationMail();
-
-                        toaster.pop('success', '訊息', '新增目標成功', 3000);
-                    }
-
-                });
-            }else{
-                toaster.pop('danger', '失敗', '沒有任何信件', 3000);
-            }
-        },
-        Update : function(){
-            console.log($vm.vmData);
-
-            var _mail = angular.copy($vm.vmData.FM_MAIL),
-                _mailObjectToArray = [];
-            for(var i in _mail){
-                _mailObjectToArray.push(_mail[i].text);
-            }
-
-            // 檢查信件是否有資料
-            if(_mailObjectToArray.length > 0){
-
-                RestfulApi.UpdateMSSQLData({
-                    updatename: 'Update',
-                    table: 24,
-                    params: {
-                        FM_TARGET : $vm.vmData.FM_TARGET,
-                        FM_MAIL : _mailObjectToArray.join(";"),
-                        FM_TITLE : $vm.vmData.FM_TITLE,
-                        FM_CONTENT : $vm.vmData.FM_CONTENT,
-                        FM_UP_USER : $vm.profile.U_ID,
-                        FM_UP_DATETIME : $filter('date')(new Date(), 'yyyy-MM-dd HH:mm:ss')
-                    },
-                    condition: {
-                        FM_ID : $vm.vmData.FM_ID
-                    }
-                }).then(function(res) {
-                    console.log(res);
-
-                    if(res["returnData"] == 1){
-                        ReturnToAviationMail();
-
-                        toaster.pop('success', '訊息', '更新目標成功', 3000);
-                    }
-
-                });
-            }else{
-                toaster.pop('danger', '失敗', '沒有任何信件', 3000);
-            }
-        }
-    });
-
-    function ReturnToAviationMail(){
-        $state.transitionTo($state.current.parent);
-    };
-
-})
 "use strict";
 
 angular.module('app.settings').controller('ExAccountCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, $filter, SysCode, RestfulApi, bool, compy) {
@@ -21016,6 +24292,151 @@ angular.module('SmartAdmin.Layout').directive('toggleMenu', function(){
         }
     }
 });
+'use strict';
+
+angular.module('SmartAdmin.Layout').factory('lazyScript', function($q, $http){
+
+    var cache = {};
+
+    function isPending(scriptName){
+        return (cache.hasOwnProperty(scriptName) && cache[scriptName].promise && cache[scriptName].promise.$$state.pending)
+    }
+
+    function isRegistered(scriptName){
+        return cache.hasOwnProperty(scriptName)
+    }
+    function loadScript(scriptName){
+        if(!cache[scriptName]){
+            cache[scriptName] = $q.defer();
+            var el = document.createElement( 'script' );
+            el.onload = function(script){
+                console.log('script is lazy loaded:', scriptName)
+                cache[scriptName].resolve(scriptName);
+            };
+            el.src = scriptName;
+            var x = document.getElementsByTagName('script')[0];
+            x.parentNode.insertBefore(el, x);
+            
+        }
+        return cache[scriptName].promise;
+
+    }
+
+    function register(scriptName){
+        if(isPending(scriptName)){
+            return cache[scriptName].promise
+        }
+        if(isRegistered(scriptName)){
+            return $q.resolve(scriptName);
+        } else {
+            var dfd = $q.defer();
+
+            loadScript(scriptName).then(function(){
+                dfd.resolve(scriptName);
+            });
+
+            return dfd.promise; 
+
+        }
+    }
+    return {
+        register: function (scripts) {
+            
+            var dfd = $q.defer();
+            var promises = [];
+            if (angular.isString(scripts))
+                scripts = [scripts];
+
+            angular.forEach(scripts, function(script){
+                promises.push(register(script));
+            })
+
+            $q.all(promises).then(function(resolves){
+                dfd.resolve(resolves);
+            })
+            return dfd.promise;
+
+        }
+    };
+});
+'use strict';
+
+angular.module('SmartAdmin.Layout').factory('SmartCss', function ($rootScope, $timeout) {
+
+    var sheet = (function () {
+        // Create the <style> tag
+        var style = document.createElement("style");
+
+        // Add a media (and/or media query) here if you'd like!
+        // style.setAttribute("media", "screen")
+        // style.setAttribute("media", "@media only screen and (max-width : 1024px)")
+
+        // WebKit hack :(
+        style.appendChild(document.createTextNode(""));
+
+        // Add the <style> element to the page
+        document.head.appendChild(style);
+
+        return style.sheet;
+    })();
+
+    var _styles = {};
+
+
+    var SmartCss = {
+        writeRule: function(selector){
+            SmartCss.deleteRuleFor(selector);
+            if(_.has(_styles, selector)){
+                var css = selector + '{ ' + _.map(_styles[selector], function(v, k){
+                    return  k + ':' +  v + ';'
+                }).join(' ') +'}';
+                sheet.insertRule(css, _.size(_styles) - 1);
+            }
+        },
+        add: function (selector, property, value, delay) {
+            if(!_.has(_styles, selector))
+                _styles[selector] = {};
+
+            if(value == undefined || value == null || value == '')
+                delete _styles[selector][property];
+            else
+                _styles[selector][property] = value;
+
+
+            if(_.keys(_styles[selector]).length == 0)
+                delete _styles[selector];
+
+            if(!delay)
+                delay = 0;
+            $timeout(function(){
+                SmartCss.writeRule(selector);
+            }, delay);
+
+        },
+        remove: function(selector, property, delay){
+            SmartCss.add(selector, property, null, delay);
+        },
+        deleteRuleFor: function (selector) {
+            _(sheet.rules).forEach(function (rule, idx) {
+                if (rule.selectorText == selector) {
+                    sheet.deleteRule(idx);
+                }
+            });
+        },
+        appViewSize: null
+    };
+
+    $rootScope.$on('$smartContentResize', function (event, data) {
+        SmartCss.appViewSize = data;
+    });
+
+    return SmartCss;
+
+});
+
+
+
+
 'use strict';
 
 angular.module('SmartAdmin.Layout').directive('bigBreadcrumbs', function ($rootScope) {
@@ -22119,151 +25540,6 @@ angular.module('SmartAdmin.Layout').directive('stateBreadcrumbs', function ($roo
         }
     }
 });
-'use strict';
-
-angular.module('SmartAdmin.Layout').factory('lazyScript', function($q, $http){
-
-    var cache = {};
-
-    function isPending(scriptName){
-        return (cache.hasOwnProperty(scriptName) && cache[scriptName].promise && cache[scriptName].promise.$$state.pending)
-    }
-
-    function isRegistered(scriptName){
-        return cache.hasOwnProperty(scriptName)
-    }
-    function loadScript(scriptName){
-        if(!cache[scriptName]){
-            cache[scriptName] = $q.defer();
-            var el = document.createElement( 'script' );
-            el.onload = function(script){
-                console.log('script is lazy loaded:', scriptName)
-                cache[scriptName].resolve(scriptName);
-            };
-            el.src = scriptName;
-            var x = document.getElementsByTagName('script')[0];
-            x.parentNode.insertBefore(el, x);
-            
-        }
-        return cache[scriptName].promise;
-
-    }
-
-    function register(scriptName){
-        if(isPending(scriptName)){
-            return cache[scriptName].promise
-        }
-        if(isRegistered(scriptName)){
-            return $q.resolve(scriptName);
-        } else {
-            var dfd = $q.defer();
-
-            loadScript(scriptName).then(function(){
-                dfd.resolve(scriptName);
-            });
-
-            return dfd.promise; 
-
-        }
-    }
-    return {
-        register: function (scripts) {
-            
-            var dfd = $q.defer();
-            var promises = [];
-            if (angular.isString(scripts))
-                scripts = [scripts];
-
-            angular.forEach(scripts, function(script){
-                promises.push(register(script));
-            })
-
-            $q.all(promises).then(function(resolves){
-                dfd.resolve(resolves);
-            })
-            return dfd.promise;
-
-        }
-    };
-});
-'use strict';
-
-angular.module('SmartAdmin.Layout').factory('SmartCss', function ($rootScope, $timeout) {
-
-    var sheet = (function () {
-        // Create the <style> tag
-        var style = document.createElement("style");
-
-        // Add a media (and/or media query) here if you'd like!
-        // style.setAttribute("media", "screen")
-        // style.setAttribute("media", "@media only screen and (max-width : 1024px)")
-
-        // WebKit hack :(
-        style.appendChild(document.createTextNode(""));
-
-        // Add the <style> element to the page
-        document.head.appendChild(style);
-
-        return style.sheet;
-    })();
-
-    var _styles = {};
-
-
-    var SmartCss = {
-        writeRule: function(selector){
-            SmartCss.deleteRuleFor(selector);
-            if(_.has(_styles, selector)){
-                var css = selector + '{ ' + _.map(_styles[selector], function(v, k){
-                    return  k + ':' +  v + ';'
-                }).join(' ') +'}';
-                sheet.insertRule(css, _.size(_styles) - 1);
-            }
-        },
-        add: function (selector, property, value, delay) {
-            if(!_.has(_styles, selector))
-                _styles[selector] = {};
-
-            if(value == undefined || value == null || value == '')
-                delete _styles[selector][property];
-            else
-                _styles[selector][property] = value;
-
-
-            if(_.keys(_styles[selector]).length == 0)
-                delete _styles[selector];
-
-            if(!delay)
-                delay = 0;
-            $timeout(function(){
-                SmartCss.writeRule(selector);
-            }, delay);
-
-        },
-        remove: function(selector, property, delay){
-            SmartCss.add(selector, property, null, delay);
-        },
-        deleteRuleFor: function (selector) {
-            _(sheet.rules).forEach(function (rule, idx) {
-                if (rule.selectorText == selector) {
-                    sheet.deleteRule(idx);
-                }
-            });
-        },
-        appViewSize: null
-    };
-
-    $rootScope.$on('$smartContentResize', function (event, data) {
-        SmartCss.appViewSize = data;
-    });
-
-    return SmartCss;
-
-});
-
-
-
-
 
 "use strict";
 
@@ -22301,578 +25577,196 @@ angular.module('SmartAdmin.UI').directive('smartTooltipHtml', function () {
     }
 );
 
-"use strict";
-
-(function ($) {
-
-    $.fn.smartCollapseToggle = function () {
-
-        return this.each(function () {
-
-            var $body = $('body');
-            var $this = $(this);
-
-            // only if not  'menu-on-top'
-            if ($body.hasClass('menu-on-top')) {
-
-
-            } else {
-
-                $body.hasClass('mobile-view-activated')
-
-                // toggle open
-                $this.toggleClass('open');
-
-                // for minified menu collapse only second level
-                if ($body.hasClass('minified')) {
-                    if ($this.closest('nav ul ul').length) {
-                        $this.find('>a .collapse-sign .fa').toggleClass('fa-minus-square-o fa-plus-square-o');
-                        $this.find('ul:first').slideToggle(appConfig.menu_speed || 200);
-                    }
-                } else {
-                    // toggle expand item
-                    $this.find('>a .collapse-sign .fa').toggleClass('fa-minus-square-o fa-plus-square-o');
-                    $this.find('ul:first').slideToggle(appConfig.menu_speed || 200);
-                }
-            }
-        });
-    };
-})(jQuery);
-
-angular.module('SmartAdmin.Layout').directive('smartMenu', function ($state, $rootScope) {
-    return {
-        restrict: 'A',
-        link: function (scope, element, attrs) {
-            var $body = $('body');
-
-            var $collapsible = element.find('li[data-menu-collapse]');
-
-            var bindEvents = function(){
-                $collapsible.each(function (idx, li) {
-                    var $li = $(li);
-                    $li
-                        .on('click', '>a', function (e) {
-
-                            // collapse all open siblings
-                            $li.siblings('.open').smartCollapseToggle();
-
-                            // toggle element
-                            $li.smartCollapseToggle();
-
-                            // add active marker to collapsed element if it has active childs
-                            if (!$li.hasClass('open') && $li.find('li.active').length > 0) {
-                                $li.addClass('active')
-                            }
-
-                            e.preventDefault();
-                        })
-                        .find('>a').append('<b class="collapse-sign"><em class="fa fa-plus-square-o"></em></b>');
-
-                    // initialization toggle
-                    if ($li.find('li.active').length) {
-                        $li.smartCollapseToggle();
-                        $li.find('li.active').parents('li').addClass('active');
-                    }
-                });
-            }
-            bindEvents();
-
-
-            // click on route link
-            element.on('click', 'a[data-ui-sref]', function (e) {
-                // collapse all siblings to element parents and remove active markers
-                $(this)
-                    .parents('li').addClass('active')
-                    .each(function () {
-                        $(this).siblings('li.open').smartCollapseToggle();
-                        $(this).siblings('li').removeClass('active')
-                    });
-
-                if ($body.hasClass('mobile-view-activated')) {
-                    $rootScope.$broadcast('requestToggleMenu');
-                }
-            });
-
-
-            scope.$on('$smartLayoutMenuOnTop', function (event, menuOnTop) {
-                if (menuOnTop) {
-                    $collapsible.filter('.open').smartCollapseToggle();
-                }
-            });
-        }
-    }
-});
-(function(){
-    "use strict";
-
-    angular.module('SmartAdmin.Layout').directive('smartMenuItems', function ($http, $rootScope, $compile, ToolboxApi, Session) {
-    return {
-        restrict: 'A',
-        // compile: function (element, attrs) {
-            
-        //     function createItem(item, parent, level){
-        //         var li = $('<li />' ,{'ui-sref-active': "active"})
-        //         var a = $('<a />');
-        //         var i = $('<i />');
-
-        //         li.append(a);
-
-        //         if(item.sref)
-        //             a.attr('ui-sref', item.sref);
-        //         if(item.href)
-        //             a.attr('href', item.href);
-        //         if(item.icon){
-        //             i.attr('class', 'fa fa-lg fa-fw fa-'+item.icon);
-        //             a.append(i);
-        //         }
-        //         if(item.title){
-        //             a.attr('title', item.title);
-        //             if(level == 1){ 
-        //                 console.log(item.title, $rootScope.getWord(item.title));
-        //                 a.append(' <span class="menu-item-parent">' + item.title + '</span>');
-        //             } else {
-        //                 a.append(' ' + item.title);
-
-        //             }
-        //         }
-
-        //         if(item.items){
-        //             var ul = $('<ul />');
-        //             li.append(ul);
-        //             li.attr('data-menu-collapse', '');
-        //             _.forEach(item.items, function(child) {
-        //                 createItem(child, ul, level+1);
-        //             })
-        //         } 
-
-        //         parent.append(li); 
-        //     }
-
-        //     $http.get(attrs.smartMenuItems).then(function(res){
-        //         var ul = $('<ul />', {
-        //             'smart-menu': ''
-        //         })
-        //         _.forEach(res.data.items, function(item) {
-        //             createItem(item, ul, 1);
-        //         })
-                
-        //         var $scope = $rootScope.$new();
-        //         var html = $('<div>').append(ul).html(); 
-        //         var linkingFunction = $compile(html);
-                
-        //         var _element = linkingFunction($scope);
-
-        //         element.replaceWith(_element);
-        //         console.log(element);                
-        //     })
-        // },
-        link: function(scope, element, attrs){
-            function createItem(item, parent, level){
-                var li = $('<li />' ,{'ui-sref-active': "active"})
-                var a = $('<a />');
-                var i = $('<i />');
-
-                li.append(a);
-
-                if(item.sref)
-                    a.attr('ui-sref', item.sref);
-                if(item.href)
-                    a.attr('href', item.href);
-                if(item.icon){
-                    i.attr('class', 'fa fa-lg fa-fw fa-'+item.icon);
-                    a.append(i);
-                }
-                if(item.title){
-                    a.attr('title', $rootScope.getWord(item.title));
-                    if(level == 1){ 
-                        a.append(' <span class="menu-item-parent">' + $rootScope.getWord(item.title) + '</span>');
-                    } else {
-                        a.append(' ' + $rootScope.getWord(item.title));
-
-                    }
-                }
-
-                if(item.items){
-                    var ul = $('<ul />');
-                    li.append(ul);
-                    li.attr('data-menu-collapse', '');
-                    _.forEach(item.items, function(child) {
-                        createItem(child, ul, level+1);
-                    })
-                } 
-
-                parent.append(li); 
-            }
-
-
-            function DoMenu(){
-                ToolboxApi.ComposeMenu({
-                    U_ID : Session.Get().U_ID
-                }).then(function(res){
-                    console.log(res);
-
-                    var ul = $('<ul />', {
-                        'smart-menu': ''
-                    })
-                    _.forEach(res.items, function(item) {
-                        createItem(item, ul, 1);
-                    })
-                    
-                    var $scope = $rootScope.$new();
-                    var html = $('<div>').append(ul).html(); 
-                    var linkingFunction = $compile(html);
-                    
-                    var _element = linkingFunction($scope);
-                    // console.log(_element);
-                    // element.replaceWith(_element);
-                    
-                    element.html(_element);   
-                })        
-            }
-
-            $rootScope.$watch('lang', function(newVal, oldVal){
-                if(!angular.equals(newVal, {}) && !angular.isUndefined(newVal)){
-                    DoMenu();
-                }
-            }, true);
-        }
-    }
-});
-})();
 'use strict';
 
-angular.module('SmartAdmin.Layout').directive('demoStates', function ($rootScope) {
+angular.module('SmartAdmin.Forms').directive('smartJcrop', function ($q) {
     return {
-        restrict: 'EA',
-        replace: true,
-        templateUrl: 'app/_common/layout/directives/demo/demo-states.tpl.html',
-        scope: true,
-        link: function (scope, element, attributes) {
-            element.parent().css({
-                position: 'relative'
-            });
-
-            element.on('click', '#demo-setting', function () {
-                element.toggleClass('activate')
-            })
+        restrict: 'A',
+        scope: {
+            coords: '=',
+            options: '=',
+            selection: '='
         },
-        controller: function ($scope) {
-            var $root = $('body');
+        link: function (scope, element, attributes) {
+            var jcropApi, imageWidth, imageHeight, imageLoaded = $q.defer();
 
-            $scope.$watch('fixedHeader', function (fixedHeader) {
-                localStorage.setItem('sm-fixed-header', fixedHeader);
-                $root.toggleClass('fixed-header', fixedHeader);
-                if (fixedHeader == false) {
-                    $scope.fixedRibbon = false;
-                    $scope.fixedNavigation = false;
+            var listeners = {
+                onSelectHandlers: [],
+                onChangeHandlers: [],
+                onSelect: function (c) {
+                    angular.forEach(listeners.onSelectHandlers, function (handler) {
+                        handler.call(jcropApi, c)
+                    })
+                },
+                onChange: function (c) {
+                    angular.forEach(listeners.onChangeHandlers, function (handler) {
+                        handler.call(jcropApi, c)
+                    })
                 }
-            });
-
-
-            $scope.$watch('fixedNavigation', function (fixedNavigation) {
-                localStorage.setItem('sm-fixed-navigation', fixedNavigation);
-                $root.toggleClass('fixed-navigation', fixedNavigation);
-                if (fixedNavigation) {
-                    $scope.insideContainer = false;
-                    $scope.fixedHeader = true;
-                } else {
-                    $scope.fixedRibbon = false;
-                }
-            });
-
-
-            $scope.$watch('fixedRibbon', function (fixedRibbon) {
-                localStorage.setItem('sm-fixed-ribbon', fixedRibbon);
-                $root.toggleClass('fixed-ribbon', fixedRibbon);
-                if (fixedRibbon) {
-                    $scope.fixedHeader = true;
-                    $scope.fixedNavigation = true;
-                    $scope.insideContainer = false;
-                }
-            });
-
-            $scope.$watch('fixedPageFooter', function (fixedPageFooter) {
-                localStorage.setItem('sm-fixed-page-footer', fixedPageFooter);
-                $root.toggleClass('fixed-page-footer', fixedPageFooter);
-            });
-
-            $scope.$watch('insideContainer', function (insideContainer) {
-                localStorage.setItem('sm-inside-container', insideContainer);
-                $root.toggleClass('container', insideContainer);
-                if (insideContainer) {
-                    $scope.fixedRibbon = false;
-                    $scope.fixedNavigation = false;
-                }
-            });
-
-            $scope.$watch('rtl', function (rtl) {
-                localStorage.setItem('sm-rtl', rtl);
-                $root.toggleClass('smart-rtl', rtl);
-            });
-
-            $scope.$watch('menuOnTop', function (menuOnTop) {
-                $rootScope.$broadcast('$smartLayoutMenuOnTop', menuOnTop);
-                localStorage.setItem('sm-menu-on-top', menuOnTop);
-                $root.toggleClass('menu-on-top', menuOnTop);
-
-                if(menuOnTop)$root.removeClass('minified');
-            });
-
-            $scope.$watch('colorblindFriendly', function (colorblindFriendly) {
-                localStorage.setItem('sm-colorblind-friendly', colorblindFriendly);
-                $root.toggleClass('colorblind-friendly', colorblindFriendly);
-            });
-
-
-            $scope.fixedHeader = localStorage.getItem('sm-fixed-header') == 'true';
-            $scope.fixedNavigation = localStorage.getItem('sm-fixed-navigation') == 'true';
-            $scope.fixedRibbon = localStorage.getItem('sm-fixed-ribbon') == 'true';
-            $scope.fixedPageFooter = localStorage.getItem('sm-fixed-page-footer') == 'true';
-            $scope.insideContainer = localStorage.getItem('sm-inside-container') == 'true';
-            $scope.rtl = localStorage.getItem('sm-rtl') == 'true';
-            $scope.menuOnTop = localStorage.getItem('sm-menu-on-top') == 'true' || $root.hasClass('menu-on-top');
-            $scope.colorblindFriendly = localStorage.getItem('sm-colorblind-friendly') == 'true';
-
-
-            $scope.skins = appConfig.skins;
-
-
-            $scope.smartSkin = localStorage.getItem('sm-skin') ? localStorage.getItem('sm-skin') : appConfig.smartSkin;
-
-            $scope.setSkin = function (skin) {
-                $scope.smartSkin = skin.name;
-                $root.removeClass(_.pluck($scope.skins, 'name').join(' '));
-                $root.addClass(skin.name);
-                localStorage.setItem('sm-skin', skin.name);
-                $("#logo img").attr('src', skin.logo);
             };
 
+            if (attributes.coords) {
+                var coordsUpdate = function (c) {
+                    scope.$apply(function () {
+                        scope.coords = c;
+                    });
+                };
+                listeners.onSelectHandlers.push(coordsUpdate);
+                listeners.onChangeHandlers.push(coordsUpdate);
+            }
 
-            if($scope.smartSkin != "smart-style-0"){
-                $scope.setSkin(_.find($scope.skins, {name: $scope.smartSkin}))
+            var $previewPane = $(attributes.smartJcropPreview),
+                $previewContainer = $previewPane.find('.preview-container'),
+                $previewImg = $previewPane.find('img');
+
+            if ($previewPane.length && $previewImg.length) {
+                var previewUpdate = function (coords) {
+                    if (parseInt(coords.w) > 0) {
+                        var rx = $previewContainer.width() / coords.w;
+                        var ry = $previewContainer.height() / coords.h;
+
+                        $previewImg.css({
+                            width: Math.round(rx * imageWidth) + 'px',
+                            height: Math.round(ry * imageHeight) + 'px',
+                            marginLeft: '-' + Math.round(rx * coords.x) + 'px',
+                            marginTop: '-' + Math.round(ry * coords.y) + 'px'
+                        });
+                    }
+                };
+                listeners.onSelectHandlers.push(previewUpdate);
+                listeners.onChangeHandlers.push(previewUpdate);
             }
 
 
-            $scope.factoryReset = function () {
-                $.SmartMessageBox({
-                    title: "<i class='fa fa-refresh' style='color:green'></i> Clear Local Storage",
-                    content: "Would you like to RESET all your saved widgets and clear LocalStorage?1",
-                    buttons: '[No][Yes]'
-                }, function (ButtonPressed) {
-                    if (ButtonPressed == "Yes" && localStorage) {
-                        localStorage.clear();
-                        location.reload()
+            var options = {
+                onSelect: listeners.onSelect,
+                onChange: listeners.onChange
+            };
+
+            if ($previewContainer.length) {
+                options.aspectRatio = $previewContainer.width() / $previewContainer.height()
+            }
+
+            if (attributes.selection) {
+                scope.$watch('selection', function (newVal, oldVal) {
+                    if (newVal != oldVal) {
+                        var rectangle = newVal == 'release' ? [imageWidth / 2, imageHeight / 2, imageWidth / 2, imageHeight / 2] : newVal;
+
+                        var callback = newVal == 'release' ? function () {
+                            jcropApi.release();
+                        } : angular.noop;
+
+                        imageLoaded.promise.then(function () {
+                            if (scope.options && scope.options.animate) {
+                                jcropApi.animateTo(rectangle, callback);
+                            } else {
+                                jcropApi.setSelect(rectangle);
+                            }
+                        });
                     }
                 });
             }
-        }
-    }
-});
-/**
- * Jarvis Widget Directive
- *
- *    colorbutton="false"
- *    editbutton="false"
-      togglebutton="false"
-       deletebutton="false"
-        fullscreenbutton="false"
-        custombutton="false"
-        collapsed="true"
-          sortable="false"
- *
- *
- */
-"use strict";
 
-angular.module('SmartAdmin.Layout').directive('jarvisWidget', function($rootScope){
-    return {
-        restrict: "A",
-        compile: function(element, attributes){
-            if(element.data('widget-color'))
-                element.addClass('jarviswidget-color-' + element.data('widget-color'));
+            if (attributes.options) {
 
+                var optionNames = [
+                    'bgOpacity', 'bgColor', 'bgFade', 'shade', 'outerImage',
+                    'allowSelect', 'allowMove', 'allowResize',
+                    'aspectRatio'
+                ];
 
-            element.find('.widget-body').prepend('<div class="jarviswidget-editbox"><input class="form-control" type="text"></div>');
+                angular.forEach(optionNames, function (name) {
+                    if (scope.options[name])
+                        options[name] = scope.options[name]
 
-            element.addClass('jarviswidget');
-            $rootScope.$emit('jarvisWidgetAdded', element )
+                    scope.$watch('options.' + name, function (newVal, oldVal) {
+                        if (newVal != oldVal) {
+                            imageLoaded.promise.then(function () {
+                                var update = {};
+                                update[name] = newVal;
+                                jcropApi.setOptions(update);
+                            });
+                        }
+                    });
 
-        }
-    }
-});
- "use strict";
- 
- angular.module('SmartAdmin.Layout').directive('widgetGrid', function ($rootScope, $compile, $q, $state, $timeout) {
-
-    var jarvisWidgetsDefaults = {
-        grid: 'article',
-        widgets: '.jarviswidget',
-        localStorage: true,
-        deleteSettingsKey: '#deletesettingskey-options',
-        settingsKeyLabel: 'Reset settings?',
-        deletePositionKey: '#deletepositionkey-options',
-        positionKeyLabel: 'Reset position?',
-        sortable: true,
-        buttonsHidden: false,
-        // toggle button
-        toggleButton: true,
-        toggleClass: 'fa fa-minus | fa fa-plus',
-        toggleSpeed: 200,
-        onToggle: function () {
-        },
-        // delete btn
-        deleteButton: true,
-        deleteMsg: 'Warning: This action cannot be undone!',
-        deleteClass: 'fa fa-times',
-        deleteSpeed: 200,
-        onDelete: function () {
-        },
-        // edit btn
-        editButton: true,
-        editPlaceholder: '.jarviswidget-editbox',
-        editClass: 'fa fa-cog | fa fa-save',
-        editSpeed: 200,
-        onEdit: function () {
-        },
-        // color button
-        colorButton: true,
-        // full screen
-        fullscreenButton: true,
-        fullscreenClass: 'fa fa-expand | fa fa-compress',
-        fullscreenDiff: 3,
-        onFullscreen: function () {
-        },
-        // custom btn
-        customButton: false,
-        customClass: 'folder-10 | next-10',
-        customStart: function () {
-            alert('Hello you, this is a custom button...');
-        },
-        customEnd: function () {
-            alert('bye, till next time...');
-        },
-        // order
-        buttonOrder: '%refresh% %custom% %edit% %toggle% %fullscreen% %delete%',
-        opacity: 1.0,
-        dragHandle: '> header',
-        placeholderClass: 'jarviswidget-placeholder',
-        indicator: true,
-        indicatorTime: 600,
-        ajax: true,
-        timestampPlaceholder: '.jarviswidget-timestamp',
-        timestampFormat: 'Last update: %m%/%d%/%y% %h%:%i%:%s%',
-        refreshButton: true,
-        refreshButtonClass: 'fa fa-refresh',
-        labelError: 'Sorry but there was a error:',
-        labelUpdated: 'Last Update:',
-        labelRefresh: 'Refresh',
-        labelDelete: 'Delete widget:',
-        afterLoad: function () {
-        },
-        rtl: false, // best not to toggle this!
-        onChange: function () {
-
-        },
-        onSave: function () {
-
-        },
-        ajaxnav: true
-
-    }
-
-    var dispatchedWidgetIds = [];
-    var setupWaiting = false;
-
-    var debug = 1;
-
-    var setupWidgets = function (element, widgetIds) {
-
-        if (!setupWaiting) {
-
-            if(_.intersection(widgetIds, dispatchedWidgetIds).length != widgetIds.length){
-
-                dispatchedWidgetIds = _.union(widgetIds, dispatchedWidgetIds);
-
-//                    console.log('setupWidgets', debug++);
-
-                element.data('jarvisWidgets') && element.data('jarvisWidgets').destroy();
-                element.jarvisWidgets(jarvisWidgetsDefaults);
-                initDropdowns(widgetIds);
-            }
-
-        } else {
-            if (!setupWaiting) {
-                setupWaiting = true;
-                $timeout(function () {
-                    setupWaiting = false;
-                    setupWidgets(element, widgetIds)
-                }, 200);
-            }
-        }
-
-    };
-
-    var destroyWidgets = function(element, widgetIds){
-        element.data('jarvisWidgets') && element.data('jarvisWidgets').destroy();
-        dispatchedWidgetIds = _.xor(dispatchedWidgetIds, widgetIds);
-    };
-
-    var initDropdowns = function (widgetIds) {
-        angular.forEach(widgetIds, function (wid) {
-            $('#' + wid + ' [data-toggle="dropdown"]').each(function () {
-                var $parent = $(this).parent();
-                // $(this).removeAttr('data-toggle');
-                if (!$parent.attr('dropdown')) {
-                    $(this).removeAttr('href');
-                    $parent.attr('dropdown', '');
-                    var compiled = $compile($parent)($parent.scope())
-                    $parent.replaceWith(compiled);
-                }
-            })
-        });
-    };
-
-    var jarvisWidgetAddedOff,
-        $viewContentLoadedOff,
-        $stateChangeStartOff;
-
-    return {
-        restrict: 'A',
-        compile: function(element){
-
-            element.removeAttr('widget-grid data-widget-grid');
-
-            var widgetIds = [];
-
-            $viewContentLoadedOff = $rootScope.$on('$viewContentLoaded', function (event, data) {
-                $timeout(function () {
-                    setupWidgets(element, widgetIds)
-                }, 100);
-            });
-
-
-            $stateChangeStartOff = $rootScope.$on('$stateChangeStart',
-                function(event, toState, toParams, fromState, fromParams){
-                    jarvisWidgetAddedOff();
-                    $viewContentLoadedOff();
-                    $stateChangeStartOff();
-                    destroyWidgets(element, widgetIds)
                 });
 
-            jarvisWidgetAddedOff = $rootScope.$on('jarvisWidgetAdded', function (event, widget) {
-                if (widgetIds.indexOf(widget.attr('id')) == -1) {
-                    widgetIds.push(widget.attr('id'));
-                    $timeout(function () {
-                        setupWidgets(element, widgetIds)
-                    }, 100);
-                }
-//                    console.log('jarvisWidgetAdded', widget.attr('id'));
-            });
+
+                scope.$watch('options.disabled', function (newVal, oldVal) {
+                    if (newVal != oldVal) {
+                        if (newVal) {
+                            jcropApi.disable();
+                        } else {
+                            jcropApi.enable();
+                        }
+                    }
+                });
+
+                scope.$watch('options.destroyed', function (newVal, oldVal) {
+                    if (newVal != oldVal) {
+                        if (newVal) {
+                            jcropApi.destroy();
+                        } else {
+                            _init();
+                        }
+                    }
+                });
+
+                scope.$watch('options.src', function (newVal, oldVal) {
+                    imageLoaded = $q.defer();
+                    if (newVal != oldVal) {
+                        jcropApi.setImage(scope.options.src, function () {
+                            imageLoaded.resolve();
+                        });
+                    }
+                });
+
+                var updateSize = function(){
+                    jcropApi.setOptions({
+                        minSize: [scope.options.minSizeWidth, scope.options.minSizeHeight],
+                        maxSize: [scope.options.maxSizeWidth, scope.options.maxSizeHeight]
+                    });
+                };
+
+                scope.$watch('options.minSizeWidth', function (newVal, oldVal) {
+                    if (newVal != oldVal) updateSize();
+                });
+                scope.$watch('options.minSizeHeight', function (newVal, oldVal) {
+                    if (newVal != oldVal) updateSize();
+                });
+                scope.$watch('options.maxSizeWidth', function (newVal, oldVal) {
+                    if (newVal != oldVal) updateSize();
+                });
+                scope.$watch('options.maxSizeHeight', function (newVal, oldVal) {
+                    if (newVal != oldVal) updateSize();
+                });
+            }
+
+            var _init = function () {
+                element.Jcrop(options, function () {
+                    jcropApi = this;
+                    // Use the API to get the real image size
+                    var bounds = this.getBounds();
+                    imageWidth = bounds[0];
+                    imageHeight = bounds[1];
+
+                    if (attributes.selection && angular.isArray(scope.selection)) {
+                        if (scope.options && scope.options.animate) {
+                            jcropApi.animateTo(scope.selection);
+                        } else {
+                            jcropApi.setSelect(scope.selection);
+                        }
+                    }
+                    imageLoaded.resolve();
+                });
+            };
+
+            _init()
+
 
         }
     }
 });
-
 'use strict';
 
 angular.module('SmartAdmin.Forms').directive('smartCkEditor', function () {
@@ -23815,194 +26709,216 @@ angular.module('SmartAdmin.Forms').directive('smartReviewForm', function (formsC
 });
 'use strict';
 
-angular.module('SmartAdmin.Forms').directive('smartJcrop', function ($q) {
+angular.module('SmartAdmin.Forms').directive('smartValidateForm', function (formsCommon) {
     return {
         restrict: 'A',
-        scope: {
-            coords: '=',
-            options: '=',
-            selection: '='
-        },
-        link: function (scope, element, attributes) {
-            var jcropApi, imageWidth, imageHeight, imageLoaded = $q.defer();
+        link: function (scope, form, attributes) {
 
-            var listeners = {
-                onSelectHandlers: [],
-                onChangeHandlers: [],
-                onSelect: function (c) {
-                    angular.forEach(listeners.onSelectHandlers, function (handler) {
-                        handler.call(jcropApi, c)
-                    })
+            var validateOptions = {
+                rules: {},
+                messages: {},
+                highlight: function (element) {
+                    $(element).closest('.form-group').removeClass('has-success').addClass('has-error');
                 },
-                onChange: function (c) {
-                    angular.forEach(listeners.onChangeHandlers, function (handler) {
-                        handler.call(jcropApi, c)
-                    })
+                unhighlight: function (element) {
+                    $(element).closest('.form-group').removeClass('has-error').addClass('has-success');
+                },
+                errorElement: 'span',
+                errorClass: 'help-block',
+                errorPlacement: function (error, element) {
+                    if (element.parent('.input-group').length) {
+                        error.insertAfter(element.parent());
+                    } else {
+                        error.insertAfter(element);
+                    }
                 }
             };
+            form.find('[data-smart-validate-input], [smart-validate-input]').each(function () {
+                var $input = $(this), fieldName = $input.attr('name');
 
-            if (attributes.coords) {
-                var coordsUpdate = function (c) {
-                    scope.$apply(function () {
-                        scope.coords = c;
-                    });
-                };
-                listeners.onSelectHandlers.push(coordsUpdate);
-                listeners.onChangeHandlers.push(coordsUpdate);
-            }
+                validateOptions.rules[fieldName] = {};
 
-            var $previewPane = $(attributes.smartJcropPreview),
-                $previewContainer = $previewPane.find('.preview-container'),
-                $previewImg = $previewPane.find('img');
+                if ($input.data('required') != undefined) {
+                    validateOptions.rules[fieldName].required = true;
+                }
+                if ($input.data('email') != undefined) {
+                    validateOptions.rules[fieldName].email = true;
+                }
 
-            if ($previewPane.length && $previewImg.length) {
-                var previewUpdate = function (coords) {
-                    if (parseInt(coords.w) > 0) {
-                        var rx = $previewContainer.width() / coords.w;
-                        var ry = $previewContainer.height() / coords.h;
+                if ($input.data('maxlength') != undefined) {
+                    validateOptions.rules[fieldName].maxlength = $input.data('maxlength');
+                }
 
-                        $previewImg.css({
-                            width: Math.round(rx * imageWidth) + 'px',
-                            height: Math.round(ry * imageHeight) + 'px',
-                            marginLeft: '-' + Math.round(rx * coords.x) + 'px',
-                            marginTop: '-' + Math.round(ry * coords.y) + 'px'
-                        });
-                    }
-                };
-                listeners.onSelectHandlers.push(previewUpdate);
-                listeners.onChangeHandlers.push(previewUpdate);
-            }
+                if ($input.data('minlength') != undefined) {
+                    validateOptions.rules[fieldName].minlength = $input.data('minlength');
+                }
 
+                if($input.data('message')){
+                    validateOptions.messages[fieldName] = $input.data('message');
+                } else {
+                    angular.forEach($input.data(), function(value, key){
+                        if(key.search(/message/)== 0){
+                            if(!validateOptions.messages[fieldName])
+                                validateOptions.messages[fieldName] = {};
 
-            var options = {
-                onSelect: listeners.onSelect,
-                onChange: listeners.onChange
-            };
-
-            if ($previewContainer.length) {
-                options.aspectRatio = $previewContainer.width() / $previewContainer.height()
-            }
-
-            if (attributes.selection) {
-                scope.$watch('selection', function (newVal, oldVal) {
-                    if (newVal != oldVal) {
-                        var rectangle = newVal == 'release' ? [imageWidth / 2, imageHeight / 2, imageWidth / 2, imageHeight / 2] : newVal;
-
-                        var callback = newVal == 'release' ? function () {
-                            jcropApi.release();
-                        } : angular.noop;
-
-                        imageLoaded.promise.then(function () {
-                            if (scope.options && scope.options.animate) {
-                                jcropApi.animateTo(rectangle, callback);
-                            } else {
-                                jcropApi.setSelect(rectangle);
-                            }
-                        });
-                    }
-                });
-            }
-
-            if (attributes.options) {
-
-                var optionNames = [
-                    'bgOpacity', 'bgColor', 'bgFade', 'shade', 'outerImage',
-                    'allowSelect', 'allowMove', 'allowResize',
-                    'aspectRatio'
-                ];
-
-                angular.forEach(optionNames, function (name) {
-                    if (scope.options[name])
-                        options[name] = scope.options[name]
-
-                    scope.$watch('options.' + name, function (newVal, oldVal) {
-                        if (newVal != oldVal) {
-                            imageLoaded.promise.then(function () {
-                                var update = {};
-                                update[name] = newVal;
-                                jcropApi.setOptions(update);
-                            });
+                            var messageKey = key.toLowerCase().replace(/^message/,'')
+                            validateOptions.messages[fieldName][messageKey] = value;
                         }
                     });
+                }
+            });
 
-                });
 
-
-                scope.$watch('options.disabled', function (newVal, oldVal) {
-                    if (newVal != oldVal) {
-                        if (newVal) {
-                            jcropApi.disable();
-                        } else {
-                            jcropApi.enable();
-                        }
-                    }
-                });
-
-                scope.$watch('options.destroyed', function (newVal, oldVal) {
-                    if (newVal != oldVal) {
-                        if (newVal) {
-                            jcropApi.destroy();
-                        } else {
-                            _init();
-                        }
-                    }
-                });
-
-                scope.$watch('options.src', function (newVal, oldVal) {
-                    imageLoaded = $q.defer();
-                    if (newVal != oldVal) {
-                        jcropApi.setImage(scope.options.src, function () {
-                            imageLoaded.resolve();
-                        });
-                    }
-                });
-
-                var updateSize = function(){
-                    jcropApi.setOptions({
-                        minSize: [scope.options.minSizeWidth, scope.options.minSizeHeight],
-                        maxSize: [scope.options.maxSizeWidth, scope.options.maxSizeHeight]
-                    });
-                };
-
-                scope.$watch('options.minSizeWidth', function (newVal, oldVal) {
-                    if (newVal != oldVal) updateSize();
-                });
-                scope.$watch('options.minSizeHeight', function (newVal, oldVal) {
-                    if (newVal != oldVal) updateSize();
-                });
-                scope.$watch('options.maxSizeWidth', function (newVal, oldVal) {
-                    if (newVal != oldVal) updateSize();
-                });
-                scope.$watch('options.maxSizeHeight', function (newVal, oldVal) {
-                    if (newVal != oldVal) updateSize();
-                });
-            }
-
-            var _init = function () {
-                element.Jcrop(options, function () {
-                    jcropApi = this;
-                    // Use the API to get the real image size
-                    var bounds = this.getBounds();
-                    imageWidth = bounds[0];
-                    imageHeight = bounds[1];
-
-                    if (attributes.selection && angular.isArray(scope.selection)) {
-                        if (scope.options && scope.options.animate) {
-                            jcropApi.animateTo(scope.selection);
-                        } else {
-                            jcropApi.setSelect(scope.selection);
-                        }
-                    }
-                    imageLoaded.resolve();
-                });
-            };
-
-            _init()
-
+            form.validate(validateOptions);
 
         }
     }
 });
+
+'use strict';
+
+angular.module('SmartAdmin.Forms').directive('smartFueluxWizard', function () {
+    return {
+        restrict: 'A',
+        scope: {
+            smartWizardCallback: '&'
+        },
+        link: function (scope, element, attributes) {
+
+            var wizard = element.wizard();
+
+            var $form = element.find('form');
+
+            wizard.on('actionclicked.fu.wizard', function(e, data){
+                if ($form.data('validator')) {
+                    if (!$form.valid()) {
+                        $form.data('validator').focusInvalid();
+                        e.preventDefault();
+                    }
+                }
+            });
+
+            wizard.on('finished.fu.wizard', function (e, data) {
+                var formData = {};
+                _.each($form.serializeArray(), function(field){
+                    formData[field.name] = field.value
+                });
+                if(typeof scope.smartWizardCallback() === 'function'){
+                    scope.smartWizardCallback()(formData)
+                }
+            });
+        }
+    }
+});
+'use strict';
+
+angular.module('SmartAdmin.Forms').directive('smartWizard', function () {
+    return {
+        restrict: 'A',
+        scope: {
+            'smartWizardCallback': '&'
+        },
+        link: function (scope, element, attributes) {
+
+            var stepsCount = $('[data-smart-wizard-tab]').length;
+
+            var currentStep = 1;
+
+            var validSteps = [];
+
+            var $form = element.closest('form');
+
+            var $prev = $('[data-smart-wizard-prev]', element);
+
+            var $next = $('[data-smart-wizard-next]', element);
+
+            function setStep(step) {
+                currentStep = step;
+                $('[data-smart-wizard-pane=' + step + ']', element).addClass('active').siblings('[data-smart-wizard-pane]').removeClass('active');
+                $('[data-smart-wizard-tab=' + step + ']', element).addClass('active').siblings('[data-smart-wizard-tab]').removeClass('active');
+
+                $prev.toggleClass('disabled', step == 1)
+            }
+
+
+            element.on('click', '[data-smart-wizard-tab]', function (e) {
+                setStep(parseInt($(this).data('smartWizardTab')));
+                e.preventDefault();
+            });
+
+            $next.on('click', function (e) {
+                if ($form.data('validator')) {
+                    if (!$form.valid()) {
+                        validSteps = _.without(validSteps, currentStep);
+                        $form.data('validator').focusInvalid();
+                        return false;
+                    } else {
+                        validSteps = _.without(validSteps, currentStep);
+                        validSteps.push(currentStep);
+                        element.find('[data-smart-wizard-tab=' + currentStep + ']')
+                            .addClass('complete')
+                            .find('.step')
+                            .html('<i class="fa fa-check"></i>');
+                    }
+                }
+                if (currentStep < stepsCount) {
+                    setStep(currentStep + 1);
+                } else {
+                    if (validSteps.length < stepsCount) {
+                        var steps = _.range(1, stepsCount + 1)
+
+                        _(steps).forEach(function (num) {
+                            if (validSteps.indexOf(num) == -1) {
+                                console.log(num);
+                                setStep(num);
+                                return false;
+                            }
+                        })
+                    } else {
+                        var data = {};
+                        _.each($form.serializeArray(), function(field){
+                            data[field.name] = field.value
+                        });
+                        if(typeof  scope.smartWizardCallback() === 'function'){
+                            scope.smartWizardCallback()(data)
+                        }
+                    }
+                }
+
+                e.preventDefault();
+            });
+
+            $prev.on('click', function (e) {
+                if (!$prev.hasClass('disabled') && currentStep > 0) {
+                    setStep(currentStep - 1);
+                }
+                e.preventDefault();
+            });
+
+
+            setStep(currentStep);
+
+        }
+    }
+});
+'use strict';
+
+angular.module('SmartAdmin.Forms').directive('smartDropzone', function () {
+    return function (scope, element, attrs) {
+        var config, dropzone;
+
+        config = scope[attrs.smartDropzone];
+
+        // create a Dropzone for the element with the given options
+        dropzone = new Dropzone(element[0], config.options);
+
+        // bind the given event handlers
+        angular.forEach(config.eventHandlers, function (handler, event) {
+            dropzone.on(event, handler);
+        });
+    };
+});
+
 'use strict';
 
 angular.module('SmartAdmin.Forms').directive('smartClockpicker', function () {
@@ -24325,214 +27241,573 @@ angular.module('SmartAdmin.Forms').directive('smartXeditable', function($timeout
 
     }
 });
-'use strict';
+"use strict";
 
-angular.module('SmartAdmin.Forms').directive('smartDropzone', function () {
-    return function (scope, element, attrs) {
-        var config, dropzone;
+(function ($) {
 
-        config = scope[attrs.smartDropzone];
+    $.fn.smartCollapseToggle = function () {
 
-        // create a Dropzone for the element with the given options
-        dropzone = new Dropzone(element[0], config.options);
+        return this.each(function () {
 
-        // bind the given event handlers
-        angular.forEach(config.eventHandlers, function (handler, event) {
-            dropzone.on(event, handler);
+            var $body = $('body');
+            var $this = $(this);
+
+            // only if not  'menu-on-top'
+            if ($body.hasClass('menu-on-top')) {
+
+
+            } else {
+
+                $body.hasClass('mobile-view-activated')
+
+                // toggle open
+                $this.toggleClass('open');
+
+                // for minified menu collapse only second level
+                if ($body.hasClass('minified')) {
+                    if ($this.closest('nav ul ul').length) {
+                        $this.find('>a .collapse-sign .fa').toggleClass('fa-minus-square-o fa-plus-square-o');
+                        $this.find('ul:first').slideToggle(appConfig.menu_speed || 200);
+                    }
+                } else {
+                    // toggle expand item
+                    $this.find('>a .collapse-sign .fa').toggleClass('fa-minus-square-o fa-plus-square-o');
+                    $this.find('ul:first').slideToggle(appConfig.menu_speed || 200);
+                }
+            }
         });
     };
-});
+})(jQuery);
 
-'use strict';
-
-angular.module('SmartAdmin.Forms').directive('smartValidateForm', function (formsCommon) {
+angular.module('SmartAdmin.Layout').directive('smartMenu', function ($state, $rootScope) {
     return {
         restrict: 'A',
-        link: function (scope, form, attributes) {
+        link: function (scope, element, attrs) {
+            var $body = $('body');
 
-            var validateOptions = {
-                rules: {},
-                messages: {},
-                highlight: function (element) {
-                    $(element).closest('.form-group').removeClass('has-success').addClass('has-error');
-                },
-                unhighlight: function (element) {
-                    $(element).closest('.form-group').removeClass('has-error').addClass('has-success');
-                },
-                errorElement: 'span',
-                errorClass: 'help-block',
-                errorPlacement: function (error, element) {
-                    if (element.parent('.input-group').length) {
-                        error.insertAfter(element.parent());
-                    } else {
-                        error.insertAfter(element);
+            var $collapsible = element.find('li[data-menu-collapse]');
+
+            var bindEvents = function(){
+                $collapsible.each(function (idx, li) {
+                    var $li = $(li);
+                    $li
+                        .on('click', '>a', function (e) {
+
+                            // collapse all open siblings
+                            $li.siblings('.open').smartCollapseToggle();
+
+                            // toggle element
+                            $li.smartCollapseToggle();
+
+                            // add active marker to collapsed element if it has active childs
+                            if (!$li.hasClass('open') && $li.find('li.active').length > 0) {
+                                $li.addClass('active')
+                            }
+
+                            e.preventDefault();
+                        })
+                        .find('>a').append('<b class="collapse-sign"><em class="fa fa-plus-square-o"></em></b>');
+
+                    // initialization toggle
+                    if ($li.find('li.active').length) {
+                        $li.smartCollapseToggle();
+                        $li.find('li.active').parents('li').addClass('active');
                     }
-                }
-            };
-            form.find('[data-smart-validate-input], [smart-validate-input]').each(function () {
-                var $input = $(this), fieldName = $input.attr('name');
-
-                validateOptions.rules[fieldName] = {};
-
-                if ($input.data('required') != undefined) {
-                    validateOptions.rules[fieldName].required = true;
-                }
-                if ($input.data('email') != undefined) {
-                    validateOptions.rules[fieldName].email = true;
-                }
-
-                if ($input.data('maxlength') != undefined) {
-                    validateOptions.rules[fieldName].maxlength = $input.data('maxlength');
-                }
-
-                if ($input.data('minlength') != undefined) {
-                    validateOptions.rules[fieldName].minlength = $input.data('minlength');
-                }
-
-                if($input.data('message')){
-                    validateOptions.messages[fieldName] = $input.data('message');
-                } else {
-                    angular.forEach($input.data(), function(value, key){
-                        if(key.search(/message/)== 0){
-                            if(!validateOptions.messages[fieldName])
-                                validateOptions.messages[fieldName] = {};
-
-                            var messageKey = key.toLowerCase().replace(/^message/,'')
-                            validateOptions.messages[fieldName][messageKey] = value;
-                        }
-                    });
-                }
-            });
-
-
-            form.validate(validateOptions);
-
-        }
-    }
-});
-
-'use strict';
-
-angular.module('SmartAdmin.Forms').directive('smartFueluxWizard', function () {
-    return {
-        restrict: 'A',
-        scope: {
-            smartWizardCallback: '&'
-        },
-        link: function (scope, element, attributes) {
-
-            var wizard = element.wizard();
-
-            var $form = element.find('form');
-
-            wizard.on('actionclicked.fu.wizard', function(e, data){
-                if ($form.data('validator')) {
-                    if (!$form.valid()) {
-                        $form.data('validator').focusInvalid();
-                        e.preventDefault();
-                    }
-                }
-            });
-
-            wizard.on('finished.fu.wizard', function (e, data) {
-                var formData = {};
-                _.each($form.serializeArray(), function(field){
-                    formData[field.name] = field.value
                 });
-                if(typeof scope.smartWizardCallback() === 'function'){
-                    scope.smartWizardCallback()(formData)
+            }
+            bindEvents();
+
+
+            // click on route link
+            element.on('click', 'a[data-ui-sref]', function (e) {
+                // collapse all siblings to element parents and remove active markers
+                $(this)
+                    .parents('li').addClass('active')
+                    .each(function () {
+                        $(this).siblings('li.open').smartCollapseToggle();
+                        $(this).siblings('li').removeClass('active')
+                    });
+
+                if ($body.hasClass('mobile-view-activated')) {
+                    $rootScope.$broadcast('requestToggleMenu');
+                }
+            });
+
+
+            scope.$on('$smartLayoutMenuOnTop', function (event, menuOnTop) {
+                if (menuOnTop) {
+                    $collapsible.filter('.open').smartCollapseToggle();
                 }
             });
         }
     }
 });
-'use strict';
+(function(){
+    "use strict";
 
-angular.module('SmartAdmin.Forms').directive('smartWizard', function () {
+    angular.module('SmartAdmin.Layout').directive('smartMenuItems', function ($http, $rootScope, $compile, ToolboxApi, Session) {
     return {
         restrict: 'A',
-        scope: {
-            'smartWizardCallback': '&'
-        },
-        link: function (scope, element, attributes) {
+        // compile: function (element, attrs) {
+            
+        //     function createItem(item, parent, level){
+        //         var li = $('<li />' ,{'ui-sref-active': "active"})
+        //         var a = $('<a />');
+        //         var i = $('<i />');
 
-            var stepsCount = $('[data-smart-wizard-tab]').length;
+        //         li.append(a);
 
-            var currentStep = 1;
+        //         if(item.sref)
+        //             a.attr('ui-sref', item.sref);
+        //         if(item.href)
+        //             a.attr('href', item.href);
+        //         if(item.icon){
+        //             i.attr('class', 'fa fa-lg fa-fw fa-'+item.icon);
+        //             a.append(i);
+        //         }
+        //         if(item.title){
+        //             a.attr('title', item.title);
+        //             if(level == 1){ 
+        //                 console.log(item.title, $rootScope.getWord(item.title));
+        //                 a.append(' <span class="menu-item-parent">' + item.title + '</span>');
+        //             } else {
+        //                 a.append(' ' + item.title);
 
-            var validSteps = [];
+        //             }
+        //         }
 
-            var $form = element.closest('form');
+        //         if(item.items){
+        //             var ul = $('<ul />');
+        //             li.append(ul);
+        //             li.attr('data-menu-collapse', '');
+        //             _.forEach(item.items, function(child) {
+        //                 createItem(child, ul, level+1);
+        //             })
+        //         } 
 
-            var $prev = $('[data-smart-wizard-prev]', element);
+        //         parent.append(li); 
+        //     }
 
-            var $next = $('[data-smart-wizard-next]', element);
+        //     $http.get(attrs.smartMenuItems).then(function(res){
+        //         var ul = $('<ul />', {
+        //             'smart-menu': ''
+        //         })
+        //         _.forEach(res.data.items, function(item) {
+        //             createItem(item, ul, 1);
+        //         })
+                
+        //         var $scope = $rootScope.$new();
+        //         var html = $('<div>').append(ul).html(); 
+        //         var linkingFunction = $compile(html);
+                
+        //         var _element = linkingFunction($scope);
 
-            function setStep(step) {
-                currentStep = step;
-                $('[data-smart-wizard-pane=' + step + ']', element).addClass('active').siblings('[data-smart-wizard-pane]').removeClass('active');
-                $('[data-smart-wizard-tab=' + step + ']', element).addClass('active').siblings('[data-smart-wizard-tab]').removeClass('active');
+        //         element.replaceWith(_element);
+        //         console.log(element);                
+        //     })
+        // },
+        link: function(scope, element, attrs){
+            function createItem(item, parent, level){
+                var li = $('<li />' ,{'ui-sref-active': "active"})
+                var a = $('<a />');
+                var i = $('<i />');
 
-                $prev.toggleClass('disabled', step == 1)
+                li.append(a);
+
+                if(item.sref)
+                    a.attr('ui-sref', item.sref);
+                if(item.href)
+                    a.attr('href', item.href);
+                if(item.icon){
+                    i.attr('class', 'fa fa-lg fa-fw fa-'+item.icon);
+                    a.append(i);
+                }
+                if(item.title){
+                    a.attr('title', $rootScope.getWord(item.title));
+                    if(level == 1){ 
+                        a.append(' <span class="menu-item-parent">' + $rootScope.getWord(item.title) + '</span>');
+                    } else {
+                        a.append(' ' + $rootScope.getWord(item.title));
+
+                    }
+                }
+
+                if(item.items){
+                    var ul = $('<ul />');
+                    li.append(ul);
+                    li.attr('data-menu-collapse', '');
+                    _.forEach(item.items, function(child) {
+                        createItem(child, ul, level+1);
+                    })
+                } 
+
+                parent.append(li); 
             }
 
 
-            element.on('click', '[data-smart-wizard-tab]', function (e) {
-                setStep(parseInt($(this).data('smartWizardTab')));
-                e.preventDefault();
+            function DoMenu(){
+                ToolboxApi.ComposeMenu({
+                    U_ID : Session.Get().U_ID
+                }).then(function(res){
+                    console.log(res);
+
+                    var ul = $('<ul />', {
+                        'smart-menu': ''
+                    })
+                    _.forEach(res.items, function(item) {
+                        createItem(item, ul, 1);
+                    })
+                    
+                    var $scope = $rootScope.$new();
+                    var html = $('<div>').append(ul).html(); 
+                    var linkingFunction = $compile(html);
+                    
+                    var _element = linkingFunction($scope);
+                    // console.log(_element);
+                    // element.replaceWith(_element);
+                    
+                    element.html(_element);   
+                })        
+            }
+
+            $rootScope.$watch('lang', function(newVal, oldVal){
+                if(!angular.equals(newVal, {}) && !angular.isUndefined(newVal)){
+                    DoMenu();
+                }
+            }, true);
+        }
+    }
+});
+})();
+'use strict';
+
+angular.module('SmartAdmin.Layout').directive('demoStates', function ($rootScope) {
+    return {
+        restrict: 'EA',
+        replace: true,
+        templateUrl: 'app/_common/layout/directives/demo/demo-states.tpl.html',
+        scope: true,
+        link: function (scope, element, attributes) {
+            element.parent().css({
+                position: 'relative'
             });
 
-            $next.on('click', function (e) {
-                if ($form.data('validator')) {
-                    if (!$form.valid()) {
-                        validSteps = _.without(validSteps, currentStep);
-                        $form.data('validator').focusInvalid();
-                        return false;
-                    } else {
-                        validSteps = _.without(validSteps, currentStep);
-                        validSteps.push(currentStep);
-                        element.find('[data-smart-wizard-tab=' + currentStep + ']')
-                            .addClass('complete')
-                            .find('.step')
-                            .html('<i class="fa fa-check"></i>');
-                    }
+            element.on('click', '#demo-setting', function () {
+                element.toggleClass('activate')
+            })
+        },
+        controller: function ($scope) {
+            var $root = $('body');
+
+            $scope.$watch('fixedHeader', function (fixedHeader) {
+                localStorage.setItem('sm-fixed-header', fixedHeader);
+                $root.toggleClass('fixed-header', fixedHeader);
+                if (fixedHeader == false) {
+                    $scope.fixedRibbon = false;
+                    $scope.fixedNavigation = false;
                 }
-                if (currentStep < stepsCount) {
-                    setStep(currentStep + 1);
+            });
+
+
+            $scope.$watch('fixedNavigation', function (fixedNavigation) {
+                localStorage.setItem('sm-fixed-navigation', fixedNavigation);
+                $root.toggleClass('fixed-navigation', fixedNavigation);
+                if (fixedNavigation) {
+                    $scope.insideContainer = false;
+                    $scope.fixedHeader = true;
                 } else {
-                    if (validSteps.length < stepsCount) {
-                        var steps = _.range(1, stepsCount + 1)
+                    $scope.fixedRibbon = false;
+                }
+            });
 
-                        _(steps).forEach(function (num) {
-                            if (validSteps.indexOf(num) == -1) {
-                                console.log(num);
-                                setStep(num);
-                                return false;
-                            }
-                        })
-                    } else {
-                        var data = {};
-                        _.each($form.serializeArray(), function(field){
-                            data[field.name] = field.value
-                        });
-                        if(typeof  scope.smartWizardCallback() === 'function'){
-                            scope.smartWizardCallback()(data)
-                        }
+
+            $scope.$watch('fixedRibbon', function (fixedRibbon) {
+                localStorage.setItem('sm-fixed-ribbon', fixedRibbon);
+                $root.toggleClass('fixed-ribbon', fixedRibbon);
+                if (fixedRibbon) {
+                    $scope.fixedHeader = true;
+                    $scope.fixedNavigation = true;
+                    $scope.insideContainer = false;
+                }
+            });
+
+            $scope.$watch('fixedPageFooter', function (fixedPageFooter) {
+                localStorage.setItem('sm-fixed-page-footer', fixedPageFooter);
+                $root.toggleClass('fixed-page-footer', fixedPageFooter);
+            });
+
+            $scope.$watch('insideContainer', function (insideContainer) {
+                localStorage.setItem('sm-inside-container', insideContainer);
+                $root.toggleClass('container', insideContainer);
+                if (insideContainer) {
+                    $scope.fixedRibbon = false;
+                    $scope.fixedNavigation = false;
+                }
+            });
+
+            $scope.$watch('rtl', function (rtl) {
+                localStorage.setItem('sm-rtl', rtl);
+                $root.toggleClass('smart-rtl', rtl);
+            });
+
+            $scope.$watch('menuOnTop', function (menuOnTop) {
+                $rootScope.$broadcast('$smartLayoutMenuOnTop', menuOnTop);
+                localStorage.setItem('sm-menu-on-top', menuOnTop);
+                $root.toggleClass('menu-on-top', menuOnTop);
+
+                if(menuOnTop)$root.removeClass('minified');
+            });
+
+            $scope.$watch('colorblindFriendly', function (colorblindFriendly) {
+                localStorage.setItem('sm-colorblind-friendly', colorblindFriendly);
+                $root.toggleClass('colorblind-friendly', colorblindFriendly);
+            });
+
+
+            $scope.fixedHeader = localStorage.getItem('sm-fixed-header') == 'true';
+            $scope.fixedNavigation = localStorage.getItem('sm-fixed-navigation') == 'true';
+            $scope.fixedRibbon = localStorage.getItem('sm-fixed-ribbon') == 'true';
+            $scope.fixedPageFooter = localStorage.getItem('sm-fixed-page-footer') == 'true';
+            $scope.insideContainer = localStorage.getItem('sm-inside-container') == 'true';
+            $scope.rtl = localStorage.getItem('sm-rtl') == 'true';
+            $scope.menuOnTop = localStorage.getItem('sm-menu-on-top') == 'true' || $root.hasClass('menu-on-top');
+            $scope.colorblindFriendly = localStorage.getItem('sm-colorblind-friendly') == 'true';
+
+
+            $scope.skins = appConfig.skins;
+
+
+            $scope.smartSkin = localStorage.getItem('sm-skin') ? localStorage.getItem('sm-skin') : appConfig.smartSkin;
+
+            $scope.setSkin = function (skin) {
+                $scope.smartSkin = skin.name;
+                $root.removeClass(_.pluck($scope.skins, 'name').join(' '));
+                $root.addClass(skin.name);
+                localStorage.setItem('sm-skin', skin.name);
+                $("#logo img").attr('src', skin.logo);
+            };
+
+
+            if($scope.smartSkin != "smart-style-0"){
+                $scope.setSkin(_.find($scope.skins, {name: $scope.smartSkin}))
+            }
+
+
+            $scope.factoryReset = function () {
+                $.SmartMessageBox({
+                    title: "<i class='fa fa-refresh' style='color:green'></i> Clear Local Storage",
+                    content: "Would you like to RESET all your saved widgets and clear LocalStorage?1",
+                    buttons: '[No][Yes]'
+                }, function (ButtonPressed) {
+                    if (ButtonPressed == "Yes" && localStorage) {
+                        localStorage.clear();
+                        location.reload()
                     }
-                }
+                });
+            }
+        }
+    }
+});
+/**
+ * Jarvis Widget Directive
+ *
+ *    colorbutton="false"
+ *    editbutton="false"
+      togglebutton="false"
+       deletebutton="false"
+        fullscreenbutton="false"
+        custombutton="false"
+        collapsed="true"
+          sortable="false"
+ *
+ *
+ */
+"use strict";
 
-                e.preventDefault();
+angular.module('SmartAdmin.Layout').directive('jarvisWidget', function($rootScope){
+    return {
+        restrict: "A",
+        compile: function(element, attributes){
+            if(element.data('widget-color'))
+                element.addClass('jarviswidget-color-' + element.data('widget-color'));
+
+
+            element.find('.widget-body').prepend('<div class="jarviswidget-editbox"><input class="form-control" type="text"></div>');
+
+            element.addClass('jarviswidget');
+            $rootScope.$emit('jarvisWidgetAdded', element )
+
+        }
+    }
+});
+ "use strict";
+ 
+ angular.module('SmartAdmin.Layout').directive('widgetGrid', function ($rootScope, $compile, $q, $state, $timeout) {
+
+    var jarvisWidgetsDefaults = {
+        grid: 'article',
+        widgets: '.jarviswidget',
+        localStorage: true,
+        deleteSettingsKey: '#deletesettingskey-options',
+        settingsKeyLabel: 'Reset settings?',
+        deletePositionKey: '#deletepositionkey-options',
+        positionKeyLabel: 'Reset position?',
+        sortable: true,
+        buttonsHidden: false,
+        // toggle button
+        toggleButton: true,
+        toggleClass: 'fa fa-minus | fa fa-plus',
+        toggleSpeed: 200,
+        onToggle: function () {
+        },
+        // delete btn
+        deleteButton: true,
+        deleteMsg: 'Warning: This action cannot be undone!',
+        deleteClass: 'fa fa-times',
+        deleteSpeed: 200,
+        onDelete: function () {
+        },
+        // edit btn
+        editButton: true,
+        editPlaceholder: '.jarviswidget-editbox',
+        editClass: 'fa fa-cog | fa fa-save',
+        editSpeed: 200,
+        onEdit: function () {
+        },
+        // color button
+        colorButton: true,
+        // full screen
+        fullscreenButton: true,
+        fullscreenClass: 'fa fa-expand | fa fa-compress',
+        fullscreenDiff: 3,
+        onFullscreen: function () {
+        },
+        // custom btn
+        customButton: false,
+        customClass: 'folder-10 | next-10',
+        customStart: function () {
+            alert('Hello you, this is a custom button...');
+        },
+        customEnd: function () {
+            alert('bye, till next time...');
+        },
+        // order
+        buttonOrder: '%refresh% %custom% %edit% %toggle% %fullscreen% %delete%',
+        opacity: 1.0,
+        dragHandle: '> header',
+        placeholderClass: 'jarviswidget-placeholder',
+        indicator: true,
+        indicatorTime: 600,
+        ajax: true,
+        timestampPlaceholder: '.jarviswidget-timestamp',
+        timestampFormat: 'Last update: %m%/%d%/%y% %h%:%i%:%s%',
+        refreshButton: true,
+        refreshButtonClass: 'fa fa-refresh',
+        labelError: 'Sorry but there was a error:',
+        labelUpdated: 'Last Update:',
+        labelRefresh: 'Refresh',
+        labelDelete: 'Delete widget:',
+        afterLoad: function () {
+        },
+        rtl: false, // best not to toggle this!
+        onChange: function () {
+
+        },
+        onSave: function () {
+
+        },
+        ajaxnav: true
+
+    }
+
+    var dispatchedWidgetIds = [];
+    var setupWaiting = false;
+
+    var debug = 1;
+
+    var setupWidgets = function (element, widgetIds) {
+
+        if (!setupWaiting) {
+
+            if(_.intersection(widgetIds, dispatchedWidgetIds).length != widgetIds.length){
+
+                dispatchedWidgetIds = _.union(widgetIds, dispatchedWidgetIds);
+
+//                    console.log('setupWidgets', debug++);
+
+                element.data('jarvisWidgets') && element.data('jarvisWidgets').destroy();
+                element.jarvisWidgets(jarvisWidgetsDefaults);
+                initDropdowns(widgetIds);
+            }
+
+        } else {
+            if (!setupWaiting) {
+                setupWaiting = true;
+                $timeout(function () {
+                    setupWaiting = false;
+                    setupWidgets(element, widgetIds)
+                }, 200);
+            }
+        }
+
+    };
+
+    var destroyWidgets = function(element, widgetIds){
+        element.data('jarvisWidgets') && element.data('jarvisWidgets').destroy();
+        dispatchedWidgetIds = _.xor(dispatchedWidgetIds, widgetIds);
+    };
+
+    var initDropdowns = function (widgetIds) {
+        angular.forEach(widgetIds, function (wid) {
+            $('#' + wid + ' [data-toggle="dropdown"]').each(function () {
+                var $parent = $(this).parent();
+                // $(this).removeAttr('data-toggle');
+                if (!$parent.attr('dropdown')) {
+                    $(this).removeAttr('href');
+                    $parent.attr('dropdown', '');
+                    var compiled = $compile($parent)($parent.scope())
+                    $parent.replaceWith(compiled);
+                }
+            })
+        });
+    };
+
+    var jarvisWidgetAddedOff,
+        $viewContentLoadedOff,
+        $stateChangeStartOff;
+
+    return {
+        restrict: 'A',
+        compile: function(element){
+
+            element.removeAttr('widget-grid data-widget-grid');
+
+            var widgetIds = [];
+
+            $viewContentLoadedOff = $rootScope.$on('$viewContentLoaded', function (event, data) {
+                $timeout(function () {
+                    setupWidgets(element, widgetIds)
+                }, 100);
             });
 
-            $prev.on('click', function (e) {
-                if (!$prev.hasClass('disabled') && currentStep > 0) {
-                    setStep(currentStep - 1);
+
+            $stateChangeStartOff = $rootScope.$on('$stateChangeStart',
+                function(event, toState, toParams, fromState, fromParams){
+                    jarvisWidgetAddedOff();
+                    $viewContentLoadedOff();
+                    $stateChangeStartOff();
+                    destroyWidgets(element, widgetIds)
+                });
+
+            jarvisWidgetAddedOff = $rootScope.$on('jarvisWidgetAdded', function (event, widget) {
+                if (widgetIds.indexOf(widget.attr('id')) == -1) {
+                    widgetIds.push(widget.attr('id'));
+                    $timeout(function () {
+                        setupWidgets(element, widgetIds)
+                    }, 100);
                 }
-                e.preventDefault();
+//                    console.log('jarvisWidgetAdded', widget.attr('id'));
             });
-
-
-            setStep(currentStep);
 
         }
     }

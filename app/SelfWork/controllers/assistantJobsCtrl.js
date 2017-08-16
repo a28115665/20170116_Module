@@ -1,6 +1,6 @@
 "use strict";
 
-angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, RestfulApi, $filter, uiGridConstants, compy, $window, ToolboxApi) {
+angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, RestfulApi, $filter, uiGridConstants, compy, bool, opType, OrderStatus, ToolboxApi) {
     
     var $vm = this;
 
@@ -11,7 +11,7 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
             $vm.LoadData();
         },
         profile : Session.Get(),
-        defaultTab : 'hr1',
+        defaultTab : 'hr2',
         TabSwitch : function(pTabID){
             return pTabID == $vm.defaultTab ? 'active' : '';
         },
@@ -28,7 +28,7 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
                     // LoadPullGoods();
                     break;
                 case 'hr4':
-                    // LoadPullGoods();
+                    LoadMasterToBeFilled();
                     break;
                 case 'hr5':
                     LoadPullGoods();
@@ -38,15 +38,20 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
         flightArrivalOptions : {
             data:  '$vm.flightArrivalData',
             columnDefs: [
+                { name: 'Index'                  ,  displayName: '序列', width: 50, enableFiltering: false },
                 { name: 'FA_FLIGHTDATE'          ,  displayName: '起飛日期', cellFilter: 'dateFilter', width: 80 },
                 { name: 'FA_AIR_LINEID'          ,  displayName: '航空代號', width: 80 },
                 { name: 'FA_FLIGHTNUM'           ,  displayName: '貨機號碼', width: 80 },
                 { name: 'FA_DEPART_AIRTID'       ,  displayName: '起飛來源', width: 80 },
                 { name: 'FA_ARRIVAL_AIRPTID'     ,  displayName: '抵達目的', width: 80 },
+                { name: 'FA_SCHEDL_DEPARTTIME'   ,  displayName: '預計起飛時間', cellFilter: 'datetimeFilter' },
+                { name: 'FA_ACTL_DEPARTTIME'     ,  displayName: '真實起飛時間', cellFilter: 'datetimeFilter' },
+                { name: 'FA_DEPART_REMK'         ,  displayName: '起飛狀態', width: 80, cellTemplate: $templateCache.get('accessibilityToDepartRemark') },
+                { name: 'FA_DEPART_GATE'         ,  displayName: '起飛登機口', width: 80 },
                 { name: 'FA_SCHEDL_ARRIVALTIME'  ,  displayName: '預計抵達時間', cellFilter: 'datetimeFilter' },
                 { name: 'FA_ACTL_ARRIVALTIME'    ,  displayName: '真實抵達時間', cellFilter: 'datetimeFilter' },
-                { name: 'FA_ARRIVAL_REMK'        ,  displayName: '狀態', width: 80, cellTemplate: $templateCache.get('accessibilityToArrivalRemark') },
-                { name: 'FA_ARRIVAL_GATE'        ,  displayName: '登機口', width: 80 },
+                { name: 'FA_ARRIVAL_REMK'        ,  displayName: '抵達狀態', width: 80, cellTemplate: $templateCache.get('accessibilityToArrivalRemark') },
+                { name: 'FA_ARRIVAL_GATE'        ,  displayName: '抵達登機口', width: 80 },
                 { name: 'FA_UP_DATETIME'         ,  displayName: '資料更新時間', cellFilter: 'datetimeFilter' }
             ],
             enableFiltering: true,
@@ -130,13 +135,15 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
                             OL_CO_CODE  : selectedItem.OL_CO_CODE,
                             OL_FLIGHTNO : selectedItem.OL_FLIGHTNO,
                             OL_MASTER   : selectedItem.OL_MASTER,
-                            OL_COUNTRY  : selectedItem.OL_COUNTRY
+                            OL_COUNTRY  : selectedItem.OL_COUNTRY,
+                            OL_REASON   : selectedItem.OL_REASON
                         },
                         condition: {
                             OL_SEQ : selectedItem.OL_SEQ
                         }
                     }).then(function (res) {
                         LoadFlightItem();
+                        LoadMasterToBeFilled();
                     });
 
                 }, function() {
@@ -144,52 +151,32 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
                 });
             },
             // 寄信
-            sendMail : function(row){
-                console.log(row);
+            // sendMail : function(row){
+            //     console.log(row);
 
-                // ToolboxApi.SendMail({
-                //     // ID : $vm.profile.U_ID,
-                //     // PW : $vm.profile.U_PW,
-                //     // NATURE : row.entity.IL_NATURE
-                // }).then(function (res) {
-                //     console.log(res["returnData"]);
+            //     ToolboxApi.SendMail({
+            //         // ID : $vm.profile.U_ID,
+            //         // PW : $vm.profile.U_PW,
+            //         // NATURE : row.entity.IL_NATURE
+            //     }).then(function (res) {
+            //         console.log(res["returnData"]);
 
-                // });
-            },
+            //     });
+            // },
             // 貨物查看
             viewOrder : function(row){
-                console.log(row);
-
-                if(!angular.isUndefined(row.entity.OL_FLIGHTNO) && !angular.isUndefined(row.entity.OL_MASTER)){
-
-                    var _flightNo = row.entity.OL_FLIGHTNO.toUpperCase().split(" "),
-                        _master = row.entity.OL_MASTER.split("-");
-
-                    switch(_flightNo[0]){
-                        case "BR":
-                            $window.open('http://www.brcargo.com/ec_web/Default.aspx?TNT_FLAG=Y&AWB_CODE='+_master[0]+'&MAWB_NUMBER='+_master[1]);
-                            break;
-                        case "CI":
-                            $window.open('https://cargo.china-airlines.com/CCNetv2/content/manage/ShipmentTracking.aspx?AwbPfx='+_master[0]+'&AwbNum='+_master[1]+'&checkcode=*7*upHGj');
-                            break;
-                        case "CX":
-                            $window.open('http://www.cathaypacificcargo.com/ManageYourShipment/TrackYourShipment/tabid/108/SingleAWBNo/'+row.entity.OL_MASTER+'/language/en-US/Default.aspx');
-                            break;
-                        case "HX":
-                            $window.open('http://www.hkairlinescargo.com/CargoPortal/sreachYun/zh_TW/'+_master[0]+'/'+_master[1]+'/1/');
-                            break;
-                        default:
-                            toaster.pop('info', '訊息', '此航班代號不在設定內', 3000);
-                            break;
-                    }
-                }else{
-                    toaster.pop('info', '訊息', '航班或主號不存在', 3000);
-                }
+                OrderStatus.Get(row)
             }
         },
         gridMethodForJob002 : {
             // 檢視
-            viewData : function(row){
+            // viewData : function(row){
+            //     $state.transitionTo("app.selfwork.assistantjobs.job002", {
+            //         data: row.entity
+            //     });
+            // },
+            // 修改
+            fixData : function(row){
                 $state.transitionTo("app.selfwork.assistantjobs.job002", {
                     data: row.entity
                 });
@@ -239,91 +226,9 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
                 }, function() {
                     // $log.info('Modal dismissed at: ' + new Date());
                 });
-            }
-        },
-        flightItemOptions : {
-            data:  '$vm.flightItemData',
-            columnDefs: [
-                { name: 'OL_IMPORTDT'            ,  displayName: '進口日期', width: 80, cellFilter: 'dateFilter' },
-                { name: 'OL_CO_CODE'             ,  displayName: '行家', width: 80, cellFilter: 'compyFilter', filter: 
-                    {
-                        term: null,
-                        type: uiGridConstants.filter.SELECT,
-                        selectOptions: compy
-                    }
-                },
-                { name: 'OL_FLIGHTNO'            ,  displayName: '航班', width: 80 },
-                { name: 'FA_SCHEDL_ARRIVALTIME'  ,  displayName: '預計抵達時間', cellFilter: 'datetimeFilter' },
-                { name: 'FA_ACTL_ARRIVALTIME'    ,  displayName: '真實抵達時間', cellFilter: 'datetimeFilter' },
-                { name: 'FA_ARRIVAL_REMK'        ,  displayName: '狀態', width: 80, cellTemplate: $templateCache.get('accessibilityToArrivalRemark') },
-                { name: 'OL_MASTER'              ,  displayName: '主號', width: 120 },
-                { name: 'OL_COUNTRY'             ,  displayName: '起運國別', width: 80 },
-                // { name: 'ITEM_LIST'           ,  displayName: '報機單', enableFiltering: false, width: '8%', cellTemplate: $templateCache.get('accessibilityToOperaForJob001') },
-                { name: 'FLIGHT_ITEM_LIST'       ,  displayName: '銷艙單', enableFiltering: false, width: '8%', cellTemplate: $templateCache.get('accessibilityToOperaForJob002') },
-                // { name: 'DELIVERY_ITEM_LIST'  ,  displayName: '派送單', enableFiltering: false, width: '8%', cellTemplate: $templateCache.get('accessibilityToOperaForJob003') },
-                { name: 'Options'                ,  displayName: '操作', width: '12%', enableCellEdit: false, enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToMSForAssistantJobs') }
-            ],
-            enableFiltering: true,
-            enableSorting: true,
-            enableColumnMenus: false,
-            // enableVerticalScrollbar: false,
-            paginationPageSizes: [10, 25, 50, 100],
-            paginationPageSize: 100,
-            onRegisterApi: function(gridApi){
-                $vm.flightItemGridApi = gridApi;
-            }
-        },
-        gridMethodForPullGoods : {
-            //編輯
-            modifyData : function(row){
-                console.log(row);
-
-                var modalInstance = $uibModal.open({
-                    animation: true,
-                    ariaLabelledBy: 'modal-title',
-                    ariaDescribedBy: 'modal-body',
-                    templateUrl: 'modifyPullGoodsModalContent.html',
-                    controller: 'ModifyPullGoodsModalInstanceCtrl',
-                    controllerAs: '$ctrl',
-                    // size: 'lg',
-                    resolve: {
-                        items: function () {
-                            return row.entity;
-                        }
-                    }
-                });
-
-                modalInstance.result.then(function(selectedItem) {
-                    console.log(selectedItem);
-
-                    var _d = new Date();
-
-                    RestfulApi.UpdateMSSQLData({
-                        updatename: 'Update',
-                        table: 19,
-                        params: {
-                            PG_MOVED : true,
-                            PG_MASTER : selectedItem.PG_MASTER,
-                            PG_FLIGHTNO : selectedItem.PG_FLIGHTNO,
-                            PG_UP_USER : $vm.profile.U_ID,
-                            PG_UP_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss')
-                        },
-                        condition: {
-                            PG_SEQ : selectedItem.PG_SEQ,
-                            PG_BAGNO : selectedItem.PG_BAGNO
-                        }
-                    }).then(function (res) {
-                        toaster.pop('success', '訊息', '更新成功', 3000);
-                        LoadPullGoods();
-                    });
-
-                }, function() {
-                    // $log.info('Modal dismissed at: ' + new Date());
-                });
             },
-            //取消
-            cancelData : function(row){
-                console.log(row);
+            // 刪除
+            deleteData : function(row){
 
                 var modalInstance = $uibModal.open({
                     animation: true,
@@ -341,8 +246,8 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
                         },
                         show: function(){
                             return {
-                                title : "是否取消"
-                            };
+                                title : "是否刪除"
+                            }
                         }
                     }
                 });
@@ -353,14 +258,13 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
 
                     RestfulApi.DeleteMSSQLData({
                         deletename: 'Delete',
-                        table: 19,
+                        table: 10,
                         params: {
-                            PG_SEQ : selectedItem.PG_SEQ,
-                            PG_BAGNO : selectedItem.PG_BAGNO
+                            FLL_SEQ : selectedItem.OL_SEQ
                         }
                     }).then(function (res) {
-                        toaster.pop('success', '訊息', '取消成功', 3000);
-                        LoadPullGoods();
+                        toaster.pop('info', '訊息', '銷倉單刪除成功', 3000);
+                        LoadFlightItem();
                     });
 
                 }, function() {
@@ -368,22 +272,696 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
                 });
             }
         },
+        flightItemOptions : {
+            data:  '$vm.flightItemData',
+            columnDefs: [
+                { name: 'OL_IMPORTDT'            ,  displayName: '進口日期', width: 80, cellFilter: 'dateFilter' },
+                { name: 'OL_CO_CODE'             ,  displayName: '發銷艙單行家', width: 110, cellFilter: 'compyFilter', filter: 
+                    {
+                        term: null,
+                        type: uiGridConstants.filter.SELECT,
+                        selectOptions: compy
+                    }
+                },
+                { name: 'OL_FLIGHTNO'            ,  displayName: '航班', width: 80 },
+                { name: 'FA_ACTL_DEPARTTIME'     ,  displayName: '真實起飛時間', cellFilter: 'datetimeFilter' },
+                { name: 'FA_SCHEDL_ARRIVALTIME'  ,  displayName: '預計抵達時間', cellFilter: 'datetimeFilter' },
+                { name: 'FA_ACTL_ARRIVALTIME'    ,  displayName: '真實抵達時間', cellFilter: 'datetimeFilter' },
+                { name: 'FA_ARRIVAL_REMK'        ,  displayName: '狀態', width: 80, cellTemplate: $templateCache.get('accessibilityToArrivalRemark') },
+                { name: 'OL_MASTER'              ,  displayName: '主號', width: 110, cellTemplate: $templateCache.get('accessibilityToMasterForViewOrder') },
+                { name: 'OL_FLL_COUNT'           ,  displayName: '銷艙單(袋數)', width: 80 },
+                { name: 'MAIL_COUNT'             ,  displayName: '寄信次數', width: 60 },
+                { name: 'OL_COUNTRY'             ,  displayName: '起運國別', width: 60 },
+                { name: 'OL_REASON'              ,  displayName: '描述', width: 100, cellTooltip: function (row, col) 
+                    {
+                        return row.entity.OL_REASON
+                    } 
+                },
+                { name: 'W3_STATUS'              ,  displayName: '狀態', width: 60, cellTemplate: $templateCache.get('accessibilityToForW3'), filter: 
+                    {
+                        term: null,
+                        type: uiGridConstants.filter.SELECT,
+                        selectOptions: [
+                            // {label:'未派單', value: '0'},
+                            {label:'已派單', value: '1'},
+                            {label:'已編輯', value: '2'},
+                            {label:'已完成', value: '3'},
+                            {label:'非作業員'  , value: '4'}
+                        ]
+                    }
+                },
+                // { name: 'ITEM_LIST'           ,  displayName: '報機單', enableFiltering: false, width: '8%', cellTemplate: $templateCache.get('accessibilityToOperaForJob001') },
+                { name: 'FLIGHT_ITEM_LIST'       ,  displayName: '銷艙單', enableFiltering: false, width: '8%', cellTemplate: $templateCache.get('accessibilityToOperaForJob002') },
+                // { name: 'DELIVERY_ITEM_LIST'  ,  displayName: '派送單', enableFiltering: false, width: '8%', cellTemplate: $templateCache.get('accessibilityToOperaForJob003') },
+                { name: 'Options'                ,  displayName: '操作', width: '5%', enableCellEdit: false, enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToMSForAssistantJobs') }
+            ],
+            enableFiltering: true,
+            enableSorting: true,
+            enableColumnMenus: false,
+            // enableVerticalScrollbar: false,
+            paginationPageSizes: [10, 25, 50, 100],
+            paginationPageSize: 100,
+            onRegisterApi: function(gridApi){
+                $vm.flightItemGridApi = gridApi;
+            }
+        },
+        masterToBeFilledOptions : {
+            data:  '$vm.masterToBeFilledData',
+            columnDefs: [
+                { name: 'OL_IMPORTDT'            ,  displayName: '進口日期', cellFilter: 'dateFilter' },
+                { name: 'OL_CO_CODE'             ,  displayName: '行家', cellFilter: 'compyFilter', filter: 
+                    {
+                        term: null,
+                        type: uiGridConstants.filter.SELECT,
+                        selectOptions: compy
+                    }
+                },
+                { name: 'OL_FLIGHTNO'            ,  displayName: '航班' },
+                { name: 'OL_MASTER'              ,  displayName: '主號' },
+                { name: 'OL_COUNT'               ,  displayName: '報機單(袋數)', enableCellEdit: false },
+                { name: 'OL_COUNTRY'             ,  displayName: '起運國別' },
+                { name: 'OL_REASON'              ,  displayName: '描述', width: 100, cellTooltip: function (row, col) 
+                    {
+                        return row.entity.OL_REASON
+                    } 
+                },
+                { name: 'ITEM_LIST'              ,  displayName: '報機單', enableFiltering: false, enableSorting: false, width: '8%', cellTemplate: $templateCache.get('accessibilityToOperaForJob001') },
+                { name: 'Options'                ,  displayName: '操作', width: '5%', enableCellEdit: false, enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToM') }
+            ],
+            enableFiltering: true,
+            enableSorting: true,
+            enableColumnMenus: false,
+            // enableVerticalScrollbar: false,
+            paginationPageSizes: [10, 25, 50, 100],
+            paginationPageSize: 100,
+            onRegisterApi: function(gridApi){
+                $vm.masterToBeFilledGridApi = gridApi;
+            }
+        },
+        gridMethodForJob001 : {
+            // 檢視(報機單)
+            viewData : function(row){
+                console.log(row);
+
+                // 表示為拉貨
+                if(!angular.isUndefined(row.entity.PG_SEQ)){
+                    row.entity["OL_SEQ"] = row.entity.PG_SEQ;
+                }
+
+                $state.transitionTo("app.selfwork.assistantjobs.job001", {
+                    data: row.entity
+                });
+            }
+        },
+        gridMethodForPullGoods : {
+            // 原因
+            viewData : function(row){
+                var modalInstance = $uibModal.open({
+                    animation: true,
+                    ariaLabelledBy: 'modal-title',
+                    ariaDescribedBy: 'modal-body',
+                    templateUrl: 'viewReasonModalContent.html',
+                    controller: 'ViewReasonModalInstanceCtrl',
+                    controllerAs: '$ctrl',
+                    // size: 'lg',
+                    resolve: {
+                        items: function () {
+                            return row.entity;
+                        }
+                    }
+                });
+
+                modalInstance.result.then(function(selectedItem) {
+                    console.log(selectedItem);
+
+                    RestfulApi.UpdateMSSQLData({
+                        updatename: 'Update',
+                        table: 19,
+                        params: {
+                            PG_REASON      : selectedItem.PG_REASON,
+                            PG_UP_USER     : $vm.profile.U_ID,
+                            PG_UP_DATETIME : $filter('date')(new Date(), 'yyyy-MM-dd HH:mm:ss')
+                        },
+                        condition: {
+                            PG_SEQ         : selectedItem.PG_SEQ,
+                            PG_BAGNO       : selectedItem.PG_BAGNO
+                        }
+                    }).then(function (res) {
+                        toaster.pop('success', '訊息', '更新成功', 3000);
+                        LoadPullGoods();
+                    }, function (err) {
+                        toaster.pop('danger', '錯誤', '更新失敗', 3000);
+                    });
+                }, function() {
+                    // $log.info('Modal dismissed at: ' + new Date());
+                });
+            },
+            // 明細
+            detailData : function(row){
+                var modalInstance = $uibModal.open({
+                    animation: true,
+                    ariaLabelledBy: 'modal-title',
+                    ariaDescribedBy: 'modal-body',
+                    templateUrl: 'viewDetailModalContent.html',
+                    controller: 'ViewDetailModalInstanceCtrl',
+                    controllerAs: '$ctrl',
+                    size: 'lg',
+                    resolve: {
+                        items: function () {
+                            return row.entity;
+                        }
+                    }
+                });
+
+                modalInstance.result.then(function(selectedItem) {
+
+                }, function() {
+                    // $log.info('Modal dismissed at: ' + new Date());
+                });
+            },
+            // 編輯
+            modifyData : function(){
+                var _data = $vm.pullGoodsGridApi.selection.getSelectedRows();
+                if(_data.length == 0) {
+                    toaster.pop('info', '訊息', '尚未勾選資料。', 3000);
+                    return;
+                }
+
+                var _emptyMoved = false;
+                for(var i in _data){
+                    // 檢查移機是否為否
+                    if(_data[i].PG_MOVED){
+                        _emptyMoved = true;
+                        break;
+                    }
+                }
+
+                if(_emptyMoved){
+                    toaster.pop('warning', '警告', '有資料已被移機', 3000);
+                    return;
+                }
+
+                var modalInstance = $uibModal.open({
+                    animation: true,
+                    ariaLabelledBy: 'modal-title',
+                    ariaDescribedBy: 'modal-body',
+                    templateUrl: 'modifyPullGoodsModalContent.html',
+                    controller: 'ModifyPullGoodsModalInstanceCtrl',
+                    controllerAs: '$ctrl'
+                    // size: 'lg',
+                });
+
+                modalInstance.result.then(function(selectedItem) {
+                    console.log(selectedItem);
+
+                    var _d = new Date(),
+                        _tasks = [];
+
+                    for(var i in _data){
+                        _tasks.push({
+                            crudType: 'Update',
+                            table: 19,
+                            params: {
+                                // PG_MOVED : true,
+                                PG_MASTER : selectedItem.PG_MASTER,
+                                PG_FLIGHTNO : selectedItem.PG_FLIGHTNO,
+                                PG_UP_USER : $vm.profile.U_ID,
+                                PG_UP_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss')
+                            },
+                            condition: {
+                                PG_SEQ : _data[i].PG_SEQ,
+                                PG_BAGNO : _data[i].PG_BAGNO
+                            }
+                        });
+                    }
+
+                    RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res){
+                        toaster.pop('success', '訊息', '更新成功', 3000);
+                        LoadPullGoods();
+                    }, function (err) {
+                        toaster.pop('danger', '錯誤', '更新失敗', 3000);
+                    });  
+
+                }, function() {
+                    // $log.info('Modal dismissed at: ' + new Date());
+                });
+            },
+            /**
+             * [cancelPullGoodsData description] 取消拉貨
+             * 刪除PullGoods資料
+             */
+            cancelPullGoodsData : function(){
+                var _data = $vm.pullGoodsGridApi.selection.getSelectedRows();
+                if(_data.length == 0) {
+                    toaster.pop('info', '訊息', '尚未勾選資料。', 3000);
+                    return;
+                }
+
+                var _emptyMoved = false;
+                for(var i in _data){
+                    // 檢查移機是否為否
+                    if(_data[i].PG_MOVED){
+                        _emptyMoved = true;
+                        break;
+                    }
+                }
+
+                if(_emptyMoved){
+                    toaster.pop('warning', '警告', '有資料已被移機', 3000);
+                    return;
+                }
+
+                var modalInstance = $uibModal.open({
+                    animation: true,
+                    ariaLabelledBy: 'modal-title',
+                    ariaDescribedBy: 'modal-body',
+                    template: $templateCache.get('isChecked'),
+                    controller: 'IsCheckedModalInstanceCtrl',
+                    controllerAs: '$ctrl',
+                    size: 'sm',
+                    windowClass: 'center-modal',
+                    // appendTo: parentElem,
+                    resolve: {
+                        items: function() {
+                            return {};
+                        },
+                        show: function(){
+                            return {
+                                title : "是否取消拉貨"
+                            };
+                        }
+                    }
+                });
+
+                modalInstance.result.then(function(selectedItem) {
+                    console.log(selectedItem);
+
+                    var _d = new Date(),
+                        _tasks = [];
+
+                    for(var i in _data){
+                        _tasks.push({
+                            crudType: 'Delete',
+                            table: 19,
+                            params: {
+                                PG_SEQ : _data[i].PG_SEQ,
+                                PG_BAGNO : _data[i].PG_BAGNO
+                            }
+                        });
+                    }
+
+                    RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res){
+                        toaster.pop('success', '訊息', '取消成功', 3000);
+                        LoadPullGoods();
+                    }, function (err) {
+                        toaster.pop('danger', '錯誤', '取消失敗', 3000);
+                    });  
+
+                }, function() {
+                    // $log.info('Modal dismissed at: ' + new Date());
+                });
+            },
+            /**
+             * [movedData description] 移機
+             * 新增ORDER_LIST
+             * 複製ITEM_LIST
+             * 更新PULL_GODDS
+             */
+            movedData : function(){
+                var _data = $vm.pullGoodsGridApi.selection.getSelectedRows();
+                if(_data.length == 0) {
+                    toaster.pop('info', '訊息', '尚未勾選資料。', 3000);
+                    return;
+                }
+
+                var _emptyFlightNo = false,
+                    _emptyMaster = false,
+                    _emptyMoved = false,
+                    _duplicatFlightNo = false,
+                    _duplicatMaster = false,
+                    _duplicatFlightNoValue = "",
+                    _duplicatMasterValue = "",
+                    _sourceMaster = [],
+                    _seqAndBagno = [],
+                    _bagno = [];
+                for(var i in _data){
+
+                    // 檢查航班(改)是否為空
+                    if(_data[i].PG_FLIGHTNO == null || _data[i].PG_FLIGHTNO == ""){
+                        _emptyFlightNo = true;
+                        break;
+                    }
+                    // 檢查主號(改)是否為空
+                    if(_data[i].PG_MASTER == null || _data[i].PG_MASTER == ""){
+                        _emptyMaster = true;
+                        break;
+                    }
+
+                    // 第一筆資料keep
+                    if(i == 0){
+                        _duplicatFlightNoValue = _data[i].PG_FLIGHTNO;
+                        _duplicatMasterValue = _data[i].PG_MASTER;
+                    }
+                    // 第二筆資料開始檢查
+                    else{
+                        // 檢查航班(改)是否重複
+                        if(_data[i].PG_FLIGHTNO != _duplicatFlightNoValue){
+                            _duplicatFlightNo = true;
+                            break;
+                        }
+                        // 檢查主號(改)是否重複
+                        if(_data[i].PG_MASTER != _duplicatMasterValue){
+                            _duplicatMaster = true;
+                            break;
+                        }
+                    }
+
+                    // 檢查移機是否為否
+                    if(_data[i].PG_MOVED){
+                        _emptyMoved = true;
+                        break;
+                    }
+
+                    _seqAndBagno.push({
+                        IL_SEQ : _data[i].PG_SEQ,
+                        IL_BAGNO : _data[i].PG_BAGNO
+                    });
+
+                    _bagno.push(_data[i].PG_BAGNO);
+                }
+
+                if(_emptyFlightNo){
+                    toaster.pop('warning', '警告', '尚有資料 航班(改) 為空', 3000);
+                    return;
+                }
+
+                if(_emptyMaster){
+                    toaster.pop('warning', '警告', '尚有資料 主號(改) 為空', 3000);
+                    return;
+                }
+
+                if(_duplicatFlightNo){
+                    toaster.pop('warning', '警告', '航班(改) 資料不一致', 3000);
+                    return;
+                }
+
+                if(_duplicatMaster){
+                    toaster.pop('warning', '警告', '主號(改) 資料不一致', 3000);
+                    return;
+                }
+
+                if(_emptyMoved){
+                    toaster.pop('warning', '警告', '有資料已被移機', 3000);
+                    return;
+                }
+
+                var _oeType = null;
+                for(var i in opType){
+                    if(opType[i].label == '報機單'){
+                        _oeType = opType[i].value;
+                    }
+                }
+
+                var modalInstance = $uibModal.open({
+                    animation: true,
+                    ariaLabelledBy: 'modal-title',
+                    ariaDescribedBy: 'modal-body',
+                    templateUrl: 'addOrderListModalContent.html',
+                    controller: 'AddOrderListModalInstanceCtrl',
+                    controllerAs: '$ctrl',
+                    backdrop: 'static',
+                    // size: 'lg',
+                    // appendTo: parentElem,
+                    resolve: {
+                        items: function() {
+                            var _text = "拉貨("+_bagno.join(", ")+")";
+                            return {
+                                OL_CO_CODE : _data[0].OL_CO_CODE,
+                                OL_MASTER : _duplicatMasterValue,
+                                OL_FLIGHTNO : _duplicatFlightNoValue,
+                                OL_IMPORTDT : $filter('date')(new Date, 'yyyy-MM-dd'),
+                                OL_COUNTRY : _data[0].OL_COUNTRY,
+                                OL_REASON : _text.length > 300 ? "拉貨" : _text,
+                                OE_PRINCIPAL : _data[0].OE_PRINCIPAL
+                            };
+                        },
+                        compy: function() {
+                            return compy;
+                        }
+                    }
+                });
+
+                modalInstance.result.then(function(selectedItem) {
+                    console.log(selectedItem);
+
+                    var _d = new Date,
+                        _tasks = [],
+                        _seq = $vm.profile.U_ID+selectedItem.OL_CO_CODE+$filter('date')(_d, 'yyyyMMddHHmmss');
+
+                    // 新增ORDER_LIST
+                    _tasks.push({
+                        crudType: 'Insert',
+                        table: 18,
+                        params: {
+                            OL_SEQ : _seq,
+                            OL_CO_CODE : selectedItem.OL_CO_CODE,
+                            OL_MASTER : selectedItem.OL_MASTER,
+                            OL_FLIGHTNO : selectedItem.OL_FLIGHTNO,
+                            OL_IMPORTDT : selectedItem.OL_IMPORTDT,
+                            OL_COUNTRY : selectedItem.OL_COUNTRY,
+                            OL_CR_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss'),
+                            OL_CR_USER : $vm.profile.U_ID,
+                            OL_REASON : selectedItem.OL_REASON
+                        }
+                    })
+
+                    if(_oeType != null){
+                        // 新增EDITOR
+                        _tasks.push({
+                            crudType: 'Insert',
+                            table: 22,
+                            params: {
+                                OE_SEQ : _seq,
+                                OE_TYPE : _oeType,
+                                OE_PRINCIPAL : selectedItem.OE_PRINCIPAL,
+                                OE_EDATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss'),
+                                OE_FDATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss')
+                            }
+                        })
+                    }
+
+                    // 複製ITEM_LIST
+                    _tasks.push({
+                        crudType: 'Copy',
+                        querymain: 'assistantJobs',
+                        queryname: 'CopyItemList',
+                        table: 9,
+                        params: {
+                            IL_SEQ : _seq,
+                            SeqAndBagno : _seqAndBagno
+                        }
+                    })
+
+                    // 更新PULL_GOODS
+                    _tasks.push({
+                        crudType: 'Update',
+                        table: 19,
+                        params: {
+                            PG_MOVED : true,
+                            PG_MOVED_SEQ : _seq
+                        },
+                        condition: {
+                            PG_MASTER : selectedItem.OL_MASTER,
+                            PG_FLIGHTNO : selectedItem.OL_FLIGHTNO
+                        }
+                    })
+
+                    RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res){
+                        toaster.pop('success', '訊息', '移機成功', 3000);
+                        LoadPullGoods();
+                    }, function (err) {
+                        toaster.pop('danger', '錯誤', '移機失敗', 3000);
+                    });  
+
+                }, function() {
+                    // $log.info('Modal dismissed at: ' + new Date());
+                });
+
+            },
+            /**
+             * [cancelMovedData description] 取消移機
+             * 刪除ORDER_LIST
+             * 更新PULL_GOODS
+             */
+            cancelMovedData : function(){
+                var _data = $vm.pullGoodsGridApi.selection.getSelectedRows();
+                if(_data.length == 0) {
+                    toaster.pop('info', '訊息', '尚未勾選資料。', 3000);
+                    return;
+                }
+
+                var _emptyMoved = false;
+                for(var i in _data){
+                    // 檢查移機是否為否
+                    if(!_data[i].PG_MOVED){
+                        _emptyMoved = true;
+                        break;
+                    }
+                }
+
+                if(_emptyMoved){
+                    toaster.pop('warning', '警告', '有資料未被移機', 3000);
+                    return;
+                }
+
+                var _oeType = null;
+                for(var i in opType){
+                    if(opType[i].label == '報機單'){
+                        _oeType = opType[i].value;
+                    }
+                }
+
+                var modalInstance = $uibModal.open({
+                    animation: true,
+                    ariaLabelledBy: 'modal-title',
+                    ariaDescribedBy: 'modal-body',
+                    template: $templateCache.get('isChecked'),
+                    controller: 'IsCheckedModalInstanceCtrl',
+                    controllerAs: '$ctrl',
+                    size: 'sm',
+                    windowClass: 'center-modal',
+                    // appendTo: parentElem,
+                    resolve: {
+                        items: function() {
+                            return {};
+                        },
+                        show: function(){
+                            return {
+                                title : "是否取消移機"
+                            };
+                        }
+                    }
+                });
+
+                modalInstance.result.then(function(selectedItem) {
+                    // console.log(_data);
+
+                    var _tasks = [];
+
+                    for(var i in _data){
+                        _tasks.push({
+                            crudType: 'Delete',
+                            table: 18,
+                            params: {
+                                OL_SEQ : _data[i].PG_MOVED_SEQ
+                            }
+                        });
+
+                        // 刪除EDITOR
+                        _tasks.push({
+                            crudType: 'Delete',
+                            table: 22,
+                            params: {
+                                OE_SEQ : _data[i].PG_MOVED_SEQ,
+                                OE_TYPE : _oeType,
+                                OE_PRINCIPAL : _data[i].OE_PRINCIPAL
+                            }
+                        })
+
+                        _tasks.push({
+                            crudType: 'Update',
+                            table: 19,
+                            params: {
+                                PG_MOVED : false,
+                                PG_MOVED_SEQ : null,
+                                PG_UP_USER : $vm.profile.U_ID,
+                                PG_UP_DATETIME : $filter('date')(new Date, 'yyyy-MM-dd HH:mm:ss')
+                            },
+                            condition: {
+                                PG_SEQ : _data[i].PG_SEQ,
+                                PG_BAGNO : _data[i].PG_BAGNO
+                            }
+                        });
+                    }
+
+                    RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res){
+                        toaster.pop('success', '訊息', '取消移機成功', 3000);
+                        LoadPullGoods();
+                    }, function (err) {
+                        toaster.pop('danger', '錯誤', '取消移機失敗', 3000);
+                    });  
+
+                }, function() {
+                    // $log.info('Modal dismissed at: ' + new Date());
+                });
+            },
+            // 匯出Excel
+            exportExcel : function(){
+                var _data = $vm.pullGoodsGridApi.selection.getSelectedRows(),
+                    _exportName = $filter('date')(new Date(), 'yyyyMMdd') + ' 拉貨明細',
+                    _params = {};
+
+                // 選擇筆數匯出
+                if(_data.length > 0){
+                    var _Seq = [],
+                        _Bagno = [];
+
+                    for(var i in _data){
+                        _Seq.push(_data[i].PG_SEQ);
+                        _Bagno.push(_data[i].PG_BAGNO);
+                    }
+
+                    _params = {
+                        Seq: "'"+_Seq.join("','")+"'",
+                        Bagno: "'"+_Bagno.join("','")+"'"
+                    };
+                }
+
+                ToolboxApi.ExportExcelBySql({
+                    templates : 9,
+                    filename : _exportName,
+                    querymain: 'assistantJobs',
+                    queryname: 'SelectPullGoods',
+                    params: _params
+                }).then(function (res) {
+                    // console.log(res);
+                });
+            }
+        },
         pullGoodsOptions : {
             data:  '$vm.pullGoodsData',
             columnDefs: [
                 { name: 'OL_IMPORTDT'   , displayName: '進口日期', cellFilter: 'dateFilter' },
-                { name: 'OL_CO_CODE'    , displayName: '行家', cellFilter: 'compyFilter' },
+                { name: 'OL_CO_CODE'    , displayName: '行家', cellFilter: 'compyFilter', cellFilter: 'compyFilter', filter: 
+                    {
+                        term: null,
+                        type: uiGridConstants.filter.SELECT,
+                        selectOptions: compy
+                    }
+                },
                 { name: 'OL_FLIGHTNO'   , displayName: '航班' },
                 { name: 'OL_MASTER'     , displayName: '主號' },
                 { name: 'OL_COUNTRY'    , displayName: '起運國別' },
                 { name: 'PG_BAGNO'      , displayName: '袋號' },
-                { name: 'PG_MOVED'      , displayName: '移機', cellFilter: 'booleanFilter' },
+                { name: 'PG_MOVED'      , displayName: '移機', cellFilter: 'booleanFilter', filter: 
+                    {
+                        term: null,
+                        type: uiGridConstants.filter.SELECT,
+                        selectOptions: bool
+                    }
+                },
                 { name: 'PG_FLIGHTNO'   , displayName: '航班(改)' },
                 { name: 'PG_MASTER'     , displayName: '主號(改)' },
-                { name: 'Options'       , displayName: '操作', cellTemplate: $templateCache.get('accessibilityToMCForPullGoods') }
+                { name: 'PG_REASON'     , displayName: '拉貨原因', cellTooltip: function (row, col) 
+                    {
+                        return row.entity.PG_REASON
+                    } 
+                },
+                { name: 'ITEM_LIST'     , displayName: '報機單', enableFiltering: false, enableSorting: false, width: '8%', cellTemplate: $templateCache.get('accessibilityToOperaForJob001') },
+                { name: 'Options'       , displayName: '操作', width: '8%', enableFiltering: false, enableSorting: false, cellTemplate: $templateCache.get('accessibilityToVForPullGoods') }
             ],
-            enableFiltering: false,
-            enableSorting: false,
+            enableFiltering: true,
+            enableSorting: true,
             enableColumnMenus: false,
             // enableVerticalScrollbar: false,
             paginationPageSizes: [10, 25, 50, 100],
@@ -403,6 +981,9 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
             }
         }).then(function (res){
             console.log(res["returnData"]);
+            for(var i=0;i<res["returnData"].length;i++){
+                res["returnData"][i]["Index"] = i+1;
+            }
             $vm.flightArrivalData = res["returnData"];
         }); 
     };
@@ -415,18 +996,33 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
             console.log(res["returnData"]);
             $vm.flightItemData = res["returnData"];
 
-            var _showFixMaster = false,
-                _fixMasterCount = 0;
-            for(var i in $vm.flightItemData){
-                if($vm.flightItemData[i].OL_MASTER == ""){
-                    _showFixMaster = true;
-                    _fixMasterCount += 1;
-                }
-            }
+            // var _showFixMaster = false,
+            //     _fixMasterCount = 0;
+            // for(var i in $vm.flightItemData){
+            //     if($vm.flightItemData[i].OL_MASTER == "" || $vm.flightItemData[i].OL_MASTER == null){
+            //         _showFixMaster = true;
+            //         _fixMasterCount += 1;
+            //     }
+            // }
 
-            if(_showFixMaster){
-                toaster.pop('info', '訊息', '尚有 '+_fixMasterCount+' 單需主號待補', 3000);
+            // if(_showFixMaster){
+            //     toaster.pop('info', '訊息', '尚有 '+_fixMasterCount+' 單需主號待補', 3000);
+            // }
+        }); 
+    };
+
+    function LoadMasterToBeFilled(){
+        RestfulApi.SearchMSSQLData({
+            querymain: 'assistantJobs',
+            queryname: 'SelectMasterToBeFilled',
+            params: {
+                U_ID : $vm.profile.U_ID,
+                U_GRADE : $vm.profile.U_GRADE
+                // DEPTS : $vm.profile.DEPTS
             }
+        }).then(function (res){
+            console.log(res["returnData"]);
+            $vm.masterToBeFilledData = res["returnData"];
         }); 
     };
 
@@ -441,11 +1037,131 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
     };
 
 })
-.controller('ModifyPullGoodsModalInstanceCtrl', function ($uibModalInstance, items) {
+.controller('ModifyPullGoodsModalInstanceCtrl', function ($uibModalInstance) {
+    var $ctrl = this;
+    // $ctrl.mdData = angular.copy(items);
+    $ctrl.mdData = {};
+
+    $ctrl.ok = function() {
+        $ctrl.mdData.FLIGHTNO_START = $ctrl.mdData.FLIGHTNO_START.toUpperCase();
+        $ctrl.mdData.PG_FLIGHTNO = $ctrl.mdData.FLIGHTNO_START + ' ' + $ctrl.mdData.FLIGHTNO_END;
+
+        $uibModalInstance.close($ctrl.mdData);
+    };
+
+    $ctrl.cancel = function() {
+        $uibModalInstance.dismiss('cancel');
+    };
+})
+.controller('ViewReasonModalInstanceCtrl', function ($uibModalInstance, items) {
     var $ctrl = this;
     $ctrl.mdData = angular.copy(items);
 
     $ctrl.ok = function() {
+        $uibModalInstance.close($ctrl.mdData);
+    };
+
+    $ctrl.cancel = function() {
+        $uibModalInstance.dismiss('cancel');
+    };
+})
+.controller('ViewDetailModalInstanceCtrl', function ($uibModalInstance, RestfulApi, items) {
+    var $ctrl = this;
+
+    $ctrl.Init = function(){
+        RestfulApi.SearchMSSQLData({
+            querymain: 'assistantJobs',
+            queryname: 'SelectBagNoDetail',
+            params: {
+                IL_SEQ: items.PG_SEQ,
+                IL_BAGNO: items.PG_BAGNO
+            }
+        }).then(function (res){
+            for(var i=0;i<res["returnData"].length;i++){
+                res["returnData"][i]["Index"] = i+1;
+            }
+            $ctrl.mdData = angular.copy(res["returnData"]);
+        }); 
+    }
+
+    $ctrl.mdDataOption = {
+        data: '$ctrl.mdData',
+        columnDefs: [
+            { name: 'Index'           , displayName: '序列', width: 50},
+            { name: 'IL_G1'           , displayName: '報關種類', width: 80 },
+            { name: 'IL_MERGENO'      , displayName: '併票號', width: 80 },
+            { name: 'IL_BAGNO'        , displayName: '袋號', width: 80 },
+            { name: 'IL_SMALLNO'      , displayName: '小號', width: 110 },
+            { name: 'IL_NATURE'       , displayName: '品名', width: 120 },
+            { name: 'IL_NATURE_NEW'   , displayName: '新品名', width: 120 },
+            { name: 'IL_CTN'          , displayName: '件數', width: 50 },
+            { name: 'IL_PLACE'        , displayName: '產地', width: 50 },
+            { name: 'IL_NEWPLACE'     , displayName: '新產地', width: 70 },
+            { name: 'IL_WEIGHT'       , displayName: '重量', width: 70 },
+            { name: 'IL_WEIGHT_NEW'   , displayName: '新重量', width: 70 },
+            { name: 'IL_PCS'          , displayName: '數量', width: 70 },
+            { name: 'IL_NEWPCS'       , displayName: '新數量', width: 70 },
+            { name: 'IL_UNIVALENT'    , displayName: '單價', width: 70 },
+            { name: 'IL_UNIVALENT_NEW', displayName: '新單價', width: 70 },
+            { name: 'IL_FINALCOST'    , displayName: '完稅價格', width: 80 },
+            { name: 'IL_UNIT'         , displayName: '單位', width: 70 },
+            { name: 'IL_NEWUNIT'      , displayName: '新單位', width: 70 },
+            { name: 'IL_GETNO'        , displayName: '收件者統編', width: 100 },
+            { name: 'IL_EXNO'         , displayName: '匯出統編', width: 80 },
+            { name: 'IL_SENDNAME'     , displayName: '寄件人', width: 80 },
+            { name: 'IL_NEWSENDNAME'  , displayName: '新寄件人', width: 80 },
+            { name: 'IL_TAX'          , displayName: '稅費歸屬', width: 80 },
+            { name: 'IL_GETNAME'      , displayName: '收件人公司', width: 100 },
+            { name: 'IL_GETNAME_NEW'  , displayName: '新收件人公司', width: 100 },
+            { name: 'IL_GETADDRESS'   , displayName: '收件地址', width: 300 },
+            { name: 'IL_GETADDRESS_NEW', displayName: '新收件地址', width: 300 },
+            { name: 'IL_GETTEL'       , displayName: '收件電話', width: 100 },
+            { name: 'IL_EXTEL'        , displayName: '匯出電話', width: 100 },
+            { name: 'IL_TRCOM'        , displayName: '派送公司', width: 100 },
+            { name: 'IL_REMARK'       , displayName: '備註', width: 100 },
+            { name: 'IL_TAX2'         , displayName: '稅則', width: 100 }
+        ],
+        enableFiltering: false,
+        enableSorting: true,
+        enableColumnMenus: false,
+        // enableVerticalScrollbar: false,
+        paginationPageSizes: [50, 100, 150, 200, 250, 300],
+        paginationPageSize: 100,
+        onRegisterApi: function(gridApi){
+            $ctrl.mdDataGridApi = gridApi;
+            // HandleWindowResize($ctrl.job001DataNotMergeNoGridApi);
+        }
+    }
+
+    $ctrl.ok = function() {
+        $uibModalInstance.close();
+    };
+
+    $ctrl.cancel = function() {
+        $uibModalInstance.dismiss('cancel');
+    };
+})
+.controller('AddOrderListModalInstanceCtrl', function ($uibModalInstance, items, compy) {
+    var $ctrl = this;
+
+    $ctrl.Init = function(){
+        var _flightNo = items.OL_FLIGHTNO != null ? items.OL_FLIGHTNO.split(' ') : [];
+
+        if(_flightNo.length == 2){
+            items.FLIGHTNO_START = _flightNo[0];
+            items.FLIGHTNO_END = _flightNo[1];
+        }
+
+        $ctrl.mdData = angular.copy(items);
+        $ctrl.compy = compy;
+    }
+
+    $ctrl.ok = function() {
+        $ctrl.mdData.FLIGHTNO_START = $ctrl.mdData.FLIGHTNO_START.toUpperCase();
+        $ctrl.mdData.OL_FLIGHTNO = $ctrl.mdData.FLIGHTNO_START + ' ' + $ctrl.mdData.FLIGHTNO_END;
+
+        $ctrl.mdData.OL_COUNTRY = $ctrl.mdData.OL_COUNTRY.toUpperCase();
+
         $uibModalInstance.close($ctrl.mdData);
     };
 

@@ -27,7 +27,7 @@ sql.connect(setting.MSSQL).then(function() {
  */
 var SchemaType = function (params, ps, sql){
 	for(var key in params){
-		if(params[key] !== undefined){
+		if(params[key] !== undefined && DatabaseSchema[key] !== undefined){
         	// console.log(key);
 			var type = null;
 			// 判斷Schema是哪種類型
@@ -46,7 +46,7 @@ var SchemaType = function (params, ps, sql){
  */
 var SchemaType2 = function (params, request, sql){
 	for(var key in params){
-		if(params[key] !== undefined){
+		if(params[key] !== undefined && DatabaseSchema[key] !== undefined){
         	// console.log(key);
 			var type = null;
 			// 判斷Schema是哪種類型
@@ -75,6 +75,9 @@ function GiveSchemaType(pType, pSql, pSchema, key){
 				break;
 			case "tinyint":
 				pType = pSql.TinyInt;
+				break;
+			case "decimal":
+				pType = pSql.Decimal(pSchema["NUMERIC_PRECISION"], pSchema["NUMERIC_SCALE"]);
 				break;
 			case "smallint":
 				pType = pSql.SmallInt;

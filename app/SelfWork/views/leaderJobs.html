@@ -49,7 +49,7 @@
 
 									<div class="widget-body-toolbar">
 									    <div class="row">
-									        <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
+									        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
 									        	<form class="form-inline" role="form">
 									                <fieldset>
 									                    <div class="form-group">
@@ -64,9 +64,21 @@
 									                </fieldset>
 									            </form>
 									        </div>
-									        <div class="col-xs-12 col-sm-12 col-md-8 col-lg-8 text-right">
+									        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 text-right">
 									        	<form class="form-inline" role="form">
 									                <fieldset>
+									                    <div class="form-group">
+										                    <div class="onoffswitch-container">
+									                            <span class="onoffswitch-title">自動派單開關</span> 
+																<span class="onoffswitch">
+																	<input type="checkbox" class="onoffswitch-checkbox" id="autoopen" ng-model="$vm.parmData['SPA_AUTOPRIN']" ng-click="$vm.AutoPrincipal()">
+																	<label class="onoffswitch-label" for="autoopen">
+									                                    <span class="onoffswitch-inner" data-swchon-text="開" data-swchoff-text="關"></span>
+									                                    <span class="onoffswitch-switch"></span>
+									                                </label> 
+																</span>
+									                        </div>
+								                        </div>
 									                    <div class="form-group">
 															<select class="form-control" ng-model="$vm.selectAssignOptype" ng-options="data.value as data.label for data in $vm.opType" ng-disabled="true">
 			  												</select>

@@ -2,61 +2,14 @@ module.exports = function(pQueryname, pParams){
 	var _SQLCommand = "";
 
 	switch(pQueryname){
-		case "SelectOrderList":
-			// _SQLCommand += "SELECT OL_SEQ, \
-			// 					   OL_CO_CODE, \
-			// 					   OL_MASTER, \
-			// 					   OL_FLIGHTNO, \
-			// 					   OL_IMPORTDT, \
-			// 					   OL_COUNTRY, \
-			// 					   OL_CR_USER, \
-			// 					   ( \
-			// 							SELECT COUNT(1) \
-			// 							FROM ( \
-			// 								SELECT IL_BAGNO \
-			// 								FROM ITEM_LIST \
-			// 								WHERE IL_SEQ = OL_SEQ \
-			// 								GROUP BY IL_BAGNO \
-			// 							) A \
-			// 						) AS 'OL_COUNT' \
-			// 				FROM ORDER_LIST \
-			// 				WHERE 1=1 ";
-							
-			// if(pParams["DEPTS"] !== undefined && pParams["U_ID"] !== undefined && pParams["U_GRADE"] !== undefined){
-			// 	var _Content = [],
-			// 		// 早中晚班的Level
-			// 		_Lvl = 4,
-			// 		// 早中晚班員工的Grade
-			// 		_OpGrade = 11,
-			// 		// 層級夠可以看到全部資料
-			// 		_isSupervisor = false;
-
-			// 	// Grade等於11表示員工 則需要組SQL
-			// 	if(pParams["U_GRADE"] == 11){
-
-			// 		for(var i in pParams["DEPTS"]){
-			// 			if(pParams["DEPTS"][i].SUD_DLVL < _Lvl){
-			// 				_isSupervisor = true;
-			// 			}
-			// 			_Content.push("OL_"+pParams["DEPTS"][i].SUD_DEPT+"_PRINCIPAL = '" + pParams["U_ID"] + "'");
-			// 		}
-
-			// 		// 不是主管則組SQL
-			// 		if(!_isSupervisor){
-			// 			_SQLCommand += " AND ( "+_Content.join(" OR ")+" ) ";
-			// 		}
-			// 	}
-
-			// 	// 避免PrepareStatement載入非DB裡的Schema
-			// 	delete pParams["DEPTS"];
-			// }
-
+		case "SelectOrderList":	
 			_SQLCommand += "SELECT OL_SEQ, \
 									OL_CO_CODE, \
 									OL_MASTER, \
 									OL_FLIGHTNO, \
 									OL_IMPORTDT, \
 									OL_COUNTRY, \
+									OL_REASON, \
 									OL_CR_USER, \
 									OL_CR_DATETIME, \
 									( \
@@ -64,10 +17,25 @@ module.exports = function(pQueryname, pParams){
 										FROM ( \
 											SELECT IL_BAGNO \
 											FROM ITEM_LIST \
+											LEFT JOIN PULL_GOODS ON \
+											IL_SEQ = PG_SEQ AND \
+											IL_BAGNO = PG_BAGNO \
 											WHERE IL_SEQ = OL_SEQ \
+											AND IL_BAGNO IS NOT NULL AND IL_BAGNO != '' \
+											AND PG_SEQ IS NULL \
 											GROUP BY IL_BAGNO \
 										) A \
 									) AS 'OL_COUNT', \
+									( \
+										SELECT COUNT(1) \
+										FROM PULL_GOODS \
+										WHERE PG_SEQ = OL_SEQ \
+									) AS 'OL_PULL_COUNT', \
+									( \
+										SELECT MAX(IL_SUPPLEMENT_COUNT) \
+										FROM ITEM_LIST \
+										WHERE IL_SEQ = OL_SEQ \
+									) AS 'OL_SUPPLEMENT_COUNT', \
 									W2_OE.OE_PRINCIPAL AS 'W2_PRINCIPAL', \
 									W2_OE.OE_EDATETIME AS 'W2_EDATETIME', \
 									W2_OE.OE_FDATETIME AS 'W2_FDATETIME', \
@@ -115,6 +83,16 @@ module.exports = function(pQueryname, pParams){
 									FA_SCHEDL_ARRIVALTIME, \
 									FA_ACTL_ARRIVALTIME, \
 									FA_ARRIVAL_REMK \
+									/*( \
+										SELECT OL_IMPORTDT \
+										FROM ( \
+											SELECT PG_SEQ, PG_MOVED_SEQ \
+											FROM PULL_GOODS \
+											WHERE PG_MOVED_SEQ = OL_SEQ \
+											GROUP BY PG_SEQ, PG_MOVED_SEQ \
+										) A \
+										LEFT JOIN ORDER_LIST ON OL_SEQ = PG_SEQ \
+									) AS 'ORI_OL_IMPORTDT'*/ \
 							FROM ORDER_LIST \
 							/*報機單*/ \
 							LEFT JOIN ORDER_EDITOR W2_OE ON W2_OE.OE_SEQ = ORDER_LIST.OL_SEQ AND W2_OE.OE_TYPE = 'R' AND (W2_OE.OE_EDATETIME IS NOT NULL OR W2_OE.OE_FDATETIME IS NOT NULL) \
@@ -142,7 +120,15 @@ module.exports = function(pQueryname, pParams){
 			}
 
 			_SQLCommand += " WHERE OL_FDATETIME IS NULL \
-							 ORDER BY CASE WHEN FA_SCHEDL_ARRIVALTIME IS NULL THEN 1 ELSE 0 END, FA_SCHEDL_ARRIVALTIME ";
+							 AND ( SELECT COUNT(1) \
+								FROM ( \
+									SELECT IL_BAGNO \
+									FROM ITEM_LIST \
+									WHERE IL_SEQ = OL_SEQ \
+									AND IL_BAGNO IS NOT NULL AND IL_BAGNO != '' \
+									GROUP BY IL_BAGNO \
+								) A ) > 0 \
+							 ORDER BY CASE WHEN FA_SCHEDL_ARRIVALTIME IS NULL THEN 1 ELSE 0 END, FA_SCHEDL_ARRIVALTIME, OL_FLIGHTNO ";
 		
 			break;
 		case "SelectOrderEditor":

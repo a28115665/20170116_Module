@@ -224,6 +224,39 @@ angular.module('app')
 	return FilterFunction;
 
 })
+.filter('overSixFilter', function (SysCode) {
+
+	var resData = {};
+
+	LoadData();
+
+	var FilterFunction = function (input, isLoad){
+		if(isLoad){
+			LoadData();
+		}
+
+		if (!input) {
+		    return '';
+		} else {
+		    return angular.isUndefined(resData[input]) ? input : resData[input];
+		}
+
+	};
+	
+	function LoadData(){
+		SysCode.get('OverSix').then(function (res){
+			for(var i in res){
+				resData[res[i].value] = res[i].label;
+			}
+		});
+	}
+
+	// 持續偵測
+	FilterFunction.$stateful = true;
+
+	return FilterFunction;
+
+})
 .filter('gradeFilter', function (UserGrade) {
 
 	var resData = {};
@@ -318,6 +351,18 @@ angular.module('app')
 
 	return function (input){
 		return angular.isUndefined(input) ? '' : (parseInt(input)/1024/1024).toFixed(2) + ' MB';
+	};
+
+})
+.filter('suppleMentFilter', function ($filter) {
+
+	return function (input){
+		if (input == null) {
+		    return '';
+		} else {
+		    return '補'+input;
+		}
+
 	};
 
 });

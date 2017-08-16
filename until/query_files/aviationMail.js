@@ -4,13 +4,9 @@ module.exports = function(pQueryname, pParams){
 	switch(pQueryname){
 		case "SelectFlightMail":
 
-			_SQLCommand += "SELECT FM_ID, \
-								   FM_TARGET, \
-								   FM_MAIL, \
-								   FM_TITLE, \
-								   FM_CONTENT \
+			_SQLCommand += "SELECT * \
 							FROM FLIGHT_MAIL \
-							ORDER BY FM_ID DESC ";
+							ORDER BY FM_CR_DATETIME DESC ";
 							
 			break;
 		case "SelectMailAccount":

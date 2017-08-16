@@ -25,24 +25,51 @@ angular.module('app')
                                                     <a href="javascript:void(0);" class="btn btn-danger btn-xs" ng-click="grid.appScope.$vm.gridMethod.cancelData(row)"> 取消</a>\
                                               </div>');
 
+    $templateCache.put('accessibilityToDepartRemark', '\
+                        <div class="ui-grid-cell-contents text-center" ng-switch="row.entity.FA_DEPART_REMK">\
+                            <span class="label bg-color-green" ng-switch-when="出發">{{row.entity.FA_DEPART_REMK}}</span>\
+                            <span class="label bg-color-orange" ng-switch-when="檢查">{{row.entity.FA_DEPART_REMK}}</span>\
+                            <span class="label bg-color-blue" ng-switch-when="準時">{{row.entity.FA_DEPART_REMK}}</span>\
+                            <span class="label bg-color-red" ng-switch-when="延誤">{{row.entity.FA_DEPART_REMK}}</span>\
+                            <span class="label bg-color-blueDark" ng-switch-when="取消">{{row.entity.FA_DEPART_REMK}}</span>\
+                            <span class="label bg-color-magenta" ng-switch-when="報到">{{row.entity.FA_DEPART_REMK}}</span>\
+                            <span class="label bg-color-redLight" ng-switch-when="已飛">{{row.entity.FA_DEPART_REMK}}</span>\
+                            <span ng-switch-default>{{row.entity.FA_DEPART_REMK}}</span>\
+                      </div>');
+
     $templateCache.put('accessibilityToArrivalRemark', '\
                         <div class="ui-grid-cell-contents text-center" ng-switch="row.entity.FA_ARRIVAL_REMK">\
                             <span class="label bg-color-green" ng-switch-when="抵達">{{row.entity.FA_ARRIVAL_REMK}}</span>\
                             <span class="label bg-color-orange" ng-switch-when="時間更改">{{row.entity.FA_ARRIVAL_REMK}}</span>\
                             <span class="label bg-color-blue" ng-switch-when="準時">{{row.entity.FA_ARRIVAL_REMK}}</span>\
                             <span class="label bg-color-red" ng-switch-when="延誤">{{row.entity.FA_ARRIVAL_REMK}}</span>\
+                            <span class="label bg-color-blueDark" ng-switch-when="取消">{{row.entity.FA_ARRIVAL_REMK}}</span>\
+                            <span class="label bg-color-magenta" ng-switch-when="提早">{{row.entity.FA_ARRIVAL_REMK}}</span>\
+                            <span class="label bg-color-redLight" ng-switch-when="加班">{{row.entity.FA_ARRIVAL_REMK}}</span>\
                             <span ng-switch-default>{{row.entity.FA_ARRIVAL_REMK}}</span>\
                       </div>');
-    $templateCache.put('accessibilityToMCForPullGoods', '\
+
+    $templateCache.put('accessibilityToInternalGoods', '\
                         <div class="ui-grid-cell-contents text-center">\
-                            <a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethodForPullGoods.modifyData(row)"> 修改</a>\
-                            <a href="javascript:void(0);" class="btn btn-danger btn-xs" ng-click="grid.appScope.$vm.gridMethodForPullGoods.cancelData(row)"> 取消</a>\
+                            <i class="fa fa-remove text-danger" ng-if="row.entity.BAGNO_MATCH == 0"> </i> \
+                            <i class="fa fa-check text-success" ng-if="row.entity.BAGNO_MATCH == 1"> </i> \
+                        </div>');
+
+    $templateCache.put('accessibilityToSuppleMent', '\
+                        <div class="ui-grid-cell-contents text-center">\
+                            <span class="label bg-color-red">{{row.entity.OL_SUPPLEMENT_COUNT | suppleMentFilter}}</span>\
+                        </div>');
+
+    $templateCache.put('accessibilityToVForPullGoods', '\
+                        <div class="ui-grid-cell-contents text-center">\
+                            <a href="javascript:void(0);" class="btn btn-info btn-xs" ng-click="grid.appScope.$vm.gridMethodForPullGoods.viewData(row)"> 原因</a>\
+                            <a href="javascript:void(0);" class="btn btn-primary btn-xs" ng-click="grid.appScope.$vm.gridMethodForPullGoods.detailData(row)"> 明細</a>\
                       </div>');
     $templateCache.put('accessibilityToMSForAssistantJobs', '\
                         <div class="ui-grid-cell-contents text-center">\
                             <a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethod.modifyData(row)"> 修改</a>\
-                            <a href="javascript:void(0);" class="btn btn-info btn-xs" ng-click="grid.appScope.$vm.gridMethod.sendMail(row)"> 寄信</a>\
-                            <a href="javascript:void(0);" class="btn btn-primary btn-xs" ng-click="grid.appScope.$vm.gridMethod.viewOrder(row)"> 航班</a>\
+                            <!-- <a href="javascript:void(0);" class="btn btn-info btn-xs" ng-click="grid.appScope.$vm.gridMethod.sendMail(row)"> 寄信</a> -->\
+                            <!-- <a href="javascript:void(0);" class="btn btn-primary btn-xs" ng-click="grid.appScope.$vm.gridMethod.viewOrder(row)"> 航班</a> -->\
                       </div>');
     $templateCache.put('accessibilityToMSForAssistantJobsSearch', '\
                         <div class="ui-grid-cell-contents text-center">\
@@ -50,57 +77,67 @@ angular.module('app')
                             <a href="javascript:void(0);" class="btn btn-primary btn-xs" ng-click="grid.appScope.$vm.gridMethod.viewOrder(row)"> 航班</a>\
                       </div>');
 
+    // 主號可直接航班檢視
+    $templateCache.put('accessibilityToMasterForViewOrder', '\
+                        <div class="ui-grid-cell-contents text-center" ng-switch="row.entity.OL_MASTER">\
+                            <span ng-switch-when="">{{row.entity.OL_MASTER}}</span>\
+                            <a href="javascript:void(0);" ng-switch-default class="btn btn-default btn-xs" ng-click="grid.appScope.$vm.gridMethod.viewOrder(row)"> {{row.entity.OL_MASTER}}</a>\
+                        </div>');
+
 	$templateCache.put('accessibilityToRMC', '\
                         <div class="ui-grid-cell-contents text-center">\
             				<a href="javascript:void(0);" class="btn btn-danger btn-xs" ng-click="grid.appScope.$vm.gridMethod.rejectData(row)" ng-disabled="row.entity.g"> 退單</a>\
             				<a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethod.modifyData(row)"> 編輯</a>\
             				<a href="javascript:void(0);" class="btn btn-primary btn-xs" ng-click="grid.appScope.$vm.gridMethod.closeData(row)" ng-disabled="row.entity.g"> 完成</a>\
                         </div>');
-  $templateCache.put('accessibilityToOperaForJob001', '\
+    $templateCache.put('accessibilityToOperaForJob001', '\
                     <div class="ui-grid-cell-contents text-center">\
                         <a href="javascript:void(0);" class="btn btn-success btn-xs" ng-click="grid.appScope.$vm.gridMethod.gridOperation(row, \'報機單\')"> 工作選項</a>\
                     </div>');
-  $templateCache.put('accessibilityToOperaForJob002', '\
+    $templateCache.put('accessibilityToOperaForJob002', '\
                     <div class="ui-grid-cell-contents text-center">\
                         <a href="javascript:void(0);" class="btn btn-success btn-xs" ng-click="grid.appScope.$vm.gridMethod.gridOperation(row, \'銷艙單\')"> 工作選項</a>\
                     </div>');
-  $templateCache.put('accessibilityToOperaForJob003', '\
+    $templateCache.put('accessibilityToOperaForJob003', '\
                     <div class="ui-grid-cell-contents text-center">\
                         <a href="javascript:void(0);" class="btn btn-success btn-xs" ng-click="grid.appScope.$vm.gridMethod.gridOperation(row, \'派送單\')"> 工作選項</a>\
                     </div>');
-  // $templateCache.put('accessibilityToDMCForJob001', '\
-  //                   <div class="ui-grid-cell-contents text-center">\
-  //                       <a href="javascript:void(0);" class="btn btn-danger btn-xs" ng-click="grid.appScope.$vm.gridMethodForJob001.rejectData(row)" ng-disabled="row.entity.g"> 退單</a>\
-  //                       <a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethodForJob001.modifyData(row)"> 編輯</a>\
-  //                       <a href="javascript:void(0);" class="btn btn-primary btn-xs" ng-click="grid.appScope.$vm.gridMethodForJob001.closeData(row)" ng-disabled="row.entity.g"> 完成</a>\
-  //                       <a href="javascript:void(0);" class="btn btn-danger btn-xs" ng-click="grid.appScope.$vm.gridMethodForJob001.deleteData(row)" ng-disabled="row.entity.g"> 刪除</a>\
-  //                   </div>');
-  // $templateCache.put('accessibilityToDMCForJob002', '\
-  //                   <div class="ui-grid-cell-contents text-center">\
-  //                       <a href="javascript:void(0);" class="btn btn-danger btn-xs" ng-click="grid.appScope.$vm.gridMethodForJob002.rejectData(row)" ng-disabled="row.entity.g"> 退單</a>\
-  //                       <a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethodForJob002.modifyData(row)"> 編輯</a>\
-  //                       <a href="javascript:void(0);" class="btn btn-primary btn-xs" ng-click="grid.appScope.$vm.gridMethodForJob002.closeData(row)" ng-disabled="row.entity.g"> 完成</a>\
-  //                       <a href="javascript:void(0);" class="btn btn-danger btn-xs" ng-click="grid.appScope.$vm.gridMethodForJob002.deleteData(row)" ng-disabled="row.entity.g"> 刪除</a>\
-  //                   </div>');
-  // $templateCache.put('accessibilityToDMCForJob003', '\
-  //                   <div class="ui-grid-cell-contents text-center">\
-  //                       <a href="javascript:void(0);" class="btn btn-danger btn-xs" ng-click="grid.appScope.$vm.gridMethodForJob003.rejectData(row)" ng-disabled="row.entity.g"> 退單</a>\
-  //                       <a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethodForJob003.modifyData(row)"> 編輯</a>\
-  //                       <a href="javascript:void(0);" class="btn btn-primary btn-xs" ng-click="grid.appScope.$vm.gridMethodForJob003.closeData(row)" ng-disabled="row.entity.g"> 完成</a>\
-  //                       <a href="javascript:void(0);" class="btn btn-danger btn-xs" ng-click="grid.appScope.$vm.gridMethodForJob003.deleteData(row)" ng-disabled="row.entity.g"> 刪除</a>\
-  //                   </div>');
-	$templateCache.put('accessibilityToCB', '\
-                    <div class="ui-grid-cell-contents text-center">\
+  
+    $templateCache.put('accessibilityToChangeNature', '\
+                    <div class="ui-grid-cell-contents">\
                         <a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethod.changeNature(row)" ng-hide="row.entity[\'loading\']"> 改單</a>\
                         <a href="javascript:void(0);" class="btn btn-warning btn-xs disabled" ng-show="row.entity[\'loading\']"> <i class="fa fa-refresh fa-spin"></i></a>\
-        				<a href="javascript:void(0);" class="btn btn-danger btn-xs" ng-click="grid.appScope.$vm.gridMethod.banData(row)" ng-class="row.entity.BLFO_TRACK != null ? \'disabled\' : \'\'"> 加入黑名單</a>\
+                    </div>');
+
+	$templateCache.put('accessibilityToJob001', '\
+                    <div class="ui-grid-cell-contents">\
+                        <!--<a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethod.changeNature(row)" ng-hide="row.entity[\'loading\']"> 改單</a>-->\
+                        <!--<a href="javascript:void(0);" class="btn btn-warning btn-xs disabled" ng-show="row.entity[\'loading\']"> <i class="fa fa-refresh fa-spin"></i></a>-->\
+        				<!--<a href="javascript:void(0);" class="btn btn-danger btn-xs" ng-click="grid.appScope.$vm.gridMethod.banData(row)" ng-class="row.entity.BLFO_TRACK != null ? \'disabled\' : \'\'"> 加入黑名單</a>-->\
                         <a href="javascript:void(0);" class="btn btn-primary btn-xs" ng-click="grid.appScope.$vm.gridMethod.pullGoods(row)" ng-class="row.entity.PG_PULLGOODS ? \'disabled\' : \'\'"> 拉貨</a>\
                         <!--<a href="javascript:void(0);" class="btn btn-primary btn-xs" ng-click="grid.appScope.$vm.gridMethod.cancelPullGoods(row)" ng-show="row.entity.PG_PULLGOODS && !row.entity.PG_MOVED"> 恢復</a>-->\
                         <!--<a href="javascript:void(0);" class="btn btn-success btn-xs" ng-click="grid.appScope.$vm.gridMethod.specialGoods(row)" ng-class="row.entity.SPG_SPECIALGOODS != 0 ? \'disabled\' : \'\'"> 特貨</a>-->\
-                        <a href="javascript:void(0);" class="btn btn-default btn-xs" ng-click="grid.appScope.$vm.gridMethod.specialGoods(row)" ng-show="row.entity.SPG_SPECIALGOODS == 0"> 特貨</a>\
-                        <a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethod.specialGoods(row)" ng-show="row.entity.SPG_SPECIALGOODS == 1"> 普特貨</a>\
-                        <a href="javascript:void(0);" class="btn btn-success btn-xs" ng-click="grid.appScope.$vm.gridMethod.specialGoods(row)" ng-show="row.entity.SPG_SPECIALGOODS == 2"> 特特貨</a>\
+                        <a href="javascript:void(0);" class="btn btn-default btn-xs" ng-click="grid.appScope.$vm.gridMethod.specialGoods(row)" ng-if="row.entity.SPG_SPECIALGOODS == 0"> 特貨</a>\
+                        <a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethod.specialGoods(row)" ng-if="row.entity.SPG_SPECIALGOODS == 1"> 普特貨</a>\
+                        <a href="javascript:void(0);" class="btn btn-success btn-xs" ng-click="grid.appScope.$vm.gridMethod.specialGoods(row)" ng-if="row.entity.SPG_SPECIALGOODS == 2"> 特特貨</a>\
    		  		    </div>');
+
+    $templateCache.put('accessibilityToOverSixName', '\
+                    <div class="ui-grid-cell-contents text-center">\
+                        <span class="label bg-color-red" ng-if="row.entity.GETNAME_COUNT == -1">自訂</span>\
+                        <span class="text-danger" ng-if="row.entity.GETNAME_COUNT != -1">{{row.entity.GETNAME_COUNT}}</span>\
+                    </div>');
+
+    $templateCache.put('accessibilityToOverSixAddress', '\
+                    <div class="ui-grid-cell-contents text-center">\
+                        <span class="label bg-color-red" ng-if="row.entity.GETADDRESS_COUNT == -1">自訂</span>\
+                        <span class="text-danger" ng-if="row.entity.GETADDRESS_COUNT != -1">{{row.entity.GETADDRESS_COUNT}}</span>\
+                    </div>');
+
+    $templateCache.put('accessibilityToMForCompound', '\
+                        <div class="ui-grid-cell-contents text-center">\
+                            <a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethodForCompound.modifyData(row)"> {{$parent.$root.getWord(\'Modify\')}}</a>\
+                        </div>');
 
     $templateCache.put('accessibilityToMForBLFO', '<div class="ui-grid-cell-contents text-center">\
                                             <a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethodForBLFO.modifyData(row)"> {{$parent.$root.getWord(\'Modify\')}}</a>\
@@ -140,17 +177,17 @@ angular.module('app')
                         </div>');
     $templateCache.put('accessibilityToForW2', '\
                         <div class="ui-grid-cell-contents text-center">\
-                            <i class="fa fa-circle-o" data-tooltip-placement="left" data-uib-tooltip="{{row.entity.W2_PRINCIPAL}}" ng-if="row.entity.W2_STATUS == \'1\'"> </i> \
-                            <i class="fa fa-circle text-warning" data-tooltip-placement="left" data-uib-tooltip="{{row.entity.W2_PRINCIPAL | userInfoFilter}}" ng-if="row.entity.W2_STATUS == \'2\'"> </i> \
-                            <i class="fa fa-circle text-success" data-tooltip-placement="left" data-uib-tooltip="{{row.entity.W2_PRINCIPAL | userInfoFilter}}" ng-if="row.entity.W2_STATUS == \'3\'"> </i> \
-                            <i class="fa fa-circle txt-color-magenta" data-tooltip-placement="left" data-uib-tooltip="{{row.entity.W2_PRINCIPAL | userInfoFilter}}" ng-if="row.entity.W2_STATUS == \'4\'"> </i> \
+                            <i class="fa fa-circle-o" data-tooltip-placement="left" data-uib-tooltip="{{row.entity.W2_PRINCIPAL}}" ng-if="row.entity.W2_STATUS == \'1\' && row.entity.OL_COUNT > 0"> </i> \
+                            <i class="fa fa-circle text-warning" data-tooltip-placement="left" data-uib-tooltip="{{row.entity.W2_PRINCIPAL | userInfoFilter}}" ng-if="row.entity.W2_STATUS == \'2\' && row.entity.OL_COUNT > 0"> </i> \
+                            <i class="fa fa-circle text-success" data-tooltip-placement="left" data-uib-tooltip="{{row.entity.W2_PRINCIPAL | userInfoFilter}}" ng-if="row.entity.W2_STATUS == \'3\' && row.entity.OL_COUNT > 0"> </i> \
+                            <i class="fa fa-circle txt-color-magenta" data-tooltip-placement="left" data-uib-tooltip="{{row.entity.W2_PRINCIPAL | userInfoFilter}}" ng-if="row.entity.W2_STATUS == \'4\' && row.entity.OL_COUNT > 0"> </i> \
                         </div>');
     $templateCache.put('accessibilityToForW3', '\
                         <div class="ui-grid-cell-contents text-center">\
-                            <i class="fa fa-circle-o" data-tooltip-placement="left" data-uib-tooltip="{{row.entity.W3_PRINCIPAL}}" ng-if="row.entity.W3_STATUS == \'1\'"> </i> \
-                            <i class="fa fa-circle text-warning" data-tooltip-placement="left" data-uib-tooltip="{{row.entity.W3_PRINCIPAL}}" ng-if="row.entity.W3_STATUS == \'2\'"> </i> \
-                            <i class="fa fa-circle text-success" data-tooltip-placement="left" data-uib-tooltip="{{row.entity.W3_PRINCIPAL}}" ng-if="row.entity.W3_STATUS == \'3\'"> </i> \
-                            <i class="fa fa-circle txt-color-magenta" data-tooltip-placement="left" data-uib-tooltip="{{row.entity.W3_PRINCIPAL | userInfoFilter}}" ng-if="row.entity.W3_STATUS == \'4\'"> </i> \
+                            <i class="fa fa-circle-o" data-tooltip-placement="left" data-uib-tooltip="{{row.entity.W3_PRINCIPAL}}" ng-if="row.entity.W3_STATUS == \'1\' && row.entity.OL_FLL_COUNT > 0"> </i> \
+                            <i class="fa fa-circle text-warning" data-tooltip-placement="left" data-uib-tooltip="{{row.entity.W3_PRINCIPAL}}" ng-if="row.entity.W3_STATUS == \'2\' && row.entity.OL_FLL_COUNT > 0"> </i> \
+                            <i class="fa fa-circle text-success" data-tooltip-placement="left" data-uib-tooltip="{{row.entity.W3_PRINCIPAL}}" ng-if="row.entity.W3_STATUS == \'3\' && row.entity.OL_FLL_COUNT > 0"> </i> \
+                            <i class="fa fa-circle txt-color-magenta" data-tooltip-placement="left" data-uib-tooltip="{{row.entity.W3_PRINCIPAL | userInfoFilter}}" ng-if="row.entity.W3_STATUS == \'4\' && row.entity.OL_FLL_COUNT > 0"> </i> \
                         </div>');
     $templateCache.put('accessibilityToForW1', '\
                         <div class="ui-grid-cell-contents text-center">\
@@ -161,14 +198,15 @@ angular.module('app')
                         </div>');
     $templateCache.put('accessibilityToDMCForLeader', '\
                         <div class="ui-grid-cell-contents text-center">\
-                            <a href="javascript:void(0);" class="btn btn-danger btn-xs" ng-click="grid.appScope.$vm.gridMethod.deleteData(row)" ng-disabled="row.entity.g"> 刪除</a>\
+                            <a href="javascript:void(0);" class="btn btn-danger btn-xs" ng-click="grid.appScope.$vm.gridMethod.deleteData(row)"> 刪除</a>\
                             <a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethod.modifyData(row)"> 修改</a>\
                             <!-- <a href="javascript:void(0);" class="btn btn-primary btn-xs" ng-click="grid.appScope.$vm.gridMethod.closeData(row)" ng-class="(row.entity.W1_STATUS == \'3\' && row.entity.W2_STATUS == \'3\' && row.entity.W3_STATUS == \'3\') ? \'\' : \'disabled\'"> 結單</a> -->\
-                            <a href="javascript:void(0);" class="btn btn-primary btn-xs" ng-click="grid.appScope.$vm.gridMethod.closeData(row)" ng-class="(row.entity.W2_STATUS == \'3\' || row.entity.W2_STATUS == \'4\') ? \'\' : \'disabled\'"> 結單</a>\
+                            <a href="javascript:void(0);" class="btn btn-primary btn-xs" ng-click="grid.appScope.$vm.gridMethod.closeData(row)" ng-class="(row.entity.W2_STATUS == \'3\' || row.entity.W2_STATUS == \'4\' || row.entity.W3_STATUS == \'3\' || row.entity.W3_STATUS == \'4\') ? \'\' : \'disabled\'"> 結單</a>\
                         </div>');
     $templateCache.put('accessibilityToMForLeaderSearch', '\
                         <div class="ui-grid-cell-contents text-center">\
                             <a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethod.modifyData(row)"> 修改</a>\
+                            <a href="javascript:void(0);" class="btn btn-danger btn-xs" ng-click="grid.appScope.$vm.gridMethod.releaseData(row)" ng-if="grid.appScope.$vm.profile.U_GRADE < 10" ng-class="{\'disabled\' : row.entity.OL_FDATETIME == null}"> 解案</a>\
                         </div>');
     $templateCache.put('accessibilityToEdited', '\
                         <div class="ui-grid-cell-contents text-center">\
@@ -177,6 +215,13 @@ angular.module('app')
     $templateCache.put('accessibilityToHistoryCount', '\
                         <div class="ui-grid-cell-contents text-center">\
                             <a href-void="" class="btn btn-danger btn-xs" href="#" ng-class="row.entity.IL_COUNT > 0 ? \'\' : \'disabled\'" ng-click="grid.appScope.$vm.gridMethod.showHistoryCount(row)">{{row.entity.IL_COUNT}}</a> \
+                        </div>');
+
+    $templateCache.put('accessibilityToSysLevel', '\
+                        <div class="ui-grid-cell-contents text-center" ng-switch="row.entity.SDL_LEVEL">\
+                            <span class="label bg-color-blue" ng-switch-when="info">{{row.entity.SDL_LEVEL}}</span>\
+                            <span class="label bg-color-red" ng-switch-when="error">{{row.entity.SDL_LEVEL}}</span>\
+                            <span ng-switch-default>{{row.entity.SDL_LEVEL}}</span>\
                         </div>');
 
     $templateCache.put('isChecked', '\
@@ -198,9 +243,9 @@ angular.module('app')
                             <form class="form-horizontal" name="modifyForm"> \
                                 <fieldset> \
                                     <div class="form-group"> \
-                                        <label class="col-md-2 control-label"><code>*</code>進口日期</label> \
+                                        <label class="col-md-2 control-label">進口日期</label> \
                                         <div class="col-md-10"> \
-                                            <input class="form-control" name="OL_IMPORTDT" type="text" ng-model="$ctrl.mdData.OL_IMPORTDT" ui-mask="9999-99-99" ui-mask-placeholder ui-mask-placeholder-char="_" placeholder="請輸入公佈日期 (西元 年-月-日)" model-view-value="true" is-date required/> \
+                                            <input class="form-control" name="OL_IMPORTDT" type="text" ng-model="$ctrl.mdData.OL_IMPORTDT" ui-mask="9999-99-99" ui-mask-placeholder ui-mask-placeholder-char="_" placeholder="請輸入公佈日期 (西元 年-月-日)" model-view-value="true" is-date/> \
                                         </div> \
                                     </div> \
                                     <div class="form-group"> \
@@ -216,7 +261,7 @@ angular.module('app')
                                             <input class="form-control" name="OL_FLIGHTNO" placeholder="請輸入航班" ng-model="$ctrl.mdData.OL_FLIGHTNO" type="text" ui-mask="AA 9999" ui-mask-placeholder> \
                                         </div> --> \
                                         <div class="col-md-3" ng-class="$ctrl.mdData.FLIGHTNO_END.length && !$ctrl.mdData.FLIGHTNO_START.length ? \' has-error\' : \'\'"> \
-                                            <input class="form-control" ng-model="$ctrl.mdData.FLIGHTNO_START" placeholder="代碼" type="text" ui-mask="AA" ui-mask-placeholder ng-required="$ctrl.mdData.FLIGHTNO_END.length"> \
+                                            <input class="form-control" ng-model="$ctrl.mdData.FLIGHTNO_START" placeholder="代碼" type="text" ui-mask="**" ui-mask-placeholder ng-required="$ctrl.mdData.FLIGHTNO_END.length"> \
                                         </div> \
                                         <div class="col-md-7" ng-class="$ctrl.mdData.FLIGHTNO_START.length && !$ctrl.mdData.FLIGHTNO_END.length ? \' has-error\' : \'\'"> \
                                             <input class="form-control" ng-model="$ctrl.mdData.FLIGHTNO_END" placeholder="號碼" type="text" maxlength="4" ng-required="$ctrl.mdData.FLIGHTNO_START.length"> \
@@ -225,13 +270,19 @@ angular.module('app')
                                     <div class="form-group"> \
                                         <label class="col-md-2 control-label">主號</label> \
                                         <div class="col-md-10"> \
-                                            <input class="form-control" name="OL_MASTER" placeholder="請輸入主號" ng-model="$ctrl.mdData.OL_MASTER" type="text" ui-mask="999-99999999" ui-mask-placeholder> \
+                                            <input class="form-control" name="OL_MASTER" placeholder="請輸入主號" model-view-value="true" ng-model="$ctrl.mdData.OL_MASTER" type="text" ui-mask="999-99999999" ui-mask-placeholder> \
                                         </div> \
                                     </div> \
                                     <div class="form-group"> \
                                         <label class="col-md-2 control-label">起運國別</label> \
                                         <div class="col-md-10"> \
                                             <input class="form-control" name="OL_COUNTRY" placeholder="請輸入起運國別" ng-model="$ctrl.mdData.OL_COUNTRY" type="text" ui-mask="AA" ui-mask-placeholder> \
+                                        </div> \
+                                    </div> \
+                                    <div class="form-group"> \
+                                        <label class="col-md-2 control-label">描述</label> \
+                                        <div class="col-md-10"> \
+                                            <textarea class="form-control" rows="3" maxlength="300" ng-model="$ctrl.mdData.OL_REASON" placeholder="字數限制 300字"></textarea> \
                                         </div> \
                                     </div> \
                                 </fieldset> \
@@ -270,7 +321,7 @@ angular.module('app')
 })
 .controller('ModifyOrderListModalInstanceCtrl', function ($uibModalInstance, vmData, compy) {
     var $ctrl = this,
-        _flightNo = vmData.OL_FLIGHTNO.split(' ');
+        _flightNo = vmData.OL_FLIGHTNO != null ? vmData.OL_FLIGHTNO.split(' ') : [];
     if(_flightNo.length == 2){
         vmData.FLIGHTNO_START = _flightNo[0];
         vmData.FLIGHTNO_END = _flightNo[1];

@@ -1,9 +1,8 @@
 "use strict";
 
-angular.module('app.selfwork').controller('EmployeeJobsCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, $filter, uiGridConstants, RestfulApi, compy, $q) {
+angular.module('app.selfwork').controller('EmployeeJobsCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, $filter, uiGridConstants, RestfulApi, compy, userInfo, $q, OrderStatus) {
     
     var $vm = this;
-    console.log(Session.Get());
 
 	angular.extend(this, {
         Init : function(){
@@ -77,7 +76,8 @@ angular.module('app.selfwork').controller('EmployeeJobsCtrl', function ($scope, 
                             OL_CO_CODE  : selectedItem.OL_CO_CODE,
                             OL_FLIGHTNO : selectedItem.OL_FLIGHTNO,
                             OL_MASTER   : selectedItem.OL_MASTER,
-                            OL_COUNTRY  : selectedItem.OL_COUNTRY
+                            OL_COUNTRY  : selectedItem.OL_COUNTRY,
+                            OL_REASON   : selectedItem.OL_REASON
                         },
                         condition: {
                             OL_SEQ : selectedItem.OL_SEQ
@@ -89,6 +89,10 @@ angular.module('app.selfwork').controller('EmployeeJobsCtrl', function ($scope, 
                 }, function() {
                     // $log.info('Modal dismissed at: ' + new Date());
                 });
+            },
+            // 貨物查看
+            viewOrder : function(row){
+                OrderStatus.Get(row)
             }
         },
         gridMethodForJob001 : {
@@ -133,6 +137,8 @@ angular.module('app.selfwork').controller('EmployeeJobsCtrl', function ($scope, 
                                     OE_EDATETIME : $filter('date')(new Date(), 'yyyy-MM-dd HH:mm:ss')
                                 }
                             }).then(function (res) {
+                                // 讓中班作業區的完成鈕可以亮起
+                                row.entity.W2_PRINCIPAL = $vm.profile.U_ID;
                                 $state.transitionTo("app.selfwork.employeejobs.job001", {
                                     data: row.entity
                                 });
@@ -250,8 +256,14 @@ angular.module('app.selfwork').controller('EmployeeJobsCtrl', function ($scope, 
         },
         gridMethodForJob002 : {
             // 檢視
-            viewData : function(row){
-                console.log(row);
+            // viewData : function(row){
+            //     console.log(row);
+            //     $state.transitionTo("app.selfwork.employeejobs.job002", {
+            //         data: row.entity
+            //     });
+            // }
+            // 修改
+            fixData : function(row){
                 $state.transitionTo("app.selfwork.employeejobs.job002", {
                     data: row.entity
                 });
@@ -260,6 +272,7 @@ angular.module('app.selfwork').controller('EmployeeJobsCtrl', function ($scope, 
         orderListOptions : {
             data:  '$vm.selfWorkData',
             columnDefs: [
+                { name: 'OL_SUPPLEMENT_COUNT'    ,  displayName: '補件', width: 50, cellTemplate: $templateCache.get('accessibilityToSuppleMent') },
                 { name: 'OL_IMPORTDT'            ,  displayName: '進口日期', width: 80, cellFilter: 'dateFilter' },
                 { name: 'OL_CO_CODE'             ,  displayName: '行家', width: 80, cellFilter: 'compyFilter', filter: 
                     {
@@ -272,9 +285,15 @@ angular.module('app.selfwork').controller('EmployeeJobsCtrl', function ($scope, 
                 { name: 'FA_SCHEDL_ARRIVALTIME'  ,  displayName: '預計抵達時間', cellFilter: 'datetimeFilter' },
                 { name: 'FA_ACTL_ARRIVALTIME'    ,  displayName: '真實抵達時間', cellFilter: 'datetimeFilter' },
                 { name: 'FA_ARRIVAL_REMK'        ,  displayName: '狀態', width: 60, cellTemplate: $templateCache.get('accessibilityToArrivalRemark') },
-                { name: 'OL_MASTER'              ,  displayName: '主號' },
-                { name: 'OL_COUNT'               ,  displayName: '報機單(袋數)', width: 80, enableCellEdit: false },
-                { name: 'OL_COUNTRY'             ,  displayName: '起運國別', width: 80 },
+                { name: 'OL_MASTER'              ,  displayName: '主號', width: 110, cellTemplate: $templateCache.get('accessibilityToMasterForViewOrder') },
+                { name: 'OL_COUNT'               ,  displayName: '報機單(袋數)' },
+                { name: 'OL_PULL_COUNT'          ,  displayName: '拉貨(袋數)' },
+                { name: 'OL_COUNTRY'             ,  displayName: '起運國別' },
+                { name: 'OL_REASON'              ,  displayName: '描述', cellTooltip: function (row, col) 
+                    {
+                        return row.entity.OL_REASON
+                    } 
+                },
                 { name: 'W2_STATUS'              ,  displayName: '狀態', width: 80, cellTemplate: $templateCache.get('accessibilityToForW2'), filter: 
                     {
                         term: null,
@@ -288,13 +307,20 @@ angular.module('app.selfwork').controller('EmployeeJobsCtrl', function ($scope, 
                         ]
                     }
                 },
+                { name: 'W2_PRINCIPAL'           ,  displayName: '負責人', width: 80, cellFilter: 'userInfoFilter', filter: 
+                    {
+                        term: null,
+                        type: uiGridConstants.filter.SELECT,
+                        selectOptions: userInfo
+                    }
+                },
                 { name: 'ITEM_LIST'              ,  displayName: '報機單', enableFiltering: false, width: '8%', cellTemplate: $templateCache.get('accessibilityToOperaForJob001') },
                 { name: 'FLIGHT_ITEM_LIST'       ,  displayName: '銷艙單', enableFiltering: false, width: '8%', cellTemplate: $templateCache.get('accessibilityToOperaForJob002') },
                 // { name: 'DELIVERY_ITEM_LIST'  ,  displayName: '派送單', enableFiltering: false, width: '8%', cellTemplate: $templateCache.get('accessibilityToOperaForJob003') },
                 { name: 'Options'                ,  displayName: '操作', width: '5%', enableCellEdit: false, enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToM') }
             ],
             enableFiltering: true,
-            enableSorting: false,
+            enableSorting: true,
             enableColumnMenus: false,
             // enableVerticalScrollbar: false,
             paginationPageSizes: [10, 25, 50, 100],
@@ -303,6 +329,18 @@ angular.module('app.selfwork').controller('EmployeeJobsCtrl', function ($scope, 
                 $vm.selfWorkGridApi = gridApi;
             }
         },
+        // 檢查是否為晚班
+        IsW3 : function(){
+            var _flag = false;
+
+            for(var i in $vm.profile.DEPTS){
+                if($vm.profile.DEPTS[i].SUD_DEPT == "W3"){
+                    _flag = true;
+                }
+            }
+
+            return _flag;
+        }
         // Update : function(entity){
         //     // create a fake promise - normally you'd use the promise returned by $http or $resource
         //     var promise = $q.defer();

@@ -75,6 +75,11 @@ angular.module('app.selfwork').controller('DeliveryHistorySearchCtrl', function 
                 { name: 'OL_FLIGHTNO' ,  displayName: '航班' },
                 { name: 'OL_MASTER'   ,  displayName: '主號' },
                 { name: 'OL_COUNTRY'  ,  displayName: '起運國別' },
+                { name: 'OL_REASON'   ,  displayName: '描述', cellTooltip: function (row, col) 
+                    {
+                        return row.entity.OL_REASON
+                    } 
+                },
                 { name: 'DELIVERY_ITEM_LIST' ,  displayName: '派送單', enableFiltering: false, width: '8%', cellTemplate: $templateCache.get('accessibilityToOperaForJob003') }
             ],
             enableFiltering: true,
@@ -152,9 +157,11 @@ angular.module('app.selfwork').controller('DeliveryHistorySearchCtrl', function 
         }else{
             // 檢查所有值是否都是空的
             for(var i in pObject){
-                if(pObject[i] != ""){
-                    _isClear = false;
-                    break;
+                if(pObject[i] != null){
+                    if(pObject[i].toString() != ""){
+                        _isClear = false;
+                        break;
+                    }
                 }
             }
 
@@ -175,13 +182,15 @@ angular.module('app.selfwork').controller('DeliveryHistorySearchCtrl', function 
         var _conditions = {};
 
         for(var i in pObject){
-            if(pObject[i] != ""){
-                if(i == "CRDT_FROM"){
-                    _conditions[i] = pObject[i] + ' 00:00:00';
-                }else if(i == "CRDT_TOXX"){
-                    _conditions[i] = pObject[i] + ' 23:59:59';
-                }else{
-                    _conditions[i] = pObject[i];
+            if(pObject[i] != null){
+                if(pObject[i].toString() != ""){
+                    if(i == "CRDT_FROM"){
+                        _conditions[i] = pObject[i] + ' 00:00:00';
+                    }else if(i == "CRDT_TOXX"){
+                        _conditions[i] = pObject[i] + ' 23:59:59';
+                    }else{
+                        _conditions[i] = pObject[i];
+                    }
                 }
             }
         }

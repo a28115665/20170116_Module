@@ -10,7 +10,7 @@
 	},
 	"MSSQL" : {
 		"user": "sa",
-		"password": "P@ssw0rd",
+		"password": "2j/ z/ !@#$%",
 		"server": "127.0.0.1",
 		"database": "EWS",
 		"pool": {
@@ -21,12 +21,20 @@
 	},
 	"WebService" : {
 		"changeNature" : {
-			"host" : "10.1.154.119",
+			"host" : "10.1.154.244",
 			"port" : "80",
 			"url" : "/EWSWS/WebServiceChangeNature.asmx/GetNewNature"
+		},
+		"doTax" : {
+			"host" : "10.1.31.42",
+			"port" : "80",
+			"url" : "/EWSWS/WebServiceChangeNature.asmx/GetNatureTax"
 		}
 	},
 	"MOTC" : {
 		"timer" : 120000
+	},
+	"GMail" : {
+		"account" : "a28115665@gmail.com"
 	}
 }

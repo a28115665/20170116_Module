@@ -2,7 +2,7 @@ var sql = require('mssql');
 var setting = require('../app.setting.json');
 var tables = require('./table.json');
 var schemaType = require('./schemaType.js');
-var pool = null;
+var preparedToStatement = require('./preparedToStatement.js');
 
 /**
  * [Connect description] SQL連線
@@ -27,7 +27,10 @@ var TransactionBegin = function(args, callback){
 	var transaction = new sql.Transaction();
 	transaction.begin(function(err) {
 		args["transaction"] = transaction;
+		// 回傳結果
 		args["result"] = [];
+		// SQL Statement
+		args["statement"] = [];
 		if(err) callback(err, {});
 		else callback(null, args);
 	});
@@ -62,8 +65,9 @@ var SelectRequestWithTransaction = function(task, args, callback) {
 
 	schemaType.SchemaType2(task.params, request, sql);
 
-	requestSql(request, SQLCommand, function(err, ret) {
+	requestSql(request, SQLCommand, task.params, function(err, ret, sql) {
 		args.result.push(ret);
+		args.statement.push(sql);
 		if(err) callback(err, args);
 		else callback(null, args);
 	});
@@ -127,8 +131,9 @@ var InsertRequestWithTransaction = function(task, args, callback) {
 
 	schemaType.SchemaType2(task.params, request, sql);
 
-	requestSql(request, SQLCommand, function(err, ret) {
+	requestSql(request, SQLCommand, task.params, function(err, ret, sql) {
 		args.result.push(ret);
+		args.statement.push(sql);
 		if(err) callback(err, args);
 		else callback(null, args);
 	});
@@ -210,8 +215,9 @@ var UpdateRequestWithTransaction = function(task, args, callback) {
 
 	schemaType.SchemaType2(psParams, request, sql);
 	
-	requestSql(request, SQLCommand, function(err, ret) {
+	requestSql(request, SQLCommand, psParams, function(err, ret, sql) {
 		args.result.push(ret);
+		args.statement.push(sql);
 		if(err) callback(err, args);
 		else callback(null, args);
 	});
@@ -255,15 +261,16 @@ var DeleteRequestWithTransaction = function(task, args, callback) {
 
 	schemaType.SchemaType2(task.params, request, sql);
 	
-	requestSql(request, SQLCommand, function(err, ret) {
+	requestSql(request, SQLCommand, task.params, function(err, ret, sql) {
 		args.result.push(ret);
+		args.statement.push(sql);
 		if(err) callback(err, args);
 		else callback(null, args);
 	});
 };
 
 /**
- * [MergeMatchedUpdateThenInsertRequestWithTransaction description] Transaction For Upsert
+ * [UpsertRequestWithTransaction description] Transaction For Upsert
  * @param {[type]}
  * @param {[type]}
  * @param {Function}
@@ -317,7 +324,7 @@ var UpsertRequestWithTransaction = function(task, args, callback) {
 				ConditionTarget.push("TARGET." + key + "= @" + key);
 			}
 
-			SQLCommand += "MERGE " + tables[task.table] + " WITH(HOLDLOCK) AS TARGET \
+			SQLCommand += "MERGE " + tables[task.table] + " AS TARGET \
 						   USING (VALUES (" + ParamsValues.join(", ") + ")) \
 						        AS SOURCE (" + ParamsSchema.join(", ") + ") \
 						        ON " + ConditionTarget.join(" and ") + " \
@@ -331,8 +338,38 @@ var UpsertRequestWithTransaction = function(task, args, callback) {
 			break;
 	}
 	
-	requestSql(request, SQLCommand, function(err, ret) {
+	requestSql(request, SQLCommand, psParams, function(err, ret, sql) {
 		args.result.push(ret);
+		args.statement.push(sql);
+		if(err) callback(err, args);
+		else callback(null, args);
+	});
+};
+
+/**
+ * [CopyRequestWithTransaction description] Transaction for copy
+ * @param {[type]}   task     [description]
+ * @param {[type]}   args     [description]
+ * @param {Function} callback [description]
+ */
+var CopyRequestWithTransaction = function(task, args, callback) {
+	// console.log("DeleteRequestWithTransaction:");
+	var request = new sql.Request(args.transaction),
+		SQLCommand = "";
+
+	// INSERT INTO table2
+	// SELECT column1, column2, column3, ...
+	// FROM table1
+	// WHERE params;
+
+	// 依querymain至各檔案下查詢method
+	SQLCommand = "INSERT INTO " + tables[task.table] + " " + queryMethods[task.querymain](task.queryname, task.params);
+	
+	schemaType.SchemaType2(task.params, request, sql);
+	
+	requestSql(request, SQLCommand, task.params, function(err, ret, sql) {
+		args.result.push(ret);
+		args.statement.push(sql);
 		if(err) callback(err, args);
 		else callback(null, args);
 	});
@@ -375,11 +412,11 @@ var DisConnect = function(args, callback) {
 	sql.close();
 };
 
-function requestSql(request, sql, callback) {
+function requestSql(request, sql, params, callback) {
     var errors = [];
     var result = [];
     var records = [];
-    console.log(sql);
+    // console.log(sql);
     request.query(sql);
     request.stream = true;
     request.on('recordset', function(columns) {
@@ -408,13 +445,13 @@ function requestSql(request, sql, callback) {
         if (errors.length == 0) {
         	// 如果returnValue為0 表示delete
         	if(result.length == 0){
-            	callback(null, result);
+            	callback(null, result, preparedToStatement.PrintSql(sql, params));
         	}else{
-            	callback(null, result[0].records);
+            	callback(null, result[0].records, preparedToStatement.PrintSql(sql, params));
         	}
         } else {
     		console.log("SQL錯誤:", errors);
-            callback(errors, {});
+            callback(errors, {}, preparedToStatement.PrintSql(sql, params));
         }
     });
 }
@@ -442,6 +479,7 @@ module.exports = {
     UpdateRequestWithTransaction : UpdateRequestWithTransaction,
 	DeleteRequestWithTransaction : DeleteRequestWithTransaction,
 	UpsertRequestWithTransaction : UpsertRequestWithTransaction,
+	CopyRequestWithTransaction : CopyRequestWithTransaction,
 	TransactionCommit : TransactionCommit,
 	TransactionRollback : TransactionRollback,
 	DisConnect : DisConnect

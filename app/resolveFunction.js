@@ -283,3 +283,17 @@ function HandleWindowResize (gridApi){
 function CapitalizeFirstLetter(string) {
     return string.charAt(0).toUpperCase() + string.slice(1);
 };
+// 左邊補0
+function padLeft(str,lenght){
+    if(str.length >= lenght)
+       return str;
+    else
+        return padLeft("0" +str,lenght);
+}
+//右邊補0
+function padRight(str,lenght){
+    if(str.length >= lenght)
+        return str;
+    else
+        return padRight(str+"0",lenght);
+}

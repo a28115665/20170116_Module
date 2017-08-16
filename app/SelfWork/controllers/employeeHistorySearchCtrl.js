@@ -1,6 +1,6 @@
 "use strict";
 
-angular.module('app.selfwork').controller('EmployeeHistorySearchCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, RestfulApi, $filter, compy, bool, uiGridConstants, localStorageService, ToolboxApi) {
+angular.module('app.selfwork').controller('EmployeeHistorySearchCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, RestfulApi, $filter, compy, userInfo, bool, uiGridConstants, localStorageService, ToolboxApi, OrderStatus) {
     
     var $vm = this;
 
@@ -52,9 +52,9 @@ angular.module('app.selfwork').controller('EmployeeHistorySearchCtrl', function 
                     // $log.info('Modal dismissed at: ' + new Date());
                 });
             },
-            // 下載
-            downloadFiles : function(row){
-
+            // 貨物查看
+            viewOrder : function(row){
+                OrderStatus.Get(row)
             }
         },
         gridMethodForJob001 : {
@@ -90,10 +90,34 @@ angular.module('app.selfwork').controller('EmployeeHistorySearchCtrl', function 
                     }
                 },
                 { name: 'OL_FLIGHTNO' ,  displayName: '航班' },
-                { name: 'OL_MASTER'   ,  displayName: '主號' },
+                { name: 'OL_MASTER'   ,  displayName: '主號', width: 110, cellTemplate: $templateCache.get('accessibilityToMasterForViewOrder') },
                 { name: 'OL_COUNT'    ,  displayName: '報機單(袋數)', enableCellEdit: false },
                 { name: 'OL_COUNTRY'  ,  displayName: '起運國別' },
-                { name: 'W2_PRINCIPAL',  displayName: '負責人', cellFilter: 'userInfoFilter' },
+                { name: 'OL_REASON'   ,  displayName: '描述', cellTooltip: function (row, col) 
+                    {
+                        return row.entity.OL_REASON
+                    } 
+                },
+                { name: 'W2_STATUS'              ,  displayName: '狀態', width: 80, cellTemplate: $templateCache.get('accessibilityToForW2'), filter: 
+                    {
+                        term: null,
+                        type: uiGridConstants.filter.SELECT,
+                        selectOptions: [
+                            // {label:'未派單', value: '0'},
+                            {label:'已派單', value: '1'},
+                            {label:'已編輯', value: '2'},
+                            {label:'已完成', value: '3'},
+                            {label:'非作業員'  , value: '4'}
+                        ]
+                    }
+                },
+                { name: 'W2_PRINCIPAL',  displayName: '負責人', cellFilter: 'userInfoFilter', filter: 
+                    {
+                        term: null,
+                        type: uiGridConstants.filter.SELECT,
+                        selectOptions: userInfo
+                    }
+                },
                 { name: 'ITEM_LIST'          ,  displayName: '報機單', enableFiltering: false, width: '8%', cellTemplate: $templateCache.get('accessibilityToOperaForJob001') },
                 { name: 'FLIGHT_ITEM_LIST'   ,  displayName: '銷艙單', enableFiltering: false, width: '8%', cellTemplate: $templateCache.get('accessibilityToOperaForJob002') },
                 // { name: 'Options'       , displayName: '下載', width: '5%', enableCellEdit: false, enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToOnceDownload') }
@@ -144,7 +168,7 @@ angular.module('app.selfwork').controller('EmployeeHistorySearchCtrl', function 
         // 紀錄查詢條件
         localStorageService.set("EmployeeHistorySearch", $vm.vmData);
         
-        console.log($vm._params);
+        // console.log($vm._params);
 
         RestfulApi.SearchMSSQLData({
             querymain: 'employeeHistorySearch',
@@ -173,9 +197,11 @@ angular.module('app.selfwork').controller('EmployeeHistorySearchCtrl', function 
         }else{
             // 檢查所有值是否都是空的
             for(var i in pObject){
-                if(pObject[i] != ""){
-                    _isClear = false;
-                    break;
+                if(pObject[i] != null){
+                    if(pObject[i].toString() != ""){
+                        _isClear = false;
+                        break;
+                    }
                 }
             }
 
@@ -196,13 +222,15 @@ angular.module('app.selfwork').controller('EmployeeHistorySearchCtrl', function 
         var _conditions = {};
 
         for(var i in pObject){
-            if(pObject[i] != ""){
-                if(i == "CRDT_FROM"){
-                    _conditions[i] = pObject[i] + ' 00:00:00';
-                }else if(i == "CRDT_TOXX"){
-                    _conditions[i] = pObject[i] + ' 23:59:59';
-                }else{
-                    _conditions[i] = pObject[i];
+            if(pObject[i] != null){
+                if(pObject[i].toString() != ""){
+                    if(i == "CRDT_FROM"){
+                        _conditions[i] = pObject[i] + ' 00:00:00';
+                    }else if(i == "CRDT_TOXX"){
+                        _conditions[i] = pObject[i] + ' 23:59:59';
+                    }else{
+                        _conditions[i] = pObject[i];
+                    }
                 }
             }
         }
