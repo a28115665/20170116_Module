@@ -44,7 +44,37 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
         assignPrincipalData : userInfoByGrade[1],
         opType : opType,
         gridMethod : {
-            deleteData : function(row){
+            // 刪除的選項
+            gridOperation : function(row){
+                // 給modal知道目前是哪個欄位操作
+
+                var modalInstance = $uibModal.open({
+                    animation: true,
+                    ariaLabelledBy: 'modal-title',
+                    ariaDescribedBy: 'modal-body',
+                    templateUrl: 'opWorkMenu.html',
+                    controller: 'OpWorkMenuModalInstanceCtrl',
+                    controllerAs: '$ctrl',
+                    scope: $scope,
+                    size: 'sm',
+                    // windowClass: 'center-modal',
+                    // appendTo: parentElem,
+                    resolve: {
+                        items: function() {
+                            return row;
+                        }
+                    }
+                });
+
+                modalInstance.result.then(function(selectedItem) {
+                    // $ctrl.selected = selectedItem;
+                    console.log(selectedItem);
+
+                }, function() {
+                    // $log.info('Modal dismissed at: ' + new Date());
+                });
+            },
+            deleteData : function(row, type){
                 console.log(row);
 
                 var modalInstance = $uibModal.open({
@@ -63,7 +93,7 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
                         },
                         show: function(){
                             return {
-                                title : "是否刪除"
+                                title : "是否刪除" + type
                             }
                         }
                     }
@@ -73,16 +103,60 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
                     // $ctrl.selected = selectedItem;
                     console.log(selectedItem);
 
-                    RestfulApi.DeleteMSSQLData({
-                        deletename: 'Delete',
-                        table: 18,
-                        params: {
-                            OL_SEQ : selectedItem.OL_SEQ
-                        }
-                    }).then(function (res) {
-                        LoadOrderList();
-                        toaster.pop('success', '訊息', '刪除成功', 3000);
-                    });
+                    switch(type){
+                        case '報機單':
+                            RestfulApi.DeleteMSSQLData({
+                                deletename: 'Delete',
+                                table: 9,
+                                params: {
+                                    IL_SEQ : selectedItem.OL_SEQ
+                                }
+                            }).then(function (res) {
+                                LoadOrderList();
+                                toaster.pop('success', '訊息', '刪除報機單成功', 3000);
+                            });
+                            break;
+                        case '銷倉單':
+                            RestfulApi.DeleteMSSQLData({
+                                deletename: 'Delete',
+                                table: 10,
+                                params: {
+                                    FLL_SEQ : selectedItem.OL_SEQ
+                                }
+                            }).then(function (res) {
+                                LoadOrderList();
+                                toaster.pop('success', '訊息', '刪除銷倉單成功', 3000);
+                            });
+                            break;
+                        case '所有':
+
+                            // 檢查是否補過單
+                            RestfulApi.SearchMSSQLData({
+                                querymain: 'leaderJobs',
+                                queryname: 'SelectOrderSupplement',
+                                params: {
+                                    OLS_SEQ : selectedItem.OL_SEQ
+                                }
+                            }).then(function (res){
+                                // console.log(res["returnData"]);
+
+                                if(res["returnData"].length == 0){
+                                    RestfulApi.DeleteMSSQLData({
+                                        deletename: 'Delete',
+                                        table: 18,
+                                        params: {
+                                            OL_SEQ : selectedItem.OL_SEQ
+                                        }
+                                    }).then(function (res) {
+                                        LoadOrderList();
+                                        toaster.pop('success', '訊息', '刪除成功', 3000);
+                                    });
+                                }else{
+                                    toaster.pop('warning', '警告', '此單已補過單，不可直接刪除', 3000);
+                                }
+                            }); 
+                            break;
+                    }
 
                 }, function() {
                     // $log.info('Modal dismissed at: ' + new Date());
@@ -203,6 +277,7 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
                 { name: 'OL_FLIGHTNO' ,  displayName: '航班' },
                 { name: 'OL_MASTER'   ,  displayName: '主號' },
                 { name: 'OL_COUNT'    ,  displayName: '報機單(袋數)', width: 80, enableCellEdit: false },
+                { name: 'OL_PULL_COUNT',  displayName: '拉貨(袋數)', width: 80, enableCellEdit: false },
                 { name: 'OL_FLL_COUNT',  displayName: '銷倉單(袋數)', width: 80, enableCellEdit: false },
                 { name: 'OL_COUNTRY'  ,  displayName: '起運國別' },
                 { name: 'OL_REASON'              ,  displayName: '描述', width: 100, cellTooltip: function (row, col) 

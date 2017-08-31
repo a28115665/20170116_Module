@@ -81,7 +81,7 @@ angular.module('app')
     $templateCache.put('accessibilityToMasterForViewOrder', '\
                         <div class="ui-grid-cell-contents text-center" ng-switch="row.entity.OL_MASTER">\
                             <span ng-switch-when="">{{row.entity.OL_MASTER}}</span>\
-                            <a href="javascript:void(0);" ng-switch-default class="btn btn-default btn-xs" ng-click="grid.appScope.$vm.gridMethod.viewOrder(row)"> {{row.entity.OL_MASTER}}</a>\
+                            <a href="javascript:void(0);" ng-switch-default ng-click="grid.appScope.$vm.gridMethod.viewOrder(row)"> {{row.entity.OL_MASTER}}</a>\
                         </div>');
 
 	$templateCache.put('accessibilityToRMC', '\
@@ -198,7 +198,8 @@ angular.module('app')
                         </div>');
     $templateCache.put('accessibilityToDMCForLeader', '\
                         <div class="ui-grid-cell-contents text-center">\
-                            <a href="javascript:void(0);" class="btn btn-danger btn-xs" ng-click="grid.appScope.$vm.gridMethod.deleteData(row)"> 刪除</a>\
+                            <!-- <a href="javascript:void(0);" class="btn btn-danger btn-xs" ng-click="grid.appScope.$vm.gridMethod.deleteData(row)"> 刪除</a> -->\
+                            <a href="javascript:void(0);" class="btn btn-danger btn-xs" ng-click="grid.appScope.$vm.gridMethod.gridOperation(row)"> 刪除</a>\
                             <a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethod.modifyData(row)"> 修改</a>\
                             <!-- <a href="javascript:void(0);" class="btn btn-primary btn-xs" ng-click="grid.appScope.$vm.gridMethod.closeData(row)" ng-class="(row.entity.W1_STATUS == \'3\' && row.entity.W2_STATUS == \'3\' && row.entity.W3_STATUS == \'3\') ? \'\' : \'disabled\'"> 結單</a> -->\
                             <a href="javascript:void(0);" class="btn btn-primary btn-xs" ng-click="grid.appScope.$vm.gridMethod.closeData(row)" ng-class="(row.entity.W2_STATUS == \'3\' || row.entity.W2_STATUS == \'4\' || row.entity.W3_STATUS == \'3\' || row.entity.W3_STATUS == \'4\') ? \'\' : \'disabled\'"> 結單</a>\
@@ -335,6 +336,20 @@ angular.module('app')
 
         $ctrl.mdData.OL_COUNTRY = $ctrl.mdData.OL_COUNTRY.toUpperCase();
         $uibModalInstance.close($ctrl.mdData);
+    };
+
+    $ctrl.cancel = function() {
+        $uibModalInstance.dismiss('cancel');
+    };
+})
+.controller('OpWorkMenuModalInstanceCtrl', function ($scope, $uibModalInstance, items) {
+    var $ctrl = this;
+    $ctrl.appScope = $scope.$parent.$vm;
+    $ctrl.row = items;
+    console.log($ctrl);
+    
+    $ctrl.ok = function() {
+        $uibModalInstance.close(items);
     };
 
     $ctrl.cancel = function() {

@@ -93,7 +93,7 @@ angular.module('app.settings').controller('AccountCtrl', function ($scope, $stat
         	console.log($vm.vmData);
 
             // Insert此人Info
-            _tasks.push({
+            _tasks.unshift({
                 crudType: 'Insert',
                 insertname: 'InsertByEncrypt',
                 table: 0,
@@ -126,7 +126,7 @@ angular.module('app.settings').controller('AccountCtrl', function ($scope, $stat
         	console.log($vm.vmData);
 
             // Update此人Info
-            _tasks.push({
+            _tasks.unshift({
                 crudType: 'Update',
                 updatename: 'UpdateByEncrypt',
                 table: 0,

@@ -256,15 +256,42 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
                     // $ctrl.selected = selectedItem;
                     console.log(selectedItem);
 
-                    RestfulApi.DeleteMSSQLData({
-                        deletename: 'Delete',
+                    // RestfulApi.DeleteMSSQLData({
+                    //     deletename: 'Delete',
+                    //     table: 10,
+                    //     params: {
+                    //         FLL_SEQ : selectedItem.OL_SEQ
+                    //     }
+                    // }).then(function (res) {
+                    //     toaster.pop('info', '訊息', '銷倉單刪除成功', 3000);
+                    //     LoadFlightItem();
+                    // });
+
+                    var _tasks = [];
+
+                    // 刪除銷倉單
+                    _tasks.push({
+                        crudType: 'Delete',
                         table: 10,
                         params: {
                             FLL_SEQ : selectedItem.OL_SEQ
                         }
-                    }).then(function (res) {
+                    });
+
+                    // 刪除銷倉單標記
+                    _tasks.push({
+                        crudType: 'Delete',
+                        table: 28,
+                        params: {
+                            FLLR_SEQ : selectedItem.OL_SEQ
+                        }
+                    });
+
+                    RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res) {
                         toaster.pop('info', '訊息', '銷倉單刪除成功', 3000);
                         LoadFlightItem();
+                    }, function (err) {
+
                     });
 
                 }, function() {
@@ -872,6 +899,8 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
                             crudType: 'Update',
                             table: 19,
                             params: {
+                                PG_MASTER : null,
+                                PG_FLIGHTNO : null,
                                 PG_MOVED : false,
                                 PG_MOVED_SEQ : null,
                                 PG_UP_USER : $vm.profile.U_ID,
@@ -1157,10 +1186,16 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
     }
 
     $ctrl.ok = function() {
-        $ctrl.mdData.FLIGHTNO_START = $ctrl.mdData.FLIGHTNO_START.toUpperCase();
-        $ctrl.mdData.OL_FLIGHTNO = $ctrl.mdData.FLIGHTNO_START + ' ' + $ctrl.mdData.FLIGHTNO_END;
 
-        $ctrl.mdData.OL_COUNTRY = $ctrl.mdData.OL_COUNTRY.toUpperCase();
+        if($ctrl.mdData.FLIGHTNO_START && $ctrl.mdData.FLIGHTNO_END){
+            $ctrl.mdData.FLIGHTNO_START = $ctrl.mdData.FLIGHTNO_START.toUpperCase();
+            $ctrl.mdData.OL_FLIGHTNO = $ctrl.mdData.FLIGHTNO_START + ' ' + $ctrl.mdData.FLIGHTNO_END;
+        }
+
+
+        if($ctrl.mdData.OL_COUNTRY){
+            $ctrl.mdData.OL_COUNTRY = $ctrl.mdData.OL_COUNTRY.toUpperCase();
+        }
 
         $uibModalInstance.close($ctrl.mdData);
     };

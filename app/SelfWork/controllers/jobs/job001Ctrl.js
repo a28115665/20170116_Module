@@ -44,25 +44,25 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                 }).then(function (res) {
                     var _returnData = JSON.parse(res["returnData"]),
                         needToUpdate = false;
-                    console.log(_returnData);
+                    // console.log(_returnData);
 
                     if(!angular.isUndefined(_returnData["IL_NATURE_NEW"])){
                         row.entity.IL_NATURE_NEW = _returnData["IL_NATURE_NEW"];
                         needToUpdate = true;
                     }
-                    if(!angular.isUndefined(_returnData["IL_NEWUNIT"]) || _returnData["IL_NEWUNIT"] != ""){
+                    if(!angular.isUndefined(_returnData["IL_NEWUNIT"]) && _returnData["IL_NEWUNIT"] != ""){
                         row.entity.IL_NEWUNIT = _returnData["IL_NEWUNIT"];
                         needToUpdate = true;
                     }
-                    if(!angular.isUndefined(_returnData["IL_NEWPLACE"]) || _returnData["IL_NEWPLACE"] != ""){
+                    if(!angular.isUndefined(_returnData["IL_NEWPLACE"]) && _returnData["IL_NEWPLACE"] != ""){
                         row.entity.IL_NEWPLACE = _returnData["IL_NEWPLACE"];
                         needToUpdate = true;
                     }
-                    if(!angular.isUndefined(_returnData["IL_TAX2"]) || _returnData["IL_TAX2"] != ""){
+                    if(!angular.isUndefined(_returnData["IL_TAX2"]) && _returnData["IL_TAX2"] != ""){
                         row.entity.IL_TAX2 = _returnData["IL_TAX2"];
                         needToUpdate = true;
                     }
-                    if(!angular.isUndefined(_returnData["IL_TAXRATE"]) || _returnData["IL_TAXRATE"] != ""){
+                    if(!angular.isUndefined(_returnData["IL_TAXRATE"]) && _returnData["IL_TAXRATE"] != ""){
                         row.entity.IL_TAXRATE = _returnData["IL_TAXRATE"];
                         needToUpdate = true;
                     }
@@ -1268,6 +1268,7 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                     IL_BAGNO           : entity.IL_BAGNO,
                     IL_SMALLNO         : entity.IL_SMALLNO,
                     IL_NATURE_NEW      : entity.IL_NATURE_NEW,
+                    IL_NEWPLACE        : entity.IL_NEWPLACE,
                     IL_CTN             : entity.IL_CTN,
                     IL_NEWPCS          : entity.IL_NEWPCS,
                     IL_NEWUNIT         : entity.IL_NEWUNIT,

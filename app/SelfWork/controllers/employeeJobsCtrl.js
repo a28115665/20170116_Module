@@ -384,18 +384,4 @@ angular.module('app.selfwork').controller('EmployeeJobsCtrl', function ($scope, 
         });    
     };
 
-})
-.controller('OpWorkMenuModalInstanceCtrl', function ($scope, $uibModalInstance, items) {
-    var $ctrl = this;
-    $ctrl.appScope = $scope.$parent.$vm;
-    $ctrl.row = items;
-    console.log($ctrl);
-    
-    $ctrl.ok = function() {
-        $uibModalInstance.close(items);
-    };
-
-    $ctrl.cancel = function() {
-        $uibModalInstance.dismiss('cancel');
-    };
 });
