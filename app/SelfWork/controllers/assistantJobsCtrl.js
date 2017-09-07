@@ -1,6 +1,6 @@
 "use strict";
 
-angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, RestfulApi, $filter, uiGridConstants, compy, bool, opType, OrderStatus, ToolboxApi) {
+angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, RestfulApi, $filter, uiGridConstants, compy, bool, opType, OrderStatus, ToolboxApi, localStorageService) {
     
     var $vm = this;
 
@@ -8,15 +8,24 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
         Init : function(){
             $scope.ShowTabs = true;
             
+            // 帶入LocalStorage資料
+            if(localStorageService.get("AssistantJobs") == null){
+                $vm.defaultTab = 'hr2';
+            }else{
+                $vm.defaultTab = localStorageService.get("AssistantJobs");
+            }
+
             $vm.LoadData();
         },
         profile : Session.Get(),
-        defaultTab : 'hr2',
         TabSwitch : function(pTabID){
             return pTabID == $vm.defaultTab ? 'active' : '';
         },
         LoadData : function(){
-            console.log($vm.defaultTab);
+            // console.log($vm.defaultTab);
+            // 紀錄tab
+            localStorageService.set("AssistantJobs", $vm.defaultTab);
+
             switch($vm.defaultTab){
                 case 'hr1':
                     LoadFlightArrival();
