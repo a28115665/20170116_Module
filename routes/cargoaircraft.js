@@ -46,34 +46,38 @@ var GetCargoAircraftTime = function (){
 		            		// console.log("ScheduleArrivalTime=>",moment(upsertData[i].ScheduleArrivalTime).format('YYYY-MM-DD HH:mm:ss'));
 		            		// console.log("ActualArrivalTime=>",moment(upsertData[i].ActualArrivalTime).format('YYYY-MM-DD HH:mm:ss'));
 		            		// console.log("UpdateTime=>",moment(upsertData[i].UpdateTime).format('YYYY-MM-DD HH:mm:ss'));
-		            		_conditions.push(JSON.stringify({
-				                crudType : 'Upsert',
-								table : 23,
-				                params : {
-				                	FA_AIR_ROTETYPE       : upsertData[i].AirRouteType,
-				                	FA_DEPART_AIRTID      : upsertData[i].DepartureAirportID,
-									FA_ARRIVAL_AIRPTID    : upsertData[i].ArrivalAirportID,
-									FA_SCHEDL_ARRIVALTIME : upsertData[i].ScheduleArrivalTime == undefined ? null : moment(upsertData[i].ScheduleArrivalTime).format('YYYY-MM-DD HH:mm:ss'),
-									FA_SCHEDL_DEPARTTIME  : upsertData[i].ScheduleDepartureTime == undefined ? null : moment(upsertData[i].ScheduleDepartureTime).format('YYYY-MM-DD HH:mm:ss'),
-									FA_ACTL_ARRIVALTIME   : upsertData[i].ActualArrivalTime == undefined ? null : moment(upsertData[i].ActualArrivalTime).format('YYYY-MM-DD HH:mm:ss'),
-									FA_ACTL_DEPARTTIME    : upsertData[i].ActualDepartureTime == undefined ? null : moment(upsertData[i].ActualDepartureTime).format('YYYY-MM-DD HH:mm:ss'),
-									FA_ARRIVAL_REMK       : upsertData[i].ArrivalRemark,
-									FA_DEPART_REMK        : upsertData[i].DepartureRemark,
-									FA_ARRIVAL_TERNL      : upsertData[i].ArrivalTerminal,
-									FA_DEPART_TERNL       : upsertData[i].DepartureTerminal,
-									FA_ARRIVAL_GATE       : upsertData[i].ArrivalGate == "" ? null : upsertData[i].ArrivalGate,
-									FA_DEPART_GATE        : upsertData[i].DepartureGate == "" ? null : upsertData[i].DepartureGate,
-									FA_UP_DATETIME        : moment(upsertData[i].UpdateTime).format('YYYY-MM-DD HH:mm:ss')
-				                },
-								condition : {
-									FA_FLIGHTDATE : upsertData[i].FlightDate,
-									FA_FLIGHTNUM  : upsertData[i].FlightNumber,
-									FA_AIR_LINEID : upsertData[i].AirlineID
-								}
-		            		}));
+		            		
+		            		// 某些資料會沒有起飛日期
+		            		if(upsertData[i].FlightDate){
+			            		_conditions.push(JSON.stringify({
+					                crudType : 'Upsert',
+									table : 23,
+					                params : {
+					                	FA_AIR_ROTETYPE       : upsertData[i].AirRouteType,
+					                	FA_DEPART_AIRTID      : upsertData[i].DepartureAirportID,
+										FA_ARRIVAL_AIRPTID    : upsertData[i].ArrivalAirportID,
+										FA_SCHEDL_ARRIVALTIME : upsertData[i].ScheduleArrivalTime == undefined ? null : moment(upsertData[i].ScheduleArrivalTime).format('YYYY-MM-DD HH:mm:ss'),
+										FA_SCHEDL_DEPARTTIME  : upsertData[i].ScheduleDepartureTime == undefined ? null : moment(upsertData[i].ScheduleDepartureTime).format('YYYY-MM-DD HH:mm:ss'),
+										FA_ACTL_ARRIVALTIME   : upsertData[i].ActualArrivalTime == undefined ? null : moment(upsertData[i].ActualArrivalTime).format('YYYY-MM-DD HH:mm:ss'),
+										FA_ACTL_DEPARTTIME    : upsertData[i].ActualDepartureTime == undefined ? null : moment(upsertData[i].ActualDepartureTime).format('YYYY-MM-DD HH:mm:ss'),
+										FA_ARRIVAL_REMK       : upsertData[i].ArrivalRemark,
+										FA_DEPART_REMK        : upsertData[i].DepartureRemark,
+										FA_ARRIVAL_TERNL      : upsertData[i].ArrivalTerminal,
+										FA_DEPART_TERNL       : upsertData[i].DepartureTerminal,
+										FA_ARRIVAL_GATE       : upsertData[i].ArrivalGate == "" ? null : upsertData[i].ArrivalGate,
+										FA_DEPART_GATE        : upsertData[i].DepartureGate == "" ? null : upsertData[i].DepartureGate,
+										FA_UP_DATETIME        : moment(upsertData[i].UpdateTime).format('YYYY-MM-DD HH:mm:ss')
+					                },
+									condition : {
+										FA_FLIGHTDATE : upsertData[i].FlightDate,
+										FA_FLIGHTNUM  : upsertData[i].FlightNumber,
+										FA_AIR_LINEID : upsertData[i].AirlineID
+									}
+			            		}));
+		            		}
 
 							// 每100筆就request
-							if(_conditions.length % 100 == 0){
+							if(_conditions.length % 100 == 0 && _conditions.length > 0){
 	            				console.log("已更新航班資訊筆數:", _conditions.length);
 				            	// 塞入DB
 			        			var _post_upsertData100 = querystring.stringify(_conditions);

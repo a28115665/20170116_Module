@@ -327,6 +327,7 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
                 //     }
                 // },
                 // { name: 'W1'          ,  displayName: '派送單負責人', cellFilter: 'userInfoFilter' },
+                { name: 'UPLOAD_STATUS' ,  displayName: '上傳狀態', cellTemplate: $templateCache.get('accessibilityToForUpload'), enableFiltering: false },
                 { name: 'Options'     ,  displayName: '功能', enableFiltering: false, width: '12%', cellTemplate: $templateCache.get('accessibilityToDMCForLeader') }
             ],
             enableFiltering: true,

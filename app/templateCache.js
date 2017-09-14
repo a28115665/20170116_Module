@@ -196,6 +196,13 @@ angular.module('app')
                             <i class="fa fa-circle text-success" data-tooltip-placement="left" data-uib-tooltip="{{row.entity.W1_PRINCIPAL}}" ng-if="row.entity.W1_STATUS == \'3\'"> </i> \
                             <i class="fa fa-circle txt-color-magenta" data-tooltip-placement="left" data-uib-tooltip="{{row.entity.W1_PRINCIPAL | userInfoFilter}}" ng-if="row.entity.W1_STATUS == \'4\'"> </i> \
                         </div>');
+    $templateCache.put('accessibilityToForUpload', '\
+                        <div class="ui-grid-cell-contents text-center">\
+                            <span class="text-warning" ng-if="row.entity.OL_ILSTATUS == 1"> 報</span> \
+                            <span class="text-success" ng-if="row.entity.OL_ILSTATUS == 2"> 報</span> \
+                            <span class="text-warning" ng-if="row.entity.OL_FLLSTATUS == 1"> 銷</span> \
+                            <span class="text-success" ng-if="row.entity.OL_FLLSTATUS == 2"> 銷</span> \
+                        </div>');
     $templateCache.put('accessibilityToDMCForLeader', '\
                         <div class="ui-grid-cell-contents text-center">\
                             <!-- <a href="javascript:void(0);" class="btn btn-danger btn-xs" ng-click="grid.appScope.$vm.gridMethod.deleteData(row)"> 刪除</a> -->\
@@ -246,7 +253,7 @@ angular.module('app')
                                     <div class="form-group"> \
                                         <label class="col-md-2 control-label">進口日期</label> \
                                         <div class="col-md-10"> \
-                                            <input class="form-control" name="OL_IMPORTDT" type="text" ng-model="$ctrl.mdData.OL_IMPORTDT" ui-mask="9999-99-99" ui-mask-placeholder ui-mask-placeholder-char="_" placeholder="請輸入公佈日期 (西元 年-月-日)" model-view-value="true" is-date/> \
+                                            <input class="form-control" name="OL_IMPORTDT" type="text" ng-model="$ctrl.mdData.OL_IMPORTDT" ui-mask="9999-99-99" ui-mask-placeholder ui-mask-placeholder-char="_" placeholder="請輸入公佈日期 (西元 年-月-日)" model-view-value="true"/> \
                                         </div> \
                                     </div> \
                                     <div class="form-group"> \
@@ -335,6 +342,7 @@ angular.module('app')
         $ctrl.mdData.OL_FLIGHTNO = $ctrl.mdData.FLIGHTNO_START + ' ' + $ctrl.mdData.FLIGHTNO_END;
 
         $ctrl.mdData.OL_COUNTRY = $ctrl.mdData.OL_COUNTRY.toUpperCase();
+        $ctrl.mdData.OL_IMPORTDT = $ctrl.mdData.OL_IMPORTDT == "" ? null : $ctrl.mdData.OL_IMPORTDT;
         $uibModalInstance.close($ctrl.mdData);
     };
 

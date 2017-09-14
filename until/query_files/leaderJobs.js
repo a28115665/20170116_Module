@@ -10,6 +10,9 @@ module.exports = function(pQueryname, pParams){
 									OL_IMPORTDT, \
 									OL_COUNTRY, \
 									OL_REASON, \
+									OL_ILSTATUS, \
+									OL_FLLSTATUS, \
+									OL_DILSTATUS, \
 									( \
 										SELECT COUNT(1) \
 										FROM ( \
