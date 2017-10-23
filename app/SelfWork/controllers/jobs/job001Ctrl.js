@@ -920,6 +920,7 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
             var _exportName = $filter('date')($vm.vmData.OL_IMPORTDT, 'yyyyMMdd') + ' ' + 
                               $filter('compyFilter')($vm.vmData.OL_CO_CODE) + ' ' +
                               $vm.vmData.OL_FLIGHTNO + ' ' +
+                              // ($vm.vmData.OL_COUNT - $vm.vmData.OL_PULL_COUNT) + '袋';
                               $vm.vmData.OL_COUNT + '袋';
 
             // 如果是拉貨 最後要補上原報機日期

@@ -280,7 +280,38 @@ module.exports = function(pQueryname, pParams){
 				var _sql = [];
 
 				for(var i in pParams["SeqAndBagno"]){
-					_sql.push("(  IL_SEQ='" + pParams["SeqAndBagno"][i].IL_SEQ + "' AND IL_BAGNO='" + pParams["SeqAndBagno"][i].IL_BAGNO + "')");
+					_sql.push("(  IL_SEQ='" + pParams["SeqAndBagno"][i].SEQ + "' AND IL_BAGNO='" + pParams["SeqAndBagno"][i].BAGNO + "')");
+				}
+
+				_SQLCommand += " AND (" + _sql.join(" OR ") +") ";
+			}
+
+			break;
+
+		case "CopySpecialGoods":
+			_SQLCommand += "SELECT @SPG_SEQ AS SPG_SEQ, \
+									SPG_NEWBAGNO, \
+									SPG_NEWSMALLNO, \
+									SPG_ORDERINDEX, \
+									SPG_TYPE, \
+									SPG_CR_USER, \
+									SPG_CR_DATETIME, \
+									SPG_UP_USER, \
+									SPG_UP_DATETIME \
+							FROM SPECIAL_GOODS \
+							INNER JOIN ITEM_LIST ON \
+							IL_SEQ = SPG_SEQ AND \
+							IL_NEWBAGNO = SPG_NEWBAGNO AND \
+							IL_NEWSMALLNO = SPG_NEWSMALLNO AND \
+							IL_ORDERINDEX = SPG_ORDERINDEX \
+						    WHERE 1=1";
+
+			if(pParams["SeqAndBagno"] !== undefined){
+
+				var _sql = [];
+
+				for(var i in pParams["SeqAndBagno"]){
+					_sql.push("(  SPG_SEQ='" + pParams["SeqAndBagno"][i].SEQ + "' AND IL_BAGNO='" + pParams["SeqAndBagno"][i].BAGNO + "')");
 				}
 
 				_SQLCommand += " AND (" + _sql.join(" OR ") +") ";

@@ -621,6 +621,7 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
              * [movedData description] 移機
              * 新增ORDER_LIST
              * 複製ITEM_LIST
+             * 複製SPECIAL_GOODS
              * 更新PULL_GODDS
              */
             movedData : function(){
@@ -639,6 +640,7 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
                     _duplicatMasterValue = "",
                     _sourceMaster = [],
                     _seqAndBagno = [],
+                    _seq = [],
                     _bagno = [];
                 for(var i in _data){
 
@@ -679,9 +681,11 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
                     }
 
                     _seqAndBagno.push({
-                        IL_SEQ : _data[i].PG_SEQ,
-                        IL_BAGNO : _data[i].PG_BAGNO
+                        SEQ : _data[i].PG_SEQ,
+                        BAGNO : _data[i].PG_BAGNO
                     });
+
+                    // _seq.push(_data[i].PG_SEQ);
 
                     _bagno.push(_data[i].PG_BAGNO);
                 }
@@ -752,14 +756,14 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
 
                     var _d = new Date,
                         _tasks = [],
-                        _seq = $vm.profile.U_ID+selectedItem.OL_CO_CODE+$filter('date')(_d, 'yyyyMMddHHmmss');
+                        _newSeq = $vm.profile.U_ID+selectedItem.OL_CO_CODE+$filter('date')(_d, 'yyyyMMddHHmmss');
 
                     // 新增ORDER_LIST
                     _tasks.push({
                         crudType: 'Insert',
                         table: 18,
                         params: {
-                            OL_SEQ : _seq,
+                            OL_SEQ : _newSeq,
                             OL_CO_CODE : selectedItem.OL_CO_CODE,
                             OL_MASTER : selectedItem.OL_MASTER,
                             OL_FLIGHTNO : selectedItem.OL_FLIGHTNO,
@@ -777,7 +781,7 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
                             crudType: 'Insert',
                             table: 22,
                             params: {
-                                OE_SEQ : _seq,
+                                OE_SEQ : _newSeq,
                                 OE_TYPE : _oeType,
                                 OE_PRINCIPAL : selectedItem.OE_PRINCIPAL,
                                 OE_EDATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss'),
@@ -793,7 +797,19 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
                         queryname: 'CopyItemList',
                         table: 9,
                         params: {
-                            IL_SEQ : _seq,
+                            IL_SEQ : _newSeq,
+                            SeqAndBagno : _seqAndBagno
+                        }
+                    })
+
+                    // 複製SPECIAL_GOODS
+                    _tasks.push({
+                        crudType: 'Copy',
+                        querymain: 'assistantJobs',
+                        queryname: 'CopySpecialGoods',
+                        table: 20,
+                        params: {
+                            SPG_SEQ : _newSeq,
                             SeqAndBagno : _seqAndBagno
                         }
                     })
@@ -804,7 +820,7 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
                         table: 19,
                         params: {
                             PG_MOVED : true,
-                            PG_MOVED_SEQ : _seq
+                            PG_MOVED_SEQ : _newSeq
                         },
                         condition: {
                             PG_MASTER : selectedItem.OL_MASTER,
@@ -827,6 +843,7 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
             /**
              * [cancelMovedData description] 取消移機
              * 刪除ORDER_LIST
+             * 刪除SPECIAL_GOODS
              * 更新PULL_GOODS
              */
             cancelMovedData : function(){
@@ -890,6 +907,14 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
                             table: 18,
                             params: {
                                 OL_SEQ : _data[i].PG_MOVED_SEQ
+                            }
+                        });
+
+                        _tasks.push({
+                            crudType: 'Delete',
+                            table: 20,
+                            params: {
+                                SPG_SEQ : _data[i].PG_MOVED_SEQ
                             }
                         });
 

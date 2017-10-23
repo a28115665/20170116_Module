@@ -198,10 +198,12 @@ angular.module('app')
                         </div>');
     $templateCache.put('accessibilityToForUpload', '\
                         <div class="ui-grid-cell-contents text-center">\
-                            <span class="text-warning" ng-if="row.entity.OL_ILSTATUS == 1"> 報</span> \
-                            <span class="text-success" ng-if="row.entity.OL_ILSTATUS == 2"> 報</span> \
-                            <span class="text-warning" ng-if="row.entity.OL_FLLSTATUS == 1"> 銷</span> \
-                            <span class="text-success" ng-if="row.entity.OL_FLLSTATUS == 2"> 銷</span> \
+                            <!--<i class="fa fa-archive" ng-if="row.entity.OL_ILSTATUS == null || row.entity.OL_ILSTATUS == 0"> </i>--> \
+                            <i class="fa fa-archive text-warning" ng-if="row.entity.OL_ILSTATUS == 1"> </i> \
+                            <i class="fa fa-archive text-success" ng-if="row.entity.OL_ILSTATUS == 2"> </i> \
+                            <!--<i class="fa fa-plane" ng-if="row.entity.OL_FLLSTATUS == null || row.entity.OL_FLLSTATUS == 0"> </i>--> \
+                            <i class="fa fa-plane text-warning" ng-if="row.entity.OL_FLLSTATUS == 1"> </i> \
+                            <i class="fa fa-plane text-success" ng-if="row.entity.OL_FLLSTATUS == 2"> </i> \
                         </div>');
     $templateCache.put('accessibilityToDMCForLeader', '\
                         <div class="ui-grid-cell-contents text-center">\

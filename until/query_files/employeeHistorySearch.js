@@ -130,9 +130,15 @@ module.exports = function(pQueryname, pParams){
 				delete pParams["FINISH"];
 			}
 
-			if(pParams["BAGNO"] !== undefined){
+			if(pParams["BAGNO"] !== undefined && pParams["BAGNO_VIP"] == undefined){
 				_SQLCommand += " AND IL_BAGNO = '" + pParams["BAGNO"] + "'";
 				delete pParams["BAGNO"];
+				delete pParams["BAGNO_VIP"];
+			}
+			if(pParams["BAGNO"] !== undefined && pParams["BAGNO_VIP"] !== undefined){
+				_SQLCommand += " AND IL_BAGNO = '" + pParams["BAGNO"] + "-" + pParams["BAGNO_VIP"] + "'";
+				delete pParams["BAGNO"];
+				delete pParams["BAGNO_VIP"];
 			}
 			if(pParams["BAGNO_LAST5"] !== undefined){
 				_SQLCommand += " AND IL_BAGNO LIKE '%" + pParams["BAGNO_LAST5"] + "'";
