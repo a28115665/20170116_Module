@@ -16,14 +16,18 @@ var GetCargoAircraftTime = function (){
 	    path: "/MOTC/v2/Air/FIDS/Flight?$filter=(ArrivalAirportID%20eq%20%27TPE%27%20or%20ArrivalAirportID%20eq%20%27TSA%27)%20and%20(AirlineID%20eq%20%27B7%27%20or%20AirlineID%20eq%20%27BR%27%20or%20AirlineID%20eq%20%27CA%27%20or%20AirlineID%20eq%20%27CI%27%20or%20AirlineID%20eq%20%27CX%27%20or%20AirlineID%20eq%20%27CZ%27%20or%20AirlineID%20eq%20%27HX%27%20or%20AirlineID%20eq%20%27IT%27%20or%20AirlineID%20eq%20%27KA%27%20or%20AirlineID%20eq%20%27MU%27%20or%20AirlineID%20eq%20%27NH%27%20or%20AirlineID%20eq%20%27NX%27%20or%20AirlineID%20eq%20%27VJ%27%20or%20AirlineID%20eq%20%27ZH%27)&$top=500&$format=JSON",
 	    method: 'GET',
         headers: { 
-        	'Content-Type': 'application/json' 
+        	'Content-Type': 'application/json; charset=utf-8',
+			"Connection": 'keep-alive',
+			"Cache-Control": 'max-age=0',
+			"Upgrade-Insecure-Requests": 1,
+			"User-Agent": 'Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/62.0.3202.89 Safari/537.36 Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8'
         }
     };
 
     var Do = function(){
 
 		var post_req = http.request(post_options, function (post_res) {
-			// console.log(post_res);
+			// console.log(post_res.statusCode);
 			
 			if(post_res.statusCode == 200){
                 var content = '';

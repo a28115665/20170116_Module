@@ -5721,12 +5721,6 @@ angular.module('app.auth').factory('User', function ($http, $q, APP_CONFIG) {
     return UserModel;
 });
 
-
-"use strict";
-
-angular.module('app.calendar').factory('CalendarEvent', function($resource, APP_CONFIG){
-    return $resource( APP_CONFIG.apiRootUrl + '/events.json', {_id:'@id'})
-});
 'use strict';
 
 angular.module('app.calendar').controller('CalendarCtrl', function ($scope, $log, CalendarEvent) {
@@ -5949,6 +5943,12 @@ angular.module('app.calendar').directive('fullCalendar', function (CalendarEvent
             };
         }
     }
+});
+
+"use strict";
+
+angular.module('app.calendar').factory('CalendarEvent', function($resource, APP_CONFIG){
+    return $resource( APP_CONFIG.apiRootUrl + '/events.json', {_id:'@id'})
 });
 "use strict";
 
@@ -6613,10 +6613,10 @@ angular.module('app.concerns').controller('DailyAlertCtrl', function ($scope, $s
     
     var $vm = this,
         columnDefs = [
-            { name: 'IL_COUNT'      , displayName: '歷史歷程', width: 75, enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToHistoryCount') },
-            { name: 'BAN_TYPE'      , displayName: '名單類型', width: 100, filter: 
+            { name: 'IL_COUNT'          , displayName: '歷史歷程', width: 75, enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToHistoryCount') },
+            { name: 'BAN_TYPE'          , displayName: '名單類型', width: 100, filter: 
                 {
-                    term: "通報",
+                    term: null,
                     type: uiGridConstants.filter.SELECT,
                     selectOptions: [
                         {label:"通報", value:"通報"},
@@ -6624,51 +6624,62 @@ angular.module('app.concerns').controller('DailyAlertCtrl', function ($scope, $s
                     ]
                 }
             },
-            { name: 'OL_IMPORTDT'   ,  displayName: '進口日期', width: 80, cellFilter: 'dateFilter' },
-            { name: 'OL_CO_CODE'    ,  displayName: '行家', width: 80, cellFilter: 'compyFilter', filter: 
+            { name: 'IL_GETNAME'        , displayName: '收件人或公司', width: 100, headerCellClass: 'text-danger' },
+            { name: 'IL_GETNAME_NEW'    , displayName: '新收件人或公司', width: 100, headerCellClass: 'text-danger' },
+            { name: 'IL_GETADDRESS'     , displayName: '收件地址', width: 300, headerCellClass: 'text-danger' },
+            { name: 'IL_GETADDRESS_NEW' , displayName: '新收件地址', width: 300, headerCellClass: 'text-danger' },
+            { name: 'IL_GETTEL'         , displayName: '收件電話', width: 100, headerCellClass: 'text-danger' },
+            { name: 'OL_IMPORTDT'       , displayName: '進口日期', width: 80, cellFilter: 'dateFilter' },
+            { name: 'OL_CO_CODE'        , displayName: '行家', width: 80, cellFilter: 'compyFilter', filter: 
                 {
                     term: null,
                     type: uiGridConstants.filter.SELECT,
                     selectOptions: compy
                 }
             },
-            { name: 'OL_FLIGHTNO'   ,  displayName: '航班', width: 80 },
-            { name: 'OL_MASTER'     ,  displayName: '主號', width: 120 },
-            { name: 'OL_COUNTRY'    ,  displayName: '起運國別', width: 80 },
-            { name: 'IL_G1'         , displayName: '報關種類', width: 115 },
-            { name: 'IL_MERGENO'    , displayName: '併票號', width: 129 },
-            { name: 'IL_BAGNO'      , displayName: '袋號', width: 129 },
-            { name: 'IL_SMALLNO'    , displayName: '小號', width: 115 },
-            { name: 'IL_NATURE'     , displayName: '品名', width: 115 },
-            { name: 'IL_NATURE_NEW' , displayName: '新品名', width: 115 },
-            { name: 'IL_CTN'        , displayName: '件數', width: 115 },
-            { name: 'IL_PLACE'      , displayName: '產地', width: 115 },
-            { name: 'IL_NEWPLACE'   , displayName: '新產地', width: 115 },
-            { name: 'IL_WEIGHT'     , displayName: '重量', width: 115 },
-            { name: 'IL_WEIGHT_NEW' , displayName: '新重量', width: 115 },
-            { name: 'IL_PCS'        , displayName: '數量', width: 115 },
-            { name: 'IL_NEWPCS'     , displayName: '新數量', width: 115 },
-            { name: 'IL_UNIT'       , displayName: '單位', width: 115 },
-            { name: 'IL_NEWUNIT'    , displayName: '新單位', width: 115 },
-            { name: 'IL_GETNO'      , displayName: '收件者統編', width: 115 },
-            { name: 'IL_SENDNAME'   , displayName: '寄件人或公司', width: 115 },
-            { name: 'IL_NEWSENDNAME', displayName: '新寄件人或公司', width: 115 },
-            { name: 'IL_GETNAME'    , displayName: '收件人公司', width: 115 },
-            { name: 'IL_GETADDRESS' , displayName: '收件地址', width: 300 },
-            { name: 'IL_GETTEL'     , displayName: '收件電話', width: 115 },
-            { name: 'IL_UNIVALENT'  , displayName: '單價', width: 115 },
-            { name: 'IL_UNIVALENT_NEW', displayName: '新單價', width: 115 },
-            { name: 'IL_FINALCOST'  , displayName: '完稅價格', width: 115 },
-            { name: 'IL_TAX'        , displayName: '稅則', width: 115 },
-            { name: 'IL_TRCOM'      , displayName: '派送公司', width: 115 },
-            { name: 'IL_REMARK'     , displayName: '備註', width: 115 }
-        ];
+            { name: 'OL_FLIGHTNO'       , displayName: '航班', width: 80 },
+            { name: 'OL_MASTER'         , displayName: '主號', width: 120 },
+            { name: 'OL_COUNTRY'        , displayName: '起運國別', width: 80 },
+            { name: 'IL_G1'             , displayName: '報關種類', width: 100 },
+            { name: 'IL_MERGENO'        , displayName: '併票號', width: 80 },
+            { name: 'IL_BAGNO'          , displayName: '袋號', width: 80 },
+            { name: 'IL_SMALLNO'        , displayName: '小號', width: 110 },
+            { name: 'IL_NATURE'         , displayName: '品名', width: 120, cellTooltip: function (row, col) 
+                {
+                    return row.entity.IL_NATURE
+                } 
+            },
+            { name: 'IL_NATURE_NEW'     , displayName: '新品名', width: 120, cellTooltip: function (row, col) 
+                {
+                    return row.entity.IL_NATURE_NEW
+                } 
+            },
+            { name: 'IL_CTN'            , displayName: '件數', width: 50 },
+            { name: 'IL_PLACE'          , displayName: '產地', width: 50 },
+            { name: 'IL_NEWPLACE'       , displayName: '新產地', width: 70 },
+            { name: 'IL_WEIGHT'         , displayName: '重量', width: 70 },
+            { name: 'IL_WEIGHT_NEW'     , displayName: '新重量', width: 70 },
+            { name: 'IL_PCS'            , displayName: '數量', width: 70 },
+            { name: 'IL_NEWPCS'         , displayName: '新數量', width: 70 },
+            { name: 'IL_UNIVALENT'      , displayName: '單價', width: 100 },
+            { name: 'IL_UNIVALENT_NEW'  , displayName: '新單價', width: 100 },
+            { name: 'IL_FINALCOST'      , displayName: '完稅價格', width: 100 },
+            { name: 'IL_UNIT'           , displayName: '單位', width: 70 },
+            { name: 'IL_NEWUNIT'        , displayName: '新單位', width: 70 },
+            { name: 'IL_GETNO'          , displayName: '收件者統編', width: 100 },
+            { name: 'IL_SENDNAME'       , displayName: '寄件人', width: 100 },
+            { name: 'IL_NEWSENDNAME'    , displayName: '新寄件人', width: 100 },
+            { name: 'IL_TAX'            , displayName: '稅費歸屬', width: 100 },
+            { name: 'IL_TRCOM'          , displayName: '派送公司', width: 100 },
+            { name: 'IL_REMARK'         , displayName: '備註', width: 100 }
+        ],
+        curDate = new Date();
 
 	angular.extend(this, {
         Init : function(){
             $scope.ShowTabs = true;
-            $vm.IMPORTDT_FROM = $filter('date')(new Date(), 'yyyy-MM-dd') + ' 00:00:00';
-            $vm.IMPORTDT_TOXX = $filter('date')(new Date(), 'yyyy-MM-dd') + ' 23:59:59';
+            $vm.IMPORTDT_FROM = $filter('date')(new Date(curDate.getTime() - 24*60*60*1000), 'yyyy-MM-dd') + ' 00:00:00';
+            $vm.IMPORTDT_TOXX = $filter('date')(new Date(curDate.getTime() + 24*60*60*1000), 'yyyy-MM-dd') + ' 23:59:59';
             $vm.LoadData();
             LoadILCount();
         },
@@ -6678,7 +6689,7 @@ angular.module('app.concerns').controller('DailyAlertCtrl', function ($scope, $s
             return pTabID == $vm.defaultTab ? 'active' : '';
         },
         LoadData : function(){
-            console.log($vm.defaultTab);
+            // console.log($vm.defaultTab);
             switch($vm.defaultTab){
                 case 'hr1':
                     LoadCaseA();
@@ -6691,6 +6702,18 @@ angular.module('app.concerns').controller('DailyAlertCtrl', function ($scope, $s
                     break;
                 case 'hr4':
                     LoadCaseD();
+                    break;
+                case 'hr5':
+                    LoadCaseE();
+                    break;
+                case 'hr6':
+                    LoadCaseF();
+                    break;
+                case 'hr7':
+                    LoadCaseG();
+                    break;
+                case 'hr8':
+                    LoadCaseH();
                     break;
             }
         },
@@ -6787,6 +6810,58 @@ angular.module('app.concerns').controller('DailyAlertCtrl', function ($scope, $s
                 $vm.caseDGridApi = gridApi;
             }
         },
+        caseEOptions : {
+            data:  '$vm.caseEData',
+            columnDefs: columnDefs,
+            enableFiltering: true,
+            enableSorting: true,
+            enableColumnMenus: false,
+            // enableVerticalScrollbar: false,
+            paginationPageSizes: [10, 25, 50, 100],
+            paginationPageSize: 100,
+            onRegisterApi: function(gridApi){
+                $vm.caseDGridApi = gridApi;
+            }
+        },
+        caseFOptions : {
+            data:  '$vm.caseFData',
+            columnDefs: columnDefs,
+            enableFiltering: true,
+            enableSorting: true,
+            enableColumnMenus: false,
+            // enableVerticalScrollbar: false,
+            paginationPageSizes: [10, 25, 50, 100],
+            paginationPageSize: 100,
+            onRegisterApi: function(gridApi){
+                $vm.caseDGridApi = gridApi;
+            }
+        },
+        caseGOptions : {
+            data:  '$vm.caseGData',
+            columnDefs: columnDefs,
+            enableFiltering: true,
+            enableSorting: true,
+            enableColumnMenus: false,
+            // enableVerticalScrollbar: false,
+            paginationPageSizes: [10, 25, 50, 100],
+            paginationPageSize: 100,
+            onRegisterApi: function(gridApi){
+                $vm.caseDGridApi = gridApi;
+            }
+        },
+        caseHOptions : {
+            data:  '$vm.caseHData',
+            columnDefs: columnDefs,
+            enableFiltering: true,
+            enableSorting: true,
+            enableColumnMenus: false,
+            // enableVerticalScrollbar: false,
+            paginationPageSizes: [10, 25, 50, 100],
+            paginationPageSize: 100,
+            onRegisterApi: function(gridApi){
+                $vm.caseDGridApi = gridApi;
+            }
+        },
         ExportExcel : function(){
 
             var _exportName = null,
@@ -6808,6 +6883,22 @@ angular.module('app.concerns').controller('DailyAlertCtrl', function ($scope, $s
                 case 'hr4':
                     _exportName = $filter('date')(new Date(), 'yyyyMMdd') + ' ' + $scope.getWord($state.current.data.title) + ' D類型';
                     _queryname = "SelectCaseD";
+                    break;
+                case 'hr5':
+                    _exportName = $filter('date')(new Date(), 'yyyyMMdd') + ' ' + $scope.getWord($state.current.data.title) + ' E類型';
+                    _queryname = "SelectCaseE";
+                    break;
+                case 'hr6':
+                    _exportName = $filter('date')(new Date(), 'yyyyMMdd') + ' ' + $scope.getWord($state.current.data.title) + ' F類型';
+                    _queryname = "SelectCaseF";
+                    break;
+                case 'hr7':
+                    _exportName = $filter('date')(new Date(), 'yyyyMMdd') + ' ' + $scope.getWord($state.current.data.title) + ' G類型';
+                    _queryname = "SelectCaseG";
+                    break;
+                case 'hr8':
+                    _exportName = $filter('date')(new Date(), 'yyyyMMdd') + ' ' + $scope.getWord($state.current.data.title) + ' H類型';
+                    _queryname = "SelectCaseH";
                     break;
             }
 
@@ -6871,6 +6962,42 @@ angular.module('app.concerns').controller('DailyAlertCtrl', function ($scope, $s
                 crudType: 'Select',
                 querymain: 'dailyAlert',
                 queryname: 'SelectILCount',
+                params: {
+                    IMPORTDT_FROM: $vm.IMPORTDT_FROM,
+                    IMPORTDT_TOXX: $vm.IMPORTDT_TOXX
+                }
+            },
+            {
+                crudType: 'Select',
+                querymain: 'dailyAlert',
+                queryname: 'SelectCaseECount',
+                params: {
+                    IMPORTDT_FROM: $vm.IMPORTDT_FROM,
+                    IMPORTDT_TOXX: $vm.IMPORTDT_TOXX
+                }
+            },
+            {
+                crudType: 'Select',
+                querymain: 'dailyAlert',
+                queryname: 'SelectCaseFCount',
+                params: {
+                    IMPORTDT_FROM: $vm.IMPORTDT_FROM,
+                    IMPORTDT_TOXX: $vm.IMPORTDT_TOXX
+                }
+            },
+            {
+                crudType: 'Select',
+                querymain: 'dailyAlert',
+                queryname: 'SelectCaseGCount',
+                params: {
+                    IMPORTDT_FROM: $vm.IMPORTDT_FROM,
+                    IMPORTDT_TOXX: $vm.IMPORTDT_TOXX
+                }
+            },
+            {
+                crudType: 'Select',
+                querymain: 'dailyAlert',
+                queryname: 'SelectCaseHCount',
                 params: {
                     IMPORTDT_FROM: $vm.IMPORTDT_FROM,
                     IMPORTDT_TOXX: $vm.IMPORTDT_TOXX
@@ -6943,6 +7070,62 @@ angular.module('app.concerns').controller('DailyAlertCtrl', function ($scope, $s
             $vm.caseDData = res["returnData"];
         }); 
     }
+
+    function LoadCaseE(){
+        RestfulApi.SearchMSSQLData({
+            querymain: 'dailyAlert',
+            queryname: 'SelectCaseE',
+            params: {
+                IMPORTDT_FROM: $vm.IMPORTDT_FROM,
+                IMPORTDT_TOXX: $vm.IMPORTDT_TOXX
+            }
+        }).then(function (res){
+            console.log(res["returnData"]);
+            $vm.caseEData = res["returnData"];
+        }); 
+    }
+
+    function LoadCaseF(){
+        RestfulApi.SearchMSSQLData({
+            querymain: 'dailyAlert',
+            queryname: 'SelectCaseF',
+            params: {
+                IMPORTDT_FROM: $vm.IMPORTDT_FROM,
+                IMPORTDT_TOXX: $vm.IMPORTDT_TOXX
+            }
+        }).then(function (res){
+            console.log(res["returnData"]);
+            $vm.caseFData = res["returnData"];
+        }); 
+    }
+
+    function LoadCaseG(){
+        RestfulApi.SearchMSSQLData({
+            querymain: 'dailyAlert',
+            queryname: 'SelectCaseG',
+            params: {
+                IMPORTDT_FROM: $vm.IMPORTDT_FROM,
+                IMPORTDT_TOXX: $vm.IMPORTDT_TOXX
+            }
+        }).then(function (res){
+            console.log(res["returnData"]);
+            $vm.caseGData = res["returnData"];
+        }); 
+    }
+
+    function LoadCaseH(){
+        RestfulApi.SearchMSSQLData({
+            querymain: 'dailyAlert',
+            queryname: 'SelectCaseH',
+            params: {
+                IMPORTDT_FROM: $vm.IMPORTDT_FROM,
+                IMPORTDT_TOXX: $vm.IMPORTDT_TOXX
+            }
+        }).then(function (res){
+            console.log(res["returnData"]);
+            $vm.caseHData = res["returnData"];
+        }); 
+    }
 })
 .controller('ShowHistoryCountModalInstanceCtrl', function ($uibModalInstance, item, type, RestfulApi, uiGridConstants, compy, time) {
     var $ctrl = this;
@@ -6954,44 +7137,54 @@ angular.module('app.concerns').controller('DailyAlertCtrl', function ($scope, $s
     $ctrl.mdDataOption = {
         data:  '$ctrl.mdData',
         columnDefs: [
-            { name: 'OL_IMPORTDT'            ,  displayName: '進口日期', width: 80, cellFilter: 'dateFilter' },
-            { name: 'OL_CO_CODE'             ,  displayName: '行家', width: 80, cellFilter: 'compyFilter', filter: 
+            { name: 'IL_GETNAME'        , displayName: '收件人或公司', width: 100, headerCellClass: 'text-danger' },
+            { name: 'IL_GETNAME_NEW'    , displayName: '新收件人或公司', width: 100, headerCellClass: 'text-danger' },
+            { name: 'IL_GETADDRESS'     , displayName: '收件地址', width: 300, headerCellClass: 'text-danger' },
+            { name: 'IL_GETADDRESS_NEW' , displayName: '新收件地址', width: 300, headerCellClass: 'text-danger' },
+            { name: 'IL_GETTEL'         , displayName: '收件電話', width: 100, headerCellClass: 'text-danger' },
+            { name: 'OL_IMPORTDT'       , displayName: '進口日期', width: 80, cellFilter: 'dateFilter' },
+            { name: 'OL_CO_CODE'        , displayName: '行家', width: 80, cellFilter: 'compyFilter', filter: 
                 {
                     term: null,
                     type: uiGridConstants.filter.SELECT,
                     selectOptions: compy
                 }
             },
-            { name: 'OL_FLIGHTNO'            ,  displayName: '航班', width: 80 },
-            { name: 'OL_MASTER'              ,  displayName: '主號', width: 120 },
-            { name: 'OL_COUNTRY'             ,  displayName: '起運國別', width: 80 },
-            { name: 'IL_G1'         , displayName: '報關種類', width: 115 },
-            { name: 'IL_MERGENO'    , displayName: '併票號', width: 129 },
-            { name: 'IL_BAGNO'      , displayName: '袋號', width: 129 },
-            { name: 'IL_SMALLNO'    , displayName: '小號', width: 115 },
-            { name: 'IL_NATURE'     , displayName: '品名', width: 115 },
-            { name: 'IL_NATURE_NEW' , displayName: '新品名', width: 115 },
-            { name: 'IL_CTN'        , displayName: '件數', width: 115 },
-            { name: 'IL_PLACE'      , displayName: '產地', width: 115 },
-            { name: 'IL_NEWPLACE'   , displayName: '新產地', width: 115 },
-            { name: 'IL_WEIGHT'     , displayName: '重量', width: 115 },
-            { name: 'IL_WEIGHT_NEW' , displayName: '新重量', width: 115 },
-            { name: 'IL_PCS'        , displayName: '數量', width: 115 },
-            { name: 'IL_NEWPCS'     , displayName: '新數量', width: 115 },
-            { name: 'IL_UNIT'       , displayName: '單位', width: 115 },
-            { name: 'IL_NEWUNIT'    , displayName: '新單位', width: 115 },
-            { name: 'IL_GETNO'      , displayName: '收件者統編', width: 115 },
-            { name: 'IL_SENDNAME'   , displayName: '寄件人或公司', width: 115 },
-            { name: 'IL_NEWSENDNAME', displayName: '新寄件人或公司', width: 115 },
-            { name: 'IL_GETNAME'    , displayName: '收件人公司', width: 115 },
-            { name: 'IL_GETADDRESS' , displayName: '收件地址', width: 300 },
-            { name: 'IL_GETTEL'     , displayName: '收件電話', width: 115 },
-            { name: 'IL_UNIVALENT'  , displayName: '單價', width: 115 },
-            { name: 'IL_UNIVALENT_NEW', displayName: '新單價', width: 115 },
-            { name: 'IL_FINALCOST'  , displayName: '完稅價格', width: 115 },
-            { name: 'IL_TAX'        , displayName: '稅則', width: 115 },
-            { name: 'IL_TRCOM'      , displayName: '派送公司', width: 115 },
-            { name: 'IL_REMARK'     , displayName: '備註', width: 115 }
+            { name: 'OL_FLIGHTNO'       , displayName: '航班', width: 80 },
+            { name: 'OL_MASTER'         , displayName: '主號', width: 120 },
+            { name: 'OL_COUNTRY'        , displayName: '起運國別', width: 80 },
+            { name: 'IL_G1'             , displayName: '報關種類', width: 100 },
+            { name: 'IL_MERGENO'        , displayName: '併票號', width: 80 },
+            { name: 'IL_BAGNO'          , displayName: '袋號', width: 80 },
+            { name: 'IL_SMALLNO'        , displayName: '小號', width: 110 },
+            { name: 'IL_NATURE'         , displayName: '品名', width: 120, cellTooltip: function (row, col) 
+                {
+                    return row.entity.IL_NATURE
+                } 
+            },
+            { name: 'IL_NATURE_NEW'     , displayName: '新品名', width: 120, cellTooltip: function (row, col) 
+                {
+                    return row.entity.IL_NATURE
+                } 
+            },
+            { name: 'IL_CTN'            , displayName: '件數', width: 50 },
+            { name: 'IL_PLACE'          , displayName: '產地', width: 50 },
+            { name: 'IL_NEWPLACE'       , displayName: '新產地', width: 70 },
+            { name: 'IL_WEIGHT'         , displayName: '重量', width: 70 },
+            { name: 'IL_WEIGHT_NEW'     , displayName: '新重量', width: 70 },
+            { name: 'IL_PCS'            , displayName: '數量', width: 70 },
+            { name: 'IL_NEWPCS'         , displayName: '新數量', width: 70 },
+            { name: 'IL_UNIVALENT'      , displayName: '單價', width: 100 },
+            { name: 'IL_UNIVALENT_NEW'  , displayName: '新單價', width: 100 },
+            { name: 'IL_FINALCOST'      , displayName: '完稅價格', width: 100 },
+            { name: 'IL_UNIT'           , displayName: '單位', width: 70 },
+            { name: 'IL_NEWUNIT'        , displayName: '新單位', width: 70 },
+            { name: 'IL_GETNO'          , displayName: '收件者統編', width: 100 },
+            { name: 'IL_SENDNAME'       , displayName: '寄件人', width: 100 },
+            { name: 'IL_NEWSENDNAME'    , displayName: '新寄件人', width: 100 },
+            { name: 'IL_TAX'            , displayName: '稅費歸屬', width: 100 },
+            { name: 'IL_TRCOM'          , displayName: '派送公司', width: 100 },
+            { name: 'IL_REMARK'         , displayName: '備註', width: 100 }
         ],
         enableFiltering: true,
         enableSorting: true,
@@ -7037,6 +7230,30 @@ angular.module('app.concerns').controller('DailyAlertCtrl', function ($scope, $s
                     IMPORTDT_FROM: time.IMPORTDT_FROM
                 };
                 break;
+            case 'hr5':
+                _params = {
+                    IL_GETNAME : item.IL_GETNAME,
+                    IMPORTDT_FROM: time.IMPORTDT_FROM
+                };
+                break;
+            case 'hr6':
+                _params = {
+                    IL_GETNAME_NEW : item.IL_GETNAME_NEW,
+                    IMPORTDT_FROM: time.IMPORTDT_FROM
+                };
+                break;
+            case 'hr7':
+                _params = {
+                    IL_GETADDRESS : item.IL_GETADDRESS,
+                    IMPORTDT_FROM: time.IMPORTDT_FROM
+                };
+                break;
+            case 'hr8':
+                _params = {
+                    IL_GETADDRESS_NEW : item.IL_GETADDRESS_NEW,
+                    IMPORTDT_FROM: time.IMPORTDT_FROM
+                };
+                break;
         }
 
         RestfulApi.SearchMSSQLData({
@@ -7056,32 +7273,6 @@ angular.module('app.concerns').controller('DailyAlertCtrl', function ($scope, $s
     $ctrl.cancel = function() {
         $uibModalInstance.dismiss('cancel');
     };
-});
-"use strict";
-
-angular.module('app').factory('Project', function($http, APP_CONFIG){
-    return {
-        list: $http.get(APP_CONFIG.apiRootUrl + '/projects.json')
-    }
-});
-"use strict";
-
-angular.module('app').directive('recentProjects', function(Project){
-    return {
-        restrict: "EA",
-        replace: true,
-        templateUrl: "app/dashboard/projects/recent-projects.tpl.html",
-        scope: true,
-        link: function(scope, element){
-
-            Project.list.then(function(response){
-                scope.projects = response.data;
-            });
-            scope.clearProjects = function(){
-                scope.projects = [];
-            }
-        }
-    }
 });
 "use strict";	
 
@@ -7205,38 +7396,45 @@ angular.module('app').factory('activityService', function($http, $log, APP_CONFI
 		}
 	}
 });
+"use strict";
+
+angular.module('app').factory('Project', function($http, APP_CONFIG){
+    return {
+        list: $http.get(APP_CONFIG.apiRootUrl + '/projects.json')
+    }
+});
 angular.module("app").run(["$templateCache", function($templateCache) {$templateCache.put("app/app/dashboard/live-feeds.tpl.html","<div jarvis-widget id=\"live-feeds-widget\" data-widget-togglebutton=\"false\" data-widget-editbutton=\"false\"\r\n     data-widget-fullscreenbutton=\"false\" data-widget-colorbutton=\"false\" data-widget-deletebutton=\"false\">\r\n<!-- widget options:\r\nusage: <div class=\"jarviswidget\" id=\"wid-id-0\" data-widget-editbutton=\"false\">\r\n\r\ndata-widget-colorbutton=\"false\"\r\ndata-widget-editbutton=\"false\"\r\ndata-widget-togglebutton=\"false\"\r\ndata-widget-deletebutton=\"false\"\r\ndata-widget-fullscreenbutton=\"false\"\r\ndata-widget-custombutton=\"false\"\r\ndata-widget-collapsed=\"true\"\r\ndata-widget-sortable=\"false\"\r\n\r\n-->\r\n<header>\r\n    <span class=\"widget-icon\"> <i class=\"glyphicon glyphicon-stats txt-color-darken\"></i> </span>\r\n\r\n    <h2>Live Feeds </h2>\r\n\r\n    <ul class=\"nav nav-tabs pull-right in\" id=\"myTab\">\r\n        <li class=\"active\">\r\n            <a data-toggle=\"tab\" href=\"#s1\"><i class=\"fa fa-clock-o\"></i> <span class=\"hidden-mobile hidden-tablet\">Live Stats</span></a>\r\n        </li>\r\n\r\n        <li>\r\n            <a data-toggle=\"tab\" href=\"#s2\"><i class=\"fa fa-facebook\"></i> <span class=\"hidden-mobile hidden-tablet\">Social Network</span></a>\r\n        </li>\r\n\r\n        <li>\r\n            <a data-toggle=\"tab\" href=\"#s3\"><i class=\"fa fa-dollar\"></i> <span class=\"hidden-mobile hidden-tablet\">Revenue</span></a>\r\n        </li>\r\n    </ul>\r\n\r\n</header>\r\n\r\n<!-- widget div-->\r\n<div class=\"no-padding\">\r\n\r\n    <div class=\"widget-body\">\r\n        <!-- content -->\r\n        <div id=\"myTabContent\" class=\"tab-content\">\r\n            <div class=\"tab-pane fade active in padding-10 no-padding-bottom\" id=\"s1\">\r\n                <div class=\"row no-space\">\r\n                    <div class=\"col-xs-12 col-sm-12 col-md-8 col-lg-8\">\r\n														<span class=\"demo-liveupdate-1\"> <span\r\n                                                                class=\"onoffswitch-title\">Live switch</span> <span\r\n                                                                class=\"onoffswitch\">\r\n																<input type=\"checkbox\" name=\"start_interval\" ng-model=\"autoUpdate\"\r\n                                                                       class=\"onoffswitch-checkbox\" id=\"start_interval\">\r\n																<label class=\"onoffswitch-label\" for=\"start_interval\">\r\n                                                                    <span class=\"onoffswitch-inner\"\r\n                                                                          data-swchon-text=\"ON\"\r\n                                                                          data-swchoff-text=\"OFF\"></span>\r\n                                                                    <span class=\"onoffswitch-switch\"></span>\r\n                                                                </label> </span> </span>\r\n\r\n                        <div id=\"updating-chart\" class=\"chart-large txt-color-blue\" flot-basic flot-data=\"liveStats\" flot-options=\"liveStatsOptions\"></div>\r\n\r\n                    </div>\r\n                    <div class=\"col-xs-12 col-sm-12 col-md-4 col-lg-4 show-stats\">\r\n\r\n                        <div class=\"row\">\r\n                            <div class=\"col-xs-6 col-sm-6 col-md-12 col-lg-12\"><span class=\"text\"> My Tasks <span\r\n                                    class=\"pull-right\">130/200</span> </span>\r\n\r\n                                <div class=\"progress\">\r\n                                    <div class=\"progress-bar bg-color-blueDark\" style=\"width: 65%;\"></div>\r\n                                </div>\r\n                            </div>\r\n                            <div class=\"col-xs-6 col-sm-6 col-md-12 col-lg-12\"><span class=\"text\"> Transfered <span\r\n                                    class=\"pull-right\">440 GB</span> </span>\r\n\r\n                                <div class=\"progress\">\r\n                                    <div class=\"progress-bar bg-color-blue\" style=\"width: 34%;\"></div>\r\n                                </div>\r\n                            </div>\r\n                            <div class=\"col-xs-6 col-sm-6 col-md-12 col-lg-12\"><span class=\"text\"> Bugs Squashed<span\r\n                                    class=\"pull-right\">77%</span> </span>\r\n\r\n                                <div class=\"progress\">\r\n                                    <div class=\"progress-bar bg-color-blue\" style=\"width: 77%;\"></div>\r\n                                </div>\r\n                            </div>\r\n                            <div class=\"col-xs-6 col-sm-6 col-md-12 col-lg-12\"><span class=\"text\"> User Testing <span\r\n                                    class=\"pull-right\">7 Days</span> </span>\r\n\r\n                                <div class=\"progress\">\r\n                                    <div class=\"progress-bar bg-color-greenLight\" style=\"width: 84%;\"></div>\r\n                                </div>\r\n                            </div>\r\n\r\n                            <span class=\"show-stat-buttons\"> <span class=\"col-xs-12 col-sm-6 col-md-6 col-lg-6\"> <a\r\n                                    href-void class=\"btn btn-default btn-block hidden-xs\">Generate PDF</a> </span> <span\r\n                                    class=\"col-xs-12 col-sm-6 col-md-6 col-lg-6\"> <a href-void\r\n                                                                                     class=\"btn btn-default btn-block hidden-xs\">Report\r\n                                a bug</a> </span> </span>\r\n\r\n                        </div>\r\n\r\n                    </div>\r\n                </div>\r\n\r\n                <div class=\"show-stat-microcharts\" data-sparkline-container data-easy-pie-chart-container>\r\n                    <div class=\"col-xs-12 col-sm-3 col-md-3 col-lg-3\">\r\n\r\n                        <div class=\"easy-pie-chart txt-color-orangeDark\" data-percent=\"33\" data-pie-size=\"50\">\r\n                            <span class=\"percent percent-sign\">35</span>\r\n                        </div>\r\n                        <span class=\"easy-pie-title\"> Server Load <i class=\"fa fa-caret-up icon-color-bad\"></i> </span>\r\n                        <ul class=\"smaller-stat hidden-sm pull-right\">\r\n                            <li>\r\n                                <span class=\"label bg-color-greenLight\"><i class=\"fa fa-caret-up\"></i> 97%</span>\r\n                            </li>\r\n                            <li>\r\n                                <span class=\"label bg-color-blueLight\"><i class=\"fa fa-caret-down\"></i> 44%</span>\r\n                            </li>\r\n                        </ul>\r\n                        <div class=\"sparkline txt-color-greenLight hidden-sm hidden-md pull-right\"\r\n                             data-sparkline-type=\"line\" data-sparkline-height=\"33px\" data-sparkline-width=\"70px\"\r\n                             data-fill-color=\"transparent\">\r\n                            130, 187, 250, 257, 200, 210, 300, 270, 363, 247, 270, 363, 247\r\n                        </div>\r\n                    </div>\r\n                    <div class=\"col-xs-12 col-sm-3 col-md-3 col-lg-3\">\r\n                        <div class=\"easy-pie-chart txt-color-greenLight\" data-percent=\"78.9\" data-pie-size=\"50\">\r\n                            <span class=\"percent percent-sign\">78.9 </span>\r\n                        </div>\r\n                        <span class=\"easy-pie-title\"> Disk Space <i class=\"fa fa-caret-down icon-color-good\"></i></span>\r\n                        <ul class=\"smaller-stat hidden-sm pull-right\">\r\n                            <li>\r\n                                <span class=\"label bg-color-blueDark\"><i class=\"fa fa-caret-up\"></i> 76%</span>\r\n                            </li>\r\n                            <li>\r\n                                <span class=\"label bg-color-blue\"><i class=\"fa fa-caret-down\"></i> 3%</span>\r\n                            </li>\r\n                        </ul>\r\n                        <div class=\"sparkline txt-color-blue hidden-sm hidden-md pull-right\" data-sparkline-type=\"line\"\r\n                             data-sparkline-height=\"33px\" data-sparkline-width=\"70px\" data-fill-color=\"transparent\">\r\n                            257, 200, 210, 300, 270, 363, 130, 187, 250, 247, 270, 363, 247\r\n                        </div>\r\n                    </div>\r\n                    <div class=\"col-xs-12 col-sm-3 col-md-3 col-lg-3\">\r\n                        <div class=\"easy-pie-chart txt-color-blue\" data-percent=\"23\" data-pie-size=\"50\">\r\n                            <span class=\"percent percent-sign\">23 </span>\r\n                        </div>\r\n                        <span class=\"easy-pie-title\"> Transfered <i class=\"fa fa-caret-up icon-color-good\"></i></span>\r\n                        <ul class=\"smaller-stat hidden-sm pull-right\">\r\n                            <li>\r\n                                <span class=\"label bg-color-darken\">10GB</span>\r\n                            </li>\r\n                            <li>\r\n                                <span class=\"label bg-color-blueDark\"><i class=\"fa fa-caret-up\"></i> 10%</span>\r\n                            </li>\r\n                        </ul>\r\n                        <div class=\"sparkline txt-color-darken hidden-sm hidden-md pull-right\"\r\n                             data-sparkline-type=\"line\" data-sparkline-height=\"33px\" data-sparkline-width=\"70px\"\r\n                             data-fill-color=\"transparent\">\r\n                            200, 210, 363, 247, 300, 270, 130, 187, 250, 257, 363, 247, 270\r\n                        </div>\r\n                    </div>\r\n                    <div class=\"col-xs-12 col-sm-3 col-md-3 col-lg-3\">\r\n                        <div class=\"easy-pie-chart txt-color-darken\" data-percent=\"36\" data-pie-size=\"50\">\r\n                            <span class=\"percent degree-sign\">36 <i class=\"fa fa-caret-up\"></i></span>\r\n                        </div>\r\n                        <span class=\"easy-pie-title\"> Temperature <i\r\n                                class=\"fa fa-caret-down icon-color-good\"></i></span>\r\n                        <ul class=\"smaller-stat hidden-sm pull-right\">\r\n                            <li>\r\n                                <span class=\"label bg-color-red\"><i class=\"fa fa-caret-up\"></i> 124</span>\r\n                            </li>\r\n                            <li>\r\n                                <span class=\"label bg-color-blue\"><i class=\"fa fa-caret-down\"></i> 40 F</span>\r\n                            </li>\r\n                        </ul>\r\n                        <div class=\"sparkline txt-color-red hidden-sm hidden-md pull-right\" data-sparkline-type=\"line\"\r\n                             data-sparkline-height=\"33px\" data-sparkline-width=\"70px\" data-fill-color=\"transparent\">\r\n                            2700, 3631, 2471, 2700, 3631, 2471, 1300, 1877, 2500, 2577, 2000, 2100, 3000\r\n                        </div>\r\n                    </div>\r\n                </div>\r\n\r\n            </div>\r\n            <!-- end s1 tab pane -->\r\n\r\n            <div class=\"tab-pane fade\" id=\"s2\">\r\n                <div class=\"widget-body-toolbar bg-color-white\">\r\n\r\n                    <form class=\"form-inline\" role=\"form\">\r\n\r\n                        <div class=\"form-group\">\r\n                            <label class=\"sr-only\" for=\"s123\">Show From</label>\r\n                            <input type=\"email\" class=\"form-control input-sm\" id=\"s123\" placeholder=\"Show From\">\r\n                        </div>\r\n                        <div class=\"form-group\">\r\n                            <input type=\"email\" class=\"form-control input-sm\" id=\"s124\" placeholder=\"To\">\r\n                        </div>\r\n\r\n                        <div class=\"btn-group hidden-phone pull-right\">\r\n                            <a class=\"btn dropdown-toggle btn-xs btn-default\" data-toggle=\"dropdown\"><i\r\n                                    class=\"fa fa-cog\"></i> More <span class=\"caret\"> </span> </a>\r\n                            <ul class=\"dropdown-menu pull-right\">\r\n                                <li>\r\n                                    <a href-void><i class=\"fa fa-file-text-alt\"></i> Export to PDF</a>\r\n                                </li>\r\n                                <li>\r\n                                    <a href-void><i class=\"fa fa-question-sign\"></i> Help</a>\r\n                                </li>\r\n                            </ul>\r\n                        </div>\r\n\r\n                    </form>\r\n\r\n                </div>\r\n                <div class=\"padding-10\">\r\n                    <div id=\"statsChart\" class=\"chart-large has-legend-unique\" flot-basic flot-data=\"statsData\" flot-options=\"statsDisplayOptions\"></div>\r\n                </div>\r\n\r\n            </div>\r\n            <!-- end s2 tab pane -->\r\n\r\n            <div class=\"tab-pane fade\" id=\"s3\">\r\n\r\n                <div class=\"widget-body-toolbar bg-color-white smart-form\" id=\"rev-toggles\">\r\n\r\n                    <div class=\"inline-group\">\r\n\r\n                        <label for=\"gra-0\" class=\"checkbox\">\r\n                            <input type=\"checkbox\" id=\"gra-0\" ng-model=\"targetsShow\">\r\n                            <i></i> Target </label>\r\n                        <label for=\"gra-1\" class=\"checkbox\">\r\n                            <input type=\"checkbox\" id=\"gra-1\" ng-model=\"actualsShow\">\r\n                            <i></i> Actual </label>\r\n                        <label for=\"gra-2\" class=\"checkbox\">\r\n                            <input type=\"checkbox\" id=\"gra-2\" ng-model=\"signupsShow\">\r\n                            <i></i> Signups </label>\r\n                    </div>\r\n\r\n                    <div class=\"btn-group hidden-phone pull-right\">\r\n                        <a class=\"btn dropdown-toggle btn-xs btn-default\" data-toggle=\"dropdown\"><i\r\n                                class=\"fa fa-cog\"></i> More <span class=\"caret\"> </span> </a>\r\n                        <ul class=\"dropdown-menu pull-right\">\r\n                            <li>\r\n                                <a href-void><i class=\"fa fa-file-text-alt\"></i> Export to PDF</a>\r\n                            </li>\r\n                            <li>\r\n                                <a href-void><i class=\"fa fa-question-sign\"></i> Help</a>\r\n                            </li>\r\n                        </ul>\r\n                    </div>\r\n\r\n                </div>\r\n\r\n                <div class=\"padding-10\">\r\n                    <div id=\"flotcontainer\" class=\"chart-large has-legend-unique\" flot-basic flot-data=\"revenewData\" flot-options=\"revenewDisplayOptions\" ></div>\r\n                </div>\r\n            </div>\r\n            <!-- end s3 tab pane -->\r\n        </div>\r\n\r\n        <!-- end content -->\r\n    </div>\r\n\r\n</div>\r\n<!-- end widget div -->\r\n</div>\r\n");
 $templateCache.put("app/app/layout/layout.tpl.html","<!-- HEADER -->\r\n<div data-smart-include=\"app/layout/partials/header.tpl.html\" class=\"placeholder-header\"></div>\r\n<!-- END HEADER -->\r\n\r\n\r\n<!-- Left panel : Navigation area -->\r\n<!-- Note: This width of the aside area can be adjusted through LESS variables -->\r\n<div data-smart-include=\"app/layout/partials/navigation.tpl.html\" class=\"placeholder-left-panel\"></div>\r\n\r\n<!-- END NAVIGATION -->\r\n\r\n<!-- MAIN PANEL -->\r\n<div id=\"main\" role=\"main\">\r\n    <!-- 小齒輪 -->\r\n    <!-- <demo-states></demo-states> -->\r\n\r\n    <!-- RIBBON -->\r\n    <div id=\"ribbon\">\r\n\r\n		<span class=\"ribbon-button-alignment\">\r\n			<span id=\"refresh\" class=\"btn btn-ribbon\" reset-widgets\r\n                  tooltip-placement=\"bottom\"\r\n                  smart-tooltip-html=\"<i class=\'text-warning fa fa-warning\'></i> Warning! This will reset all your widget settings.\">\r\n				<i class=\"fa fa-refresh\"></i>\r\n			</span>\r\n		</span>\r\n\r\n        <!-- breadcrumb -->\r\n        <state-breadcrumbs></state-breadcrumbs>\r\n        <!-- end breadcrumb -->\r\n\r\n\r\n    </div>\r\n    <!-- END RIBBON -->\r\n\r\n\r\n    <div data-smart-router-animation-wrap=\"content content@app\" data-wrap-for=\"#content\">\r\n        <div data-ui-view=\"content\" data-autoscroll=\"false\"></div>\r\n    </div>\r\n\r\n</div>\r\n<!-- END MAIN PANEL -->\r\n\r\n<!-- PAGE FOOTER -->\r\n<div data-smart-include=\"app/layout/partials/footer.tpl.html\"></div>\r\n\r\n<div data-smart-include=\"app/layout/shortcut/shortcut.tpl.html\"></div>\r\n\r\n<!-- END PAGE FOOTER -->\r\n\r\n\r\n");
 $templateCache.put("app/app/auth/directives/login-info.tpl.html","<div class=\"login-info ng-cloak\">\r\n    <span> <!-- User image size is adjusted inside CSS, it should stay as it -->\r\n        <!-- <a  href=\"\" toggle-shortcut>\r\n            <img ng-src=\"{{user.picture}}\" alt=\"me\" class=\"online\">\r\n                <span>{{user.U_NAME}}\r\n                </span>\r\n            <i class=\"fa fa-angle-down\"></i>\r\n        </a> -->\r\n        <a  href=\"\">\r\n            <img ng-src=\"{{user.picture}}\" alt=\"me\" class=\"online\">\r\n                <span>{{user.U_NAME}}\r\n                </span>\r\n        </a>\r\n     </span>\r\n</div>");
-$templateCache.put("app/app/calendar/views/calendar.tpl.html","<!-- MAIN CONTENT -->\r\n<div id=\"content\">\r\n\r\n    <div class=\"row\">\r\n        <big-breadcrumbs items=\"[\'Home\', \'Calendar\']\" class=\"col-xs-12 col-sm-7 col-md-7 col-lg-4\"></big-breadcrumbs>\r\n        <div smart-include=\"app/layout/partials/sub-header.tpl.html\"></div>\r\n    </div>\r\n    <!-- widget grid -->\r\n    <section id=\"widget-grid\" widget-grid>\r\n        <!-- row -->\r\n        <div class=\"row\" ng-controller=\"CalendarCtrl\" >\r\n\r\n\r\n            <div class=\"col-sm-12 col-md-12 col-lg-3\">\r\n                <!-- new widget -->\r\n                <div class=\"jarviswidget jarviswidget-color-blueDark\">\r\n                    <header>\r\n                        <h2> Add Events </h2>\r\n                    </header>\r\n\r\n                    <!-- widget div-->\r\n                    <div>\r\n\r\n                        <div class=\"widget-body\">\r\n                            <!-- content goes here -->\r\n\r\n                            <form id=\"add-event-form\">\r\n                                <fieldset>\r\n\r\n                                    <div class=\"form-group\">\r\n                                        <label>Select Event Icon</label>\r\n                                        <div class=\"btn-group btn-group-sm btn-group-justified\" data-toggle=\"buttons\" > <!--  -->\r\n                                            <label class=\"btn btn-default active\">\r\n                                                <input type=\"radio\" name=\"iconselect\" id=\"icon-1\" value=\"fa-info\" radio-toggle ng-model=\"newEvent.icon\">\r\n                                                <i class=\"fa fa-info text-muted\"></i> </label>\r\n                                            <label class=\"btn btn-default\">\r\n                                                <input type=\"radio\" name=\"iconselect\" id=\"icon-2\" value=\"fa-warning\" radio-toggle  ng-model=\"newEvent.icon\">\r\n                                                <i class=\"fa fa-warning text-muted\"></i> </label>\r\n                                            <label class=\"btn btn-default\">\r\n                                                <input type=\"radio\" name=\"iconselect\" id=\"icon-3\" value=\"fa-check\" radio-toggle  ng-model=\"newEvent.icon\">\r\n                                                <i class=\"fa fa-check text-muted\"></i> </label>\r\n                                            <label class=\"btn btn-default\">\r\n                                                <input type=\"radio\" name=\"iconselect\" id=\"icon-4\" value=\"fa-user\" radio-toggle  ng-model=\"newEvent.icon\">\r\n                                                <i class=\"fa fa-user text-muted\"></i> </label>\r\n                                            <label class=\"btn btn-default\">\r\n                                                <input type=\"radio\" name=\"iconselect\" id=\"icon-5\" value=\"fa-lock\" radio-toggle  ng-model=\"newEvent.icon\">\r\n                                                <i class=\"fa fa-lock text-muted\"></i> </label>\r\n                                            <label class=\"btn btn-default\">\r\n                                                <input type=\"radio\" name=\"iconselect\" id=\"icon-6\" value=\"fa-clock-o\" radio-toggle  ng-model=\"newEvent.icon\">\r\n                                                <i class=\"fa fa-clock-o text-muted\"></i> </label>\r\n                                        </div>\r\n                                    </div>\r\n\r\n                                    <div class=\"form-group\">\r\n                                        <label>Event Title</label>\r\n                                        <input ng-model=\"newEvent.title\" class=\"form-control\"  id=\"title\" name=\"title\" maxlength=\"40\" type=\"text\" placeholder=\"Event Title\">\r\n                                    </div>\r\n                                    <div class=\"form-group\">\r\n                                        <label>Event Description</label>\r\n                                        <textarea  ng-model=\"newEvent.description\" class=\"form-control\" placeholder=\"Please be brief\" rows=\"3\" maxlength=\"40\" id=\"description\"></textarea>\r\n                                        <p class=\"note\">Maxlength is set to 40 characters</p>\r\n                                    </div>\r\n\r\n                                    <div class=\"form-group\">\r\n                                        <label>Select Event Color</label>\r\n                                        <div class=\"btn-group btn-group-justified btn-select-tick\" data-toggle=\"buttons\" >\r\n                                            <label class=\"btn bg-color-darken active\">\r\n                                                <input   ng-model=\"newEvent.className\" radio-toggle   type=\"radio\" name=\"priority\" id=\"option1\" value=\"bg-color-darken txt-color-white\" >\r\n                                                <i class=\"fa fa-check txt-color-white\"></i> </label>\r\n                                            <label class=\"btn bg-color-blue\">\r\n                                                <input  ng-model=\"newEvent.className\" radio-toggle   type=\"radio\" name=\"priority\" id=\"option2\" value=\"bg-color-blue txt-color-white\">\r\n                                                <i class=\"fa fa-check txt-color-white\"></i> </label>\r\n                                            <label class=\"btn bg-color-orange\">\r\n                                                <input  ng-model=\"newEvent.className\" radio-toggle   type=\"radio\" name=\"priority\" id=\"option3\" value=\"bg-color-orange txt-color-white\">\r\n                                                <i class=\"fa fa-check txt-color-white\"></i> </label>\r\n                                            <label class=\"btn bg-color-greenLight\">\r\n                                                <input  ng-model=\"newEvent.className\" radio-toggle   type=\"radio\" name=\"priority\" id=\"option4\" value=\"bg-color-greenLight txt-color-white\">\r\n                                                <i class=\"fa fa-check txt-color-white\"></i> </label>\r\n                                            <label class=\"btn bg-color-blueLight\">\r\n                                                <input  ng-model=\"newEvent.className\" radio-toggle   type=\"radio\" name=\"priority\" id=\"option5\" value=\"bg-color-blueLight txt-color-white\">\r\n                                                <i class=\"fa fa-check txt-color-white\"></i> </label>\r\n                                            <label class=\"btn bg-color-red\">\r\n                                                <input  ng-model=\"newEvent.className\" radio-toggle   type=\"radio\" name=\"priority\" id=\"option6\" value=\"bg-color-red txt-color-white\">\r\n                                                <i class=\"fa fa-check txt-color-white\"></i> </label>\r\n                                        </div>\r\n                                    </div>\r\n\r\n                                </fieldset>\r\n                                <div class=\"form-actions\">\r\n                                    <div class=\"row\">\r\n                                        <div class=\"col-md-12\">\r\n                                            <button class=\"btn btn-default\" type=\"button\" id=\"add-event\" ng-click=\"addEvent()\" >\r\n                                                Add Event\r\n                                            </button>\r\n                                        </div>\r\n                                    </div>\r\n                                </div>\r\n                            </form>\r\n\r\n                            <!-- end content -->\r\n                        </div>\r\n\r\n                    </div>\r\n                    <!-- end widget div -->\r\n                </div>\r\n                <!-- end widget -->\r\n\r\n                <div class=\"well well-sm\" id=\"event-container\">\r\n                    <form>\r\n                        <legend>\r\n                            Draggable Events\r\n                        </legend>\r\n                        <ul id=\'external-events\' class=\"list-unstyled\">\r\n\r\n                            <li ng-repeat=\"event in eventsExternal\" dragable-event>\r\n                                <span class=\"{{event.className}}\" \r\n                                    data-description=\"{{event.description}}\"\r\n                                    data-icon=\"{{event.icon}}\"\r\n                                >\r\n                                {{event.title}}</span>\r\n                            </li>\r\n                            \r\n                        </ul>\r\n\r\n                        <!-- <ul id=\'external-events\' class=\"list-unstyled\">\r\n                            <li>\r\n                                <span class=\"bg-color-darken txt-color-white\" data-description=\"Currently busy\" data-icon=\"fa-time\">Office Meeting</span>\r\n                            </li>\r\n                            <li>\r\n                                <span class=\"bg-color-blue txt-color-white\" data-description=\"No Description\" data-icon=\"fa-pie\">Lunch Break</span>\r\n                            </li>\r\n                            <li>\r\n                                <span class=\"bg-color-red txt-color-white\" data-description=\"Urgent Tasks\" data-icon=\"fa-alert\">URGENT</span>\r\n                            </li>\r\n                        </ul> -->\r\n\r\n                        <div class=\"checkbox\">\r\n                            <label>\r\n                                <input type=\"checkbox\" id=\"drop-remove\" class=\"checkbox style-0\" checked=\"checked\">\r\n                                <span>remove after drop</span> </label>\r\n\r\n                        </div>\r\n                    </form>\r\n\r\n                </div>\r\n            </div>\r\n\r\n\r\n            <article class=\"col-sm-12 col-md-12 col-lg-9\">\r\n                <full-calendar id=\"main-calendar-widget\" data-events=\"events\"></full-calendar>\r\n            </article>\r\n        </div>\r\n    </section>\r\n</div>");
 $templateCache.put("app/app/calendar/directives/full-calendar.tpl.html","<div jarvis-widget data-widget-color=\"blueDark\">\r\n    <header>\r\n        <span class=\"widget-icon\"> <i class=\"fa fa-calendar\"></i> </span>\r\n\r\n        <h2> My Events </h2>\r\n\r\n        <div class=\"widget-toolbar\">\r\n            <!-- add: non-hidden - to disable auto hide -->\r\n            <div class=\"btn-group dropdown\" dropdown >\r\n                <button class=\"btn dropdown-toggle btn-xs btn-default\" data-toggle=\"dropdown\">\r\n                    Showing <i class=\"fa fa-caret-down\"></i>\r\n                </button>\r\n                <ul class=\"dropdown-menu js-status-update pull-right\">\r\n                    <li>\r\n                        <a ng-click=\"changeView(\'month\')\">Month</a>\r\n                    </li>\r\n                    <li>\r\n                        <a ng-click=\"changeView(\'agendaWeek\')\">Agenda</a>\r\n                    </li>\r\n                    <li>\r\n                        <a ng-click=\"changeView(\'agendaDay\')\">Today</a>\r\n                    </li>\r\n                </ul>\r\n            </div>\r\n        </div>\r\n    </header>\r\n\r\n    <!-- widget div-->\r\n    <div>\r\n        <div class=\"widget-body no-padding\">\r\n            <!-- content goes here -->\r\n            <div class=\"widget-body-toolbar\">\r\n\r\n                <div id=\"calendar-buttons\">\r\n\r\n                    <div class=\"btn-group\">\r\n                        <a ng-click=\"prev()\" class=\"btn btn-default btn-xs\"><i\r\n                                class=\"fa fa-chevron-left\"></i></a>\r\n                        <a ng-click=\"next()\" class=\"btn btn-default btn-xs\"><i\r\n                                class=\"fa fa-chevron-right\"></i></a>\r\n                    </div>\r\n                </div>\r\n            </div>\r\n            <div id=\"calendar\"></div>\r\n\r\n            <!-- end content -->\r\n        </div>\r\n\r\n    </div>\r\n    <!-- end widget div -->\r\n</div>\r\n");
+$templateCache.put("app/app/calendar/views/calendar.tpl.html","<!-- MAIN CONTENT -->\r\n<div id=\"content\">\r\n\r\n    <div class=\"row\">\r\n        <big-breadcrumbs items=\"[\'Home\', \'Calendar\']\" class=\"col-xs-12 col-sm-7 col-md-7 col-lg-4\"></big-breadcrumbs>\r\n        <div smart-include=\"app/layout/partials/sub-header.tpl.html\"></div>\r\n    </div>\r\n    <!-- widget grid -->\r\n    <section id=\"widget-grid\" widget-grid>\r\n        <!-- row -->\r\n        <div class=\"row\" ng-controller=\"CalendarCtrl\" >\r\n\r\n\r\n            <div class=\"col-sm-12 col-md-12 col-lg-3\">\r\n                <!-- new widget -->\r\n                <div class=\"jarviswidget jarviswidget-color-blueDark\">\r\n                    <header>\r\n                        <h2> Add Events </h2>\r\n                    </header>\r\n\r\n                    <!-- widget div-->\r\n                    <div>\r\n\r\n                        <div class=\"widget-body\">\r\n                            <!-- content goes here -->\r\n\r\n                            <form id=\"add-event-form\">\r\n                                <fieldset>\r\n\r\n                                    <div class=\"form-group\">\r\n                                        <label>Select Event Icon</label>\r\n                                        <div class=\"btn-group btn-group-sm btn-group-justified\" data-toggle=\"buttons\" > <!--  -->\r\n                                            <label class=\"btn btn-default active\">\r\n                                                <input type=\"radio\" name=\"iconselect\" id=\"icon-1\" value=\"fa-info\" radio-toggle ng-model=\"newEvent.icon\">\r\n                                                <i class=\"fa fa-info text-muted\"></i> </label>\r\n                                            <label class=\"btn btn-default\">\r\n                                                <input type=\"radio\" name=\"iconselect\" id=\"icon-2\" value=\"fa-warning\" radio-toggle  ng-model=\"newEvent.icon\">\r\n                                                <i class=\"fa fa-warning text-muted\"></i> </label>\r\n                                            <label class=\"btn btn-default\">\r\n                                                <input type=\"radio\" name=\"iconselect\" id=\"icon-3\" value=\"fa-check\" radio-toggle  ng-model=\"newEvent.icon\">\r\n                                                <i class=\"fa fa-check text-muted\"></i> </label>\r\n                                            <label class=\"btn btn-default\">\r\n                                                <input type=\"radio\" name=\"iconselect\" id=\"icon-4\" value=\"fa-user\" radio-toggle  ng-model=\"newEvent.icon\">\r\n                                                <i class=\"fa fa-user text-muted\"></i> </label>\r\n                                            <label class=\"btn btn-default\">\r\n                                                <input type=\"radio\" name=\"iconselect\" id=\"icon-5\" value=\"fa-lock\" radio-toggle  ng-model=\"newEvent.icon\">\r\n                                                <i class=\"fa fa-lock text-muted\"></i> </label>\r\n                                            <label class=\"btn btn-default\">\r\n                                                <input type=\"radio\" name=\"iconselect\" id=\"icon-6\" value=\"fa-clock-o\" radio-toggle  ng-model=\"newEvent.icon\">\r\n                                                <i class=\"fa fa-clock-o text-muted\"></i> </label>\r\n                                        </div>\r\n                                    </div>\r\n\r\n                                    <div class=\"form-group\">\r\n                                        <label>Event Title</label>\r\n                                        <input ng-model=\"newEvent.title\" class=\"form-control\"  id=\"title\" name=\"title\" maxlength=\"40\" type=\"text\" placeholder=\"Event Title\">\r\n                                    </div>\r\n                                    <div class=\"form-group\">\r\n                                        <label>Event Description</label>\r\n                                        <textarea  ng-model=\"newEvent.description\" class=\"form-control\" placeholder=\"Please be brief\" rows=\"3\" maxlength=\"40\" id=\"description\"></textarea>\r\n                                        <p class=\"note\">Maxlength is set to 40 characters</p>\r\n                                    </div>\r\n\r\n                                    <div class=\"form-group\">\r\n                                        <label>Select Event Color</label>\r\n                                        <div class=\"btn-group btn-group-justified btn-select-tick\" data-toggle=\"buttons\" >\r\n                                            <label class=\"btn bg-color-darken active\">\r\n                                                <input   ng-model=\"newEvent.className\" radio-toggle   type=\"radio\" name=\"priority\" id=\"option1\" value=\"bg-color-darken txt-color-white\" >\r\n                                                <i class=\"fa fa-check txt-color-white\"></i> </label>\r\n                                            <label class=\"btn bg-color-blue\">\r\n                                                <input  ng-model=\"newEvent.className\" radio-toggle   type=\"radio\" name=\"priority\" id=\"option2\" value=\"bg-color-blue txt-color-white\">\r\n                                                <i class=\"fa fa-check txt-color-white\"></i> </label>\r\n                                            <label class=\"btn bg-color-orange\">\r\n                                                <input  ng-model=\"newEvent.className\" radio-toggle   type=\"radio\" name=\"priority\" id=\"option3\" value=\"bg-color-orange txt-color-white\">\r\n                                                <i class=\"fa fa-check txt-color-white\"></i> </label>\r\n                                            <label class=\"btn bg-color-greenLight\">\r\n                                                <input  ng-model=\"newEvent.className\" radio-toggle   type=\"radio\" name=\"priority\" id=\"option4\" value=\"bg-color-greenLight txt-color-white\">\r\n                                                <i class=\"fa fa-check txt-color-white\"></i> </label>\r\n                                            <label class=\"btn bg-color-blueLight\">\r\n                                                <input  ng-model=\"newEvent.className\" radio-toggle   type=\"radio\" name=\"priority\" id=\"option5\" value=\"bg-color-blueLight txt-color-white\">\r\n                                                <i class=\"fa fa-check txt-color-white\"></i> </label>\r\n                                            <label class=\"btn bg-color-red\">\r\n                                                <input  ng-model=\"newEvent.className\" radio-toggle   type=\"radio\" name=\"priority\" id=\"option6\" value=\"bg-color-red txt-color-white\">\r\n                                                <i class=\"fa fa-check txt-color-white\"></i> </label>\r\n                                        </div>\r\n                                    </div>\r\n\r\n                                </fieldset>\r\n                                <div class=\"form-actions\">\r\n                                    <div class=\"row\">\r\n                                        <div class=\"col-md-12\">\r\n                                            <button class=\"btn btn-default\" type=\"button\" id=\"add-event\" ng-click=\"addEvent()\" >\r\n                                                Add Event\r\n                                            </button>\r\n                                        </div>\r\n                                    </div>\r\n                                </div>\r\n                            </form>\r\n\r\n                            <!-- end content -->\r\n                        </div>\r\n\r\n                    </div>\r\n                    <!-- end widget div -->\r\n                </div>\r\n                <!-- end widget -->\r\n\r\n                <div class=\"well well-sm\" id=\"event-container\">\r\n                    <form>\r\n                        <legend>\r\n                            Draggable Events\r\n                        </legend>\r\n                        <ul id=\'external-events\' class=\"list-unstyled\">\r\n\r\n                            <li ng-repeat=\"event in eventsExternal\" dragable-event>\r\n                                <span class=\"{{event.className}}\" \r\n                                    data-description=\"{{event.description}}\"\r\n                                    data-icon=\"{{event.icon}}\"\r\n                                >\r\n                                {{event.title}}</span>\r\n                            </li>\r\n                            \r\n                        </ul>\r\n\r\n                        <!-- <ul id=\'external-events\' class=\"list-unstyled\">\r\n                            <li>\r\n                                <span class=\"bg-color-darken txt-color-white\" data-description=\"Currently busy\" data-icon=\"fa-time\">Office Meeting</span>\r\n                            </li>\r\n                            <li>\r\n                                <span class=\"bg-color-blue txt-color-white\" data-description=\"No Description\" data-icon=\"fa-pie\">Lunch Break</span>\r\n                            </li>\r\n                            <li>\r\n                                <span class=\"bg-color-red txt-color-white\" data-description=\"Urgent Tasks\" data-icon=\"fa-alert\">URGENT</span>\r\n                            </li>\r\n                        </ul> -->\r\n\r\n                        <div class=\"checkbox\">\r\n                            <label>\r\n                                <input type=\"checkbox\" id=\"drop-remove\" class=\"checkbox style-0\" checked=\"checked\">\r\n                                <span>remove after drop</span> </label>\r\n\r\n                        </div>\r\n                    </form>\r\n\r\n                </div>\r\n            </div>\r\n\r\n\r\n            <article class=\"col-sm-12 col-md-12 col-lg-9\">\r\n                <full-calendar id=\"main-calendar-widget\" data-events=\"events\"></full-calendar>\r\n            </article>\r\n        </div>\r\n    </section>\r\n</div>");
 $templateCache.put("app/app/dashboard/projects/recent-projects.tpl.html","<div class=\"project-context hidden-xs dropdown\" dropdown>\r\n\r\n    <span class=\"label\">{{getWord(\'Projects\')}}:</span>\r\n    <span class=\"project-selector dropdown-toggle\" data-toggle=\"dropdown\">{{getWord(\'Recent projects\')}} <i ng-if=\"projects.length\"\r\n            class=\"fa fa-angle-down\"></i></span>\r\n\r\n    <ul class=\"dropdown-menu\" ng-if=\"projects.length\">\r\n        <li ng-repeat=\"project in projects\">\r\n            <a href=\"{{project.href}}\">{{project.title}}</a>\r\n        </li>\r\n        <li class=\"divider\"></li>\r\n        <li>\r\n            <a ng-click=\"clearProjects()\"><i class=\"fa fa-power-off\"></i> Clear</a>\r\n        </li>\r\n    </ul>\r\n\r\n</div>");
 $templateCache.put("app/app/dashboard/todo/todo-widget.tpl.html","<div id=\"todo-widget\" jarvis-widget data-widget-editbutton=\"false\" data-widget-color=\"blue\"\r\n     ng-controller=\"TodoCtrl\">\r\n    <header>\r\n        <span class=\"widget-icon\"> <i class=\"fa fa-check txt-color-white\"></i> </span>\r\n\r\n        <h2> ToDo\'s </h2>\r\n\r\n        <div class=\"widget-toolbar\">\r\n            <!-- add: non-hidden - to disable auto hide -->\r\n            <button class=\"btn btn-xs btn-default\" ng-class=\"{active: newTodo}\" ng-click=\"toggleAdd()\"><i ng-class=\"{ \'fa fa-plus\': !newTodo, \'fa fa-times\': newTodo}\"></i> Add</button>\r\n\r\n        </div>\r\n    </header>\r\n    <!-- widget div-->\r\n    <div>\r\n        <div class=\"widget-body no-padding smart-form\">\r\n            <!-- content goes here -->\r\n            <div ng-show=\"newTodo\">\r\n                <h5 class=\"todo-group-title\"><i class=\"fa fa-plus-circle\"></i> New Todo</h5>\r\n\r\n                <form name=\"newTodoForm\" class=\"smart-form\">\r\n                    <fieldset>\r\n                        <section>\r\n                            <label class=\"input\">\r\n                                <input type=\"text\" required class=\"input-lg\" ng-model=\"newTodo.title\"\r\n                                       placeholder=\"What needs to be done?\">\r\n                            </label>\r\n                        </section>\r\n                        <section>\r\n                            <div class=\"col-xs-6\">\r\n                                <label class=\"select\">\r\n                                    <select class=\"input-sm\" ng-model=\"newTodo.state\"\r\n                                            ng-options=\"state as state for state in states\"></select> <i></i> </label>\r\n                            </div>\r\n                        </section>\r\n                    </fieldset>\r\n                    <footer>\r\n                        <button ng-disabled=\"newTodoForm.$invalid\" type=\"button\" class=\"btn btn-primary\"\r\n                                ng-click=\"createTodo()\">\r\n                            Add\r\n                        </button>\r\n                        <button type=\"button\" class=\"btn btn-default\" ng-click=\"toggleAdd()\">\r\n                            Cancel\r\n                        </button>\r\n                    </footer>\r\n                </form>\r\n            </div>\r\n\r\n            <todo-list state=\"Critical\"  title=\"Critical Tasks\" icon=\"warning\" todos=\"todos\"></todo-list>\r\n\r\n            <todo-list state=\"Important\" title=\"Important Tasks\" icon=\"exclamation\" todos=\"todos\"></todo-list>\r\n\r\n            <todo-list state=\"Completed\" title=\"Completed Tasks\" icon=\"check\" todos=\"todos\"></todo-list>\r\n\r\n            <!-- end content -->\r\n        </div>\r\n\r\n    </div>\r\n    <!-- end widget div -->\r\n</div>");
 $templateCache.put("app/app/layout/language/language-selector.tpl.html","<ul class=\"header-dropdown-list hidden-xs ng-cloak\" ng-controller=\"LanguagesCtrl\">\r\n    <li class=\"dropdown\" dropdown>\r\n        <a class=\"dropdown-toggle\" data-toggle=\"dropdown\" href> <img src=\"styles/img/blank.gif\" class=\"flag flag-{{currentLanguage.key}}\" alt=\"{{currentLanguage.alt}}\"> <span> {{currentLanguage.title}} </span>\r\n            <i class=\"fa fa-angle-down\"></i> </a>\r\n        <ul class=\"dropdown-menu pull-right\">\r\n            <li ng-class=\"{active: language==currentLanguage}\" ng-repeat=\"language in languages\">\r\n                <a ng-click=\"selectLanguage(language)\"><img src=\"styles/img/blank.gif\" class=\"flag flag-{{language.key}}\" alt=\"{{language.alt}}\"> {{language.title}}</a>\r\n            </li>\r\n        </ul>\r\n    </li>\r\n</ul>\r\n");
-$templateCache.put("app/app/layout/shortcut/shortcut.tpl.html","<div id=\"shortcut\">\r\n	<ul>\r\n		<li>\r\n			<a href=\"#/inbox/\" class=\"jarvismetro-tile big-cubes bg-color-blue\"> <span class=\"iconbox\"> <i class=\"fa fa-envelope fa-4x\"></i> <span>Mail <span class=\"label pull-right bg-color-darken\">14</span></span> </span> </a>\r\n		</li>\r\n		<li>\r\n			<a href=\"#/calendar\" class=\"jarvismetro-tile big-cubes bg-color-orangeDark\"> <span class=\"iconbox\"> <i class=\"fa fa-calendar fa-4x\"></i> <span>Calendar</span> </span> </a>\r\n		</li>\r\n		<li>\r\n			<a href=\"#/maps\" class=\"jarvismetro-tile big-cubes bg-color-purple\"> <span class=\"iconbox\"> <i class=\"fa fa-map-marker fa-4x\"></i> <span>Maps</span> </span> </a>\r\n		</li>\r\n		<li>\r\n			<a href=\"#/invoice\" class=\"jarvismetro-tile big-cubes bg-color-blueDark\"> <span class=\"iconbox\"> <i class=\"fa fa-book fa-4x\"></i> <span>Invoice <span class=\"label pull-right bg-color-darken\">99</span></span> </span> </a>\r\n		</li>\r\n		<li>\r\n			<a href=\"#/gallery\" class=\"jarvismetro-tile big-cubes bg-color-greenLight\"> <span class=\"iconbox\"> <i class=\"fa fa-picture-o fa-4x\"></i> <span>Gallery </span> </span> </a>\r\n		</li>\r\n		<li>\r\n			<a href=\"#/profile\" class=\"jarvismetro-tile big-cubes selected bg-color-pinkDark\"> <span class=\"iconbox\"> <i class=\"fa fa-user fa-4x\"></i> <span>My Profile </span> </span> </a>\r\n		</li>\r\n	</ul>\r\n</div>");
 $templateCache.put("app/app/layout/partials/footer.tpl.html","<div class=\"page-footer\">\r\n    <div class=\"row\">\r\n        <div class=\"col-xs-12 col-sm-6\">\r\n            <span class=\"txt-color-white\">東風物流貨運承攬有限公司 © 2017</span>\r\n        </div>\r\n\r\n        <div class=\"col-xs-6 col-sm-6 text-right hidden-xs\">\r\n            <!-- <div class=\"txt-color-white inline-block\">\r\n                <i class=\"txt-color-blueLight hidden-mobile\">Last account activity <i class=\"fa fa-clock-o\"></i>\r\n                    <strong>52 mins ago &nbsp;</strong> </i>\r\n\r\n                <div class=\"btn-group dropup\">\r\n                    <button class=\"btn btn-xs dropdown-toggle bg-color-blue txt-color-white\" data-toggle=\"dropdown\">\r\n                        <i class=\"fa fa-link\"></i> <span class=\"caret\"></span>\r\n                    </button>\r\n                    <ul class=\"dropdown-menu pull-right text-left\">\r\n                        <li>\r\n                            <div class=\"padding-5\">\r\n                                <p class=\"txt-color-darken font-sm no-margin\">Download Progress</p>\r\n\r\n                                <div class=\"progress progress-micro no-margin\">\r\n                                    <div class=\"progress-bar progress-bar-success\" style=\"width: 50%;\"></div>\r\n                                </div>\r\n                            </div>\r\n                        </li>\r\n                        <li class=\"divider\"></li>\r\n                        <li>\r\n                            <div class=\"padding-5\">\r\n                                <p class=\"txt-color-darken font-sm no-margin\">Server Load</p>\r\n\r\n                                <div class=\"progress progress-micro no-margin\">\r\n                                    <div class=\"progress-bar progress-bar-success\" style=\"width: 20%;\"></div>\r\n                                </div>\r\n                            </div>\r\n                        </li>\r\n                        <li class=\"divider\"></li>\r\n                        <li>\r\n                            <div class=\"padding-5\">\r\n                                <p class=\"txt-color-darken font-sm no-margin\">Memory Load <span class=\"text-danger\">*critical*</span>\r\n                                </p>\r\n\r\n                                <div class=\"progress progress-micro no-margin\">\r\n                                    <div class=\"progress-bar progress-bar-danger\" style=\"width: 70%;\"></div>\r\n                                </div>\r\n                            </div>\r\n                        </li>\r\n                        <li class=\"divider\"></li>\r\n                        <li>\r\n                            <div class=\"padding-5\">\r\n                                <button class=\"btn btn-block btn-default\">refresh</button>\r\n                            </div>\r\n                        </li>\r\n                    </ul>\r\n                </div>\r\n            </div> -->\r\n        </div>\r\n    </div>\r\n</div>");
 $templateCache.put("app/app/layout/partials/header.tpl.html","<header id=\"header\">\r\n    <div id=\"logo-group\">\r\n        <!-- PLACE YOUR LOGO HERE -->\r\n        <span id=\"logo\"> <img src=\"styles/img/ews/title_logo.png\" alt=\"東風管理系統\"> </span>\r\n        <!-- END LOGO PLACEHOLDER -->\r\n        <!-- Note: The activity badge color changes when clicked and resets the number to 0\r\n    Suggestion: You may want to set a flag when this happens to tick off all checked messages / notifications -->\r\n        <!-- <span id=\"activity\" class=\"activity-dropdown\" activities-dropdown-toggle> \r\n            <i class=\"fa fa-user\"></i> \r\n            <b class=\"badge bg-color-red\">21</b> \r\n        </span> -->\r\n        <div smart-include=\"app/dashboard/activities/activities.html\"></div>\r\n    </div>\r\n    <!-- <recent-projects></recent-projects> -->\r\n    <!-- pulled right: nav area -->\r\n    <div class=\"pull-right\">\r\n        <!-- collapse menu button -->\r\n        <div id=\"hide-menu\" class=\"btn-header pull-right\">\r\n            <span> <a toggle-menu title=\"Collapse Menu\"><i\r\n                class=\"fa fa-reorder\"></i></a> </span>\r\n        </div>\r\n        <!-- end collapse menu -->\r\n        <!-- #MOBILE -->\r\n        <!-- Top menu profile link : this shows only when top menu is active -->\r\n        <ul id=\"mobile-profile-img\" class=\"header-dropdown-list hidden-xs padding-5\">\r\n            <li class=\"\">\r\n                <a href=\"#\" class=\"dropdown-toggle no-margin userdropdown\" data-toggle=\"dropdown\">\r\n                    <img src=\"styles/img/avatars/eastwind.png\" alt=\"John Doe\" class=\"online\" />\r\n                </a>\r\n                <ul class=\"dropdown-menu pull-right\">\r\n                    <li>\r\n                        <a href-void class=\"padding-10 padding-top-0 padding-bottom-0\"><i\r\n                            class=\"fa fa-cog\"></i> Setting</a>\r\n                    </li>\r\n                    <li class=\"divider\"></li>\r\n                    <li>\r\n                        <a ui-sref=\"app.appViews.profileDemo\" class=\"padding-10 padding-top-0 padding-bottom-0\"> <i class=\"fa fa-user\"></i>\r\n                            <u>P</u>rofile</a>\r\n                    </li>\r\n                    <li class=\"divider\"></li>\r\n                    <li>\r\n                        <a href-void class=\"padding-10 padding-top-0 padding-bottom-0\" data-action=\"toggleShortcut\"><i class=\"fa fa-arrow-down\"></i> <u>S</u>hortcut</a>\r\n                    </li>\r\n                    <li class=\"divider\"></li>\r\n                    <li>\r\n                        <a href-void class=\"padding-10 padding-top-0 padding-bottom-0\" data-action=\"launchFullscreen\"><i class=\"fa fa-arrows-alt\"></i> Full <u>S</u>creen</a>\r\n                    </li>\r\n                    <li class=\"divider\"></li>\r\n                    <li>\r\n                        <a href=\"#/login\" class=\"padding-10 padding-top-5 padding-bottom-5\" data-action=\"userLogout\"><i\r\n                            class=\"fa fa-sign-out fa-lg\"></i> <strong><u>L</u>ogout</strong></a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n        </ul>\r\n        <!-- logout button -->\r\n        <div id=\"logout\" class=\"btn-header transparent pull-right\">\r\n            <span> \r\n                <a ui-sref=\"login\" \r\n                   title=\"Sign Out\" \r\n                   data-action=\"userLogout\"\r\n                   data-logout-msg=\"You can improve your security further after logging out by closing this opened browser\">\r\n                   <i class=\"fa fa-sign-out\"></i>\r\n                </a> \r\n            </span>\r\n        </div>\r\n        <!-- end logout button -->\r\n        <!-- search mobile button (this is hidden till mobile view port) -->\r\n        <div id=\"search-mobile\" class=\"btn-header transparent pull-right\" data-search-mobile>\r\n            <span> <a href=\"#\" title=\"Search\"><i class=\"fa fa-search\"></i></a> </span>\r\n        </div>\r\n        <!-- end search mobile button -->\r\n        <!-- input: search field -->\r\n        <!-- <form action=\"#/search\" class=\"header-search pull-right\">\r\n            <input id=\"search-fld\" type=\"text\" name=\"param\" placeholder=\"Find reports and more\" data-autocomplete=\'[\r\n                    \"ActionScript\",\r\n                    \"AppleScript\",\r\n                    \"Asp\",\r\n                    \"BASIC\",\r\n                    \"C\",\r\n                    \"C++\",\r\n                    \"Clojure\",\r\n                    \"COBOL\",\r\n                    \"ColdFusion\",\r\n                    \"Erlang\",\r\n                    \"Fortran\",\r\n                    \"Groovy\",\r\n                    \"Haskell\",\r\n                    \"Java\",\r\n                    \"JavaScript\",\r\n                    \"Lisp\",\r\n                    \"Perl\",\r\n                    \"PHP\",\r\n                    \"Python\",\r\n                    \"Ruby\",\r\n                    \"Scala\",\r\n                    \"Scheme\"]\'>\r\n            <button type=\"submit\">\r\n                <i class=\"fa fa-search\"></i>\r\n            </button>\r\n            <a href=\"$\" id=\"cancel-search-js\" title=\"Cancel Search\"><i class=\"fa fa-times\"></i></a>\r\n        </form> -->\r\n        <!-- end input: search field -->\r\n        <!-- fullscreen button -->\r\n        <div id=\"fullscreen\" class=\"btn-header transparent pull-right\">\r\n            <span> <a full-screen title=\"Full Screen\"><i\r\n                class=\"fa fa-arrows-alt\"></i></a> </span>\r\n        </div>\r\n        <!-- end fullscreen button -->\r\n        <!-- #Voice Command: Start Speech -->\r\n        <!-- <div id=\"speech-btn\" class=\"btn-header transparent pull-right hidden-sm hidden-xs\">\r\n            <div>\r\n                <a title=\"Voice Command\" id=\"voice-command-btn\" speech-recognition><i class=\"fa fa-microphone\"></i></a>\r\n                <div class=\"popover bottom\">\r\n                    <div class=\"arrow\"></div>\r\n                    <div class=\"popover-content\">\r\n                        <h4 class=\"vc-title\">Voice command activated <br>\r\n                        <small>Please speak clearly into the mic</small>\r\n                    </h4>\r\n                        <h4 class=\"vc-title-error text-center\">\r\n                        <i class=\"fa fa-microphone-slash\"></i> Voice command failed\r\n                        <br>\r\n                        <small class=\"txt-color-red\">Must <strong>\"Allow\"</strong> Microphone</small>\r\n                        <br>\r\n                        <small class=\"txt-color-red\">Must have <strong>Internet Connection</strong></small>\r\n                    </h4>\r\n                        <a href-void class=\"btn btn-success\" id=\"speech-help-btn\">See Commands</a>\r\n                        <a href-void class=\"btn bg-color-purple txt-color-white\" onclick=\"$(\'#speech-btn .popover\').fadeOut(50);\">Close Popup</a>\r\n                    </div>\r\n                </div>\r\n            </div>\r\n        </div> -->\r\n        <!-- end voice command -->\r\n        \r\n        <!-- multiple lang dropdown : find all flags in the flags page -->\r\n        <language-selector></language-selector>\r\n        <!-- end multiple lang -->\r\n    </div>\r\n    <!-- end pulled right: nav area -->\r\n</header>\r\n");
 $templateCache.put("app/app/layout/partials/navigation.tpl.html","<aside id=\"left-panel\">\r\n\r\n    <!-- User info -->\r\n    <div login-info></div>\r\n    <!-- end user info -->\r\n\r\n    <nav data-smart-menu-items=\"/api/menu-items.json\">\r\n    <!-- <nav> -->\r\n        <!-- NOTE: Notice the gaps after each icon usage <i></i>..\r\n        Please note that these links work a bit different than\r\n        traditional href=\"\" links. See documentation for details.\r\n        -->\r\n\r\n        <!-- <ul data-smart-menu>\r\n            <li data-menu-collapse>\r\n                <a href=\"#\" title=\"Dashboard\"><i class=\"fa fa-lg fa-fw fa-home\"></i> <span\r\n                        class=\"menu-item-parent\">{{getWord(\'Dashboard\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.dashboard\">{{getWord(\'Analytics Dashboard\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.dashboard-social\">{{getWord(\'Social Wall\')}}</a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\" title=\"Restful\">\r\n                    <i class=\"fa fa-lg fa-fw fa-home\"></i> \r\n                    <span class=\"menu-item-parent\">{{getWord(\'Restful\')}}</span>\r\n                </a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.restful.alantest\">{{getWord(\'AlanTest\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.restful.gridtest\">{{getWord(\'GridTest\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.restful.exceltest\">{{getWord(\'ExcelTest\')}}</a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-ui-sref-active=\"active\">\r\n                <a data-ui-sref=\"app.mainwork\" title=\"MainWork\">\r\n                    <i class=\"fa fa-lg fa-fw fa-newspaper-o\"></i> \r\n                    <span class=\"menu-item-parent\">{{getWord(\'MainWork\')}}</span>\r\n                </a>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\" title=\"SelfWork\">\r\n                    <i class=\"fa fa-lg fa-fw fa-truck\"></i> \r\n                    <span class=\"menu-item-parent\">{{getWord(\'SelfWork\')}}</span>\r\n                </a>\r\n                <ul>\r\n                    <li data-menu-collapse>\r\n                        <a href=\"#\"><i class=\"fa fa-fw fa-folder-open\"></i> {{getWord(\'LeaderOption\')}} </a>\r\n                        <ul>\r\n                            <li data-ui-sref-active=\"active\">\r\n                                <a data-ui-sref=\"app.selfwork.leaderoption.compydistribution\"><i class=\"fa fa-building-o\"></i> {{getWord(\'CompyDistribution\')}}</a>\r\n                            </li>\r\n                            <li data-ui-sref-active=\"active\">\r\n                                <a data-ui-sref=\"app.selfwork.leaderoption.agentsetting\"><i class=\"fa fa-braille\"></i> {{getWord(\'AgentSetting\')}}</a>\r\n                            </li>\r\n                            <li data-ui-sref-active=\"active\">\r\n                                <a data-ui-sref=\"app.selfwork.leaderoption.dailyleave\"><i class=\"fa fa-child\"></i> {{getWord(\'DailyLeave\')}}</a>\r\n                            </li>\r\n                        </ul>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.selfwork.customoversix\"><i class=\"fa fa-cube\"></i> {{getWord(\'CustomOverSix\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.selfwork.leaderjobs\"><i class=\"fa fa-cubes\"></i> {{getWord(\'LeaderJobs\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.selfwork.leaderhistorysearch\"><i class=\"fa fa-history\"></i> {{getWord(\'LeaderHistorySearch\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.selfwork.assistantjobs\"><i class=\"fa fa-cube\"></i> {{getWord(\'AssistantJobs\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.selfwork.assistanthistorysearch\"><i class=\"fa fa-history\"></i> {{getWord(\'AssistantHistorySearch\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.selfwork.employeejobs\"><i class=\"fa fa-cube\"></i> {{getWord(\'EmployeeJobs\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.selfwork.employeehistorysearch\"><i class=\"fa fa-history\"></i> {{getWord(\'EmployeeHistorySearch\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.selfwork.deliveryjobs\"><i class=\"fa fa-cube\"></i> {{getWord(\'DeliveryJobs\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.selfwork.deliveryhistorysearch\"><i class=\"fa fa-history\"></i> {{getWord(\'DeliveryHistorySearch\')}}</a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\" title=\"Concerns\"><i class=\"fa fa-lg fa-fw fa-address-book-o\"></i> <span\r\n                        class=\"menu-item-parent\">{{getWord(\'Concerns\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.concerns.ban\"><i class=\"fa fa-ban\"></i> {{getWord(\'Ban\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.concerns.dailyalert\"><i class=\"fa fa-bell-o\"></i> {{getWord(\'DailyAlert\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.concerns.banhistorysearch\"><i class=\"fa fa-history\"></i> {{getWord(\'HistorySearch\')}}</a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\" title=\"Settings\"><i class=\"fa fa-lg fa-fw fa-cog\"></i> <span\r\n                        class=\"menu-item-parent\">{{getWord(\'Settings\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.settings.profile\"><i class=\"fa fa-user\"></i> {{getWord(\'Profile\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.settings.accountmanagement\"><i class=\"fa fa-sitemap\"></i> {{getWord(\'AccountManagement\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.settings.billboardeditor\"><i class=\"fa fa-newspaper-o\"></i> {{getWord(\'BillboardEditor\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.settings.externalmanagement\"><i class=\"fa fa-external-link\"></i> {{getWord(\'ExternalManagement\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.settings.aviationmail\"><i class=\"fa fa-envelope-o\"></i> {{getWord(\'AviationMail\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.settings.excompybagno\"><i class=\"fa fa-shopping-bag\"></i> {{getWord(\'ExcompyBagno\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.settings.bagnocount\"><i class=\"fa fa-hourglass-half\"></i> {{getWord(\'BagnoCount\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.settings.syslogs\"><i class=\"fa fa-database\"></i> {{getWord(\'SysLogs\')}}</a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse class=\"top-menu-invisible\">\r\n                <a href=\"#\"><i class=\"fa fa-lg fa-fw fa-cube txt-color-blue\"></i> <span class=\"menu-item-parent\">{{getWord(\'SmartAdmin Intel\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.smartAdmin.appLayouts\"><i class=\"fa fa-gear\"></i>\r\n                            {{getWord(\'App Layouts\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.smartAdmin.prebuiltSkins\"><i class=\"fa fa-picture-o\"></i>\r\n                            {{getWord(\'Prebuilt Skins\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.smartAdmin.appLayout\"><i class=\"fa fa-cube\"></i> {{getWord(\'App Settings\')}}</a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-ui-sref-active=\"active\">\r\n                <a data-ui-sref=\"app.inbox.folder\" title=\"Outlook\">\r\n                    <i class=\"fa fa-lg fa-fw fa-inbox\"></i> <span class=\"menu-item-parent\">{{getWord(\'Outlook\')}}</span><span\r\n                        unread-messages-count class=\"badge pull-right inbox-badge\"></span></a>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\"><i class=\"fa fa-lg fa-fw fa-bar-chart-o\"></i> <span class=\"menu-item-parent\">{{getWord(\'Graphs\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.graphs.flot\">{{getWord(\'Flot Chart\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.graphs.morris\">{{getWord(\'Morris Charts\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.graphs.sparkline\">{{getWord(\'Sparkline\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.graphs.easyPieCharts\">{{getWord(\'Easy Pie Charts\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.graphs.dygraphs\">{{getWord(\'Dygraphs\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.graphs.chartjs\">Chart.js</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.graphs.highchartTables\">Highchart Tables <span\r\n                                class=\"badge pull-right inbox-badge bg-color-yellow\">new</span></a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\"><i class=\"fa fa-lg fa-fw fa-table\"></i> <span\r\n                        class=\"menu-item-parent\">{{getWord(\'Tables\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.tables.normal\">{{getWord(\'Normal Tables\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.tables.datatables\">{{getWord(\'Data Tables\')}} <span\r\n                                class=\"badge inbox-badge bg-color-greenLight\">v1.10</span></a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.tables.jqgrid\">{{getWord(\'Jquery Grid\')}}</a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\"><i class=\"fa fa-lg fa-fw fa-pencil-square-o\"></i> <span class=\"menu-item-parent\">{{getWord(\'Forms\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.form.elements\">{{getWord(\'Smart Form Elements\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.form.layouts\">{{getWord(\'Smart Form Layouts\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.form.validation\">{{getWord(\'Smart Form Validation\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.form.bootstrapForms\">{{getWord(\'Bootstrap Form Elements\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.form.bootstrapValidation\">{{getWord(\'Bootstrap Form Validation\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.form.plugins\">{{getWord(\'Form Plugins\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.form.wizards\">{{getWord(\'Wizards\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.form.editors\">{{getWord(\'Bootstrap Editors\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.form.dropzone\">{{getWord(\'Dropzone\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.form.imageEditor\">{{getWord(\'Image Cropping\')}} <span\r\n                                class=\"badge pull-right inbox-badge bg-color-yellow\">new</span></a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\"><i class=\"fa fa-lg fa-fw fa-desktop\"></i> <span class=\"menu-item-parent\">{{getWord(\'UI Elements\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.ui.general\">{{getWord(\'General Elements\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.ui.buttons\">{{getWord(\'Buttons\')}}</a>\r\n                    </li>\r\n                    <li data-menu-collapse>\r\n                        <a href=\"#\">{{getWord(\'Icons\')}}</a>\r\n                        <ul>\r\n                            <li data-ui-sref-active=\"active\">\r\n                                <a data-ui-sref=\"app.ui.iconsFa\"><i class=\"fa fa-plane\"></i> {{getWord(\'Font Awesome\')}}</a>\r\n                            </li>\r\n                            <li data-ui-sref-active=\"active\">\r\n                                <a data-ui-sref=\"app.ui.iconsGlyph\"><i class=\"glyphicon glyphicon-plane\"></i>\r\n                                    {{getWord(\'Glyph Icons\')}}</a>\r\n                            </li>\r\n                            <li data-ui-sref-active=\"active\">\r\n                                <a data-ui-sref=\"app.ui.iconsFlags\"><i class=\"fa fa-flag\"></i> {{getWord(\'Flags\')}}</a>\r\n                            </li>\r\n                        </ul>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.ui.grid\">{{getWord(\'Grid\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.ui.treeView\">{{getWord(\'Tree View\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.ui.nestableLists\">{{getWord(\'Nestable Lists\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.ui.jqueryUi\">{{getWord(\'JQuery UI\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.ui.typography\">{{getWord(\'Typography\')}}</a>\r\n                    </li>\r\n                    <li data-menu-collapse>\r\n                        <a href=\"#\">{{getWord(\'Six Level Menu\')}}</a>\r\n                        <ul>\r\n                            <li data-menu-collapse>\r\n                                <a href=\"#\"><i class=\"fa fa-fw fa-folder-open\"></i> {{getWord(\'Item #2\')}}</a>\r\n                                <ul>\r\n                                    <li data-menu-collapse>\r\n                                        <a href=\"#\"><i class=\"fa fa-fw fa-folder-open\"></i> {{getWord(\'Sub #2.1\')}} </a>\r\n                                        <ul>\r\n                                            <li>\r\n                                                <a href=\"#\"><i class=\"fa fa-fw fa-file-text\"></i> {{getWord(\'Item\r\n                                                    #2.1.1\')}}</a>\r\n                                            </li>\r\n                                            <li data-menu-collapse>\r\n                                                <a href=\"#\"><i class=\"fa fa-fw fa-plus\"></i>{{getWord(\'Expand\')}}</a>\r\n                                                <ul>\r\n                                                    <li>\r\n                                                        <a href=\"#\"><i class=\"fa fa-fw fa-file-text\"></i>\r\n                                                            {{getWord(\'File\')}}</a>\r\n                                                    </li>\r\n                                                    <li>\r\n                                                        <a href=\"#\"><i class=\"fa fa-fw fa-trash-o\"></i>\r\n                                                            {{getWord(\'Delete\')}}</a></li>\r\n                                                </ul>\r\n                                            </li>\r\n                                        </ul>\r\n                                    </li>\r\n                                </ul>\r\n                            </li>\r\n                            <li data-menu-collapse>\r\n                                <a href=\"#\"><i class=\"fa fa-fw fa-folder-open\"></i> {{getWord(\'Item #3\')}}</a>\r\n\r\n                                <ul>\r\n                                    <li data-menu-collapse>\r\n                                        <a href=\"#\"><i class=\"fa fa-fw fa-folder-open\"></i> {{getWord(\'3ed Level\')}}\r\n                                        </a>\r\n                                        <ul>\r\n                                            <li>\r\n                                                <a href=\"#\"><i class=\"fa fa-fw fa-file-text\"></i>\r\n                                                    {{getWord(\'File\')}}</a>\r\n                                            </li>\r\n                                            <li>\r\n                                                <a href=\"#\"><i class=\"fa fa-fw fa-file-text\"></i>\r\n                                                    {{getWord(\'File\')}}</a>\r\n                                            </li>\r\n                                        </ul>\r\n                                    </li>\r\n                                </ul>\r\n\r\n                            </li>\r\n                        </ul>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n\r\n            <li data-ui-sref-active=\"active\">\r\n                <a data-ui-sref=\"app.widgets\" title=\"Widgets\"><i class=\"fa fa-lg fa-fw fa-list-alt\"></i> <span class=\"menu-item-parent\">{{getWord(\'Widgets\')}}</span></a>\r\n            </li>\r\n\r\n\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\">\r\n                    <i class=\"fa fa-lg fa-fw fa-cloud\"><em>3</em></i> <span class=\"menu-item-parent\">{{getWord(\'Cool Features\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.calendar\" title=\"Calendar\"><i\r\n                                class=\"fa fa-lg fa-fw fa-calendar\"></i> <span\r\n                                class=\"menu-item-parent\">{{getWord(\'Calendar\')}}</span></a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.maps\"><i class=\"fa fa-lg fa-fw fa-map-marker\"></i> <span class=\"menu-item-parent\">{{getWord(\'GMap Skins\')}}</span><span\r\n                                class=\"badge bg-color-greenLight pull-right inbox-badge\">9</span></a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\">\r\n                    <i class=\"fa fa-lg fa-fw fa-puzzle-piece\"></i> <span class=\"menu-item-parent\">{{getWord(\'App Views\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.appViews.projects\"><i class=\"fa fa-file-text-o\"></i>\r\n                            {{getWord(\'Projects\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.appViews.blogDemo\"><i class=\"fa fa-paragraph\"></i> {{getWord(\'Blog\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.appViews.galleryDemo\"><i class=\"fa fa-picture-o\"></i>\r\n                            {{getWord(\'Gallery\')}}</a>\r\n                    </li>\r\n\r\n                    <li data-menu-collapse>\r\n                        <a href=\"#\"><i class=\"fa fa-comments\"></i> {{getWord(\'Forum Layout\')}}</a>\r\n                        <ul>\r\n                            <li data-ui-sref-active=\"active\">\r\n                                <a data-ui-sref=\"app.appViews.forumDemo\"><i class=\"fa fa-picture-o\"></i>\r\n                                    {{getWord(\'General View\')}}</a>\r\n                            </li>\r\n                            <li data-ui-sref-active=\"active\">\r\n                                <a data-ui-sref=\"app.appViews.forumTopicDemo\"><i class=\"fa fa-picture-o\"></i>\r\n                                    {{getWord(\'Topic View\')}}</a>\r\n                            </li>\r\n                            <li data-ui-sref-active=\"active\">\r\n                                <a data-ui-sref=\"app.appViews.forumPostDemo\"><i class=\"fa fa-picture-o\"></i>\r\n                                    {{getWord(\'Post View\')}}</a>\r\n                            </li>\r\n                        </ul>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.appViews.profileDemo\"><i class=\"fa fa-group\"></i>\r\n                            {{getWord(\'Profile\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.appViews.timelineDemo\"><i class=\"fa fa-clock-o\"></i>\r\n                            {{getWord(\'Timeline\')}}</a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\">\r\n                    <i class=\"fa fa-lg fa-fw fa-shopping-cart\"></i> <span class=\"menu-item-parent\">{{getWord(\'E-Commerce\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.eCommerce.orders\" title=\"Orders\"> {{getWord(\'Orders\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.eCommerce.products\" title=\"Products View\"> {{getWord(\'Products View\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.eCommerce.detail\" title=\"Products Detail\"> {{getWord(\'Products Detail\')}}</a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\"><i class=\"fa fa-lg fa-fw fa-windows\"></i> <span class=\"menu-item-parent\">{{getWord(\'Miscellaneous\')}}</span></a>\r\n                <ul>\r\n                    <li>\r\n                        <a href=\"http://bootstraphunter.com/smartadmin-landing/\" target=\"_blank\">{{getWord(\'Landing\r\n                            Page\')}} <i class=\"fa fa-external-link\"></i></a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.misc.pricingTable\">{{getWord(\'Pricing Tables\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.misc.invoice\">{{getWord(\'Invoice\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"login\">{{getWord(\'Login\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"register\">{{getWord(\'Register\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"lock\">{{getWord(\'Locked Screen\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.misc.error404\">{{getWord(\'Error 404\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.misc.error500\">{{getWord(\'Error 500\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.misc.blank\">{{getWord(\'Blank Page\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.misc.emailTemplate\">{{getWord(\'Email Template\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.misc.search\">{{getWord(\'Search Page\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.misc.ckeditor\">{{getWord(\'CK Editor\')}}</a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse class=\"chat-users top-menu-invisible\">\r\n                <a href=\"#\"><i class=\"fa fa-lg fa-fw fa-comment-o\"><em class=\"bg-color-pink flash animated\">!</em></i>\r\n                    <span class=\"menu-item-parent\">{{getWord(\'Smart Chat API\')}} <sup>{{getWord(\'beta\')}}</sup></span></a>\r\n                <div aside-chat-widget></div>\r\n            </li>\r\n        </ul> -->\r\n\r\n        <!-- NOTE: This allows you to pull menu items from server -->\r\n        <!-- <ul data-smart-menu-items=\"/api/menu-items.json\"></ul> -->\r\n    </nav>\r\n\r\n  <span class=\"minifyme\" data-action=\"minifyMenu\" minify-menu>\r\n    <i class=\"fa fa-arrow-circle-left hit\"></i>\r\n  </span>\r\n\r\n</aside>");
 $templateCache.put("app/app/layout/partials/sub-header.tpl.html","<div class=\"col-xs-12 col-sm-5 col-md-5 col-lg-8\" data-sparkline-container>\r\n    <ul id=\"sparks\" class=\"\">\r\n        <li class=\"sparks-info\">\r\n            <h5> My Income <span class=\"txt-color-blue\">$47,171</span></h5>\r\n            <div class=\"sparkline txt-color-blue hidden-mobile hidden-md hidden-sm\">\r\n                1300, 1877, 2500, 2577, 2000, 2100, 3000, 2700, 3631, 2471, 2700, 3631, 2471\r\n            </div>\r\n        </li>\r\n        <li class=\"sparks-info\">\r\n            <h5> Site Traffic <span class=\"txt-color-purple\"><i class=\"fa fa-arrow-circle-up\"></i>&nbsp;45%</span></h5>\r\n            <div class=\"sparkline txt-color-purple hidden-mobile hidden-md hidden-sm\">\r\n                110,150,300,130,400,240,220,310,220,300, 270, 210\r\n            </div>\r\n        </li>\r\n        <li class=\"sparks-info\">\r\n            <h5> Site Orders <span class=\"txt-color-greenDark\"><i class=\"fa fa-shopping-cart\"></i>&nbsp;2447</span></h5>\r\n            <div class=\"sparkline txt-color-greenDark hidden-mobile hidden-md hidden-sm\">\r\n                110,150,300,130,400,240,220,310,220,300, 270, 210\r\n            </div>\r\n        </li>\r\n    </ul>\r\n</div>\r\n			");
 $templateCache.put("app/app/layout/partials/voice-commands.tpl.html","<!-- TRIGGER BUTTON:\r\n<a href=\"/my-ajax-page.html\" data-toggle=\"modal\" data-target=\"#remoteModal\" class=\"btn btn-default\">Open Modal</a>  -->\r\n\r\n<!-- MODAL PLACE HOLDER\r\n<div class=\"modal fade\" id=\"remoteModal\" tabindex=\"-1\" role=\"dialog\" aria-labelledby=\"remoteModalLabel\" aria-hidden=\"true\">\r\n<div class=\"modal-dialog\">\r\n<div class=\"modal-content\"></div>\r\n</div>\r\n</div>   -->\r\n<!--////////////////////////////////////-->\r\n\r\n<!--<div class=\"modal-header\">\r\n<button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-hidden=\"true\">\r\n&times;\r\n</button>\r\n<h4 class=\"modal-title\" id=\"myModalLabel\">Command List</h4>\r\n</div>-->\r\n<div class=\"modal-body\">\r\n\r\n	<h1><i class=\"fa fa-microphone text-muted\"></i>&nbsp;&nbsp; SmartAdmin Voice Command</h1>\r\n	<hr class=\"simple\">\r\n	<h5>Instruction</h5>\r\n\r\n	Click <span class=\"text-success\">\"Allow\"</span> to access your microphone and activate Voice Command.\r\n	You will notice a <span class=\"text-primary\"><strong>BLUE</strong> Flash</span> on the microphone icon indicating activation.\r\n	The icon will appear <span class=\"text-danger\"><strong>RED</strong></span> <span class=\"label label-danger\"><i class=\"fa fa-microphone fa-lg\"></i></span> if you <span class=\"text-danger\">\"Deny\"</span> access or don\'t have any microphone installed.\r\n	<br>\r\n	<br>\r\n	As a security precaution, your browser will disconnect the microphone every 60 to 120 seconds (sooner if not being used). In which case Voice Command will prompt you again to <span class=\"text-success\">\"Allow\"</span> or <span class=\"text-danger\">\"Deny\"</span> access to your microphone.\r\n	<br>\r\n	<br>\r\n	If you host your page over <strong>http<span class=\"text-success\">s</span></strong> (secure socket layer) protocol you can wave this security measure and have an unintrupted Voice Command.\r\n	<br>\r\n	<br>\r\n	<h5>Commands</h5>\r\n	<ul>\r\n		<li>\r\n			<strong>\'show\' </strong> then say the <strong>*page*</strong> you want to go to. For example <strong>\"show inbox\"</strong> or <strong>\"show calendar\"</strong>\r\n		</li>\r\n		<li>\r\n			<strong>\'mute\' </strong> - mutes all sound effects for the theme.\r\n		</li>\r\n		<li>\r\n			<strong>\'sound on\'</strong> - unmutes all sound effects for the theme.\r\n		</li>\r\n		<li>\r\n			<span class=\"text-danger\"><strong>\'stop\'</strong></span> - deactivates voice command.\r\n		</li>\r\n		<li>\r\n			<span class=\"text-primary\"><strong>\'help\'</strong></span> - brings up the command list\r\n		</li>\r\n		<li>\r\n			<span class=\"text-danger\"><strong>\'got it\'</strong></span> - closes help modal\r\n		</li>\r\n		<li>\r\n			<strong>\'hide navigation\'</strong> - toggle navigation collapse\r\n		</li>\r\n		<li>\r\n			<strong>\'show navigation\'</strong> - toggle navigation to open (can be used again to close)\r\n		</li>\r\n		<li>\r\n			<strong>\'scroll up\'</strong> - scrolls to the top of the page\r\n		</li>\r\n		<li>\r\n			<strong>\'scroll down\'</strong> - scrollts to the bottom of the page\r\n		</li>\r\n		<li>\r\n			<strong>\'go back\' </strong> - goes back in history (history -1 click)\r\n		</li>\r\n		<li>\r\n			<strong>\'logout\'</strong> - logs you out\r\n		</li>\r\n	</ul>\r\n	<br>\r\n	<h5>Adding your own commands</h5>\r\n	Voice Command supports up to 80 languages. Adding your own commands is extreamly easy. All commands are stored inside <strong>app.config.js</strong> file under the <code>var commands = {...}</code>. \r\n\r\n	<hr class=\"simple\">\r\n	<div class=\"text-right\">\r\n		<button type=\"button\" class=\"btn btn-success btn-lg\" data-dismiss=\"modal\">\r\n			Got it!\r\n		</button>\r\n	</div>\r\n\r\n</div>\r\n<!--<div class=\"modal-footer\">\r\n<button type=\"button\" class=\"btn btn-primary\" data-dismiss=\"modal\">Got it!</button>\r\n</div> -->");
+$templateCache.put("app/app/layout/shortcut/shortcut.tpl.html","<div id=\"shortcut\">\r\n	<ul>\r\n		<li>\r\n			<a href=\"#/inbox/\" class=\"jarvismetro-tile big-cubes bg-color-blue\"> <span class=\"iconbox\"> <i class=\"fa fa-envelope fa-4x\"></i> <span>Mail <span class=\"label pull-right bg-color-darken\">14</span></span> </span> </a>\r\n		</li>\r\n		<li>\r\n			<a href=\"#/calendar\" class=\"jarvismetro-tile big-cubes bg-color-orangeDark\"> <span class=\"iconbox\"> <i class=\"fa fa-calendar fa-4x\"></i> <span>Calendar</span> </span> </a>\r\n		</li>\r\n		<li>\r\n			<a href=\"#/maps\" class=\"jarvismetro-tile big-cubes bg-color-purple\"> <span class=\"iconbox\"> <i class=\"fa fa-map-marker fa-4x\"></i> <span>Maps</span> </span> </a>\r\n		</li>\r\n		<li>\r\n			<a href=\"#/invoice\" class=\"jarvismetro-tile big-cubes bg-color-blueDark\"> <span class=\"iconbox\"> <i class=\"fa fa-book fa-4x\"></i> <span>Invoice <span class=\"label pull-right bg-color-darken\">99</span></span> </span> </a>\r\n		</li>\r\n		<li>\r\n			<a href=\"#/gallery\" class=\"jarvismetro-tile big-cubes bg-color-greenLight\"> <span class=\"iconbox\"> <i class=\"fa fa-picture-o fa-4x\"></i> <span>Gallery </span> </span> </a>\r\n		</li>\r\n		<li>\r\n			<a href=\"#/profile\" class=\"jarvismetro-tile big-cubes selected bg-color-pinkDark\"> <span class=\"iconbox\"> <i class=\"fa fa-user fa-4x\"></i> <span>My Profile </span> </span> </a>\r\n		</li>\r\n	</ul>\r\n</div>");
 $templateCache.put("app/public/app/dashboard/live-feeds.tpl.html","<div jarvis-widget id=\"live-feeds-widget\" data-widget-togglebutton=\"false\" data-widget-editbutton=\"false\"\r\n     data-widget-fullscreenbutton=\"false\" data-widget-colorbutton=\"false\" data-widget-deletebutton=\"false\">\r\n<!-- widget options:\r\nusage: <div class=\"jarviswidget\" id=\"wid-id-0\" data-widget-editbutton=\"false\">\r\n\r\ndata-widget-colorbutton=\"false\"\r\ndata-widget-editbutton=\"false\"\r\ndata-widget-togglebutton=\"false\"\r\ndata-widget-deletebutton=\"false\"\r\ndata-widget-fullscreenbutton=\"false\"\r\ndata-widget-custombutton=\"false\"\r\ndata-widget-collapsed=\"true\"\r\ndata-widget-sortable=\"false\"\r\n\r\n-->\r\n<header>\r\n    <span class=\"widget-icon\"> <i class=\"glyphicon glyphicon-stats txt-color-darken\"></i> </span>\r\n\r\n    <h2>Live Feeds </h2>\r\n\r\n    <ul class=\"nav nav-tabs pull-right in\" id=\"myTab\">\r\n        <li class=\"active\">\r\n            <a data-toggle=\"tab\" href=\"#s1\"><i class=\"fa fa-clock-o\"></i> <span class=\"hidden-mobile hidden-tablet\">Live Stats</span></a>\r\n        </li>\r\n\r\n        <li>\r\n            <a data-toggle=\"tab\" href=\"#s2\"><i class=\"fa fa-facebook\"></i> <span class=\"hidden-mobile hidden-tablet\">Social Network</span></a>\r\n        </li>\r\n\r\n        <li>\r\n            <a data-toggle=\"tab\" href=\"#s3\"><i class=\"fa fa-dollar\"></i> <span class=\"hidden-mobile hidden-tablet\">Revenue</span></a>\r\n        </li>\r\n    </ul>\r\n\r\n</header>\r\n\r\n<!-- widget div-->\r\n<div class=\"no-padding\">\r\n\r\n    <div class=\"widget-body\">\r\n        <!-- content -->\r\n        <div id=\"myTabContent\" class=\"tab-content\">\r\n            <div class=\"tab-pane fade active in padding-10 no-padding-bottom\" id=\"s1\">\r\n                <div class=\"row no-space\">\r\n                    <div class=\"col-xs-12 col-sm-12 col-md-8 col-lg-8\">\r\n														<span class=\"demo-liveupdate-1\"> <span\r\n                                                                class=\"onoffswitch-title\">Live switch</span> <span\r\n                                                                class=\"onoffswitch\">\r\n																<input type=\"checkbox\" name=\"start_interval\" ng-model=\"autoUpdate\"\r\n                                                                       class=\"onoffswitch-checkbox\" id=\"start_interval\">\r\n																<label class=\"onoffswitch-label\" for=\"start_interval\">\r\n                                                                    <span class=\"onoffswitch-inner\"\r\n                                                                          data-swchon-text=\"ON\"\r\n                                                                          data-swchoff-text=\"OFF\"></span>\r\n                                                                    <span class=\"onoffswitch-switch\"></span>\r\n                                                                </label> </span> </span>\r\n\r\n                        <div id=\"updating-chart\" class=\"chart-large txt-color-blue\" flot-basic flot-data=\"liveStats\" flot-options=\"liveStatsOptions\"></div>\r\n\r\n                    </div>\r\n                    <div class=\"col-xs-12 col-sm-12 col-md-4 col-lg-4 show-stats\">\r\n\r\n                        <div class=\"row\">\r\n                            <div class=\"col-xs-6 col-sm-6 col-md-12 col-lg-12\"><span class=\"text\"> My Tasks <span\r\n                                    class=\"pull-right\">130/200</span> </span>\r\n\r\n                                <div class=\"progress\">\r\n                                    <div class=\"progress-bar bg-color-blueDark\" style=\"width: 65%;\"></div>\r\n                                </div>\r\n                            </div>\r\n                            <div class=\"col-xs-6 col-sm-6 col-md-12 col-lg-12\"><span class=\"text\"> Transfered <span\r\n                                    class=\"pull-right\">440 GB</span> </span>\r\n\r\n                                <div class=\"progress\">\r\n                                    <div class=\"progress-bar bg-color-blue\" style=\"width: 34%;\"></div>\r\n                                </div>\r\n                            </div>\r\n                            <div class=\"col-xs-6 col-sm-6 col-md-12 col-lg-12\"><span class=\"text\"> Bugs Squashed<span\r\n                                    class=\"pull-right\">77%</span> </span>\r\n\r\n                                <div class=\"progress\">\r\n                                    <div class=\"progress-bar bg-color-blue\" style=\"width: 77%;\"></div>\r\n                                </div>\r\n                            </div>\r\n                            <div class=\"col-xs-6 col-sm-6 col-md-12 col-lg-12\"><span class=\"text\"> User Testing <span\r\n                                    class=\"pull-right\">7 Days</span> </span>\r\n\r\n                                <div class=\"progress\">\r\n                                    <div class=\"progress-bar bg-color-greenLight\" style=\"width: 84%;\"></div>\r\n                                </div>\r\n                            </div>\r\n\r\n                            <span class=\"show-stat-buttons\"> <span class=\"col-xs-12 col-sm-6 col-md-6 col-lg-6\"> <a\r\n                                    href-void class=\"btn btn-default btn-block hidden-xs\">Generate PDF</a> </span> <span\r\n                                    class=\"col-xs-12 col-sm-6 col-md-6 col-lg-6\"> <a href-void\r\n                                                                                     class=\"btn btn-default btn-block hidden-xs\">Report\r\n                                a bug</a> </span> </span>\r\n\r\n                        </div>\r\n\r\n                    </div>\r\n                </div>\r\n\r\n                <div class=\"show-stat-microcharts\" data-sparkline-container data-easy-pie-chart-container>\r\n                    <div class=\"col-xs-12 col-sm-3 col-md-3 col-lg-3\">\r\n\r\n                        <div class=\"easy-pie-chart txt-color-orangeDark\" data-percent=\"33\" data-pie-size=\"50\">\r\n                            <span class=\"percent percent-sign\">35</span>\r\n                        </div>\r\n                        <span class=\"easy-pie-title\"> Server Load <i class=\"fa fa-caret-up icon-color-bad\"></i> </span>\r\n                        <ul class=\"smaller-stat hidden-sm pull-right\">\r\n                            <li>\r\n                                <span class=\"label bg-color-greenLight\"><i class=\"fa fa-caret-up\"></i> 97%</span>\r\n                            </li>\r\n                            <li>\r\n                                <span class=\"label bg-color-blueLight\"><i class=\"fa fa-caret-down\"></i> 44%</span>\r\n                            </li>\r\n                        </ul>\r\n                        <div class=\"sparkline txt-color-greenLight hidden-sm hidden-md pull-right\"\r\n                             data-sparkline-type=\"line\" data-sparkline-height=\"33px\" data-sparkline-width=\"70px\"\r\n                             data-fill-color=\"transparent\">\r\n                            130, 187, 250, 257, 200, 210, 300, 270, 363, 247, 270, 363, 247\r\n                        </div>\r\n                    </div>\r\n                    <div class=\"col-xs-12 col-sm-3 col-md-3 col-lg-3\">\r\n                        <div class=\"easy-pie-chart txt-color-greenLight\" data-percent=\"78.9\" data-pie-size=\"50\">\r\n                            <span class=\"percent percent-sign\">78.9 </span>\r\n                        </div>\r\n                        <span class=\"easy-pie-title\"> Disk Space <i class=\"fa fa-caret-down icon-color-good\"></i></span>\r\n                        <ul class=\"smaller-stat hidden-sm pull-right\">\r\n                            <li>\r\n                                <span class=\"label bg-color-blueDark\"><i class=\"fa fa-caret-up\"></i> 76%</span>\r\n                            </li>\r\n                            <li>\r\n                                <span class=\"label bg-color-blue\"><i class=\"fa fa-caret-down\"></i> 3%</span>\r\n                            </li>\r\n                        </ul>\r\n                        <div class=\"sparkline txt-color-blue hidden-sm hidden-md pull-right\" data-sparkline-type=\"line\"\r\n                             data-sparkline-height=\"33px\" data-sparkline-width=\"70px\" data-fill-color=\"transparent\">\r\n                            257, 200, 210, 300, 270, 363, 130, 187, 250, 247, 270, 363, 247\r\n                        </div>\r\n                    </div>\r\n                    <div class=\"col-xs-12 col-sm-3 col-md-3 col-lg-3\">\r\n                        <div class=\"easy-pie-chart txt-color-blue\" data-percent=\"23\" data-pie-size=\"50\">\r\n                            <span class=\"percent percent-sign\">23 </span>\r\n                        </div>\r\n                        <span class=\"easy-pie-title\"> Transfered <i class=\"fa fa-caret-up icon-color-good\"></i></span>\r\n                        <ul class=\"smaller-stat hidden-sm pull-right\">\r\n                            <li>\r\n                                <span class=\"label bg-color-darken\">10GB</span>\r\n                            </li>\r\n                            <li>\r\n                                <span class=\"label bg-color-blueDark\"><i class=\"fa fa-caret-up\"></i> 10%</span>\r\n                            </li>\r\n                        </ul>\r\n                        <div class=\"sparkline txt-color-darken hidden-sm hidden-md pull-right\"\r\n                             data-sparkline-type=\"line\" data-sparkline-height=\"33px\" data-sparkline-width=\"70px\"\r\n                             data-fill-color=\"transparent\">\r\n                            200, 210, 363, 247, 300, 270, 130, 187, 250, 257, 363, 247, 270\r\n                        </div>\r\n                    </div>\r\n                    <div class=\"col-xs-12 col-sm-3 col-md-3 col-lg-3\">\r\n                        <div class=\"easy-pie-chart txt-color-darken\" data-percent=\"36\" data-pie-size=\"50\">\r\n                            <span class=\"percent degree-sign\">36 <i class=\"fa fa-caret-up\"></i></span>\r\n                        </div>\r\n                        <span class=\"easy-pie-title\"> Temperature <i\r\n                                class=\"fa fa-caret-down icon-color-good\"></i></span>\r\n                        <ul class=\"smaller-stat hidden-sm pull-right\">\r\n                            <li>\r\n                                <span class=\"label bg-color-red\"><i class=\"fa fa-caret-up\"></i> 124</span>\r\n                            </li>\r\n                            <li>\r\n                                <span class=\"label bg-color-blue\"><i class=\"fa fa-caret-down\"></i> 40 F</span>\r\n                            </li>\r\n                        </ul>\r\n                        <div class=\"sparkline txt-color-red hidden-sm hidden-md pull-right\" data-sparkline-type=\"line\"\r\n                             data-sparkline-height=\"33px\" data-sparkline-width=\"70px\" data-fill-color=\"transparent\">\r\n                            2700, 3631, 2471, 2700, 3631, 2471, 1300, 1877, 2500, 2577, 2000, 2100, 3000\r\n                        </div>\r\n                    </div>\r\n                </div>\r\n\r\n            </div>\r\n            <!-- end s1 tab pane -->\r\n\r\n            <div class=\"tab-pane fade\" id=\"s2\">\r\n                <div class=\"widget-body-toolbar bg-color-white\">\r\n\r\n                    <form class=\"form-inline\" role=\"form\">\r\n\r\n                        <div class=\"form-group\">\r\n                            <label class=\"sr-only\" for=\"s123\">Show From</label>\r\n                            <input type=\"email\" class=\"form-control input-sm\" id=\"s123\" placeholder=\"Show From\">\r\n                        </div>\r\n                        <div class=\"form-group\">\r\n                            <input type=\"email\" class=\"form-control input-sm\" id=\"s124\" placeholder=\"To\">\r\n                        </div>\r\n\r\n                        <div class=\"btn-group hidden-phone pull-right\">\r\n                            <a class=\"btn dropdown-toggle btn-xs btn-default\" data-toggle=\"dropdown\"><i\r\n                                    class=\"fa fa-cog\"></i> More <span class=\"caret\"> </span> </a>\r\n                            <ul class=\"dropdown-menu pull-right\">\r\n                                <li>\r\n                                    <a href-void><i class=\"fa fa-file-text-alt\"></i> Export to PDF</a>\r\n                                </li>\r\n                                <li>\r\n                                    <a href-void><i class=\"fa fa-question-sign\"></i> Help</a>\r\n                                </li>\r\n                            </ul>\r\n                        </div>\r\n\r\n                    </form>\r\n\r\n                </div>\r\n                <div class=\"padding-10\">\r\n                    <div id=\"statsChart\" class=\"chart-large has-legend-unique\" flot-basic flot-data=\"statsData\" flot-options=\"statsDisplayOptions\"></div>\r\n                </div>\r\n\r\n            </div>\r\n            <!-- end s2 tab pane -->\r\n\r\n            <div class=\"tab-pane fade\" id=\"s3\">\r\n\r\n                <div class=\"widget-body-toolbar bg-color-white smart-form\" id=\"rev-toggles\">\r\n\r\n                    <div class=\"inline-group\">\r\n\r\n                        <label for=\"gra-0\" class=\"checkbox\">\r\n                            <input type=\"checkbox\" id=\"gra-0\" ng-model=\"targetsShow\">\r\n                            <i></i> Target </label>\r\n                        <label for=\"gra-1\" class=\"checkbox\">\r\n                            <input type=\"checkbox\" id=\"gra-1\" ng-model=\"actualsShow\">\r\n                            <i></i> Actual </label>\r\n                        <label for=\"gra-2\" class=\"checkbox\">\r\n                            <input type=\"checkbox\" id=\"gra-2\" ng-model=\"signupsShow\">\r\n                            <i></i> Signups </label>\r\n                    </div>\r\n\r\n                    <div class=\"btn-group hidden-phone pull-right\">\r\n                        <a class=\"btn dropdown-toggle btn-xs btn-default\" data-toggle=\"dropdown\"><i\r\n                                class=\"fa fa-cog\"></i> More <span class=\"caret\"> </span> </a>\r\n                        <ul class=\"dropdown-menu pull-right\">\r\n                            <li>\r\n                                <a href-void><i class=\"fa fa-file-text-alt\"></i> Export to PDF</a>\r\n                            </li>\r\n                            <li>\r\n                                <a href-void><i class=\"fa fa-question-sign\"></i> Help</a>\r\n                            </li>\r\n                        </ul>\r\n                    </div>\r\n\r\n                </div>\r\n\r\n                <div class=\"padding-10\">\r\n                    <div id=\"flotcontainer\" class=\"chart-large has-legend-unique\" flot-basic flot-data=\"revenewData\" flot-options=\"revenewDisplayOptions\" ></div>\r\n                </div>\r\n            </div>\r\n            <!-- end s3 tab pane -->\r\n        </div>\r\n\r\n        <!-- end content -->\r\n    </div>\r\n\r\n</div>\r\n<!-- end widget div -->\r\n</div>\r\n");
 $templateCache.put("app/public/app/layout/layout.tpl.html","<!-- HEADER -->\r\n<div data-smart-include=\"app/layout/partials/header.tpl.html\" class=\"placeholder-header\"></div>\r\n<!-- END HEADER -->\r\n\r\n\r\n<!-- Left panel : Navigation area -->\r\n<!-- Note: This width of the aside area can be adjusted through LESS variables -->\r\n<div data-smart-include=\"app/layout/partials/navigation.tpl.html\" class=\"placeholder-left-panel\"></div>\r\n\r\n<!-- END NAVIGATION -->\r\n\r\n<!-- MAIN PANEL -->\r\n<div id=\"main\" role=\"main\">\r\n    <!-- 小齒輪 -->\r\n    <!-- <demo-states></demo-states> -->\r\n\r\n    <!-- RIBBON -->\r\n    <div id=\"ribbon\">\r\n\r\n		<span class=\"ribbon-button-alignment\">\r\n			<span id=\"refresh\" class=\"btn btn-ribbon\" reset-widgets\r\n                  tooltip-placement=\"bottom\"\r\n                  smart-tooltip-html=\"<i class=\'text-warning fa fa-warning\'></i> Warning! This will reset all your widget settings.\">\r\n				<i class=\"fa fa-refresh\"></i>\r\n			</span>\r\n		</span>\r\n\r\n        <!-- breadcrumb -->\r\n        <state-breadcrumbs></state-breadcrumbs>\r\n        <!-- end breadcrumb -->\r\n\r\n\r\n    </div>\r\n    <!-- END RIBBON -->\r\n\r\n\r\n    <div data-smart-router-animation-wrap=\"content content@app\" data-wrap-for=\"#content\">\r\n        <div data-ui-view=\"content\" data-autoscroll=\"false\"></div>\r\n    </div>\r\n\r\n</div>\r\n<!-- END MAIN PANEL -->\r\n\r\n<!-- PAGE FOOTER -->\r\n<div data-smart-include=\"app/layout/partials/footer.tpl.html\"></div>\r\n\r\n<div data-smart-include=\"app/layout/shortcut/shortcut.tpl.html\"></div>\r\n\r\n<!-- END PAGE FOOTER -->\r\n\r\n\r\n");
 $templateCache.put("app/app/dashboard/chat/directives/aside-chat-widget.tpl.html","<ul>\r\n    <li>\r\n        <div class=\"display-users\">\r\n            <input class=\"form-control chat-user-filter\" placeholder=\"Filter\" type=\"text\">\r\n            <dl>\r\n                <dt>\r\n                    <a href=\"#\" class=\"usr\"\r\n                       data-chat-id=\"cha1\"\r\n                       data-chat-fname=\"Sadi\"\r\n                       data-chat-lname=\"Orlaf\"\r\n                       data-chat-status=\"busy\"\r\n                       data-chat-alertmsg=\"Sadi Orlaf is in a meeting. Please do not disturb!\"\r\n                       data-chat-alertshow=\"true\"\r\n                       popover-trigger=\"hover\"\r\n                       popover-placement=\"right\"\r\n                       smart-popover-html=\"\r\n										<div class=\'usr-card\'>\r\n											<img src=\'styles/img/avatars/5.png\' alt=\'Sadi Orlaf\'>\r\n											<div class=\'usr-card-content\'>\r\n												<h3>Sadi Orlaf</h3>\r\n												<p>Marketing Executive</p>\r\n											</div>\r\n										</div>\r\n									\">\r\n                        <i></i>Sadi Orlaf\r\n                    </a>\r\n                </dt>\r\n                <dt>\r\n                    <a href=\"#\" class=\"usr\"\r\n                       data-chat-id=\"cha2\"\r\n                       data-chat-fname=\"Jessica\"\r\n                       data-chat-lname=\"Dolof\"\r\n                       data-chat-status=\"online\"\r\n                       data-chat-alertmsg=\"\"\r\n                       data-chat-alertshow=\"false\"\r\n                       popover-trigger=\"hover\"\r\n                       popover-placement=\"right\"\r\n                       smart-popover-html=\"\r\n										<div class=\'usr-card\'>\r\n											<img src=\'styles/img/avatars/1.png\' alt=\'Jessica Dolof\'>\r\n											<div class=\'usr-card-content\'>\r\n												<h3>Jessica Dolof</h3>\r\n												<p>Sales Administrator</p>\r\n											</div>\r\n										</div>\r\n									\">\r\n                        <i></i>Jessica Dolof\r\n                    </a>\r\n                </dt>\r\n                <dt>\r\n                    <a href=\"#\" class=\"usr\"\r\n                       data-chat-id=\"cha3\"\r\n                       data-chat-fname=\"Zekarburg\"\r\n                       data-chat-lname=\"Almandalie\"\r\n                       data-chat-status=\"online\"\r\n                       popover-trigger=\"hover\"\r\n                       popover-placement=\"right\"\r\n                       smart-popover-html=\"\r\n										<div class=\'usr-card\'>\r\n											<img src=\'styles/img/avatars/3.png\' alt=\'Zekarburg Almandalie\'>\r\n											<div class=\'usr-card-content\'>\r\n												<h3>Zekarburg Almandalie</h3>\r\n												<p>Sales Admin</p>\r\n											</div>\r\n										</div>\r\n									\">\r\n                        <i></i>Zekarburg Almandalie\r\n                    </a>\r\n                </dt>\r\n                <dt>\r\n                    <a href=\"#\" class=\"usr\"\r\n                       data-chat-id=\"cha4\"\r\n                       data-chat-fname=\"Barley\"\r\n                       data-chat-lname=\"Krazurkth\"\r\n                       data-chat-status=\"away\"\r\n                       popover-trigger=\"hover\"\r\n                       popover-placement=\"right\"\r\n                       smart-popover-html=\"\r\n										<div class=\'usr-card\'>\r\n											<img src=\'styles/img/avatars/4.png\' alt=\'Barley Krazurkth\'>\r\n											<div class=\'usr-card-content\'>\r\n												<h3>Barley Krazurkth</h3>\r\n												<p>Sales Director</p>\r\n											</div>\r\n										</div>\r\n									\">\r\n                        <i></i>Barley Krazurkth\r\n                    </a>\r\n                </dt>\r\n                <dt>\r\n                    <a href=\"#\" class=\"usr offline\"\r\n                       data-chat-id=\"cha5\"\r\n                       data-chat-fname=\"Farhana\"\r\n                       data-chat-lname=\"Amrin\"\r\n                       data-chat-status=\"incognito\"\r\n                       popover-trigger=\"hover\"\r\n                       popover-placement=\"right\"\r\n                       smart-popover-html=\"\r\n										<div class=\'usr-card\'>\r\n											<img src=\'styles/img/avatars/female.png\' alt=\'Farhana Amrin\'>\r\n											<div class=\'usr-card-content\'>\r\n												<h3>Farhana Amrin</h3>\r\n												<p>Support Admin <small><i class=\'fa fa-music\'></i> Playing Beethoven Classics</small></p>\r\n											</div>\r\n										</div>\r\n									\">\r\n                        <i></i>Farhana Amrin (offline)\r\n                    </a>\r\n                </dt>\r\n                <dt>\r\n                    <a href=\"#\" class=\"usr offline\"\r\n                       data-chat-id=\"cha6\"\r\n                       data-chat-fname=\"Lezley\"\r\n                       data-chat-lname=\"Jacob\"\r\n                       data-chat-status=\"incognito\"\r\n                       popover-trigger=\"hover\"\r\n                       popover-placement=\"right\"\r\n                       smart-popover-html=\"\r\n										<div class=\'usr-card\'>\r\n											<img src=\'styles/img/avatars/male.png\' alt=\'Lezley Jacob\'>\r\n											<div class=\'usr-card-content\'>\r\n												<h3>Lezley Jacob</h3>\r\n												<p>Sales Director</p>\r\n											</div>\r\n										</div>\r\n									\">\r\n                        <i></i>Lezley Jacob (offline)\r\n                    </a>\r\n                </dt>\r\n            </dl>\r\n\r\n\r\n            <!--<a href=\"chat.html\" class=\"btn btn-xs btn-default btn-block sa-chat-learnmore-btn\">About the API</a>-->\r\n        </div>\r\n    </li>\r\n</ul>");
 $templateCache.put("app/app/dashboard/chat/directives/chat-users.tpl.html","<div id=\"chat-container\" ng-class=\"{open: open}\">\r\n    <span class=\"chat-list-open-close\" ng-click=\"openToggle()\"><i class=\"fa fa-user\"></i><b>!</b></span>\r\n\r\n    <div class=\"chat-list-body custom-scroll\">\r\n        <ul id=\"chat-users\">\r\n            <li ng-repeat=\"chatUser in chatUsers | filter: chatUserFilter\">\r\n                <a ng-click=\"messageTo(chatUser)\"><img ng-src=\"{{chatUser.picture}}\">{{chatUser.username}} <span\r\n                        class=\"badge badge-inverse\">{{chatUser.username.length}}</span><span class=\"state\"><i\r\n                        class=\"fa fa-circle txt-color-green pull-right\"></i></span></a>\r\n            </li>\r\n        </ul>\r\n    </div>\r\n    <div class=\"chat-list-footer\">\r\n        <div class=\"control-group\">\r\n            <form class=\"smart-form\">\r\n                <section>\r\n                    <label class=\"input\" >\r\n                        <input type=\"text\" ng-model=\"chatUserFilter\" id=\"filter-chat-list\" placeholder=\"Filter\">\r\n                    </label>\r\n                </section>\r\n            </form>\r\n        </div>\r\n    </div>\r\n</div>");
 $templateCache.put("app/app/dashboard/chat/directives/chat-widget.tpl.html","<div id=\"chat-widget\" jarvis-widget data-widget-color=\"blueDark\" data-widget-editbutton=\"false\"\r\n     data-widget-fullscreenbutton=\"false\">\r\n\r\n\r\n    <header>\r\n        <span class=\"widget-icon\"> <i class=\"fa fa-comments txt-color-white\"></i> </span>\r\n\r\n        <h2> SmartMessage </h2>\r\n\r\n        <div class=\"widget-toolbar\">\r\n            <!-- add: non-hidden - to disable auto hide -->\r\n\r\n            <div class=\"btn-group\" data-dropdown>\r\n                <button class=\"btn dropdown-toggle btn-xs btn-success\" data-toggle=\"dropdown\">\r\n                    Status <i class=\"fa fa-caret-down\"></i>\r\n                </button>\r\n                <ul class=\"dropdown-menu pull-right js-status-update\">\r\n                    <li>\r\n                        <a href-void><i class=\"fa fa-circle txt-color-green\"></i> Online</a>\r\n                    </li>\r\n                    <li>\r\n                        <a href-void><i class=\"fa fa-circle txt-color-red\"></i> Busy</a>\r\n                    </li>\r\n                    <li>\r\n                        <a href-void><i class=\"fa fa-circle txt-color-orange\"></i> Away</a>\r\n                    </li>\r\n                    <li class=\"divider\"></li>\r\n                    <li>\r\n                        <a href-void><i class=\"fa fa-power-off\"></i> Log Off</a>\r\n                    </li>\r\n                </ul>\r\n            </div>\r\n        </div>\r\n    </header>\r\n\r\n    <!-- widget div-->\r\n    <div>\r\n        <div class=\"widget-body widget-hide-overflow no-padding\">\r\n            <!-- content goes here -->\r\n\r\n            <chat-users></chat-users>\r\n\r\n            <!-- CHAT BODY -->\r\n            <div id=\"chat-body\" class=\"chat-body custom-scroll\">\r\n                <ul>\r\n                    <li class=\"message\" ng-repeat=\"message in chatMessages\">\r\n                        <img class=\"message-picture online\" ng-src=\"{{message.user.picture}}\">\r\n\r\n                        <div class=\"message-text\">\r\n                            <time>\r\n                                {{message.date | date }}\r\n                            </time>\r\n                            <a ng-click=\"messageTo(message.user)\" class=\"username\">{{message.user.username}}</a>\r\n                            <div ng-bind-html=\"message.body\"></div>\r\n\r\n                        </div>\r\n                    </li>\r\n                </ul>\r\n            </div>\r\n\r\n            <!-- CHAT FOOTER -->\r\n            <div class=\"chat-footer\">\r\n\r\n                <!-- CHAT TEXTAREA -->\r\n                <div class=\"textarea-div\">\r\n\r\n                    <div class=\"typearea\">\r\n                        <textarea placeholder=\"Write a reply...\" id=\"textarea-expand\"\r\n                                  class=\"custom-scroll\" ng-model=\"newMessage\"></textarea>\r\n                    </div>\r\n\r\n                </div>\r\n\r\n                <!-- CHAT REPLY/SEND -->\r\n											<span class=\"textarea-controls\">\r\n												<button class=\"btn btn-sm btn-primary pull-right\" ng-click=\"sendMessage()\">\r\n                                                    Reply\r\n                                                </button> <span class=\"pull-right smart-form\"\r\n                                                                style=\"margin-top: 3px; margin-right: 10px;\"> <label\r\n                                                    class=\"checkbox pull-right\">\r\n                                                <input type=\"checkbox\" name=\"subscription\" id=\"subscription\">\r\n                                                <i></i>Press <strong> ENTER </strong> to send </label> </span> <a\r\n                                                    href-void class=\"pull-left\"><i\r\n                                                    class=\"fa fa-camera fa-fw fa-lg\"></i></a> </span>\r\n\r\n            </div>\r\n\r\n            <!-- end content -->\r\n        </div>\r\n\r\n    </div>\r\n    <!-- end widget div -->\r\n</div>");
 $templateCache.put("app/app/dashboard/todo/directives/todo-list.tpl.html","<div>\r\n    <h5 class=\"todo-group-title\"><i class=\"fa fa-{{icon}}\"></i> {{title}} (\r\n        <small class=\"num-of-tasks\">{{scopeItems.length}}</small>\r\n        )\r\n    </h5>\r\n    <ul class=\"todo\">\r\n        <li ng-class=\"{complete: todo.completedAt}\" ng-repeat=\"todo in todos | orderBy: todo._id | filter: filter  track by todo._id\" >\r\n    	<span class=\"handle\"> <label class=\"checkbox\">\r\n            <input type=\"checkbox\" ng-click=\"todo.toggle()\" ng-checked=\"todo.completedAt\"\r\n                   name=\"checkbox-inline\">\r\n            <i></i> </label> </span>\r\n\r\n            <p>\r\n                <strong>Ticket #{{$index + 1}}</strong> - {{todo.title}}\r\n                <span class=\"text-muted\" ng-if=\"todo.description\">{{todo.description}}</span>\r\n                <span class=\"date\">{{todo.createdAt | date}} &dash; <a ng-click=\"deleteTodo(todo)\" class=\"text-muted\"><i\r\n                        class=\"fa fa-trash\"></i></a></span>\r\n\r\n            </p>\r\n        </li>\r\n    </ul>\r\n</div>");
-$templateCache.put("app/public/app/auth/directives/login-info.tpl.html","<div class=\"login-info ng-cloak\">\r\n    <span> <!-- User image size is adjusted inside CSS, it should stay as it -->\r\n        <!-- <a  href=\"\" toggle-shortcut>\r\n            <img ng-src=\"{{user.picture}}\" alt=\"me\" class=\"online\">\r\n                <span>{{user.U_NAME}}\r\n                </span>\r\n            <i class=\"fa fa-angle-down\"></i>\r\n        </a> -->\r\n        <a  href=\"\">\r\n            <img ng-src=\"{{user.picture}}\" alt=\"me\" class=\"online\">\r\n                <span>{{user.U_NAME}}\r\n                </span>\r\n        </a>\r\n     </span>\r\n</div>");
 $templateCache.put("app/public/app/calendar/directives/full-calendar.tpl.html","<div jarvis-widget data-widget-color=\"blueDark\">\r\n    <header>\r\n        <span class=\"widget-icon\"> <i class=\"fa fa-calendar\"></i> </span>\r\n\r\n        <h2> My Events </h2>\r\n\r\n        <div class=\"widget-toolbar\">\r\n            <!-- add: non-hidden - to disable auto hide -->\r\n            <div class=\"btn-group dropdown\" dropdown >\r\n                <button class=\"btn dropdown-toggle btn-xs btn-default\" data-toggle=\"dropdown\">\r\n                    Showing <i class=\"fa fa-caret-down\"></i>\r\n                </button>\r\n                <ul class=\"dropdown-menu js-status-update pull-right\">\r\n                    <li>\r\n                        <a ng-click=\"changeView(\'month\')\">Month</a>\r\n                    </li>\r\n                    <li>\r\n                        <a ng-click=\"changeView(\'agendaWeek\')\">Agenda</a>\r\n                    </li>\r\n                    <li>\r\n                        <a ng-click=\"changeView(\'agendaDay\')\">Today</a>\r\n                    </li>\r\n                </ul>\r\n            </div>\r\n        </div>\r\n    </header>\r\n\r\n    <!-- widget div-->\r\n    <div>\r\n        <div class=\"widget-body no-padding\">\r\n            <!-- content goes here -->\r\n            <div class=\"widget-body-toolbar\">\r\n\r\n                <div id=\"calendar-buttons\">\r\n\r\n                    <div class=\"btn-group\">\r\n                        <a ng-click=\"prev()\" class=\"btn btn-default btn-xs\"><i\r\n                                class=\"fa fa-chevron-left\"></i></a>\r\n                        <a ng-click=\"next()\" class=\"btn btn-default btn-xs\"><i\r\n                                class=\"fa fa-chevron-right\"></i></a>\r\n                    </div>\r\n                </div>\r\n            </div>\r\n            <div id=\"calendar\"></div>\r\n\r\n            <!-- end content -->\r\n        </div>\r\n\r\n    </div>\r\n    <!-- end widget div -->\r\n</div>\r\n");
+$templateCache.put("app/public/app/auth/directives/login-info.tpl.html","<div class=\"login-info ng-cloak\">\r\n    <span> <!-- User image size is adjusted inside CSS, it should stay as it -->\r\n        <!-- <a  href=\"\" toggle-shortcut>\r\n            <img ng-src=\"{{user.picture}}\" alt=\"me\" class=\"online\">\r\n                <span>{{user.U_NAME}}\r\n                </span>\r\n            <i class=\"fa fa-angle-down\"></i>\r\n        </a> -->\r\n        <a  href=\"\">\r\n            <img ng-src=\"{{user.picture}}\" alt=\"me\" class=\"online\">\r\n                <span>{{user.U_NAME}}\r\n                </span>\r\n        </a>\r\n     </span>\r\n</div>");
 $templateCache.put("app/public/app/calendar/views/calendar.tpl.html","<!-- MAIN CONTENT -->\r\n<div id=\"content\">\r\n\r\n    <div class=\"row\">\r\n        <big-breadcrumbs items=\"[\'Home\', \'Calendar\']\" class=\"col-xs-12 col-sm-7 col-md-7 col-lg-4\"></big-breadcrumbs>\r\n        <div smart-include=\"app/layout/partials/sub-header.tpl.html\"></div>\r\n    </div>\r\n    <!-- widget grid -->\r\n    <section id=\"widget-grid\" widget-grid>\r\n        <!-- row -->\r\n        <div class=\"row\" ng-controller=\"CalendarCtrl\" >\r\n\r\n\r\n            <div class=\"col-sm-12 col-md-12 col-lg-3\">\r\n                <!-- new widget -->\r\n                <div class=\"jarviswidget jarviswidget-color-blueDark\">\r\n                    <header>\r\n                        <h2> Add Events </h2>\r\n                    </header>\r\n\r\n                    <!-- widget div-->\r\n                    <div>\r\n\r\n                        <div class=\"widget-body\">\r\n                            <!-- content goes here -->\r\n\r\n                            <form id=\"add-event-form\">\r\n                                <fieldset>\r\n\r\n                                    <div class=\"form-group\">\r\n                                        <label>Select Event Icon</label>\r\n                                        <div class=\"btn-group btn-group-sm btn-group-justified\" data-toggle=\"buttons\" > <!--  -->\r\n                                            <label class=\"btn btn-default active\">\r\n                                                <input type=\"radio\" name=\"iconselect\" id=\"icon-1\" value=\"fa-info\" radio-toggle ng-model=\"newEvent.icon\">\r\n                                                <i class=\"fa fa-info text-muted\"></i> </label>\r\n                                            <label class=\"btn btn-default\">\r\n                                                <input type=\"radio\" name=\"iconselect\" id=\"icon-2\" value=\"fa-warning\" radio-toggle  ng-model=\"newEvent.icon\">\r\n                                                <i class=\"fa fa-warning text-muted\"></i> </label>\r\n                                            <label class=\"btn btn-default\">\r\n                                                <input type=\"radio\" name=\"iconselect\" id=\"icon-3\" value=\"fa-check\" radio-toggle  ng-model=\"newEvent.icon\">\r\n                                                <i class=\"fa fa-check text-muted\"></i> </label>\r\n                                            <label class=\"btn btn-default\">\r\n                                                <input type=\"radio\" name=\"iconselect\" id=\"icon-4\" value=\"fa-user\" radio-toggle  ng-model=\"newEvent.icon\">\r\n                                                <i class=\"fa fa-user text-muted\"></i> </label>\r\n                                            <label class=\"btn btn-default\">\r\n                                                <input type=\"radio\" name=\"iconselect\" id=\"icon-5\" value=\"fa-lock\" radio-toggle  ng-model=\"newEvent.icon\">\r\n                                                <i class=\"fa fa-lock text-muted\"></i> </label>\r\n                                            <label class=\"btn btn-default\">\r\n                                                <input type=\"radio\" name=\"iconselect\" id=\"icon-6\" value=\"fa-clock-o\" radio-toggle  ng-model=\"newEvent.icon\">\r\n                                                <i class=\"fa fa-clock-o text-muted\"></i> </label>\r\n                                        </div>\r\n                                    </div>\r\n\r\n                                    <div class=\"form-group\">\r\n                                        <label>Event Title</label>\r\n                                        <input ng-model=\"newEvent.title\" class=\"form-control\"  id=\"title\" name=\"title\" maxlength=\"40\" type=\"text\" placeholder=\"Event Title\">\r\n                                    </div>\r\n                                    <div class=\"form-group\">\r\n                                        <label>Event Description</label>\r\n                                        <textarea  ng-model=\"newEvent.description\" class=\"form-control\" placeholder=\"Please be brief\" rows=\"3\" maxlength=\"40\" id=\"description\"></textarea>\r\n                                        <p class=\"note\">Maxlength is set to 40 characters</p>\r\n                                    </div>\r\n\r\n                                    <div class=\"form-group\">\r\n                                        <label>Select Event Color</label>\r\n                                        <div class=\"btn-group btn-group-justified btn-select-tick\" data-toggle=\"buttons\" >\r\n                                            <label class=\"btn bg-color-darken active\">\r\n                                                <input   ng-model=\"newEvent.className\" radio-toggle   type=\"radio\" name=\"priority\" id=\"option1\" value=\"bg-color-darken txt-color-white\" >\r\n                                                <i class=\"fa fa-check txt-color-white\"></i> </label>\r\n                                            <label class=\"btn bg-color-blue\">\r\n                                                <input  ng-model=\"newEvent.className\" radio-toggle   type=\"radio\" name=\"priority\" id=\"option2\" value=\"bg-color-blue txt-color-white\">\r\n                                                <i class=\"fa fa-check txt-color-white\"></i> </label>\r\n                                            <label class=\"btn bg-color-orange\">\r\n                                                <input  ng-model=\"newEvent.className\" radio-toggle   type=\"radio\" name=\"priority\" id=\"option3\" value=\"bg-color-orange txt-color-white\">\r\n                                                <i class=\"fa fa-check txt-color-white\"></i> </label>\r\n                                            <label class=\"btn bg-color-greenLight\">\r\n                                                <input  ng-model=\"newEvent.className\" radio-toggle   type=\"radio\" name=\"priority\" id=\"option4\" value=\"bg-color-greenLight txt-color-white\">\r\n                                                <i class=\"fa fa-check txt-color-white\"></i> </label>\r\n                                            <label class=\"btn bg-color-blueLight\">\r\n                                                <input  ng-model=\"newEvent.className\" radio-toggle   type=\"radio\" name=\"priority\" id=\"option5\" value=\"bg-color-blueLight txt-color-white\">\r\n                                                <i class=\"fa fa-check txt-color-white\"></i> </label>\r\n                                            <label class=\"btn bg-color-red\">\r\n                                                <input  ng-model=\"newEvent.className\" radio-toggle   type=\"radio\" name=\"priority\" id=\"option6\" value=\"bg-color-red txt-color-white\">\r\n                                                <i class=\"fa fa-check txt-color-white\"></i> </label>\r\n                                        </div>\r\n                                    </div>\r\n\r\n                                </fieldset>\r\n                                <div class=\"form-actions\">\r\n                                    <div class=\"row\">\r\n                                        <div class=\"col-md-12\">\r\n                                            <button class=\"btn btn-default\" type=\"button\" id=\"add-event\" ng-click=\"addEvent()\" >\r\n                                                Add Event\r\n                                            </button>\r\n                                        </div>\r\n                                    </div>\r\n                                </div>\r\n                            </form>\r\n\r\n                            <!-- end content -->\r\n                        </div>\r\n\r\n                    </div>\r\n                    <!-- end widget div -->\r\n                </div>\r\n                <!-- end widget -->\r\n\r\n                <div class=\"well well-sm\" id=\"event-container\">\r\n                    <form>\r\n                        <legend>\r\n                            Draggable Events\r\n                        </legend>\r\n                        <ul id=\'external-events\' class=\"list-unstyled\">\r\n\r\n                            <li ng-repeat=\"event in eventsExternal\" dragable-event>\r\n                                <span class=\"{{event.className}}\" \r\n                                    data-description=\"{{event.description}}\"\r\n                                    data-icon=\"{{event.icon}}\"\r\n                                >\r\n                                {{event.title}}</span>\r\n                            </li>\r\n                            \r\n                        </ul>\r\n\r\n                        <!-- <ul id=\'external-events\' class=\"list-unstyled\">\r\n                            <li>\r\n                                <span class=\"bg-color-darken txt-color-white\" data-description=\"Currently busy\" data-icon=\"fa-time\">Office Meeting</span>\r\n                            </li>\r\n                            <li>\r\n                                <span class=\"bg-color-blue txt-color-white\" data-description=\"No Description\" data-icon=\"fa-pie\">Lunch Break</span>\r\n                            </li>\r\n                            <li>\r\n                                <span class=\"bg-color-red txt-color-white\" data-description=\"Urgent Tasks\" data-icon=\"fa-alert\">URGENT</span>\r\n                            </li>\r\n                        </ul> -->\r\n\r\n                        <div class=\"checkbox\">\r\n                            <label>\r\n                                <input type=\"checkbox\" id=\"drop-remove\" class=\"checkbox style-0\" checked=\"checked\">\r\n                                <span>remove after drop</span> </label>\r\n\r\n                        </div>\r\n                    </form>\r\n\r\n                </div>\r\n            </div>\r\n\r\n\r\n            <article class=\"col-sm-12 col-md-12 col-lg-9\">\r\n                <full-calendar id=\"main-calendar-widget\" data-events=\"events\"></full-calendar>\r\n            </article>\r\n        </div>\r\n    </section>\r\n</div>");
 $templateCache.put("app/public/app/dashboard/projects/recent-projects.tpl.html","<div class=\"project-context hidden-xs dropdown\" dropdown>\r\n\r\n    <span class=\"label\">{{getWord(\'Projects\')}}:</span>\r\n    <span class=\"project-selector dropdown-toggle\" data-toggle=\"dropdown\">{{getWord(\'Recent projects\')}} <i ng-if=\"projects.length\"\r\n            class=\"fa fa-angle-down\"></i></span>\r\n\r\n    <ul class=\"dropdown-menu\" ng-if=\"projects.length\">\r\n        <li ng-repeat=\"project in projects\">\r\n            <a href=\"{{project.href}}\">{{project.title}}</a>\r\n        </li>\r\n        <li class=\"divider\"></li>\r\n        <li>\r\n            <a ng-click=\"clearProjects()\"><i class=\"fa fa-power-off\"></i> Clear</a>\r\n        </li>\r\n    </ul>\r\n\r\n</div>");
 $templateCache.put("app/public/app/dashboard/todo/todo-widget.tpl.html","<div id=\"todo-widget\" jarvis-widget data-widget-editbutton=\"false\" data-widget-color=\"blue\"\r\n     ng-controller=\"TodoCtrl\">\r\n    <header>\r\n        <span class=\"widget-icon\"> <i class=\"fa fa-check txt-color-white\"></i> </span>\r\n\r\n        <h2> ToDo\'s </h2>\r\n\r\n        <div class=\"widget-toolbar\">\r\n            <!-- add: non-hidden - to disable auto hide -->\r\n            <button class=\"btn btn-xs btn-default\" ng-class=\"{active: newTodo}\" ng-click=\"toggleAdd()\"><i ng-class=\"{ \'fa fa-plus\': !newTodo, \'fa fa-times\': newTodo}\"></i> Add</button>\r\n\r\n        </div>\r\n    </header>\r\n    <!-- widget div-->\r\n    <div>\r\n        <div class=\"widget-body no-padding smart-form\">\r\n            <!-- content goes here -->\r\n            <div ng-show=\"newTodo\">\r\n                <h5 class=\"todo-group-title\"><i class=\"fa fa-plus-circle\"></i> New Todo</h5>\r\n\r\n                <form name=\"newTodoForm\" class=\"smart-form\">\r\n                    <fieldset>\r\n                        <section>\r\n                            <label class=\"input\">\r\n                                <input type=\"text\" required class=\"input-lg\" ng-model=\"newTodo.title\"\r\n                                       placeholder=\"What needs to be done?\">\r\n                            </label>\r\n                        </section>\r\n                        <section>\r\n                            <div class=\"col-xs-6\">\r\n                                <label class=\"select\">\r\n                                    <select class=\"input-sm\" ng-model=\"newTodo.state\"\r\n                                            ng-options=\"state as state for state in states\"></select> <i></i> </label>\r\n                            </div>\r\n                        </section>\r\n                    </fieldset>\r\n                    <footer>\r\n                        <button ng-disabled=\"newTodoForm.$invalid\" type=\"button\" class=\"btn btn-primary\"\r\n                                ng-click=\"createTodo()\">\r\n                            Add\r\n                        </button>\r\n                        <button type=\"button\" class=\"btn btn-default\" ng-click=\"toggleAdd()\">\r\n                            Cancel\r\n                        </button>\r\n                    </footer>\r\n                </form>\r\n            </div>\r\n\r\n            <todo-list state=\"Critical\"  title=\"Critical Tasks\" icon=\"warning\" todos=\"todos\"></todo-list>\r\n\r\n            <todo-list state=\"Important\" title=\"Important Tasks\" icon=\"exclamation\" todos=\"todos\"></todo-list>\r\n\r\n            <todo-list state=\"Completed\" title=\"Completed Tasks\" icon=\"check\" todos=\"todos\"></todo-list>\r\n\r\n            <!-- end content -->\r\n        </div>\r\n\r\n    </div>\r\n    <!-- end widget div -->\r\n</div>");
 $templateCache.put("app/public/app/layout/language/language-selector.tpl.html","<ul class=\"header-dropdown-list hidden-xs ng-cloak\" ng-controller=\"LanguagesCtrl\">\r\n    <li class=\"dropdown\" dropdown>\r\n        <a class=\"dropdown-toggle\" data-toggle=\"dropdown\" href> <img src=\"styles/img/blank.gif\" class=\"flag flag-{{currentLanguage.key}}\" alt=\"{{currentLanguage.alt}}\"> <span> {{currentLanguage.title}} </span>\r\n            <i class=\"fa fa-angle-down\"></i> </a>\r\n        <ul class=\"dropdown-menu pull-right\">\r\n            <li ng-class=\"{active: language==currentLanguage}\" ng-repeat=\"language in languages\">\r\n                <a ng-click=\"selectLanguage(language)\"><img src=\"styles/img/blank.gif\" class=\"flag flag-{{language.key}}\" alt=\"{{language.alt}}\"> {{language.title}}</a>\r\n            </li>\r\n        </ul>\r\n    </li>\r\n</ul>\r\n");
-$templateCache.put("app/public/app/layout/shortcut/shortcut.tpl.html","<div id=\"shortcut\">\r\n	<ul>\r\n		<li>\r\n			<a href=\"#/inbox/\" class=\"jarvismetro-tile big-cubes bg-color-blue\"> <span class=\"iconbox\"> <i class=\"fa fa-envelope fa-4x\"></i> <span>Mail <span class=\"label pull-right bg-color-darken\">14</span></span> </span> </a>\r\n		</li>\r\n		<li>\r\n			<a href=\"#/calendar\" class=\"jarvismetro-tile big-cubes bg-color-orangeDark\"> <span class=\"iconbox\"> <i class=\"fa fa-calendar fa-4x\"></i> <span>Calendar</span> </span> </a>\r\n		</li>\r\n		<li>\r\n			<a href=\"#/maps\" class=\"jarvismetro-tile big-cubes bg-color-purple\"> <span class=\"iconbox\"> <i class=\"fa fa-map-marker fa-4x\"></i> <span>Maps</span> </span> </a>\r\n		</li>\r\n		<li>\r\n			<a href=\"#/invoice\" class=\"jarvismetro-tile big-cubes bg-color-blueDark\"> <span class=\"iconbox\"> <i class=\"fa fa-book fa-4x\"></i> <span>Invoice <span class=\"label pull-right bg-color-darken\">99</span></span> </span> </a>\r\n		</li>\r\n		<li>\r\n			<a href=\"#/gallery\" class=\"jarvismetro-tile big-cubes bg-color-greenLight\"> <span class=\"iconbox\"> <i class=\"fa fa-picture-o fa-4x\"></i> <span>Gallery </span> </span> </a>\r\n		</li>\r\n		<li>\r\n			<a href=\"#/profile\" class=\"jarvismetro-tile big-cubes selected bg-color-pinkDark\"> <span class=\"iconbox\"> <i class=\"fa fa-user fa-4x\"></i> <span>My Profile </span> </span> </a>\r\n		</li>\r\n	</ul>\r\n</div>");
 $templateCache.put("app/public/app/layout/partials/footer.tpl.html","<div class=\"page-footer\">\r\n    <div class=\"row\">\r\n        <div class=\"col-xs-12 col-sm-6\">\r\n            <span class=\"txt-color-white\">東風物流貨運承攬有限公司 © 2017</span>\r\n        </div>\r\n\r\n        <div class=\"col-xs-6 col-sm-6 text-right hidden-xs\">\r\n            <!-- <div class=\"txt-color-white inline-block\">\r\n                <i class=\"txt-color-blueLight hidden-mobile\">Last account activity <i class=\"fa fa-clock-o\"></i>\r\n                    <strong>52 mins ago &nbsp;</strong> </i>\r\n\r\n                <div class=\"btn-group dropup\">\r\n                    <button class=\"btn btn-xs dropdown-toggle bg-color-blue txt-color-white\" data-toggle=\"dropdown\">\r\n                        <i class=\"fa fa-link\"></i> <span class=\"caret\"></span>\r\n                    </button>\r\n                    <ul class=\"dropdown-menu pull-right text-left\">\r\n                        <li>\r\n                            <div class=\"padding-5\">\r\n                                <p class=\"txt-color-darken font-sm no-margin\">Download Progress</p>\r\n\r\n                                <div class=\"progress progress-micro no-margin\">\r\n                                    <div class=\"progress-bar progress-bar-success\" style=\"width: 50%;\"></div>\r\n                                </div>\r\n                            </div>\r\n                        </li>\r\n                        <li class=\"divider\"></li>\r\n                        <li>\r\n                            <div class=\"padding-5\">\r\n                                <p class=\"txt-color-darken font-sm no-margin\">Server Load</p>\r\n\r\n                                <div class=\"progress progress-micro no-margin\">\r\n                                    <div class=\"progress-bar progress-bar-success\" style=\"width: 20%;\"></div>\r\n                                </div>\r\n                            </div>\r\n                        </li>\r\n                        <li class=\"divider\"></li>\r\n                        <li>\r\n                            <div class=\"padding-5\">\r\n                                <p class=\"txt-color-darken font-sm no-margin\">Memory Load <span class=\"text-danger\">*critical*</span>\r\n                                </p>\r\n\r\n                                <div class=\"progress progress-micro no-margin\">\r\n                                    <div class=\"progress-bar progress-bar-danger\" style=\"width: 70%;\"></div>\r\n                                </div>\r\n                            </div>\r\n                        </li>\r\n                        <li class=\"divider\"></li>\r\n                        <li>\r\n                            <div class=\"padding-5\">\r\n                                <button class=\"btn btn-block btn-default\">refresh</button>\r\n                            </div>\r\n                        </li>\r\n                    </ul>\r\n                </div>\r\n            </div> -->\r\n        </div>\r\n    </div>\r\n</div>");
 $templateCache.put("app/public/app/layout/partials/header.tpl.html","<header id=\"header\">\r\n    <div id=\"logo-group\">\r\n        <!-- PLACE YOUR LOGO HERE -->\r\n        <span id=\"logo\"> <img src=\"styles/img/ews/title_logo.png\" alt=\"東風管理系統\"> </span>\r\n        <!-- END LOGO PLACEHOLDER -->\r\n        <!-- Note: The activity badge color changes when clicked and resets the number to 0\r\n    Suggestion: You may want to set a flag when this happens to tick off all checked messages / notifications -->\r\n        <!-- <span id=\"activity\" class=\"activity-dropdown\" activities-dropdown-toggle> \r\n            <i class=\"fa fa-user\"></i> \r\n            <b class=\"badge bg-color-red\">21</b> \r\n        </span> -->\r\n        <div smart-include=\"app/dashboard/activities/activities.html\"></div>\r\n    </div>\r\n    <!-- <recent-projects></recent-projects> -->\r\n    <!-- pulled right: nav area -->\r\n    <div class=\"pull-right\">\r\n        <!-- collapse menu button -->\r\n        <div id=\"hide-menu\" class=\"btn-header pull-right\">\r\n            <span> <a toggle-menu title=\"Collapse Menu\"><i\r\n                class=\"fa fa-reorder\"></i></a> </span>\r\n        </div>\r\n        <!-- end collapse menu -->\r\n        <!-- #MOBILE -->\r\n        <!-- Top menu profile link : this shows only when top menu is active -->\r\n        <ul id=\"mobile-profile-img\" class=\"header-dropdown-list hidden-xs padding-5\">\r\n            <li class=\"\">\r\n                <a href=\"#\" class=\"dropdown-toggle no-margin userdropdown\" data-toggle=\"dropdown\">\r\n                    <img src=\"styles/img/avatars/eastwind.png\" alt=\"John Doe\" class=\"online\" />\r\n                </a>\r\n                <ul class=\"dropdown-menu pull-right\">\r\n                    <li>\r\n                        <a href-void class=\"padding-10 padding-top-0 padding-bottom-0\"><i\r\n                            class=\"fa fa-cog\"></i> Setting</a>\r\n                    </li>\r\n                    <li class=\"divider\"></li>\r\n                    <li>\r\n                        <a ui-sref=\"app.appViews.profileDemo\" class=\"padding-10 padding-top-0 padding-bottom-0\"> <i class=\"fa fa-user\"></i>\r\n                            <u>P</u>rofile</a>\r\n                    </li>\r\n                    <li class=\"divider\"></li>\r\n                    <li>\r\n                        <a href-void class=\"padding-10 padding-top-0 padding-bottom-0\" data-action=\"toggleShortcut\"><i class=\"fa fa-arrow-down\"></i> <u>S</u>hortcut</a>\r\n                    </li>\r\n                    <li class=\"divider\"></li>\r\n                    <li>\r\n                        <a href-void class=\"padding-10 padding-top-0 padding-bottom-0\" data-action=\"launchFullscreen\"><i class=\"fa fa-arrows-alt\"></i> Full <u>S</u>creen</a>\r\n                    </li>\r\n                    <li class=\"divider\"></li>\r\n                    <li>\r\n                        <a href=\"#/login\" class=\"padding-10 padding-top-5 padding-bottom-5\" data-action=\"userLogout\"><i\r\n                            class=\"fa fa-sign-out fa-lg\"></i> <strong><u>L</u>ogout</strong></a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n        </ul>\r\n        <!-- logout button -->\r\n        <div id=\"logout\" class=\"btn-header transparent pull-right\">\r\n            <span> \r\n                <a ui-sref=\"login\" \r\n                   title=\"Sign Out\" \r\n                   data-action=\"userLogout\"\r\n                   data-logout-msg=\"You can improve your security further after logging out by closing this opened browser\">\r\n                   <i class=\"fa fa-sign-out\"></i>\r\n                </a> \r\n            </span>\r\n        </div>\r\n        <!-- end logout button -->\r\n        <!-- search mobile button (this is hidden till mobile view port) -->\r\n        <div id=\"search-mobile\" class=\"btn-header transparent pull-right\" data-search-mobile>\r\n            <span> <a href=\"#\" title=\"Search\"><i class=\"fa fa-search\"></i></a> </span>\r\n        </div>\r\n        <!-- end search mobile button -->\r\n        <!-- input: search field -->\r\n        <!-- <form action=\"#/search\" class=\"header-search pull-right\">\r\n            <input id=\"search-fld\" type=\"text\" name=\"param\" placeholder=\"Find reports and more\" data-autocomplete=\'[\r\n                    \"ActionScript\",\r\n                    \"AppleScript\",\r\n                    \"Asp\",\r\n                    \"BASIC\",\r\n                    \"C\",\r\n                    \"C++\",\r\n                    \"Clojure\",\r\n                    \"COBOL\",\r\n                    \"ColdFusion\",\r\n                    \"Erlang\",\r\n                    \"Fortran\",\r\n                    \"Groovy\",\r\n                    \"Haskell\",\r\n                    \"Java\",\r\n                    \"JavaScript\",\r\n                    \"Lisp\",\r\n                    \"Perl\",\r\n                    \"PHP\",\r\n                    \"Python\",\r\n                    \"Ruby\",\r\n                    \"Scala\",\r\n                    \"Scheme\"]\'>\r\n            <button type=\"submit\">\r\n                <i class=\"fa fa-search\"></i>\r\n            </button>\r\n            <a href=\"$\" id=\"cancel-search-js\" title=\"Cancel Search\"><i class=\"fa fa-times\"></i></a>\r\n        </form> -->\r\n        <!-- end input: search field -->\r\n        <!-- fullscreen button -->\r\n        <div id=\"fullscreen\" class=\"btn-header transparent pull-right\">\r\n            <span> <a full-screen title=\"Full Screen\"><i\r\n                class=\"fa fa-arrows-alt\"></i></a> </span>\r\n        </div>\r\n        <!-- end fullscreen button -->\r\n        <!-- #Voice Command: Start Speech -->\r\n        <!-- <div id=\"speech-btn\" class=\"btn-header transparent pull-right hidden-sm hidden-xs\">\r\n            <div>\r\n                <a title=\"Voice Command\" id=\"voice-command-btn\" speech-recognition><i class=\"fa fa-microphone\"></i></a>\r\n                <div class=\"popover bottom\">\r\n                    <div class=\"arrow\"></div>\r\n                    <div class=\"popover-content\">\r\n                        <h4 class=\"vc-title\">Voice command activated <br>\r\n                        <small>Please speak clearly into the mic</small>\r\n                    </h4>\r\n                        <h4 class=\"vc-title-error text-center\">\r\n                        <i class=\"fa fa-microphone-slash\"></i> Voice command failed\r\n                        <br>\r\n                        <small class=\"txt-color-red\">Must <strong>\"Allow\"</strong> Microphone</small>\r\n                        <br>\r\n                        <small class=\"txt-color-red\">Must have <strong>Internet Connection</strong></small>\r\n                    </h4>\r\n                        <a href-void class=\"btn btn-success\" id=\"speech-help-btn\">See Commands</a>\r\n                        <a href-void class=\"btn bg-color-purple txt-color-white\" onclick=\"$(\'#speech-btn .popover\').fadeOut(50);\">Close Popup</a>\r\n                    </div>\r\n                </div>\r\n            </div>\r\n        </div> -->\r\n        <!-- end voice command -->\r\n        \r\n        <!-- multiple lang dropdown : find all flags in the flags page -->\r\n        <language-selector></language-selector>\r\n        <!-- end multiple lang -->\r\n    </div>\r\n    <!-- end pulled right: nav area -->\r\n</header>\r\n");
 $templateCache.put("app/public/app/layout/partials/navigation.tpl.html","<aside id=\"left-panel\">\r\n\r\n    <!-- User info -->\r\n    <div login-info></div>\r\n    <!-- end user info -->\r\n\r\n    <nav data-smart-menu-items=\"/api/menu-items.json\">\r\n    <!-- <nav> -->\r\n        <!-- NOTE: Notice the gaps after each icon usage <i></i>..\r\n        Please note that these links work a bit different than\r\n        traditional href=\"\" links. See documentation for details.\r\n        -->\r\n\r\n        <!-- <ul data-smart-menu>\r\n            <li data-menu-collapse>\r\n                <a href=\"#\" title=\"Dashboard\"><i class=\"fa fa-lg fa-fw fa-home\"></i> <span\r\n                        class=\"menu-item-parent\">{{getWord(\'Dashboard\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.dashboard\">{{getWord(\'Analytics Dashboard\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.dashboard-social\">{{getWord(\'Social Wall\')}}</a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\" title=\"Restful\">\r\n                    <i class=\"fa fa-lg fa-fw fa-home\"></i> \r\n                    <span class=\"menu-item-parent\">{{getWord(\'Restful\')}}</span>\r\n                </a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.restful.alantest\">{{getWord(\'AlanTest\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.restful.gridtest\">{{getWord(\'GridTest\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.restful.exceltest\">{{getWord(\'ExcelTest\')}}</a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-ui-sref-active=\"active\">\r\n                <a data-ui-sref=\"app.mainwork\" title=\"MainWork\">\r\n                    <i class=\"fa fa-lg fa-fw fa-newspaper-o\"></i> \r\n                    <span class=\"menu-item-parent\">{{getWord(\'MainWork\')}}</span>\r\n                </a>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\" title=\"SelfWork\">\r\n                    <i class=\"fa fa-lg fa-fw fa-truck\"></i> \r\n                    <span class=\"menu-item-parent\">{{getWord(\'SelfWork\')}}</span>\r\n                </a>\r\n                <ul>\r\n                    <li data-menu-collapse>\r\n                        <a href=\"#\"><i class=\"fa fa-fw fa-folder-open\"></i> {{getWord(\'LeaderOption\')}} </a>\r\n                        <ul>\r\n                            <li data-ui-sref-active=\"active\">\r\n                                <a data-ui-sref=\"app.selfwork.leaderoption.compydistribution\"><i class=\"fa fa-building-o\"></i> {{getWord(\'CompyDistribution\')}}</a>\r\n                            </li>\r\n                            <li data-ui-sref-active=\"active\">\r\n                                <a data-ui-sref=\"app.selfwork.leaderoption.agentsetting\"><i class=\"fa fa-braille\"></i> {{getWord(\'AgentSetting\')}}</a>\r\n                            </li>\r\n                            <li data-ui-sref-active=\"active\">\r\n                                <a data-ui-sref=\"app.selfwork.leaderoption.dailyleave\"><i class=\"fa fa-child\"></i> {{getWord(\'DailyLeave\')}}</a>\r\n                            </li>\r\n                        </ul>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.selfwork.customoversix\"><i class=\"fa fa-cube\"></i> {{getWord(\'CustomOverSix\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.selfwork.leaderjobs\"><i class=\"fa fa-cubes\"></i> {{getWord(\'LeaderJobs\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.selfwork.leaderhistorysearch\"><i class=\"fa fa-history\"></i> {{getWord(\'LeaderHistorySearch\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.selfwork.assistantjobs\"><i class=\"fa fa-cube\"></i> {{getWord(\'AssistantJobs\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.selfwork.assistanthistorysearch\"><i class=\"fa fa-history\"></i> {{getWord(\'AssistantHistorySearch\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.selfwork.employeejobs\"><i class=\"fa fa-cube\"></i> {{getWord(\'EmployeeJobs\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.selfwork.employeehistorysearch\"><i class=\"fa fa-history\"></i> {{getWord(\'EmployeeHistorySearch\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.selfwork.deliveryjobs\"><i class=\"fa fa-cube\"></i> {{getWord(\'DeliveryJobs\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.selfwork.deliveryhistorysearch\"><i class=\"fa fa-history\"></i> {{getWord(\'DeliveryHistorySearch\')}}</a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\" title=\"Concerns\"><i class=\"fa fa-lg fa-fw fa-address-book-o\"></i> <span\r\n                        class=\"menu-item-parent\">{{getWord(\'Concerns\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.concerns.ban\"><i class=\"fa fa-ban\"></i> {{getWord(\'Ban\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.concerns.dailyalert\"><i class=\"fa fa-bell-o\"></i> {{getWord(\'DailyAlert\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.concerns.banhistorysearch\"><i class=\"fa fa-history\"></i> {{getWord(\'HistorySearch\')}}</a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\" title=\"Settings\"><i class=\"fa fa-lg fa-fw fa-cog\"></i> <span\r\n                        class=\"menu-item-parent\">{{getWord(\'Settings\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.settings.profile\"><i class=\"fa fa-user\"></i> {{getWord(\'Profile\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.settings.accountmanagement\"><i class=\"fa fa-sitemap\"></i> {{getWord(\'AccountManagement\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.settings.billboardeditor\"><i class=\"fa fa-newspaper-o\"></i> {{getWord(\'BillboardEditor\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.settings.externalmanagement\"><i class=\"fa fa-external-link\"></i> {{getWord(\'ExternalManagement\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.settings.aviationmail\"><i class=\"fa fa-envelope-o\"></i> {{getWord(\'AviationMail\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.settings.excompybagno\"><i class=\"fa fa-shopping-bag\"></i> {{getWord(\'ExcompyBagno\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.settings.bagnocount\"><i class=\"fa fa-hourglass-half\"></i> {{getWord(\'BagnoCount\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.settings.syslogs\"><i class=\"fa fa-database\"></i> {{getWord(\'SysLogs\')}}</a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse class=\"top-menu-invisible\">\r\n                <a href=\"#\"><i class=\"fa fa-lg fa-fw fa-cube txt-color-blue\"></i> <span class=\"menu-item-parent\">{{getWord(\'SmartAdmin Intel\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.smartAdmin.appLayouts\"><i class=\"fa fa-gear\"></i>\r\n                            {{getWord(\'App Layouts\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.smartAdmin.prebuiltSkins\"><i class=\"fa fa-picture-o\"></i>\r\n                            {{getWord(\'Prebuilt Skins\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.smartAdmin.appLayout\"><i class=\"fa fa-cube\"></i> {{getWord(\'App Settings\')}}</a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-ui-sref-active=\"active\">\r\n                <a data-ui-sref=\"app.inbox.folder\" title=\"Outlook\">\r\n                    <i class=\"fa fa-lg fa-fw fa-inbox\"></i> <span class=\"menu-item-parent\">{{getWord(\'Outlook\')}}</span><span\r\n                        unread-messages-count class=\"badge pull-right inbox-badge\"></span></a>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\"><i class=\"fa fa-lg fa-fw fa-bar-chart-o\"></i> <span class=\"menu-item-parent\">{{getWord(\'Graphs\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.graphs.flot\">{{getWord(\'Flot Chart\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.graphs.morris\">{{getWord(\'Morris Charts\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.graphs.sparkline\">{{getWord(\'Sparkline\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.graphs.easyPieCharts\">{{getWord(\'Easy Pie Charts\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.graphs.dygraphs\">{{getWord(\'Dygraphs\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.graphs.chartjs\">Chart.js</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.graphs.highchartTables\">Highchart Tables <span\r\n                                class=\"badge pull-right inbox-badge bg-color-yellow\">new</span></a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\"><i class=\"fa fa-lg fa-fw fa-table\"></i> <span\r\n                        class=\"menu-item-parent\">{{getWord(\'Tables\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.tables.normal\">{{getWord(\'Normal Tables\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.tables.datatables\">{{getWord(\'Data Tables\')}} <span\r\n                                class=\"badge inbox-badge bg-color-greenLight\">v1.10</span></a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.tables.jqgrid\">{{getWord(\'Jquery Grid\')}}</a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\"><i class=\"fa fa-lg fa-fw fa-pencil-square-o\"></i> <span class=\"menu-item-parent\">{{getWord(\'Forms\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.form.elements\">{{getWord(\'Smart Form Elements\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.form.layouts\">{{getWord(\'Smart Form Layouts\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.form.validation\">{{getWord(\'Smart Form Validation\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.form.bootstrapForms\">{{getWord(\'Bootstrap Form Elements\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.form.bootstrapValidation\">{{getWord(\'Bootstrap Form Validation\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.form.plugins\">{{getWord(\'Form Plugins\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.form.wizards\">{{getWord(\'Wizards\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.form.editors\">{{getWord(\'Bootstrap Editors\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.form.dropzone\">{{getWord(\'Dropzone\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.form.imageEditor\">{{getWord(\'Image Cropping\')}} <span\r\n                                class=\"badge pull-right inbox-badge bg-color-yellow\">new</span></a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\"><i class=\"fa fa-lg fa-fw fa-desktop\"></i> <span class=\"menu-item-parent\">{{getWord(\'UI Elements\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.ui.general\">{{getWord(\'General Elements\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.ui.buttons\">{{getWord(\'Buttons\')}}</a>\r\n                    </li>\r\n                    <li data-menu-collapse>\r\n                        <a href=\"#\">{{getWord(\'Icons\')}}</a>\r\n                        <ul>\r\n                            <li data-ui-sref-active=\"active\">\r\n                                <a data-ui-sref=\"app.ui.iconsFa\"><i class=\"fa fa-plane\"></i> {{getWord(\'Font Awesome\')}}</a>\r\n                            </li>\r\n                            <li data-ui-sref-active=\"active\">\r\n                                <a data-ui-sref=\"app.ui.iconsGlyph\"><i class=\"glyphicon glyphicon-plane\"></i>\r\n                                    {{getWord(\'Glyph Icons\')}}</a>\r\n                            </li>\r\n                            <li data-ui-sref-active=\"active\">\r\n                                <a data-ui-sref=\"app.ui.iconsFlags\"><i class=\"fa fa-flag\"></i> {{getWord(\'Flags\')}}</a>\r\n                            </li>\r\n                        </ul>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.ui.grid\">{{getWord(\'Grid\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.ui.treeView\">{{getWord(\'Tree View\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.ui.nestableLists\">{{getWord(\'Nestable Lists\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.ui.jqueryUi\">{{getWord(\'JQuery UI\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.ui.typography\">{{getWord(\'Typography\')}}</a>\r\n                    </li>\r\n                    <li data-menu-collapse>\r\n                        <a href=\"#\">{{getWord(\'Six Level Menu\')}}</a>\r\n                        <ul>\r\n                            <li data-menu-collapse>\r\n                                <a href=\"#\"><i class=\"fa fa-fw fa-folder-open\"></i> {{getWord(\'Item #2\')}}</a>\r\n                                <ul>\r\n                                    <li data-menu-collapse>\r\n                                        <a href=\"#\"><i class=\"fa fa-fw fa-folder-open\"></i> {{getWord(\'Sub #2.1\')}} </a>\r\n                                        <ul>\r\n                                            <li>\r\n                                                <a href=\"#\"><i class=\"fa fa-fw fa-file-text\"></i> {{getWord(\'Item\r\n                                                    #2.1.1\')}}</a>\r\n                                            </li>\r\n                                            <li data-menu-collapse>\r\n                                                <a href=\"#\"><i class=\"fa fa-fw fa-plus\"></i>{{getWord(\'Expand\')}}</a>\r\n                                                <ul>\r\n                                                    <li>\r\n                                                        <a href=\"#\"><i class=\"fa fa-fw fa-file-text\"></i>\r\n                                                            {{getWord(\'File\')}}</a>\r\n                                                    </li>\r\n                                                    <li>\r\n                                                        <a href=\"#\"><i class=\"fa fa-fw fa-trash-o\"></i>\r\n                                                            {{getWord(\'Delete\')}}</a></li>\r\n                                                </ul>\r\n                                            </li>\r\n                                        </ul>\r\n                                    </li>\r\n                                </ul>\r\n                            </li>\r\n                            <li data-menu-collapse>\r\n                                <a href=\"#\"><i class=\"fa fa-fw fa-folder-open\"></i> {{getWord(\'Item #3\')}}</a>\r\n\r\n                                <ul>\r\n                                    <li data-menu-collapse>\r\n                                        <a href=\"#\"><i class=\"fa fa-fw fa-folder-open\"></i> {{getWord(\'3ed Level\')}}\r\n                                        </a>\r\n                                        <ul>\r\n                                            <li>\r\n                                                <a href=\"#\"><i class=\"fa fa-fw fa-file-text\"></i>\r\n                                                    {{getWord(\'File\')}}</a>\r\n                                            </li>\r\n                                            <li>\r\n                                                <a href=\"#\"><i class=\"fa fa-fw fa-file-text\"></i>\r\n                                                    {{getWord(\'File\')}}</a>\r\n                                            </li>\r\n                                        </ul>\r\n                                    </li>\r\n                                </ul>\r\n\r\n                            </li>\r\n                        </ul>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n\r\n            <li data-ui-sref-active=\"active\">\r\n                <a data-ui-sref=\"app.widgets\" title=\"Widgets\"><i class=\"fa fa-lg fa-fw fa-list-alt\"></i> <span class=\"menu-item-parent\">{{getWord(\'Widgets\')}}</span></a>\r\n            </li>\r\n\r\n\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\">\r\n                    <i class=\"fa fa-lg fa-fw fa-cloud\"><em>3</em></i> <span class=\"menu-item-parent\">{{getWord(\'Cool Features\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.calendar\" title=\"Calendar\"><i\r\n                                class=\"fa fa-lg fa-fw fa-calendar\"></i> <span\r\n                                class=\"menu-item-parent\">{{getWord(\'Calendar\')}}</span></a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.maps\"><i class=\"fa fa-lg fa-fw fa-map-marker\"></i> <span class=\"menu-item-parent\">{{getWord(\'GMap Skins\')}}</span><span\r\n                                class=\"badge bg-color-greenLight pull-right inbox-badge\">9</span></a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\">\r\n                    <i class=\"fa fa-lg fa-fw fa-puzzle-piece\"></i> <span class=\"menu-item-parent\">{{getWord(\'App Views\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.appViews.projects\"><i class=\"fa fa-file-text-o\"></i>\r\n                            {{getWord(\'Projects\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.appViews.blogDemo\"><i class=\"fa fa-paragraph\"></i> {{getWord(\'Blog\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.appViews.galleryDemo\"><i class=\"fa fa-picture-o\"></i>\r\n                            {{getWord(\'Gallery\')}}</a>\r\n                    </li>\r\n\r\n                    <li data-menu-collapse>\r\n                        <a href=\"#\"><i class=\"fa fa-comments\"></i> {{getWord(\'Forum Layout\')}}</a>\r\n                        <ul>\r\n                            <li data-ui-sref-active=\"active\">\r\n                                <a data-ui-sref=\"app.appViews.forumDemo\"><i class=\"fa fa-picture-o\"></i>\r\n                                    {{getWord(\'General View\')}}</a>\r\n                            </li>\r\n                            <li data-ui-sref-active=\"active\">\r\n                                <a data-ui-sref=\"app.appViews.forumTopicDemo\"><i class=\"fa fa-picture-o\"></i>\r\n                                    {{getWord(\'Topic View\')}}</a>\r\n                            </li>\r\n                            <li data-ui-sref-active=\"active\">\r\n                                <a data-ui-sref=\"app.appViews.forumPostDemo\"><i class=\"fa fa-picture-o\"></i>\r\n                                    {{getWord(\'Post View\')}}</a>\r\n                            </li>\r\n                        </ul>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.appViews.profileDemo\"><i class=\"fa fa-group\"></i>\r\n                            {{getWord(\'Profile\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.appViews.timelineDemo\"><i class=\"fa fa-clock-o\"></i>\r\n                            {{getWord(\'Timeline\')}}</a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\">\r\n                    <i class=\"fa fa-lg fa-fw fa-shopping-cart\"></i> <span class=\"menu-item-parent\">{{getWord(\'E-Commerce\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.eCommerce.orders\" title=\"Orders\"> {{getWord(\'Orders\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.eCommerce.products\" title=\"Products View\"> {{getWord(\'Products View\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.eCommerce.detail\" title=\"Products Detail\"> {{getWord(\'Products Detail\')}}</a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\"><i class=\"fa fa-lg fa-fw fa-windows\"></i> <span class=\"menu-item-parent\">{{getWord(\'Miscellaneous\')}}</span></a>\r\n                <ul>\r\n                    <li>\r\n                        <a href=\"http://bootstraphunter.com/smartadmin-landing/\" target=\"_blank\">{{getWord(\'Landing\r\n                            Page\')}} <i class=\"fa fa-external-link\"></i></a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.misc.pricingTable\">{{getWord(\'Pricing Tables\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.misc.invoice\">{{getWord(\'Invoice\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"login\">{{getWord(\'Login\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"register\">{{getWord(\'Register\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"lock\">{{getWord(\'Locked Screen\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.misc.error404\">{{getWord(\'Error 404\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.misc.error500\">{{getWord(\'Error 500\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.misc.blank\">{{getWord(\'Blank Page\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.misc.emailTemplate\">{{getWord(\'Email Template\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.misc.search\">{{getWord(\'Search Page\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.misc.ckeditor\">{{getWord(\'CK Editor\')}}</a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse class=\"chat-users top-menu-invisible\">\r\n                <a href=\"#\"><i class=\"fa fa-lg fa-fw fa-comment-o\"><em class=\"bg-color-pink flash animated\">!</em></i>\r\n                    <span class=\"menu-item-parent\">{{getWord(\'Smart Chat API\')}} <sup>{{getWord(\'beta\')}}</sup></span></a>\r\n                <div aside-chat-widget></div>\r\n            </li>\r\n        </ul> -->\r\n\r\n        <!-- NOTE: This allows you to pull menu items from server -->\r\n        <!-- <ul data-smart-menu-items=\"/api/menu-items.json\"></ul> -->\r\n    </nav>\r\n\r\n  <span class=\"minifyme\" data-action=\"minifyMenu\" minify-menu>\r\n    <i class=\"fa fa-arrow-circle-left hit\"></i>\r\n  </span>\r\n\r\n</aside>");
 $templateCache.put("app/public/app/layout/partials/sub-header.tpl.html","<div class=\"col-xs-12 col-sm-5 col-md-5 col-lg-8\" data-sparkline-container>\r\n    <ul id=\"sparks\" class=\"\">\r\n        <li class=\"sparks-info\">\r\n            <h5> My Income <span class=\"txt-color-blue\">$47,171</span></h5>\r\n            <div class=\"sparkline txt-color-blue hidden-mobile hidden-md hidden-sm\">\r\n                1300, 1877, 2500, 2577, 2000, 2100, 3000, 2700, 3631, 2471, 2700, 3631, 2471\r\n            </div>\r\n        </li>\r\n        <li class=\"sparks-info\">\r\n            <h5> Site Traffic <span class=\"txt-color-purple\"><i class=\"fa fa-arrow-circle-up\"></i>&nbsp;45%</span></h5>\r\n            <div class=\"sparkline txt-color-purple hidden-mobile hidden-md hidden-sm\">\r\n                110,150,300,130,400,240,220,310,220,300, 270, 210\r\n            </div>\r\n        </li>\r\n        <li class=\"sparks-info\">\r\n            <h5> Site Orders <span class=\"txt-color-greenDark\"><i class=\"fa fa-shopping-cart\"></i>&nbsp;2447</span></h5>\r\n            <div class=\"sparkline txt-color-greenDark hidden-mobile hidden-md hidden-sm\">\r\n                110,150,300,130,400,240,220,310,220,300, 270, 210\r\n            </div>\r\n        </li>\r\n    </ul>\r\n</div>\r\n			");
 $templateCache.put("app/public/app/layout/partials/voice-commands.tpl.html","<!-- TRIGGER BUTTON:\r\n<a href=\"/my-ajax-page.html\" data-toggle=\"modal\" data-target=\"#remoteModal\" class=\"btn btn-default\">Open Modal</a>  -->\r\n\r\n<!-- MODAL PLACE HOLDER\r\n<div class=\"modal fade\" id=\"remoteModal\" tabindex=\"-1\" role=\"dialog\" aria-labelledby=\"remoteModalLabel\" aria-hidden=\"true\">\r\n<div class=\"modal-dialog\">\r\n<div class=\"modal-content\"></div>\r\n</div>\r\n</div>   -->\r\n<!--////////////////////////////////////-->\r\n\r\n<!--<div class=\"modal-header\">\r\n<button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-hidden=\"true\">\r\n&times;\r\n</button>\r\n<h4 class=\"modal-title\" id=\"myModalLabel\">Command List</h4>\r\n</div>-->\r\n<div class=\"modal-body\">\r\n\r\n	<h1><i class=\"fa fa-microphone text-muted\"></i>&nbsp;&nbsp; SmartAdmin Voice Command</h1>\r\n	<hr class=\"simple\">\r\n	<h5>Instruction</h5>\r\n\r\n	Click <span class=\"text-success\">\"Allow\"</span> to access your microphone and activate Voice Command.\r\n	You will notice a <span class=\"text-primary\"><strong>BLUE</strong> Flash</span> on the microphone icon indicating activation.\r\n	The icon will appear <span class=\"text-danger\"><strong>RED</strong></span> <span class=\"label label-danger\"><i class=\"fa fa-microphone fa-lg\"></i></span> if you <span class=\"text-danger\">\"Deny\"</span> access or don\'t have any microphone installed.\r\n	<br>\r\n	<br>\r\n	As a security precaution, your browser will disconnect the microphone every 60 to 120 seconds (sooner if not being used). In which case Voice Command will prompt you again to <span class=\"text-success\">\"Allow\"</span> or <span class=\"text-danger\">\"Deny\"</span> access to your microphone.\r\n	<br>\r\n	<br>\r\n	If you host your page over <strong>http<span class=\"text-success\">s</span></strong> (secure socket layer) protocol you can wave this security measure and have an unintrupted Voice Command.\r\n	<br>\r\n	<br>\r\n	<h5>Commands</h5>\r\n	<ul>\r\n		<li>\r\n			<strong>\'show\' </strong> then say the <strong>*page*</strong> you want to go to. For example <strong>\"show inbox\"</strong> or <strong>\"show calendar\"</strong>\r\n		</li>\r\n		<li>\r\n			<strong>\'mute\' </strong> - mutes all sound effects for the theme.\r\n		</li>\r\n		<li>\r\n			<strong>\'sound on\'</strong> - unmutes all sound effects for the theme.\r\n		</li>\r\n		<li>\r\n			<span class=\"text-danger\"><strong>\'stop\'</strong></span> - deactivates voice command.\r\n		</li>\r\n		<li>\r\n			<span class=\"text-primary\"><strong>\'help\'</strong></span> - brings up the command list\r\n		</li>\r\n		<li>\r\n			<span class=\"text-danger\"><strong>\'got it\'</strong></span> - closes help modal\r\n		</li>\r\n		<li>\r\n			<strong>\'hide navigation\'</strong> - toggle navigation collapse\r\n		</li>\r\n		<li>\r\n			<strong>\'show navigation\'</strong> - toggle navigation to open (can be used again to close)\r\n		</li>\r\n		<li>\r\n			<strong>\'scroll up\'</strong> - scrolls to the top of the page\r\n		</li>\r\n		<li>\r\n			<strong>\'scroll down\'</strong> - scrollts to the bottom of the page\r\n		</li>\r\n		<li>\r\n			<strong>\'go back\' </strong> - goes back in history (history -1 click)\r\n		</li>\r\n		<li>\r\n			<strong>\'logout\'</strong> - logs you out\r\n		</li>\r\n	</ul>\r\n	<br>\r\n	<h5>Adding your own commands</h5>\r\n	Voice Command supports up to 80 languages. Adding your own commands is extreamly easy. All commands are stored inside <strong>app.config.js</strong> file under the <code>var commands = {...}</code>. \r\n\r\n	<hr class=\"simple\">\r\n	<div class=\"text-right\">\r\n		<button type=\"button\" class=\"btn btn-success btn-lg\" data-dismiss=\"modal\">\r\n			Got it!\r\n		</button>\r\n	</div>\r\n\r\n</div>\r\n<!--<div class=\"modal-footer\">\r\n<button type=\"button\" class=\"btn btn-primary\" data-dismiss=\"modal\">Got it!</button>\r\n</div> -->");
+$templateCache.put("app/public/app/layout/shortcut/shortcut.tpl.html","<div id=\"shortcut\">\r\n	<ul>\r\n		<li>\r\n			<a href=\"#/inbox/\" class=\"jarvismetro-tile big-cubes bg-color-blue\"> <span class=\"iconbox\"> <i class=\"fa fa-envelope fa-4x\"></i> <span>Mail <span class=\"label pull-right bg-color-darken\">14</span></span> </span> </a>\r\n		</li>\r\n		<li>\r\n			<a href=\"#/calendar\" class=\"jarvismetro-tile big-cubes bg-color-orangeDark\"> <span class=\"iconbox\"> <i class=\"fa fa-calendar fa-4x\"></i> <span>Calendar</span> </span> </a>\r\n		</li>\r\n		<li>\r\n			<a href=\"#/maps\" class=\"jarvismetro-tile big-cubes bg-color-purple\"> <span class=\"iconbox\"> <i class=\"fa fa-map-marker fa-4x\"></i> <span>Maps</span> </span> </a>\r\n		</li>\r\n		<li>\r\n			<a href=\"#/invoice\" class=\"jarvismetro-tile big-cubes bg-color-blueDark\"> <span class=\"iconbox\"> <i class=\"fa fa-book fa-4x\"></i> <span>Invoice <span class=\"label pull-right bg-color-darken\">99</span></span> </span> </a>\r\n		</li>\r\n		<li>\r\n			<a href=\"#/gallery\" class=\"jarvismetro-tile big-cubes bg-color-greenLight\"> <span class=\"iconbox\"> <i class=\"fa fa-picture-o fa-4x\"></i> <span>Gallery </span> </span> </a>\r\n		</li>\r\n		<li>\r\n			<a href=\"#/profile\" class=\"jarvismetro-tile big-cubes selected bg-color-pinkDark\"> <span class=\"iconbox\"> <i class=\"fa fa-user fa-4x\"></i> <span>My Profile </span> </span> </a>\r\n		</li>\r\n	</ul>\r\n</div>");
 $templateCache.put("app/app/_common/forms/directives/bootstrap-validation/bootstrap-attribute-form.tpl.html","<form id=\"attributeForm\" class=\"form-horizontal\"\r\n      data-bv-message=\"This value is not valid\"\r\n      data-bv-feedbackicons-valid=\"glyphicon glyphicon-ok\"\r\n      data-bv-feedbackicons-invalid=\"glyphicon glyphicon-remove\"\r\n      data-bv-feedbackicons-validating=\"glyphicon glyphicon-refresh\">\r\n\r\n    <fieldset>\r\n        <legend>\r\n            Set validator options via HTML attributes\r\n        </legend>\r\n\r\n        <div class=\"alert alert-warning\">\r\n            <code>&lt; input\r\n                data-bv-validatorname\r\n                data-bv-validatorname-validatoroption=\"...\" / &gt;</code>\r\n\r\n            <br>\r\n            <br>\r\n            More validator options can be found here:\r\n            <a href=\"http://bootstrapvalidator.com/validators/\" target=\"_blank\">http://bootstrapvalidator.com/validators/</a>\r\n        </div>\r\n\r\n        <div class=\"form-group\">\r\n            <label class=\"col-lg-3 control-label\">Full name</label>\r\n            <div class=\"col-lg-4\">\r\n                <input type=\"text\" class=\"form-control\" name=\"firstName\" placeholder=\"First name\"\r\n                       data-bv-notempty=\"true\"\r\n                       data-bv-notempty-message=\"The first name is required and cannot be empty\" />\r\n            </div>\r\n            <div class=\"col-lg-4\">\r\n                <input type=\"text\" class=\"form-control\" name=\"lastName\" placeholder=\"Last name\"\r\n                       data-bv-notempty=\"true\"\r\n                       data-bv-notempty-message=\"The last name is required and cannot be empty\" />\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n\r\n    <fieldset>\r\n        <div class=\"form-group\">\r\n            <label class=\"col-lg-3 control-label\">Username</label>\r\n            <div class=\"col-lg-5\">\r\n                <input type=\"text\" class=\"form-control\" name=\"username\"\r\n                       data-bv-message=\"The username is not valid\"\r\n\r\n                       data-bv-notempty=\"true\"\r\n                       data-bv-notempty-message=\"The username is required and cannot be empty\"\r\n\r\n                       data-bv-regexp=\"true\"\r\n                       data-bv-regexp-regexp=\"^[a-zA-Z0-9_\\.]+$\"\r\n                       data-bv-regexp-message=\"The username can only consist of alphabetical, number, dot and underscore\"\r\n\r\n                       data-bv-stringlength=\"true\"\r\n                       data-bv-stringlength-min=\"6\"\r\n                       data-bv-stringlength-max=\"30\"\r\n                       data-bv-stringlength-message=\"The username must be more than 6 and less than 30 characters long\"\r\n\r\n                       data-bv-different=\"true\"\r\n                       data-bv-different-field=\"password\"\r\n                       data-bv-different-message=\"The username and password cannot be the same as each other\" />\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n\r\n    <fieldset>\r\n        <div class=\"form-group\">\r\n            <label class=\"col-lg-3 control-label\">Email address</label>\r\n            <div class=\"col-lg-5\">\r\n                <input class=\"form-control\" name=\"email\" type=\"email\"\r\n                       data-bv-emailaddress=\"true\"\r\n                       data-bv-emailaddress-message=\"The input is not a valid email address\" />\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n\r\n    <fieldset>\r\n        <div class=\"form-group\">\r\n            <label class=\"col-lg-3 control-label\">Password</label>\r\n            <div class=\"col-lg-5\">\r\n                <input type=\"password\" class=\"form-control\" name=\"password\"\r\n                       data-bv-notempty=\"true\"\r\n                       data-bv-notempty-message=\"The password is required and cannot be empty\"\r\n\r\n                       data-bv-identical=\"true\"\r\n                       data-bv-identical-field=\"confirmPassword\"\r\n                       data-bv-identical-message=\"The password and its confirm are not the same\"\r\n\r\n                       data-bv-different=\"true\"\r\n                       data-bv-different-field=\"username\"\r\n                       data-bv-different-message=\"The password cannot be the same as username\" />\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n\r\n    <fieldset>\r\n        <div class=\"form-group\">\r\n            <label class=\"col-lg-3 control-label\">Retype password</label>\r\n            <div class=\"col-lg-5\">\r\n                <input type=\"password\" class=\"form-control\" name=\"confirmPassword\"\r\n                       data-bv-notempty=\"true\"\r\n                       data-bv-notempty-message=\"The confirm password is required and cannot be empty\"\r\n\r\n                       data-bv-identical=\"true\"\r\n                       data-bv-identical-field=\"password\"\r\n                       data-bv-identical-message=\"The password and its confirm are not the same\"\r\n\r\n                       data-bv-different=\"true\"\r\n                       data-bv-different-field=\"username\"\r\n                       data-bv-different-message=\"The password cannot be the same as username\" />\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n\r\n    <fieldset>\r\n        <div class=\"form-group\">\r\n            <label class=\"col-lg-3 control-label\">Languages</label>\r\n            <div class=\"col-lg-5\">\r\n                <div class=\"checkbox\">\r\n                    <label>\r\n                        <input type=\"checkbox\" name=\"languages[]\" value=\"english\"\r\n                               data-bv-message=\"Please specify at least one language you can speak\"\r\n                               data-bv-notempty=\"true\" />\r\n                        English </label>\r\n                </div>\r\n                <div class=\"checkbox\">\r\n                    <label>\r\n                        <input type=\"checkbox\" name=\"languages[]\" value=\"french\" />\r\n                        French </label>\r\n                </div>\r\n                <div class=\"checkbox\">\r\n                    <label>\r\n                        <input type=\"checkbox\" name=\"languages[]\" value=\"german\" />\r\n                        German </label>\r\n                </div>\r\n                <div class=\"checkbox\">\r\n                    <label>\r\n                        <input type=\"checkbox\" name=\"languages[]\" value=\"russian\" />\r\n                        Russian </label>\r\n                </div>\r\n                <div class=\"checkbox\">\r\n                    <label>\r\n                        <input type=\"checkbox\" name=\"languages[]\" value=\"other\" />\r\n                        Other </label>\r\n                </div>\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n\r\n    <div class=\"form-actions\">\r\n        <div class=\"row\">\r\n            <div class=\"col-md-12\">\r\n                <button class=\"btn btn-default\" type=\"submit\">\r\n                    <i class=\"fa fa-eye\"></i>\r\n                    Validate\r\n                </button>\r\n            </div>\r\n        </div>\r\n    </div>\r\n\r\n</form>\r\n     ");
 $templateCache.put("app/app/_common/forms/directives/bootstrap-validation/bootstrap-button-group-form.tpl.html","<form id=\"buttonGroupForm\" method=\"post\" class=\"form-horizontal\">\r\n\r\n    <fieldset>\r\n        <legend>\r\n            Default Form Elements\r\n        </legend>\r\n        <div class=\"form-group\">\r\n            <label class=\"col-lg-3 control-label\">Gender</label>\r\n            <div class=\"col-lg-9\">\r\n                <div class=\"btn-group\" data-toggle=\"buttons\">\r\n                    <label class=\"btn btn-default\">\r\n                        <input type=\"radio\" name=\"gender\" value=\"male\" />\r\n                        Male </label>\r\n                    <label class=\"btn btn-default\">\r\n                        <input type=\"radio\" name=\"gender\" value=\"female\" />\r\n                        Female </label>\r\n                    <label class=\"btn btn-default\">\r\n                        <input type=\"radio\" name=\"gender\" value=\"other\" />\r\n                        Other </label>\r\n                </div>\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n\r\n    <fieldset>\r\n        <div class=\"form-group\">\r\n            <label class=\"col-lg-3 control-label\">Languages</label>\r\n            <div class=\"col-lg-9\">\r\n                <div class=\"btn-group\" data-toggle=\"buttons\">\r\n                    <label class=\"btn btn-default\">\r\n                        <input type=\"checkbox\" name=\"languages[]\" value=\"english\" />\r\n                        English </label>\r\n                    <label class=\"btn btn-default\">\r\n                        <input type=\"checkbox\" name=\"languages[]\" value=\"german\" />\r\n                        German </label>\r\n                    <label class=\"btn btn-default\">\r\n                        <input type=\"checkbox\" name=\"languages[]\" value=\"french\" />\r\n                        French </label>\r\n                    <label class=\"btn btn-default\">\r\n                        <input type=\"checkbox\" name=\"languages[]\" value=\"russian\" />\r\n                        Russian </label>\r\n                    <label class=\"btn btn-default\">\r\n                        <input type=\"checkbox\" name=\"languages[]\" value=\"italian\">\r\n                        Italian </label>\r\n                </div>\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n\r\n    <div class=\"form-actions\">\r\n        <div class=\"row\">\r\n            <div class=\"col-md-12\">\r\n                <button class=\"btn btn-default\" type=\"submit\">\r\n                    <i class=\"fa fa-eye\"></i>\r\n                    Validate\r\n                </button>\r\n            </div>\r\n        </div>\r\n    </div>\r\n\r\n</form>\r\n");
 $templateCache.put("app/app/_common/forms/directives/bootstrap-validation/bootstrap-contact-form.tpl.html","<form id=\"contactForm\" method=\"post\" class=\"form-horizontal\">\r\n\r\n    <fieldset>\r\n        <legend>Showing messages in custom area</legend>\r\n        <div class=\"form-group\">\r\n            <label class=\"col-md-3 control-label\">Full name</label>\r\n            <div class=\"col-md-6\">\r\n                <input type=\"text\" class=\"form-control\" name=\"fullName\" />\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n\r\n    <fieldset>\r\n        <div class=\"form-group\">\r\n            <label class=\"col-md-3 control-label\">Email</label>\r\n            <div class=\"col-md-6\">\r\n                <input type=\"text\" class=\"form-control\" name=\"email\" />\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n\r\n    <fieldset>\r\n        <div class=\"form-group\">\r\n            <label class=\"col-md-3 control-label\">Title</label>\r\n            <div class=\"col-md-6\">\r\n                <input type=\"text\" class=\"form-control\" name=\"title\" />\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n\r\n    <fieldset>\r\n        <div class=\"form-group\">\r\n            <label class=\"col-md-3 control-label\">Content</label>\r\n            <div class=\"col-md-6\">\r\n                <textarea class=\"form-control\" name=\"content\" rows=\"5\"></textarea>\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n\r\n    <fieldset>\r\n        <!-- #messages is where the messages are placed inside -->\r\n        <div class=\"form-group\">\r\n            <div class=\"col-md-9 col-md-offset-3\">\r\n                <div id=\"messages\"></div>\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n\r\n    <div class=\"form-actions\">\r\n        <div class=\"row\">\r\n            <div class=\"col-md-12\">\r\n                <button class=\"btn btn-default\" type=\"submit\">\r\n                    <i class=\"fa fa-eye\"></i>\r\n                    Validate\r\n                </button>\r\n            </div>\r\n        </div>\r\n    </div>\r\n\r\n</form>\r\n");
@@ -7257,6 +7455,25 @@ $templateCache.put("app/public/app/_common/forms/directives/bootstrap-validation
 $templateCache.put("app/public/app/_common/forms/directives/bootstrap-validation/bootstrap-product-form.tpl.html","<form id=\"productForm\" class=\"form-horizontal\">\r\n\r\n    <fieldset>\r\n        <legend>\r\n            Default Form Elements\r\n        </legend>\r\n        <div class=\"form-group\">\r\n            <label class=\"col-xs-2 col-lg-3 control-label\">Price</label>\r\n            <div class=\"col-xs-9 col-lg-6 inputGroupContainer\">\r\n                <div class=\"input-group\">\r\n                    <input type=\"text\" class=\"form-control\" name=\"price\" />\r\n                    <span class=\"input-group-addon\">$</span>\r\n                </div>\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n\r\n    <fieldset>\r\n        <div class=\"form-group\">\r\n            <label class=\"col-xs-2 col-lg-3 control-label\">Amount</label>\r\n            <div class=\"col-xs-9 col-lg-6 inputGroupContainer\">\r\n                <div class=\"input-group\">\r\n                    <span class=\"input-group-addon\">&#8364;</span>\r\n                    <input type=\"text\" class=\"form-control\" name=\"amount\" />\r\n                </div>\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n\r\n    <fieldset>\r\n        <div class=\"form-group\">\r\n            <label class=\"col-xs-2 col-lg-3 control-label\">Color</label>\r\n            <div class=\"col-xs-9 col-lg-6 selectContainer\">\r\n                <select class=\"form-control\" name=\"color\">\r\n                    <option value=\"\">Choose a color</option>\r\n                    <option value=\"blue\">Blue</option>\r\n                    <option value=\"green\">Green</option>\r\n                    <option value=\"red\">Red</option>\r\n                    <option value=\"yellow\">Yellow</option>\r\n                    <option value=\"white\">White</option>\r\n                </select>\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n\r\n    <fieldset>\r\n        <div class=\"form-group\">\r\n            <label class=\"col-xs-2 col-lg-3 control-label\">Size</label>\r\n            <div class=\"col-xs-9 col-lg-6 selectContainer\">\r\n                <select class=\"form-control\" name=\"size\">\r\n                    <option value=\"\">Choose a size</option>\r\n                    <option value=\"S\">S</option>\r\n                    <option value=\"M\">M</option>\r\n                    <option value=\"L\">L</option>\r\n                    <option value=\"XL\">XL</option>\r\n                </select>\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n\r\n    <div class=\"form-actions\">\r\n        <div class=\"row\">\r\n            <div class=\"col-md-12\">\r\n                <button class=\"btn btn-default\" type=\"submit\">\r\n                    <i class=\"fa fa-eye\"></i>\r\n                    Validate\r\n                </button>\r\n            </div>\r\n        </div>\r\n    </div>\r\n</form>\r\n\r\n");
 $templateCache.put("app/public/app/_common/forms/directives/bootstrap-validation/bootstrap-profile-form.tpl.html","<form id=\"profileForm\">\r\n\r\n    <fieldset>\r\n        <legend>\r\n            Default Form Elements\r\n        </legend>\r\n        <div class=\"form-group\">\r\n            <label>Email address</label>\r\n            <input type=\"text\" class=\"form-control\" name=\"email\" />\r\n        </div>\r\n    </fieldset>\r\n    <fieldset>\r\n        <div class=\"form-group\">\r\n            <label>Password</label>\r\n            <input type=\"password\" class=\"form-control\" name=\"password\" />\r\n        </div>\r\n    </fieldset>\r\n\r\n    <div class=\"form-actions\">\r\n        <div class=\"row\">\r\n            <div class=\"col-md-12\">\r\n                <button class=\"btn btn-default\" type=\"submit\">\r\n                    <i class=\"fa fa-eye\"></i>\r\n                    Validate\r\n                </button>\r\n            </div>\r\n        </div>\r\n    </div>\r\n</form>\r\n");
 $templateCache.put("app/public/app/_common/forms/directives/bootstrap-validation/bootstrap-toggling-form.tpl.html","<form id=\"togglingForm\" method=\"post\" class=\"form-horizontal\">\r\n\r\n    <fieldset>\r\n        <legend>\r\n            Default Form Elements\r\n        </legend>\r\n        <div class=\"form-group\">\r\n            <label class=\"col-lg-3 control-label\">Full name <sup>*</sup></label>\r\n            <div class=\"col-lg-4\">\r\n                <input type=\"text\" class=\"form-control\" name=\"firstName\" placeholder=\"First name\" />\r\n            </div>\r\n            <div class=\"col-lg-4\">\r\n                <input type=\"text\" class=\"form-control\" name=\"lastName\" placeholder=\"Last name\" />\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n\r\n    <fieldset>\r\n        <div class=\"form-group\">\r\n            <label class=\"col-lg-3 control-label\">Company <sup>*</sup></label>\r\n            <div class=\"col-lg-5\">\r\n                <input type=\"text\" class=\"form-control\" name=\"company\"\r\n                       required data-bv-notempty-message=\"The company name is required\" />\r\n            </div>\r\n            <div class=\"col-lg-2\">\r\n                <button type=\"button\" class=\"btn btn-info btn-sm\" data-toggle=\"#jobInfo\">\r\n                    Add more info\r\n                </button>\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n\r\n    <!-- These fields will not be validated as long as they are not visible -->\r\n    <div id=\"jobInfo\" style=\"display: none;\">\r\n        <fieldset>\r\n            <div class=\"form-group\">\r\n                <label class=\"col-lg-3 control-label\">Job title <sup>*</sup></label>\r\n                <div class=\"col-lg-5\">\r\n                    <input type=\"text\" class=\"form-control\" name=\"job\" />\r\n                </div>\r\n            </div>\r\n        </fieldset>\r\n\r\n        <fieldset>\r\n            <div class=\"form-group\">\r\n                <label class=\"col-lg-3 control-label\">Department <sup>*</sup></label>\r\n                <div class=\"col-lg-5\">\r\n                    <input type=\"text\" class=\"form-control\" name=\"department\" />\r\n                </div>\r\n            </div>\r\n        </fieldset>\r\n    </div>\r\n\r\n    <fieldset>\r\n        <div class=\"form-group\">\r\n            <label class=\"col-lg-3 control-label\">Mobile phone <sup>*</sup></label>\r\n            <div class=\"col-lg-5\">\r\n                <input type=\"text\" class=\"form-control\" name=\"mobilePhone\" />\r\n            </div>\r\n            <div class=\"col-lg-2\">\r\n                <button type=\"button\" class=\"btn btn-info btn-sm\" data-toggle=\"#phoneInfo\">\r\n                    Add more phone numbers\r\n                </button>\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n    <!-- These fields will not be validated as long as they are not visible -->\r\n    <div id=\"phoneInfo\" style=\"display: none;\">\r\n\r\n        <fieldset>\r\n            <div class=\"form-group\">\r\n                <label class=\"col-lg-3 control-label\">Home phone</label>\r\n                <div class=\"col-lg-5\">\r\n                    <input type=\"text\" class=\"form-control\" name=\"homePhone\" />\r\n                </div>\r\n            </div>\r\n        </fieldset>\r\n        <fieldset>\r\n            <div class=\"form-group\">\r\n                <label class=\"col-lg-3 control-label\">Office phone</label>\r\n                <div class=\"col-lg-5\">\r\n                    <input type=\"text\" class=\"form-control\" name=\"officePhone\" />\r\n                </div>\r\n            </div>\r\n        </fieldset>\r\n    </div>\r\n\r\n    <div class=\"form-actions\">\r\n        <div class=\"row\">\r\n            <div class=\"col-md-12\">\r\n                <button class=\"btn btn-default\" type=\"submit\">\r\n                    <i class=\"fa fa-eye\"></i>\r\n                    Validate\r\n                </button>\r\n            </div>\r\n        </div>\r\n    </div>\r\n</form>");}]);
+"use strict";
+
+angular.module('app').directive('recentProjects', function(Project){
+    return {
+        restrict: "EA",
+        replace: true,
+        templateUrl: "app/dashboard/projects/recent-projects.tpl.html",
+        scope: true,
+        link: function(scope, element){
+
+            Project.list.then(function(response){
+                scope.projects = response.data;
+            });
+            scope.clearProjects = function(){
+                scope.projects = [];
+            }
+        }
+    }
+});
 "use strict";
 
 angular.module('app').controller('TodoCtrl', function ($scope, $timeout, Todo) {
@@ -7963,6 +8180,41 @@ angular.module('app.inbox').directive('unreadMessagesCount', function(InboxConfi
 });
 "use strict";
 
+angular.module('app.inbox').factory('InboxConfig', function($http, APP_CONFIG){
+    return $http.get(APP_CONFIG.apiRootUrl + '/inbox.json');
+})
+"use strict";
+
+angular.module('app.inbox').factory('InboxMessage', function($resource, APP_CONFIG){
+   var InboxMessage = $resource(APP_CONFIG.apiRootUrl + '/messages.json/:id', {'id': '@_id'}, {
+        get:{
+            url: APP_CONFIG.apiRootUrl + '/message.json',
+            isArray: false
+        }
+    });
+
+    _.extend(InboxMessage.prototype, {
+        selected: false,
+        hasAttachments: function(){
+            return (_.isArray(this.attachments) && this.attachments.length)
+        },
+        fullAttachmentsTootlip: function(){
+            return 'FILES: ' + _.pluck(this.attachments, 'name').join(', ');
+        },
+        getBodyTeaser: function(){
+            var clearBody  = this.body.replace(/<[^<>]+?>/gm, ' ').replace(/(\s{2}|\n)/gm, ' ');
+
+            var teaserMaxLength = 55 - this.subject.length;
+
+            return clearBody.length > teaserMaxLength ? clearBody.substring(0, teaserMaxLength) + '...' : clearBody;
+        }
+    });
+
+    return InboxMessage;
+
+});
+"use strict";
+
 angular.module('app').controller("LanguagesCtrl",  function LanguagesCtrl($scope, $rootScope, $log, Language, APP_CONFIG){
 
     $rootScope.lang = $rootScope.lang || {};
@@ -8123,41 +8375,6 @@ angular.module('app').directive('toggleShortcut', function($log,$timeout) {
 		link:link
 	}
 })
-"use strict";
-
-angular.module('app.inbox').factory('InboxConfig', function($http, APP_CONFIG){
-    return $http.get(APP_CONFIG.apiRootUrl + '/inbox.json');
-})
-"use strict";
-
-angular.module('app.inbox').factory('InboxMessage', function($resource, APP_CONFIG){
-   var InboxMessage = $resource(APP_CONFIG.apiRootUrl + '/messages.json/:id', {'id': '@_id'}, {
-        get:{
-            url: APP_CONFIG.apiRootUrl + '/message.json',
-            isArray: false
-        }
-    });
-
-    _.extend(InboxMessage.prototype, {
-        selected: false,
-        hasAttachments: function(){
-            return (_.isArray(this.attachments) && this.attachments.length)
-        },
-        fullAttachmentsTootlip: function(){
-            return 'FILES: ' + _.pluck(this.attachments, 'name').join(', ');
-        },
-        getBodyTeaser: function(){
-            var clearBody  = this.body.replace(/<[^<>]+?>/gm, ' ').replace(/(\s{2}|\n)/gm, ' ');
-
-            var teaserMaxLength = 55 - this.subject.length;
-
-            return clearBody.length > teaserMaxLength ? clearBody.substring(0, teaserMaxLength) + '...' : clearBody;
-        }
-    });
-
-    return InboxMessage;
-
-});
 "use strict";
 
 angular.module('app.mainwork').controller('MainWorkCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, RestfulApi, ToolboxApi) {
@@ -8442,2047 +8659,6 @@ angular.module('app.maps').controller('MapsDemoCtrl',
     });
 "use strict";
 
-angular.module('app.restful').controller('ExcelTestCtrl', function ($scope, $stateParams, $state, ToolboxApi, Session, toaster, $uibModal) {
-
-    var $vm = this;
-
-    ToolboxApi.ExportExcelByVar({
-    	
-    }).then(function (res) {
-        console.log("s", res);
-    }, function (err) {
-        console.log("f", res);
-    });
-});
-
-"use strict";
-
-angular.module('app.settings').controller('AccountManagementCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, $filter, SysCode, RestfulApi, uiGridConstants, bool, role, userGrade) {
-
-	var $vm = this;
-    // console.log(Account.get());
-
-	angular.extend(this, {
-        Init : function(){
-            $scope.ShowTabs = true;
-            
-            $vm.LoadData();
-        },
-        profile : Session.Get(),
-        defaultTab : 'hr1',
-        TabSwitch : function(pTabID){
-            return pTabID == $vm.defaultTab ? 'active' : '';
-        },
-        LoadData : function(){
-            console.log($vm.defaultTab);
-            switch($vm.defaultTab){
-                case 'hr1':
-                    LoadAccount();
-                    break;
-                case 'hr2':
-                    LoadGroup();
-                    break;
-            }
-        },
-        gridAccountMethod : {
-            //編輯
-            modifyData : function(row){
-                console.log(row);
-                $state.transitionTo("app.settings.accountmanagement.account", {
-                    data: row.entity
-                });
-            },
-            //刪除
-            deleteData : function(row){
-                console.log(row);
-
-                var modalInstance = $uibModal.open({
-                    animation: true,
-                    ariaLabelledBy: 'modal-title',
-                    ariaDescribedBy: 'modal-body',
-                    template: $templateCache.get('isChecked'),
-                    controller: 'IsCheckedModalInstanceCtrl',
-                    controllerAs: '$ctrl',
-                    size: 'sm',
-                    windowClass: 'center-modal',
-                    // appendTo: parentElem,
-                    resolve: {
-                        items: function() {
-                            return row.entity;
-                        },
-                        show: function(){
-                            return {
-                                title : "是否刪除"
-                            };
-                        }
-                    }
-                });
-
-                modalInstance.result.then(function(selectedItem) {
-                    console.log(selectedItem);
-
-                    RestfulApi.DeleteMSSQLData({
-                        deletename: 'Delete',
-                        table: 0,
-                        params: {
-                            U_ID : selectedItem.U_ID
-                        }
-                    }).then(function (res) {
-                        if(res["returnData"] == 1){
-                            LoadAccount();
-                        }
-                    });
-                }, function() {
-                    // $log.info('Modal dismissed at: ' + new Date());
-                });
-            }
-        },
-        accountManagementOptions : {
-            data: '$vm.accountData',
-            columnDefs: [
-                { name: 'U_STS'    ,  displayName: '離職', cellFilter: 'booleanFilter', filter: 
-                    {
-                        term: null,
-                        type: uiGridConstants.filter.SELECT,
-                        selectOptions: bool
-                    }
-                },
-                // { name: 'U_CHECK'  ,  displayName: '認證', cellFilter: 'booleanFilter', filter: 
-                //     {
-                //         term: null,
-                //         type: uiGridConstants.filter.SELECT,
-                //         selectOptions: bool
-                //     }
-                // },
-                { name: 'U_ID'     ,  displayName: '帳號' },
-                { name: 'U_NAME'   ,  displayName: '名稱' },
-                { name: 'U_EMAIL'  ,  displayName: '信箱' },
-                { name: 'U_PHONE'  ,  displayName: '電話' },
-                { name: 'U_GRADE'  ,  displayName: '職稱', cellFilter: 'gradeFilter', filter: 
-                    {
-                        term: null,
-                        type: uiGridConstants.filter.SELECT,
-                        selectOptions: userGrade
-                    }
-                },
-                { name: 'U_ROLE'   ,  displayName: '角色', cellFilter: 'roleFilter', filter: 
-                    {
-                        term: null,
-                        type: uiGridConstants.filter.SELECT,
-                        selectOptions: role
-                    }
-                },
-                { name: 'Options'  ,  displayName: '操作', enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToMDForAccount') }
-            ],
-            enableFiltering: true,
-            enableSorting: false,
-            enableColumnMenus: false,
-            // enableVerticalScrollbar: false,
-            paginationPageSizes: [10, 25, 50, 100],
-            paginationPageSize: 100,
-            onRegisterApi: function(gridApi){
-                $vm.accountManagementGridApi = gridApi;
-            }
-        },
-        gridGroupMethod : {
-            //編輯
-            modifyData : function(row){
-                // console.log(row);
-                $state.transitionTo("app.settings.accountmanagement.group", {
-                    data: row.entity
-                });
-            },
-            //刪除
-            deleteData : function(row){
-                console.log(row);
-                var modalInstance = $uibModal.open({
-                    animation: true,
-                    ariaLabelledBy: 'modal-title',
-                    ariaDescribedBy: 'modal-body',
-                    template: $templateCache.get('isChecked'),
-                    controller: 'IsCheckedModalInstanceCtrl',
-                    controllerAs: '$ctrl',
-                    size: 'sm',
-                    windowClass: 'center-modal',
-                    // appendTo: parentElem,
-                    resolve: {
-                        items: function() {
-                            return row.entity;
-                        },
-                        show: function(){
-                            return {
-                                title : "是否刪除"
-                            };
-                        }
-                    }
-                });
-
-                modalInstance.result.then(function(selectedItem) {
-                    console.log(selectedItem);
-
-                    RestfulApi.DeleteMSSQLData({
-                        deletename: 'Delete',
-                        table: 6,
-                        params: {
-                            SG_GCODE : selectedItem.SG_GCODE
-                        }
-                    }).then(function (res) {
-                        if(res["returnData"] == 1){
-                            LoadGroup();
-                        }
-                    });
-                }, function() {
-                    // $log.info('Modal dismissed at: ' + new Date());
-                });
-            }
-        },
-        groupManagementOptions : {
-            data: '$vm.groupData',
-            columnDefs: [
-                { name: 'SG_TITLE' ,  displayName: '群組名稱' },
-                { name: 'SG_DESC'  ,  displayName: '群組敘述' },
-                { name: 'SG_STS'   ,  displayName: '作廢', cellFilter: 'booleanFilter', filter: 
-                    {
-                        term: null,
-                        type: uiGridConstants.filter.SELECT,
-                        selectOptions: bool
-                    }
-                },
-                { name: 'Options'  ,  displayName: '操作', enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToMDForGroup') }
-            ],
-            enableFiltering: true,
-            enableSorting: false,
-            enableColumnMenus: false,
-            paginationPageSizes: [10, 25, 50, 100],
-            paginationPageSize: 100,
-            onRegisterApi: function(gridApi){
-                $vm.groupManagementGridApi = gridApi;
-            }
-        },
-        AddAccount : function(){
-
-            $state.transitionTo("app.settings.accountmanagement.account");
-
-        },
-        AddGroup : function(){
-            var modalInstance = $uibModal.open({
-                animation: true,
-                ariaLabelledBy: 'modal-title',
-                ariaDescribedBy: 'modal-body',
-                templateUrl: 'addGroupModalContent.html',
-                controller: 'AddGroupModalInstanceCtrl',
-                controllerAs: '$ctrl',
-            });
-
-            modalInstance.result.then(function(selectedItem) {
-                // console.log(selectedItem);
-
-                RestfulApi.InsertMSSQLData({
-                    insertname: 'Insert',
-                    table: 6,
-                    params: {
-                        SG_TITLE : selectedItem.TITLE,
-                        SG_DESC  : selectedItem.DESC,
-                        SG_CR_DATETIME : $filter('date')(new Date(), 'yyyy-MM-dd HH:mm:ss')
-                    }
-                }).then(function(res) {
-                    console.log(res);
-
-                    if(res["returnData"] == 1){
-                        LoadGroup();
-                    }
-
-                    // $state.reload()
-                });
-            }, function() {
-                // $log.info('Modal dismissed at: ' + new Date());
-            });
-        }
-	})
-
-	function LoadAccount(){    
-        RestfulApi.SearchMSSQLData({
-            querymain: 'accountManagement',
-            queryname: 'SelectAllUserInfoNotWithAdmin'
-        }).then(function (res){
-            console.log(res["returnData"]);
-            $vm.accountData = res["returnData"];
-        }).finally(function() {
-            HandleWindowResize($vm.accountManagementGridApi);
-        });    
-	}
-
-    function LoadGroup(){    
-        RestfulApi.SearchMSSQLData({
-            querymain: 'accountManagement',
-            queryname: 'SelectAllGroup'
-        }).then(function (res){
-            $vm.groupData = res["returnData"];
-        }).finally(function() {
-            HandleWindowResize($vm.groupManagementGridApi);
-        });    
-    }
-
-})
-.controller('AddGroupModalInstanceCtrl', function ($uibModalInstance) {
-    var $ctrl = this;
-
-    $ctrl.ok = function() {
-        $uibModalInstance.close($ctrl.items);
-    };
-
-    $ctrl.cancel = function() {
-        $uibModalInstance.dismiss('cancel');
-    };
-});
-"use strict";
-
-angular.module('app.settings').controller('AviationMailCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, RestfulApi, $filter) {
-    
-    var $vm = this;
-
-	angular.extend(this, {
-        Init : function(){
-            LoadFlightMail();
-        },
-        profile : Session.Get(),
-        gridMethod : {
-            // 編輯
-            modifyData : function(row){
-                console.log(row);
-                $state.transitionTo("app.settings.aviationmail.targeteditor", {
-                    data: row.entity
-                });
-            },
-            // 刪除
-            deleteData : function(row){
-                console.log(row);
-
-                var modalInstance = $uibModal.open({
-                    animation: true,
-                    ariaLabelledBy: 'modal-title',
-                    ariaDescribedBy: 'modal-body',
-                    template: $templateCache.get('isChecked'),
-                    controller: 'IsCheckedModalInstanceCtrl',
-                    controllerAs: '$ctrl',
-                    size: 'sm',
-                    windowClass: 'center-modal',
-                    // appendTo: parentElem,
-                    resolve: {
-                        items: function() {
-                            return row.entity;
-                        },
-                        show: function(){
-                            return {
-                                title : "是否刪除"
-                            };
-                        }
-                    }
-                });
-
-                modalInstance.result.then(function(selectedItem) {
-                    // $ctrl.selected = selectedItem;
-                    console.log(selectedItem);
-
-                    RestfulApi.DeleteMSSQLData({
-                        deletename: 'Delete',
-                        table: 24,
-                        params: {
-                            FM_ID : selectedItem.FM_ID
-                        }
-                    }).then(function (res) {
-                        toaster.pop('success', '訊息', '刪除成功', 3000);
-                        LoadFlightMail();
-                    });
-
-                }, function() {
-                    // $log.info('Modal dismissed at: ' + new Date());
-                });
-            }
-        },
-        vmDataOptions : {
-            data:  '$vm.vmData',
-            columnDefs: [
-                { name: 'FM_TARGET', displayName: '目標名稱', width: '100' },
-                { name: 'FM_MAIL'  , displayName: '信箱' },
-                { name: 'Options'  , displayName: '操作', width: '9%', cellTemplate: $templateCache.get('accessibilityToMD') }
-            ],
-            enableFiltering: false,
-            enableSorting: false,
-            enableColumnMenus: false,
-            // enableVerticalScrollbar: false,
-            paginationPageSizes: [10, 25, 50, 100],
-            paginationPageSize: 100
-        },
-        AddTarget : function(){
-
-            $state.transitionTo("app.settings.aviationmail.targeteditor");
-
-        }
-    });
-
-    function LoadFlightMail(){
-        RestfulApi.SearchMSSQLData({
-            querymain: 'aviationMail',
-            queryname: 'SelectFlightMail'
-        }).then(function (res){
-            console.log(res["returnData"]);
-            $vm.vmData = res["returnData"];
-        }); 
-    };
-
-});
-"use strict";
-
-angular.module('app.settings').controller('BagnoCountCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, RestfulApi, uiGridConstants, $filter) {
-    // console.log($stateParams, $state);
-
-    var $vm = this;
-
-    angular.extend(this, {
-        Init : function(){
-            LoadBagnoCount();
-        },
-        profile : Session.Get(),
-        // 更新
-        Update: function(){
-
-            RestfulApi.UpdateMSSQLData({
-                updatename: 'Update',
-                table: 32,
-                params: {
-                    ILC_CURRENT     : $vm.vmData.ILC_CURRENT,
-                    ILC_MAX         : $vm.vmData.ILC_MAX,
-                    ILC_UP_USER     : $vm.profile.U_ID,
-                    ILC_UP_DATETIME : $filter('date')(new Date, 'yyyy-MM-dd HH:mm:ss')
-                },
-                condition: {
-                    ILC_ID         : $vm.vmData.ILC_ID
-                }
-            }).then(function (res) {
-                toaster.pop('success', '訊息', '更新新寄件人編碼成功', 3000);
-            }, function (err) {
-
-            });
-
-        }
-    });
-
-    function LoadBagnoCount(){
-        RestfulApi.SearchMSSQLData({
-            querymain: 'bagnoCount',
-            queryname: 'SelectBagnoCount'
-        }).then(function (res){
-            // console.log(res["returnData"]);
-            $vm.vmData = res["returnData"][0];
-        }); 
-    };
-
-})
-"use strict";
-
-angular.module('app.settings').controller('BillboardEditorCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, RestfulApi, bool, ioType, uiGridConstants) {
-
-    var $vm = this;
-
-    angular.extend(this, {
-        Init : function(){
-            LoadBillboardEditor();
-        },
-        profile : Session.Get(),
-        defaultTab : 'hr1',
-        TabSwitch : function(pTabID){
-            return pTabID == $vm.defaultTab ? 'active' : '';
-        },
-        LoadData : function(){
-            console.log($vm.defaultTab);
-            switch($vm.defaultTab){
-                case 'hr1':
-                    LoadBillboardEditor();
-                    break;
-                case 'hr2':
-                    LoadBillboardHistory();
-                    break;
-            }
-        },
-        gridMethod : {
-            //編輯
-            modifyData : function(row){
-                // console.log(row);
-                $state.transitionTo("app.settings.billboardeditor.news", {
-                    data: row.entity
-                });
-            }
-        },
-        billboardEditorOptions : {
-            data: '$vm.billboardEditorData',
-            columnDefs: [
-                { name: 'BB_STICK_TOP'   , displayName: '置頂', cellFilter: 'booleanFilter', filter: 
-                    {
-                        term: null,
-                        type: uiGridConstants.filter.SELECT,
-                        selectOptions: bool
-                    }
-                },
-                { name: 'BB_POST_FROM'   , displayName: '開始日期', cellFilter: 'dateFilter' },
-                { name: 'BB_POST_TOXX'   , displayName: '結束日期', cellFilter: 'dateFilter' },
-                { name: 'BB_TITLE'       , displayName: '標題' },
-                { name: 'BB_CONTENT'     , visible: false },
-                { name: 'BB_IO_TYPE'     , displayName: '公佈類型', cellFilter: 'ioTypeFilter', filter: 
-                    {
-                        term: null,
-                        type: uiGridConstants.filter.SELECT,
-                        selectOptions: ioType
-                    }
-                },
-                { name: 'BB_CR_USER'     , visible: false},
-                { name: 'BB_CR_DATETIME' , displayName: '建立時間', cellFilter: 'datetimeFilter' },
-                { name: 'Options'        , displayName: '操作', width: '7%', enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToM') }
-            ],
-            enableFiltering: true,
-            enableSorting: false,
-            enableColumnMenus: false,
-            enableRowSelection: true,
-            enableSelectAll: true,
-            paginationPageSizes: [10, 25, 50, 100],
-            paginationPageSize: 100,
-            onRegisterApi: function(gridApi){
-                $vm.billboardEditorGridApi = gridApi;
-            }
-        },
-        AddNews : function(){
-            ChangeToAddNewsPage();
-        },
-        DeleteNews : function(){
-            console.log($vm.billboardEditorGridApi.selection.getSelectedRows());
-
-            var modalInstance = $uibModal.open({
-                animation: true,
-                ariaLabelledBy: 'modal-title',
-                ariaDescribedBy: 'modal-body',
-                template: $templateCache.get('isChecked'),
-                controller: 'IsCheckedModalInstanceCtrl',
-                controllerAs: '$ctrl',
-                size: 'sm',
-                windowClass: 'center-modal',
-                // appendTo: parentElem,
-                resolve: {
-                    items: function() {
-                        return $vm.billboardEditorGridApi.selection.getSelectedRows();
-                    },
-                    show: function(){
-                        return {
-                            title : "是否刪除"
-                        };
-                    }
-                }
-            });
-
-            modalInstance.result.then(function(selectedItem) {
-                console.log(selectedItem);
-
-                var _tasks = [];
-
-                for(var i in selectedItem){
-                    _tasks.push({
-                        crudType: 'Update',
-                        table: 1,
-                        params: {
-                            BB_SOFT_DELETE : true
-                        },
-                        condition: {
-                            BB_CR_USER : selectedItem[i].BB_CR_USER,
-                            BB_CR_DATETIME : selectedItem[i].BB_CR_DATETIME
-                        }
-                    });
-                }
-
-                RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res) {
-                    toaster.pop('success', '訊息', '公佈區刪除成功', 3000);
-                    LoadBillboardEditor();
-                }, function (err) {
-
-                });
-            }, function() {
-                // $log.info('Modal dismissed at: ' + new Date());
-            });
-        },
-        billboardHistoryOptions : {
-            data: '$vm.billboardHistoryData',
-            columnDefs: [
-                { name: 'BB_STICK_TOP'   , displayName: '置頂', cellFilter: 'booleanFilter', filter: 
-                    {
-                        term: null,
-                        type: uiGridConstants.filter.SELECT,
-                        selectOptions: bool
-                    }
-                },
-                { name: 'BB_POST_FROM'   , displayName: '開始日期', cellFilter: 'dateFilter' },
-                { name: 'BB_POST_TOXX'   , displayName: '結束日期', cellFilter: 'dateFilter' },
-                { name: 'BB_TITLE'       , displayName: '標題' },
-                { name: 'BB_IO_TYPE'     , displayName: '公佈類型', cellFilter: 'ioTypeFilter', filter: 
-                    {
-                        term: null,
-                        type: uiGridConstants.filter.SELECT,
-                        selectOptions: ioType
-                    }
-                },
-                { name: 'BB_CR_USER'     , visible: false},
-                { name: 'BB_CR_DATETIME' , displayName: '建立時間', cellFilter: 'datetimeFilter' },
-                { name: 'Options'        , displayName: '操作', width: '7%', enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToM') }
-            ],
-            enableFiltering: true,
-            enableSorting: false,
-            enableColumnMenus: false,
-            enableRowSelection: true,
-            enableSelectAll: true,
-            paginationPageSizes: [10, 25, 50, 100],
-            paginationPageSize: 100,
-            onRegisterApi: function(gridApi){
-                $vm.billboardHistoryGridApi = gridApi;
-            }
-        },
-        DeleteHistoryNews : function(){
-            console.log($vm.billboardHistoryGridApi.selection.getSelectedRows());
-
-            var modalInstance = $uibModal.open({
-                animation: true,
-                ariaLabelledBy: 'modal-title',
-                ariaDescribedBy: 'modal-body',
-                template: $templateCache.get('isChecked'),
-                controller: 'IsCheckedModalInstanceCtrl',
-                controllerAs: '$ctrl',
-                size: 'sm',
-                windowClass: 'center-modal',
-                // appendTo: parentElem,
-                resolve: {
-                    items: function() {
-                        return $vm.billboardHistoryGridApi.selection.getSelectedRows();
-                    },
-                    show: function(){
-                        return {
-                            title : "是否刪除"
-                        };
-                    }
-                }
-            });
-
-            modalInstance.result.then(function(selectedItem) {
-                console.log(selectedItem);
-
-                var _tasks = [];
-
-                for(var i in selectedItem){
-                    _tasks.push({
-                        crudType: 'Update',
-                        table: 1,
-                        params: {
-                            BB_SOFT_DELETE : true
-                        },
-                        condition: {
-                            BB_CR_USER : selectedItem[i].BB_CR_USER,
-                            BB_CR_DATETIME : selectedItem[i].BB_CR_DATETIME
-                        }
-                    });
-                }
-
-                RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res) {
-                    toaster.pop('success', '訊息', '歷史區刪除成功', 3000);
-                    LoadBillboardHistory();
-                }, function (err) {
-
-                });
-            }, function() {
-                // $log.info('Modal dismissed at: ' + new Date());
-            });
-            
-        }
-    });
-
-    function LoadBillboardEditor(){
-        RestfulApi.SearchMSSQLData({
-            querymain: 'billboardEditor',
-            queryname: 'SelectBBWithOK'
-        }).then(function (res){
-            console.log(res["returnData"]);
-            $vm.billboardEditorData = res["returnData"];
-        }).finally(function() {
-            HandleWindowResize($vm.billboardEditorGridApi);
-        });    
-    };
-
-    function LoadBillboardHistory(){
-        RestfulApi.SearchMSSQLData({
-            querymain: 'billboardEditor',
-            queryname: 'SelectBBWithHistory'
-        }).then(function (res){
-            console.log(res["returnData"]);
-            $vm.billboardHistoryData = res["returnData"];
-        }).finally(function() {
-            HandleWindowResize($vm.billboardHistoryGridApi);
-        });    
-    };
-
-    function ChangeToAddNewsPage(){
-        $state.transitionTo("app.settings.billboardeditor.news");
-    };
-})
-"use strict";
-
-angular.module('app.settings').controller('ExcompyBagnoCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, RestfulApi, $filter, bool, uiGridConstants) {
-    
-    var $vm = this;
-
-	angular.extend(this, {
-        Init : function(){
-            $scope.ShowTabs = true;
-            
-            $vm.LoadData();
-        },
-        profile : Session.Get(),
-        defaultTab : 'hr1',
-        TabSwitch : function(pTabID){
-            return pTabID == $vm.defaultTab ? 'active' : '';
-        },
-        LoadData : function(){
-            console.log($vm.defaultTab);
-            switch($vm.defaultTab){
-                case 'hr1':
-                    LoadBagNo3Need();
-                    break;
-                case 'hr2':
-                    LoadBagNo5NotNeed();
-                    break;
-            }
-        },
-        gridMethod : {
-            modifyData : function(row){
-
-                var modalInstance = $uibModal.open({
-                    animation: true,
-                    ariaLabelledBy: 'modal-title',
-                    ariaDescribedBy: 'modal-body',
-                    templateUrl: 'modifyBagNoModalContent.html',
-                    controller: 'ModifyBagNoModalInstanceCtrl',
-                    controllerAs: '$ctrl',
-                    resolve: {
-                        bool: function(){
-                            return bool;
-                        },
-                        mdData: function(){
-                            return row.entity;
-                        }
-                    }
-                });
-
-                modalInstance.result.then(function(selectedItem) {
-                    console.log(selectedItem);
-
-                    switch($vm.defaultTab){
-                        case 'hr1':
-                            RestfulApi.UpdateMSSQLData({
-                                updatename: 'Update',
-                                table: 25,
-                                params: {
-                                    SC_DESC : selectedItem.SC_DESC,
-                                    SC_STS  : selectedItem.SC_STS,
-                                    SC_UP_DATETIME : $filter('date')(new Date(), 'yyyy-MM-dd HH:mm:ss')
-                                },
-                                condition: {
-                                    SC_TYPE : 'BagNo3Need',
-                                    SC_CODE : selectedItem.SC_CODE
-                                }
-                            }).then(function(res) {
-                                console.log(res);
-
-                                if(res["returnData"] == 1){
-                                    toaster.pop('success', '訊息', '更新前三碼成功', 3000);
-                                    LoadBagNo3Need();
-                                }
-
-                                // $state.reload()
-                            });
-                            break;
-                        case 'hr2':
-                            RestfulApi.UpdateMSSQLData({
-                                updatename: 'Update',
-                                table: 25,
-                                params: {
-                                    SC_DESC : selectedItem.SC_DESC,
-                                    SC_STS  : selectedItem.SC_STS,
-                                    SC_UP_DATETIME : $filter('date')(new Date(), 'yyyy-MM-dd HH:mm:ss')
-                                },
-                                condition: {
-                                    SC_TYPE : 'BagNo5NotNeed',
-                                    SC_CODE : selectedItem.SC_CODE
-                                }
-                            }).then(function(res) {
-                                console.log(res);
-
-                                if(res["returnData"] == 1){
-                                    toaster.pop('success', '訊息', '更新後五碼成功', 3000);
-                                    LoadBagNo5NotNeed();
-                                }
-
-                                // $state.reload()
-                            });
-                            break;
-                    }
-                }, function() {
-                    // $log.info('Modal dismissed at: ' + new Date());
-                });
-            }
-        },
-        bagNo3NeedOptions : {
-            data: '$vm.bagNo3NeedData',
-            columnDefs: [
-                { name: 'SC_STS'          ,  displayName: '作廢', cellFilter: 'booleanFilter', filter: 
-                    {
-                        term: null,
-                        type: uiGridConstants.filter.SELECT,
-                        selectOptions: bool
-                    }
-                },
-                { name: 'SC_CODE'         ,  displayName: '代號' },
-                { name: 'SC_DESC'         ,  displayName: '代號描述' },
-                { name: 'SC_CR_DATETIME'  ,  displayName: '新增時間', cellFilter: 'datetimeFilter' },
-                { name: 'SC_UP_DATETIME'  ,  displayName: '更新時間', cellFilter: 'datetimeFilter' },
-                { name: 'Options'         ,  displayName: '操作', enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToM') }
-            ],
-            enableFiltering: true,
-            enableSorting: false,
-            enableColumnMenus: false,
-            // enableVerticalScrollbar: false,
-            paginationPageSizes: [10, 25, 50, 100],
-            paginationPageSize: 100,
-            onRegisterApi: function(gridApi){
-                $vm.bagNo3NeedGridApi = gridApi;
-            }
-        },
-        AddBagNo3Need : function(){
-            var modalInstance = $uibModal.open({
-                animation: true,
-                ariaLabelledBy: 'modal-title',
-                ariaDescribedBy: 'modal-body',
-                templateUrl: 'addBagNo3NeedModalContent.html',
-                controller: 'AddBagNo3NeedModalInstanceCtrl',
-                controllerAs: '$ctrl',
-                resolve: {
-                    bool: function(){
-                        return bool;
-                    },
-                    originBagNo3: function(){
-                        var _data = [];
-
-                        for(var i in $vm.bagNo3NeedData){
-                            _data.push($vm.bagNo3NeedData[i].SC_CODE);
-                        }
-
-                        return _data
-                    }
-                }
-            });
-
-            modalInstance.result.then(function(selectedItem) {
-                console.log(selectedItem);
-
-                RestfulApi.InsertMSSQLData({
-                    insertname: 'Insert',
-                    table: 25,
-                    params: {
-                        SC_TYPE : 'BagNo3Need',
-                        SC_CODE : selectedItem.SC_CODE,
-                        SC_DESC : selectedItem.SC_DESC,
-                        SC_STS  : selectedItem.SC_STS,
-                        SC_CR_DATETIME : $filter('date')(new Date(), 'yyyy-MM-dd HH:mm:ss'),
-                    }
-                }).then(function(res) {
-                    console.log(res);
-
-                    if(res["returnData"] == 1){
-                        toaster.pop('success', '訊息', '新增前三碼成功', 3000);
-                        LoadBagNo3Need();
-                    }
-
-                    // $state.reload()
-                });
-            }, function() {
-                // $log.info('Modal dismissed at: ' + new Date());
-            });
-        },
-        bagNo5NotNeedOptions : {
-            data: '$vm.bagNo5NotNeedData',
-            columnDefs: [
-                { name: 'SC_STS'          ,  displayName: '作廢', cellFilter: 'booleanFilter', filter: 
-                    {
-                        term: null,
-                        type: uiGridConstants.filter.SELECT,
-                        selectOptions: bool
-                    }
-                },
-                { name: 'SC_CODE'         ,  displayName: '代號' },
-                { name: 'SC_DESC'         ,  displayName: '代號描述' },
-                { name: 'SC_CR_DATETIME'  ,  displayName: '新增時間', cellFilter: 'datetimeFilter' },
-                { name: 'SC_UP_DATETIME'  ,  displayName: '更新時間', cellFilter: 'datetimeFilter' },
-                { name: 'Options'         ,  displayName: '操作', enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToM') }
-            ],
-            enableFiltering: true,
-            enableSorting: false,
-            enableColumnMenus: false,
-            // enableVerticalScrollbar: false,
-            paginationPageSizes: [10, 25, 50, 100],
-            paginationPageSize: 100,
-            onRegisterApi: function(gridApi){
-                $vm.bagNo5NotNeedGridApi = gridApi;
-            }
-        },
-        AddBagNo5NotNeed : function(){
-            var modalInstance = $uibModal.open({
-                animation: true,
-                ariaLabelledBy: 'modal-title',
-                ariaDescribedBy: 'modal-body',
-                templateUrl: 'addBagNo5NotNeedModalContent.html',
-                controller: 'AddBagNo5NotNeedModalInstanceCtrl',
-                controllerAs: '$ctrl',
-                resolve: {
-                    bool: function(){
-                        return bool;
-                    },
-                    originBagNo5: function(){
-                        var _data = [];
-
-                        for(var i in $vm.bagNo5NotNeedData){
-                            _data.push($vm.bagNo5NotNeedData[i].SC_CODE);
-                        }
-
-                        return _data
-                    }
-                }
-            });
-
-            modalInstance.result.then(function(selectedItem) {
-                console.log(selectedItem);
-
-                RestfulApi.InsertMSSQLData({
-                    insertname: 'Insert',
-                    table: 25,
-                    params: {
-                        SC_TYPE : 'BagNo5NotNeed',
-                        SC_CODE : selectedItem.SC_CODE,
-                        SC_DESC : selectedItem.SC_DESC,
-                        SC_STS  : selectedItem.SC_STS,
-                        SC_CR_DATETIME : $filter('date')(new Date(), 'yyyy-MM-dd HH:mm:ss'),
-                    }
-                }).then(function(res) {
-                    console.log(res);
-
-                    if(res["returnData"] == 1){
-                        toaster.pop('success', '訊息', '新增後五碼成功', 3000);
-                        LoadBagNo5NotNeed();
-                    }
-
-                    // $state.reload()
-                });
-            }, function() {
-                // $log.info('Modal dismissed at: ' + new Date());
-            });
-        }
-    });
-
-    function LoadBagNo3Need(){
-        RestfulApi.SearchMSSQLData({
-            querymain: 'excompyBagno',
-            queryname: 'SelectAllSysCode',
-            params: {
-                SC_TYPE : "BagNo3Need"
-            }
-        }).then(function (res){
-            console.log(res["returnData"]);
-            $vm.bagNo3NeedData = res["returnData"];
-        });    
-    }
-
-    function LoadBagNo5NotNeed(){
-        RestfulApi.SearchMSSQLData({
-            querymain: 'excompyBagno',
-            queryname: 'SelectAllSysCode',
-            params: {
-                SC_TYPE : "BagNo5NotNeed"
-            }
-        }).then(function (res){
-            console.log(res["returnData"]);
-            $vm.bagNo5NotNeedData = res["returnData"];
-        });    
-    }
-
-})
-.controller('AddBagNo3NeedModalInstanceCtrl', function ($uibModalInstance, bool, originBagNo3, $scope, $filter) {
-    var $ctrl = this;
-    $ctrl.mdData = {};
-    $ctrl.mdData['SC_STS'] = false;
-    $ctrl.boolData = bool;
-    $ctrl.originBagNo3Data = originBagNo3;
-    $ctrl.scCodeRegex = '^((?!'+originBagNo3.join("|")+').)*$';
-
-    $scope.$watch('$ctrl.mdData[\'SC_CODE\']', function(val) {
-        $ctrl.mdData['SC_CODE'] = $filter('uppercase')(val);
-        if(!angular.isUndefined($filter('uppercase')(val))){
-            $ctrl.mdData['SC_DESC'] = '袋號前三碼須包含' + $filter('uppercase')(val);
-        }
-    }, true);
-
-    $ctrl.ok = function() {
-        $uibModalInstance.close($ctrl.mdData);
-    };
-
-    $ctrl.cancel = function() {
-        $uibModalInstance.dismiss('cancel');
-    };
-})
-.controller('ModifyBagNoModalInstanceCtrl', function ($uibModalInstance, bool, mdData) {
-    var $ctrl = this;
-    $ctrl.mdData = mdData;
-    $ctrl.boolData = bool;
-
-    $ctrl.ok = function() {
-        $uibModalInstance.close($ctrl.mdData);
-    };
-
-    $ctrl.cancel = function() {
-        $uibModalInstance.dismiss('cancel');
-    };
-})
-.controller('AddBagNo5NotNeedModalInstanceCtrl', function ($uibModalInstance, bool, originBagNo5, $scope, $filter) {
-    var $ctrl = this;
-    $ctrl.mdData = {};
-    $ctrl.mdData['SC_STS'] = false;
-    $ctrl.boolData = bool;
-    $ctrl.originBagNo5Data = originBagNo5;
-    $ctrl.scCodeRegex = '^((?!'+originBagNo5.join("|")+').)*$';
-
-    $scope.$watch('$ctrl.mdData[\'SC_CODE\']', function(val) {
-        $ctrl.mdData['SC_CODE'] = $filter('uppercase')(val);
-        if(!angular.isUndefined($filter('uppercase')(val))){
-            $ctrl.mdData['SC_DESC'] = '袋號前五碼不能包含' + $filter('uppercase')(val);
-        }
-    }, true);
-
-    $ctrl.ok = function() {
-        $uibModalInstance.close($ctrl.mdData);
-    };
-
-    $ctrl.cancel = function() {
-        $uibModalInstance.dismiss('cancel');
-    };
-});
-"use strict";
-
-angular.module('app.settings').controller('ExternalManagementCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, RestfulApi, uiGridConstants, $templateCache, $filter, bool, compy, coWeights) {
-
-    var $vm = this;
-
-    angular.extend(this, {
-        Init : function(){
-            $scope.ShowTabs = true;
-            $vm.LoadData();
-        },
-        profile : Session.Get(),
-        defaultTab : 'hr1',
-        TabSwitch : function(pTabID){
-            return pTabID == $vm.defaultTab ? 'active' : '';
-        },
-        LoadData : function(){
-            console.log($vm.defaultTab);
-            switch($vm.defaultTab){
-                case 'hr1':
-                    LoadCustInfo();
-                    break;
-                case 'hr2':
-                    LoadCompyInfo();
-                    break;
-            }
-        },
-        gridCustInfoMethod : {
-            //編輯
-            modifyData : function(row){
-                console.log(row);
-                $state.transitionTo("app.settings.externalmanagement.exaccount", {
-                    data: row.entity
-                });
-            },
-            //刪除
-            deleteData : function(row){
-                console.log(row);
-
-                var modalInstance = $uibModal.open({
-                    animation: true,
-                    ariaLabelledBy: 'modal-title',
-                    ariaDescribedBy: 'modal-body',
-                    template: $templateCache.get('isChecked'),
-                    controller: 'IsCheckedModalInstanceCtrl',
-                    controllerAs: '$ctrl',
-                    size: 'sm',
-                    windowClass: 'center-modal',
-                    // appendTo: parentElem,
-                    resolve: {
-                        items: function() {
-                            return row.entity;
-                        },
-                        show: function(){
-                            return {
-                                title : "是否刪除"
-                            };
-                        }
-                    }
-                });
-
-                modalInstance.result.then(function(selectedItem) {
-                    console.log(selectedItem);
-
-                    RestfulApi.DeleteMSSQLData({
-                        deletename: 'Delete',
-                        table: 7,
-                        params: {
-                            CI_ID : selectedItem.CI_ID
-                        }
-                    }).then(function (res) {
-                        toaster.pop('success', '訊息', '刪除外部帳號成功', 3000);
-                        LoadCustInfo();
-                    });
-                }, function() {
-                    // $log.info('Modal dismissed at: ' + new Date());
-                });
-            }
-        },
-        custInfoOptions : {
-            data: '$vm.custInfoData',
-            columnDefs: [
-                { name: 'CI_STS'    ,  displayName: '離職', cellFilter: 'booleanFilter', filter: 
-                    {
-                        term: null,
-                        type: uiGridConstants.filter.SELECT,
-                        selectOptions: bool
-                    }
-                },
-                { name: 'CI_ID'    ,  displayName: '帳號' },
-                { name: 'CI_NAME'  ,  displayName: '名稱' },
-                { name: 'CI_COMPY' ,  displayName: '公司名稱', cellFilter: 'compyFilter', filter: 
-                    {
-                        term: null,
-                        type: uiGridConstants.filter.SELECT,
-                        selectOptions: compy
-                    }
-                },
-                { name: 'Options'  ,  displayName: '操作', enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToMDForCustInfo') }
-            ],
-            enableFiltering: true,
-            enableSorting: false,
-            enableColumnMenus: false,
-            // enableVerticalScrollbar: false,
-            paginationPageSizes: [10, 25, 50, 100],
-            paginationPageSize: 100,
-            onRegisterApi: function(gridApi){
-                $vm.custInfoGridApi = gridApi;
-            }
-        },
-        gridCompyInfoMethod : {
-            //編輯
-            modifyData : function(row){
-                console.log(row);
-                $state.transitionTo("app.settings.externalmanagement.excompy", {
-                    data: row.entity
-                });
-            },
-            //刪除
-            // deleteData : function(row){
-            //     console.log(row);
-
-            //     var modalInstance = $uibModal.open({
-            //         animation: true,
-            //         ariaLabelledBy: 'modal-title',
-            //         ariaDescribedBy: 'modal-body',
-            //         template: $templateCache.get('isChecked'),
-            //         controller: 'IsCheckedModalInstanceCtrl',
-            //         controllerAs: '$ctrl',
-            //         size: 'sm',
-            //         windowClass: 'center-modal',
-            //         // appendTo: parentElem,
-            //         resolve: {
-            //             items: function() {
-            //                 return row.entity;
-            //             },
-            //             show: function(){
-            //                 return {
-            //                     title : "是否刪除"
-            //                 };
-            //             }
-            //         }
-            //     });
-
-            //     modalInstance.result.then(function(selectedItem) {
-            //         console.log(selectedItem);
-
-            //         RestfulApi.DeleteMSSQLData({
-            //             deletename: 'Delete',
-            //             table: 8,
-            //             params: {
-            //                 CO_CODE : selectedItem.CO_CODE
-            //             }
-            //         }).then(function (res) {
-            //             toaster.pop('success', '訊息', '刪除行家成功', 3000);
-            //             LoadCompyInfo();
-            //         });
-            //     }, function() {
-            //         // $log.info('Modal dismissed at: ' + new Date());
-            //     });
-            // }
-        },
-        compyInfoOptions : {
-            data: '$vm.compyInfoData',
-            columnDefs: [
-                { name: 'CO_STS'    ,  displayName: '作廢', cellFilter: 'booleanFilter', filter: 
-                    {
-                        term: null,
-                        type: uiGridConstants.filter.SELECT,
-                        selectOptions: bool
-                    }
-                },
-                { name: 'CO_CODE'   ,  displayName: '行家代號' },
-                { name: 'CO_AREA'   ,  displayName: '行家區域' },
-                { name: 'CO_NAME'   ,  displayName: '行家名稱' },
-                { name: 'CO_WEIGHTS',  displayName: '行家權重', cellFilter: 'coWeightsFilter', filter: 
-                    {
-                        term: null,
-                        type: uiGridConstants.filter.SELECT,
-                        selectOptions: coWeights
-                    }
-                },
-                { name: 'CO_NUMBER' ,  displayName: '行家統編' },
-                { name: 'CO_ADDR'   ,  displayName: '行家地址' },
-                { name: 'Options'   ,  displayName: '操作', width: '5%', enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToMForCompyInfo') }
-            ],
-            enableFiltering: true,
-            enableSorting: false,
-            enableColumnMenus: false,
-            // enableVerticalScrollbar: false,
-            paginationPageSizes: [10, 25, 50, 100],
-            paginationPageSize: 100,
-            onRegisterApi: function(gridApi){
-                $vm.compyInfoGridApi = gridApi;
-            }
-        },
-        AddAccount : function(){
-
-            $state.transitionTo("app.settings.externalmanagement.exaccount");
-
-        },
-        AddCompy : function(){
-            var modalInstance = $uibModal.open({
-                animation: true,
-                ariaLabelledBy: 'modal-title',
-                ariaDescribedBy: 'modal-body',
-                templateUrl: 'addCompyModalContent.html',
-                controller: 'AddCompyModalInstanceCtrl',
-                controllerAs: '$ctrl',
-                resolve: {
-                    coWeights: function() {
-                        return coWeights;
-                    }
-                }
-            });
-
-            modalInstance.result.then(function(selectedItem) {
-                // console.log(selectedItem);
-
-                // 找出最大ID
-                RestfulApi.SearchMSSQLData({
-                    querymain: 'externalManagement',
-                    queryname: 'SelectMaxCompy'
-                }).then(function (res){
-                    RestfulApi.InsertMSSQLData({
-                        insertname: 'Insert',
-                        table: 8,
-                        params: {
-                            CO_ID : res["returnData"][0].CO_ID,
-                            CO_NAME : selectedItem.CO_NAME,
-                            CO_AREA : selectedItem.CO_AREA,
-                            CO_NUMBER : selectedItem.CO_NUMBER,
-                            CO_ADDR : selectedItem.CO_ADDR,
-                            CO_WEIGHTS : selectedItem.CO_WEIGHTS,
-                            CO_CR_USER : $vm.profile.U_ID,
-                            CO_CR_DATETIME : $filter('date')(new Date(), 'yyyy-MM-dd HH:mm:ss')
-                        }
-                    }).then(function(res) {
-                        console.log(res);
-
-                        if(res["returnData"] == 1){
-                            LoadCompyInfo();
-
-                            // 新增成功後，更新compy的值
-                            $filter('compyFilter')({}, true);
-
-                            toaster.pop('success', '訊息', '新增行家成功', 3000);
-                        }
-
-                        // $state.reload()
-                    });
-                });
-            }, function() {
-                // $log.info('Modal dismissed at: ' + new Date());
-            });
-        }
-    });
-
-    function LoadCustInfo(){
-        RestfulApi.SearchMSSQLData({
-            querymain: 'externalManagement',
-            queryname: 'SelectCustInfo'
-        }).then(function (res){
-            $vm.custInfoData = res["returnData"];
-        });
-    }
-
-    function LoadCompyInfo(){
-        RestfulApi.SearchMSSQLData({
-            querymain: 'externalManagement',
-            queryname: 'SelectCompyInfo'
-        }).then(function (res){
-            console.log(res["returnData"]);
-            $vm.compyInfoData = res["returnData"];
-        });
-    }
-
-})
-.controller('AddCompyModalInstanceCtrl', function ($uibModalInstance, coWeights) {
-    var $ctrl = this;
-    $ctrl.coWeightsData = coWeights;
-
-    $ctrl.ok = function() {
-        $uibModalInstance.close($ctrl.items);
-    };
-
-    $ctrl.cancel = function() {
-        $uibModalInstance.dismiss('cancel');
-    };
-});
-"use strict";
-
-angular.module('app.settings').controller('NewsCtrl', function ($scope, $stateParams, $state, RestfulApi, Session, toaster, $uibModal, $filter, bool, ioType, FileUploader, SUMMERNOT_CONFIG) {
-    
-    // console.log($stateParams);
-    var $vm = this,
-        _tasks = [],
-        _d = new Date(),
-        _filepath = _d.getFullYear() + '\\' + ("0" + (_d.getMonth()+1)).slice(-2) + '\\' + ("0" + _d.getDate()).slice(-2) + '\\';
-
-    angular.extend(this, {
-        Init : function(){
-            // 不正常登入此頁面
-            // if($stateParams.data == null) ReturnToBillboardEditorPage();
-            if($stateParams.data == null){
-                $vm.vmData = {
-                    BB_STICK_TOP : false,
-                    BB_IO_TYPE : "All",
-                    BB_CONTENT : "",
-                    UploadedData : [],
-                    IU : "Add"
-                }
-            }else{
-                $vm.vmData = $stateParams.data;
-                $vm.vmData["IU"] = "Update";
-
-                _d = $vm.vmData["BB_CR_DATETIME"].replace(/\Z/g, '');
-
-                LoadBBPG();
-                LoadBBAF();
-            }
-        },
-        profile : Session.Get(),
-        boolData : bool,
-        ioTypeData : ioType,
-        snOptions : SUMMERNOT_CONFIG,
-        uploader : new FileUploader({
-            url: '/toolbox/uploadFile?filePath='+_filepath
-        }),
-        AddPostGoal : function (){
-            var modalInstance = $uibModal.open({
-                animation: true,
-                ariaLabelledBy: 'modal-title',
-                ariaDescribedBy: 'modal-body',
-                templateUrl: 'addPostGoalModalContent.html',
-                controller: 'AddPostGoalModalInstanceCtrl',
-                controllerAs: '$ctrl',
-                size: 'lg',
-                // appendTo: parentElem,
-                resolve: {
-                    vmData: function(){
-                        return $vm.vmData;
-                    },
-                    ioType: function(SysCode){
-                        return SysCode.get('IOType');
-                    }
-                }
-            });
-
-            modalInstance.result.then(function(selectedItem) {
-                // console.log(selectedItem);
-                $vm.vmData.PostGoal = angular.copy(selectedItem);
-                console.log($vm.vmData);
-            }, function() {
-                // $log.info('Modal dismissed at: ' + new Date());
-            });
-
-        },
-        /**
-         * [DeleteUploaded description] 刪除已上傳檔案
-         * @param {[type]} pDeleteUploaded [description] 檔案
-         * @param {[type]} pIndex          [description] array index
-         */
-        DeleteUploaded : function(pDeleteUploaded, pIndex){
-            var modalInstance = $uibModal.open({
-                animation: true,
-                ariaLabelledBy: 'modal-title',
-                ariaDescribedBy: 'modal-body',
-                template: $templateCache.get('isChecked'),
-                controller: 'IsCheckedModalInstanceCtrl',
-                controllerAs: '$ctrl',
-                size: 'sm',
-                windowClass: 'center-modal',
-                // appendTo: parentElem,
-                resolve: {
-                    items: function() {
-                        return pDeleteUploaded;
-                    },
-                    show: function(){
-                        return {
-                            title : "是否刪除"
-                        };
-                    }
-                }
-            });
-
-            modalInstance.result.then(function(selectedItem) {
-                // console.log(selectedItem);
-
-                RestfulApi.UpdateMSSQLData({
-                    updatename: 'Update',
-                    table: 2,
-                    params: {
-                        BBAF_SOFT_DELETE : true
-                    },
-                    condition: {
-                        BBAF_ID : selectedItem.BBAF_ID
-                    }
-                }).then(function (res) {
-                    $vm.vmData.UploadedData.splice(pIndex, 1);
-                }, function (err) {
-
-                });
-            }, function() {
-                // $log.info('Modal dismissed at: ' + new Date());
-            });
-        },
-        Return : function(){
-            ReturnToBillboardEditorPage();
-        },
-        Add : function(){
-            console.log($vm.vmData);
-
-            // Insert 主表
-            _tasks.push({
-                crudType: 'Insert',
-                table: 1,
-                params: {
-                    BB_TITLE : $vm.vmData.BB_TITLE,
-                    BB_CONTENT : $vm.vmData.BB_CONTENT,
-                    BB_POST_FROM : $vm.vmData.BB_POST_FROM,
-                    BB_POST_TOXX : $vm.vmData.BB_POST_TOXX,
-                    BB_STICK_TOP : $vm.vmData.BB_STICK_TOP,
-                    BB_IO_TYPE : $vm.vmData.BB_IO_TYPE,
-                    BB_CR_USER : $vm.profile.U_ID,
-                    BB_CR_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss')
-                }
-            });
-
-            // Insert 公佈對象
-            for(var i in DeleteAndInsertPostGoal()){
-                _tasks.push(DeleteAndInsertPostGoal()[i]);
-            }
-
-            // 有上傳檔案 先上傳檔案之後再Insert DB
-            if($vm.uploader.getNotUploadedItems().length > 0){
-                $vm.uploader.uploadAll();
-            }
-            // 無上傳檔案 直接Insert DB
-            else{
-                RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res) {
-                    console.log(res);
-                    ReturnToBillboardEditorPage();
-                }, function (err) {
-                    console.log(err);
-                });
-            }
-        },
-        Update : function(){
-            console.log($vm.vmData);
-
-            // Update 主表
-            _tasks.push({
-                crudType: 'Update',
-                table: 1,
-                params: {
-                    BB_TITLE : $vm.vmData.BB_TITLE,
-                    BB_CONTENT : $vm.vmData.BB_CONTENT,
-                    BB_POST_FROM : $vm.vmData.BB_POST_FROM,
-                    BB_POST_TOXX : $vm.vmData.BB_POST_TOXX,
-                    BB_STICK_TOP : $vm.vmData.BB_STICK_TOP,
-                    BB_IO_TYPE : $vm.vmData.BB_IO_TYPE,
-                    BB_UP_USER : $vm.profile.U_ID,
-                    BB_UP_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss')
-                },
-                condition: {
-                    BB_CR_USER : $vm.vmData.BB_CR_USER,
-                    BB_CR_DATETIME : $vm.vmData.BB_CR_DATETIME
-                }
-            });
-
-            // Delete And Insert 公佈對象
-            for(var i in DeleteAndInsertPostGoal()){
-                _tasks.push(DeleteAndInsertPostGoal()[i]);
-            }
-
-            // 有上傳檔案 先上傳檔案之後再Insert DB
-            if($vm.uploader.getNotUploadedItems().length > 0){
-                $vm.uploader.uploadAll();
-            }
-            // 無上傳檔案 直接Insert DB
-            else{
-                RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res) {
-                    console.log(res);
-                    ReturnToBillboardEditorPage();
-                }, function (err) {
-                    console.log(err);
-                });
-            }
-        }
-    });
-
-    // Upload Filters
-    $vm.uploader.filters.push({
-        name: 'queueFilter',
-        fn: function(item /*{File|FileLikeObject}*/, options) {
-            // return this.queue.length < $scope.optionParam.UploadQueue;
-            return this.queue.length < 10;
-        }
-    });
-
-    $vm.uploader.filters.push({
-        name: 'sizeFilter',
-        fn: function(item /*{File|FileLikeObject}*/, options) {
-            // return item.size < $scope.optionParam.UploadSize * 1000 * 1000;
-            return item.size < 10 * 1000 * 1000;
-        }
-    });
-
-    // 處理已上傳的部分 : 當相同檔名時，不可上傳
-    $vm.uploader.filters.push({
-        name: 'nameFilter',
-        fn: function(item /*{File|FileLikeObject}*/, options) {
-            var uploadedDataLength = ($filter('filter')($vm.vmData.UploadedData, {BBAF_O_FILENAME: item.name})).length;
-            
-            if(uploadedDataLength > 0){
-                toaster.pop('info', "訊息", "已上傳過相同的檔名。", 3000);
-                return false;
-            }else{
-                return true;
-            }
-        }
-    });
-
-    // 處理未上傳的部分 : 當相同檔名時，不可上傳
-    FileUploader.FileSelect.prototype.isEmptyAfterSelection = function() {
-        return false;
-    };
-
-    // $vm.uploader.filters.push({
-    //     name: 'fileFilter',
-    //     fn: function(item /*{File|FileLikeObject}*/, options) {
-    //         var type = '|' + item.type.slice(item.type.lastIndexOf('/') + 1) + '|',
-    //             typeStr = "|";
-    //         for(var i in $scope.optionParam.UploadType){
-    //             typeStr += $scope.optionParam.UploadType[i] + "|";
-    //         }
-    //         return typeStr.indexOf(type) !== -1;
-    //     }
-    // });
-
-    // Upload Callback Methods
-    $vm.uploader.onWhenAddingFileFailed = function(item /*{File|FileLikeObject}*/, filter, options) {
-        console.info('onWhenAddingFileFailed', item, filter, options);
-        // var title = "", msg;
-        // switch(filter.name){
-        //     case "fileFilter":
-        //         title = item.name;
-        //         msg = "檔案類型錯誤。";
-        //         break;
-        //     case "sizeFilter":
-        //         title = item.name;
-        //         msg = "上傳檔案超過" + $scope.optionParam.UploadSize + "Mb。";
-        //         break;
-        //     case "queueFilter":
-        //         msg = "上傳數量超過" + $scope.optionParam.UploadQueue + "個。";
-        //         break;
-        // }
-        // toaster.pop('info', title, msg, 3000);
-    };
-    $vm.uploader.onAfterAddingFile = function(fileItem) {
-        console.info('onAfterAddingFile', fileItem);
-        var reader = new FileReader();
-
-        reader.onload = function(readerEvt) {
-            var data = readerEvt.target.result;
-            var fileNameArray = fileItem.file.name.split(".");
-            var queueIndex = $vm.uploader.queue.indexOf(fileItem);
-            var rename = angular.copy(CryptoJS.MD5(data).toString() + "." + fileNameArray[fileNameArray.length-1]);
-            
-            // Duplicate File
-            // if($filter('filter')($scope.duplicateFile, rename).length > 0){
-            //     $vm.uploader.queue[queueIndex].remove();
-            //     toaster.pop('info', '上傳檔案重複', fileItem.file["name"], 3000);
-            // }else{
-                // $scope.duplicateFile.push(rename);
-                // $scope.queueFile.push(rename);
-                fileItem.url += '&rFilename='+rename;
-            // }
-            // var dataFile = forumService.b64toBlob(btoa(data), fileItem.file.type);
-            // fileItem.file = dataFile;
-        };
-
-        reader.readAsBinaryString(fileItem._file);
-    };
-    $vm.uploader.onAfterAddingAll = function(addedFileItems) {
-        console.info('onAfterAddingAll', addedFileItems);
-    };
-    $vm.uploader.onBeforeUploadItem = function(item) {
-        console.info('onBeforeUploadItem', item);
-    };
-    $vm.uploader.onProgressItem = function(fileItem, progress) {
-        console.info('onProgressItem', fileItem, progress);
-    };
-    $vm.uploader.onProgressAll = function(progress) {
-        console.info('onProgressAll', progress);
-    };
-    $vm.uploader.onSuccessItem = function(fileItem, response, status, headers) {
-        console.info('onSuccessItem', fileItem, response, status, headers);
-    };
-    $vm.uploader.onErrorItem = function(fileItem, response, status, headers) {
-        console.info('onErrorItem', fileItem, response, status, headers);
-    };
-    $vm.uploader.onCancelItem = function(fileItem, response, status, headers) {
-        console.info('onCancelItem', fileItem, response, status, headers);
-    };
-    $vm.uploader.onCompleteItem = function(fileItem, response, status, headers) {
-        console.info('onCompleteItem', fileItem, response, status, headers);
-        if(status == 200){
-            // 儲存每個上傳檔案的資訊
-            _tasks.push({
-                crudType: 'Insert',
-                table: 2,
-                params: {
-                    BBAF_O_FILENAME : response.oFilename,
-                    BBAF_R_FILENAME : response.rFilename,
-                    BBAF_FILEPATH : response.Filepath,
-                    BBAF_FILESIZE : response.Filesize,
-                    BBAF_CR_USER : $vm.profile.U_ID,
-                    BBAF_CR_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss')
-                }
-            });
-        }else{
-            toaster.pop('error', "檔案上傳失敗", response.oFilename, 3000);
-        }
-    };
-    $vm.uploader.onCompleteAll = function() {
-        console.info('onCompleteAll');
-
-        RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res) {
-            console.log(res);
-            ReturnToBillboardEditorPage();
-        }, function (err) {
-            console.log(err);
-        });
-    };
-
-    var DeleteAndInsertPostGoal = function(){
-        var _task = [];
-
-        // 表示為Update
-        if($vm.vmData.IU == "Update"){
-            _task.push({
-                crudType: 'Delete',
-                table: 3,
-                params: {
-                    BBPG_CR_USER : $vm.vmData.BB_CR_USER,
-                    BBPG_CR_DATETIME : $vm.vmData.BB_CR_DATETIME
-                }
-            });
-        }
-
-        for(var i in $vm.vmData["PostGoal"]){
-            if($vm.vmData.BB_IO_TYPE == 'All'){
-                _task.push({
-                    crudType: 'Insert',
-                    table: 3,
-                    params: {
-                        BBPG_CR_USER : $vm.profile.U_ID,
-                        BBPG_CR_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss'),
-                        BBPG_GOAL_ID : $vm.vmData.PostGoal[i].CODE
-                    }
-                });
-            }else{
-                // 當所有變成對內或對外時的判斷
-                if($vm.vmData.PostGoal[i].IO_TYPE == $vm.vmData.BB_IO_TYPE){
-                    _task.push({
-                        crudType: 'Insert',
-                        table: 3,
-                        params: {
-                            BBPG_CR_USER : $vm.profile.U_ID,
-                            BBPG_CR_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss'),
-                            BBPG_GOAL_ID : $vm.vmData.PostGoal[i].CODE
-                        }
-                    });
-                }
-            }
-        }
-
-        return _task;
-    };
-
-    function LoadBBPG(){
-        RestfulApi.SearchMSSQLData({
-            querymain: 'news',
-            queryname: 'SelectBBPG',
-            params: {
-                BBPG_CR_USER: $vm.vmData.BB_CR_USER,
-                BBPG_CR_DATETIME: $vm.vmData.BB_CR_DATETIME
-            }
-        }).then(function (res){
-            console.log(res["returnData"]);
-            $vm.vmData.PostGoal = res["returnData"];
-        });
-    };
-
-    function LoadBBAF(){
-        RestfulApi.SearchMSSQLData({
-            querymain: 'news',
-            queryname: 'SelectBBAF',
-            params: {
-                BBAF_CR_USER: $vm.vmData.BB_CR_USER,
-                BBAF_CR_DATETIME: $vm.vmData.BB_CR_DATETIME
-            }
-        }).then(function (res){
-            console.log(res["returnData"]);
-            $vm.vmData.UploadedData = res["returnData"];
-        });
-    };
-
-    function ReturnToBillboardEditorPage(){
-        if(_tasks.length > 0){
-            toaster.success("狀態", "資料上傳成功", 3000);    
-        }
-        $state.transitionTo("app.settings.billboardeditor");
-    };
-})
-.controller('AddPostGoalModalInstanceCtrl', function ($uibModalInstance, vmData, RestfulApi, $timeout, $filter, ioType, uiGridConstants) {
-    var $ctrl = this;
-    $ctrl.mdData = [];
-
-    $ctrl.MdInit = function (){
-        // 拿掉All
-        ioType.shift();
-
-        var _request = null;
-
-        switch(vmData.BB_IO_TYPE){ 
-            case "In":
-                _request = {
-                    querymain: 'news',
-                    queryname: 'SelectSysGroup'
-                };
-                break;
-            case "Out":
-                _request = {
-                    querymain: 'news',
-                    queryname: 'SelectCompyInfo'
-                };
-                break;
-            case "All":
-                _request = {
-                    querymain: 'news',
-                    queryname: 'SelectSysGroupUnionCompyInfo'
-                };
-                break;
-        }
-
-        if (_request == null) return;
-
-        RestfulApi.SearchMSSQLData(_request).then(function (res){
-            // console.log(res["returnData"]);
-            $ctrl.mdData = res["returnData"];
-            // 把已被選取的帳號打勾
-            $timeout(function() {
-                if($ctrl.mdDataGridApi.selection.selectRow){
-                    for(var i in vmData.PostGoal){
-                        $ctrl.mdDataGridApi.selection.selectRow($filter('filter')($ctrl.mdData, {CODE: vmData.PostGoal[i].CODE})[0]);
-                    }
-                }
-            });
-        }).finally(function() {
-            HandleWindowResize($vm.mdDataGridApi);
-        });
-    };
-
-    $ctrl.mdDataOptions = {
-        data:  '$ctrl.mdData',
-        columnDefs: [
-            { name: 'CODE'     , displayName: '系統代碼' },
-            { name: 'NAME'     , displayName: '名稱' },
-            { name: 'IO_TYPE'  , displayName: '公佈類型', cellFilter: 'ioTypeFilter', filter: 
-                {
-                    term: null,
-                    type: uiGridConstants.filter.SELECT,
-                    selectOptions: ioType
-                }
-            }
-        ],
-        enableSorting: false,
-        enableColumnMenus: false,
-        enableFiltering: true,
-        enableRowSelection: true,
-        enableSelectAll: true,
-        selectionRowHeaderWidth: 35,
-        paginationPageSizes: [10, 25, 50, 100],
-        paginationPageSize: 100,
-        onRegisterApi: function(gridApi){ 
-            $ctrl.mdDataGridApi = gridApi;
-        } 
-    };
-
-    $ctrl.ok = function() {
-        $uibModalInstance.close($ctrl.mdDataGridApi.selection.getSelectedRows());
-    };
-
-    $ctrl.cancel = function() {
-        $uibModalInstance.dismiss('cancel');
-    };
-});
-"use strict";
-
-angular.module('app.settings').controller('ProfileCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, RestfulApi, $filter) {
-
-    var $vm = this;
-
-    angular.extend(this, {
-        profile : Session.Get(),
-        Editor : function (){
-
-            var modalInstance = $uibModal.open({
-                animation: true,
-                ariaLabelledBy: 'modal-title',
-                ariaDescribedBy: 'modal-body',
-                templateUrl: 'myModalContent.html',
-                controller: 'ModalInstanceCtrl',
-                controllerAs: '$ctrl',
-                size: 'lg',
-                // appendTo: parentElem,
-                resolve: {
-                    profile: function() {
-                        return $vm.profile;
-                    }
-                }
-            });
-
-            modalInstance.result.then(function(selectedItem) {
-                // $ctrl.selected = selectedItem;
-                // console.log(selectedItem);
-
-                RestfulApi.UpdateMSSQLData({
-                    updatename: 'UpdateByEncrypt',
-                    table: 0,
-                    params: {
-                        U_PW          : selectedItem.C_PW,
-                        U_EMAIL       : selectedItem.U_EMAIL,
-                        U_UP_USER     : $vm.profile.U_ID,
-                        U_UP_DATETIME : $filter('date')(new Date, 'yyyy-MM-dd HH:mm:ss')
-                    },
-                    condition: {
-                        U_ID          : selectedItem.U_ID
-                    }
-                }).then(function (res) {
-
-                    toaster.success("狀態", "更新成功並重新登入", 3000);
-
-                    Session.Destroy();
-                    $state.transitionTo("login");
-                }, function (err) {
-
-                });
-            }, function() {
-                // $log.info('Modal dismissed at: ' + new Date());
-            });
-
-        }
-    });
-
-})
-.controller('ModalInstanceCtrl', function ($uibModalInstance, profile) {
-    var $ctrl = this;
-    $ctrl.mdData = profile;
-
-    /**
-     * [CheckPW description]
-     * N_PW : 當前密碼
-     * M_PW : 更改密碼
-     * C_PW : 確認密碼
-     */
-    $ctrl.CheckPW = function(){
-        var _check = true;
-
-        // N_PW必須輸入且正確
-        if(!angular.isUndefined($ctrl.mdData['N_PW']) && $ctrl.mdData['N_PW'] == profile.U_PW){
-            if(!angular.isUndefined($ctrl.mdData['M_PW']) && !angular.isUndefined($ctrl.mdData['C_PW'])){
-                // 更改密碼 等於 確認密碼
-                if($ctrl.mdData['M_PW'] == $ctrl.mdData['C_PW']){
-                    _check = false;
-                }
-            }
-        }
-
-        return _check;
-    };
-
-    $ctrl.ok = function() {
-        $uibModalInstance.close($ctrl.mdData);
-    };
-
-    $ctrl.cancel = function() {
-        $uibModalInstance.dismiss('cancel');
-    };
-});
-
-"use strict";
-
-angular.module('app.settings').controller('SysLogsCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, RestfulApi, uiGridConstants, $filter, userInfo) {
-    // console.log($stateParams, $state);
-
-    var $vm = this;
-
-    angular.extend(this, {
-        Init : function(){
-            LoadSysLogs();
-        },
-        profile : Session.Get(),
-        sysLogsOptions : {
-            data: '$vm.sysLogsData',
-            columnDefs: [
-                { name: 'Index'        , displayName: '序列', width: 50, enableFiltering: false },
-                { name: 'SDL_DATETIME' , displayName: '時間', width: 150, cellFilter: 'datetimeFilter' },
-                { name: 'SDL_LEVEL'    , displayName: '等級', width: 70, cellTemplate: $templateCache.get('accessibilityToSysLevel') },
-                { name: 'SDL_MESSAGE'  , displayName: '訊息', cellTooltip: function (row, col) 
-                    {
-                        return row.entity.SDL_MESSAGE
-                    } 
-                },
-                { name: 'SDL_SQL'      , displayName: 'SQL', cellTooltip: function (row, col) 
-                    {
-                        return row.entity.SDL_SQL
-                    } 
-                },
-                { name: 'SDL_USER'     , displayName: '人員', width: 100, cellFilter: 'userInfoFilter', filter: 
-                    {
-                        term: null,
-                        type: uiGridConstants.filter.SELECT,
-                        selectOptions: userInfo
-                    }
-                },
-                { name: 'SDL_IP'       , displayName: 'IP', width: 120 }
-            ],
-            enableFiltering: true,
-            enableSorting: true,
-            enableColumnMenus: false,
-            // enableVerticalScrollbar: false,
-            paginationPageSizes: [50, 100, 150, 200, 250, 300],
-            paginationPageSize: 100,
-            onRegisterApi: function(gridApi){
-                $vm.sysLogsGridApi = gridApi;
-            }
-        },
-        // 匯出Excel
-        ExportExcel: function(){
-
-            var _exportName = $filter('date')($vm.vmData.OL_IMPORTDT, 'yyyyMMdd') + ' ' + 
-                              $filter('compyFilter')($vm.vmData.OL_CO_CODE) + ' ' + 
-                              $vm.vmData.OL_FLIGHTNO;
-                // _totalBag = 0,
-                // _totalWeight = 0;
-
-            // 計算件數和重量
-            // for(var i in $vm.job002Data){
-            //     _totalBag += $vm.job002Data[i].FLL_CTN;
-            //     _totalWeight += $vm.job002Data[i].FLL_WEIGHT;
-            // }
-
-            ToolboxApi.ExportExcelByMultiSql([
-                {
-                    templates      : 5,
-                    filename       : _exportName,
-                    OL_MASTER      : $vm.vmData.OL_MASTER,
-                    OL_IMPORTDT    : $filter('date')($vm.vmData.OL_IMPORTDT, 'yyyy-MM-dd'),
-                    OL_FLIGHTNO    : $vm.vmData.OL_FLIGHTNO,
-                    OL_COUNTRY     : $vm.vmData.OL_COUNTRY, 
-                    OL_TEL         : $vm.vmData.OL_TEL, 
-                    OL_FAX         : $vm.vmData.OL_FAX, 
-                    OL_TOTALBAG    : $vm.job002GridApi.grid.columns[4].getAggregationValue(), 
-                    OL_TOTALWEIGHT : $vm.job002GridApi.grid.columns[5].getAggregationValue().toFixed(2)
-                },
-                {
-                    crudType: 'Select',
-                    querymain: 'job002',
-                    queryname: 'SelectFlightItemList',
-                    params: {               
-                        FLL_SEQ: $vm.vmData.OL_SEQ
-                    }
-                },
-                {
-                    crudType: 'Select',
-                    querymain: 'job002',
-                    queryname: 'SelectRemark',
-                    params: {               
-                        FLL_SEQ: $vm.vmData.OL_SEQ
-                    }
-                }
-            ]).then(function (res) {
-                // console.log(res);
-            });
-
-        }
-    });
-
-    function LoadSysLogs(){
-        RestfulApi.SearchMSSQLData({
-            querymain: 'sysLogs',
-            queryname: 'SelectSysLogs'
-        }).then(function (res){
-            console.log(res["returnData"]);
-            for(var i=0;i<res["returnData"].length;i++){
-                res["returnData"][i]["Index"] = i+1;
-            }
-            $vm.sysLogsData = res["returnData"];
-        }); 
-    };
-
-})
-"use strict";
-
 
 angular.module('app.maps').factory('SmartMapStyle', function ($q, $http, APP_CONFIG) {
 
@@ -10531,6 +8707,21 @@ angular.module('app.maps').factory('SmartMapStyle', function ($q, $http, APP_CON
 
 
 });
+"use strict";
+
+angular.module('app.restful').controller('ExcelTestCtrl', function ($scope, $stateParams, $state, ToolboxApi, Session, toaster, $uibModal) {
+
+    var $vm = this;
+
+    ToolboxApi.ExportExcelByVar({
+    	
+    }).then(function (res) {
+        console.log("s", res);
+    }, function (err) {
+        console.log("f", res);
+    });
+});
+
 "use strict";
 
 angular.module('app.selfwork').controller('AssistantHistorySearchCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, RestfulApi, $filter, bool, compy, uiGridConstants, localStorageService, ToolboxApi, OrderStatus) {
@@ -14680,6 +12871,2032 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
     };
 
 })
+"use strict";
+
+angular.module('app.settings').controller('AccountManagementCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, $filter, SysCode, RestfulApi, uiGridConstants, bool, role, userGrade) {
+
+	var $vm = this;
+    // console.log(Account.get());
+
+	angular.extend(this, {
+        Init : function(){
+            $scope.ShowTabs = true;
+            
+            $vm.LoadData();
+        },
+        profile : Session.Get(),
+        defaultTab : 'hr1',
+        TabSwitch : function(pTabID){
+            return pTabID == $vm.defaultTab ? 'active' : '';
+        },
+        LoadData : function(){
+            console.log($vm.defaultTab);
+            switch($vm.defaultTab){
+                case 'hr1':
+                    LoadAccount();
+                    break;
+                case 'hr2':
+                    LoadGroup();
+                    break;
+            }
+        },
+        gridAccountMethod : {
+            //編輯
+            modifyData : function(row){
+                console.log(row);
+                $state.transitionTo("app.settings.accountmanagement.account", {
+                    data: row.entity
+                });
+            },
+            //刪除
+            deleteData : function(row){
+                console.log(row);
+
+                var modalInstance = $uibModal.open({
+                    animation: true,
+                    ariaLabelledBy: 'modal-title',
+                    ariaDescribedBy: 'modal-body',
+                    template: $templateCache.get('isChecked'),
+                    controller: 'IsCheckedModalInstanceCtrl',
+                    controllerAs: '$ctrl',
+                    size: 'sm',
+                    windowClass: 'center-modal',
+                    // appendTo: parentElem,
+                    resolve: {
+                        items: function() {
+                            return row.entity;
+                        },
+                        show: function(){
+                            return {
+                                title : "是否刪除"
+                            };
+                        }
+                    }
+                });
+
+                modalInstance.result.then(function(selectedItem) {
+                    console.log(selectedItem);
+
+                    RestfulApi.DeleteMSSQLData({
+                        deletename: 'Delete',
+                        table: 0,
+                        params: {
+                            U_ID : selectedItem.U_ID
+                        }
+                    }).then(function (res) {
+                        if(res["returnData"] == 1){
+                            LoadAccount();
+                        }
+                    });
+                }, function() {
+                    // $log.info('Modal dismissed at: ' + new Date());
+                });
+            }
+        },
+        accountManagementOptions : {
+            data: '$vm.accountData',
+            columnDefs: [
+                { name: 'U_STS'    ,  displayName: '離職', cellFilter: 'booleanFilter', filter: 
+                    {
+                        term: null,
+                        type: uiGridConstants.filter.SELECT,
+                        selectOptions: bool
+                    }
+                },
+                // { name: 'U_CHECK'  ,  displayName: '認證', cellFilter: 'booleanFilter', filter: 
+                //     {
+                //         term: null,
+                //         type: uiGridConstants.filter.SELECT,
+                //         selectOptions: bool
+                //     }
+                // },
+                { name: 'U_ID'     ,  displayName: '帳號' },
+                { name: 'U_NAME'   ,  displayName: '名稱' },
+                { name: 'U_EMAIL'  ,  displayName: '信箱' },
+                { name: 'U_PHONE'  ,  displayName: '電話' },
+                { name: 'U_GRADE'  ,  displayName: '職稱', cellFilter: 'gradeFilter', filter: 
+                    {
+                        term: null,
+                        type: uiGridConstants.filter.SELECT,
+                        selectOptions: userGrade
+                    }
+                },
+                { name: 'U_ROLE'   ,  displayName: '角色', cellFilter: 'roleFilter', filter: 
+                    {
+                        term: null,
+                        type: uiGridConstants.filter.SELECT,
+                        selectOptions: role
+                    }
+                },
+                { name: 'Options'  ,  displayName: '操作', enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToMDForAccount') }
+            ],
+            enableFiltering: true,
+            enableSorting: false,
+            enableColumnMenus: false,
+            // enableVerticalScrollbar: false,
+            paginationPageSizes: [10, 25, 50, 100],
+            paginationPageSize: 100,
+            onRegisterApi: function(gridApi){
+                $vm.accountManagementGridApi = gridApi;
+            }
+        },
+        gridGroupMethod : {
+            //編輯
+            modifyData : function(row){
+                // console.log(row);
+                $state.transitionTo("app.settings.accountmanagement.group", {
+                    data: row.entity
+                });
+            },
+            //刪除
+            deleteData : function(row){
+                console.log(row);
+                var modalInstance = $uibModal.open({
+                    animation: true,
+                    ariaLabelledBy: 'modal-title',
+                    ariaDescribedBy: 'modal-body',
+                    template: $templateCache.get('isChecked'),
+                    controller: 'IsCheckedModalInstanceCtrl',
+                    controllerAs: '$ctrl',
+                    size: 'sm',
+                    windowClass: 'center-modal',
+                    // appendTo: parentElem,
+                    resolve: {
+                        items: function() {
+                            return row.entity;
+                        },
+                        show: function(){
+                            return {
+                                title : "是否刪除"
+                            };
+                        }
+                    }
+                });
+
+                modalInstance.result.then(function(selectedItem) {
+                    console.log(selectedItem);
+
+                    RestfulApi.DeleteMSSQLData({
+                        deletename: 'Delete',
+                        table: 6,
+                        params: {
+                            SG_GCODE : selectedItem.SG_GCODE
+                        }
+                    }).then(function (res) {
+                        if(res["returnData"] == 1){
+                            LoadGroup();
+                        }
+                    });
+                }, function() {
+                    // $log.info('Modal dismissed at: ' + new Date());
+                });
+            }
+        },
+        groupManagementOptions : {
+            data: '$vm.groupData',
+            columnDefs: [
+                { name: 'SG_TITLE' ,  displayName: '群組名稱' },
+                { name: 'SG_DESC'  ,  displayName: '群組敘述' },
+                { name: 'SG_STS'   ,  displayName: '作廢', cellFilter: 'booleanFilter', filter: 
+                    {
+                        term: null,
+                        type: uiGridConstants.filter.SELECT,
+                        selectOptions: bool
+                    }
+                },
+                { name: 'Options'  ,  displayName: '操作', enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToMDForGroup') }
+            ],
+            enableFiltering: true,
+            enableSorting: false,
+            enableColumnMenus: false,
+            paginationPageSizes: [10, 25, 50, 100],
+            paginationPageSize: 100,
+            onRegisterApi: function(gridApi){
+                $vm.groupManagementGridApi = gridApi;
+            }
+        },
+        AddAccount : function(){
+
+            $state.transitionTo("app.settings.accountmanagement.account");
+
+        },
+        AddGroup : function(){
+            var modalInstance = $uibModal.open({
+                animation: true,
+                ariaLabelledBy: 'modal-title',
+                ariaDescribedBy: 'modal-body',
+                templateUrl: 'addGroupModalContent.html',
+                controller: 'AddGroupModalInstanceCtrl',
+                controllerAs: '$ctrl',
+            });
+
+            modalInstance.result.then(function(selectedItem) {
+                // console.log(selectedItem);
+
+                RestfulApi.InsertMSSQLData({
+                    insertname: 'Insert',
+                    table: 6,
+                    params: {
+                        SG_TITLE : selectedItem.TITLE,
+                        SG_DESC  : selectedItem.DESC,
+                        SG_CR_DATETIME : $filter('date')(new Date(), 'yyyy-MM-dd HH:mm:ss')
+                    }
+                }).then(function(res) {
+                    console.log(res);
+
+                    if(res["returnData"] == 1){
+                        LoadGroup();
+                    }
+
+                    // $state.reload()
+                });
+            }, function() {
+                // $log.info('Modal dismissed at: ' + new Date());
+            });
+        }
+	})
+
+	function LoadAccount(){    
+        RestfulApi.SearchMSSQLData({
+            querymain: 'accountManagement',
+            queryname: 'SelectAllUserInfoNotWithAdmin'
+        }).then(function (res){
+            console.log(res["returnData"]);
+            $vm.accountData = res["returnData"];
+        }).finally(function() {
+            HandleWindowResize($vm.accountManagementGridApi);
+        });    
+	}
+
+    function LoadGroup(){    
+        RestfulApi.SearchMSSQLData({
+            querymain: 'accountManagement',
+            queryname: 'SelectAllGroup'
+        }).then(function (res){
+            $vm.groupData = res["returnData"];
+        }).finally(function() {
+            HandleWindowResize($vm.groupManagementGridApi);
+        });    
+    }
+
+})
+.controller('AddGroupModalInstanceCtrl', function ($uibModalInstance) {
+    var $ctrl = this;
+
+    $ctrl.ok = function() {
+        $uibModalInstance.close($ctrl.items);
+    };
+
+    $ctrl.cancel = function() {
+        $uibModalInstance.dismiss('cancel');
+    };
+});
+"use strict";
+
+angular.module('app.settings').controller('AviationMailCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, RestfulApi, $filter) {
+    
+    var $vm = this;
+
+	angular.extend(this, {
+        Init : function(){
+            LoadFlightMail();
+        },
+        profile : Session.Get(),
+        gridMethod : {
+            // 編輯
+            modifyData : function(row){
+                console.log(row);
+                $state.transitionTo("app.settings.aviationmail.targeteditor", {
+                    data: row.entity
+                });
+            },
+            // 刪除
+            deleteData : function(row){
+                console.log(row);
+
+                var modalInstance = $uibModal.open({
+                    animation: true,
+                    ariaLabelledBy: 'modal-title',
+                    ariaDescribedBy: 'modal-body',
+                    template: $templateCache.get('isChecked'),
+                    controller: 'IsCheckedModalInstanceCtrl',
+                    controllerAs: '$ctrl',
+                    size: 'sm',
+                    windowClass: 'center-modal',
+                    // appendTo: parentElem,
+                    resolve: {
+                        items: function() {
+                            return row.entity;
+                        },
+                        show: function(){
+                            return {
+                                title : "是否刪除"
+                            };
+                        }
+                    }
+                });
+
+                modalInstance.result.then(function(selectedItem) {
+                    // $ctrl.selected = selectedItem;
+                    console.log(selectedItem);
+
+                    RestfulApi.DeleteMSSQLData({
+                        deletename: 'Delete',
+                        table: 24,
+                        params: {
+                            FM_ID : selectedItem.FM_ID
+                        }
+                    }).then(function (res) {
+                        toaster.pop('success', '訊息', '刪除成功', 3000);
+                        LoadFlightMail();
+                    });
+
+                }, function() {
+                    // $log.info('Modal dismissed at: ' + new Date());
+                });
+            }
+        },
+        vmDataOptions : {
+            data:  '$vm.vmData',
+            columnDefs: [
+                { name: 'FM_TARGET', displayName: '目標名稱', width: '100' },
+                { name: 'FM_MAIL'  , displayName: '信箱' },
+                { name: 'Options'  , displayName: '操作', width: '9%', cellTemplate: $templateCache.get('accessibilityToMD') }
+            ],
+            enableFiltering: false,
+            enableSorting: false,
+            enableColumnMenus: false,
+            // enableVerticalScrollbar: false,
+            paginationPageSizes: [10, 25, 50, 100],
+            paginationPageSize: 100
+        },
+        AddTarget : function(){
+
+            $state.transitionTo("app.settings.aviationmail.targeteditor");
+
+        }
+    });
+
+    function LoadFlightMail(){
+        RestfulApi.SearchMSSQLData({
+            querymain: 'aviationMail',
+            queryname: 'SelectFlightMail'
+        }).then(function (res){
+            console.log(res["returnData"]);
+            $vm.vmData = res["returnData"];
+        }); 
+    };
+
+});
+"use strict";
+
+angular.module('app.settings').controller('BagnoCountCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, RestfulApi, uiGridConstants, $filter) {
+    // console.log($stateParams, $state);
+
+    var $vm = this;
+
+    angular.extend(this, {
+        Init : function(){
+            LoadBagnoCount();
+        },
+        profile : Session.Get(),
+        // 更新
+        Update: function(){
+
+            RestfulApi.UpdateMSSQLData({
+                updatename: 'Update',
+                table: 32,
+                params: {
+                    ILC_CURRENT     : $vm.vmData.ILC_CURRENT,
+                    ILC_MAX         : $vm.vmData.ILC_MAX,
+                    ILC_UP_USER     : $vm.profile.U_ID,
+                    ILC_UP_DATETIME : $filter('date')(new Date, 'yyyy-MM-dd HH:mm:ss')
+                },
+                condition: {
+                    ILC_ID         : $vm.vmData.ILC_ID
+                }
+            }).then(function (res) {
+                toaster.pop('success', '訊息', '更新新寄件人編碼成功', 3000);
+            }, function (err) {
+
+            });
+
+        }
+    });
+
+    function LoadBagnoCount(){
+        RestfulApi.SearchMSSQLData({
+            querymain: 'bagnoCount',
+            queryname: 'SelectBagnoCount'
+        }).then(function (res){
+            // console.log(res["returnData"]);
+            $vm.vmData = res["returnData"][0];
+        }); 
+    };
+
+})
+"use strict";
+
+angular.module('app.settings').controller('BillboardEditorCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, RestfulApi, bool, ioType, uiGridConstants) {
+
+    var $vm = this;
+
+    angular.extend(this, {
+        Init : function(){
+            LoadBillboardEditor();
+        },
+        profile : Session.Get(),
+        defaultTab : 'hr1',
+        TabSwitch : function(pTabID){
+            return pTabID == $vm.defaultTab ? 'active' : '';
+        },
+        LoadData : function(){
+            console.log($vm.defaultTab);
+            switch($vm.defaultTab){
+                case 'hr1':
+                    LoadBillboardEditor();
+                    break;
+                case 'hr2':
+                    LoadBillboardHistory();
+                    break;
+            }
+        },
+        gridMethod : {
+            //編輯
+            modifyData : function(row){
+                // console.log(row);
+                $state.transitionTo("app.settings.billboardeditor.news", {
+                    data: row.entity
+                });
+            }
+        },
+        billboardEditorOptions : {
+            data: '$vm.billboardEditorData',
+            columnDefs: [
+                { name: 'BB_STICK_TOP'   , displayName: '置頂', cellFilter: 'booleanFilter', filter: 
+                    {
+                        term: null,
+                        type: uiGridConstants.filter.SELECT,
+                        selectOptions: bool
+                    }
+                },
+                { name: 'BB_POST_FROM'   , displayName: '開始日期', cellFilter: 'dateFilter' },
+                { name: 'BB_POST_TOXX'   , displayName: '結束日期', cellFilter: 'dateFilter' },
+                { name: 'BB_TITLE'       , displayName: '標題' },
+                { name: 'BB_CONTENT'     , visible: false },
+                { name: 'BB_IO_TYPE'     , displayName: '公佈類型', cellFilter: 'ioTypeFilter', filter: 
+                    {
+                        term: null,
+                        type: uiGridConstants.filter.SELECT,
+                        selectOptions: ioType
+                    }
+                },
+                { name: 'BB_CR_USER'     , visible: false},
+                { name: 'BB_CR_DATETIME' , displayName: '建立時間', cellFilter: 'datetimeFilter' },
+                { name: 'Options'        , displayName: '操作', width: '7%', enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToM') }
+            ],
+            enableFiltering: true,
+            enableSorting: false,
+            enableColumnMenus: false,
+            enableRowSelection: true,
+            enableSelectAll: true,
+            paginationPageSizes: [10, 25, 50, 100],
+            paginationPageSize: 100,
+            onRegisterApi: function(gridApi){
+                $vm.billboardEditorGridApi = gridApi;
+            }
+        },
+        AddNews : function(){
+            ChangeToAddNewsPage();
+        },
+        DeleteNews : function(){
+            console.log($vm.billboardEditorGridApi.selection.getSelectedRows());
+
+            var modalInstance = $uibModal.open({
+                animation: true,
+                ariaLabelledBy: 'modal-title',
+                ariaDescribedBy: 'modal-body',
+                template: $templateCache.get('isChecked'),
+                controller: 'IsCheckedModalInstanceCtrl',
+                controllerAs: '$ctrl',
+                size: 'sm',
+                windowClass: 'center-modal',
+                // appendTo: parentElem,
+                resolve: {
+                    items: function() {
+                        return $vm.billboardEditorGridApi.selection.getSelectedRows();
+                    },
+                    show: function(){
+                        return {
+                            title : "是否刪除"
+                        };
+                    }
+                }
+            });
+
+            modalInstance.result.then(function(selectedItem) {
+                console.log(selectedItem);
+
+                var _tasks = [];
+
+                for(var i in selectedItem){
+                    _tasks.push({
+                        crudType: 'Update',
+                        table: 1,
+                        params: {
+                            BB_SOFT_DELETE : true
+                        },
+                        condition: {
+                            BB_CR_USER : selectedItem[i].BB_CR_USER,
+                            BB_CR_DATETIME : selectedItem[i].BB_CR_DATETIME
+                        }
+                    });
+                }
+
+                RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res) {
+                    toaster.pop('success', '訊息', '公佈區刪除成功', 3000);
+                    LoadBillboardEditor();
+                }, function (err) {
+
+                });
+            }, function() {
+                // $log.info('Modal dismissed at: ' + new Date());
+            });
+        },
+        billboardHistoryOptions : {
+            data: '$vm.billboardHistoryData',
+            columnDefs: [
+                { name: 'BB_STICK_TOP'   , displayName: '置頂', cellFilter: 'booleanFilter', filter: 
+                    {
+                        term: null,
+                        type: uiGridConstants.filter.SELECT,
+                        selectOptions: bool
+                    }
+                },
+                { name: 'BB_POST_FROM'   , displayName: '開始日期', cellFilter: 'dateFilter' },
+                { name: 'BB_POST_TOXX'   , displayName: '結束日期', cellFilter: 'dateFilter' },
+                { name: 'BB_TITLE'       , displayName: '標題' },
+                { name: 'BB_IO_TYPE'     , displayName: '公佈類型', cellFilter: 'ioTypeFilter', filter: 
+                    {
+                        term: null,
+                        type: uiGridConstants.filter.SELECT,
+                        selectOptions: ioType
+                    }
+                },
+                { name: 'BB_CR_USER'     , visible: false},
+                { name: 'BB_CR_DATETIME' , displayName: '建立時間', cellFilter: 'datetimeFilter' },
+                { name: 'Options'        , displayName: '操作', width: '7%', enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToM') }
+            ],
+            enableFiltering: true,
+            enableSorting: false,
+            enableColumnMenus: false,
+            enableRowSelection: true,
+            enableSelectAll: true,
+            paginationPageSizes: [10, 25, 50, 100],
+            paginationPageSize: 100,
+            onRegisterApi: function(gridApi){
+                $vm.billboardHistoryGridApi = gridApi;
+            }
+        },
+        DeleteHistoryNews : function(){
+            console.log($vm.billboardHistoryGridApi.selection.getSelectedRows());
+
+            var modalInstance = $uibModal.open({
+                animation: true,
+                ariaLabelledBy: 'modal-title',
+                ariaDescribedBy: 'modal-body',
+                template: $templateCache.get('isChecked'),
+                controller: 'IsCheckedModalInstanceCtrl',
+                controllerAs: '$ctrl',
+                size: 'sm',
+                windowClass: 'center-modal',
+                // appendTo: parentElem,
+                resolve: {
+                    items: function() {
+                        return $vm.billboardHistoryGridApi.selection.getSelectedRows();
+                    },
+                    show: function(){
+                        return {
+                            title : "是否刪除"
+                        };
+                    }
+                }
+            });
+
+            modalInstance.result.then(function(selectedItem) {
+                console.log(selectedItem);
+
+                var _tasks = [];
+
+                for(var i in selectedItem){
+                    _tasks.push({
+                        crudType: 'Update',
+                        table: 1,
+                        params: {
+                            BB_SOFT_DELETE : true
+                        },
+                        condition: {
+                            BB_CR_USER : selectedItem[i].BB_CR_USER,
+                            BB_CR_DATETIME : selectedItem[i].BB_CR_DATETIME
+                        }
+                    });
+                }
+
+                RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res) {
+                    toaster.pop('success', '訊息', '歷史區刪除成功', 3000);
+                    LoadBillboardHistory();
+                }, function (err) {
+
+                });
+            }, function() {
+                // $log.info('Modal dismissed at: ' + new Date());
+            });
+            
+        }
+    });
+
+    function LoadBillboardEditor(){
+        RestfulApi.SearchMSSQLData({
+            querymain: 'billboardEditor',
+            queryname: 'SelectBBWithOK'
+        }).then(function (res){
+            console.log(res["returnData"]);
+            $vm.billboardEditorData = res["returnData"];
+        }).finally(function() {
+            HandleWindowResize($vm.billboardEditorGridApi);
+        });    
+    };
+
+    function LoadBillboardHistory(){
+        RestfulApi.SearchMSSQLData({
+            querymain: 'billboardEditor',
+            queryname: 'SelectBBWithHistory'
+        }).then(function (res){
+            console.log(res["returnData"]);
+            $vm.billboardHistoryData = res["returnData"];
+        }).finally(function() {
+            HandleWindowResize($vm.billboardHistoryGridApi);
+        });    
+    };
+
+    function ChangeToAddNewsPage(){
+        $state.transitionTo("app.settings.billboardeditor.news");
+    };
+})
+"use strict";
+
+angular.module('app.settings').controller('ExcompyBagnoCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, RestfulApi, $filter, bool, uiGridConstants) {
+    
+    var $vm = this;
+
+	angular.extend(this, {
+        Init : function(){
+            $scope.ShowTabs = true;
+            
+            $vm.LoadData();
+        },
+        profile : Session.Get(),
+        defaultTab : 'hr1',
+        TabSwitch : function(pTabID){
+            return pTabID == $vm.defaultTab ? 'active' : '';
+        },
+        LoadData : function(){
+            console.log($vm.defaultTab);
+            switch($vm.defaultTab){
+                case 'hr1':
+                    LoadBagNo3Need();
+                    break;
+                case 'hr2':
+                    LoadBagNo5NotNeed();
+                    break;
+            }
+        },
+        gridMethod : {
+            modifyData : function(row){
+
+                var modalInstance = $uibModal.open({
+                    animation: true,
+                    ariaLabelledBy: 'modal-title',
+                    ariaDescribedBy: 'modal-body',
+                    templateUrl: 'modifyBagNoModalContent.html',
+                    controller: 'ModifyBagNoModalInstanceCtrl',
+                    controllerAs: '$ctrl',
+                    resolve: {
+                        bool: function(){
+                            return bool;
+                        },
+                        mdData: function(){
+                            return row.entity;
+                        }
+                    }
+                });
+
+                modalInstance.result.then(function(selectedItem) {
+                    console.log(selectedItem);
+
+                    switch($vm.defaultTab){
+                        case 'hr1':
+                            RestfulApi.UpdateMSSQLData({
+                                updatename: 'Update',
+                                table: 25,
+                                params: {
+                                    SC_DESC : selectedItem.SC_DESC,
+                                    SC_STS  : selectedItem.SC_STS,
+                                    SC_UP_DATETIME : $filter('date')(new Date(), 'yyyy-MM-dd HH:mm:ss')
+                                },
+                                condition: {
+                                    SC_TYPE : 'BagNo3Need',
+                                    SC_CODE : selectedItem.SC_CODE
+                                }
+                            }).then(function(res) {
+                                console.log(res);
+
+                                if(res["returnData"] == 1){
+                                    toaster.pop('success', '訊息', '更新前三碼成功', 3000);
+                                    LoadBagNo3Need();
+                                }
+
+                                // $state.reload()
+                            });
+                            break;
+                        case 'hr2':
+                            RestfulApi.UpdateMSSQLData({
+                                updatename: 'Update',
+                                table: 25,
+                                params: {
+                                    SC_DESC : selectedItem.SC_DESC,
+                                    SC_STS  : selectedItem.SC_STS,
+                                    SC_UP_DATETIME : $filter('date')(new Date(), 'yyyy-MM-dd HH:mm:ss')
+                                },
+                                condition: {
+                                    SC_TYPE : 'BagNo5NotNeed',
+                                    SC_CODE : selectedItem.SC_CODE
+                                }
+                            }).then(function(res) {
+                                console.log(res);
+
+                                if(res["returnData"] == 1){
+                                    toaster.pop('success', '訊息', '更新後五碼成功', 3000);
+                                    LoadBagNo5NotNeed();
+                                }
+
+                                // $state.reload()
+                            });
+                            break;
+                    }
+                }, function() {
+                    // $log.info('Modal dismissed at: ' + new Date());
+                });
+            }
+        },
+        bagNo3NeedOptions : {
+            data: '$vm.bagNo3NeedData',
+            columnDefs: [
+                { name: 'SC_STS'          ,  displayName: '作廢', cellFilter: 'booleanFilter', filter: 
+                    {
+                        term: null,
+                        type: uiGridConstants.filter.SELECT,
+                        selectOptions: bool
+                    }
+                },
+                { name: 'SC_CODE'         ,  displayName: '代號' },
+                { name: 'SC_DESC'         ,  displayName: '代號描述' },
+                { name: 'SC_CR_DATETIME'  ,  displayName: '新增時間', cellFilter: 'datetimeFilter' },
+                { name: 'SC_UP_DATETIME'  ,  displayName: '更新時間', cellFilter: 'datetimeFilter' },
+                { name: 'Options'         ,  displayName: '操作', enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToM') }
+            ],
+            enableFiltering: true,
+            enableSorting: false,
+            enableColumnMenus: false,
+            // enableVerticalScrollbar: false,
+            paginationPageSizes: [10, 25, 50, 100],
+            paginationPageSize: 100,
+            onRegisterApi: function(gridApi){
+                $vm.bagNo3NeedGridApi = gridApi;
+            }
+        },
+        AddBagNo3Need : function(){
+            var modalInstance = $uibModal.open({
+                animation: true,
+                ariaLabelledBy: 'modal-title',
+                ariaDescribedBy: 'modal-body',
+                templateUrl: 'addBagNo3NeedModalContent.html',
+                controller: 'AddBagNo3NeedModalInstanceCtrl',
+                controllerAs: '$ctrl',
+                resolve: {
+                    bool: function(){
+                        return bool;
+                    },
+                    originBagNo3: function(){
+                        var _data = [];
+
+                        for(var i in $vm.bagNo3NeedData){
+                            _data.push($vm.bagNo3NeedData[i].SC_CODE);
+                        }
+
+                        return _data
+                    }
+                }
+            });
+
+            modalInstance.result.then(function(selectedItem) {
+                console.log(selectedItem);
+
+                RestfulApi.InsertMSSQLData({
+                    insertname: 'Insert',
+                    table: 25,
+                    params: {
+                        SC_TYPE : 'BagNo3Need',
+                        SC_CODE : selectedItem.SC_CODE,
+                        SC_DESC : selectedItem.SC_DESC,
+                        SC_STS  : selectedItem.SC_STS,
+                        SC_CR_DATETIME : $filter('date')(new Date(), 'yyyy-MM-dd HH:mm:ss'),
+                    }
+                }).then(function(res) {
+                    console.log(res);
+
+                    if(res["returnData"] == 1){
+                        toaster.pop('success', '訊息', '新增前三碼成功', 3000);
+                        LoadBagNo3Need();
+                    }
+
+                    // $state.reload()
+                });
+            }, function() {
+                // $log.info('Modal dismissed at: ' + new Date());
+            });
+        },
+        bagNo5NotNeedOptions : {
+            data: '$vm.bagNo5NotNeedData',
+            columnDefs: [
+                { name: 'SC_STS'          ,  displayName: '作廢', cellFilter: 'booleanFilter', filter: 
+                    {
+                        term: null,
+                        type: uiGridConstants.filter.SELECT,
+                        selectOptions: bool
+                    }
+                },
+                { name: 'SC_CODE'         ,  displayName: '代號' },
+                { name: 'SC_DESC'         ,  displayName: '代號描述' },
+                { name: 'SC_CR_DATETIME'  ,  displayName: '新增時間', cellFilter: 'datetimeFilter' },
+                { name: 'SC_UP_DATETIME'  ,  displayName: '更新時間', cellFilter: 'datetimeFilter' },
+                { name: 'Options'         ,  displayName: '操作', enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToM') }
+            ],
+            enableFiltering: true,
+            enableSorting: false,
+            enableColumnMenus: false,
+            // enableVerticalScrollbar: false,
+            paginationPageSizes: [10, 25, 50, 100],
+            paginationPageSize: 100,
+            onRegisterApi: function(gridApi){
+                $vm.bagNo5NotNeedGridApi = gridApi;
+            }
+        },
+        AddBagNo5NotNeed : function(){
+            var modalInstance = $uibModal.open({
+                animation: true,
+                ariaLabelledBy: 'modal-title',
+                ariaDescribedBy: 'modal-body',
+                templateUrl: 'addBagNo5NotNeedModalContent.html',
+                controller: 'AddBagNo5NotNeedModalInstanceCtrl',
+                controllerAs: '$ctrl',
+                resolve: {
+                    bool: function(){
+                        return bool;
+                    },
+                    originBagNo5: function(){
+                        var _data = [];
+
+                        for(var i in $vm.bagNo5NotNeedData){
+                            _data.push($vm.bagNo5NotNeedData[i].SC_CODE);
+                        }
+
+                        return _data
+                    }
+                }
+            });
+
+            modalInstance.result.then(function(selectedItem) {
+                console.log(selectedItem);
+
+                RestfulApi.InsertMSSQLData({
+                    insertname: 'Insert',
+                    table: 25,
+                    params: {
+                        SC_TYPE : 'BagNo5NotNeed',
+                        SC_CODE : selectedItem.SC_CODE,
+                        SC_DESC : selectedItem.SC_DESC,
+                        SC_STS  : selectedItem.SC_STS,
+                        SC_CR_DATETIME : $filter('date')(new Date(), 'yyyy-MM-dd HH:mm:ss'),
+                    }
+                }).then(function(res) {
+                    console.log(res);
+
+                    if(res["returnData"] == 1){
+                        toaster.pop('success', '訊息', '新增後五碼成功', 3000);
+                        LoadBagNo5NotNeed();
+                    }
+
+                    // $state.reload()
+                });
+            }, function() {
+                // $log.info('Modal dismissed at: ' + new Date());
+            });
+        }
+    });
+
+    function LoadBagNo3Need(){
+        RestfulApi.SearchMSSQLData({
+            querymain: 'excompyBagno',
+            queryname: 'SelectAllSysCode',
+            params: {
+                SC_TYPE : "BagNo3Need"
+            }
+        }).then(function (res){
+            console.log(res["returnData"]);
+            $vm.bagNo3NeedData = res["returnData"];
+        });    
+    }
+
+    function LoadBagNo5NotNeed(){
+        RestfulApi.SearchMSSQLData({
+            querymain: 'excompyBagno',
+            queryname: 'SelectAllSysCode',
+            params: {
+                SC_TYPE : "BagNo5NotNeed"
+            }
+        }).then(function (res){
+            console.log(res["returnData"]);
+            $vm.bagNo5NotNeedData = res["returnData"];
+        });    
+    }
+
+})
+.controller('AddBagNo3NeedModalInstanceCtrl', function ($uibModalInstance, bool, originBagNo3, $scope, $filter) {
+    var $ctrl = this;
+    $ctrl.mdData = {};
+    $ctrl.mdData['SC_STS'] = false;
+    $ctrl.boolData = bool;
+    $ctrl.originBagNo3Data = originBagNo3;
+    $ctrl.scCodeRegex = '^((?!'+originBagNo3.join("|")+').)*$';
+
+    $scope.$watch('$ctrl.mdData[\'SC_CODE\']', function(val) {
+        $ctrl.mdData['SC_CODE'] = $filter('uppercase')(val);
+        if(!angular.isUndefined($filter('uppercase')(val))){
+            $ctrl.mdData['SC_DESC'] = '袋號前三碼須包含' + $filter('uppercase')(val);
+        }
+    }, true);
+
+    $ctrl.ok = function() {
+        $uibModalInstance.close($ctrl.mdData);
+    };
+
+    $ctrl.cancel = function() {
+        $uibModalInstance.dismiss('cancel');
+    };
+})
+.controller('ModifyBagNoModalInstanceCtrl', function ($uibModalInstance, bool, mdData) {
+    var $ctrl = this;
+    $ctrl.mdData = mdData;
+    $ctrl.boolData = bool;
+
+    $ctrl.ok = function() {
+        $uibModalInstance.close($ctrl.mdData);
+    };
+
+    $ctrl.cancel = function() {
+        $uibModalInstance.dismiss('cancel');
+    };
+})
+.controller('AddBagNo5NotNeedModalInstanceCtrl', function ($uibModalInstance, bool, originBagNo5, $scope, $filter) {
+    var $ctrl = this;
+    $ctrl.mdData = {};
+    $ctrl.mdData['SC_STS'] = false;
+    $ctrl.boolData = bool;
+    $ctrl.originBagNo5Data = originBagNo5;
+    $ctrl.scCodeRegex = '^((?!'+originBagNo5.join("|")+').)*$';
+
+    $scope.$watch('$ctrl.mdData[\'SC_CODE\']', function(val) {
+        $ctrl.mdData['SC_CODE'] = $filter('uppercase')(val);
+        if(!angular.isUndefined($filter('uppercase')(val))){
+            $ctrl.mdData['SC_DESC'] = '袋號前五碼不能包含' + $filter('uppercase')(val);
+        }
+    }, true);
+
+    $ctrl.ok = function() {
+        $uibModalInstance.close($ctrl.mdData);
+    };
+
+    $ctrl.cancel = function() {
+        $uibModalInstance.dismiss('cancel');
+    };
+});
+"use strict";
+
+angular.module('app.settings').controller('ExternalManagementCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, RestfulApi, uiGridConstants, $templateCache, $filter, bool, compy, coWeights) {
+
+    var $vm = this;
+
+    angular.extend(this, {
+        Init : function(){
+            $scope.ShowTabs = true;
+            $vm.LoadData();
+        },
+        profile : Session.Get(),
+        defaultTab : 'hr1',
+        TabSwitch : function(pTabID){
+            return pTabID == $vm.defaultTab ? 'active' : '';
+        },
+        LoadData : function(){
+            console.log($vm.defaultTab);
+            switch($vm.defaultTab){
+                case 'hr1':
+                    LoadCustInfo();
+                    break;
+                case 'hr2':
+                    LoadCompyInfo();
+                    break;
+            }
+        },
+        gridCustInfoMethod : {
+            //編輯
+            modifyData : function(row){
+                console.log(row);
+                $state.transitionTo("app.settings.externalmanagement.exaccount", {
+                    data: row.entity
+                });
+            },
+            //刪除
+            deleteData : function(row){
+                console.log(row);
+
+                var modalInstance = $uibModal.open({
+                    animation: true,
+                    ariaLabelledBy: 'modal-title',
+                    ariaDescribedBy: 'modal-body',
+                    template: $templateCache.get('isChecked'),
+                    controller: 'IsCheckedModalInstanceCtrl',
+                    controllerAs: '$ctrl',
+                    size: 'sm',
+                    windowClass: 'center-modal',
+                    // appendTo: parentElem,
+                    resolve: {
+                        items: function() {
+                            return row.entity;
+                        },
+                        show: function(){
+                            return {
+                                title : "是否刪除"
+                            };
+                        }
+                    }
+                });
+
+                modalInstance.result.then(function(selectedItem) {
+                    console.log(selectedItem);
+
+                    RestfulApi.DeleteMSSQLData({
+                        deletename: 'Delete',
+                        table: 7,
+                        params: {
+                            CI_ID : selectedItem.CI_ID
+                        }
+                    }).then(function (res) {
+                        toaster.pop('success', '訊息', '刪除外部帳號成功', 3000);
+                        LoadCustInfo();
+                    });
+                }, function() {
+                    // $log.info('Modal dismissed at: ' + new Date());
+                });
+            }
+        },
+        custInfoOptions : {
+            data: '$vm.custInfoData',
+            columnDefs: [
+                { name: 'CI_STS'    ,  displayName: '離職', cellFilter: 'booleanFilter', filter: 
+                    {
+                        term: null,
+                        type: uiGridConstants.filter.SELECT,
+                        selectOptions: bool
+                    }
+                },
+                { name: 'CI_ID'    ,  displayName: '帳號' },
+                { name: 'CI_NAME'  ,  displayName: '名稱' },
+                { name: 'CI_COMPY' ,  displayName: '公司名稱', cellFilter: 'compyFilter', filter: 
+                    {
+                        term: null,
+                        type: uiGridConstants.filter.SELECT,
+                        selectOptions: compy
+                    }
+                },
+                { name: 'Options'  ,  displayName: '操作', enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToMDForCustInfo') }
+            ],
+            enableFiltering: true,
+            enableSorting: false,
+            enableColumnMenus: false,
+            // enableVerticalScrollbar: false,
+            paginationPageSizes: [10, 25, 50, 100],
+            paginationPageSize: 100,
+            onRegisterApi: function(gridApi){
+                $vm.custInfoGridApi = gridApi;
+            }
+        },
+        gridCompyInfoMethod : {
+            //編輯
+            modifyData : function(row){
+                console.log(row);
+                $state.transitionTo("app.settings.externalmanagement.excompy", {
+                    data: row.entity
+                });
+            },
+            //刪除
+            // deleteData : function(row){
+            //     console.log(row);
+
+            //     var modalInstance = $uibModal.open({
+            //         animation: true,
+            //         ariaLabelledBy: 'modal-title',
+            //         ariaDescribedBy: 'modal-body',
+            //         template: $templateCache.get('isChecked'),
+            //         controller: 'IsCheckedModalInstanceCtrl',
+            //         controllerAs: '$ctrl',
+            //         size: 'sm',
+            //         windowClass: 'center-modal',
+            //         // appendTo: parentElem,
+            //         resolve: {
+            //             items: function() {
+            //                 return row.entity;
+            //             },
+            //             show: function(){
+            //                 return {
+            //                     title : "是否刪除"
+            //                 };
+            //             }
+            //         }
+            //     });
+
+            //     modalInstance.result.then(function(selectedItem) {
+            //         console.log(selectedItem);
+
+            //         RestfulApi.DeleteMSSQLData({
+            //             deletename: 'Delete',
+            //             table: 8,
+            //             params: {
+            //                 CO_CODE : selectedItem.CO_CODE
+            //             }
+            //         }).then(function (res) {
+            //             toaster.pop('success', '訊息', '刪除行家成功', 3000);
+            //             LoadCompyInfo();
+            //         });
+            //     }, function() {
+            //         // $log.info('Modal dismissed at: ' + new Date());
+            //     });
+            // }
+        },
+        compyInfoOptions : {
+            data: '$vm.compyInfoData',
+            columnDefs: [
+                { name: 'CO_STS'    ,  displayName: '作廢', cellFilter: 'booleanFilter', filter: 
+                    {
+                        term: null,
+                        type: uiGridConstants.filter.SELECT,
+                        selectOptions: bool
+                    }
+                },
+                { name: 'CO_CODE'   ,  displayName: '行家代號' },
+                { name: 'CO_AREA'   ,  displayName: '行家區域' },
+                { name: 'CO_NAME'   ,  displayName: '行家名稱' },
+                { name: 'CO_WEIGHTS',  displayName: '行家權重', cellFilter: 'coWeightsFilter', filter: 
+                    {
+                        term: null,
+                        type: uiGridConstants.filter.SELECT,
+                        selectOptions: coWeights
+                    }
+                },
+                { name: 'CO_NUMBER' ,  displayName: '行家統編' },
+                { name: 'CO_ADDR'   ,  displayName: '行家地址' },
+                { name: 'Options'   ,  displayName: '操作', width: '5%', enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToMForCompyInfo') }
+            ],
+            enableFiltering: true,
+            enableSorting: false,
+            enableColumnMenus: false,
+            // enableVerticalScrollbar: false,
+            paginationPageSizes: [10, 25, 50, 100],
+            paginationPageSize: 100,
+            onRegisterApi: function(gridApi){
+                $vm.compyInfoGridApi = gridApi;
+            }
+        },
+        AddAccount : function(){
+
+            $state.transitionTo("app.settings.externalmanagement.exaccount");
+
+        },
+        AddCompy : function(){
+            var modalInstance = $uibModal.open({
+                animation: true,
+                ariaLabelledBy: 'modal-title',
+                ariaDescribedBy: 'modal-body',
+                templateUrl: 'addCompyModalContent.html',
+                controller: 'AddCompyModalInstanceCtrl',
+                controllerAs: '$ctrl',
+                resolve: {
+                    coWeights: function() {
+                        return coWeights;
+                    }
+                }
+            });
+
+            modalInstance.result.then(function(selectedItem) {
+                // console.log(selectedItem);
+
+                // 找出最大ID
+                RestfulApi.SearchMSSQLData({
+                    querymain: 'externalManagement',
+                    queryname: 'SelectMaxCompy'
+                }).then(function (res){
+                    RestfulApi.InsertMSSQLData({
+                        insertname: 'Insert',
+                        table: 8,
+                        params: {
+                            CO_ID : res["returnData"][0].CO_ID,
+                            CO_NAME : selectedItem.CO_NAME,
+                            CO_AREA : selectedItem.CO_AREA,
+                            CO_NUMBER : selectedItem.CO_NUMBER,
+                            CO_ADDR : selectedItem.CO_ADDR,
+                            CO_WEIGHTS : selectedItem.CO_WEIGHTS,
+                            CO_CR_USER : $vm.profile.U_ID,
+                            CO_CR_DATETIME : $filter('date')(new Date(), 'yyyy-MM-dd HH:mm:ss')
+                        }
+                    }).then(function(res) {
+                        console.log(res);
+
+                        if(res["returnData"] == 1){
+                            LoadCompyInfo();
+
+                            // 新增成功後，更新compy的值
+                            $filter('compyFilter')({}, true);
+
+                            toaster.pop('success', '訊息', '新增行家成功', 3000);
+                        }
+
+                        // $state.reload()
+                    });
+                });
+            }, function() {
+                // $log.info('Modal dismissed at: ' + new Date());
+            });
+        }
+    });
+
+    function LoadCustInfo(){
+        RestfulApi.SearchMSSQLData({
+            querymain: 'externalManagement',
+            queryname: 'SelectCustInfo'
+        }).then(function (res){
+            $vm.custInfoData = res["returnData"];
+        });
+    }
+
+    function LoadCompyInfo(){
+        RestfulApi.SearchMSSQLData({
+            querymain: 'externalManagement',
+            queryname: 'SelectCompyInfo'
+        }).then(function (res){
+            console.log(res["returnData"]);
+            $vm.compyInfoData = res["returnData"];
+        });
+    }
+
+})
+.controller('AddCompyModalInstanceCtrl', function ($uibModalInstance, coWeights) {
+    var $ctrl = this;
+    $ctrl.coWeightsData = coWeights;
+
+    $ctrl.ok = function() {
+        $uibModalInstance.close($ctrl.items);
+    };
+
+    $ctrl.cancel = function() {
+        $uibModalInstance.dismiss('cancel');
+    };
+});
+"use strict";
+
+angular.module('app.settings').controller('NewsCtrl', function ($scope, $stateParams, $state, RestfulApi, Session, toaster, $uibModal, $filter, bool, ioType, FileUploader, SUMMERNOT_CONFIG) {
+    
+    // console.log($stateParams);
+    var $vm = this,
+        _tasks = [],
+        _d = new Date(),
+        _filepath = _d.getFullYear() + '\\' + ("0" + (_d.getMonth()+1)).slice(-2) + '\\' + ("0" + _d.getDate()).slice(-2) + '\\';
+
+    angular.extend(this, {
+        Init : function(){
+            // 不正常登入此頁面
+            // if($stateParams.data == null) ReturnToBillboardEditorPage();
+            if($stateParams.data == null){
+                $vm.vmData = {
+                    BB_STICK_TOP : false,
+                    BB_IO_TYPE : "All",
+                    BB_CONTENT : "",
+                    UploadedData : [],
+                    IU : "Add"
+                }
+            }else{
+                $vm.vmData = $stateParams.data;
+                $vm.vmData["IU"] = "Update";
+
+                _d = $vm.vmData["BB_CR_DATETIME"].replace(/\Z/g, '');
+
+                LoadBBPG();
+                LoadBBAF();
+            }
+        },
+        profile : Session.Get(),
+        boolData : bool,
+        ioTypeData : ioType,
+        snOptions : SUMMERNOT_CONFIG,
+        uploader : new FileUploader({
+            url: '/toolbox/uploadFile?filePath='+_filepath
+        }),
+        AddPostGoal : function (){
+            var modalInstance = $uibModal.open({
+                animation: true,
+                ariaLabelledBy: 'modal-title',
+                ariaDescribedBy: 'modal-body',
+                templateUrl: 'addPostGoalModalContent.html',
+                controller: 'AddPostGoalModalInstanceCtrl',
+                controllerAs: '$ctrl',
+                size: 'lg',
+                // appendTo: parentElem,
+                resolve: {
+                    vmData: function(){
+                        return $vm.vmData;
+                    },
+                    ioType: function(SysCode){
+                        return SysCode.get('IOType');
+                    }
+                }
+            });
+
+            modalInstance.result.then(function(selectedItem) {
+                // console.log(selectedItem);
+                $vm.vmData.PostGoal = angular.copy(selectedItem);
+                console.log($vm.vmData);
+            }, function() {
+                // $log.info('Modal dismissed at: ' + new Date());
+            });
+
+        },
+        /**
+         * [DeleteUploaded description] 刪除已上傳檔案
+         * @param {[type]} pDeleteUploaded [description] 檔案
+         * @param {[type]} pIndex          [description] array index
+         */
+        DeleteUploaded : function(pDeleteUploaded, pIndex){
+            var modalInstance = $uibModal.open({
+                animation: true,
+                ariaLabelledBy: 'modal-title',
+                ariaDescribedBy: 'modal-body',
+                template: $templateCache.get('isChecked'),
+                controller: 'IsCheckedModalInstanceCtrl',
+                controllerAs: '$ctrl',
+                size: 'sm',
+                windowClass: 'center-modal',
+                // appendTo: parentElem,
+                resolve: {
+                    items: function() {
+                        return pDeleteUploaded;
+                    },
+                    show: function(){
+                        return {
+                            title : "是否刪除"
+                        };
+                    }
+                }
+            });
+
+            modalInstance.result.then(function(selectedItem) {
+                // console.log(selectedItem);
+
+                RestfulApi.UpdateMSSQLData({
+                    updatename: 'Update',
+                    table: 2,
+                    params: {
+                        BBAF_SOFT_DELETE : true
+                    },
+                    condition: {
+                        BBAF_ID : selectedItem.BBAF_ID
+                    }
+                }).then(function (res) {
+                    $vm.vmData.UploadedData.splice(pIndex, 1);
+                }, function (err) {
+
+                });
+            }, function() {
+                // $log.info('Modal dismissed at: ' + new Date());
+            });
+        },
+        Return : function(){
+            ReturnToBillboardEditorPage();
+        },
+        Add : function(){
+            console.log($vm.vmData);
+
+            // Insert 主表
+            _tasks.push({
+                crudType: 'Insert',
+                table: 1,
+                params: {
+                    BB_TITLE : $vm.vmData.BB_TITLE,
+                    BB_CONTENT : $vm.vmData.BB_CONTENT,
+                    BB_POST_FROM : $vm.vmData.BB_POST_FROM,
+                    BB_POST_TOXX : $vm.vmData.BB_POST_TOXX,
+                    BB_STICK_TOP : $vm.vmData.BB_STICK_TOP,
+                    BB_IO_TYPE : $vm.vmData.BB_IO_TYPE,
+                    BB_CR_USER : $vm.profile.U_ID,
+                    BB_CR_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss')
+                }
+            });
+
+            // Insert 公佈對象
+            for(var i in DeleteAndInsertPostGoal()){
+                _tasks.push(DeleteAndInsertPostGoal()[i]);
+            }
+
+            // 有上傳檔案 先上傳檔案之後再Insert DB
+            if($vm.uploader.getNotUploadedItems().length > 0){
+                $vm.uploader.uploadAll();
+            }
+            // 無上傳檔案 直接Insert DB
+            else{
+                RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res) {
+                    console.log(res);
+                    ReturnToBillboardEditorPage();
+                }, function (err) {
+                    console.log(err);
+                });
+            }
+        },
+        Update : function(){
+            console.log($vm.vmData);
+
+            // Update 主表
+            _tasks.push({
+                crudType: 'Update',
+                table: 1,
+                params: {
+                    BB_TITLE : $vm.vmData.BB_TITLE,
+                    BB_CONTENT : $vm.vmData.BB_CONTENT,
+                    BB_POST_FROM : $vm.vmData.BB_POST_FROM,
+                    BB_POST_TOXX : $vm.vmData.BB_POST_TOXX,
+                    BB_STICK_TOP : $vm.vmData.BB_STICK_TOP,
+                    BB_IO_TYPE : $vm.vmData.BB_IO_TYPE,
+                    BB_UP_USER : $vm.profile.U_ID,
+                    BB_UP_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss')
+                },
+                condition: {
+                    BB_CR_USER : $vm.vmData.BB_CR_USER,
+                    BB_CR_DATETIME : $vm.vmData.BB_CR_DATETIME
+                }
+            });
+
+            // Delete And Insert 公佈對象
+            for(var i in DeleteAndInsertPostGoal()){
+                _tasks.push(DeleteAndInsertPostGoal()[i]);
+            }
+
+            // 有上傳檔案 先上傳檔案之後再Insert DB
+            if($vm.uploader.getNotUploadedItems().length > 0){
+                $vm.uploader.uploadAll();
+            }
+            // 無上傳檔案 直接Insert DB
+            else{
+                RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res) {
+                    console.log(res);
+                    ReturnToBillboardEditorPage();
+                }, function (err) {
+                    console.log(err);
+                });
+            }
+        }
+    });
+
+    // Upload Filters
+    $vm.uploader.filters.push({
+        name: 'queueFilter',
+        fn: function(item /*{File|FileLikeObject}*/, options) {
+            // return this.queue.length < $scope.optionParam.UploadQueue;
+            return this.queue.length < 10;
+        }
+    });
+
+    $vm.uploader.filters.push({
+        name: 'sizeFilter',
+        fn: function(item /*{File|FileLikeObject}*/, options) {
+            // return item.size < $scope.optionParam.UploadSize * 1000 * 1000;
+            return item.size < 10 * 1000 * 1000;
+        }
+    });
+
+    // 處理已上傳的部分 : 當相同檔名時，不可上傳
+    $vm.uploader.filters.push({
+        name: 'nameFilter',
+        fn: function(item /*{File|FileLikeObject}*/, options) {
+            var uploadedDataLength = ($filter('filter')($vm.vmData.UploadedData, {BBAF_O_FILENAME: item.name})).length;
+            
+            if(uploadedDataLength > 0){
+                toaster.pop('info', "訊息", "已上傳過相同的檔名。", 3000);
+                return false;
+            }else{
+                return true;
+            }
+        }
+    });
+
+    // 處理未上傳的部分 : 當相同檔名時，不可上傳
+    FileUploader.FileSelect.prototype.isEmptyAfterSelection = function() {
+        return false;
+    };
+
+    // $vm.uploader.filters.push({
+    //     name: 'fileFilter',
+    //     fn: function(item /*{File|FileLikeObject}*/, options) {
+    //         var type = '|' + item.type.slice(item.type.lastIndexOf('/') + 1) + '|',
+    //             typeStr = "|";
+    //         for(var i in $scope.optionParam.UploadType){
+    //             typeStr += $scope.optionParam.UploadType[i] + "|";
+    //         }
+    //         return typeStr.indexOf(type) !== -1;
+    //     }
+    // });
+
+    // Upload Callback Methods
+    $vm.uploader.onWhenAddingFileFailed = function(item /*{File|FileLikeObject}*/, filter, options) {
+        console.info('onWhenAddingFileFailed', item, filter, options);
+        // var title = "", msg;
+        // switch(filter.name){
+        //     case "fileFilter":
+        //         title = item.name;
+        //         msg = "檔案類型錯誤。";
+        //         break;
+        //     case "sizeFilter":
+        //         title = item.name;
+        //         msg = "上傳檔案超過" + $scope.optionParam.UploadSize + "Mb。";
+        //         break;
+        //     case "queueFilter":
+        //         msg = "上傳數量超過" + $scope.optionParam.UploadQueue + "個。";
+        //         break;
+        // }
+        // toaster.pop('info', title, msg, 3000);
+    };
+    $vm.uploader.onAfterAddingFile = function(fileItem) {
+        console.info('onAfterAddingFile', fileItem);
+        var reader = new FileReader();
+
+        reader.onload = function(readerEvt) {
+            var data = readerEvt.target.result;
+            var fileNameArray = fileItem.file.name.split(".");
+            var queueIndex = $vm.uploader.queue.indexOf(fileItem);
+            var rename = angular.copy(CryptoJS.MD5(data).toString() + "." + fileNameArray[fileNameArray.length-1]);
+            
+            // Duplicate File
+            // if($filter('filter')($scope.duplicateFile, rename).length > 0){
+            //     $vm.uploader.queue[queueIndex].remove();
+            //     toaster.pop('info', '上傳檔案重複', fileItem.file["name"], 3000);
+            // }else{
+                // $scope.duplicateFile.push(rename);
+                // $scope.queueFile.push(rename);
+                fileItem.url += '&rFilename='+rename;
+            // }
+            // var dataFile = forumService.b64toBlob(btoa(data), fileItem.file.type);
+            // fileItem.file = dataFile;
+        };
+
+        reader.readAsBinaryString(fileItem._file);
+    };
+    $vm.uploader.onAfterAddingAll = function(addedFileItems) {
+        console.info('onAfterAddingAll', addedFileItems);
+    };
+    $vm.uploader.onBeforeUploadItem = function(item) {
+        console.info('onBeforeUploadItem', item);
+    };
+    $vm.uploader.onProgressItem = function(fileItem, progress) {
+        console.info('onProgressItem', fileItem, progress);
+    };
+    $vm.uploader.onProgressAll = function(progress) {
+        console.info('onProgressAll', progress);
+    };
+    $vm.uploader.onSuccessItem = function(fileItem, response, status, headers) {
+        console.info('onSuccessItem', fileItem, response, status, headers);
+    };
+    $vm.uploader.onErrorItem = function(fileItem, response, status, headers) {
+        console.info('onErrorItem', fileItem, response, status, headers);
+    };
+    $vm.uploader.onCancelItem = function(fileItem, response, status, headers) {
+        console.info('onCancelItem', fileItem, response, status, headers);
+    };
+    $vm.uploader.onCompleteItem = function(fileItem, response, status, headers) {
+        console.info('onCompleteItem', fileItem, response, status, headers);
+        if(status == 200){
+            // 儲存每個上傳檔案的資訊
+            _tasks.push({
+                crudType: 'Insert',
+                table: 2,
+                params: {
+                    BBAF_O_FILENAME : response.oFilename,
+                    BBAF_R_FILENAME : response.rFilename,
+                    BBAF_FILEPATH : response.Filepath,
+                    BBAF_FILESIZE : response.Filesize,
+                    BBAF_CR_USER : $vm.profile.U_ID,
+                    BBAF_CR_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss')
+                }
+            });
+        }else{
+            toaster.pop('error', "檔案上傳失敗", response.oFilename, 3000);
+        }
+    };
+    $vm.uploader.onCompleteAll = function() {
+        console.info('onCompleteAll');
+
+        RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res) {
+            console.log(res);
+            ReturnToBillboardEditorPage();
+        }, function (err) {
+            console.log(err);
+        });
+    };
+
+    var DeleteAndInsertPostGoal = function(){
+        var _task = [];
+
+        // 表示為Update
+        if($vm.vmData.IU == "Update"){
+            _task.push({
+                crudType: 'Delete',
+                table: 3,
+                params: {
+                    BBPG_CR_USER : $vm.vmData.BB_CR_USER,
+                    BBPG_CR_DATETIME : $vm.vmData.BB_CR_DATETIME
+                }
+            });
+        }
+
+        for(var i in $vm.vmData["PostGoal"]){
+            if($vm.vmData.BB_IO_TYPE == 'All'){
+                _task.push({
+                    crudType: 'Insert',
+                    table: 3,
+                    params: {
+                        BBPG_CR_USER : $vm.profile.U_ID,
+                        BBPG_CR_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss'),
+                        BBPG_GOAL_ID : $vm.vmData.PostGoal[i].CODE
+                    }
+                });
+            }else{
+                // 當所有變成對內或對外時的判斷
+                if($vm.vmData.PostGoal[i].IO_TYPE == $vm.vmData.BB_IO_TYPE){
+                    _task.push({
+                        crudType: 'Insert',
+                        table: 3,
+                        params: {
+                            BBPG_CR_USER : $vm.profile.U_ID,
+                            BBPG_CR_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss'),
+                            BBPG_GOAL_ID : $vm.vmData.PostGoal[i].CODE
+                        }
+                    });
+                }
+            }
+        }
+
+        return _task;
+    };
+
+    function LoadBBPG(){
+        RestfulApi.SearchMSSQLData({
+            querymain: 'news',
+            queryname: 'SelectBBPG',
+            params: {
+                BBPG_CR_USER: $vm.vmData.BB_CR_USER,
+                BBPG_CR_DATETIME: $vm.vmData.BB_CR_DATETIME
+            }
+        }).then(function (res){
+            console.log(res["returnData"]);
+            $vm.vmData.PostGoal = res["returnData"];
+        });
+    };
+
+    function LoadBBAF(){
+        RestfulApi.SearchMSSQLData({
+            querymain: 'news',
+            queryname: 'SelectBBAF',
+            params: {
+                BBAF_CR_USER: $vm.vmData.BB_CR_USER,
+                BBAF_CR_DATETIME: $vm.vmData.BB_CR_DATETIME
+            }
+        }).then(function (res){
+            console.log(res["returnData"]);
+            $vm.vmData.UploadedData = res["returnData"];
+        });
+    };
+
+    function ReturnToBillboardEditorPage(){
+        if(_tasks.length > 0){
+            toaster.success("狀態", "資料上傳成功", 3000);    
+        }
+        $state.transitionTo("app.settings.billboardeditor");
+    };
+})
+.controller('AddPostGoalModalInstanceCtrl', function ($uibModalInstance, vmData, RestfulApi, $timeout, $filter, ioType, uiGridConstants) {
+    var $ctrl = this;
+    $ctrl.mdData = [];
+
+    $ctrl.MdInit = function (){
+        // 拿掉All
+        ioType.shift();
+
+        var _request = null;
+
+        switch(vmData.BB_IO_TYPE){ 
+            case "In":
+                _request = {
+                    querymain: 'news',
+                    queryname: 'SelectSysGroup'
+                };
+                break;
+            case "Out":
+                _request = {
+                    querymain: 'news',
+                    queryname: 'SelectCompyInfo'
+                };
+                break;
+            case "All":
+                _request = {
+                    querymain: 'news',
+                    queryname: 'SelectSysGroupUnionCompyInfo'
+                };
+                break;
+        }
+
+        if (_request == null) return;
+
+        RestfulApi.SearchMSSQLData(_request).then(function (res){
+            // console.log(res["returnData"]);
+            $ctrl.mdData = res["returnData"];
+            // 把已被選取的帳號打勾
+            $timeout(function() {
+                if($ctrl.mdDataGridApi.selection.selectRow){
+                    for(var i in vmData.PostGoal){
+                        $ctrl.mdDataGridApi.selection.selectRow($filter('filter')($ctrl.mdData, {CODE: vmData.PostGoal[i].CODE})[0]);
+                    }
+                }
+            });
+        }).finally(function() {
+            HandleWindowResize($vm.mdDataGridApi);
+        });
+    };
+
+    $ctrl.mdDataOptions = {
+        data:  '$ctrl.mdData',
+        columnDefs: [
+            { name: 'CODE'     , displayName: '系統代碼' },
+            { name: 'NAME'     , displayName: '名稱' },
+            { name: 'IO_TYPE'  , displayName: '公佈類型', cellFilter: 'ioTypeFilter', filter: 
+                {
+                    term: null,
+                    type: uiGridConstants.filter.SELECT,
+                    selectOptions: ioType
+                }
+            }
+        ],
+        enableSorting: false,
+        enableColumnMenus: false,
+        enableFiltering: true,
+        enableRowSelection: true,
+        enableSelectAll: true,
+        selectionRowHeaderWidth: 35,
+        paginationPageSizes: [10, 25, 50, 100],
+        paginationPageSize: 100,
+        onRegisterApi: function(gridApi){ 
+            $ctrl.mdDataGridApi = gridApi;
+        } 
+    };
+
+    $ctrl.ok = function() {
+        $uibModalInstance.close($ctrl.mdDataGridApi.selection.getSelectedRows());
+    };
+
+    $ctrl.cancel = function() {
+        $uibModalInstance.dismiss('cancel');
+    };
+});
+"use strict";
+
+angular.module('app.settings').controller('ProfileCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, RestfulApi, $filter) {
+
+    var $vm = this;
+
+    angular.extend(this, {
+        profile : Session.Get(),
+        Editor : function (){
+
+            var modalInstance = $uibModal.open({
+                animation: true,
+                ariaLabelledBy: 'modal-title',
+                ariaDescribedBy: 'modal-body',
+                templateUrl: 'myModalContent.html',
+                controller: 'ModalInstanceCtrl',
+                controllerAs: '$ctrl',
+                size: 'lg',
+                // appendTo: parentElem,
+                resolve: {
+                    profile: function() {
+                        return $vm.profile;
+                    }
+                }
+            });
+
+            modalInstance.result.then(function(selectedItem) {
+                // $ctrl.selected = selectedItem;
+                // console.log(selectedItem);
+
+                RestfulApi.UpdateMSSQLData({
+                    updatename: 'UpdateByEncrypt',
+                    table: 0,
+                    params: {
+                        U_PW          : selectedItem.C_PW,
+                        U_EMAIL       : selectedItem.U_EMAIL,
+                        U_UP_USER     : $vm.profile.U_ID,
+                        U_UP_DATETIME : $filter('date')(new Date, 'yyyy-MM-dd HH:mm:ss')
+                    },
+                    condition: {
+                        U_ID          : selectedItem.U_ID
+                    }
+                }).then(function (res) {
+
+                    toaster.success("狀態", "更新成功並重新登入", 3000);
+
+                    Session.Destroy();
+                    $state.transitionTo("login");
+                }, function (err) {
+
+                });
+            }, function() {
+                // $log.info('Modal dismissed at: ' + new Date());
+            });
+
+        }
+    });
+
+})
+.controller('ModalInstanceCtrl', function ($uibModalInstance, profile) {
+    var $ctrl = this;
+    $ctrl.mdData = profile;
+
+    /**
+     * [CheckPW description]
+     * N_PW : 當前密碼
+     * M_PW : 更改密碼
+     * C_PW : 確認密碼
+     */
+    $ctrl.CheckPW = function(){
+        var _check = true;
+
+        // N_PW必須輸入且正確
+        if(!angular.isUndefined($ctrl.mdData['N_PW']) && $ctrl.mdData['N_PW'] == profile.U_PW){
+            if(!angular.isUndefined($ctrl.mdData['M_PW']) && !angular.isUndefined($ctrl.mdData['C_PW'])){
+                // 更改密碼 等於 確認密碼
+                if($ctrl.mdData['M_PW'] == $ctrl.mdData['C_PW']){
+                    _check = false;
+                }
+            }
+        }
+
+        return _check;
+    };
+
+    $ctrl.ok = function() {
+        $uibModalInstance.close($ctrl.mdData);
+    };
+
+    $ctrl.cancel = function() {
+        $uibModalInstance.dismiss('cancel');
+    };
+});
+
+"use strict";
+
+angular.module('app.settings').controller('SysLogsCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, RestfulApi, uiGridConstants, $filter, userInfo) {
+    // console.log($stateParams, $state);
+
+    var $vm = this;
+
+    angular.extend(this, {
+        Init : function(){
+            LoadSysLogs();
+        },
+        profile : Session.Get(),
+        sysLogsOptions : {
+            data: '$vm.sysLogsData',
+            columnDefs: [
+                { name: 'Index'        , displayName: '序列', width: 50, enableFiltering: false },
+                { name: 'SDL_DATETIME' , displayName: '時間', width: 150, cellFilter: 'datetimeFilter' },
+                { name: 'SDL_LEVEL'    , displayName: '等級', width: 70, cellTemplate: $templateCache.get('accessibilityToSysLevel') },
+                { name: 'SDL_MESSAGE'  , displayName: '訊息', cellTooltip: function (row, col) 
+                    {
+                        return row.entity.SDL_MESSAGE
+                    } 
+                },
+                { name: 'SDL_SQL'      , displayName: 'SQL', cellTooltip: function (row, col) 
+                    {
+                        return row.entity.SDL_SQL
+                    } 
+                },
+                { name: 'SDL_USER'     , displayName: '人員', width: 100, cellFilter: 'userInfoFilter', filter: 
+                    {
+                        term: null,
+                        type: uiGridConstants.filter.SELECT,
+                        selectOptions: userInfo
+                    }
+                },
+                { name: 'SDL_IP'       , displayName: 'IP', width: 120 }
+            ],
+            enableFiltering: true,
+            enableSorting: true,
+            enableColumnMenus: false,
+            // enableVerticalScrollbar: false,
+            paginationPageSizes: [50, 100, 150, 200, 250, 300],
+            paginationPageSize: 100,
+            onRegisterApi: function(gridApi){
+                $vm.sysLogsGridApi = gridApi;
+            }
+        },
+        // 匯出Excel
+        ExportExcel: function(){
+
+            var _exportName = $filter('date')($vm.vmData.OL_IMPORTDT, 'yyyyMMdd') + ' ' + 
+                              $filter('compyFilter')($vm.vmData.OL_CO_CODE) + ' ' + 
+                              $vm.vmData.OL_FLIGHTNO;
+                // _totalBag = 0,
+                // _totalWeight = 0;
+
+            // 計算件數和重量
+            // for(var i in $vm.job002Data){
+            //     _totalBag += $vm.job002Data[i].FLL_CTN;
+            //     _totalWeight += $vm.job002Data[i].FLL_WEIGHT;
+            // }
+
+            ToolboxApi.ExportExcelByMultiSql([
+                {
+                    templates      : 5,
+                    filename       : _exportName,
+                    OL_MASTER      : $vm.vmData.OL_MASTER,
+                    OL_IMPORTDT    : $filter('date')($vm.vmData.OL_IMPORTDT, 'yyyy-MM-dd'),
+                    OL_FLIGHTNO    : $vm.vmData.OL_FLIGHTNO,
+                    OL_COUNTRY     : $vm.vmData.OL_COUNTRY, 
+                    OL_TEL         : $vm.vmData.OL_TEL, 
+                    OL_FAX         : $vm.vmData.OL_FAX, 
+                    OL_TOTALBAG    : $vm.job002GridApi.grid.columns[4].getAggregationValue(), 
+                    OL_TOTALWEIGHT : $vm.job002GridApi.grid.columns[5].getAggregationValue().toFixed(2)
+                },
+                {
+                    crudType: 'Select',
+                    querymain: 'job002',
+                    queryname: 'SelectFlightItemList',
+                    params: {               
+                        FLL_SEQ: $vm.vmData.OL_SEQ
+                    }
+                },
+                {
+                    crudType: 'Select',
+                    querymain: 'job002',
+                    queryname: 'SelectRemark',
+                    params: {               
+                        FLL_SEQ: $vm.vmData.OL_SEQ
+                    }
+                }
+            ]).then(function (res) {
+                // console.log(res);
+            });
+
+        }
+    });
+
+    function LoadSysLogs(){
+        RestfulApi.SearchMSSQLData({
+            querymain: 'sysLogs',
+            queryname: 'SelectSysLogs'
+        }).then(function (res){
+            console.log(res["returnData"]);
+            for(var i=0;i<res["returnData"].length;i++){
+                res["returnData"][i]["Index"] = i+1;
+            }
+            $vm.sysLogsData = res["returnData"];
+        }); 
+    };
+
+})
 /**
  * Created by griga on 2/9/16.
  */
@@ -14932,6 +15149,355 @@ angular.module('app.tables').controller('JqGridCtrl', function ($scope) {
        jQuery('table').jqGrid('setSelection', row);
 
     }
+});
+"use strict";
+
+angular.module('app.ui').controller('GeneralElementsCtrl', function ($scope, $sce) {
+    /*
+     * Smart Notifications
+     */
+    $scope.eg1 = function () {
+
+        $.bigBox({
+            title: "Big Information box",
+            content: "This message will dissapear in 6 seconds!",
+            color: "#C46A69",
+            //timeout: 6000,
+            icon: "fa fa-warning shake animated",
+            number: "1",
+            timeout: 6000
+        });
+    };
+
+    $scope.eg2 = function () {
+
+        $.bigBox({
+            title: "Big Information box",
+            content: "Lorem ipsum dolor sit amet, test consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam",
+            color: "#3276B1",
+            //timeout: 8000,
+            icon: "fa fa-bell swing animated",
+            number: "2"
+        });
+
+    };
+
+    $scope.eg3 = function () {
+
+        $.bigBox({
+            title: "Shield is up and running!",
+            content: "Lorem ipsum dolor sit amet, test consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam",
+            color: "#C79121",
+            //timeout: 8000,
+            icon: "fa fa-shield fadeInLeft animated",
+            number: "3"
+        });
+
+    };
+
+    $scope.eg4 = function () {
+
+        $.bigBox({
+            title: "Success Message Example",
+            content: "Lorem ipsum dolor sit amet, test consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam",
+            color: "#739E73",
+            //timeout: 8000,
+            icon: "fa fa-check",
+            number: "4"
+        }, function () {
+            $scope.closedthis();
+        });
+
+    };
+
+
+    $scope.eg5 = function() {
+
+        $.smallBox({
+            title: "Ding Dong!",
+            content: "Someone's at the door...shall one get it sir? <p class='text-align-right'><a href-void class='btn btn-primary btn-sm'>Yes</a> <a href-void class='btn btn-danger btn-sm'>No</a></p>",
+            color: "#296191",
+            //timeout: 8000,
+            icon: "fa fa-bell swing animated"
+        });
+    };
+
+
+    $scope.eg6 = function() {
+
+        $.smallBox({
+            title: "Big Information box",
+            content: "Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam",
+            color: "#5384AF",
+            //timeout: 8000,
+            icon: "fa fa-bell"
+        });
+
+    };
+
+    $scope.eg7 = function() {
+
+        $.smallBox({
+            title: "James Simmons liked your comment",
+            content: "<i class='fa fa-clock-o'></i> <i>2 seconds ago...</i>",
+            color: "#296191",
+            iconSmall: "fa fa-thumbs-up bounce animated",
+            timeout: 4000
+        });
+
+    };
+
+    $scope.closedthis = function() {
+        $.smallBox({
+            title: "Great! You just closed that last alert!",
+            content: "This message will be gone in 5 seconds!",
+            color: "#739E73",
+            iconSmall: "fa fa-cloud",
+            timeout: 5000
+        });
+    };
+
+    /*
+     * SmartAlerts
+     */
+    // With Callback
+    $scope.smartModEg1 =  function () {
+        $.SmartMessageBox({
+            title: "Smart Alert!",
+            content: "This is a confirmation box. Can be programmed for button callback",
+            buttons: '[No][Yes]'
+        }, function (ButtonPressed) {
+            if (ButtonPressed === "Yes") {
+
+                $.smallBox({
+                    title: "Callback function",
+                    content: "<i class='fa fa-clock-o'></i> <i>You pressed Yes...</i>",
+                    color: "#659265",
+                    iconSmall: "fa fa-check fa-2x fadeInRight animated",
+                    timeout: 4000
+                });
+            }
+            if (ButtonPressed === "No") {
+                $.smallBox({
+                    title: "Callback function",
+                    content: "<i class='fa fa-clock-o'></i> <i>You pressed No...</i>",
+                    color: "#C46A69",
+                    iconSmall: "fa fa-times fa-2x fadeInRight animated",
+                    timeout: 4000
+                });
+            }
+
+        });
+    };
+
+    // With Input
+    $scope.smartModEg2 =  function () {
+        $.SmartMessageBox({
+            title: "Smart Alert: Input",
+            content: "Please enter your user name",
+            buttons: "[Accept]",
+            input: "text",
+            placeholder: "Enter your user name"
+        }, function (ButtonPress, Value) {
+            alert(ButtonPress + " " + Value);
+        });
+    };
+
+    // With Buttons
+    $scope.smartModEg3 =  function () {
+        $.SmartMessageBox({
+            title: "Smart Notification: Buttons",
+            content: "Lots of buttons to go...",
+            buttons: '[Need?][You][Do][Buttons][Many][How]'
+        });
+
+    }
+    // With Select
+    $scope.smartModEg4 =  function () {
+        $.SmartMessageBox({
+            title: "Smart Alert: Select",
+            content: "You can even create a group of options.",
+            buttons: "[Done]",
+            input: "select",
+            options: "[Costa Rica][United States][Autralia][Spain]"
+        }, function (ButtonPress, Value) {
+            alert(ButtonPress + " " + Value);
+        });
+
+    };
+
+    // With Login
+    $scope.smartModEg5 =  function () {
+
+        $.SmartMessageBox({
+            title: "Login form",
+            content: "Please enter your user name",
+            buttons: "[Cancel][Accept]",
+            input: "text",
+            placeholder: "Enter your user name"
+        }, function (ButtonPress, Value) {
+            if (ButtonPress == "Cancel") {
+                alert("Why did you cancel that? :(");
+                return 0;
+            }
+
+            var Value1 = Value.toUpperCase();
+            var ValueOriginal = Value;
+            $.SmartMessageBox({
+                title: "Hey! <strong>" + Value1 + ",</strong>",
+                content: "And now please provide your password:",
+                buttons: "[Login]",
+                input: "password",
+                placeholder: "Password"
+            }, function (ButtonPress, Value) {
+                alert("Username: " + ValueOriginal + " and your password is: " + Value);
+            });
+        });
+
+    };
+
+    $scope.tabsPopoverContent = $sce.trustAsHtml("<ul id='popup-tab' class='nav nav-tabs bordered'><li class='active'><a href='#pop-1' data-toggle='tab'>Active Tab </a></li><li><a href='#pop-2' data-toggle='tab'>Tab 2</a></li></ul><div id='popup-tab-content' class='tab-content padding-10'><div class='tab-pane fade in active' id='pop-1'><p>I have six locks on my door all in a row. When I go out, I lock every other one. I figure no matter how long somebody stands there picking the locks, they are always locking three.</p></div><div class='tab-pane fade' id='pop-2'><p>Food truck fixie locavore, accusamus mcsweeneys marfa nulla single-origin coffee squid. wes anderson artisan four loko farm-to-table craft beer twee.</p></div></div>")
+
+    $scope.formPopoverContent = $sce.trustAsHtml("<form action='/api/plug' style='min-width:170px'><div class='checkbox'><label><input type='checkbox' class='checkbox style-0' checked='checked'><span>Read</span></label></div><div class='checkbox'><label><input type='checkbox' class='checkbox style-0'><span>Write</span></label></div><div class='checkbox'><label><input type='checkbox' class='checkbox style-0'><span>Execute</span></label></div><div class='form-actions'><div class='row'><div class='col-md-12'><button class='btn btn-primary btn-sm' type='submit'>SAVE</button></div></div></div></form>")
+
+});
+
+"use strict";
+
+
+angular.module('app.ui').controller('JquiCtrl', function ($scope) {
+    $scope.demoAutocompleteWords = [
+        "ActionScript",
+        "AppleScript",
+        "Asp",
+        "BASIC",
+        "C",
+        "C++",
+        "Clojure",
+        "COBOL",
+        "ColdFusion",
+        "Erlang",
+        "Fortran",
+        "Groovy",
+        "Haskell",
+        "Java",
+        "JavaScript",
+        "Lisp",
+        "Perl",
+        "PHP",
+        "Python",
+        "Ruby",
+        "Scala",
+        "Scheme"];
+
+
+    $scope.demoAjaxAutocomplete = '';
+
+
+    $scope.modalDemo1 = function(){
+        console.log('modalDemo1');
+    }
+
+    $scope.modalDemo2 = function(){
+        console.log('modalDemo2');
+    }
+
+
+});
+"use strict";
+
+
+angular.module('app.ui').controller('TreeviewCtrl', function ($scope) {
+    $scope.demoTree1 = [
+        {"content": "<span><i class=\"fa fa-lg fa-calendar\"></i> 2013, Week 2</span>", "expanded": true, "children": [
+            {"content": "<span class=\"label label-success\"><i class=\"fa fa-lg fa-plus-circle\"></i> Monday, January 7: 8.00 hours</span>", "expanded": true, "children": [
+                {"content": "<span><i class=\"fa fa-clock-o\"></i> 8.00</span> &ndash; <a> Changed CSS to accomodate...</a>"}
+            ]},
+            {"content": "<span><i class=\"fa fa-clock-o\"></i> 8.00</span> &ndash; <a> Changed CSS to accomodate...</a>"},
+            {"content": "<span class=\"label label-success\"><i class=\"fa fa-lg fa-minus-circle\"></i> Tuesday, January 8: 8.00 hours</span>", "expanded": true, "children": [
+                {"content": "<span><i class=\"fa fa-clock-o\"></i> 6.00</span> &ndash; <a> Altered code...</a>"},
+                {"content": "<span><i class=\"fa fa-clock-o\"></i> 2.00</span> &ndash; <a> Simplified our approach to...</a>"}
+            ]},
+            {"content": "<span><i class=\"fa fa-clock-o\"></i> 6.00</span> &ndash; <a> Altered code...</a>"},
+            {"content": "<span><i class=\"fa fa-clock-o\"></i> 2.00</span> &ndash; <a> Simplified our approach to...</a>"},
+            {"content": "<span class=\"label label-warning\"><i class=\"fa fa-lg fa-minus-circle\"></i> Wednesday, January 9: 6.00 hours</span>", "children": [
+                {"content": "<span><i class=\"fa fa-clock-o\"></i> 3.00</span> &ndash; <a> Fixed bug caused by...</a>"},
+                {"content": "<span><i class=\"fa fa-clock-o\"></i> 3.00</span> &ndash; <a> Comitting latest code to Git...</a>"}
+            ]},
+            {"content": "<span><i class=\"fa fa-clock-o\"></i> 3.00</span> &ndash; <a> Fixed bug caused by...</a>"},
+            {"content": "<span><i class=\"fa fa-clock-o\"></i> 3.00</span> &ndash; <a> Comitting latest code to Git...</a>"},
+            {"content": "<span class=\"label label-danger\"><i class=\"fa fa-lg fa-minus-circle\"></i> Wednesday, January 9: 4.00 hours</span>", "children": [
+                {"content": "<span><i class=\"fa fa-clock-o\"></i> 2.00</span> &ndash; <a> Create component that...</a>"}
+            ]},
+            {"content": "<span><i class=\"fa fa-clock-o\"></i> 2.00</span> &ndash; <a> Create component that...</a>"}
+        ]},
+        {"content": "<span><i class=\"fa fa-lg fa-calendar\"></i> 2013, Week 3</span>", "children": [
+            {"content": "<span class=\"label label-success\"><i class=\"fa fa-lg fa-minus-circle\"></i> Monday, January 14: 8.00 hours</span>", "children": [
+                {"content": "<span><i class=\"fa fa-clock-o\"></i> 7.75</span> &ndash; <a> Writing documentation...</a>"},
+                {"content": "<span><i class=\"fa fa-clock-o\"></i> 0.25</span> &ndash; <a> Reverting code back to...</a>"}
+            ]},
+            {"content": "<span><i class=\"fa fa-clock-o\"></i> 7.75</span> &ndash; <a> Writing documentation...</a>"},
+            {"content": "<span><i class=\"fa fa-clock-o\"></i> 0.25</span> &ndash; <a> Reverting code back to...</a>"}
+        ]}
+    ]
+
+    $scope.demoTree2 = [
+        {"content": "<span><i class=\"fa fa-lg fa-folder-open\"></i> Parent</span>", "expanded": true, "children": [
+            {"content": "<span><i class=\"fa fa-lg fa-plus-circle\"></i> Administrators</span>", "expanded": true, "children": [
+                {"content": "<span> <label class=\"checkbox inline-block\"><input type=\"checkbox\" name=\"checkbox-inline\"><i></i>Michael.Jackson</label> </span>"},
+                {"content": "<span> <label class=\"checkbox inline-block\"><input type=\"checkbox\" checked=\"checked\" name=\"checkbox-inline\"><i></i>Sunny.Ahmed</label> </span>"},
+                {"content": "<span> <label class=\"checkbox inline-block\"><input type=\"checkbox\" checked=\"checked\" name=\"checkbox-inline\"><i></i>Jackie.Chan</label> </span>"}
+            ]},
+            {"content": "<span> <label class=\"checkbox inline-block\"><input type=\"checkbox\" name=\"checkbox-inline\"><i></i>Michael.Jackson</label> </span>"},
+            {"content": "<span> <label class=\"checkbox inline-block\"><input type=\"checkbox\" checked=\"checked\" name=\"checkbox-inline\"><i></i>Sunny.Ahmed</label> </span>"},
+            {"content": "<span> <label class=\"checkbox inline-block\"><input type=\"checkbox\" checked=\"checked\" name=\"checkbox-inline\"><i></i>Jackie.Chan</label> </span>"},
+            {"content": "<span><i class=\"fa fa-lg fa-minus-circle\"></i> Child</span>", "expanded": true, "children": [
+                {"content": "<span><i class=\"icon-leaf\"></i> Grand Child</span>"},
+                {"content": "<span><i class=\"icon-leaf\"></i> Grand Child</span>"},
+                {"content": "<span><i class=\"fa fa-lg fa-plus-circle\"></i> Grand Child</span>",  "children": [
+                    {"content": "<span><i class=\"fa fa-lg fa-plus-circle\"></i> Great Grand Child</span>", "children": [
+                        {"content": "<span><i class=\"icon-leaf\"></i> Great great Grand Child</span>"},
+                        {"content": "<span><i class=\"icon-leaf\"></i> Great great Grand Child</span>"}
+                    ]},
+                    {"content": "<span><i class=\"icon-leaf\"></i> Great great Grand Child</span>"},
+                    {"content": "<span><i class=\"icon-leaf\"></i> Great great Grand Child</span>"},
+                    {"content": "<span><i class=\"icon-leaf\"></i> Great Grand Child</span>"},
+                    {"content": "<span><i class=\"icon-leaf\"></i> Great Grand Child</span>"}
+                ]},
+                {"content": "<span><i class=\"fa fa-lg fa-plus-circle\"></i> Great Grand Child</span>", "children": [
+                    {"content": "<span><i class=\"icon-leaf\"></i> Great great Grand Child</span>"},
+                    {"content": "<span><i class=\"icon-leaf\"></i> Great great Grand Child</span>"}
+                ]},
+                {"content": "<span><i class=\"icon-leaf\"></i> Great great Grand Child</span>"},
+                {"content": "<span><i class=\"icon-leaf\"></i> Great great Grand Child</span>"},
+                {"content": "<span><i class=\"icon-leaf\"></i> Great Grand Child</span>"},
+                {"content": "<span><i class=\"icon-leaf\"></i> Great Grand Child</span>"}
+            ]},
+            {"content": "<span><i class=\"icon-leaf\"></i> Grand Child</span>"},
+            {"content": "<span><i class=\"icon-leaf\"></i> Grand Child</span>"},
+            {"content": "<span><i class=\"fa fa-lg fa-plus-circle\"></i> Grand Child</span>", "children": [
+                {"content": "<span><i class=\"fa fa-lg fa-plus-circle\"></i> Great Grand Child</span>", "children": [
+                    {"content": "<span><i class=\"icon-leaf\"></i> Great great Grand Child</span>"},
+                    {"content": "<span><i class=\"icon-leaf\"></i> Great great Grand Child</span>"}
+                ]},
+                {"content": "<span><i class=\"icon-leaf\"></i> Great great Grand Child</span>"},
+                {"content": "<span><i class=\"icon-leaf\"></i> Great great Grand Child</span>"},
+                {"content": "<span><i class=\"icon-leaf\"></i> Great Grand Child</span>"},
+                {"content": "<span><i class=\"icon-leaf\"></i> Great Grand Child</span>"}
+            ]},
+            {"content": "<span><i class=\"fa fa-lg fa-plus-circle\"></i> Great Grand Child</span>", "children": [
+                {"content": "<span><i class=\"icon-leaf\"></i> Great great Grand Child</span>"},
+                {"content": "<span><i class=\"icon-leaf\"></i> Great great Grand Child</span>"}
+            ]},
+            {"content": "<span><i class=\"icon-leaf\"></i> Great great Grand Child</span>"},
+            {"content": "<span><i class=\"icon-leaf\"></i> Great great Grand Child</span>"},
+            {"content": "<span><i class=\"icon-leaf\"></i> Great Grand Child</span>"},
+            {"content": "<span><i class=\"icon-leaf\"></i> Great Grand Child</span>"}
+        ]},
+        {"content": "<span><i class=\"fa fa-lg fa-folder-open\"></i> Parent2</span>", "children": [
+            {"content": "<span><i class=\"icon-leaf\"></i> Child</span>"}
+        ]}
+    ]
 });
 'use strict';
 
@@ -15396,355 +15962,6 @@ angular.module('app.ui').directive('smartTreeview', function ($compile, $sce) {
 });
 "use strict";
 
-angular.module('app.ui').controller('GeneralElementsCtrl', function ($scope, $sce) {
-    /*
-     * Smart Notifications
-     */
-    $scope.eg1 = function () {
-
-        $.bigBox({
-            title: "Big Information box",
-            content: "This message will dissapear in 6 seconds!",
-            color: "#C46A69",
-            //timeout: 6000,
-            icon: "fa fa-warning shake animated",
-            number: "1",
-            timeout: 6000
-        });
-    };
-
-    $scope.eg2 = function () {
-
-        $.bigBox({
-            title: "Big Information box",
-            content: "Lorem ipsum dolor sit amet, test consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam",
-            color: "#3276B1",
-            //timeout: 8000,
-            icon: "fa fa-bell swing animated",
-            number: "2"
-        });
-
-    };
-
-    $scope.eg3 = function () {
-
-        $.bigBox({
-            title: "Shield is up and running!",
-            content: "Lorem ipsum dolor sit amet, test consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam",
-            color: "#C79121",
-            //timeout: 8000,
-            icon: "fa fa-shield fadeInLeft animated",
-            number: "3"
-        });
-
-    };
-
-    $scope.eg4 = function () {
-
-        $.bigBox({
-            title: "Success Message Example",
-            content: "Lorem ipsum dolor sit amet, test consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam",
-            color: "#739E73",
-            //timeout: 8000,
-            icon: "fa fa-check",
-            number: "4"
-        }, function () {
-            $scope.closedthis();
-        });
-
-    };
-
-
-    $scope.eg5 = function() {
-
-        $.smallBox({
-            title: "Ding Dong!",
-            content: "Someone's at the door...shall one get it sir? <p class='text-align-right'><a href-void class='btn btn-primary btn-sm'>Yes</a> <a href-void class='btn btn-danger btn-sm'>No</a></p>",
-            color: "#296191",
-            //timeout: 8000,
-            icon: "fa fa-bell swing animated"
-        });
-    };
-
-
-    $scope.eg6 = function() {
-
-        $.smallBox({
-            title: "Big Information box",
-            content: "Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam",
-            color: "#5384AF",
-            //timeout: 8000,
-            icon: "fa fa-bell"
-        });
-
-    };
-
-    $scope.eg7 = function() {
-
-        $.smallBox({
-            title: "James Simmons liked your comment",
-            content: "<i class='fa fa-clock-o'></i> <i>2 seconds ago...</i>",
-            color: "#296191",
-            iconSmall: "fa fa-thumbs-up bounce animated",
-            timeout: 4000
-        });
-
-    };
-
-    $scope.closedthis = function() {
-        $.smallBox({
-            title: "Great! You just closed that last alert!",
-            content: "This message will be gone in 5 seconds!",
-            color: "#739E73",
-            iconSmall: "fa fa-cloud",
-            timeout: 5000
-        });
-    };
-
-    /*
-     * SmartAlerts
-     */
-    // With Callback
-    $scope.smartModEg1 =  function () {
-        $.SmartMessageBox({
-            title: "Smart Alert!",
-            content: "This is a confirmation box. Can be programmed for button callback",
-            buttons: '[No][Yes]'
-        }, function (ButtonPressed) {
-            if (ButtonPressed === "Yes") {
-
-                $.smallBox({
-                    title: "Callback function",
-                    content: "<i class='fa fa-clock-o'></i> <i>You pressed Yes...</i>",
-                    color: "#659265",
-                    iconSmall: "fa fa-check fa-2x fadeInRight animated",
-                    timeout: 4000
-                });
-            }
-            if (ButtonPressed === "No") {
-                $.smallBox({
-                    title: "Callback function",
-                    content: "<i class='fa fa-clock-o'></i> <i>You pressed No...</i>",
-                    color: "#C46A69",
-                    iconSmall: "fa fa-times fa-2x fadeInRight animated",
-                    timeout: 4000
-                });
-            }
-
-        });
-    };
-
-    // With Input
-    $scope.smartModEg2 =  function () {
-        $.SmartMessageBox({
-            title: "Smart Alert: Input",
-            content: "Please enter your user name",
-            buttons: "[Accept]",
-            input: "text",
-            placeholder: "Enter your user name"
-        }, function (ButtonPress, Value) {
-            alert(ButtonPress + " " + Value);
-        });
-    };
-
-    // With Buttons
-    $scope.smartModEg3 =  function () {
-        $.SmartMessageBox({
-            title: "Smart Notification: Buttons",
-            content: "Lots of buttons to go...",
-            buttons: '[Need?][You][Do][Buttons][Many][How]'
-        });
-
-    }
-    // With Select
-    $scope.smartModEg4 =  function () {
-        $.SmartMessageBox({
-            title: "Smart Alert: Select",
-            content: "You can even create a group of options.",
-            buttons: "[Done]",
-            input: "select",
-            options: "[Costa Rica][United States][Autralia][Spain]"
-        }, function (ButtonPress, Value) {
-            alert(ButtonPress + " " + Value);
-        });
-
-    };
-
-    // With Login
-    $scope.smartModEg5 =  function () {
-
-        $.SmartMessageBox({
-            title: "Login form",
-            content: "Please enter your user name",
-            buttons: "[Cancel][Accept]",
-            input: "text",
-            placeholder: "Enter your user name"
-        }, function (ButtonPress, Value) {
-            if (ButtonPress == "Cancel") {
-                alert("Why did you cancel that? :(");
-                return 0;
-            }
-
-            var Value1 = Value.toUpperCase();
-            var ValueOriginal = Value;
-            $.SmartMessageBox({
-                title: "Hey! <strong>" + Value1 + ",</strong>",
-                content: "And now please provide your password:",
-                buttons: "[Login]",
-                input: "password",
-                placeholder: "Password"
-            }, function (ButtonPress, Value) {
-                alert("Username: " + ValueOriginal + " and your password is: " + Value);
-            });
-        });
-
-    };
-
-    $scope.tabsPopoverContent = $sce.trustAsHtml("<ul id='popup-tab' class='nav nav-tabs bordered'><li class='active'><a href='#pop-1' data-toggle='tab'>Active Tab </a></li><li><a href='#pop-2' data-toggle='tab'>Tab 2</a></li></ul><div id='popup-tab-content' class='tab-content padding-10'><div class='tab-pane fade in active' id='pop-1'><p>I have six locks on my door all in a row. When I go out, I lock every other one. I figure no matter how long somebody stands there picking the locks, they are always locking three.</p></div><div class='tab-pane fade' id='pop-2'><p>Food truck fixie locavore, accusamus mcsweeneys marfa nulla single-origin coffee squid. wes anderson artisan four loko farm-to-table craft beer twee.</p></div></div>")
-
-    $scope.formPopoverContent = $sce.trustAsHtml("<form action='/api/plug' style='min-width:170px'><div class='checkbox'><label><input type='checkbox' class='checkbox style-0' checked='checked'><span>Read</span></label></div><div class='checkbox'><label><input type='checkbox' class='checkbox style-0'><span>Write</span></label></div><div class='checkbox'><label><input type='checkbox' class='checkbox style-0'><span>Execute</span></label></div><div class='form-actions'><div class='row'><div class='col-md-12'><button class='btn btn-primary btn-sm' type='submit'>SAVE</button></div></div></div></form>")
-
-});
-
-"use strict";
-
-
-angular.module('app.ui').controller('JquiCtrl', function ($scope) {
-    $scope.demoAutocompleteWords = [
-        "ActionScript",
-        "AppleScript",
-        "Asp",
-        "BASIC",
-        "C",
-        "C++",
-        "Clojure",
-        "COBOL",
-        "ColdFusion",
-        "Erlang",
-        "Fortran",
-        "Groovy",
-        "Haskell",
-        "Java",
-        "JavaScript",
-        "Lisp",
-        "Perl",
-        "PHP",
-        "Python",
-        "Ruby",
-        "Scala",
-        "Scheme"];
-
-
-    $scope.demoAjaxAutocomplete = '';
-
-
-    $scope.modalDemo1 = function(){
-        console.log('modalDemo1');
-    }
-
-    $scope.modalDemo2 = function(){
-        console.log('modalDemo2');
-    }
-
-
-});
-"use strict";
-
-
-angular.module('app.ui').controller('TreeviewCtrl', function ($scope) {
-    $scope.demoTree1 = [
-        {"content": "<span><i class=\"fa fa-lg fa-calendar\"></i> 2013, Week 2</span>", "expanded": true, "children": [
-            {"content": "<span class=\"label label-success\"><i class=\"fa fa-lg fa-plus-circle\"></i> Monday, January 7: 8.00 hours</span>", "expanded": true, "children": [
-                {"content": "<span><i class=\"fa fa-clock-o\"></i> 8.00</span> &ndash; <a> Changed CSS to accomodate...</a>"}
-            ]},
-            {"content": "<span><i class=\"fa fa-clock-o\"></i> 8.00</span> &ndash; <a> Changed CSS to accomodate...</a>"},
-            {"content": "<span class=\"label label-success\"><i class=\"fa fa-lg fa-minus-circle\"></i> Tuesday, January 8: 8.00 hours</span>", "expanded": true, "children": [
-                {"content": "<span><i class=\"fa fa-clock-o\"></i> 6.00</span> &ndash; <a> Altered code...</a>"},
-                {"content": "<span><i class=\"fa fa-clock-o\"></i> 2.00</span> &ndash; <a> Simplified our approach to...</a>"}
-            ]},
-            {"content": "<span><i class=\"fa fa-clock-o\"></i> 6.00</span> &ndash; <a> Altered code...</a>"},
-            {"content": "<span><i class=\"fa fa-clock-o\"></i> 2.00</span> &ndash; <a> Simplified our approach to...</a>"},
-            {"content": "<span class=\"label label-warning\"><i class=\"fa fa-lg fa-minus-circle\"></i> Wednesday, January 9: 6.00 hours</span>", "children": [
-                {"content": "<span><i class=\"fa fa-clock-o\"></i> 3.00</span> &ndash; <a> Fixed bug caused by...</a>"},
-                {"content": "<span><i class=\"fa fa-clock-o\"></i> 3.00</span> &ndash; <a> Comitting latest code to Git...</a>"}
-            ]},
-            {"content": "<span><i class=\"fa fa-clock-o\"></i> 3.00</span> &ndash; <a> Fixed bug caused by...</a>"},
-            {"content": "<span><i class=\"fa fa-clock-o\"></i> 3.00</span> &ndash; <a> Comitting latest code to Git...</a>"},
-            {"content": "<span class=\"label label-danger\"><i class=\"fa fa-lg fa-minus-circle\"></i> Wednesday, January 9: 4.00 hours</span>", "children": [
-                {"content": "<span><i class=\"fa fa-clock-o\"></i> 2.00</span> &ndash; <a> Create component that...</a>"}
-            ]},
-            {"content": "<span><i class=\"fa fa-clock-o\"></i> 2.00</span> &ndash; <a> Create component that...</a>"}
-        ]},
-        {"content": "<span><i class=\"fa fa-lg fa-calendar\"></i> 2013, Week 3</span>", "children": [
-            {"content": "<span class=\"label label-success\"><i class=\"fa fa-lg fa-minus-circle\"></i> Monday, January 14: 8.00 hours</span>", "children": [
-                {"content": "<span><i class=\"fa fa-clock-o\"></i> 7.75</span> &ndash; <a> Writing documentation...</a>"},
-                {"content": "<span><i class=\"fa fa-clock-o\"></i> 0.25</span> &ndash; <a> Reverting code back to...</a>"}
-            ]},
-            {"content": "<span><i class=\"fa fa-clock-o\"></i> 7.75</span> &ndash; <a> Writing documentation...</a>"},
-            {"content": "<span><i class=\"fa fa-clock-o\"></i> 0.25</span> &ndash; <a> Reverting code back to...</a>"}
-        ]}
-    ]
-
-    $scope.demoTree2 = [
-        {"content": "<span><i class=\"fa fa-lg fa-folder-open\"></i> Parent</span>", "expanded": true, "children": [
-            {"content": "<span><i class=\"fa fa-lg fa-plus-circle\"></i> Administrators</span>", "expanded": true, "children": [
-                {"content": "<span> <label class=\"checkbox inline-block\"><input type=\"checkbox\" name=\"checkbox-inline\"><i></i>Michael.Jackson</label> </span>"},
-                {"content": "<span> <label class=\"checkbox inline-block\"><input type=\"checkbox\" checked=\"checked\" name=\"checkbox-inline\"><i></i>Sunny.Ahmed</label> </span>"},
-                {"content": "<span> <label class=\"checkbox inline-block\"><input type=\"checkbox\" checked=\"checked\" name=\"checkbox-inline\"><i></i>Jackie.Chan</label> </span>"}
-            ]},
-            {"content": "<span> <label class=\"checkbox inline-block\"><input type=\"checkbox\" name=\"checkbox-inline\"><i></i>Michael.Jackson</label> </span>"},
-            {"content": "<span> <label class=\"checkbox inline-block\"><input type=\"checkbox\" checked=\"checked\" name=\"checkbox-inline\"><i></i>Sunny.Ahmed</label> </span>"},
-            {"content": "<span> <label class=\"checkbox inline-block\"><input type=\"checkbox\" checked=\"checked\" name=\"checkbox-inline\"><i></i>Jackie.Chan</label> </span>"},
-            {"content": "<span><i class=\"fa fa-lg fa-minus-circle\"></i> Child</span>", "expanded": true, "children": [
-                {"content": "<span><i class=\"icon-leaf\"></i> Grand Child</span>"},
-                {"content": "<span><i class=\"icon-leaf\"></i> Grand Child</span>"},
-                {"content": "<span><i class=\"fa fa-lg fa-plus-circle\"></i> Grand Child</span>",  "children": [
-                    {"content": "<span><i class=\"fa fa-lg fa-plus-circle\"></i> Great Grand Child</span>", "children": [
-                        {"content": "<span><i class=\"icon-leaf\"></i> Great great Grand Child</span>"},
-                        {"content": "<span><i class=\"icon-leaf\"></i> Great great Grand Child</span>"}
-                    ]},
-                    {"content": "<span><i class=\"icon-leaf\"></i> Great great Grand Child</span>"},
-                    {"content": "<span><i class=\"icon-leaf\"></i> Great great Grand Child</span>"},
-                    {"content": "<span><i class=\"icon-leaf\"></i> Great Grand Child</span>"},
-                    {"content": "<span><i class=\"icon-leaf\"></i> Great Grand Child</span>"}
-                ]},
-                {"content": "<span><i class=\"fa fa-lg fa-plus-circle\"></i> Great Grand Child</span>", "children": [
-                    {"content": "<span><i class=\"icon-leaf\"></i> Great great Grand Child</span>"},
-                    {"content": "<span><i class=\"icon-leaf\"></i> Great great Grand Child</span>"}
-                ]},
-                {"content": "<span><i class=\"icon-leaf\"></i> Great great Grand Child</span>"},
-                {"content": "<span><i class=\"icon-leaf\"></i> Great great Grand Child</span>"},
-                {"content": "<span><i class=\"icon-leaf\"></i> Great Grand Child</span>"},
-                {"content": "<span><i class=\"icon-leaf\"></i> Great Grand Child</span>"}
-            ]},
-            {"content": "<span><i class=\"icon-leaf\"></i> Grand Child</span>"},
-            {"content": "<span><i class=\"icon-leaf\"></i> Grand Child</span>"},
-            {"content": "<span><i class=\"fa fa-lg fa-plus-circle\"></i> Grand Child</span>", "children": [
-                {"content": "<span><i class=\"fa fa-lg fa-plus-circle\"></i> Great Grand Child</span>", "children": [
-                    {"content": "<span><i class=\"icon-leaf\"></i> Great great Grand Child</span>"},
-                    {"content": "<span><i class=\"icon-leaf\"></i> Great great Grand Child</span>"}
-                ]},
-                {"content": "<span><i class=\"icon-leaf\"></i> Great great Grand Child</span>"},
-                {"content": "<span><i class=\"icon-leaf\"></i> Great great Grand Child</span>"},
-                {"content": "<span><i class=\"icon-leaf\"></i> Great Grand Child</span>"},
-                {"content": "<span><i class=\"icon-leaf\"></i> Great Grand Child</span>"}
-            ]},
-            {"content": "<span><i class=\"fa fa-lg fa-plus-circle\"></i> Great Grand Child</span>", "children": [
-                {"content": "<span><i class=\"icon-leaf\"></i> Great great Grand Child</span>"},
-                {"content": "<span><i class=\"icon-leaf\"></i> Great great Grand Child</span>"}
-            ]},
-            {"content": "<span><i class=\"icon-leaf\"></i> Great great Grand Child</span>"},
-            {"content": "<span><i class=\"icon-leaf\"></i> Great great Grand Child</span>"},
-            {"content": "<span><i class=\"icon-leaf\"></i> Great Grand Child</span>"},
-            {"content": "<span><i class=\"icon-leaf\"></i> Great Grand Child</span>"}
-        ]},
-        {"content": "<span><i class=\"fa fa-lg fa-folder-open\"></i> Parent2</span>", "children": [
-            {"content": "<span><i class=\"icon-leaf\"></i> Child</span>"}
-        ]}
-    ]
-});
-"use strict";
-
 angular.module('app.auth').directive('facebookSignin', function ($rootScope, ezfb) {
     return {
         replace: true,
@@ -16198,6 +16415,674 @@ angular.module('app.concerns').controller('ResultBanCtrl', function ($scope, $st
         $uibModalInstance.dismiss('cancel');
     };
 });
+'use strict';
+
+angular.module('app.chat').factory('ChatApi', function ($q, $rootScope, User, $http, APP_CONFIG) {
+    var dfd = $q.defer();
+    var _user;
+    var ChatSrv = {
+        initialized: dfd.promise,
+        users: [],
+        messages: [],
+        statuses: ['Online', 'Busy', 'Away', 'Log Off'],
+        status: 'Online',
+        setUser: function (user) {
+            if (ChatSrv.users.indexOf(_user) != -1)
+                ChatSrv.users.splice(ChatSrv.users.indexOf(_user), 1);
+            _user = user;
+            ChatSrv.users.push(_user);
+        },
+        sendMessage: function (text) {
+            var message = {
+                user: _user,
+                body: text,
+                date: new Date()
+            };
+            this.messages.push(message);
+        }
+    };
+
+
+    $http.get(APP_CONFIG.apiRootUrl + '/chat.json').then(function(res){
+        ChatSrv.messages = res.data.messages;
+        ChatSrv.users = res.data.users;
+        dfd.resolve();
+    });
+
+    ChatSrv.initialized.then(function () {
+
+        User.initialized.then(function () {
+            ChatSrv.setUser({
+                username: User.username,
+                picture: User.picture,
+                status: ChatSrv.status
+            });
+        });
+
+        $rootScope.$watch(function () {
+            return User.username
+        }, function (name, oldName) {
+            if (name != oldName) {
+                ChatSrv.setUser({
+                    username: User.username,
+                    picture: User.picture,
+                    status: ChatSrv.status
+                });
+            }
+        });
+    });
+
+
+    return ChatSrv;
+
+});
+(function() {
+        
+   'use strict';
+
+    /*
+    * SMARTCHAT PLUGIN ARRAYS & CONFIG
+    * Dependency: js/plugin/moment/moment.min.js 
+    *             js/plugin/cssemotions/jquery.cssemoticons.min.js 
+    *             js/smart-chat-ui/smart.chat.ui.js
+    * (DO NOT CHANGE) 
+    */ 
+        var boxList = [],
+        showList = [],
+        nameList = [],
+        idList = [];
+    /*
+    * Width of the chat boxes, and the gap inbetween in pixel (minus padding)
+    */ 
+        var chatbox_config = {
+            width: 200,
+            gap: 35,
+            offset: 0
+        };
+
+
+
+    /*
+    * SMART CHAT ENGINE
+    * Copyright (c) 2013 Wen Pu
+    * Modified by MyOrange
+    * All modifications made are hereby copyright (c) 2014-2015 MyOrange
+    */
+
+    // TODO: implement destroy()
+    (function($) {
+    $.widget("ui.chatbox", {
+        options: {
+            id: null, //id for the DOM element
+            title: null, // title of the chatbox
+            user: null, // can be anything associated with this chatbox
+            hidden: false,
+            offset: 0, // relative to right edge of the browser window
+            width: 300, // width of the chatbox
+            status: 'online', //
+            alertmsg: null,
+            alertshow: null,
+            messageSent: function(id, user, msg) {
+                // override this
+                this.boxManager.addMsg(user.first_name, msg);
+            },
+            boxClosed: function(id) {
+            }, // called when the close icon is clicked
+            boxManager: {
+                // thanks to the widget factory facility
+                // similar to http://alexsexton.com/?p=51
+                init: function(elem) {
+                    this.elem = elem;
+                },
+                addMsg: function(peer, msg) {
+                    var self = this;
+                    var box = self.elem.uiChatboxLog;
+                    var e = document.createElement('div');
+                    box.append(e);
+                    $(e).hide();
+
+                    var systemMessage = false;
+
+                    if (peer) {
+                        var peerName = document.createElement("b");
+                        $(peerName).text(peer + ": ");
+                        e.appendChild(peerName);
+                    } else {
+                        systemMessage = true;
+                    }
+
+                    var msgElement = document.createElement(
+                        systemMessage ? "i" : "span");
+                    $(msgElement).text(msg);
+                    e.appendChild(msgElement);
+                    $(e).addClass("ui-chatbox-msg");
+                    $(e).css("maxWidth", $(box).width());
+                    $(e).fadeIn();
+                    //$(e).prop( 'title', moment().calendar() ); // add dep: moment.js
+                    $(e).find("span").emoticonize(); // add dep: jquery.cssemoticons.js
+                    self._scrollToBottom();
+
+                    if (!self.elem.uiChatboxTitlebar.hasClass("ui-state-focus")
+                        && !self.highlightLock) {
+                        self.highlightLock = true;
+                        self.highlightBox();
+                    }
+                },
+                highlightBox: function() {
+                    var self = this;
+                    self.elem.uiChatboxTitlebar.effect("highlight", {}, 300);
+                    self.elem.uiChatbox.effect("bounce", {times: 2}, 300, function() {
+                        self.highlightLock = false;
+                        self._scrollToBottom();
+                    });
+                },
+                toggleBox: function() {
+                    this.elem.uiChatbox.toggle();
+                },
+                _scrollToBottom: function() {
+                    var box = this.elem.uiChatboxLog;
+                    box.scrollTop(box.get(0).scrollHeight);
+                }
+            }
+        },
+        toggleContent: function(event) {
+            this.uiChatboxContent.toggle();
+            if (this.uiChatboxContent.is(":visible")) {
+                this.uiChatboxInputBox.focus();
+            }
+        },
+        widget: function() {
+            return this.uiChatbox
+        },
+        _create: function() {
+            var self = this,
+            options = self.options,
+            title = options.title || "No Title",
+            // chatbox
+            uiChatbox = (self.uiChatbox = $('<div></div>'))
+                .appendTo(document.body)
+                .addClass('ui-widget ' +
+                          //'ui-corner-top ' +
+                          'ui-chatbox'
+                         )
+                .attr('outline', 0)
+                .focusin(function() {
+                    // ui-state-highlight is not really helpful here
+                    //self.uiChatbox.removeClass('ui-state-highlight');
+                    self.uiChatboxTitlebar.addClass('ui-state-focus');
+                })
+                .focusout(function() {
+                    self.uiChatboxTitlebar.removeClass('ui-state-focus');
+                }),
+            // titlebar
+            uiChatboxTitlebar = (self.uiChatboxTitlebar = $('<div></div>'))
+                .addClass('ui-widget-header ' +
+                          //'ui-corner-top ' +
+                          'ui-chatbox-titlebar ' +
+                          self.options.status +
+                          ' ui-dialog-header' // take advantage of dialog header style
+                         )
+                .click(function(event) {
+                    self.toggleContent(event);
+                })
+                .appendTo(uiChatbox),
+            uiChatboxTitle = (self.uiChatboxTitle = $('<span></span>'))
+                .html(title)
+                .appendTo(uiChatboxTitlebar),
+            uiChatboxTitlebarClose = (self.uiChatboxTitlebarClose = $('<a href="#" rel="tooltip" data-placement="top" data-original-title="Hide"></a>'))
+                .addClass(//'ui-corner-all ' +
+                          'ui-chatbox-icon '
+                         )
+                .attr('role', 'button')
+                .hover(function() { uiChatboxTitlebarClose.addClass('ui-state-hover'); },
+                       function() { uiChatboxTitlebarClose.removeClass('ui-state-hover'); })
+                .click(function(event) {
+                    uiChatbox.hide();
+                    self.options.boxClosed(self.options.id);
+                    return false;
+                })
+                .appendTo(uiChatboxTitlebar),
+            uiChatboxTitlebarCloseText = $('<i></i>')
+                .addClass('fa ' +
+                          'fa-times')
+                .appendTo(uiChatboxTitlebarClose),
+            uiChatboxTitlebarMinimize = (self.uiChatboxTitlebarMinimize = $('<a href="#" rel="tooltip" data-placement="top" data-original-title="Minimize"></a>'))
+                .addClass(//'ui-corner-all ' +
+                          'ui-chatbox-icon'
+                         )
+                .attr('role', 'button')
+                .hover(function() { uiChatboxTitlebarMinimize.addClass('ui-state-hover'); },
+                       function() { uiChatboxTitlebarMinimize.removeClass('ui-state-hover'); })
+                .click(function(event) {
+                    self.toggleContent(event);
+                    return false;
+                })
+                .appendTo(uiChatboxTitlebar),
+            uiChatboxTitlebarMinimizeText = $('<i></i>')
+                .addClass('fa ' +
+                          'fa-minus')
+                .appendTo(uiChatboxTitlebarMinimize),
+            // content
+            uiChatboxContent = (self.uiChatboxContent = $('<div class="'+ self.options.alertshow +'"><span class="alert-msg">'+ self.options.alertmsg + '</span></div>'))
+                .addClass('ui-widget-content ' +
+                          'ui-chatbox-content '
+                         )
+                .appendTo(uiChatbox),
+            uiChatboxLog = (self.uiChatboxLog = self.element)
+                .addClass('ui-widget-content ' +
+                          'ui-chatbox-log ' +
+                          'custom-scroll'
+                         )
+                .appendTo(uiChatboxContent),
+            uiChatboxInput = (self.uiChatboxInput = $('<div></div>'))
+                .addClass('ui-widget-content ' +
+                          'ui-chatbox-input'
+                         )
+                .click(function(event) {
+                    // anything?
+                })
+                .appendTo(uiChatboxContent),
+            uiChatboxInputBox = (self.uiChatboxInputBox = $('<textarea></textarea>'))
+                .addClass('ui-widget-content ' +
+                          'ui-chatbox-input-box '
+                         )
+                .appendTo(uiChatboxInput)
+                .keydown(function(event) {
+                    if (event.keyCode && event.keyCode == $.ui.keyCode.ENTER) {
+                        var msg = $.trim($(this).val());
+                        if (msg.length > 0) {
+                            self.options.messageSent(self.options.id, self.options.user, msg);
+                        }
+                        $(this).val('');
+                        return false;
+                    }
+                })
+                .focusin(function() {
+                    uiChatboxInputBox.addClass('ui-chatbox-input-focus');
+                    var box = $(this).parent().prev();
+                    box.scrollTop(box.get(0).scrollHeight);
+                })
+                .focusout(function() {
+                    uiChatboxInputBox.removeClass('ui-chatbox-input-focus');
+                });
+
+            // disable selection
+            uiChatboxTitlebar.find('*').add(uiChatboxTitlebar).disableSelection();
+
+            // switch focus to input box when whatever clicked
+            uiChatboxContent.children().click(function() {
+                // click on any children, set focus on input box
+                self.uiChatboxInputBox.focus();
+            });
+
+            self._setWidth(self.options.width);
+            self._position(self.options.offset);
+
+            self.options.boxManager.init(self);
+
+            if (!self.options.hidden) {
+                uiChatbox.show();
+            }
+            
+            $(".ui-chatbox [rel=tooltip]").tooltip();
+            //console.log("tooltip created");
+        },
+        _setOption: function(option, value) {
+            if (value != null) {
+                switch (option) {
+                case "hidden":
+                    if (value)
+                        this.uiChatbox.hide();
+                    else
+                        this.uiChatbox.show();
+                    break;
+                case "offset":
+                    this._position(value);
+                    break;
+                case "width":
+                    this._setWidth(value);
+                    break;
+                }
+            }
+            $.Widget.prototype._setOption.apply(this, arguments);
+        },
+        _setWidth: function(width) {
+            this.uiChatbox.width((width + 28) + "px");
+            //this.uiChatboxTitlebar.width((width + 28) + "px");
+            //this.uiChatboxLog.width(width + "px");
+           // this.uiChatboxInput.css("maxWidth", width + "px");
+            // padding:2, boarder:2, margin:5
+            this.uiChatboxInputBox.css("width", (width + 18) + "px");
+        },
+        _position: function(offset) {
+            this.uiChatbox.css("right", offset);
+        }
+    });
+    }(jQuery));
+
+
+    /*
+    * jQuery CSSEmoticons plugin 0.2.9
+    *
+    * Copyright (c) 2010 Steve Schwartz (JangoSteve)
+    *
+    * Dual licensed under the MIT and GPL licenses:
+    *   http://www.opensource.org/licenses/mit-license.php
+    *   http://www.gnu.org/licenses/gpl.html
+    *
+    * Date: Sun Oct 22 1:00:00 2010 -0500
+    */
+    (function($) {
+    $.fn.emoticonize = function(options) {
+
+    var opts = $.extend({}, $.fn.emoticonize.defaults, options);
+
+    var escapeCharacters = [ ")", "(", "*", "[", "]", "{", "}", "|", "^", "<", ">", "\\", "?", "+", "=", "." ];
+
+    var threeCharacterEmoticons = [
+        // really weird bug if you have :{ and then have :{) in the same container anywhere *after* :{ then :{ doesn't get matched, e.g. :] :{ :) :{) :) :-) will match everything except :{
+        //  But if you take out the :{) or even just move :{ to the right of :{) then everything works fine. This has something to do with the preMatch string below I think, because
+        //  it'll work again if you set preMatch equal to '()'
+        //  So for now, we'll just remove :{) from the emoticons, because who actually uses this mustache man anyway?
+      // ":{)",
+      ":-)", ":o)", ":c)", ":^)", ":-D", ":-(", ":-9", ";-)", ":-P", ":-p", ":-Þ", ":-b", ":-O", ":-/", ":-X", ":-#", ":'(", "B-)", "8-)", ";*(", ":-*", ":-\\",
+      "?-)", // <== This is my own invention, it's a smiling pirate (with an eye-patch)!
+      // and the twoCharacterEmoticons from below, but with a space inserted
+      ": )", ": ]", "= ]", "= )", "8 )", ": }", ": D", "8 D", "X D", "x D", "= D", ": (", ": [", ": {", "= (", "; )", "; ]", "; D", ": P", ": p", "= P", "= p", ": b", ": Þ", ": O", "8 O", ": /", "= /", ": S", ": #", ": X", "B )", ": |", ": \\", "= \\", ": *", ": &gt;", ": &lt;"//, "* )"
+    ];
+
+    var twoCharacterEmoticons = [ // separate these out so that we can add a letter-spacing between the characters for better proportions
+      ":)", ":]", "=]", "=)", "8)", ":}", ":D", ":(", ":[", ":{", "=(", ";)", ";]", ";D", ":P", ":p", "=P", "=p", ":b", ":Þ", ":O", ":/", "=/", ":S", ":#", ":X", "B)", ":|", ":\\", "=\\", ":*", ":&gt;", ":&lt;"//, "*)"
+    ];
+
+    var specialEmoticons = { // emoticons to be treated with a special class, hash specifies the additional class to add, along with standard css-emoticon class
+      "&gt;:)": { cssClass: "red-emoticon small-emoticon spaced-emoticon" },
+      "&gt;;)": { cssClass: "red-emoticon small-emoticon spaced-emoticon"},
+      "&gt;:(": { cssClass: "red-emoticon small-emoticon spaced-emoticon" },
+      "&gt;: )": { cssClass: "red-emoticon small-emoticon" },
+      "&gt;; )": { cssClass: "red-emoticon small-emoticon"},
+      "&gt;: (": { cssClass: "red-emoticon small-emoticon" },
+      ";(":     { cssClass: "red-emoticon spaced-emoticon" },
+      "&lt;3":  { cssClass: "pink-emoticon counter-rotated" },
+      "O_O":    { cssClass: "no-rotate" },
+      "o_o":    { cssClass: "no-rotate" },
+      "0_o":    { cssClass: "no-rotate" },
+      "O_o":    { cssClass: "no-rotate" },
+      "T_T":    { cssClass: "no-rotate" },
+      "^_^":    { cssClass: "no-rotate" },
+      "O:)":    { cssClass: "small-emoticon spaced-emoticon" },
+      "O: )":   { cssClass: "small-emoticon" },
+      "8D":     { cssClass: "small-emoticon spaced-emoticon" },
+      "XD":     { cssClass: "small-emoticon spaced-emoticon" },
+      "xD":     { cssClass: "small-emoticon spaced-emoticon" },
+      "=D":     { cssClass: "small-emoticon spaced-emoticon" },
+      "8O":     { cssClass: "small-emoticon spaced-emoticon" },
+      "[+=..]":  { cssClass: "no-rotate nintendo-controller" }
+      //"OwO":  { cssClass: "no-rotate" }, // these emoticons overflow and look weird even if they're made even smaller, could probably fix this with some more css trickery
+      //"O-O":  { cssClass: "no-rotate" },
+      //"O=)":    { cssClass: "small-emoticon" } 
+    }
+
+    var specialRegex = new RegExp( '(\\' + escapeCharacters.join('|\\') + ')', 'g' );
+    // One of these characters must be present before the matched emoticon, or the matched emoticon must be the first character in the container HTML
+    //  This is to ensure that the characters in the middle of HTML properties or URLs are not matched as emoticons
+    //  Below matches ^ (first character in container HTML), \s (whitespace like space or tab), or \0 (NULL character)
+    // (<\\S+.*>) matches <\\S+.*> (matches an HTML tag like <span> or <div>), but haven't quite gotten it working yet, need to push this fix now
+    var preMatch = '(^|[\\s\\0])';
+
+    for ( var i=threeCharacterEmoticons.length-1; i>=0; --i ){
+      threeCharacterEmoticons[i] = threeCharacterEmoticons[i].replace(specialRegex,'\\$1');
+      threeCharacterEmoticons[i] = new RegExp( preMatch+'(' + threeCharacterEmoticons[i] + ')', 'g' );
+    }
+
+    for ( var i=twoCharacterEmoticons.length-1; i>=0; --i ){
+      twoCharacterEmoticons[i] = twoCharacterEmoticons[i].replace(specialRegex,'\\$1');
+      twoCharacterEmoticons[i] = new RegExp( preMatch+'(' + twoCharacterEmoticons[i] + ')', 'g' );
+    }
+
+    for ( var emoticon in specialEmoticons ){
+      specialEmoticons[emoticon].regexp = emoticon.replace(specialRegex,'\\$1');
+      specialEmoticons[emoticon].regexp = new RegExp( preMatch+'(' + specialEmoticons[emoticon].regexp + ')', 'g' );
+    }
+
+    var exclude = 'span.css-emoticon';
+    if(opts.exclude){ exclude += ','+opts.exclude; }
+    var excludeArray = exclude.split(',')
+
+    return this.not(exclude).each(function() {
+      var container = $(this);
+      var cssClass = 'css-emoticon'
+      if(opts.animate){ cssClass += ' un-transformed-emoticon animated-emoticon'; }
+      
+      for( var emoticon in specialEmoticons ){
+        var specialCssClass = cssClass + " " + specialEmoticons[emoticon].cssClass;
+        container.html(container.html().replace(specialEmoticons[emoticon].regexp,"$1<span class='" + specialCssClass + "'>$2</span>"));
+      }
+      $(threeCharacterEmoticons).each(function(){
+        container.html(container.html().replace(this,"$1<span class='" + cssClass + "'>$2</span>"));
+      });                                                          
+      $(twoCharacterEmoticons).each(function(){                    
+        container.html(container.html().replace(this,"$1<span class='" + cssClass + " spaced-emoticon'>$2</span>"));
+      });
+      // fix emoticons that got matched more then once (where one emoticon is a subset of another emoticon), and thus got nested spans
+      $.each(excludeArray,function(index,item){
+        container.find($.trim(item)+" span.css-emoticon").each(function(){
+          $(this).replaceWith($(this).text());
+        });
+      });
+      if(opts.animate){
+        setTimeout(function(){$('.un-transformed-emoticon').removeClass('un-transformed-emoticon');}, opts.delay);
+      }
+    });
+    }
+
+    $.fn.unemoticonize = function(options) {
+    var opts = $.extend({}, $.fn.emoticonize.defaults, options);
+    return this.each(function() {
+      var container = $(this);
+      container.find('span.css-emoticon').each(function(){
+        // add delay equal to animate speed if animate is not false
+        var span = $(this);
+        if(opts.animate){
+          span.addClass('un-transformed-emoticon');
+          setTimeout(function(){span.replaceWith(span.text());}, opts.delay); 
+        }else{
+          span.replaceWith(span.text());
+        }
+      });
+    });
+    }
+
+    $.fn.emoticonize.defaults = {animate: true, delay: 500, exclude: 'pre,code,.no-emoticons'}
+    })(jQuery);
+
+    var chatboxManager = function () {
+        
+    var init = function (options) {
+        $.extend(chatbox_config, options)
+    };
+
+
+    var delBox = function (id) {
+        // TODO
+    };
+
+    var getNextOffset = function () {
+        return (chatbox_config.width + chatbox_config.gap) * showList.length;
+    };
+
+    var boxClosedCallback = function (id) {
+        // close button in the titlebar is clicked
+        var idx = showList.indexOf(id);
+        if (idx != -1) {
+            showList.splice(idx, 1);
+            var diff = chatbox_config.width + chatbox_config.gap;
+            for (var i = idx; i < showList.length; i++) {
+                chatbox_config.offset = $("#" + showList[i]).chatbox("option", "offset");
+                $("#" + showList[i]).chatbox("option", "offset", chatbox_config.offset - diff);
+            }
+        } else {
+            alert("NOTE: Id missing from array: " + id);
+        }
+    };
+
+    // caller should guarantee the uniqueness of id
+    var addBox = function (id, user, name) {
+        var idx1 = showList.indexOf(id);
+        var idx2 = boxList.indexOf(id);
+        if (idx1 != -1) {
+            // found one in show box, do nothing
+        } else if (idx2 != -1) {
+            // exists, but hidden
+            // show it and put it back to showList
+            $("#" + id).chatbox("option", "offset", getNextOffset());
+            var manager = $("#" + id).chatbox("option", "boxManager");
+            manager.toggleBox();
+            showList.push(id);
+        } else {
+            var el = document.createElement('div');
+            el.setAttribute('id', id);
+            $(el).chatbox({
+                id: id,
+                user: user,
+                title: '<i title="' + user.status + '"></i>' + user.first_name + " " + user.last_name,
+                hidden: false,
+                offset: getNextOffset(),
+                width: chatbox_config.width,
+                status: user.status,
+                alertmsg: user.alertmsg,
+                alertshow: user.alertshow,
+                messageSent: dispatch,
+                boxClosed: boxClosedCallback
+            });
+            boxList.push(id);
+            showList.push(id);
+            nameList.push(user.first_name);
+        }
+    };
+
+    var messageSentCallback = function (id, user, msg) {
+        var idx = boxList.indexOf(id);
+        chatbox_config.messageSent(nameList[idx], msg);
+    };
+
+    // not used in demo
+    var dispatch = function (id, user, msg) {
+        //$("#log").append("<i>" + moment().calendar() + "</i> you said to <b>" + user.first_name + " " + user.last_name + ":</b> " + msg + "<br/>");
+        if ($('#chatlog').length){
+            $("#chatlog").append("You said to <b>" + user.first_name + " " + user.last_name + ":</b> " + msg + "<br/>").effect("highlight", {}, 500);;
+        }
+        $("#" + id).chatbox("option", "boxManager").addMsg("Me", msg);
+    }
+
+    return {
+        init: init,
+        addBox: addBox,
+        delBox: delBox,
+        dispatch: dispatch
+    };
+    }();
+
+    var link = function (scope, element, attributes) {
+
+        $('a[data-chat-id]').click(function (event, ui) {
+            if(!$(this).hasClass('offline')){
+
+                var $this = $(this),
+                    temp_chat_id = $this.attr("data-chat-id"),
+                    fname = $this.attr("data-chat-fname"),
+                    lname = $this.attr("data-chat-lname"),
+                    status = $this.attr("data-chat-status") || "online",
+                    alertmsg = $this.attr("data-chat-alertmsg"),
+                    alertshow =  $this.attr("data-chat-alertshow") || false;
+
+
+                chatboxManager.addBox(temp_chat_id, {
+                    // dest:"dest" + counter, 
+                    // not used in demo
+                    title: "username" + temp_chat_id,
+                    first_name: fname,
+                    last_name: lname,
+                    status: status,
+                    alertmsg: alertmsg,
+                    alertshow: alertshow
+                    //you can add your own options too
+                });
+            }
+
+            event.preventDefault();
+
+        });
+
+    }
+
+    angular.module('app.chat').directive('asideChatWidget', function (ChatApi) {
+        return {
+            restrict: 'A',
+            replace: true,
+            templateUrl: 'app/dashboard/chat/directives/aside-chat-widget.tpl.html',
+            link: link
+        }
+    });
+
+})(); 
+"use strict";
+
+angular.module('app.chat').directive('chatUsers', function(ChatApi){
+    return {
+        restrict: 'E',
+        replace: true,
+        templateUrl: 'app/dashboard/chat/directives/chat-users.tpl.html',
+        scope: true,
+        link: function(scope, element){
+            scope.open = false;
+            scope.openToggle = function(){
+                scope.open = !scope.open;
+            };
+
+            scope.chatUserFilter = '';
+
+            ChatApi.initialized.then(function () {
+                scope.chatUsers = ChatApi.users;
+            });
+        }
+    }
+});
+
+"use strict";
+
+angular.module('app.chat').directive('chatWidget', function (ChatApi) {
+    return {
+        replace: true,
+        restrict: 'E',
+        templateUrl: 'app/dashboard/chat/directives/chat-widget.tpl.html',
+        scope: {},
+        link: function (scope, element) {
+            scope.newMessage = '';
+
+            scope.sendMessage = function () {
+                ChatApi.sendMessage(scope.newMessage);
+                scope.newMessage = '';
+            };
+
+            scope.messageTo = function(user){
+                scope.newMessage += (user.username + ', ');
+            };
+
+            ChatApi.initialized.then(function () {
+                scope.chatMessages = ChatApi.messages;
+            });
+            scope.$watch(function () {
+                return ChatApi.messages.length
+            }, function (count) {
+                if (count){
+                    var $body = $('.chat-body', element);
+                    $body.animate({scrollTop: $body[0].scrollHeight});
+                }
+            })
+        }
+    }
+});
 "use strict";
 
 angular.module('app').factory('Todo', function (Restangular, APP_CONFIG, $httpBackend) {
@@ -16277,6 +17162,400 @@ angular.module('app').factory('Todo', function (Restangular, APP_CONFIG, $httpBa
 
         }
     }
+});
+'use strict';
+
+angular.module('app.graphs').directive('chartjsBarChart', function () {
+    return {
+        restrict: 'A',
+        link: function (scope, element, attributes) {
+
+            var barOptions = {
+                //Boolean - Whether the scale should start at zero, or an order of magnitude down from the lowest value
+                scaleBeginAtZero : true,
+                //Boolean - Whether grid lines are shown across the chart
+                scaleShowGridLines : true,
+                //String - Colour of the grid lines
+                scaleGridLineColor : "rgba(0,0,0,.05)",
+                //Number - Width of the grid lines
+                scaleGridLineWidth : 1,
+                //Boolean - If there is a stroke on each bar
+                barShowStroke : true,
+                //Number - Pixel width of the bar stroke
+                barStrokeWidth : 1,
+                //Number - Spacing between each of the X value sets
+                barValueSpacing : 5,
+                //Number - Spacing between data sets within X values
+                barDatasetSpacing : 1,
+                //Boolean - Re-draw chart on page resize
+                responsive: true,
+                //String - A legend template
+                legendTemplate : "<ul class=\"<%=name.toLowerCase()%>-legend\"><% for (var i=0; i<datasets.length; i++){%><li><span style=\"background-color:<%=datasets[i].lineColor%>\"></span><%if(datasets[i].label){%><%=datasets[i].label%><%}%></li><%}%></ul>"
+            }
+
+            var barData = {
+                labels: ["January", "February", "March", "April", "May", "June", "July"],
+                datasets: [
+                    {
+                        label: "My First dataset",
+                        fillColor: "rgba(220,220,220,0.5)",
+                        strokeColor: "rgba(220,220,220,0.8)",
+                        highlightFill: "rgba(220,220,220,0.75)",
+                        highlightStroke: "rgba(220,220,220,1)",
+                        data: [65, 59, 80, 81, 56, 55, 40]
+                    },
+                    {
+                        label: "My Second dataset",
+                        fillColor: "rgba(151,187,205,0.5)",
+                        strokeColor: "rgba(151,187,205,0.8)",
+                        highlightFill: "rgba(151,187,205,0.75)",
+                        highlightStroke: "rgba(151,187,205,1)",
+                        data: [28, 48, 40, 19, 86, 27, 90]
+                    }
+                ]
+            };
+
+            var ctx = element[0].getContext("2d");
+            new Chart(ctx).Bar(barData, barOptions);
+
+        }
+    }
+});
+'use strict';
+
+angular.module('app.graphs').directive('chartjsDoughnutChart', function () {
+    return {
+        restrict: 'A',
+        link: function (scope, element, attributes) {
+            var doughnutOptions = {
+                //Boolean - Whether we should show a stroke on each segment
+                segmentShowStroke : true,
+                //String - The colour of each segment stroke
+                segmentStrokeColor : "#fff",
+                //Number - The width of each segment stroke
+                segmentStrokeWidth : 2,
+                //Number - The percentage of the chart that we cut out of the middle
+                percentageInnerCutout : 50, // This is 0 for Pie charts
+                //Number - Amount of animation steps
+                animationSteps : 100,
+                //String - Animation easing effect
+                animationEasing : "easeOutBounce",
+                //Boolean - Whether we animate the rotation of the Doughnut
+                animateRotate : true,
+                //Boolean - Whether we animate scaling the Doughnut from the centre
+                animateScale : false,
+                //Boolean - Re-draw chart on page resize
+                responsive: true,
+                //String - A legend template
+                legendTemplate : "<ul class=\"<%=name.toLowerCase()%>-legend\"><% for (var i=0; i<segments.length; i++){%><li><span style=\"background-color:<%=segments[i].fillColor%>\"></span><%if(segments[i].label){%><%=segments[i].label%><%}%></li><%}%></ul>"
+            };
+
+            var doughnutData = [
+                {
+                    value: 300,
+                    color:"rgba(220,220,220,0.8)",
+                    highlight: "rgba(220,220,220,0.7)",
+                    label: "Grey"
+                },
+                {
+                    value: 50,
+                    color: "rgba(151,187,205,1)",
+                    highlight: "rgba(151,187,205,0.8)",
+                    label: "Blue"
+                },
+                {
+                    value: 100,
+                    color: "rgba(169, 3, 41, 0.7)",
+                    highlight: "rgba(169, 3, 41, 0.7)",
+                    label: "Red"
+                }
+            ];
+
+            // render chart
+            var ctx = element[0].getContext("2d");
+            new Chart(ctx).Doughnut(doughnutData, doughnutOptions);
+        }}
+});
+'use strict';
+
+angular.module('app.graphs').directive('chartjsLineChart', function () {
+    return {
+        restrict: 'A',
+        link: function (scope, element, attributes) {
+
+            // LINE CHART
+            // ref: http://www.chartjs.org/docs/#line-chart-introduction
+            var lineOptions = {
+                ///Boolean - Whether grid lines are shown across the chart
+                scaleShowGridLines : true,
+                //String - Colour of the grid lines
+                scaleGridLineColor : "rgba(0,0,0,.05)",
+                //Number - Width of the grid lines
+                scaleGridLineWidth : 1,
+                //Boolean - Whether the line is curved between points
+                bezierCurve : true,
+                //Number - Tension of the bezier curve between points
+                bezierCurveTension : 0.4,
+                //Boolean - Whether to show a dot for each point
+                pointDot : true,
+                //Number - Radius of each point dot in pixels
+                pointDotRadius : 4,
+                //Number - Pixel width of point dot stroke
+                pointDotStrokeWidth : 1,
+                //Number - amount extra to add to the radius to cater for hit detection outside the drawn point
+                pointHitDetectionRadius : 20,
+                //Boolean - Whether to show a stroke for datasets
+                datasetStroke : true,
+                //Number - Pixel width of dataset stroke
+                datasetStrokeWidth : 2,
+                //Boolean - Whether to fill the dataset with a colour
+                datasetFill : true,
+                //Boolean - Re-draw chart on page resize
+                responsive: true,
+                //String - A legend template
+                legendTemplate : "<ul class=\"<%=name.toLowerCase()%>-legend\"><% for (var i=0; i<datasets.length; i++){%><li><span style=\"background-color:<%=datasets[i].lineColor%>\"></span><%if(datasets[i].label){%><%=datasets[i].label%><%}%></li><%}%></ul>"
+            };
+
+            var lineData = { labels: ["January", "February", "March", "April", "May", "June", "July"],
+                datasets: [
+                    {
+                        label: "My First dataset",
+                        fillColor: "rgba(220,220,220,0.2)",
+                        strokeColor: "rgba(220,220,220,1)",
+                        pointColor: "rgba(220,220,220,1)",
+                        pointStrokeColor: "#fff",
+                        pointHighlightFill: "#fff",
+                        pointHighlightStroke: "rgba(220,220,220,1)",
+                        data: [65, 59, 80, 81, 56, 55, 40]
+                    },
+                    {
+                        label: "My Second dataset",
+                        fillColor: "rgba(151,187,205,0.2)",
+                        strokeColor: "rgba(151,187,205,1)",
+                        pointColor: "rgba(151,187,205,1)",
+                        pointStrokeColor: "#fff",
+                        pointHighlightFill: "#fff",
+                        pointHighlightStroke: "rgba(151,187,205,1)",
+                        data: [28, 48, 40, 19, 86, 27, 90]
+                    }
+                ]
+            };
+
+            var ctx = element[0].getContext("2d");
+            var myNewChart = new Chart(ctx).Line(lineData, lineOptions);
+
+
+
+        }
+    }
+});
+'use strict';
+
+angular.module('app.graphs').directive('chartjsPieChart', function () {
+    return {
+        restrict: 'A',
+        link: function (scope, element, attributes) {
+            var pieOptions = {
+                //Boolean - Whether we should show a stroke on each segment
+                segmentShowStroke: true,
+                //String - The colour of each segment stroke
+                segmentStrokeColor: "#fff",
+                //Number - The width of each segment stroke
+                segmentStrokeWidth: 2,
+                //Number - Amount of animation steps
+                animationSteps: 100,
+                //String - types of animation
+                animationEasing: "easeOutBounce",
+                //Boolean - Whether we animate the rotation of the Doughnut
+                animateRotate: true,
+                //Boolean - Whether we animate scaling the Doughnut from the centre
+                animateScale: false,
+                //Boolean - Re-draw chart on page resize
+                responsive: true,
+                //String - A legend template
+                legendTemplate : "<ul class=\"<%=name.toLowerCase()%>-legend\"><% for (var i=0; i<segments.length; i++){%><li><span style=\"background-color:<%=segments[i].fillColor%>\"></span><%if(segments[i].label){%><%=segments[i].label%><%}%></li><%}%></ul>"
+            };
+
+            var pieData = [
+                {
+                    value: 300,
+                    color:"rgba(220,220,220,0.9)",
+                    highlight: "rgba(220,220,220,0.8)",
+                    label: "Grey"
+                },
+                {
+                    value: 50,
+                    color: "rgba(151,187,205,1)",
+                    highlight: "rgba(151,187,205,0.8)",
+                    label: "Blue"
+                },
+                {
+                    value: 100,
+                    color: "rgba(169, 3, 41, 0.7)",
+                    highlight: "rgba(169, 3, 41, 0.7)",
+                    label: "Red"
+                }
+            ];
+
+            // render chart
+            var ctx = element[0].getContext("2d");
+            var myNewChart = new Chart(ctx).Pie(pieData, pieOptions);
+        }}
+});
+'use strict';
+
+angular.module('app.graphs').directive('chartjsPolarChart', function () {
+    return {
+        restrict: 'A',
+        link: function (scope, element, attributes) {
+            var polarOptions = {
+                //Boolean - Show a backdrop to the scale label
+                scaleShowLabelBackdrop : true,
+                //String - The colour of the label backdrop
+                scaleBackdropColor : "rgba(255,255,255,0.75)",
+                // Boolean - Whether the scale should begin at zero
+                scaleBeginAtZero : true,
+                //Number - The backdrop padding above & below the label in pixels
+                scaleBackdropPaddingY : 2,
+                //Number - The backdrop padding to the side of the label in pixels
+                scaleBackdropPaddingX : 2,
+                //Boolean - Show line for each value in the scale
+                scaleShowLine : true,
+                //Boolean - Stroke a line around each segment in the chart
+                segmentShowStroke : true,
+                //String - The colour of the stroke on each segement.
+                segmentStrokeColor : "#fff",
+                //Number - The width of the stroke value in pixels
+                segmentStrokeWidth : 2,
+                //Number - Amount of animation steps
+                animationSteps : 100,
+                //String - Animation easing effect.
+                animationEasing : "easeOutBounce",
+                //Boolean - Whether to animate the rotation of the chart
+                animateRotate : true,
+                //Boolean - Whether to animate scaling the chart from the centre
+                animateScale : false,
+                //Boolean - Re-draw chart on page resize
+                responsive: true,
+                //String - A legend template
+                legendTemplate : "<ul class=\"<%=name.toLowerCase()%>-legend\"><% for (var i=0; i<segments.length; i++){%><li><span style=\"background-color:<%=segments[i].fillColor%>\"></span><%if(segments[i].label){%><%=segments[i].label%><%}%></li><%}%></ul>"
+            };
+
+            var polarData = [
+                {
+                    value: 300,
+                    color:"rgba(220,220,220,0.8)",
+                    highlight: "rgba(220,220,220,0.7)",
+                    label: "Grey"
+                },
+                {
+                    value: 50,
+                    color: "rgba(151,187,205,1)",
+                    highlight: "rgba(151,187,205,0.8)",
+                    label: "Blue"
+                },
+                {
+                    value: 100,
+                    color: "rgba(169, 3, 41, 0.7)",
+                    highlight: "rgba(169, 3, 41, 0.7)",
+                    label: "Red"
+                },
+                {
+                    value: 40,
+                    color: "#949FB1",
+                    highlight: "#A8B3C5",
+                    label: "Grey"
+                },
+                {
+                    value: 120,
+                    color: "#4D5360",
+                    highlight: "#616774",
+                    label: "Dark Grey"
+                }
+            ];
+
+            // render chart
+            var ctx = element[0].getContext("2d");
+            new Chart(ctx).PolarArea(polarData, polarOptions);
+        }}
+});
+'use strict';
+
+angular.module('app.graphs').directive('chartjsRadarChart', function () {
+    return {
+        restrict: 'A',
+        link: function (scope, element, attributes) {
+            var radarData = {
+                labels: ["Eating", "Drinking", "Sleeping", "Designing", "Coding", "Cycling", "Running"],
+                datasets: [
+                    {
+                        label: "My First dataset",
+                        fillColor: "rgba(220,220,220,0.2)",
+                        strokeColor: "rgba(220,220,220,1)",
+                        pointColor: "rgba(220,220,220,1)",
+                        pointStrokeColor: "#fff",
+                        pointHighlightFill: "#fff",
+                        pointHighlightStroke: "rgba(220,220,220,1)",
+                        data: [65, 59, 90, 81, 56, 55, 40]
+                    },
+                    {
+                        label: "My Second dataset",
+                        fillColor: "rgba(151,187,205,0.2)",
+                        strokeColor: "rgba(151,187,205,1)",
+                        pointColor: "rgba(151,187,205,1)",
+                        pointStrokeColor: "#fff",
+                        pointHighlightFill: "#fff",
+                        pointHighlightStroke: "rgba(151,187,205,1)",
+                        data: [28, 48, 40, 19, 96, 27, 100]
+                    }
+                ]
+            };
+
+            var radarOptions = {
+                //Boolean - Whether to show lines for each scale point
+                scaleShowLine : true,
+                //Boolean - Whether we show the angle lines out of the radar
+                angleShowLineOut : true,
+                //Boolean - Whether to show labels on the scale
+                scaleShowLabels : false,
+                // Boolean - Whether the scale should begin at zero
+                scaleBeginAtZero : true,
+                //String - Colour of the angle line
+                angleLineColor : "rgba(0,0,0,.1)",
+                //Number - Pixel width of the angle line
+                angleLineWidth : 1,
+                //String - Point label font declaration
+                pointLabelFontFamily : "'Arial'",
+                //String - Point label font weight
+                pointLabelFontStyle : "normal",
+                //Number - Point label font size in pixels
+                pointLabelFontSize : 10,
+                //String - Point label font colour
+                pointLabelFontColor : "#666",
+                //Boolean - Whether to show a dot for each point
+                pointDot : true,
+                //Number - Radius of each point dot in pixels
+                pointDotRadius : 3,
+                //Number - Pixel width of point dot stroke
+                pointDotStrokeWidth : 1,
+                //Number - amount extra to add to the radius to cater for hit detection outside the drawn point
+                pointHitDetectionRadius : 20,
+                //Boolean - Whether to show a stroke for datasets
+                datasetStroke : true,
+                //Number - Pixel width of dataset stroke
+                datasetStrokeWidth : 2,
+                //Boolean - Whether to fill the dataset with a colour
+                datasetFill : true,
+                //Boolean - Re-draw chart on page resize
+                responsive: true,
+                //String - A legend template
+                legendTemplate : "<ul class=\"<%=name.toLowerCase()%>-legend\"><% for (var i=0; i<datasets.length; i++){%><li><span style=\"background-color:<%=datasets[i].lineColor%>\"></span><%if(datasets[i].label){%><%=datasets[i].label%><%}%></li><%}%></ul>"
+            }
+
+            // render chart
+            var ctx = element[0].getContext("2d");
+            var myNewChart = new Chart(ctx).Radar(radarData, radarOptions);
+        }}
 });
 'use strict'
 
@@ -16362,6 +17641,460 @@ angular.module('app.graphs').directive('dygraphsNoRollTimestamp', function (Dygr
                     });
                 }
             }
+        }
+    }
+});
+"use strict";
+
+angular.module('app.graphs').directive('flotAutoUpdatingChart', function($timeout, FlotConfig){
+    return {
+        restrict: 'E',
+        replace: true,
+        template: '<div class="chart"></div>',
+        scope: {
+            data: '='
+        },
+        link: function(scope, element){
+
+// For the demo we use generated data, but normally it would be coming from the server
+            var data = [], totalPoints = 200;
+            function getRandomData() {
+                if (data.length > 0)
+                    data = data.slice(1);
+
+                // do a random walk
+                while (data.length < totalPoints) {
+                    var prev = data.length > 0 ? data[data.length - 1] : 50;
+                    var y = prev + Math.random() * 10 - 5;
+                    if (y < 0)
+                        y = 0;
+                    if (y > 100)
+                        y = 100;
+                    data.push(y);
+                }
+
+                // zip the generated y values with the x values
+                var res = [];
+                for (var i = 0; i < data.length; ++i)
+                    res.push([i, data[i]])
+                return res;
+            }
+
+            // setup control widget
+            var updateInterval = 1000;
+            element.val(updateInterval).change(function() {
+                var v = $(this).val();
+                if (v && !isNaN(+v)) {
+                    updateInterval = +v;
+                    if (updateInterval < 1)
+                        updateInterval = 1;
+                    if (updateInterval > 2000)
+                        updateInterval = 2000;
+                    $(this).val("" + updateInterval);
+                }
+            });
+
+            // setup plot
+            var options = {
+                yaxis : {
+                    min : 0,
+                    max : 100
+                },
+                xaxis : {
+                    min : 0,
+                    max : 100
+                },
+                colors : [FlotConfig.chartFourth],
+                series : {
+                    lines : {
+                        lineWidth : 1,
+                        fill : true,
+                        fillColor : {
+                            colors : [{
+                                opacity : 0.4
+                            }, {
+                                opacity : 0
+                            }]
+                        },
+                        steps : false
+
+                    }
+                }
+            };
+            var plot = $.plot(element, [getRandomData()], options);
+
+            function update() {
+                plot.setData([getRandomData()]);
+                // since the axes don't change, we don't need to call plot.setupGrid()
+                plot.draw();
+
+                $timeout(update, updateInterval);
+            }
+
+            update();
+        }
+    }
+});
+
+"use strict";
+
+angular.module('app.graphs').directive('flotBarChart', function(FlotConfig){
+    return {
+        restrict: 'E',
+        replace: true,
+        template: '<div class="chart"></div>',
+        scope: {
+            data: '='
+        },
+        link: function(scope, element){
+
+            $.plot(element, scope.data, {
+                colors : [FlotConfig.chartSecond, FlotConfig.chartFourth, "#666", "#BBB"],
+                grid : {
+                    show : true,
+                    hoverable : true,
+                    clickable : true,
+                    tickColor : FlotConfig.chartBorderColor,
+                    borderWidth : 0,
+                    borderColor : FlotConfig.chartBorderColor
+                },
+                legend : true,
+                tooltip : true,
+                tooltipOpts : {
+                    content : "<b>%x</b> = <span>%y</span>",
+                    defaultTheme : false
+                }
+
+            });
+        }
+    }
+});
+'use strict';
+
+angular.module('app.graphs').directive('flotBasic', function () {
+    return {
+        restrict: 'A',
+        scope:{
+            data:'=flotData',
+            options: '=flotOptions'
+        },
+        link: function (scope, element, attributes) {
+            var plot = $.plot(element, scope.data, scope.options);
+
+            scope.$watchCollection('data', function(newData, oldData){
+                if(newData != oldData){
+                    plot.setData(newData);
+                    plot.draw();
+                }
+            });
+        }
+    }
+});
+"use strict";
+
+
+angular.module('app.graphs').value('FlotConfig', {
+    "chartBorderColor": "#efefef",
+    "chartGridColor": "#DDD",
+    "charMain": "#E24913",
+    "chartSecond": "#6595b4",
+    "chartThird": "#FF9F01",
+    "chartFourth": "#7e9d3a",
+    "chartFifth": "#BD362F",
+    "chartMono": "#000"
+
+});
+
+"use strict";
+
+angular.module('app.graphs').directive('flotFillChart', function(){
+    return {
+        restrict: 'E',
+        replace: true,
+        template: '<div class="chart"></div>',
+        scope: {
+            data: '='
+        },
+        link: function(scope, element){
+
+            $.plot(element, scope.data, {
+
+                xaxis : {
+                    tickDecimals : 0
+                },
+
+                yaxis : {
+                    tickFormatter : function(v) {
+                        return v + " cm";
+                    }
+                }
+
+            });
+        }
+    }
+})
+"use strict";
+
+angular.module('app.graphs').directive('flotHorizontalBarChart', function(FlotConfig){
+    return {
+        restrict: 'E',
+        replace: true,
+        template: '<div class="chart"></div>',
+        scope: {
+            data: '='
+        },
+        link: function(scope, element){
+            $.plot(element, scope.data, {
+                colors : [FlotConfig.chartSecond, FlotConfig.chartFourth, "#666", "#BBB"],
+                grid : {
+                    show : true,
+                    hoverable : true,
+                    clickable : true,
+                    tickColor : FlotConfig.chartBorderColor,
+                    borderWidth : 0,
+                    borderColor : FlotConfig.chartBorderColor
+                },
+                legend : true,
+                tooltip : true,
+                tooltipOpts : {
+                    content : "<b>%x</b> = <span>%y</span>",
+                    defaultTheme : false
+                }
+            });
+        }
+    }
+});
+"use strict";
+
+angular.module('app.graphs').directive('flotPieChart', function(){
+    return {
+        restrict: 'E',
+        replace: true,
+        template: '<div class="chart"></div>',
+        scope: {
+            data: '='
+        },
+        link: function(scope, element){
+            $.plot(element, scope.data, {
+                series : {
+                    pie : {
+                        show : true,
+                        innerRadius : 0.5,
+                        radius : 1,
+                        label : {
+                            show : false,
+                            radius : 2 / 3,
+                            formatter : function(label, series) {
+                                return '<div style="font-size:11px;text-align:center;padding:4px;color:white;">' + label + '<br/>' + Math.round(series.percent) + '%</div>';
+                            },
+                            threshold : 0.1
+                        }
+                    }
+                },
+                legend : {
+                    show : true,
+                    noColumns : 1, // number of colums in legend table
+                    labelFormatter : null, // fn: string -> string
+                    labelBoxBorderColor : "#000", // border color for the little label boxes
+                    container : null, // container (as jQuery object) to put legend in, null means default on top of graph
+                    position : "ne", // position of default legend container within plot
+                    margin : [5, 10], // distance from grid edge to default legend container within plot
+                    backgroundColor : "#efefef", // null means auto-detect
+                    backgroundOpacity : 1 // set to 0 to avoid background
+                },
+                grid : {
+                    hoverable : true,
+                    clickable : true
+                },
+            });
+
+        }
+    }
+});
+
+"use strict";
+
+angular.module('app.graphs').directive('flotSalesChart', function(FlotConfig){
+    return {
+        restrict: 'E',
+        replace: true,
+        template: '<div class="chart"></div>',
+        scope: {
+            data: '='
+        },
+        link: function(scope, element){
+
+            $.plot(element, [scope.data], {
+                xaxis : {
+                    mode : "time",
+                    tickLength : 5
+                },
+                series : {
+                    lines : {
+                        show : true,
+                        lineWidth : 1,
+                        fill : true,
+                        fillColor : {
+                            colors : [{
+                                opacity : 0.1
+                            }, {
+                                opacity : 0.15
+                            }]
+                        }
+                    },
+                    //points: { show: true },
+                    shadowSize : 0
+                },
+                selection : {
+                    mode : "x"
+                },
+                grid : {
+                    hoverable : true,
+                    clickable : true,
+                    tickColor : FlotConfig.chartBorderColor,
+                    borderWidth : 0,
+                    borderColor : FlotConfig.chartBorderColor
+                },
+                tooltip : true,
+                tooltipOpts : {
+                    content : "Your sales for <b>%x</b> was <span>$%y</span>",
+                    dateFormat : "%y-%0m-%0d",
+                    defaultTheme : false
+                },
+                colors : [FlotConfig.chartSecond]
+
+            });
+
+        }
+    }
+});
+"use strict";
+
+angular.module('app.graphs').directive('flotSinChart', function (FlotConfig) {
+    return {
+        restrict: 'E',
+        replace: true,
+        template: '<div class="chart"></div>',
+        scope: {
+            data: '='
+        },
+        link: function (scope, element) {
+
+            var plot = $.plot(element, scope.data, {
+                series: {
+                    lines: {
+                        show: true
+                    },
+                    points: {
+                        show: true
+                    }
+                },
+                grid: {
+                    hoverable: true,
+                    clickable: true,
+                    tickColor: FlotConfig.chartBorderColor,
+                    borderWidth: 0,
+                    borderColor: FlotConfig.chartBorderColor
+                },
+                tooltip: true,
+                tooltipOpts: {
+                    //content : "Value <b>$x</b> Value <span>$y</span>",
+                    defaultTheme: false
+                },
+                colors: [FlotConfig.chartSecond, FlotConfig.chartFourth],
+                yaxis: {
+                    min: -1.1,
+                    max: 1.1
+                },
+                xaxis: {
+                    min: 0,
+                    max: 15
+                }
+            });
+
+            element.on("plotclick", function (event, pos, item) {
+                if (item) {
+                    $("#clickdata").text("You clicked point " + item.dataIndex + " in " + item.series.label + ".");
+                    plot.highlight(item.series, item.datapoint);
+                }
+            });
+        }
+    }
+});
+"use strict";
+
+angular.module('app.graphs').directive('flotSiteStatsChart', function(FlotConfig){
+    return {
+        restrict: 'E',
+        replace: true,
+        template: '<div class="chart"></div>',
+        scope: {
+            data: '='
+        },
+        link: function(scope, element){
+
+            $.plot(element, scope.data, {
+                series : {
+                    lines : {
+                        show : true,
+                        lineWidth : 1,
+                        fill : true,
+                        fillColor : {
+                            colors : [{
+                                opacity : 0.1
+                            }, {
+                                opacity : 0.15
+                            }]
+                        }
+                    },
+                    points : {
+                        show : true
+                    },
+                    shadowSize : 0
+                },
+
+                yaxes : [{
+                    min : 20,
+                    tickLength : 5
+                }],
+                grid : {
+                    hoverable : true,
+                    clickable : true,
+                    tickColor : FlotConfig.chartBorderColor,
+                    borderWidth : 0,
+                    borderColor : FlotConfig.chartBorderColor
+                },
+                tooltip : true,
+                tooltipOpts : {
+                    content : "%s for <b>%x:00 hrs</b> was %y",
+                    dateFormat : "%y-%0m-%0d",
+                    defaultTheme : false
+                },
+                colors : [FlotConfig.charMain, FlotConfig.chartSecond],
+                xaxis : {
+                    mode : "time",
+                    tickLength : 10,
+                    ticks : 15,
+                    tickDecimals : 2
+                },
+                yaxis : {
+                    ticks : 15,
+                    tickDecimals : 0
+                }
+            });
+
+        }
+    }
+});
+'use strict';
+
+angular.module('app.graphs').directive('highchartTable', function (lazyScript) {
+    return {
+        restrict: 'A',
+        link: function (scope, element) {
+            lazyScript.register('build/vendor.graphs.js').then(function(){
+                element.highchartTable();
+            })
         }
     }
 });
@@ -16856,889 +18589,6 @@ angular.module('app.graphs').directive('sparklineContainer', function () {
 
             drawSparklines();
 
-        }
-    }
-});
-"use strict";
-
-angular.module('app.graphs').directive('flotAutoUpdatingChart', function($timeout, FlotConfig){
-    return {
-        restrict: 'E',
-        replace: true,
-        template: '<div class="chart"></div>',
-        scope: {
-            data: '='
-        },
-        link: function(scope, element){
-
-// For the demo we use generated data, but normally it would be coming from the server
-            var data = [], totalPoints = 200;
-            function getRandomData() {
-                if (data.length > 0)
-                    data = data.slice(1);
-
-                // do a random walk
-                while (data.length < totalPoints) {
-                    var prev = data.length > 0 ? data[data.length - 1] : 50;
-                    var y = prev + Math.random() * 10 - 5;
-                    if (y < 0)
-                        y = 0;
-                    if (y > 100)
-                        y = 100;
-                    data.push(y);
-                }
-
-                // zip the generated y values with the x values
-                var res = [];
-                for (var i = 0; i < data.length; ++i)
-                    res.push([i, data[i]])
-                return res;
-            }
-
-            // setup control widget
-            var updateInterval = 1000;
-            element.val(updateInterval).change(function() {
-                var v = $(this).val();
-                if (v && !isNaN(+v)) {
-                    updateInterval = +v;
-                    if (updateInterval < 1)
-                        updateInterval = 1;
-                    if (updateInterval > 2000)
-                        updateInterval = 2000;
-                    $(this).val("" + updateInterval);
-                }
-            });
-
-            // setup plot
-            var options = {
-                yaxis : {
-                    min : 0,
-                    max : 100
-                },
-                xaxis : {
-                    min : 0,
-                    max : 100
-                },
-                colors : [FlotConfig.chartFourth],
-                series : {
-                    lines : {
-                        lineWidth : 1,
-                        fill : true,
-                        fillColor : {
-                            colors : [{
-                                opacity : 0.4
-                            }, {
-                                opacity : 0
-                            }]
-                        },
-                        steps : false
-
-                    }
-                }
-            };
-            var plot = $.plot(element, [getRandomData()], options);
-
-            function update() {
-                plot.setData([getRandomData()]);
-                // since the axes don't change, we don't need to call plot.setupGrid()
-                plot.draw();
-
-                $timeout(update, updateInterval);
-            }
-
-            update();
-        }
-    }
-});
-
-"use strict";
-
-angular.module('app.graphs').directive('flotBarChart', function(FlotConfig){
-    return {
-        restrict: 'E',
-        replace: true,
-        template: '<div class="chart"></div>',
-        scope: {
-            data: '='
-        },
-        link: function(scope, element){
-
-            $.plot(element, scope.data, {
-                colors : [FlotConfig.chartSecond, FlotConfig.chartFourth, "#666", "#BBB"],
-                grid : {
-                    show : true,
-                    hoverable : true,
-                    clickable : true,
-                    tickColor : FlotConfig.chartBorderColor,
-                    borderWidth : 0,
-                    borderColor : FlotConfig.chartBorderColor
-                },
-                legend : true,
-                tooltip : true,
-                tooltipOpts : {
-                    content : "<b>%x</b> = <span>%y</span>",
-                    defaultTheme : false
-                }
-
-            });
-        }
-    }
-});
-'use strict';
-
-angular.module('app.graphs').directive('flotBasic', function () {
-    return {
-        restrict: 'A',
-        scope:{
-            data:'=flotData',
-            options: '=flotOptions'
-        },
-        link: function (scope, element, attributes) {
-            var plot = $.plot(element, scope.data, scope.options);
-
-            scope.$watchCollection('data', function(newData, oldData){
-                if(newData != oldData){
-                    plot.setData(newData);
-                    plot.draw();
-                }
-            });
-        }
-    }
-});
-"use strict";
-
-
-angular.module('app.graphs').value('FlotConfig', {
-    "chartBorderColor": "#efefef",
-    "chartGridColor": "#DDD",
-    "charMain": "#E24913",
-    "chartSecond": "#6595b4",
-    "chartThird": "#FF9F01",
-    "chartFourth": "#7e9d3a",
-    "chartFifth": "#BD362F",
-    "chartMono": "#000"
-
-});
-
-"use strict";
-
-angular.module('app.graphs').directive('flotFillChart', function(){
-    return {
-        restrict: 'E',
-        replace: true,
-        template: '<div class="chart"></div>',
-        scope: {
-            data: '='
-        },
-        link: function(scope, element){
-
-            $.plot(element, scope.data, {
-
-                xaxis : {
-                    tickDecimals : 0
-                },
-
-                yaxis : {
-                    tickFormatter : function(v) {
-                        return v + " cm";
-                    }
-                }
-
-            });
-        }
-    }
-})
-"use strict";
-
-angular.module('app.graphs').directive('flotHorizontalBarChart', function(FlotConfig){
-    return {
-        restrict: 'E',
-        replace: true,
-        template: '<div class="chart"></div>',
-        scope: {
-            data: '='
-        },
-        link: function(scope, element){
-            $.plot(element, scope.data, {
-                colors : [FlotConfig.chartSecond, FlotConfig.chartFourth, "#666", "#BBB"],
-                grid : {
-                    show : true,
-                    hoverable : true,
-                    clickable : true,
-                    tickColor : FlotConfig.chartBorderColor,
-                    borderWidth : 0,
-                    borderColor : FlotConfig.chartBorderColor
-                },
-                legend : true,
-                tooltip : true,
-                tooltipOpts : {
-                    content : "<b>%x</b> = <span>%y</span>",
-                    defaultTheme : false
-                }
-            });
-        }
-    }
-});
-"use strict";
-
-angular.module('app.graphs').directive('flotPieChart', function(){
-    return {
-        restrict: 'E',
-        replace: true,
-        template: '<div class="chart"></div>',
-        scope: {
-            data: '='
-        },
-        link: function(scope, element){
-            $.plot(element, scope.data, {
-                series : {
-                    pie : {
-                        show : true,
-                        innerRadius : 0.5,
-                        radius : 1,
-                        label : {
-                            show : false,
-                            radius : 2 / 3,
-                            formatter : function(label, series) {
-                                return '<div style="font-size:11px;text-align:center;padding:4px;color:white;">' + label + '<br/>' + Math.round(series.percent) + '%</div>';
-                            },
-                            threshold : 0.1
-                        }
-                    }
-                },
-                legend : {
-                    show : true,
-                    noColumns : 1, // number of colums in legend table
-                    labelFormatter : null, // fn: string -> string
-                    labelBoxBorderColor : "#000", // border color for the little label boxes
-                    container : null, // container (as jQuery object) to put legend in, null means default on top of graph
-                    position : "ne", // position of default legend container within plot
-                    margin : [5, 10], // distance from grid edge to default legend container within plot
-                    backgroundColor : "#efefef", // null means auto-detect
-                    backgroundOpacity : 1 // set to 0 to avoid background
-                },
-                grid : {
-                    hoverable : true,
-                    clickable : true
-                },
-            });
-
-        }
-    }
-});
-
-"use strict";
-
-angular.module('app.graphs').directive('flotSalesChart', function(FlotConfig){
-    return {
-        restrict: 'E',
-        replace: true,
-        template: '<div class="chart"></div>',
-        scope: {
-            data: '='
-        },
-        link: function(scope, element){
-
-            $.plot(element, [scope.data], {
-                xaxis : {
-                    mode : "time",
-                    tickLength : 5
-                },
-                series : {
-                    lines : {
-                        show : true,
-                        lineWidth : 1,
-                        fill : true,
-                        fillColor : {
-                            colors : [{
-                                opacity : 0.1
-                            }, {
-                                opacity : 0.15
-                            }]
-                        }
-                    },
-                    //points: { show: true },
-                    shadowSize : 0
-                },
-                selection : {
-                    mode : "x"
-                },
-                grid : {
-                    hoverable : true,
-                    clickable : true,
-                    tickColor : FlotConfig.chartBorderColor,
-                    borderWidth : 0,
-                    borderColor : FlotConfig.chartBorderColor
-                },
-                tooltip : true,
-                tooltipOpts : {
-                    content : "Your sales for <b>%x</b> was <span>$%y</span>",
-                    dateFormat : "%y-%0m-%0d",
-                    defaultTheme : false
-                },
-                colors : [FlotConfig.chartSecond]
-
-            });
-
-        }
-    }
-});
-"use strict";
-
-angular.module('app.graphs').directive('flotSinChart', function (FlotConfig) {
-    return {
-        restrict: 'E',
-        replace: true,
-        template: '<div class="chart"></div>',
-        scope: {
-            data: '='
-        },
-        link: function (scope, element) {
-
-            var plot = $.plot(element, scope.data, {
-                series: {
-                    lines: {
-                        show: true
-                    },
-                    points: {
-                        show: true
-                    }
-                },
-                grid: {
-                    hoverable: true,
-                    clickable: true,
-                    tickColor: FlotConfig.chartBorderColor,
-                    borderWidth: 0,
-                    borderColor: FlotConfig.chartBorderColor
-                },
-                tooltip: true,
-                tooltipOpts: {
-                    //content : "Value <b>$x</b> Value <span>$y</span>",
-                    defaultTheme: false
-                },
-                colors: [FlotConfig.chartSecond, FlotConfig.chartFourth],
-                yaxis: {
-                    min: -1.1,
-                    max: 1.1
-                },
-                xaxis: {
-                    min: 0,
-                    max: 15
-                }
-            });
-
-            element.on("plotclick", function (event, pos, item) {
-                if (item) {
-                    $("#clickdata").text("You clicked point " + item.dataIndex + " in " + item.series.label + ".");
-                    plot.highlight(item.series, item.datapoint);
-                }
-            });
-        }
-    }
-});
-"use strict";
-
-angular.module('app.graphs').directive('flotSiteStatsChart', function(FlotConfig){
-    return {
-        restrict: 'E',
-        replace: true,
-        template: '<div class="chart"></div>',
-        scope: {
-            data: '='
-        },
-        link: function(scope, element){
-
-            $.plot(element, scope.data, {
-                series : {
-                    lines : {
-                        show : true,
-                        lineWidth : 1,
-                        fill : true,
-                        fillColor : {
-                            colors : [{
-                                opacity : 0.1
-                            }, {
-                                opacity : 0.15
-                            }]
-                        }
-                    },
-                    points : {
-                        show : true
-                    },
-                    shadowSize : 0
-                },
-
-                yaxes : [{
-                    min : 20,
-                    tickLength : 5
-                }],
-                grid : {
-                    hoverable : true,
-                    clickable : true,
-                    tickColor : FlotConfig.chartBorderColor,
-                    borderWidth : 0,
-                    borderColor : FlotConfig.chartBorderColor
-                },
-                tooltip : true,
-                tooltipOpts : {
-                    content : "%s for <b>%x:00 hrs</b> was %y",
-                    dateFormat : "%y-%0m-%0d",
-                    defaultTheme : false
-                },
-                colors : [FlotConfig.charMain, FlotConfig.chartSecond],
-                xaxis : {
-                    mode : "time",
-                    tickLength : 10,
-                    ticks : 15,
-                    tickDecimals : 2
-                },
-                yaxis : {
-                    ticks : 15,
-                    tickDecimals : 0
-                }
-            });
-
-        }
-    }
-});
-'use strict';
-
-angular.module('app.graphs').directive('chartjsBarChart', function () {
-    return {
-        restrict: 'A',
-        link: function (scope, element, attributes) {
-
-            var barOptions = {
-                //Boolean - Whether the scale should start at zero, or an order of magnitude down from the lowest value
-                scaleBeginAtZero : true,
-                //Boolean - Whether grid lines are shown across the chart
-                scaleShowGridLines : true,
-                //String - Colour of the grid lines
-                scaleGridLineColor : "rgba(0,0,0,.05)",
-                //Number - Width of the grid lines
-                scaleGridLineWidth : 1,
-                //Boolean - If there is a stroke on each bar
-                barShowStroke : true,
-                //Number - Pixel width of the bar stroke
-                barStrokeWidth : 1,
-                //Number - Spacing between each of the X value sets
-                barValueSpacing : 5,
-                //Number - Spacing between data sets within X values
-                barDatasetSpacing : 1,
-                //Boolean - Re-draw chart on page resize
-                responsive: true,
-                //String - A legend template
-                legendTemplate : "<ul class=\"<%=name.toLowerCase()%>-legend\"><% for (var i=0; i<datasets.length; i++){%><li><span style=\"background-color:<%=datasets[i].lineColor%>\"></span><%if(datasets[i].label){%><%=datasets[i].label%><%}%></li><%}%></ul>"
-            }
-
-            var barData = {
-                labels: ["January", "February", "March", "April", "May", "June", "July"],
-                datasets: [
-                    {
-                        label: "My First dataset",
-                        fillColor: "rgba(220,220,220,0.5)",
-                        strokeColor: "rgba(220,220,220,0.8)",
-                        highlightFill: "rgba(220,220,220,0.75)",
-                        highlightStroke: "rgba(220,220,220,1)",
-                        data: [65, 59, 80, 81, 56, 55, 40]
-                    },
-                    {
-                        label: "My Second dataset",
-                        fillColor: "rgba(151,187,205,0.5)",
-                        strokeColor: "rgba(151,187,205,0.8)",
-                        highlightFill: "rgba(151,187,205,0.75)",
-                        highlightStroke: "rgba(151,187,205,1)",
-                        data: [28, 48, 40, 19, 86, 27, 90]
-                    }
-                ]
-            };
-
-            var ctx = element[0].getContext("2d");
-            new Chart(ctx).Bar(barData, barOptions);
-
-        }
-    }
-});
-'use strict';
-
-angular.module('app.graphs').directive('chartjsDoughnutChart', function () {
-    return {
-        restrict: 'A',
-        link: function (scope, element, attributes) {
-            var doughnutOptions = {
-                //Boolean - Whether we should show a stroke on each segment
-                segmentShowStroke : true,
-                //String - The colour of each segment stroke
-                segmentStrokeColor : "#fff",
-                //Number - The width of each segment stroke
-                segmentStrokeWidth : 2,
-                //Number - The percentage of the chart that we cut out of the middle
-                percentageInnerCutout : 50, // This is 0 for Pie charts
-                //Number - Amount of animation steps
-                animationSteps : 100,
-                //String - Animation easing effect
-                animationEasing : "easeOutBounce",
-                //Boolean - Whether we animate the rotation of the Doughnut
-                animateRotate : true,
-                //Boolean - Whether we animate scaling the Doughnut from the centre
-                animateScale : false,
-                //Boolean - Re-draw chart on page resize
-                responsive: true,
-                //String - A legend template
-                legendTemplate : "<ul class=\"<%=name.toLowerCase()%>-legend\"><% for (var i=0; i<segments.length; i++){%><li><span style=\"background-color:<%=segments[i].fillColor%>\"></span><%if(segments[i].label){%><%=segments[i].label%><%}%></li><%}%></ul>"
-            };
-
-            var doughnutData = [
-                {
-                    value: 300,
-                    color:"rgba(220,220,220,0.8)",
-                    highlight: "rgba(220,220,220,0.7)",
-                    label: "Grey"
-                },
-                {
-                    value: 50,
-                    color: "rgba(151,187,205,1)",
-                    highlight: "rgba(151,187,205,0.8)",
-                    label: "Blue"
-                },
-                {
-                    value: 100,
-                    color: "rgba(169, 3, 41, 0.7)",
-                    highlight: "rgba(169, 3, 41, 0.7)",
-                    label: "Red"
-                }
-            ];
-
-            // render chart
-            var ctx = element[0].getContext("2d");
-            new Chart(ctx).Doughnut(doughnutData, doughnutOptions);
-        }}
-});
-'use strict';
-
-angular.module('app.graphs').directive('chartjsLineChart', function () {
-    return {
-        restrict: 'A',
-        link: function (scope, element, attributes) {
-
-            // LINE CHART
-            // ref: http://www.chartjs.org/docs/#line-chart-introduction
-            var lineOptions = {
-                ///Boolean - Whether grid lines are shown across the chart
-                scaleShowGridLines : true,
-                //String - Colour of the grid lines
-                scaleGridLineColor : "rgba(0,0,0,.05)",
-                //Number - Width of the grid lines
-                scaleGridLineWidth : 1,
-                //Boolean - Whether the line is curved between points
-                bezierCurve : true,
-                //Number - Tension of the bezier curve between points
-                bezierCurveTension : 0.4,
-                //Boolean - Whether to show a dot for each point
-                pointDot : true,
-                //Number - Radius of each point dot in pixels
-                pointDotRadius : 4,
-                //Number - Pixel width of point dot stroke
-                pointDotStrokeWidth : 1,
-                //Number - amount extra to add to the radius to cater for hit detection outside the drawn point
-                pointHitDetectionRadius : 20,
-                //Boolean - Whether to show a stroke for datasets
-                datasetStroke : true,
-                //Number - Pixel width of dataset stroke
-                datasetStrokeWidth : 2,
-                //Boolean - Whether to fill the dataset with a colour
-                datasetFill : true,
-                //Boolean - Re-draw chart on page resize
-                responsive: true,
-                //String - A legend template
-                legendTemplate : "<ul class=\"<%=name.toLowerCase()%>-legend\"><% for (var i=0; i<datasets.length; i++){%><li><span style=\"background-color:<%=datasets[i].lineColor%>\"></span><%if(datasets[i].label){%><%=datasets[i].label%><%}%></li><%}%></ul>"
-            };
-
-            var lineData = { labels: ["January", "February", "March", "April", "May", "June", "July"],
-                datasets: [
-                    {
-                        label: "My First dataset",
-                        fillColor: "rgba(220,220,220,0.2)",
-                        strokeColor: "rgba(220,220,220,1)",
-                        pointColor: "rgba(220,220,220,1)",
-                        pointStrokeColor: "#fff",
-                        pointHighlightFill: "#fff",
-                        pointHighlightStroke: "rgba(220,220,220,1)",
-                        data: [65, 59, 80, 81, 56, 55, 40]
-                    },
-                    {
-                        label: "My Second dataset",
-                        fillColor: "rgba(151,187,205,0.2)",
-                        strokeColor: "rgba(151,187,205,1)",
-                        pointColor: "rgba(151,187,205,1)",
-                        pointStrokeColor: "#fff",
-                        pointHighlightFill: "#fff",
-                        pointHighlightStroke: "rgba(151,187,205,1)",
-                        data: [28, 48, 40, 19, 86, 27, 90]
-                    }
-                ]
-            };
-
-            var ctx = element[0].getContext("2d");
-            var myNewChart = new Chart(ctx).Line(lineData, lineOptions);
-
-
-
-        }
-    }
-});
-'use strict';
-
-angular.module('app.graphs').directive('chartjsPieChart', function () {
-    return {
-        restrict: 'A',
-        link: function (scope, element, attributes) {
-            var pieOptions = {
-                //Boolean - Whether we should show a stroke on each segment
-                segmentShowStroke: true,
-                //String - The colour of each segment stroke
-                segmentStrokeColor: "#fff",
-                //Number - The width of each segment stroke
-                segmentStrokeWidth: 2,
-                //Number - Amount of animation steps
-                animationSteps: 100,
-                //String - types of animation
-                animationEasing: "easeOutBounce",
-                //Boolean - Whether we animate the rotation of the Doughnut
-                animateRotate: true,
-                //Boolean - Whether we animate scaling the Doughnut from the centre
-                animateScale: false,
-                //Boolean - Re-draw chart on page resize
-                responsive: true,
-                //String - A legend template
-                legendTemplate : "<ul class=\"<%=name.toLowerCase()%>-legend\"><% for (var i=0; i<segments.length; i++){%><li><span style=\"background-color:<%=segments[i].fillColor%>\"></span><%if(segments[i].label){%><%=segments[i].label%><%}%></li><%}%></ul>"
-            };
-
-            var pieData = [
-                {
-                    value: 300,
-                    color:"rgba(220,220,220,0.9)",
-                    highlight: "rgba(220,220,220,0.8)",
-                    label: "Grey"
-                },
-                {
-                    value: 50,
-                    color: "rgba(151,187,205,1)",
-                    highlight: "rgba(151,187,205,0.8)",
-                    label: "Blue"
-                },
-                {
-                    value: 100,
-                    color: "rgba(169, 3, 41, 0.7)",
-                    highlight: "rgba(169, 3, 41, 0.7)",
-                    label: "Red"
-                }
-            ];
-
-            // render chart
-            var ctx = element[0].getContext("2d");
-            var myNewChart = new Chart(ctx).Pie(pieData, pieOptions);
-        }}
-});
-'use strict';
-
-angular.module('app.graphs').directive('chartjsPolarChart', function () {
-    return {
-        restrict: 'A',
-        link: function (scope, element, attributes) {
-            var polarOptions = {
-                //Boolean - Show a backdrop to the scale label
-                scaleShowLabelBackdrop : true,
-                //String - The colour of the label backdrop
-                scaleBackdropColor : "rgba(255,255,255,0.75)",
-                // Boolean - Whether the scale should begin at zero
-                scaleBeginAtZero : true,
-                //Number - The backdrop padding above & below the label in pixels
-                scaleBackdropPaddingY : 2,
-                //Number - The backdrop padding to the side of the label in pixels
-                scaleBackdropPaddingX : 2,
-                //Boolean - Show line for each value in the scale
-                scaleShowLine : true,
-                //Boolean - Stroke a line around each segment in the chart
-                segmentShowStroke : true,
-                //String - The colour of the stroke on each segement.
-                segmentStrokeColor : "#fff",
-                //Number - The width of the stroke value in pixels
-                segmentStrokeWidth : 2,
-                //Number - Amount of animation steps
-                animationSteps : 100,
-                //String - Animation easing effect.
-                animationEasing : "easeOutBounce",
-                //Boolean - Whether to animate the rotation of the chart
-                animateRotate : true,
-                //Boolean - Whether to animate scaling the chart from the centre
-                animateScale : false,
-                //Boolean - Re-draw chart on page resize
-                responsive: true,
-                //String - A legend template
-                legendTemplate : "<ul class=\"<%=name.toLowerCase()%>-legend\"><% for (var i=0; i<segments.length; i++){%><li><span style=\"background-color:<%=segments[i].fillColor%>\"></span><%if(segments[i].label){%><%=segments[i].label%><%}%></li><%}%></ul>"
-            };
-
-            var polarData = [
-                {
-                    value: 300,
-                    color:"rgba(220,220,220,0.8)",
-                    highlight: "rgba(220,220,220,0.7)",
-                    label: "Grey"
-                },
-                {
-                    value: 50,
-                    color: "rgba(151,187,205,1)",
-                    highlight: "rgba(151,187,205,0.8)",
-                    label: "Blue"
-                },
-                {
-                    value: 100,
-                    color: "rgba(169, 3, 41, 0.7)",
-                    highlight: "rgba(169, 3, 41, 0.7)",
-                    label: "Red"
-                },
-                {
-                    value: 40,
-                    color: "#949FB1",
-                    highlight: "#A8B3C5",
-                    label: "Grey"
-                },
-                {
-                    value: 120,
-                    color: "#4D5360",
-                    highlight: "#616774",
-                    label: "Dark Grey"
-                }
-            ];
-
-            // render chart
-            var ctx = element[0].getContext("2d");
-            new Chart(ctx).PolarArea(polarData, polarOptions);
-        }}
-});
-'use strict';
-
-angular.module('app.graphs').directive('chartjsRadarChart', function () {
-    return {
-        restrict: 'A',
-        link: function (scope, element, attributes) {
-            var radarData = {
-                labels: ["Eating", "Drinking", "Sleeping", "Designing", "Coding", "Cycling", "Running"],
-                datasets: [
-                    {
-                        label: "My First dataset",
-                        fillColor: "rgba(220,220,220,0.2)",
-                        strokeColor: "rgba(220,220,220,1)",
-                        pointColor: "rgba(220,220,220,1)",
-                        pointStrokeColor: "#fff",
-                        pointHighlightFill: "#fff",
-                        pointHighlightStroke: "rgba(220,220,220,1)",
-                        data: [65, 59, 90, 81, 56, 55, 40]
-                    },
-                    {
-                        label: "My Second dataset",
-                        fillColor: "rgba(151,187,205,0.2)",
-                        strokeColor: "rgba(151,187,205,1)",
-                        pointColor: "rgba(151,187,205,1)",
-                        pointStrokeColor: "#fff",
-                        pointHighlightFill: "#fff",
-                        pointHighlightStroke: "rgba(151,187,205,1)",
-                        data: [28, 48, 40, 19, 96, 27, 100]
-                    }
-                ]
-            };
-
-            var radarOptions = {
-                //Boolean - Whether to show lines for each scale point
-                scaleShowLine : true,
-                //Boolean - Whether we show the angle lines out of the radar
-                angleShowLineOut : true,
-                //Boolean - Whether to show labels on the scale
-                scaleShowLabels : false,
-                // Boolean - Whether the scale should begin at zero
-                scaleBeginAtZero : true,
-                //String - Colour of the angle line
-                angleLineColor : "rgba(0,0,0,.1)",
-                //Number - Pixel width of the angle line
-                angleLineWidth : 1,
-                //String - Point label font declaration
-                pointLabelFontFamily : "'Arial'",
-                //String - Point label font weight
-                pointLabelFontStyle : "normal",
-                //Number - Point label font size in pixels
-                pointLabelFontSize : 10,
-                //String - Point label font colour
-                pointLabelFontColor : "#666",
-                //Boolean - Whether to show a dot for each point
-                pointDot : true,
-                //Number - Radius of each point dot in pixels
-                pointDotRadius : 3,
-                //Number - Pixel width of point dot stroke
-                pointDotStrokeWidth : 1,
-                //Number - amount extra to add to the radius to cater for hit detection outside the drawn point
-                pointHitDetectionRadius : 20,
-                //Boolean - Whether to show a stroke for datasets
-                datasetStroke : true,
-                //Number - Pixel width of dataset stroke
-                datasetStrokeWidth : 2,
-                //Boolean - Whether to fill the dataset with a colour
-                datasetFill : true,
-                //Boolean - Re-draw chart on page resize
-                responsive: true,
-                //String - A legend template
-                legendTemplate : "<ul class=\"<%=name.toLowerCase()%>-legend\"><% for (var i=0; i<datasets.length; i++){%><li><span style=\"background-color:<%=datasets[i].lineColor%>\"></span><%if(datasets[i].label){%><%=datasets[i].label%><%}%></li><%}%></ul>"
-            }
-
-            // render chart
-            var ctx = element[0].getContext("2d");
-            var myNewChart = new Chart(ctx).Radar(radarData, radarOptions);
-        }}
-});
-'use strict';
-
-angular.module('app.graphs').directive('vectorMap', function () {
-    return {
-        restrict: 'EA',
-        scope: {
-            mapData: '='
-        },
-        link: function (scope, element, attributes) {
-            var data = scope.mapData;
-
-            element.vectorMap({
-                map: 'world_mill_en',
-                backgroundColor: '#fff',
-                regionStyle: {
-                    initial: {
-                        fill: '#c4c4c4'
-                    },
-                    hover: {
-                        "fill-opacity": 1
-                    }
-                },
-                series: {
-                    regions: [
-                        {
-                            values: data,
-                            scale: ['#85a8b6', '#4d7686'],
-                            normalizeFunction: 'polynomial'
-                        }
-                    ]
-                },
-                onRegionLabelShow: function (e, el, code) {
-                    if (typeof data[code] == 'undefined') {
-                        e.preventDefault();
-                    } else {
-                        var countrylbl = data[code];
-                        el.html(el.html() + ': ' + countrylbl + ' visits');
-                    }
-                }
-            });
-
-            element.on('$destroy', function(){
-                element.children('.jvectormap-container').data('mapObject').remove();
-            })
         }
     }
 });
@@ -18436,2804 +19286,50 @@ angular.module('app.graphs').directive('morrisYearGraph', function(){
 });
 'use strict';
 
-angular.module('app.graphs').directive('highchartTable', function (lazyScript) {
+angular.module('app.graphs').directive('vectorMap', function () {
     return {
-        restrict: 'A',
-        link: function (scope, element) {
-            lazyScript.register('build/vendor.graphs.js').then(function(){
-                element.highchartTable();
-            })
-        }
-    }
-});
-(function() {
-        
-   'use strict';
+        restrict: 'EA',
+        scope: {
+            mapData: '='
+        },
+        link: function (scope, element, attributes) {
+            var data = scope.mapData;
 
-    /*
-    * SMARTCHAT PLUGIN ARRAYS & CONFIG
-    * Dependency: js/plugin/moment/moment.min.js 
-    *             js/plugin/cssemotions/jquery.cssemoticons.min.js 
-    *             js/smart-chat-ui/smart.chat.ui.js
-    * (DO NOT CHANGE) 
-    */ 
-        var boxList = [],
-        showList = [],
-        nameList = [],
-        idList = [];
-    /*
-    * Width of the chat boxes, and the gap inbetween in pixel (minus padding)
-    */ 
-        var chatbox_config = {
-            width: 200,
-            gap: 35,
-            offset: 0
-        };
-
-
-
-    /*
-    * SMART CHAT ENGINE
-    * Copyright (c) 2013 Wen Pu
-    * Modified by MyOrange
-    * All modifications made are hereby copyright (c) 2014-2015 MyOrange
-    */
-
-    // TODO: implement destroy()
-    (function($) {
-    $.widget("ui.chatbox", {
-        options: {
-            id: null, //id for the DOM element
-            title: null, // title of the chatbox
-            user: null, // can be anything associated with this chatbox
-            hidden: false,
-            offset: 0, // relative to right edge of the browser window
-            width: 300, // width of the chatbox
-            status: 'online', //
-            alertmsg: null,
-            alertshow: null,
-            messageSent: function(id, user, msg) {
-                // override this
-                this.boxManager.addMsg(user.first_name, msg);
-            },
-            boxClosed: function(id) {
-            }, // called when the close icon is clicked
-            boxManager: {
-                // thanks to the widget factory facility
-                // similar to http://alexsexton.com/?p=51
-                init: function(elem) {
-                    this.elem = elem;
+            element.vectorMap({
+                map: 'world_mill_en',
+                backgroundColor: '#fff',
+                regionStyle: {
+                    initial: {
+                        fill: '#c4c4c4'
+                    },
+                    hover: {
+                        "fill-opacity": 1
+                    }
                 },
-                addMsg: function(peer, msg) {
-                    var self = this;
-                    var box = self.elem.uiChatboxLog;
-                    var e = document.createElement('div');
-                    box.append(e);
-                    $(e).hide();
-
-                    var systemMessage = false;
-
-                    if (peer) {
-                        var peerName = document.createElement("b");
-                        $(peerName).text(peer + ": ");
-                        e.appendChild(peerName);
+                series: {
+                    regions: [
+                        {
+                            values: data,
+                            scale: ['#85a8b6', '#4d7686'],
+                            normalizeFunction: 'polynomial'
+                        }
+                    ]
+                },
+                onRegionLabelShow: function (e, el, code) {
+                    if (typeof data[code] == 'undefined') {
+                        e.preventDefault();
                     } else {
-                        systemMessage = true;
+                        var countrylbl = data[code];
+                        el.html(el.html() + ': ' + countrylbl + ' visits');
                     }
-
-                    var msgElement = document.createElement(
-                        systemMessage ? "i" : "span");
-                    $(msgElement).text(msg);
-                    e.appendChild(msgElement);
-                    $(e).addClass("ui-chatbox-msg");
-                    $(e).css("maxWidth", $(box).width());
-                    $(e).fadeIn();
-                    //$(e).prop( 'title', moment().calendar() ); // add dep: moment.js
-                    $(e).find("span").emoticonize(); // add dep: jquery.cssemoticons.js
-                    self._scrollToBottom();
-
-                    if (!self.elem.uiChatboxTitlebar.hasClass("ui-state-focus")
-                        && !self.highlightLock) {
-                        self.highlightLock = true;
-                        self.highlightBox();
-                    }
-                },
-                highlightBox: function() {
-                    var self = this;
-                    self.elem.uiChatboxTitlebar.effect("highlight", {}, 300);
-                    self.elem.uiChatbox.effect("bounce", {times: 2}, 300, function() {
-                        self.highlightLock = false;
-                        self._scrollToBottom();
-                    });
-                },
-                toggleBox: function() {
-                    this.elem.uiChatbox.toggle();
-                },
-                _scrollToBottom: function() {
-                    var box = this.elem.uiChatboxLog;
-                    box.scrollTop(box.get(0).scrollHeight);
                 }
-            }
-        },
-        toggleContent: function(event) {
-            this.uiChatboxContent.toggle();
-            if (this.uiChatboxContent.is(":visible")) {
-                this.uiChatboxInputBox.focus();
-            }
-        },
-        widget: function() {
-            return this.uiChatbox
-        },
-        _create: function() {
-            var self = this,
-            options = self.options,
-            title = options.title || "No Title",
-            // chatbox
-            uiChatbox = (self.uiChatbox = $('<div></div>'))
-                .appendTo(document.body)
-                .addClass('ui-widget ' +
-                          //'ui-corner-top ' +
-                          'ui-chatbox'
-                         )
-                .attr('outline', 0)
-                .focusin(function() {
-                    // ui-state-highlight is not really helpful here
-                    //self.uiChatbox.removeClass('ui-state-highlight');
-                    self.uiChatboxTitlebar.addClass('ui-state-focus');
-                })
-                .focusout(function() {
-                    self.uiChatboxTitlebar.removeClass('ui-state-focus');
-                }),
-            // titlebar
-            uiChatboxTitlebar = (self.uiChatboxTitlebar = $('<div></div>'))
-                .addClass('ui-widget-header ' +
-                          //'ui-corner-top ' +
-                          'ui-chatbox-titlebar ' +
-                          self.options.status +
-                          ' ui-dialog-header' // take advantage of dialog header style
-                         )
-                .click(function(event) {
-                    self.toggleContent(event);
-                })
-                .appendTo(uiChatbox),
-            uiChatboxTitle = (self.uiChatboxTitle = $('<span></span>'))
-                .html(title)
-                .appendTo(uiChatboxTitlebar),
-            uiChatboxTitlebarClose = (self.uiChatboxTitlebarClose = $('<a href="#" rel="tooltip" data-placement="top" data-original-title="Hide"></a>'))
-                .addClass(//'ui-corner-all ' +
-                          'ui-chatbox-icon '
-                         )
-                .attr('role', 'button')
-                .hover(function() { uiChatboxTitlebarClose.addClass('ui-state-hover'); },
-                       function() { uiChatboxTitlebarClose.removeClass('ui-state-hover'); })
-                .click(function(event) {
-                    uiChatbox.hide();
-                    self.options.boxClosed(self.options.id);
-                    return false;
-                })
-                .appendTo(uiChatboxTitlebar),
-            uiChatboxTitlebarCloseText = $('<i></i>')
-                .addClass('fa ' +
-                          'fa-times')
-                .appendTo(uiChatboxTitlebarClose),
-            uiChatboxTitlebarMinimize = (self.uiChatboxTitlebarMinimize = $('<a href="#" rel="tooltip" data-placement="top" data-original-title="Minimize"></a>'))
-                .addClass(//'ui-corner-all ' +
-                          'ui-chatbox-icon'
-                         )
-                .attr('role', 'button')
-                .hover(function() { uiChatboxTitlebarMinimize.addClass('ui-state-hover'); },
-                       function() { uiChatboxTitlebarMinimize.removeClass('ui-state-hover'); })
-                .click(function(event) {
-                    self.toggleContent(event);
-                    return false;
-                })
-                .appendTo(uiChatboxTitlebar),
-            uiChatboxTitlebarMinimizeText = $('<i></i>')
-                .addClass('fa ' +
-                          'fa-minus')
-                .appendTo(uiChatboxTitlebarMinimize),
-            // content
-            uiChatboxContent = (self.uiChatboxContent = $('<div class="'+ self.options.alertshow +'"><span class="alert-msg">'+ self.options.alertmsg + '</span></div>'))
-                .addClass('ui-widget-content ' +
-                          'ui-chatbox-content '
-                         )
-                .appendTo(uiChatbox),
-            uiChatboxLog = (self.uiChatboxLog = self.element)
-                .addClass('ui-widget-content ' +
-                          'ui-chatbox-log ' +
-                          'custom-scroll'
-                         )
-                .appendTo(uiChatboxContent),
-            uiChatboxInput = (self.uiChatboxInput = $('<div></div>'))
-                .addClass('ui-widget-content ' +
-                          'ui-chatbox-input'
-                         )
-                .click(function(event) {
-                    // anything?
-                })
-                .appendTo(uiChatboxContent),
-            uiChatboxInputBox = (self.uiChatboxInputBox = $('<textarea></textarea>'))
-                .addClass('ui-widget-content ' +
-                          'ui-chatbox-input-box '
-                         )
-                .appendTo(uiChatboxInput)
-                .keydown(function(event) {
-                    if (event.keyCode && event.keyCode == $.ui.keyCode.ENTER) {
-                        var msg = $.trim($(this).val());
-                        if (msg.length > 0) {
-                            self.options.messageSent(self.options.id, self.options.user, msg);
-                        }
-                        $(this).val('');
-                        return false;
-                    }
-                })
-                .focusin(function() {
-                    uiChatboxInputBox.addClass('ui-chatbox-input-focus');
-                    var box = $(this).parent().prev();
-                    box.scrollTop(box.get(0).scrollHeight);
-                })
-                .focusout(function() {
-                    uiChatboxInputBox.removeClass('ui-chatbox-input-focus');
-                });
-
-            // disable selection
-            uiChatboxTitlebar.find('*').add(uiChatboxTitlebar).disableSelection();
-
-            // switch focus to input box when whatever clicked
-            uiChatboxContent.children().click(function() {
-                // click on any children, set focus on input box
-                self.uiChatboxInputBox.focus();
             });
 
-            self._setWidth(self.options.width);
-            self._position(self.options.offset);
-
-            self.options.boxManager.init(self);
-
-            if (!self.options.hidden) {
-                uiChatbox.show();
-            }
-            
-            $(".ui-chatbox [rel=tooltip]").tooltip();
-            //console.log("tooltip created");
-        },
-        _setOption: function(option, value) {
-            if (value != null) {
-                switch (option) {
-                case "hidden":
-                    if (value)
-                        this.uiChatbox.hide();
-                    else
-                        this.uiChatbox.show();
-                    break;
-                case "offset":
-                    this._position(value);
-                    break;
-                case "width":
-                    this._setWidth(value);
-                    break;
-                }
-            }
-            $.Widget.prototype._setOption.apply(this, arguments);
-        },
-        _setWidth: function(width) {
-            this.uiChatbox.width((width + 28) + "px");
-            //this.uiChatboxTitlebar.width((width + 28) + "px");
-            //this.uiChatboxLog.width(width + "px");
-           // this.uiChatboxInput.css("maxWidth", width + "px");
-            // padding:2, boarder:2, margin:5
-            this.uiChatboxInputBox.css("width", (width + 18) + "px");
-        },
-        _position: function(offset) {
-            this.uiChatbox.css("right", offset);
-        }
-    });
-    }(jQuery));
-
-
-    /*
-    * jQuery CSSEmoticons plugin 0.2.9
-    *
-    * Copyright (c) 2010 Steve Schwartz (JangoSteve)
-    *
-    * Dual licensed under the MIT and GPL licenses:
-    *   http://www.opensource.org/licenses/mit-license.php
-    *   http://www.gnu.org/licenses/gpl.html
-    *
-    * Date: Sun Oct 22 1:00:00 2010 -0500
-    */
-    (function($) {
-    $.fn.emoticonize = function(options) {
-
-    var opts = $.extend({}, $.fn.emoticonize.defaults, options);
-
-    var escapeCharacters = [ ")", "(", "*", "[", "]", "{", "}", "|", "^", "<", ">", "\\", "?", "+", "=", "." ];
-
-    var threeCharacterEmoticons = [
-        // really weird bug if you have :{ and then have :{) in the same container anywhere *after* :{ then :{ doesn't get matched, e.g. :] :{ :) :{) :) :-) will match everything except :{
-        //  But if you take out the :{) or even just move :{ to the right of :{) then everything works fine. This has something to do with the preMatch string below I think, because
-        //  it'll work again if you set preMatch equal to '()'
-        //  So for now, we'll just remove :{) from the emoticons, because who actually uses this mustache man anyway?
-      // ":{)",
-      ":-)", ":o)", ":c)", ":^)", ":-D", ":-(", ":-9", ";-)", ":-P", ":-p", ":-Þ", ":-b", ":-O", ":-/", ":-X", ":-#", ":'(", "B-)", "8-)", ";*(", ":-*", ":-\\",
-      "?-)", // <== This is my own invention, it's a smiling pirate (with an eye-patch)!
-      // and the twoCharacterEmoticons from below, but with a space inserted
-      ": )", ": ]", "= ]", "= )", "8 )", ": }", ": D", "8 D", "X D", "x D", "= D", ": (", ": [", ": {", "= (", "; )", "; ]", "; D", ": P", ": p", "= P", "= p", ": b", ": Þ", ": O", "8 O", ": /", "= /", ": S", ": #", ": X", "B )", ": |", ": \\", "= \\", ": *", ": &gt;", ": &lt;"//, "* )"
-    ];
-
-    var twoCharacterEmoticons = [ // separate these out so that we can add a letter-spacing between the characters for better proportions
-      ":)", ":]", "=]", "=)", "8)", ":}", ":D", ":(", ":[", ":{", "=(", ";)", ";]", ";D", ":P", ":p", "=P", "=p", ":b", ":Þ", ":O", ":/", "=/", ":S", ":#", ":X", "B)", ":|", ":\\", "=\\", ":*", ":&gt;", ":&lt;"//, "*)"
-    ];
-
-    var specialEmoticons = { // emoticons to be treated with a special class, hash specifies the additional class to add, along with standard css-emoticon class
-      "&gt;:)": { cssClass: "red-emoticon small-emoticon spaced-emoticon" },
-      "&gt;;)": { cssClass: "red-emoticon small-emoticon spaced-emoticon"},
-      "&gt;:(": { cssClass: "red-emoticon small-emoticon spaced-emoticon" },
-      "&gt;: )": { cssClass: "red-emoticon small-emoticon" },
-      "&gt;; )": { cssClass: "red-emoticon small-emoticon"},
-      "&gt;: (": { cssClass: "red-emoticon small-emoticon" },
-      ";(":     { cssClass: "red-emoticon spaced-emoticon" },
-      "&lt;3":  { cssClass: "pink-emoticon counter-rotated" },
-      "O_O":    { cssClass: "no-rotate" },
-      "o_o":    { cssClass: "no-rotate" },
-      "0_o":    { cssClass: "no-rotate" },
-      "O_o":    { cssClass: "no-rotate" },
-      "T_T":    { cssClass: "no-rotate" },
-      "^_^":    { cssClass: "no-rotate" },
-      "O:)":    { cssClass: "small-emoticon spaced-emoticon" },
-      "O: )":   { cssClass: "small-emoticon" },
-      "8D":     { cssClass: "small-emoticon spaced-emoticon" },
-      "XD":     { cssClass: "small-emoticon spaced-emoticon" },
-      "xD":     { cssClass: "small-emoticon spaced-emoticon" },
-      "=D":     { cssClass: "small-emoticon spaced-emoticon" },
-      "8O":     { cssClass: "small-emoticon spaced-emoticon" },
-      "[+=..]":  { cssClass: "no-rotate nintendo-controller" }
-      //"OwO":  { cssClass: "no-rotate" }, // these emoticons overflow and look weird even if they're made even smaller, could probably fix this with some more css trickery
-      //"O-O":  { cssClass: "no-rotate" },
-      //"O=)":    { cssClass: "small-emoticon" } 
-    }
-
-    var specialRegex = new RegExp( '(\\' + escapeCharacters.join('|\\') + ')', 'g' );
-    // One of these characters must be present before the matched emoticon, or the matched emoticon must be the first character in the container HTML
-    //  This is to ensure that the characters in the middle of HTML properties or URLs are not matched as emoticons
-    //  Below matches ^ (first character in container HTML), \s (whitespace like space or tab), or \0 (NULL character)
-    // (<\\S+.*>) matches <\\S+.*> (matches an HTML tag like <span> or <div>), but haven't quite gotten it working yet, need to push this fix now
-    var preMatch = '(^|[\\s\\0])';
-
-    for ( var i=threeCharacterEmoticons.length-1; i>=0; --i ){
-      threeCharacterEmoticons[i] = threeCharacterEmoticons[i].replace(specialRegex,'\\$1');
-      threeCharacterEmoticons[i] = new RegExp( preMatch+'(' + threeCharacterEmoticons[i] + ')', 'g' );
-    }
-
-    for ( var i=twoCharacterEmoticons.length-1; i>=0; --i ){
-      twoCharacterEmoticons[i] = twoCharacterEmoticons[i].replace(specialRegex,'\\$1');
-      twoCharacterEmoticons[i] = new RegExp( preMatch+'(' + twoCharacterEmoticons[i] + ')', 'g' );
-    }
-
-    for ( var emoticon in specialEmoticons ){
-      specialEmoticons[emoticon].regexp = emoticon.replace(specialRegex,'\\$1');
-      specialEmoticons[emoticon].regexp = new RegExp( preMatch+'(' + specialEmoticons[emoticon].regexp + ')', 'g' );
-    }
-
-    var exclude = 'span.css-emoticon';
-    if(opts.exclude){ exclude += ','+opts.exclude; }
-    var excludeArray = exclude.split(',')
-
-    return this.not(exclude).each(function() {
-      var container = $(this);
-      var cssClass = 'css-emoticon'
-      if(opts.animate){ cssClass += ' un-transformed-emoticon animated-emoticon'; }
-      
-      for( var emoticon in specialEmoticons ){
-        var specialCssClass = cssClass + " " + specialEmoticons[emoticon].cssClass;
-        container.html(container.html().replace(specialEmoticons[emoticon].regexp,"$1<span class='" + specialCssClass + "'>$2</span>"));
-      }
-      $(threeCharacterEmoticons).each(function(){
-        container.html(container.html().replace(this,"$1<span class='" + cssClass + "'>$2</span>"));
-      });                                                          
-      $(twoCharacterEmoticons).each(function(){                    
-        container.html(container.html().replace(this,"$1<span class='" + cssClass + " spaced-emoticon'>$2</span>"));
-      });
-      // fix emoticons that got matched more then once (where one emoticon is a subset of another emoticon), and thus got nested spans
-      $.each(excludeArray,function(index,item){
-        container.find($.trim(item)+" span.css-emoticon").each(function(){
-          $(this).replaceWith($(this).text());
-        });
-      });
-      if(opts.animate){
-        setTimeout(function(){$('.un-transformed-emoticon').removeClass('un-transformed-emoticon');}, opts.delay);
-      }
-    });
-    }
-
-    $.fn.unemoticonize = function(options) {
-    var opts = $.extend({}, $.fn.emoticonize.defaults, options);
-    return this.each(function() {
-      var container = $(this);
-      container.find('span.css-emoticon').each(function(){
-        // add delay equal to animate speed if animate is not false
-        var span = $(this);
-        if(opts.animate){
-          span.addClass('un-transformed-emoticon');
-          setTimeout(function(){span.replaceWith(span.text());}, opts.delay); 
-        }else{
-          span.replaceWith(span.text());
-        }
-      });
-    });
-    }
-
-    $.fn.emoticonize.defaults = {animate: true, delay: 500, exclude: 'pre,code,.no-emoticons'}
-    })(jQuery);
-
-    var chatboxManager = function () {
-        
-    var init = function (options) {
-        $.extend(chatbox_config, options)
-    };
-
-
-    var delBox = function (id) {
-        // TODO
-    };
-
-    var getNextOffset = function () {
-        return (chatbox_config.width + chatbox_config.gap) * showList.length;
-    };
-
-    var boxClosedCallback = function (id) {
-        // close button in the titlebar is clicked
-        var idx = showList.indexOf(id);
-        if (idx != -1) {
-            showList.splice(idx, 1);
-            var diff = chatbox_config.width + chatbox_config.gap;
-            for (var i = idx; i < showList.length; i++) {
-                chatbox_config.offset = $("#" + showList[i]).chatbox("option", "offset");
-                $("#" + showList[i]).chatbox("option", "offset", chatbox_config.offset - diff);
-            }
-        } else {
-            alert("NOTE: Id missing from array: " + id);
-        }
-    };
-
-    // caller should guarantee the uniqueness of id
-    var addBox = function (id, user, name) {
-        var idx1 = showList.indexOf(id);
-        var idx2 = boxList.indexOf(id);
-        if (idx1 != -1) {
-            // found one in show box, do nothing
-        } else if (idx2 != -1) {
-            // exists, but hidden
-            // show it and put it back to showList
-            $("#" + id).chatbox("option", "offset", getNextOffset());
-            var manager = $("#" + id).chatbox("option", "boxManager");
-            manager.toggleBox();
-            showList.push(id);
-        } else {
-            var el = document.createElement('div');
-            el.setAttribute('id', id);
-            $(el).chatbox({
-                id: id,
-                user: user,
-                title: '<i title="' + user.status + '"></i>' + user.first_name + " " + user.last_name,
-                hidden: false,
-                offset: getNextOffset(),
-                width: chatbox_config.width,
-                status: user.status,
-                alertmsg: user.alertmsg,
-                alertshow: user.alertshow,
-                messageSent: dispatch,
-                boxClosed: boxClosedCallback
-            });
-            boxList.push(id);
-            showList.push(id);
-            nameList.push(user.first_name);
-        }
-    };
-
-    var messageSentCallback = function (id, user, msg) {
-        var idx = boxList.indexOf(id);
-        chatbox_config.messageSent(nameList[idx], msg);
-    };
-
-    // not used in demo
-    var dispatch = function (id, user, msg) {
-        //$("#log").append("<i>" + moment().calendar() + "</i> you said to <b>" + user.first_name + " " + user.last_name + ":</b> " + msg + "<br/>");
-        if ($('#chatlog').length){
-            $("#chatlog").append("You said to <b>" + user.first_name + " " + user.last_name + ":</b> " + msg + "<br/>").effect("highlight", {}, 500);;
-        }
-        $("#" + id).chatbox("option", "boxManager").addMsg("Me", msg);
-    }
-
-    return {
-        init: init,
-        addBox: addBox,
-        delBox: delBox,
-        dispatch: dispatch
-    };
-    }();
-
-    var link = function (scope, element, attributes) {
-
-        $('a[data-chat-id]').click(function (event, ui) {
-            if(!$(this).hasClass('offline')){
-
-                var $this = $(this),
-                    temp_chat_id = $this.attr("data-chat-id"),
-                    fname = $this.attr("data-chat-fname"),
-                    lname = $this.attr("data-chat-lname"),
-                    status = $this.attr("data-chat-status") || "online",
-                    alertmsg = $this.attr("data-chat-alertmsg"),
-                    alertshow =  $this.attr("data-chat-alertshow") || false;
-
-
-                chatboxManager.addBox(temp_chat_id, {
-                    // dest:"dest" + counter, 
-                    // not used in demo
-                    title: "username" + temp_chat_id,
-                    first_name: fname,
-                    last_name: lname,
-                    status: status,
-                    alertmsg: alertmsg,
-                    alertshow: alertshow
-                    //you can add your own options too
-                });
-            }
-
-            event.preventDefault();
-
-        });
-
-    }
-
-    angular.module('app.chat').directive('asideChatWidget', function (ChatApi) {
-        return {
-            restrict: 'A',
-            replace: true,
-            templateUrl: 'app/dashboard/chat/directives/aside-chat-widget.tpl.html',
-            link: link
-        }
-    });
-
-})(); 
-"use strict";
-
-angular.module('app.chat').directive('chatUsers', function(ChatApi){
-    return {
-        restrict: 'E',
-        replace: true,
-        templateUrl: 'app/dashboard/chat/directives/chat-users.tpl.html',
-        scope: true,
-        link: function(scope, element){
-            scope.open = false;
-            scope.openToggle = function(){
-                scope.open = !scope.open;
-            };
-
-            scope.chatUserFilter = '';
-
-            ChatApi.initialized.then(function () {
-                scope.chatUsers = ChatApi.users;
-            });
-        }
-    }
-});
-
-"use strict";
-
-angular.module('app.chat').directive('chatWidget', function (ChatApi) {
-    return {
-        replace: true,
-        restrict: 'E',
-        templateUrl: 'app/dashboard/chat/directives/chat-widget.tpl.html',
-        scope: {},
-        link: function (scope, element) {
-            scope.newMessage = '';
-
-            scope.sendMessage = function () {
-                ChatApi.sendMessage(scope.newMessage);
-                scope.newMessage = '';
-            };
-
-            scope.messageTo = function(user){
-                scope.newMessage += (user.username + ', ');
-            };
-
-            ChatApi.initialized.then(function () {
-                scope.chatMessages = ChatApi.messages;
-            });
-            scope.$watch(function () {
-                return ChatApi.messages.length
-            }, function (count) {
-                if (count){
-                    var $body = $('.chat-body', element);
-                    $body.animate({scrollTop: $body[0].scrollHeight});
-                }
+            element.on('$destroy', function(){
+                element.children('.jvectormap-container').data('mapObject').remove();
             })
         }
     }
-});
-'use strict';
-
-angular.module('app.chat').factory('ChatApi', function ($q, $rootScope, User, $http, APP_CONFIG) {
-    var dfd = $q.defer();
-    var _user;
-    var ChatSrv = {
-        initialized: dfd.promise,
-        users: [],
-        messages: [],
-        statuses: ['Online', 'Busy', 'Away', 'Log Off'],
-        status: 'Online',
-        setUser: function (user) {
-            if (ChatSrv.users.indexOf(_user) != -1)
-                ChatSrv.users.splice(ChatSrv.users.indexOf(_user), 1);
-            _user = user;
-            ChatSrv.users.push(_user);
-        },
-        sendMessage: function (text) {
-            var message = {
-                user: _user,
-                body: text,
-                date: new Date()
-            };
-            this.messages.push(message);
-        }
-    };
-
-
-    $http.get(APP_CONFIG.apiRootUrl + '/chat.json').then(function(res){
-        ChatSrv.messages = res.data.messages;
-        ChatSrv.users = res.data.users;
-        dfd.resolve();
-    });
-
-    ChatSrv.initialized.then(function () {
-
-        User.initialized.then(function () {
-            ChatSrv.setUser({
-                username: User.username,
-                picture: User.picture,
-                status: ChatSrv.status
-            });
-        });
-
-        $rootScope.$watch(function () {
-            return User.username
-        }, function (name, oldName) {
-            if (name != oldName) {
-                ChatSrv.setUser({
-                    username: User.username,
-                    picture: User.picture,
-                    status: ChatSrv.status
-                });
-            }
-        });
-    });
-
-
-    return ChatSrv;
-
-});
-"use strict";
-
-angular.module('app.selfwork.leaderoption').controller('AgentSettingCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, $filter, uiGridConstants, RestfulApi, userInfoByCompyDistribution, compy, $q, uiGridGroupingConstants, coWeights) {
-    
-    var $vm = this;
-
-	angular.extend(this, {
-        Init : function(){
-            if(userInfoByCompyDistribution[0].length == 0){
-                toaster.pop('info', '訊息', '請先設定行家分配', 3000);
-                $vm.vmData = [];
-            }else{
-                $vm.selectAssignDept = userInfoByCompyDistribution[0][0].value;
-                LoadCompyAgent();
-            }
-        },
-        profile : Session.Get(),
-        assignGradeData : userInfoByCompyDistribution[0],
-        assignAgentData : userInfoByCompyDistribution[1],
-        agentSettingOptions : {
-            data:  '$vm.vmData',
-            columnDefs: [
-                { name: 'COD_PRINCIPAL',  displayName: '負責人', cellFilter: 'userInfoFilter', grouping: { groupPriority: 0 }, filter: 
-                    {
-                        term: null,
-                        type: uiGridConstants.filter.SELECT,
-                        selectOptions: userInfoByCompyDistribution[0].length == 0 ? [] : userInfoByCompyDistribution[1][userInfoByCompyDistribution[0][0].value]
-                    }
-                },
-                { name: 'COD_CODE'      ,  displayName: '行家', cellFilter: 'compyFilter', filter: 
-                    {
-                        term: null,
-                        type: uiGridConstants.filter.SELECT,
-                        selectOptions: compy
-                    }, 
-                    treeAggregationType: uiGridGroupingConstants.aggregation.COUNT, 
-                    customTreeAggregationFinalizerFn: function( aggregation ) {
-                        aggregation.rendered = aggregation.value;
-                    }
-                },
-                { name: 'CO_WEIGHTS',  displayName: '權重', cellFilter: 'coWeightsFilter', filter: 
-                    {
-                        term: null,
-                        type: uiGridConstants.filter.SELECT,
-                        selectOptions: coWeights
-                    }
-                },
-                { name: 'AGENT_COUNT'   ,  displayName: '代理人數' , treeAggregationType: uiGridGroupingConstants.aggregation.SUM, 
-                    customTreeAggregationFinalizerFn: function( aggregation ) {
-                        aggregation.rendered = aggregation.value;
-                    }
-                }
-                // { name: 'AS_AGENT'     ,  displayName: '職務代理人', cellFilter: 'userInfoFilter', filter: 
-                //     {
-                //         term: null,
-                //         type: uiGridConstants.filter.SELECT,
-                //         selectOptions: userInfoByCompyDistribution[0].length == 0 ? [] : userInfoByCompyDistribution[1][userInfoByCompyDistribution[0][0].value]
-                //     }
-                // }
-            ],
-            enableFiltering: true,
-            enableSorting: false,
-            enableColumnMenus: false,
-            groupingShowCounts: false,
-            // enableVerticalScrollbar: false,
-            paginationPageSizes: [10, 25, 50, 100],
-            paginationPageSize: 100,
-            expandableRowTemplate: 'expandableRowTemplate.html',
-            expandableRowHeight: 150,
-            enableCellEdit: false,
-            enableGroupHeaderSelection: true,
-            expandableRowScope: {
-                $vm : {
-                    gridMethod : {
-                        deleteData : function(row){
-                            console.log(row);
-
-                            var modalInstance = $uibModal.open({
-                                animation: true,
-                                ariaLabelledBy: 'modal-title',
-                                ariaDescribedBy: 'modal-body',
-                                template: $templateCache.get('isChecked'),
-                                controller: 'IsCheckedModalInstanceCtrl',
-                                controllerAs: '$ctrl',
-                                size: 'sm',
-                                windowClass: 'center-modal',
-                                // appendTo: parentElem,
-                                resolve: {
-                                    items: function() {
-                                        return row.entity;
-                                    },
-                                    show: function(){
-                                        return {
-                                            title : "是否刪除"
-                                        };
-                                    }
-                                }
-                            });
-
-                            modalInstance.result.then(function(selectedItem) {
-                                // $ctrl.selected = selectedItem;
-                                console.log(selectedItem);
-
-                                RestfulApi.DeleteMSSQLData({
-                                    deletename: 'Delete',
-                                    table: 17,
-                                    params: {
-                                        AS_CODE : row.entity.AS_CODE,
-                                        AS_DEPT : row.entity.AS_DEPT,
-                                        AS_AGENT : row.entity.AS_AGENT,
-                                        AS_PRINCIPAL : row.entity.AS_PRINCIPAL
-                                    }
-                                }).then(function (res) {
-                                    for(var i in $vm.vmData){
-                                        if($vm.vmData[i].COD_PRINCIPAL == row.entity.AS_PRINCIPAL && 
-                                            $vm.vmData[i].COD_CODE == row.entity.AS_CODE){
-                                            $vm.vmData[i].AGENT_COUNT -= 1;
-
-                                            var foundItem = $filter('filter')($vm.vmData[i].subGridOptions.data, {
-                                                AS_CODE : row.entity.AS_CODE,
-                                                AS_DEPT : row.entity.AS_DEPT,
-                                                AS_AGENT : row.entity.AS_AGENT,
-                                                AS_PRINCIPAL : row.entity.AS_PRINCIPAL
-                                            })[0];
-
-                                            var itemIndex = $vm.vmData[i].subGridOptions.data.indexOf(foundItem);
-
-                                            $vm.vmData[i].subGridOptions.data.splice(itemIndex, 1);
-
-                                            $vm.agentSettingGridApi.grid.refresh();
-                                            break;
-                                        }
-                                    }
-
-                                });
-
-                            }, function() {
-                                // $log.info('Modal dismissed at: ' + new Date());
-                            });
-                        }
-                    }
-                }
-            },
-            onRegisterApi: function(gridApi){
-                $vm.agentSettingGridApi = gridApi;
-
-                gridApi.rowEdit.on.saveRow($scope, $vm.Update);
-
-                gridApi.selection.on.rowSelectionChanged( $scope, function ( rowChanged ) {
-                    if ( typeof(rowChanged.treeLevel) !== 'undefined' && rowChanged.treeLevel > -1 ) {
-                        // this is a group header
-                        var children = $vm.agentSettingGridApi.treeBase.getRowChildren( rowChanged );
-                        children.forEach( function ( child ) {
-                            if ( rowChanged.isSelected ) {
-                                $vm.agentSettingGridApi.selection.selectRow( child.entity );
-                            } else {
-                                $vm.agentSettingGridApi.selection.unSelectRow( child.entity );
-                            }
-                        });
-                    }
-                });
-            }
-        },
-        AssignAgent : function(){
-            if($vm.agentSettingGridApi.selection.getSelectedRows().length > 0){
-                var _getSelectedRows = $vm.agentSettingGridApi.selection.getSelectedRows(),
-                    _getDirtyData = [];
-
-                for(var i in _getSelectedRows){
-                    // 負責人不等於代理人 和 沒有相同代理人才塞入
-                    if((_getSelectedRows[i].COD_PRINCIPAL != $vm.selectAssignAgent) && 
-                        $filter('filter')(_getSelectedRows[i].subGridOptions.data, { AS_AGENT : $vm.selectAssignAgent }).length == 0 && 
-                        $filter('filter')(_getSelectedRows[i].subGridOptions.data, { AS_PRINCIPAL : $vm.selectAssignAgent }).length == 0){
-                        
-                        _getSelectedRows[i].subGridOptions.data.push({
-                            AS_CODE : _getSelectedRows[i].COD_CODE,
-                            AS_DEPT : $vm.selectAssignDept,
-                            AS_AGENT : $vm.selectAssignAgent,
-                            AS_PRINCIPAL : _getSelectedRows[i].COD_PRINCIPAL
-                        });
-
-                        // _getSelectedRows[i].AGENT_COUNT = _getSelectedRows[i].subGridOptions.data.length;
-                        _getDirtyData.push(_getSelectedRows[i]);
-
-                        // 表示需要更新
-                        // _getDirty = true;
-                    }
-                }
-
-                if(_getDirtyData.length > 0){
-                    $vm.agentSettingGridApi.rowEdit.setRowsDirty(_getDirtyData);
-                }else{
-                    toaster.pop('info', '訊息', '負責人或代理人重複', 3000);
-                }
-                
-                $vm.agentSettingGridApi.selection.clearSelectedRows();
-                // 清除group的Select
-                $vm.agentSettingGridApi.grid.treeBase.tree.forEach(function(entity){
-                    entity.row.isSelected = false;
-                });
-            }
-        },
-        CancelAgent : function(){
-            if($vm.agentSettingGridApi.selection.getSelectedRows().length > 0){
-                var _getSelectedRows = $vm.agentSettingGridApi.selection.getSelectedRows(),
-                    _getDirtyData = [];
-                for(var i in _getSelectedRows){
-                    if(_getSelectedRows[i].subGridOptions.data.length > 0){
-                        _getDirtyData.push(_getSelectedRows[i]);
-                    }
-
-                    // 把代理人清空
-                    _getSelectedRows[i].subGridOptions.data = [];
-
-                    // _getSelectedRows[i].AGENT_COUNT = _getSelectedRows[i].subGridOptions.data.length;
-                }
-                
-                // $vm.agentSettingGridApi.grid.refresh();
-                if(_getDirtyData.length > 0){
-                    $vm.agentSettingGridApi.rowEdit.setRowsDirty(_getDirtyData);
-                }
-                $vm.agentSettingGridApi.selection.clearSelectedRows();
-            }
-        },
-        // Save : function(){
-
-        //     var _tasks = [],
-        //         _d = new Date();
-
-        //     // Delete此Leader管理的行家代理人
-        //     _tasks.push({
-        //         crudType: 'Delete',
-        //         table: 17,
-        //         params: {
-        //             AS_DEPT : $vm.selectAssignDept,
-        //             // AS_CR_USER : $vm.profile.U_ID
-        //         }
-        //     });
-
-        //     // Insert此Leader管理的行家代理人
-        //     for(var i in $vm.vmData){
-        //         if($vm.vmData[i].AS_AGENT != null){
-        //             _tasks.push({
-        //                 crudType: 'Insert',
-        //                 table: 17,
-        //                 params: {
-        //                     AS_CODE : $vm.vmData[i].COD_CODE,
-        //                     AS_DEPT : $vm.selectAssignDept,
-        //                     AS_AGENT : $vm.vmData[i].AS_AGENT,
-        //                     AS_CR_USER : $vm.profile.U_ID,
-        //                     AS_CR_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss')
-        //                 }
-        //             });
-        //         }
-        //     }
-
-        //     RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res){
-        //         console.log(res["returnData"]);
-        //         toaster.pop('success', '訊息', '代理人設定儲存成功', 3000);
-        //     });    
-        // },
-        Update : function(entity){
-            // console.log(entity);
-
-            // create a fake promise - normally you'd use the promise returned by $http or $resource
-            var promise = $q.defer();
-            $vm.agentSettingGridApi.rowEdit.setSavePromise( entity, promise.promise );
-        
-            var _tasks = [],
-                _d = new Date();
-
-            // Delete此負責人的代理人
-            _tasks.push({
-                crudType: 'Delete',
-                table: 17,
-                params: {
-                    AS_CODE : entity.COD_CODE,
-                    AS_DEPT : entity.COD_DEPT,
-                    AS_PRINCIPAL :  entity.COD_PRINCIPAL
-                }
-            });
-
-            // Insert此負責人的代理人
-            for(var i in entity.subGridOptions.data){
-                _tasks.push({
-                    crudType: 'Insert',
-                    table: 17,
-                    params: {
-                        AS_CODE : entity.subGridOptions.data[i].AS_CODE,
-                        AS_DEPT : entity.subGridOptions.data[i].AS_DEPT,
-                        AS_AGENT : entity.subGridOptions.data[i].AS_AGENT,
-                        AS_PRINCIPAL : entity.subGridOptions.data[i].AS_PRINCIPAL,
-                        AS_CR_USER : $vm.profile.U_ID,
-                        AS_CR_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss')
-                    }
-                });
-            }
-
-            RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res){
-                promise.resolve();
-            }, function (err) {
-                toaster.pop('danger', '錯誤', '更新失敗', 3000);
-                promise.reject();
-            }).finally(function(){
-                if($vm.agentSettingGridApi.rowEdit.getDirtyRows().length == 0){
-                    LoadCompyAgent();
-                }
-            });    
-        },
-        LoadCompyAgent : function(){
-            LoadCompyAgent();
-        }
-    });
-
-    function LoadCompyAgent(){
-
-        RestfulApi.CRUDMSSQLDataByTask([
-            {  
-                crudType: 'Select',
-                querymain: 'agentSetting',
-                queryname: 'SelectCompyDistribution',
-                params: {
-                    COD_DEPT : $vm.selectAssignDept
-                }
-            },
-            {
-                crudType: 'Select',
-                querymain: 'agentSetting',
-                queryname: 'SelectAgentSetting',
-                params: {
-                    COD_DEPT : $vm.selectAssignDept
-                }
-            }
-        ]).then(function (res){
-            console.log(res["returnData"]);
-
-            for(var i in res["returnData"][0]){
-
-                var _data =[];
-
-                for(var j in res["returnData"][1]){
-                    if(res["returnData"][0][i].COD_PRINCIPAL == res["returnData"][1][j].AS_PRINCIPAL &&
-                        res["returnData"][0][i].COD_CODE == res["returnData"][1][j].AS_CODE){
-                        _data.push(res["returnData"][1][j]);
-                    }
-                }
-
-                res["returnData"][0][i].subGridOptions = {
-                    data: _data,
-                    columnDefs: [ 
-                        {field: "AS_AGENT", name: "代理人", cellFilter: 'userInfoFilter', filter: 
-                            {
-                                term: null,
-                                type: uiGridConstants.filter.SELECT,
-                                selectOptions: userInfoByCompyDistribution[0].length == 0 ? [] : userInfoByCompyDistribution[1][userInfoByCompyDistribution[0][0].value]
-                            }
-                        },
-                        { name: 'Options'     , displayName: '操作', width: '5%', enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToD') }
-                    ],
-                    enableFiltering: true,
-                    enableSorting: true,
-                    enableColumnMenus: false
-                };
-                res["returnData"][0][i]["AGENT_COUNT"] = _data.length;
-            }
-
-            $vm.vmData = res["returnData"][0];
-
-        }).finally(function() {
-            console.log($vm.agentSettingOptions);
-            // 更新filter selectOptions的值
-            $vm.agentSettingOptions.columnDefs[0].filter.selectOptions = userInfoByCompyDistribution[1][$vm.selectAssignDept];
-            for(var i in $vm.vmData){
-                $vm.vmData[i].subGridOptions.columnDefs[0].filter.selectOptions = userInfoByCompyDistribution[1][$vm.selectAssignDept];
-            }
-        });
-
-        // RestfulApi.SearchMSSQLData({
-        //     querymain: 'agentSetting',
-        //     queryname: 'SelectCompyAgent',
-        //     params: {
-        //         COD_DEPT : $vm.selectAssignDept
-        //     }
-        // }).then(function (res){
-        //     console.log(res["returnData"]);
-        //     $vm.vmData = res["returnData"];
-        // }).finally(function() {
-        //     // 更新filter selectOptions的值
-        //     $vm.agentSettingGridApi.grid.columns[2].filter.selectOptions = userInfoByCompyDistribution[1][$vm.selectAssignDept];
-        //     $vm.agentSettingGridApi.grid.columns[3].filter.selectOptions = userInfoByCompyDistribution[1][$vm.selectAssignDept];
-        // });    
-    }
-
-})
-"use strict";
-
-angular.module('app.selfwork.leaderoption').controller('CompyDistributionCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, $filter, $q, RestfulApi, uiGridConstants, userInfoByGrade, compy, coWeights) {
-    
-    var $vm = this;
-
-	angular.extend(this, {
-        Init : function(){
-            $vm.selectAssignDept = userInfoByGrade[0][0].value;
-            LoadCompyDistribution();
-        },
-        profile : Session.Get(),
-        assignGradeData : userInfoByGrade[0],
-        assignPrincipalData : userInfoByGrade[1],
-        compyDistributionOptions : {
-            data:  '$vm.compyDistributionData',
-            columnDefs: [
-                // { name: 'CO_NUMBER'    ,  displayName: '公司統編' },
-                { name: 'CO_CODE'       ,  displayName: '行家', cellFilter: 'compyFilter', filter: 
-                    {
-                        term: null,
-                        type: uiGridConstants.filter.SELECT,
-                        selectOptions: compy
-                    }
-                },
-                { name: 'CO_WEIGHTS',  displayName: '權重', cellFilter: 'coWeightsFilter', filter: 
-                    {
-                        term: null,
-                        type: uiGridConstants.filter.SELECT,
-                        selectOptions: coWeights
-                    }
-                },
-                // { name: 'CO_ADDR'      ,  displayName: '公司地址' },
-                // { name: 'COD_PRINCIPAL',  displayName: '負責人' , cellFilter: 'userInfoFilter', filter: 
-                //     {
-                //         term: null,
-                //         type: uiGridConstants.filter.SELECT,
-                //         selectOptions: userInfoByGrade[1][userInfoByGrade[0][0].value]
-                //     }
-                // }
-                { name: 'PRINCIPAL_COUNT',  displayName: '負責人數' }
-            ],
-            enableFiltering: true,
-            enableSorting: true,
-            enableColumnMenus: false,
-            // enableVerticalScrollbar: false,
-            paginationPageSizes: [10, 25, 50, 100],
-            paginationPageSize: 100,
-            expandableRowTemplate: 'expandableRowTemplate.html',
-            expandableRowHeight: 150,
-            expandableRowScope: {
-                $vm : {
-                    gridMethod : {
-                        deleteData : function(row){
-                            console.log(row);
-
-                            var modalInstance = $uibModal.open({
-                                animation: true,
-                                ariaLabelledBy: 'modal-title',
-                                ariaDescribedBy: 'modal-body',
-                                template: $templateCache.get('isChecked'),
-                                controller: 'IsCheckedModalInstanceCtrl',
-                                controllerAs: '$ctrl',
-                                size: 'sm',
-                                windowClass: 'center-modal',
-                                // appendTo: parentElem,
-                                resolve: {
-                                    items: function() {
-                                        return row.entity;
-                                    },
-                                    show: function(){
-                                        return {
-                                            title : "是否刪除"
-                                        };
-                                    }
-                                }
-                            });
-
-                            modalInstance.result.then(function(selectedItem) {
-                                // $ctrl.selected = selectedItem;
-                                console.log(selectedItem);
-
-                                RestfulApi.DeleteMSSQLData({
-                                    deletename: 'Delete',
-                                    table: 15,
-                                    params: {
-                                        COD_CODE : row.entity.COD_CODE,
-                                        COD_DEPT : row.entity.COD_DEPT,
-                                        COD_PRINCIPAL : row.entity.COD_PRINCIPAL
-                                    }
-                                }).then(function (res) {
-                                    for(var i in $vm.compyDistributionData){
-                                        if($vm.compyDistributionData[i].CO_CODE == row.entity.COD_CODE){
-                                            $vm.compyDistributionData[i].PRINCIPAL_COUNT -= 1;
-
-                                            var foundItem = $filter('filter')($vm.compyDistributionData[i].subGridOptions.data, {
-                                                COD_CODE : row.entity.COD_CODE,
-                                                COD_DEPT : row.entity.COD_DEPT,
-                                                COD_PRINCIPAL : row.entity.COD_PRINCIPAL
-                                            })[0];
-
-                                            var itemIndex = $vm.compyDistributionData[i].subGridOptions.data.indexOf(foundItem);
-
-                                            $vm.compyDistributionData[i].subGridOptions.data.splice(itemIndex, 1);
-
-                                            break;
-                                        }
-                                    }
-
-                                });
-
-                            }, function() {
-                                // $log.info('Modal dismissed at: ' + new Date());
-                            });
-                        }
-                    }
-                }
-            },
-            enableCellEdit: false,
-            onRegisterApi: function(gridApi){
-                $vm.compyDistributionGridApi = gridApi;
-
-                gridApi.rowEdit.on.saveRow($scope, $vm.Update);
-            }
-        },
-        AssignPrincipal : function(){
-            // console.log($vm.selectAssignPrincipal);
-            if($vm.compyDistributionGridApi.selection.getSelectedRows().length > 0){
-                var _getSelectedRows = $vm.compyDistributionGridApi.selection.getSelectedRows(),
-                    _getDirtyData = [];
-
-                for(var i in _getSelectedRows){
-
-                    // 如果沒有此負責人才塞入
-                    if($filter('filter')(_getSelectedRows[i].subGridOptions.data, { COD_PRINCIPAL : $vm.selectAssignPrincipal }).length == 0){
-                        _getSelectedRows[i].subGridOptions.data.push({
-                            COD_CODE : _getSelectedRows[i].CO_CODE,
-                            COD_DEPT : $vm.selectAssignDept,
-                            COD_PRINCIPAL : $vm.selectAssignPrincipal
-                        });
-
-                        // _getSelectedRows[i].PRINCIPAL_COUNT = _getSelectedRows[i].subGridOptions.data.length;
-                        _getDirtyData.push(_getSelectedRows[i]);
-
-                        // 表示需要更新
-                        // _getDirty = true;
-                    }
-
-                }
-
-                if(_getDirtyData.length > 0){
-                    $vm.compyDistributionGridApi.rowEdit.setRowsDirty(_getDirtyData);
-                }else{
-                    toaster.pop('info', '訊息', '行家負責人被重複指派', 3000);
-                }
-
-                $vm.compyDistributionGridApi.selection.clearSelectedRows();
-            }
-        },
-        CancelPrincipal : function(){
-            if($vm.compyDistributionGridApi.selection.getSelectedRows().length > 0){
-                var _getSelectedRows = $vm.compyDistributionGridApi.selection.getSelectedRows(),
-                    _getDirtyData = [];
-                for(var i in _getSelectedRows){
-                    if(_getSelectedRows[i].subGridOptions.data.length > 0){
-                        _getDirtyData.push(_getSelectedRows[i]);
-                    }
-
-                    // 把負責人清空
-                    _getSelectedRows[i].subGridOptions.data = [];
-
-                    // _getSelectedRows[i].PRINCIPAL_COUNT = _getSelectedRows[i].subGridOptions.data.length;
-
-                }
-
-                $vm.compyDistributionGridApi.rowEdit.setRowsDirty(_getDirtyData);
-                $vm.compyDistributionGridApi.selection.clearSelectedRows();
-            }
-        },
-        // Save : function(){
-
-        //     var _tasks = [],
-        //         _d = new Date();
-
-        //     // Delete此Leader的行家分配
-        //     _tasks.push({
-        //         crudType: 'Delete',
-        //         table: 15,
-        //         params: {
-        //             COD_DEPT : $vm.selectAssignDept,
-        //             // COD_CR_USER : $vm.profile.U_ID
-        //         }
-        //     });
-
-        //     // Insert此Leader的行家分配
-        //     for(var i in $vm.compyDistributionData){
-        //         if($vm.compyDistributionData[i].COD_PRINCIPAL != null){
-        //             _tasks.push({
-        //                 crudType: 'Insert',
-        //                 table: 15,
-        //                 params: {
-        //                     COD_CODE : $vm.compyDistributionData[i].CO_CODE,
-        //                     COD_DEPT : $vm.selectAssignDept,
-        //                     COD_PRINCIPAL : $vm.compyDistributionData[i].COD_PRINCIPAL,
-        //                     COD_CR_USER : $vm.profile.U_ID,
-        //                     COD_CR_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss')
-        //                 }
-        //             });
-        //         }
-        //     }
-
-        //     RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res){
-        //         console.log(res["returnData"]);
-        //         toaster.pop('success', '訊息', '行家分配儲存成功', 3000);
-        //     });    
-        // },
-        Update : function(entity){
-            // console.log($vm.compyDistributionGridApi.rowEdit);
-            // console.log($vm.compyDistributionGridApi.rowEdit.getDirtyRows($vm.compyDistributionGridApi.grid));
-            // console.log(entity);
-
-            // create a fake promise - normally you'd use the promise returned by $http or $resource
-            var promise = $q.defer();
-            $vm.compyDistributionGridApi.rowEdit.setSavePromise( entity, promise.promise );
-        
-            var _tasks = [],
-                _d = new Date();
-
-            // Delete此班的行家
-            _tasks.push({
-                crudType: 'Delete',
-                table: 15,
-                params: {
-                    COD_CODE : entity.CO_CODE,
-                    COD_DEPT : $vm.selectAssignDept
-                }
-            });
-
-            // Insert此班的行家
-            for(var i in entity.subGridOptions.data){
-                _tasks.push({
-                    crudType: 'Insert',
-                    table: 15,
-                    params: {
-                        COD_CODE : entity.subGridOptions.data[i].COD_CODE,
-                        COD_DEPT : $vm.selectAssignDept,
-                        COD_PRINCIPAL : entity.subGridOptions.data[i].COD_PRINCIPAL,
-                        COD_CR_USER : $vm.profile.U_ID,
-                        COD_CR_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss')
-                    }
-                });
-            }
-
-            RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res){
-                promise.resolve();
-            }, function (err) {
-                toaster.pop('danger', '錯誤', '更新失敗', 3000);
-                promise.reject();
-            }).finally(function(){
-                if($vm.compyDistributionGridApi.rowEdit.getDirtyRows().length == 0){
-                    LoadCompyDistribution();
-                }
-            });    
-
-            // RestfulApi.UpdateMSSQLData({
-            //     insertname: 'Insert',
-            //     table: 15,
-            //     params: {
-            //         COD_CODE      : entity.COD_CODE,
-            //         COD_DEPT      : entity.COD_DEPT,
-            //         COD_PRINCIPAL : entity.COD_PRINCIPAL,
-            //         COD_CR_USER : $vm.profile.U_ID,
-            //         COD_CR_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss')
-            //     }
-            // }).then(function (res) {
-                // promise.resolve();
-            // }, function (err) {
-            //     toaster.pop('danger', '錯誤', '更新失敗', 3000);
-                // promise.reject();
-            // });
-        },
-        LoadCompyDistribution : function(){
-            LoadCompyDistribution();   
-        }
-    });
-
-    function LoadCompyDistribution(){
-
-        RestfulApi.CRUDMSSQLDataByTask([
-            {
-                crudType: 'Select',
-                querymain: 'compyDistribution',
-                queryname: 'SelectCompy'
-            },
-            {  
-                crudType: 'Select',
-                querymain: 'compyDistribution',
-                queryname: 'SelectCompyDistribution',
-                params: {
-                    COD_DEPT : $vm.selectAssignDept
-                }
-            }
-        ]).then(function (res){
-            console.log(res["returnData"]);
-
-            for(var i in res["returnData"][0]){
-
-                var _data =[];
-
-                for(var j in res["returnData"][1]){
-                    if(res["returnData"][0][i].CO_CODE == res["returnData"][1][j].COD_CODE){
-                        _data.push(res["returnData"][1][j]);
-                    }
-                }
-
-                res["returnData"][0][i].subGridOptions = {
-                    data: _data,
-                    columnDefs: [ 
-                        {field: "COD_PRINCIPAL", name: "負責人", cellFilter: 'userInfoFilter', filter: 
-                            {
-                                term: null,
-                                type: uiGridConstants.filter.SELECT,
-                                selectOptions: userInfoByGrade[1][$vm.selectAssignDept]
-                            }
-                        },
-                        { name: 'Options'     , displayName: '操作', width: '5%', enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToD') }
-                    ],
-                    enableFiltering: true,
-                    enableSorting: true,
-                    enableColumnMenus: false
-                }
-                res["returnData"][0][i]["PRINCIPAL_COUNT"] = _data.length;
-            }
-
-            $vm.compyDistributionData = res["returnData"][0];
-
-        }).finally(function() {
-            console.log($vm.compyDistributionGridApi);
-            // 更新filter selectOptions的值
-            // $vm.compyDistributionGridApi.grid.columns[2].filter.selectOptions = userInfoByGrade[1][$vm.selectAssignDept];
-        });
-
-        // RestfulApi.SearchMSSQLData({
-        //     querymain: 'compyDistribution',
-        //     queryname: 'SelectCompyDistribution',
-        //     params: {
-        //         COD_DEPT : $vm.selectAssignDept
-        //     }
-        // }).then(function (res){
-        //     console.log(res["returnData"]);
-        //     $vm.compyDistributionData = res["returnData"];
-        // }).finally(function() {
-        //     // 更新filter selectOptions的值
-        //     $vm.compyDistributionGridApi.grid.columns[2].filter.selectOptions = userInfoByGrade[1][$vm.selectAssignDept];
-        //     // console.log($vm.compyDistributionGridApi.grid.columns[4].filter.selectOptions);
-        // });    
-    }
-})
-"use strict";
-
-angular.module('app.selfwork.leaderoption').controller('DailyLeaveCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, $filter, uiGridConstants, RestfulApi, userInfoByGrade, bool, $q) {
-    
-    var $vm = this;
-
-	angular.extend(this, {
-        Init : function(){
-            $vm.selectAssignDept = userInfoByGrade[0][0].value;
-            $vm.isLeave = bool[0].value;
-            LoadDailyLeave();
-        },
-        profile : Session.Get(),
-        assignGradeData : userInfoByGrade[0],
-        boolData : bool,
-        dailyLeaveOptions : {
-            data:  '$vm.vmData',
-            columnDefs: [
-                { name: 'U_NAME'     ,  displayName: '人員姓名' },
-                { name: 'DL_IS_LEAVE',  displayName: '是否請假', cellFilter: 'booleanFilter', filter: 
-                    {
-                        term: null,
-                        type: uiGridConstants.filter.SELECT,
-                        selectOptions: bool
-                    }
-                }
-            ],
-            enableFiltering: true,
-            enableSorting: false,
-            enableColumnMenus: false,
-            // enableVerticalScrollbar: false,
-            paginationPageSizes: [10, 25, 50, 100],
-            paginationPageSize: 100,
-            enableCellEdit: false,
-            onRegisterApi: function(gridApi){
-                $vm.dailyLeaveGridApi = gridApi;
-
-                gridApi.rowEdit.on.saveRow($scope, $vm.Update);
-            }
-        },
-        ChangeLeave : function(){
-            if($vm.dailyLeaveGridApi.selection.getSelectedRows().length > 0){
-                var _getSelectedRows = $vm.dailyLeaveGridApi.selection.getSelectedRows(),
-                    _getDirtyData = [];
-
-                for(var i in _getSelectedRows){
-                    // 表示假不一樣需要被更新
-                    if(_getSelectedRows[i].DL_IS_LEAVE != $vm.isLeave){
-                        _getDirtyData.push(_getSelectedRows[i]);
-                        _getSelectedRows[i].DL_IS_LEAVE = $vm.isLeave;
-                    }
-                }
-
-                if(_getDirtyData.length > 0){
-                    $vm.dailyLeaveGridApi.rowEdit.setRowsDirty(_getDirtyData);
-                }else{
-                    toaster.pop('info', '訊息', '沒有資料需要被更新', 3000);
-                }
-                
-                $vm.dailyLeaveGridApi.selection.clearSelectedRows();
-            }
-        },
-        // Save : function(){
-
-        //     var _tasks = [],
-        //         _d = new Date();
-
-        //     // Delete此Leader的每日請假
-        //     _tasks.push({
-        //         crudType: 'Delete',
-        //         table: 16,
-        //         params: {
-        //             DL_DEPT : $vm.selectAssignDept,
-        //             DL_CR_USER : $vm.profile.U_ID
-        //         }
-        //     });
-
-        //     // Insert此Leader的每日請假
-        //     for(var i in $vm.vmData){
-        //         console.log($vm.vmData[i]);
-        //         if($vm.vmData[i].DL_IS_LEAVE){
-        //             _tasks.push({
-        //                 crudType: 'Insert',
-        //                 table: 16,
-        //                 params: {
-        //                     DL_ID : $vm.vmData[i].U_ID,
-        //                     DL_DEPT : $vm.selectAssignDept,
-        //                     DL_CR_USER : $vm.profile.U_ID,
-        //                     DL_CR_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss')
-        //                 }
-        //             });
-        //         }
-        //     }
-
-        //     RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res){
-        //         console.log(res["returnData"]);
-        //         toaster.pop('success', '訊息', '請假設定儲存成功', 3000);
-        //     });    
-        // },
-        Update : function(entity){
-            // console.log(entity);
-            // create a fake promise - normally you'd use the promise returned by $http or $resource
-            var promise = $q.defer();
-            $vm.dailyLeaveGridApi.rowEdit.setSavePromise( entity, promise.promise );
-        
-            var _tasks = [],
-                _d = new Date();
-
-            // Delete此班所有人的假
-            _tasks.push({
-                crudType: 'Delete',
-                table: 16,
-                params: {
-                    DL_ID : entity.U_ID,
-                    DL_DEPT : $vm.selectAssignDept
-                }
-            });
-
-            // Insert此有被設定為請假的人
-            if(entity.DL_IS_LEAVE){
-                _tasks.push({
-                    crudType: 'Insert',
-                    table: 16,
-                    params: {
-                        DL_ID : entity.U_ID,
-                        DL_DEPT : entity.UD_DEPT,
-                        DL_CR_USER : $vm.profile.U_ID,
-                        DL_CR_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss')
-                    }
-                });
-            }
-
-            RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res){
-                promise.resolve();
-            }, function (err) {
-                toaster.pop('danger', '錯誤', '更新失敗', 3000);
-                promise.reject();
-            }).finally(function(){
-                if($vm.dailyLeaveGridApi.rowEdit.getDirtyRows().length == 0){
-                    LoadDailyLeave();
-                }
-            }); 
-        },
-        LoadDailyLeave : function(){
-            LoadDailyLeave();
-        }
-    });
-
-    function LoadDailyLeave(){
-        RestfulApi.SearchMSSQLData({
-            querymain: 'dailyLeave',
-            queryname: 'SelectUserLeavebyGrade',
-            params: {
-                U_GRADE : $vm.profile.U_GRADE,
-                DEPTS : $vm.profile.DEPTS,
-                UD_DEPT : $vm.selectAssignDept
-            }
-        }).then(function (res){
-            console.log(res["returnData"]);
-            $vm.vmData = res["returnData"];
-        });    
-    }
-
-})
-"use strict";
-
-angular.module('app.settings').controller('TargetEditorCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, RestfulApi, $filter, FileUploader, SUMMERNOT_CONFIG) {
-    
-    var $vm = this,
-        _tasks = [],
-        _d = new Date(),
-        _filepath = _d.getFullYear() + '\\' + ("0" + (_d.getMonth()+1)).slice(-2) + '\\' + ("0" + _d.getDate()).slice(-2) + '\\';
-
-	angular.extend(this, {
-        Init : function(){
-            if($stateParams.data == null){
-                $vm.vmData = {
-                    "IU" : "Add"
-                }
-            }else{
-                $vm.vmData = $stateParams.data;
-                $vm.vmData["IU"] = "Update";
-
-                var _mail = angular.copy($vm.vmData.FM_MAIL.split(";"));
-                $vm.vmData.FM_MAIL = [];
-                for(var i in _mail){
-                    $vm.vmData.FM_MAIL.push({
-                        text : _mail[i]
-                    });
-                }
-
-                _d = $vm.vmData["FM_CR_DATETIME"].replace(/\Z/g, '');
-
-                // 附件
-                LoadFMAF();
-
-            }
-            console.log($vm.vmData);
-        },
-        profile : Session.Get(),
-        snOptions : SUMMERNOT_CONFIG,
-        uploader : new FileUploader({
-            url: '/toolbox/uploadFile?filePath='+_filepath
-        }),
-        Return : function(){
-            ReturnToAviationMail();
-        },
-        Add : function(){
-            var _mail = angular.copy($vm.vmData.FM_MAIL),
-                _mailObjectToArray = [];
-            for(var i in _mail){
-                _mailObjectToArray.push(_mail[i].text);
-            }
-
-            // 檢查信件是否有資料
-            if(_mailObjectToArray.length > 0){
-                
-                // Insert 主表
-                _tasks.push({
-                    crudType: 'Insert',
-                    table: 24,
-                    params: {
-                        FM_TARGET : $vm.vmData.FM_TARGET,
-                        FM_MAIL : _mailObjectToArray.join(";"),
-                        FM_TITLE : $vm.vmData.FM_TITLE,
-                        FM_CONTENT : $vm.vmData.FM_CONTENT,
-                        FM_CR_USER : $vm.profile.U_ID,
-                        FM_CR_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss')
-                    }
-                });
-
-                // 有上傳檔案 先上傳檔案之後再Insert DB
-                if($vm.uploader.getNotUploadedItems().length > 0){
-                    $vm.uploader.uploadAll();
-                }
-                // 無上傳檔案 直接Insert DB
-                else{
-                    RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res) {
-                        // console.log(res);
-                        ReturnToAviationMail();
-
-                        toaster.pop('success', '訊息', '新增目標成功', 3000);
-                    }, function (err) {
-                        console.log(err);
-                    });
-                }
-
-                // RestfulApi.InsertMSSQLData({
-                //     insertname: 'Insert',
-                //     table: 24,
-                //     params: {
-                //         FM_TARGET : $vm.vmData.FM_TARGET,
-                //         FM_MAIL : _mailObjectToArray.join(";"),
-                //         FM_TITLE : $vm.vmData.FM_TITLE,
-                //         FM_CONTENT : $vm.vmData.FM_CONTENT,
-                //         FM_CR_USER : $vm.profile.U_ID,
-                //         FM_CR_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss')
-                //     }
-                // }).then(function(res) {
-                //     console.log(res);
-
-                //     if(res["returnData"] == 1){
-                //         ReturnToAviationMail();
-
-                //         toaster.pop('success', '訊息', '新增目標成功', 3000);
-                //     }
-
-                // });
-            }else{
-                toaster.pop('danger', '失敗', '沒有任何信件', 3000);
-            }
-        },
-        Update : function(){
-            console.log($vm.vmData);
-
-            var _mail = angular.copy($vm.vmData.FM_MAIL),
-                _mailObjectToArray = [];
-            for(var i in _mail){
-                _mailObjectToArray.push(_mail[i].text);
-            }
-
-            // 檢查信件是否有資料
-            if(_mailObjectToArray.length > 0){
-
-                // Update 主表
-                _tasks.push({
-                    crudType: 'Update',
-                    table: 24,
-                    params: {
-                        FM_TARGET : $vm.vmData.FM_TARGET,
-                        FM_MAIL : _mailObjectToArray.join(";"),
-                        FM_TITLE : $vm.vmData.FM_TITLE,
-                        FM_CONTENT : $vm.vmData.FM_CONTENT,
-                        FM_UP_USER : $vm.profile.U_ID,
-                        FM_UP_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss')
-                    },
-                    condition: {
-                        FM_CR_USER : $vm.vmData.FM_CR_USER,
-                        FM_CR_DATETIME : $vm.vmData.FM_CR_DATETIME
-                    }
-                });
-
-                // 有上傳檔案 先上傳檔案之後再Insert DB
-                if($vm.uploader.getNotUploadedItems().length > 0){
-                    $vm.uploader.uploadAll();
-                }
-                // 無上傳檔案 直接Insert DB
-                else{
-                    RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res) {
-                        console.log(res);
-
-                        ReturnToAviationMail();
-
-                        toaster.pop('success', '訊息', '更新目標成功', 3000);
-                    }, function (err) {
-                        console.log(err);
-                    });
-                }
-
-                // RestfulApi.UpdateMSSQLData({
-                //     updatename: 'Update',
-                //     table: 24,
-                //     params: {
-                //         FM_TARGET : $vm.vmData.FM_TARGET,
-                //         FM_MAIL : _mailObjectToArray.join(";"),
-                //         FM_TITLE : $vm.vmData.FM_TITLE,
-                //         FM_CONTENT : $vm.vmData.FM_CONTENT,
-                //         FM_UP_USER : $vm.profile.U_ID,
-                //         FM_UP_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss')
-                //     },
-                //     condition: {
-                //         FM_CR_USER : $vm.vmData.FM_CR_USER,
-                //         FM_CR_DATETIME : $vm.vmData.FM_CR_DATETIME
-                //     }
-                // }).then(function(res) {
-                //     console.log(res);
-
-                //     if(res["returnData"] == 1){
-                //         ReturnToAviationMail();
-
-                //         toaster.pop('success', '訊息', '更新目標成功', 3000);
-                //     }
-
-                // });
-            }else{
-                toaster.pop('danger', '失敗', '沒有任何信件', 3000);
-            }
-        },
-        /**
-         * [DeleteUploaded description] 刪除已上傳檔案
-         * @param {[type]} pDeleteUploaded [description] 檔案
-         * @param {[type]} pIndex          [description] array index
-         */
-        DeleteUploaded : function(pDeleteUploaded, pIndex){
-            var modalInstance = $uibModal.open({
-                animation: true,
-                ariaLabelledBy: 'modal-title',
-                ariaDescribedBy: 'modal-body',
-                template: $templateCache.get('isChecked'),
-                controller: 'IsCheckedModalInstanceCtrl',
-                controllerAs: '$ctrl',
-                size: 'sm',
-                windowClass: 'center-modal',
-                // appendTo: parentElem,
-                resolve: {
-                    items: function() {
-                        return pDeleteUploaded;
-                    },
-                    show: function(){
-                        return {
-                            title : "是否刪除"
-                        };
-                    }
-                }
-            });
-
-            modalInstance.result.then(function(selectedItem) {
-                // console.log(selectedItem);
-
-                RestfulApi.UpdateMSSQLData({
-                    updatename: 'Update',
-                    table: 30,
-                    params: {
-                        FMAF_SOFT_DELETE : true
-                    },
-                    condition: {
-                        FMAF_ID : selectedItem.BBAF_ID
-                    }
-                }).then(function (res) {
-                    $vm.vmData.UploadedData.splice(pIndex, 1);
-                }, function (err) {
-
-                });
-            }, function() {
-                // $log.info('Modal dismissed at: ' + new Date());
-            });
-        },
-    });
-
-    // Upload Filters
-    $vm.uploader.filters.push({
-        name: 'queueFilter',
-        fn: function(item /*{File|FileLikeObject}*/, options) {
-            // return this.queue.length < $scope.optionParam.UploadQueue;
-            return this.queue.length < 10;
-        }
-    });
-
-    $vm.uploader.filters.push({
-        name: 'sizeFilter',
-        fn: function(item /*{File|FileLikeObject}*/, options) {
-            // return item.size < $scope.optionParam.UploadSize * 1000 * 1000;
-            return item.size < 10 * 1000 * 1000;
-        }
-    });
-
-    // 處理已上傳的部分 : 當相同檔名時，不可上傳
-    $vm.uploader.filters.push({
-        name: 'nameFilter',
-        fn: function(item /*{File|FileLikeObject}*/, options) {
-            var uploadedDataLength = ($filter('filter')($vm.vmData.UploadedData, {FMAF_O_FILENAME: item.name})).length;
-            
-            if(uploadedDataLength > 0){
-                toaster.pop('info', "訊息", "已上傳過相同的檔名。", 3000);
-                return false;
-            }else{
-                return true;
-            }
-        }
-    });
-
-    // 處理未上傳的部分 : 當相同檔名時，不可上傳
-    FileUploader.FileSelect.prototype.isEmptyAfterSelection = function() {
-        return false;
-    };
-
-    // $vm.uploader.filters.push({
-    //     name: 'fileFilter',
-    //     fn: function(item /*{File|FileLikeObject}*/, options) {
-    //         var type = '|' + item.type.slice(item.type.lastIndexOf('/') + 1) + '|',
-    //             typeStr = "|";
-    //         for(var i in $scope.optionParam.UploadType){
-    //             typeStr += $scope.optionParam.UploadType[i] + "|";
-    //         }
-    //         return typeStr.indexOf(type) !== -1;
-    //     }
-    // });
-
-    // Upload Callback Methods
-    $vm.uploader.onWhenAddingFileFailed = function(item /*{File|FileLikeObject}*/, filter, options) {
-        console.info('onWhenAddingFileFailed', item, filter, options);
-        // var title = "", msg;
-        // switch(filter.name){
-        //     case "fileFilter":
-        //         title = item.name;
-        //         msg = "檔案類型錯誤。";
-        //         break;
-        //     case "sizeFilter":
-        //         title = item.name;
-        //         msg = "上傳檔案超過" + $scope.optionParam.UploadSize + "Mb。";
-        //         break;
-        //     case "queueFilter":
-        //         msg = "上傳數量超過" + $scope.optionParam.UploadQueue + "個。";
-        //         break;
-        // }
-        // toaster.pop('info', title, msg, 3000);
-    };
-    $vm.uploader.onAfterAddingFile = function(fileItem) {
-        console.info('onAfterAddingFile', fileItem);
-        var reader = new FileReader();
-
-        reader.onload = function(readerEvt) {
-            var data = readerEvt.target.result;
-            var fileNameArray = fileItem.file.name.split(".");
-            var queueIndex = $vm.uploader.queue.indexOf(fileItem);
-            var rename = angular.copy(CryptoJS.MD5(data).toString() + "." + fileNameArray[fileNameArray.length-1]);
-            
-            // Duplicate File
-            // if($filter('filter')($scope.duplicateFile, rename).length > 0){
-            //     $vm.uploader.queue[queueIndex].remove();
-            //     toaster.pop('info', '上傳檔案重複', fileItem.file["name"], 3000);
-            // }else{
-                // $scope.duplicateFile.push(rename);
-                // $scope.queueFile.push(rename);
-                fileItem.url += '&rFilename='+rename;
-            // }
-            // var dataFile = forumService.b64toBlob(btoa(data), fileItem.file.type);
-            // fileItem.file = dataFile;
-        };
-
-        reader.readAsBinaryString(fileItem._file);
-    };
-    $vm.uploader.onAfterAddingAll = function(addedFileItems) {
-        console.info('onAfterAddingAll', addedFileItems);
-    };
-    $vm.uploader.onBeforeUploadItem = function(item) {
-        console.info('onBeforeUploadItem', item);
-    };
-    $vm.uploader.onProgressItem = function(fileItem, progress) {
-        console.info('onProgressItem', fileItem, progress);
-    };
-    $vm.uploader.onProgressAll = function(progress) {
-        console.info('onProgressAll', progress);
-    };
-    $vm.uploader.onSuccessItem = function(fileItem, response, status, headers) {
-        console.info('onSuccessItem', fileItem, response, status, headers);
-    };
-    $vm.uploader.onErrorItem = function(fileItem, response, status, headers) {
-        console.info('onErrorItem', fileItem, response, status, headers);
-    };
-    $vm.uploader.onCancelItem = function(fileItem, response, status, headers) {
-        console.info('onCancelItem', fileItem, response, status, headers);
-    };
-    $vm.uploader.onCompleteItem = function(fileItem, response, status, headers) {
-        console.info('onCompleteItem', fileItem, response, status, headers);
-        if(status == 200){
-            // 儲存每個上傳檔案的資訊
-            _tasks.push({
-                crudType: 'Insert',
-                table: 30,
-                params: {
-                    FMAF_O_FILENAME : response.oFilename,
-                    FMAF_R_FILENAME : response.rFilename,
-                    FMAF_FILEPATH : response.Filepath,
-                    FMAF_FILESIZE : response.Filesize,
-                    FMAF_CR_USER : $vm.profile.U_ID,
-                    FMAF_CR_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss')
-                }
-            });
-        }else{
-            toaster.pop('error', "檔案上傳失敗", response.oFilename, 3000);
-        }
-    };
-    $vm.uploader.onCompleteAll = function() {
-        console.info('onCompleteAll');
-
-        RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res) {
-            console.log(res);
-            ReturnToAviationMail();
-        }, function (err) {
-            console.log(err);
-        });
-    };
-
-    function LoadFMAF(){
-        RestfulApi.SearchMSSQLData({
-            querymain: 'targetEditor',
-            queryname: 'SelectFMAF',
-            params: {
-                FMAF_CR_USER: $vm.vmData.FM_CR_USER,
-                FMAF_CR_DATETIME: $vm.vmData.FM_CR_DATETIME
-            }
-        }).then(function (res){
-            console.log(res["returnData"]);
-            $vm.vmData.UploadedData = res["returnData"];
-        });
-    };
-
-    function ReturnToAviationMail(){
-        $state.transitionTo($state.current.parent);
-    };
-
-})
-"use strict";
-
-angular.module('app.settings').controller('AccountCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, RestfulApi, $filter, bool, role, userGrade, $templateCache) {
-
-    var $vm = this,
-        _tasks = [];
-
-    angular.extend(this, {
-    	Init : function(){
-    		if($stateParams.data == null){
-                $vm.vmData = {
-                	U_ROLE : "SUser",
-                	U_STS : bool[0].value,
-                	// U_CHECK : bool[0].value,
-                    IU : "Add"
-                }
-            }else{
-                $vm.vmData = $stateParams.data;
-                $vm.vmData["IU"] = "Update";
-
-                LoadUserDept();
-
-                console.log($vm.vmData);
-            }
-    	},
-        profile : Session.Get(),
-        boolData : bool,
-        roleData : role,
-        gradeData : userGrade,
-        ForgetPW : function(){
-
-            var _defaultPass = "Eastwind@168";
-
-            var modalInstance = $uibModal.open({
-                animation: true,
-                ariaLabelledBy: 'modal-title',
-                ariaDescribedBy: 'modal-body',
-                template: $templateCache.get('isChecked'),
-                controller: 'IsCheckedModalInstanceCtrl',
-                controllerAs: '$ctrl',
-                size: 'sm',
-                windowClass: 'center-modal',
-                // appendTo: parentElem,
-                resolve: {
-                    items: function() {
-                        return _defaultPass;
-                    },
-                    show: function(){
-                        return {
-                            title : "即將設定為預設密碼" + _defaultPass
-                        };
-                    }
-                }
-            });
-
-            modalInstance.result.then(function(selectedItem) {
-                // console.log(selectedItem);
-                
-                $vm.vmData.U_PW = selectedItem;
-
-            }, function() {
-                // $log.info('Modal dismissed at: ' + new Date());
-            });
-
-        	// var modalInstance = $uibModal.open({
-         //        animation: true,
-         //        ariaLabelledBy: 'modal-title',
-         //        ariaDescribedBy: 'modal-body',
-         //        templateUrl: 'modifyPWModalContent.html',
-         //        controller: 'ModifyPWModalInstanceCtrl',
-         //        controllerAs: '$ctrl',
-         //        // size: 'lg',
-         //        // appendTo: parentElem,
-         //        resolve: {
-         //            pw: function () {
-         //                return $vm.vmData.U_PW;
-         //            }
-         //        }
-         //    });
-
-         //    modalInstance.result.then(function(selectedItem) {
-         //    	console.log(selectedItem);
-         //    	$vm.vmData.U_PW = selectedItem;
-                
-         //    }, function() {
-         //        // $log.info('Modal dismissed at: ' + new Date());
-         //    });
-        },
-        Return : function(){
-        	ReturnToAccountManagementPage();
-        },
-        Add : function(){
-        	console.log($vm.vmData);
-
-            // Insert此人Info
-            _tasks.unshift({
-                crudType: 'Insert',
-                insertname: 'InsertByEncrypt',
-                table: 0,
-                params: {
-                    U_ID          : $vm.vmData.U_ID,
-                    U_PW          : $vm.vmData.U_PW,
-                    U_NAME        : $vm.vmData.U_NAME,
-                    U_PHONE       : $vm.vmData.U_PHONE,
-                    U_ROLE        : $vm.vmData.U_ROLE,
-                    U_EMAIL       : $vm.vmData.U_EMAIL,
-                    U_GRADE       : $vm.vmData.U_GRADE,
-                    // U_JOB_AGENT   : $vm.vmData.U_JOB_AGENT,
-                    U_STS         : $vm.vmData.U_STS,
-                    // U_CHECK       : $vm.vmData.U_CHECK,
-                    U_CR_USER     : $vm.profile.U_ID,
-                    U_CR_DATETIME : $filter('date')(new Date, 'yyyy-MM-dd HH:mm:ss')
-                }
-            });
-
-            RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res) {
-
-                toaster.success("訊息", "帳號新增成功", 3000);
-                ReturnToAccountManagementPage();
-
-            }, function (err) {
-
-            });
-        },
-        Update : function(){
-        	console.log($vm.vmData);
-
-            // Update此人Info
-            _tasks.unshift({
-                crudType: 'Update',
-                updatename: 'UpdateByEncrypt',
-                table: 0,
-                params: {
-                    U_PW          : $vm.vmData.U_PW,
-                    U_NAME        : $vm.vmData.U_NAME,
-                    U_PHONE       : $vm.vmData.U_PHONE,
-                    U_ROLE        : $vm.vmData.U_ROLE,
-                    U_EMAIL       : $vm.vmData.U_EMAIL,
-                    U_GRADE       : $vm.vmData.U_GRADE,
-                    // U_JOB_AGENT   : $vm.vmData.U_JOB_AGENT,
-                    U_STS         : $vm.vmData.U_STS,
-                    // U_CHECK       : $vm.vmData.U_CHECK,
-                    U_UP_USER     : $vm.profile.U_ID,
-                    U_UP_DATETIME : $filter('date')(new Date, 'yyyy-MM-dd HH:mm:ss')
-                },
-                condition: {
-                    U_ID          : $vm.vmData.U_ID
-                }
-            });
-            
-        	RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res) {
-
-                toaster.success("訊息", "帳號更新成功", 3000);
-    			ReturnToAccountManagementPage();
-
-            }, function (err) {
-
-            });
-        },
-        AddUserDept : function(){
-            var modalInstance = $uibModal.open({
-                animation: true,
-                ariaLabelledBy: 'modal-title',
-                ariaDescribedBy: 'modal-body',
-                templateUrl: 'addUserDept.html',
-                controller: 'AddUserDeptModalInstanceCtrl',
-                controllerAs: '$ctrl',
-                size: 'lg',
-                resolve: {
-                    vmData: function () {
-                        return $vm.vmData;
-                    }
-                }
-            });
-
-            modalInstance.result.then(function(selectedItem) {
-                console.log(selectedItem);
-
-                $vm.vmData.UserDept = angular.copy(selectedItem);
-
-                // 初始化
-                _tasks = [];
-
-                // Delete此部門相關人員
-                _tasks.push({
-                    crudType: 'Delete',
-                    table: 14,
-                    params: {
-                        UD_ID : $vm.vmData.U_ID
-                    }
-                });
-
-                // Insert此部門相關人員
-                for(var i in selectedItem){
-                    _tasks.push({
-                        crudType: 'Insert',
-                        table: 14,
-                        params: {
-                            UD_ID : $vm.vmData.U_ID,
-                            UD_DEPT : selectedItem[i].SUD_DEPT
-                        }
-                    });
-                }
-
-            }, function() {
-                // $log.info('Modal dismissed at: ' + new Date());
-            });
-        }
-    });
-
-    function LoadUserDept(){
-        RestfulApi.SearchMSSQLData({
-            querymain: 'account',
-            queryname: 'SelectUserDept',
-            params: {
-                UD_ID : $vm.vmData.U_ID
-            }
-        }).then(function (res){
-            console.log(res["returnData"]);
-            $vm.vmData.UserDept = res["returnData"];
-        });
-    };
-
-    function ReturnToAccountManagementPage(){
-        // if(_tasks.length > 0){
-        //     toaster.success("狀態", "資料上傳成功", 3000);    
-        // }
-        $state.transitionTo("app.settings.accountmanagement");
-    };
-
-})
-.controller('ModifyPWModalInstanceCtrl', function ($uibModalInstance, pw) {
-    var $ctrl = this;
-    $ctrl.mdData = {};
-
-    /**
-     * [CheckPW description]
-     * N_PW : 當前密碼
-     * M_PW : 更改密碼
-     * C_PW : 確認密碼
-     */
-    $ctrl.CheckPW = function(){
-    	var _check = true;
-
-    	// N_PW必須輸入且正確
-    	if(!angular.isUndefined($ctrl.mdData['N_PW']) && $ctrl.mdData['N_PW'] == pw){
-	    	if(!angular.isUndefined($ctrl.mdData['M_PW']) && !angular.isUndefined($ctrl.mdData['C_PW'])){
-	    		// 更改密碼 等於 確認密碼
-		    	if($ctrl.mdData['M_PW'] == $ctrl.mdData['C_PW']){
-		    		_check = false;
-		    	}
-	    	}
-    	}
-
-    	return _check;
-    };
-
-    $ctrl.ok = function() {
-        $uibModalInstance.close($ctrl.mdData.C_PW);
-    };
-
-    $ctrl.cancel = function() {
-        $uibModalInstance.dismiss('cancel');
-    };
-})
-.controller('AddUserDeptModalInstanceCtrl', function ($uibModalInstance, RestfulApi, $filter, $timeout, vmData) {
-    var $ctrl = this;
-    $ctrl.vmData = vmData;
-    $ctrl.mdData = [];
-
-    $ctrl.MdInit = function(){
-        RestfulApi.SearchMSSQLData({
-            querymain: 'account',
-            queryname: 'SelectSysUserDept',
-            params: {
-                SUD_STS : false
-            }
-        }).then(function (res){
-            console.log(res["returnData"]);
-            // console.log(res);
-            // 顯示所有帳號
-            $ctrl.mdData = res["returnData"];
-            // 把已被選取的帳號打勾
-            $timeout(function() {
-                if($ctrl.mdDataGridApi.selection.selectRow){
-                    // console.log($ctrl.vmData["UserGroup"]);
-                    for(var i in $ctrl.vmData["UserDept"]){
-                        $ctrl.mdDataGridApi.selection.selectRow($filter('filter')($ctrl.mdData, {SUD_DEPT: $ctrl.vmData["UserDept"][i].SUD_DEPT})[0]);
-                    }
-                }
-            });
-        });
-    }
-
-    $ctrl.mdDataOptions = {
-        data:  '$ctrl.mdData',
-        columnDefs: [
-            { name: 'SUD_DEPT'  ,  displayName: '部門代號'},
-            { name: 'SUD_DLVL'  ,  displayName: '部門層級'},
-            { name: 'SUD_DPATH' ,  displayName: '層級路徑'},
-            { name: 'SUD_NAME'  ,  displayName: '部門名稱'}
-        ],
-        enableSorting: false,
-        enableColumnMenus: false,
-        enableFiltering: true,
-        enableRowSelection: true,
-        enableSelectAll: true,
-        selectionRowHeaderWidth: 35,
-        paginationPageSizes: [10, 25, 50, 100],
-        paginationPageSize: 100,
-        onRegisterApi: function(gridApi){ 
-            $ctrl.mdDataGridApi = gridApi;
-        } 
-    };
-
-    $ctrl.ok = function() {
-        $uibModalInstance.close($ctrl.mdDataGridApi.selection.getSelectedRows());
-    };
-
-    $ctrl.cancel = function() {
-        $uibModalInstance.dismiss('cancel');
-    };
-});
-"use strict";
-
-angular.module('app.settings').controller('GroupCtrl', function ($scope, $stateParams, $state, AuthApi, ToolboxApi, Session, toaster, $uibModal, $templateCache, $filter, SysCode, UserGrade, RestfulApi, bool) {
-    // console.log($stateParams);
-
-	var $vm = this,
-        _task = [];
-
-	angular.extend(this, {
-        Init : function(){
-            // 不正常登入此頁面
-            if($stateParams.data == null) ReturnToBillboardEditorPage();
-            // 撈UserGroup資料
-            else {
-                LoadUserGroup();
-            }
-        },
-        profile : Session.Get(),
-        boolData : bool,
-        vmData : $stateParams.data,
-        groupMenu : [
-            {"content": "<span><i class=\"fa fa-lg fa-folder-open\"></i> 根目錄</span>", "expanded": true, "children": []}
-        ],
-        checkedData : [],
-        AddGroupPeople : function(){
-            var modalInstance = $uibModal.open({
-                animation: true,
-                ariaLabelledBy: 'modal-title',
-                ariaDescribedBy: 'modal-body',
-                templateUrl: 'addGroupPeople.html',
-                controller: 'AddGroupPeopleModalInstanceCtrl',
-                controllerAs: '$ctrl',
-                size: 'lg',
-                resolve: {
-                    vmData: function () {
-                        return $vm.vmData;
-                    },
-                    depart: function() {
-                        return SysCode.get('Depart');
-                    },
-                    userGrade: function(){
-                        return UserGrade.get();
-                    }
-                }
-            });
-
-            modalInstance.result.then(function(selectedItem) {
-                console.log(selectedItem);
-
-                $vm.vmData.UserGroup = angular.copy(selectedItem);
-
-                // 初始化
-                _task = [];
-
-                // Delete此Group相關人員
-                _task.push({
-                    crudType: 'Delete',
-                    table: 4,
-                    params: {
-                        UG_GROUP : $vm.vmData.SG_GCODE
-                    }
-                });
-
-                // Insert此Group相關人員
-                for(var i in selectedItem){
-                    _task.push({
-                        crudType: 'Insert',
-                        table: 4,
-                        params: {
-                            UG_ID : selectedItem[i].U_ID,
-                            UG_GROUP : $vm.vmData.SG_GCODE
-                        }
-                    });
-                }
-
-            }, function() {
-                // $log.info('Modal dismissed at: ' + new Date());
-            });
-        },
-        Return : function(){
-            ReturnToBillboardEditorPage();
-        },
-        Update : function(){
-
-            // 找出GroupMenu已被Checked
-            _.forEach($vm.groupMenu, function(item){
-                FindChecked(item, 1);
-            })
-
-            var _tasks = [];
-
-            _tasks.push({
-                crudType: 'Update',
-                table: 6,
-                params: {
-                    SG_TITLE       : $vm.vmData.SG_TITLE,
-                    SG_DESC        : $vm.vmData.SG_DESC,
-                    SG_STS         : $vm.vmData.SG_STS,
-                    SG_UP_DATETIME : $filter('date')(new Date, 'yyyy-MM-dd HH:mm:ss')
-                },
-                condition: {
-                    SG_GCODE : $vm.vmData.SG_GCODE
-                }
-            });
-
-            // 把群組人員塞入
-            for(var i in _task){
-                _tasks.push(_task[i]);
-            }
-
-            _tasks.push({
-                crudType: 'Delete',
-                table: 5,
-                params: {
-                    UR_GROUP : $vm.vmData.SG_GCODE
-                }
-            });
-
-            // 把GroupMenu Checked塞入
-            for(var i in $vm.checkedData){
-                _tasks.push({
-                    crudType: 'Insert',
-                    table: 5,
-                    params: {
-                        UR_GROUP : $vm.vmData.SG_GCODE,
-                        UR_SYSID : $vm.checkedData[i].sysId,
-                        UR_PROG  : $vm.checkedData[i].name.toLowerCase()
-                    }
-                });
-            }
-
-            RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res){
-                console.log(res);
-
-                ReturnToBillboardEditorPage();
-
-            }, function (err){
-                
-            });
-        }
-	})
-
-    // 產生GroupMenu
-    function DoGroupMenu(){
-        ToolboxApi.ComposeMenu().then(function(res){ 
-            console.log(res);
-            _.forEach(res.items, function(item) {
-                CreateItem(item, $vm.groupMenu[0], 1);
-            })    
-        })    
-    }
-
-    // 遞迴的方式產生GroupMenu的Item
-    function CreateItem(item, parent, level){
-        var rowData = null;
-
-        // 當為子目錄時
-        if(item.items){
-            rowData = {
-                "content": "<span><i class=\"fa fa-lg fa-plus-circle\"></i> "+$scope.getWord(item.title)+"</span>", 
-                "expanded": true, 
-                "children": []
-            };
-
-            _.forEach(item.items, function(child) {
-                CreateItem(child, rowData, level+1);
-            })
-        }
-        // 當為子項目時
-        else{
-            // 是否在DB資料庫有這筆資料
-            if(($filter('filter')($vm.groupMenuData, {"UR_PROG" : item.title})).length > 0){
-                rowData = {
-                    "content": "<span> <label class=\"checkbox inline-block\"><input type=\"checkbox\" checked=\"checked\" name=\"checkbox-inline\"><i></i>"+$scope.getWord(item.title)+"</label> </span>",
-                    "isChecked": true,
-                    "name": item.title,
-                    "sysId": item.sysId
-                };
-            }else{
-                rowData = {
-                    "content": "<span> <label class=\"checkbox inline-block\"><input type=\"checkbox\" name=\"checkbox-inline\"><i></i>"+$scope.getWord(item.title)+"</label> </span>",
-                    "isChecked": false,
-                    "name": item.title,
-                    "sysId": item.sysId
-                };
-            }
-        } 
-
-        parent.children.push(rowData);
-    }
-
-    // 找出已經被Checked的item
-    function FindChecked(item, level){
-        if(item.children){
-            _.forEach(item.children, function(child) {
-                FindChecked(child, level+1);
-            })
-        }else{
-            if(item.isChecked){
-                $vm.checkedData.push(item);
-            }
-        }
-    }
-
-    function LoadUserGroup(){
-
-        RestfulApi.CRUDMSSQLDataByTask([
-            {
-                crudType: 'Select',
-                querymain: 'group',
-                queryname: 'SelectUserGroup',
-                params: {
-                    UG_GROUP : $vm.vmData.SG_GCODE
-                }
-            },
-            {
-                crudType: 'Select',
-                querymain: 'group',
-                queryname: 'SelectUserGRight',
-                params: {
-                    UR_GROUP : $vm.vmData.SG_GCODE
-                }
-            }
-        ]).then(function (res){
-            console.log(res);
-
-            $vm.vmData.UserGroup = res["returnData"][0];
-            $vm.groupMenuData = res["returnData"][1];
-
-            DoGroupMenu();
-
-        }, function (err){
-            
-        });
-    };
-
-	function ReturnToBillboardEditorPage(){
-        $state.transitionTo("app.settings.accountmanagement");
-    };
-
-})
-.controller('AddGroupPeopleModalInstanceCtrl', function ($uibModalInstance, RestfulApi, vmData, $filter, $timeout, uiGridConstants, depart, userGrade) {
-    var $ctrl = this;
-    $ctrl.vmData = vmData;
-    $ctrl.gradeFilter = userGrade;
-    $ctrl.depart = depart;
-
-    $ctrl.mdData = [];
-
-    $ctrl.MdInit = function(){
-        RestfulApi.SearchMSSQLData({
-            querymain: 'group',
-            queryname: 'SelectAllUserInfoNotWithAdmin'
-        }).then(function (res){
-            console.log(res["returnData"]);
-            // console.log(res);
-            // 顯示所有帳號
-            $ctrl.mdData = res["returnData"];
-            // 把已被選取的帳號打勾
-            $timeout(function() {
-                if($ctrl.mdDataGridApi.selection.selectRow){
-                    // console.log($ctrl.vmData["UserGroup"]);
-                    for(var i in $ctrl.vmData["UserGroup"]){
-                        $ctrl.mdDataGridApi.selection.selectRow($filter('filter')($ctrl.mdData, {U_ID: $ctrl.vmData["UserGroup"][i].U_ID})[0]);
-                    }
-                }
-            });
-        });
-    };
-
-    $ctrl.mdDataOptions = {
-        data:  '$ctrl.mdData',
-        columnDefs: [
-            { name: 'U_ID'     ,  displayName: '帳號' },
-            { name: 'U_NAME'   ,  displayName: '名稱' },
-            { name: 'U_GRADE'  ,  displayName: '職稱', cellFilter: 'gradeFilter', filter: 
-                {
-                    term: null,
-                    type: uiGridConstants.filter.SELECT,
-                    selectOptions: $ctrl.gradeFilter
-                }
-            }
-        ],
-        enableSorting: false,
-        enableColumnMenus: false,
-        enableFiltering: true,
-        enableRowSelection: true,
-        enableSelectAll: true,
-        selectionRowHeaderWidth: 35,
-        paginationPageSizes: [10, 25, 50, 100],
-        paginationPageSize: 100,
-        onRegisterApi: function(gridApi){ 
-            $ctrl.mdDataGridApi = gridApi;
-        } 
-    };
-
-    $ctrl.ok = function() {
-        $uibModalInstance.close($ctrl.mdDataGridApi.selection.getSelectedRows());
-    };
-
-    $ctrl.cancel = function() {
-        $uibModalInstance.dismiss('cancel');
-    };
-});
-"use strict";
-
-angular.module('app.settings').controller('ExAccountCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, $filter, SysCode, RestfulApi, bool, compy) {
-
-	var $vm = this;
-    // console.log(Account.get());
-
-	angular.extend(this, {
-        Init : function(){
-            if($stateParams.data == null){
-                $vm.vmData = {
-                	CI_STS : false,
-                    IU : "Add"
-                }
-            }else{
-                $vm.vmData = $stateParams.data;
-                $vm.vmData["IU"] = "Update";
-
-                console.log($vm.vmData);
-            }
-        },
-        profile : Session.Get(),
-        boolData : bool,
-        compyData : compy,
-        ForgetPW : function(){
-
-            var _defaultPass = "Eastwind@168";
-
-            var modalInstance = $uibModal.open({
-                animation: true,
-                ariaLabelledBy: 'modal-title',
-                ariaDescribedBy: 'modal-body',
-                template: $templateCache.get('isChecked'),
-                controller: 'IsCheckedModalInstanceCtrl',
-                controllerAs: '$ctrl',
-                size: 'sm',
-                windowClass: 'center-modal',
-                // appendTo: parentElem,
-                resolve: {
-                    items: function() {
-                        return _defaultPass;
-                    },
-                    show: function(){
-                        return {
-                            title : "即將設定為預設密碼" + _defaultPass
-                        };
-                    }
-                }
-            });
-
-            modalInstance.result.then(function(selectedItem) {
-                // console.log(selectedItem);
-                
-                $vm.vmData.CI_PW = selectedItem;
-
-            }, function() {
-                // $log.info('Modal dismissed at: ' + new Date());
-            });
-        },
-        Return : function(){
-        	ReturnToExternalManagementPage();
-        },
-        Add : function(){
-            RestfulApi.InsertMSSQLData({
-                insertname: 'InsertByEncrypt',
-                table: 7,
-                params: {
-                    CI_ID          : $vm.vmData.CI_ID,
-                    CI_PW          : $vm.vmData.CI_PW,
-                    CI_NAME        : $vm.vmData.CI_NAME,
-                    CI_COMPY       : $vm.vmData.CI_COMPY,
-                    CI_STS         : $vm.vmData.CI_STS,
-                    CI_CR_USER     : $vm.profile.U_ID,
-                    CI_CR_DATETIME : $filter('date')(new Date, 'yyyy-MM-dd HH:mm:ss')
-                }
-            }).then(function(res) {
-                // console.log(res);
-                toaster.pop('success', '訊息', '新增外部帳號成功', 3000);
-
-                ReturnToExternalManagementPage();
-
-                // $state.reload()
-            });
-        },
-        Update : function(){
-            RestfulApi.UpdateMSSQLData({
-                updatename: 'UpdateByEncrypt',
-                table: 7,
-                params: {
-                    CI_PW          : $vm.vmData.CI_PW,
-                    CI_NAME        : $vm.vmData.CI_NAME,
-                    CI_COMPY       : $vm.vmData.CI_COMPY,
-                    CI_STS         : $vm.vmData.CI_STS,
-                    CI_UP_USER     : $vm.profile.U_ID,
-                    CI_UP_DATETIME : $filter('date')(new Date, 'yyyy-MM-dd HH:mm:ss')
-                },
-                condition: {
-                    CI_ID         : $vm.vmData.CI_ID
-                }
-            }).then(function (res) {
-                toaster.pop('success', '訊息', '更新外部帳號成功', 3000);
-
-                ReturnToExternalManagementPage();
-
-            }, function (err) {
-
-            });
-        }
-	})
-
-    function ReturnToExternalManagementPage(){
-        $state.transitionTo("app.settings.externalmanagement");
-    };
-
-});
-"use strict";
-
-angular.module('app.settings').controller('ExCompyCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $filter, RestfulApi, bool, coWeights) {
-
-	var $vm = this;
-    // console.log(Account.get());
-
-	angular.extend(this, {
-        Init : function(){
-            // 不正常登入此頁面
-            if($stateParams.data == null){
-               ReturnToExternalManagementPage(); 
-            } else{
-                $vm.vmData = $stateParams.data;
-            }
-        },
-        profile : Session.Get(),
-        boolData : bool,
-        coWeightsData : coWeights,
-        Return : function(){
-        	ReturnToExternalManagementPage();
-        },
-        Update : function(){
-        	console.log($vm.vmData);
-        	RestfulApi.UpdateMSSQLData({
-                updatename: 'Update',
-                table: 8,
-                params: {
-                    CO_ID          : $vm.vmData.CO_ID,
-		        	CO_STS         : $vm.vmData.CO_STS,
-					CO_NAME        : $vm.vmData.CO_NAME,
-					CO_NUMBER      : $vm.vmData.CO_NUMBER,
-					CO_ADDR        : $vm.vmData.CO_ADDR,
-                    CO_AREA        : $vm.vmData.CO_AREA,
-                    CO_WEIGHTS     : $vm.vmData.CO_WEIGHTS,
-                    CO_UP_USER     : $vm.profile.U_ID,
-                    CO_UP_DATETIME : $filter('date')(new Date(), 'yyyy-MM-dd HH:mm:ss')
-                },
-                condition: {
-                    CO_CODE : $vm.vmData.CO_CODE
-                }
-            }).then(function (res) {
-
-                toaster.pop('success', '訊息', '更新行家成功', 3000);
-
-                // 新增成功後，更新compy的值
-                $filter('compyFilter')({}, true);
-                
-                ReturnToExternalManagementPage();
-
-            }, function (err) {
-
-            });
-        }
-	})
-
-	function ReturnToExternalManagementPage(){
-        // $state.transitionTo("app.settings.externalmanagement", null, { 
-        //     reload: true, inherit: false, notify: true
-        // });
-        $state.transitionTo($state.current.parent);
-	}
-
 });
 "use strict";
 
@@ -23883,6 +21979,2248 @@ angular.module('app.selfwork').controller('Job003Ctrl', function ($scope, $state
     };
 
 });
+"use strict";
+
+angular.module('app.selfwork.leaderoption').controller('AgentSettingCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, $filter, uiGridConstants, RestfulApi, userInfoByCompyDistribution, compy, $q, uiGridGroupingConstants, coWeights) {
+    
+    var $vm = this;
+
+	angular.extend(this, {
+        Init : function(){
+            if(userInfoByCompyDistribution[0].length == 0){
+                toaster.pop('info', '訊息', '請先設定行家分配', 3000);
+                $vm.vmData = [];
+            }else{
+                $vm.selectAssignDept = userInfoByCompyDistribution[0][0].value;
+                LoadCompyAgent();
+            }
+        },
+        profile : Session.Get(),
+        assignGradeData : userInfoByCompyDistribution[0],
+        assignAgentData : userInfoByCompyDistribution[1],
+        agentSettingOptions : {
+            data:  '$vm.vmData',
+            columnDefs: [
+                { name: 'COD_PRINCIPAL',  displayName: '負責人', cellFilter: 'userInfoFilter', grouping: { groupPriority: 0 }, filter: 
+                    {
+                        term: null,
+                        type: uiGridConstants.filter.SELECT,
+                        selectOptions: userInfoByCompyDistribution[0].length == 0 ? [] : userInfoByCompyDistribution[1][userInfoByCompyDistribution[0][0].value]
+                    }
+                },
+                { name: 'COD_CODE'      ,  displayName: '行家', cellFilter: 'compyFilter', filter: 
+                    {
+                        term: null,
+                        type: uiGridConstants.filter.SELECT,
+                        selectOptions: compy
+                    }, 
+                    treeAggregationType: uiGridGroupingConstants.aggregation.COUNT, 
+                    customTreeAggregationFinalizerFn: function( aggregation ) {
+                        aggregation.rendered = aggregation.value;
+                    }
+                },
+                { name: 'CO_WEIGHTS',  displayName: '權重', cellFilter: 'coWeightsFilter', filter: 
+                    {
+                        term: null,
+                        type: uiGridConstants.filter.SELECT,
+                        selectOptions: coWeights
+                    }
+                },
+                { name: 'AGENT_COUNT'   ,  displayName: '代理人數' , treeAggregationType: uiGridGroupingConstants.aggregation.SUM, 
+                    customTreeAggregationFinalizerFn: function( aggregation ) {
+                        aggregation.rendered = aggregation.value;
+                    }
+                }
+                // { name: 'AS_AGENT'     ,  displayName: '職務代理人', cellFilter: 'userInfoFilter', filter: 
+                //     {
+                //         term: null,
+                //         type: uiGridConstants.filter.SELECT,
+                //         selectOptions: userInfoByCompyDistribution[0].length == 0 ? [] : userInfoByCompyDistribution[1][userInfoByCompyDistribution[0][0].value]
+                //     }
+                // }
+            ],
+            enableFiltering: true,
+            enableSorting: false,
+            enableColumnMenus: false,
+            groupingShowCounts: false,
+            // enableVerticalScrollbar: false,
+            paginationPageSizes: [10, 25, 50, 100],
+            paginationPageSize: 100,
+            expandableRowTemplate: 'expandableRowTemplate.html',
+            expandableRowHeight: 150,
+            enableCellEdit: false,
+            enableGroupHeaderSelection: true,
+            expandableRowScope: {
+                $vm : {
+                    gridMethod : {
+                        deleteData : function(row){
+                            console.log(row);
+
+                            var modalInstance = $uibModal.open({
+                                animation: true,
+                                ariaLabelledBy: 'modal-title',
+                                ariaDescribedBy: 'modal-body',
+                                template: $templateCache.get('isChecked'),
+                                controller: 'IsCheckedModalInstanceCtrl',
+                                controllerAs: '$ctrl',
+                                size: 'sm',
+                                windowClass: 'center-modal',
+                                // appendTo: parentElem,
+                                resolve: {
+                                    items: function() {
+                                        return row.entity;
+                                    },
+                                    show: function(){
+                                        return {
+                                            title : "是否刪除"
+                                        };
+                                    }
+                                }
+                            });
+
+                            modalInstance.result.then(function(selectedItem) {
+                                // $ctrl.selected = selectedItem;
+                                console.log(selectedItem);
+
+                                RestfulApi.DeleteMSSQLData({
+                                    deletename: 'Delete',
+                                    table: 17,
+                                    params: {
+                                        AS_CODE : row.entity.AS_CODE,
+                                        AS_DEPT : row.entity.AS_DEPT,
+                                        AS_AGENT : row.entity.AS_AGENT,
+                                        AS_PRINCIPAL : row.entity.AS_PRINCIPAL
+                                    }
+                                }).then(function (res) {
+                                    for(var i in $vm.vmData){
+                                        if($vm.vmData[i].COD_PRINCIPAL == row.entity.AS_PRINCIPAL && 
+                                            $vm.vmData[i].COD_CODE == row.entity.AS_CODE){
+                                            $vm.vmData[i].AGENT_COUNT -= 1;
+
+                                            var foundItem = $filter('filter')($vm.vmData[i].subGridOptions.data, {
+                                                AS_CODE : row.entity.AS_CODE,
+                                                AS_DEPT : row.entity.AS_DEPT,
+                                                AS_AGENT : row.entity.AS_AGENT,
+                                                AS_PRINCIPAL : row.entity.AS_PRINCIPAL
+                                            })[0];
+
+                                            var itemIndex = $vm.vmData[i].subGridOptions.data.indexOf(foundItem);
+
+                                            $vm.vmData[i].subGridOptions.data.splice(itemIndex, 1);
+
+                                            $vm.agentSettingGridApi.grid.refresh();
+                                            break;
+                                        }
+                                    }
+
+                                });
+
+                            }, function() {
+                                // $log.info('Modal dismissed at: ' + new Date());
+                            });
+                        }
+                    }
+                }
+            },
+            onRegisterApi: function(gridApi){
+                $vm.agentSettingGridApi = gridApi;
+
+                gridApi.rowEdit.on.saveRow($scope, $vm.Update);
+
+                gridApi.selection.on.rowSelectionChanged( $scope, function ( rowChanged ) {
+                    if ( typeof(rowChanged.treeLevel) !== 'undefined' && rowChanged.treeLevel > -1 ) {
+                        // this is a group header
+                        var children = $vm.agentSettingGridApi.treeBase.getRowChildren( rowChanged );
+                        children.forEach( function ( child ) {
+                            if ( rowChanged.isSelected ) {
+                                $vm.agentSettingGridApi.selection.selectRow( child.entity );
+                            } else {
+                                $vm.agentSettingGridApi.selection.unSelectRow( child.entity );
+                            }
+                        });
+                    }
+                });
+            }
+        },
+        AssignAgent : function(){
+            if($vm.agentSettingGridApi.selection.getSelectedRows().length > 0){
+                var _getSelectedRows = $vm.agentSettingGridApi.selection.getSelectedRows(),
+                    _getDirtyData = [];
+
+                for(var i in _getSelectedRows){
+                    // 負責人不等於代理人 和 沒有相同代理人才塞入
+                    if((_getSelectedRows[i].COD_PRINCIPAL != $vm.selectAssignAgent) && 
+                        $filter('filter')(_getSelectedRows[i].subGridOptions.data, { AS_AGENT : $vm.selectAssignAgent }).length == 0 && 
+                        $filter('filter')(_getSelectedRows[i].subGridOptions.data, { AS_PRINCIPAL : $vm.selectAssignAgent }).length == 0){
+                        
+                        _getSelectedRows[i].subGridOptions.data.push({
+                            AS_CODE : _getSelectedRows[i].COD_CODE,
+                            AS_DEPT : $vm.selectAssignDept,
+                            AS_AGENT : $vm.selectAssignAgent,
+                            AS_PRINCIPAL : _getSelectedRows[i].COD_PRINCIPAL
+                        });
+
+                        // _getSelectedRows[i].AGENT_COUNT = _getSelectedRows[i].subGridOptions.data.length;
+                        _getDirtyData.push(_getSelectedRows[i]);
+
+                        // 表示需要更新
+                        // _getDirty = true;
+                    }
+                }
+
+                if(_getDirtyData.length > 0){
+                    $vm.agentSettingGridApi.rowEdit.setRowsDirty(_getDirtyData);
+                }else{
+                    toaster.pop('info', '訊息', '負責人或代理人重複', 3000);
+                }
+                
+                $vm.agentSettingGridApi.selection.clearSelectedRows();
+                // 清除group的Select
+                $vm.agentSettingGridApi.grid.treeBase.tree.forEach(function(entity){
+                    entity.row.isSelected = false;
+                });
+            }
+        },
+        CancelAgent : function(){
+            if($vm.agentSettingGridApi.selection.getSelectedRows().length > 0){
+                var _getSelectedRows = $vm.agentSettingGridApi.selection.getSelectedRows(),
+                    _getDirtyData = [];
+                for(var i in _getSelectedRows){
+                    if(_getSelectedRows[i].subGridOptions.data.length > 0){
+                        _getDirtyData.push(_getSelectedRows[i]);
+                    }
+
+                    // 把代理人清空
+                    _getSelectedRows[i].subGridOptions.data = [];
+
+                    // _getSelectedRows[i].AGENT_COUNT = _getSelectedRows[i].subGridOptions.data.length;
+                }
+                
+                // $vm.agentSettingGridApi.grid.refresh();
+                if(_getDirtyData.length > 0){
+                    $vm.agentSettingGridApi.rowEdit.setRowsDirty(_getDirtyData);
+                }
+                $vm.agentSettingGridApi.selection.clearSelectedRows();
+            }
+        },
+        // Save : function(){
+
+        //     var _tasks = [],
+        //         _d = new Date();
+
+        //     // Delete此Leader管理的行家代理人
+        //     _tasks.push({
+        //         crudType: 'Delete',
+        //         table: 17,
+        //         params: {
+        //             AS_DEPT : $vm.selectAssignDept,
+        //             // AS_CR_USER : $vm.profile.U_ID
+        //         }
+        //     });
+
+        //     // Insert此Leader管理的行家代理人
+        //     for(var i in $vm.vmData){
+        //         if($vm.vmData[i].AS_AGENT != null){
+        //             _tasks.push({
+        //                 crudType: 'Insert',
+        //                 table: 17,
+        //                 params: {
+        //                     AS_CODE : $vm.vmData[i].COD_CODE,
+        //                     AS_DEPT : $vm.selectAssignDept,
+        //                     AS_AGENT : $vm.vmData[i].AS_AGENT,
+        //                     AS_CR_USER : $vm.profile.U_ID,
+        //                     AS_CR_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss')
+        //                 }
+        //             });
+        //         }
+        //     }
+
+        //     RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res){
+        //         console.log(res["returnData"]);
+        //         toaster.pop('success', '訊息', '代理人設定儲存成功', 3000);
+        //     });    
+        // },
+        Update : function(entity){
+            // console.log(entity);
+
+            // create a fake promise - normally you'd use the promise returned by $http or $resource
+            var promise = $q.defer();
+            $vm.agentSettingGridApi.rowEdit.setSavePromise( entity, promise.promise );
+        
+            var _tasks = [],
+                _d = new Date();
+
+            // Delete此負責人的代理人
+            _tasks.push({
+                crudType: 'Delete',
+                table: 17,
+                params: {
+                    AS_CODE : entity.COD_CODE,
+                    AS_DEPT : entity.COD_DEPT,
+                    AS_PRINCIPAL :  entity.COD_PRINCIPAL
+                }
+            });
+
+            // Insert此負責人的代理人
+            for(var i in entity.subGridOptions.data){
+                _tasks.push({
+                    crudType: 'Insert',
+                    table: 17,
+                    params: {
+                        AS_CODE : entity.subGridOptions.data[i].AS_CODE,
+                        AS_DEPT : entity.subGridOptions.data[i].AS_DEPT,
+                        AS_AGENT : entity.subGridOptions.data[i].AS_AGENT,
+                        AS_PRINCIPAL : entity.subGridOptions.data[i].AS_PRINCIPAL,
+                        AS_CR_USER : $vm.profile.U_ID,
+                        AS_CR_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss')
+                    }
+                });
+            }
+
+            RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res){
+                promise.resolve();
+            }, function (err) {
+                toaster.pop('danger', '錯誤', '更新失敗', 3000);
+                promise.reject();
+            }).finally(function(){
+                if($vm.agentSettingGridApi.rowEdit.getDirtyRows().length == 0){
+                    LoadCompyAgent();
+                }
+            });    
+        },
+        LoadCompyAgent : function(){
+            LoadCompyAgent();
+        }
+    });
+
+    function LoadCompyAgent(){
+
+        RestfulApi.CRUDMSSQLDataByTask([
+            {  
+                crudType: 'Select',
+                querymain: 'agentSetting',
+                queryname: 'SelectCompyDistribution',
+                params: {
+                    COD_DEPT : $vm.selectAssignDept
+                }
+            },
+            {
+                crudType: 'Select',
+                querymain: 'agentSetting',
+                queryname: 'SelectAgentSetting',
+                params: {
+                    COD_DEPT : $vm.selectAssignDept
+                }
+            }
+        ]).then(function (res){
+            console.log(res["returnData"]);
+
+            for(var i in res["returnData"][0]){
+
+                var _data =[];
+
+                for(var j in res["returnData"][1]){
+                    if(res["returnData"][0][i].COD_PRINCIPAL == res["returnData"][1][j].AS_PRINCIPAL &&
+                        res["returnData"][0][i].COD_CODE == res["returnData"][1][j].AS_CODE){
+                        _data.push(res["returnData"][1][j]);
+                    }
+                }
+
+                res["returnData"][0][i].subGridOptions = {
+                    data: _data,
+                    columnDefs: [ 
+                        {field: "AS_AGENT", name: "代理人", cellFilter: 'userInfoFilter', filter: 
+                            {
+                                term: null,
+                                type: uiGridConstants.filter.SELECT,
+                                selectOptions: userInfoByCompyDistribution[0].length == 0 ? [] : userInfoByCompyDistribution[1][userInfoByCompyDistribution[0][0].value]
+                            }
+                        },
+                        { name: 'Options'     , displayName: '操作', width: '5%', enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToD') }
+                    ],
+                    enableFiltering: true,
+                    enableSorting: true,
+                    enableColumnMenus: false
+                };
+                res["returnData"][0][i]["AGENT_COUNT"] = _data.length;
+            }
+
+            $vm.vmData = res["returnData"][0];
+
+        }).finally(function() {
+            console.log($vm.agentSettingOptions);
+            // 更新filter selectOptions的值
+            $vm.agentSettingOptions.columnDefs[0].filter.selectOptions = userInfoByCompyDistribution[1][$vm.selectAssignDept];
+            for(var i in $vm.vmData){
+                $vm.vmData[i].subGridOptions.columnDefs[0].filter.selectOptions = userInfoByCompyDistribution[1][$vm.selectAssignDept];
+            }
+        });
+
+        // RestfulApi.SearchMSSQLData({
+        //     querymain: 'agentSetting',
+        //     queryname: 'SelectCompyAgent',
+        //     params: {
+        //         COD_DEPT : $vm.selectAssignDept
+        //     }
+        // }).then(function (res){
+        //     console.log(res["returnData"]);
+        //     $vm.vmData = res["returnData"];
+        // }).finally(function() {
+        //     // 更新filter selectOptions的值
+        //     $vm.agentSettingGridApi.grid.columns[2].filter.selectOptions = userInfoByCompyDistribution[1][$vm.selectAssignDept];
+        //     $vm.agentSettingGridApi.grid.columns[3].filter.selectOptions = userInfoByCompyDistribution[1][$vm.selectAssignDept];
+        // });    
+    }
+
+})
+"use strict";
+
+angular.module('app.selfwork.leaderoption').controller('CompyDistributionCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, $filter, $q, RestfulApi, uiGridConstants, userInfoByGrade, compy, coWeights) {
+    
+    var $vm = this;
+
+	angular.extend(this, {
+        Init : function(){
+            $vm.selectAssignDept = userInfoByGrade[0][0].value;
+            LoadCompyDistribution();
+        },
+        profile : Session.Get(),
+        assignGradeData : userInfoByGrade[0],
+        assignPrincipalData : userInfoByGrade[1],
+        compyDistributionOptions : {
+            data:  '$vm.compyDistributionData',
+            columnDefs: [
+                // { name: 'CO_NUMBER'    ,  displayName: '公司統編' },
+                { name: 'CO_CODE'       ,  displayName: '行家', cellFilter: 'compyFilter', filter: 
+                    {
+                        term: null,
+                        type: uiGridConstants.filter.SELECT,
+                        selectOptions: compy
+                    }
+                },
+                { name: 'CO_WEIGHTS',  displayName: '權重', cellFilter: 'coWeightsFilter', filter: 
+                    {
+                        term: null,
+                        type: uiGridConstants.filter.SELECT,
+                        selectOptions: coWeights
+                    }
+                },
+                // { name: 'CO_ADDR'      ,  displayName: '公司地址' },
+                // { name: 'COD_PRINCIPAL',  displayName: '負責人' , cellFilter: 'userInfoFilter', filter: 
+                //     {
+                //         term: null,
+                //         type: uiGridConstants.filter.SELECT,
+                //         selectOptions: userInfoByGrade[1][userInfoByGrade[0][0].value]
+                //     }
+                // }
+                { name: 'PRINCIPAL_COUNT',  displayName: '負責人數' }
+            ],
+            enableFiltering: true,
+            enableSorting: true,
+            enableColumnMenus: false,
+            // enableVerticalScrollbar: false,
+            paginationPageSizes: [10, 25, 50, 100],
+            paginationPageSize: 100,
+            expandableRowTemplate: 'expandableRowTemplate.html',
+            expandableRowHeight: 150,
+            expandableRowScope: {
+                $vm : {
+                    gridMethod : {
+                        deleteData : function(row){
+                            console.log(row);
+
+                            var modalInstance = $uibModal.open({
+                                animation: true,
+                                ariaLabelledBy: 'modal-title',
+                                ariaDescribedBy: 'modal-body',
+                                template: $templateCache.get('isChecked'),
+                                controller: 'IsCheckedModalInstanceCtrl',
+                                controllerAs: '$ctrl',
+                                size: 'sm',
+                                windowClass: 'center-modal',
+                                // appendTo: parentElem,
+                                resolve: {
+                                    items: function() {
+                                        return row.entity;
+                                    },
+                                    show: function(){
+                                        return {
+                                            title : "是否刪除"
+                                        };
+                                    }
+                                }
+                            });
+
+                            modalInstance.result.then(function(selectedItem) {
+                                // $ctrl.selected = selectedItem;
+                                console.log(selectedItem);
+
+                                RestfulApi.DeleteMSSQLData({
+                                    deletename: 'Delete',
+                                    table: 15,
+                                    params: {
+                                        COD_CODE : row.entity.COD_CODE,
+                                        COD_DEPT : row.entity.COD_DEPT,
+                                        COD_PRINCIPAL : row.entity.COD_PRINCIPAL
+                                    }
+                                }).then(function (res) {
+                                    for(var i in $vm.compyDistributionData){
+                                        if($vm.compyDistributionData[i].CO_CODE == row.entity.COD_CODE){
+                                            $vm.compyDistributionData[i].PRINCIPAL_COUNT -= 1;
+
+                                            var foundItem = $filter('filter')($vm.compyDistributionData[i].subGridOptions.data, {
+                                                COD_CODE : row.entity.COD_CODE,
+                                                COD_DEPT : row.entity.COD_DEPT,
+                                                COD_PRINCIPAL : row.entity.COD_PRINCIPAL
+                                            })[0];
+
+                                            var itemIndex = $vm.compyDistributionData[i].subGridOptions.data.indexOf(foundItem);
+
+                                            $vm.compyDistributionData[i].subGridOptions.data.splice(itemIndex, 1);
+
+                                            break;
+                                        }
+                                    }
+
+                                });
+
+                            }, function() {
+                                // $log.info('Modal dismissed at: ' + new Date());
+                            });
+                        }
+                    }
+                }
+            },
+            enableCellEdit: false,
+            onRegisterApi: function(gridApi){
+                $vm.compyDistributionGridApi = gridApi;
+
+                gridApi.rowEdit.on.saveRow($scope, $vm.Update);
+            }
+        },
+        AssignPrincipal : function(){
+            // console.log($vm.selectAssignPrincipal);
+            if($vm.compyDistributionGridApi.selection.getSelectedRows().length > 0){
+                var _getSelectedRows = $vm.compyDistributionGridApi.selection.getSelectedRows(),
+                    _getDirtyData = [];
+
+                for(var i in _getSelectedRows){
+
+                    // 如果沒有此負責人才塞入
+                    if($filter('filter')(_getSelectedRows[i].subGridOptions.data, { COD_PRINCIPAL : $vm.selectAssignPrincipal }).length == 0){
+                        _getSelectedRows[i].subGridOptions.data.push({
+                            COD_CODE : _getSelectedRows[i].CO_CODE,
+                            COD_DEPT : $vm.selectAssignDept,
+                            COD_PRINCIPAL : $vm.selectAssignPrincipal
+                        });
+
+                        // _getSelectedRows[i].PRINCIPAL_COUNT = _getSelectedRows[i].subGridOptions.data.length;
+                        _getDirtyData.push(_getSelectedRows[i]);
+
+                        // 表示需要更新
+                        // _getDirty = true;
+                    }
+
+                }
+
+                if(_getDirtyData.length > 0){
+                    $vm.compyDistributionGridApi.rowEdit.setRowsDirty(_getDirtyData);
+                }else{
+                    toaster.pop('info', '訊息', '行家負責人被重複指派', 3000);
+                }
+
+                $vm.compyDistributionGridApi.selection.clearSelectedRows();
+            }
+        },
+        CancelPrincipal : function(){
+            if($vm.compyDistributionGridApi.selection.getSelectedRows().length > 0){
+                var _getSelectedRows = $vm.compyDistributionGridApi.selection.getSelectedRows(),
+                    _getDirtyData = [];
+                for(var i in _getSelectedRows){
+                    if(_getSelectedRows[i].subGridOptions.data.length > 0){
+                        _getDirtyData.push(_getSelectedRows[i]);
+                    }
+
+                    // 把負責人清空
+                    _getSelectedRows[i].subGridOptions.data = [];
+
+                    // _getSelectedRows[i].PRINCIPAL_COUNT = _getSelectedRows[i].subGridOptions.data.length;
+
+                }
+
+                $vm.compyDistributionGridApi.rowEdit.setRowsDirty(_getDirtyData);
+                $vm.compyDistributionGridApi.selection.clearSelectedRows();
+            }
+        },
+        // Save : function(){
+
+        //     var _tasks = [],
+        //         _d = new Date();
+
+        //     // Delete此Leader的行家分配
+        //     _tasks.push({
+        //         crudType: 'Delete',
+        //         table: 15,
+        //         params: {
+        //             COD_DEPT : $vm.selectAssignDept,
+        //             // COD_CR_USER : $vm.profile.U_ID
+        //         }
+        //     });
+
+        //     // Insert此Leader的行家分配
+        //     for(var i in $vm.compyDistributionData){
+        //         if($vm.compyDistributionData[i].COD_PRINCIPAL != null){
+        //             _tasks.push({
+        //                 crudType: 'Insert',
+        //                 table: 15,
+        //                 params: {
+        //                     COD_CODE : $vm.compyDistributionData[i].CO_CODE,
+        //                     COD_DEPT : $vm.selectAssignDept,
+        //                     COD_PRINCIPAL : $vm.compyDistributionData[i].COD_PRINCIPAL,
+        //                     COD_CR_USER : $vm.profile.U_ID,
+        //                     COD_CR_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss')
+        //                 }
+        //             });
+        //         }
+        //     }
+
+        //     RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res){
+        //         console.log(res["returnData"]);
+        //         toaster.pop('success', '訊息', '行家分配儲存成功', 3000);
+        //     });    
+        // },
+        Update : function(entity){
+            // console.log($vm.compyDistributionGridApi.rowEdit);
+            // console.log($vm.compyDistributionGridApi.rowEdit.getDirtyRows($vm.compyDistributionGridApi.grid));
+            // console.log(entity);
+
+            // create a fake promise - normally you'd use the promise returned by $http or $resource
+            var promise = $q.defer();
+            $vm.compyDistributionGridApi.rowEdit.setSavePromise( entity, promise.promise );
+        
+            var _tasks = [],
+                _d = new Date();
+
+            // Delete此班的行家
+            _tasks.push({
+                crudType: 'Delete',
+                table: 15,
+                params: {
+                    COD_CODE : entity.CO_CODE,
+                    COD_DEPT : $vm.selectAssignDept
+                }
+            });
+
+            // Insert此班的行家
+            for(var i in entity.subGridOptions.data){
+                _tasks.push({
+                    crudType: 'Insert',
+                    table: 15,
+                    params: {
+                        COD_CODE : entity.subGridOptions.data[i].COD_CODE,
+                        COD_DEPT : $vm.selectAssignDept,
+                        COD_PRINCIPAL : entity.subGridOptions.data[i].COD_PRINCIPAL,
+                        COD_CR_USER : $vm.profile.U_ID,
+                        COD_CR_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss')
+                    }
+                });
+            }
+
+            RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res){
+                promise.resolve();
+            }, function (err) {
+                toaster.pop('danger', '錯誤', '更新失敗', 3000);
+                promise.reject();
+            }).finally(function(){
+                if($vm.compyDistributionGridApi.rowEdit.getDirtyRows().length == 0){
+                    LoadCompyDistribution();
+                }
+            });    
+
+            // RestfulApi.UpdateMSSQLData({
+            //     insertname: 'Insert',
+            //     table: 15,
+            //     params: {
+            //         COD_CODE      : entity.COD_CODE,
+            //         COD_DEPT      : entity.COD_DEPT,
+            //         COD_PRINCIPAL : entity.COD_PRINCIPAL,
+            //         COD_CR_USER : $vm.profile.U_ID,
+            //         COD_CR_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss')
+            //     }
+            // }).then(function (res) {
+                // promise.resolve();
+            // }, function (err) {
+            //     toaster.pop('danger', '錯誤', '更新失敗', 3000);
+                // promise.reject();
+            // });
+        },
+        LoadCompyDistribution : function(){
+            LoadCompyDistribution();   
+        }
+    });
+
+    function LoadCompyDistribution(){
+
+        RestfulApi.CRUDMSSQLDataByTask([
+            {
+                crudType: 'Select',
+                querymain: 'compyDistribution',
+                queryname: 'SelectCompy'
+            },
+            {  
+                crudType: 'Select',
+                querymain: 'compyDistribution',
+                queryname: 'SelectCompyDistribution',
+                params: {
+                    COD_DEPT : $vm.selectAssignDept
+                }
+            }
+        ]).then(function (res){
+            console.log(res["returnData"]);
+
+            for(var i in res["returnData"][0]){
+
+                var _data =[];
+
+                for(var j in res["returnData"][1]){
+                    if(res["returnData"][0][i].CO_CODE == res["returnData"][1][j].COD_CODE){
+                        _data.push(res["returnData"][1][j]);
+                    }
+                }
+
+                res["returnData"][0][i].subGridOptions = {
+                    data: _data,
+                    columnDefs: [ 
+                        {field: "COD_PRINCIPAL", name: "負責人", cellFilter: 'userInfoFilter', filter: 
+                            {
+                                term: null,
+                                type: uiGridConstants.filter.SELECT,
+                                selectOptions: userInfoByGrade[1][$vm.selectAssignDept]
+                            }
+                        },
+                        { name: 'Options'     , displayName: '操作', width: '5%', enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToD') }
+                    ],
+                    enableFiltering: true,
+                    enableSorting: true,
+                    enableColumnMenus: false
+                }
+                res["returnData"][0][i]["PRINCIPAL_COUNT"] = _data.length;
+            }
+
+            $vm.compyDistributionData = res["returnData"][0];
+
+        }).finally(function() {
+            console.log($vm.compyDistributionGridApi);
+            // 更新filter selectOptions的值
+            // $vm.compyDistributionGridApi.grid.columns[2].filter.selectOptions = userInfoByGrade[1][$vm.selectAssignDept];
+        });
+
+        // RestfulApi.SearchMSSQLData({
+        //     querymain: 'compyDistribution',
+        //     queryname: 'SelectCompyDistribution',
+        //     params: {
+        //         COD_DEPT : $vm.selectAssignDept
+        //     }
+        // }).then(function (res){
+        //     console.log(res["returnData"]);
+        //     $vm.compyDistributionData = res["returnData"];
+        // }).finally(function() {
+        //     // 更新filter selectOptions的值
+        //     $vm.compyDistributionGridApi.grid.columns[2].filter.selectOptions = userInfoByGrade[1][$vm.selectAssignDept];
+        //     // console.log($vm.compyDistributionGridApi.grid.columns[4].filter.selectOptions);
+        // });    
+    }
+})
+"use strict";
+
+angular.module('app.selfwork.leaderoption').controller('DailyLeaveCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, $filter, uiGridConstants, RestfulApi, userInfoByGrade, bool, $q) {
+    
+    var $vm = this;
+
+	angular.extend(this, {
+        Init : function(){
+            $vm.selectAssignDept = userInfoByGrade[0][0].value;
+            $vm.isLeave = bool[0].value;
+            LoadDailyLeave();
+        },
+        profile : Session.Get(),
+        assignGradeData : userInfoByGrade[0],
+        boolData : bool,
+        dailyLeaveOptions : {
+            data:  '$vm.vmData',
+            columnDefs: [
+                { name: 'U_NAME'     ,  displayName: '人員姓名' },
+                { name: 'DL_IS_LEAVE',  displayName: '是否請假', cellFilter: 'booleanFilter', filter: 
+                    {
+                        term: null,
+                        type: uiGridConstants.filter.SELECT,
+                        selectOptions: bool
+                    }
+                }
+            ],
+            enableFiltering: true,
+            enableSorting: false,
+            enableColumnMenus: false,
+            // enableVerticalScrollbar: false,
+            paginationPageSizes: [10, 25, 50, 100],
+            paginationPageSize: 100,
+            enableCellEdit: false,
+            onRegisterApi: function(gridApi){
+                $vm.dailyLeaveGridApi = gridApi;
+
+                gridApi.rowEdit.on.saveRow($scope, $vm.Update);
+            }
+        },
+        ChangeLeave : function(){
+            if($vm.dailyLeaveGridApi.selection.getSelectedRows().length > 0){
+                var _getSelectedRows = $vm.dailyLeaveGridApi.selection.getSelectedRows(),
+                    _getDirtyData = [];
+
+                for(var i in _getSelectedRows){
+                    // 表示假不一樣需要被更新
+                    if(_getSelectedRows[i].DL_IS_LEAVE != $vm.isLeave){
+                        _getDirtyData.push(_getSelectedRows[i]);
+                        _getSelectedRows[i].DL_IS_LEAVE = $vm.isLeave;
+                    }
+                }
+
+                if(_getDirtyData.length > 0){
+                    $vm.dailyLeaveGridApi.rowEdit.setRowsDirty(_getDirtyData);
+                }else{
+                    toaster.pop('info', '訊息', '沒有資料需要被更新', 3000);
+                }
+                
+                $vm.dailyLeaveGridApi.selection.clearSelectedRows();
+            }
+        },
+        // Save : function(){
+
+        //     var _tasks = [],
+        //         _d = new Date();
+
+        //     // Delete此Leader的每日請假
+        //     _tasks.push({
+        //         crudType: 'Delete',
+        //         table: 16,
+        //         params: {
+        //             DL_DEPT : $vm.selectAssignDept,
+        //             DL_CR_USER : $vm.profile.U_ID
+        //         }
+        //     });
+
+        //     // Insert此Leader的每日請假
+        //     for(var i in $vm.vmData){
+        //         console.log($vm.vmData[i]);
+        //         if($vm.vmData[i].DL_IS_LEAVE){
+        //             _tasks.push({
+        //                 crudType: 'Insert',
+        //                 table: 16,
+        //                 params: {
+        //                     DL_ID : $vm.vmData[i].U_ID,
+        //                     DL_DEPT : $vm.selectAssignDept,
+        //                     DL_CR_USER : $vm.profile.U_ID,
+        //                     DL_CR_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss')
+        //                 }
+        //             });
+        //         }
+        //     }
+
+        //     RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res){
+        //         console.log(res["returnData"]);
+        //         toaster.pop('success', '訊息', '請假設定儲存成功', 3000);
+        //     });    
+        // },
+        Update : function(entity){
+            // console.log(entity);
+            // create a fake promise - normally you'd use the promise returned by $http or $resource
+            var promise = $q.defer();
+            $vm.dailyLeaveGridApi.rowEdit.setSavePromise( entity, promise.promise );
+        
+            var _tasks = [],
+                _d = new Date();
+
+            // Delete此班所有人的假
+            _tasks.push({
+                crudType: 'Delete',
+                table: 16,
+                params: {
+                    DL_ID : entity.U_ID,
+                    DL_DEPT : $vm.selectAssignDept
+                }
+            });
+
+            // Insert此有被設定為請假的人
+            if(entity.DL_IS_LEAVE){
+                _tasks.push({
+                    crudType: 'Insert',
+                    table: 16,
+                    params: {
+                        DL_ID : entity.U_ID,
+                        DL_DEPT : entity.UD_DEPT,
+                        DL_CR_USER : $vm.profile.U_ID,
+                        DL_CR_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss')
+                    }
+                });
+            }
+
+            RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res){
+                promise.resolve();
+            }, function (err) {
+                toaster.pop('danger', '錯誤', '更新失敗', 3000);
+                promise.reject();
+            }).finally(function(){
+                if($vm.dailyLeaveGridApi.rowEdit.getDirtyRows().length == 0){
+                    LoadDailyLeave();
+                }
+            }); 
+        },
+        LoadDailyLeave : function(){
+            LoadDailyLeave();
+        }
+    });
+
+    function LoadDailyLeave(){
+        RestfulApi.SearchMSSQLData({
+            querymain: 'dailyLeave',
+            queryname: 'SelectUserLeavebyGrade',
+            params: {
+                U_GRADE : $vm.profile.U_GRADE,
+                DEPTS : $vm.profile.DEPTS,
+                UD_DEPT : $vm.selectAssignDept
+            }
+        }).then(function (res){
+            console.log(res["returnData"]);
+            $vm.vmData = res["returnData"];
+        });    
+    }
+
+})
+"use strict";
+
+angular.module('app.settings').controller('AccountCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, RestfulApi, $filter, bool, role, userGrade, $templateCache) {
+
+    var $vm = this,
+        _tasks = [];
+
+    angular.extend(this, {
+    	Init : function(){
+    		if($stateParams.data == null){
+                $vm.vmData = {
+                	U_ROLE : "SUser",
+                	U_STS : bool[0].value,
+                	// U_CHECK : bool[0].value,
+                    IU : "Add"
+                }
+            }else{
+                $vm.vmData = $stateParams.data;
+                $vm.vmData["IU"] = "Update";
+
+                LoadUserDept();
+
+                console.log($vm.vmData);
+            }
+    	},
+        profile : Session.Get(),
+        boolData : bool,
+        roleData : role,
+        gradeData : userGrade,
+        ForgetPW : function(){
+
+            var _defaultPass = "Eastwind@168";
+
+            var modalInstance = $uibModal.open({
+                animation: true,
+                ariaLabelledBy: 'modal-title',
+                ariaDescribedBy: 'modal-body',
+                template: $templateCache.get('isChecked'),
+                controller: 'IsCheckedModalInstanceCtrl',
+                controllerAs: '$ctrl',
+                size: 'sm',
+                windowClass: 'center-modal',
+                // appendTo: parentElem,
+                resolve: {
+                    items: function() {
+                        return _defaultPass;
+                    },
+                    show: function(){
+                        return {
+                            title : "即將設定為預設密碼" + _defaultPass
+                        };
+                    }
+                }
+            });
+
+            modalInstance.result.then(function(selectedItem) {
+                // console.log(selectedItem);
+                
+                $vm.vmData.U_PW = selectedItem;
+
+            }, function() {
+                // $log.info('Modal dismissed at: ' + new Date());
+            });
+
+        	// var modalInstance = $uibModal.open({
+         //        animation: true,
+         //        ariaLabelledBy: 'modal-title',
+         //        ariaDescribedBy: 'modal-body',
+         //        templateUrl: 'modifyPWModalContent.html',
+         //        controller: 'ModifyPWModalInstanceCtrl',
+         //        controllerAs: '$ctrl',
+         //        // size: 'lg',
+         //        // appendTo: parentElem,
+         //        resolve: {
+         //            pw: function () {
+         //                return $vm.vmData.U_PW;
+         //            }
+         //        }
+         //    });
+
+         //    modalInstance.result.then(function(selectedItem) {
+         //    	console.log(selectedItem);
+         //    	$vm.vmData.U_PW = selectedItem;
+                
+         //    }, function() {
+         //        // $log.info('Modal dismissed at: ' + new Date());
+         //    });
+        },
+        Return : function(){
+        	ReturnToAccountManagementPage();
+        },
+        Add : function(){
+        	console.log($vm.vmData);
+
+            // Insert此人Info
+            _tasks.unshift({
+                crudType: 'Insert',
+                insertname: 'InsertByEncrypt',
+                table: 0,
+                params: {
+                    U_ID          : $vm.vmData.U_ID,
+                    U_PW          : $vm.vmData.U_PW,
+                    U_NAME        : $vm.vmData.U_NAME,
+                    U_PHONE       : $vm.vmData.U_PHONE,
+                    U_ROLE        : $vm.vmData.U_ROLE,
+                    U_EMAIL       : $vm.vmData.U_EMAIL,
+                    U_GRADE       : $vm.vmData.U_GRADE,
+                    // U_JOB_AGENT   : $vm.vmData.U_JOB_AGENT,
+                    U_STS         : $vm.vmData.U_STS,
+                    // U_CHECK       : $vm.vmData.U_CHECK,
+                    U_CR_USER     : $vm.profile.U_ID,
+                    U_CR_DATETIME : $filter('date')(new Date, 'yyyy-MM-dd HH:mm:ss')
+                }
+            });
+
+            RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res) {
+
+                toaster.success("訊息", "帳號新增成功", 3000);
+                ReturnToAccountManagementPage();
+
+            }, function (err) {
+
+            });
+        },
+        Update : function(){
+        	console.log($vm.vmData);
+
+            // Update此人Info
+            _tasks.unshift({
+                crudType: 'Update',
+                updatename: 'UpdateByEncrypt',
+                table: 0,
+                params: {
+                    U_PW          : $vm.vmData.U_PW,
+                    U_NAME        : $vm.vmData.U_NAME,
+                    U_PHONE       : $vm.vmData.U_PHONE,
+                    U_ROLE        : $vm.vmData.U_ROLE,
+                    U_EMAIL       : $vm.vmData.U_EMAIL,
+                    U_GRADE       : $vm.vmData.U_GRADE,
+                    // U_JOB_AGENT   : $vm.vmData.U_JOB_AGENT,
+                    U_STS         : $vm.vmData.U_STS,
+                    // U_CHECK       : $vm.vmData.U_CHECK,
+                    U_UP_USER     : $vm.profile.U_ID,
+                    U_UP_DATETIME : $filter('date')(new Date, 'yyyy-MM-dd HH:mm:ss')
+                },
+                condition: {
+                    U_ID          : $vm.vmData.U_ID
+                }
+            });
+            
+        	RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res) {
+
+                toaster.success("訊息", "帳號更新成功", 3000);
+    			ReturnToAccountManagementPage();
+
+            }, function (err) {
+
+            });
+        },
+        AddUserDept : function(){
+            var modalInstance = $uibModal.open({
+                animation: true,
+                ariaLabelledBy: 'modal-title',
+                ariaDescribedBy: 'modal-body',
+                templateUrl: 'addUserDept.html',
+                controller: 'AddUserDeptModalInstanceCtrl',
+                controllerAs: '$ctrl',
+                size: 'lg',
+                resolve: {
+                    vmData: function () {
+                        return $vm.vmData;
+                    }
+                }
+            });
+
+            modalInstance.result.then(function(selectedItem) {
+                console.log(selectedItem);
+
+                $vm.vmData.UserDept = angular.copy(selectedItem);
+
+                // 初始化
+                _tasks = [];
+
+                // Delete此部門相關人員
+                _tasks.push({
+                    crudType: 'Delete',
+                    table: 14,
+                    params: {
+                        UD_ID : $vm.vmData.U_ID
+                    }
+                });
+
+                // Insert此部門相關人員
+                for(var i in selectedItem){
+                    _tasks.push({
+                        crudType: 'Insert',
+                        table: 14,
+                        params: {
+                            UD_ID : $vm.vmData.U_ID,
+                            UD_DEPT : selectedItem[i].SUD_DEPT
+                        }
+                    });
+                }
+
+            }, function() {
+                // $log.info('Modal dismissed at: ' + new Date());
+            });
+        }
+    });
+
+    function LoadUserDept(){
+        RestfulApi.SearchMSSQLData({
+            querymain: 'account',
+            queryname: 'SelectUserDept',
+            params: {
+                UD_ID : $vm.vmData.U_ID
+            }
+        }).then(function (res){
+            console.log(res["returnData"]);
+            $vm.vmData.UserDept = res["returnData"];
+        });
+    };
+
+    function ReturnToAccountManagementPage(){
+        // if(_tasks.length > 0){
+        //     toaster.success("狀態", "資料上傳成功", 3000);    
+        // }
+        $state.transitionTo("app.settings.accountmanagement");
+    };
+
+})
+.controller('ModifyPWModalInstanceCtrl', function ($uibModalInstance, pw) {
+    var $ctrl = this;
+    $ctrl.mdData = {};
+
+    /**
+     * [CheckPW description]
+     * N_PW : 當前密碼
+     * M_PW : 更改密碼
+     * C_PW : 確認密碼
+     */
+    $ctrl.CheckPW = function(){
+    	var _check = true;
+
+    	// N_PW必須輸入且正確
+    	if(!angular.isUndefined($ctrl.mdData['N_PW']) && $ctrl.mdData['N_PW'] == pw){
+	    	if(!angular.isUndefined($ctrl.mdData['M_PW']) && !angular.isUndefined($ctrl.mdData['C_PW'])){
+	    		// 更改密碼 等於 確認密碼
+		    	if($ctrl.mdData['M_PW'] == $ctrl.mdData['C_PW']){
+		    		_check = false;
+		    	}
+	    	}
+    	}
+
+    	return _check;
+    };
+
+    $ctrl.ok = function() {
+        $uibModalInstance.close($ctrl.mdData.C_PW);
+    };
+
+    $ctrl.cancel = function() {
+        $uibModalInstance.dismiss('cancel');
+    };
+})
+.controller('AddUserDeptModalInstanceCtrl', function ($uibModalInstance, RestfulApi, $filter, $timeout, vmData) {
+    var $ctrl = this;
+    $ctrl.vmData = vmData;
+    $ctrl.mdData = [];
+
+    $ctrl.MdInit = function(){
+        RestfulApi.SearchMSSQLData({
+            querymain: 'account',
+            queryname: 'SelectSysUserDept',
+            params: {
+                SUD_STS : false
+            }
+        }).then(function (res){
+            console.log(res["returnData"]);
+            // console.log(res);
+            // 顯示所有帳號
+            $ctrl.mdData = res["returnData"];
+            // 把已被選取的帳號打勾
+            $timeout(function() {
+                if($ctrl.mdDataGridApi.selection.selectRow){
+                    // console.log($ctrl.vmData["UserGroup"]);
+                    for(var i in $ctrl.vmData["UserDept"]){
+                        $ctrl.mdDataGridApi.selection.selectRow($filter('filter')($ctrl.mdData, {SUD_DEPT: $ctrl.vmData["UserDept"][i].SUD_DEPT})[0]);
+                    }
+                }
+            });
+        });
+    }
+
+    $ctrl.mdDataOptions = {
+        data:  '$ctrl.mdData',
+        columnDefs: [
+            { name: 'SUD_DEPT'  ,  displayName: '部門代號'},
+            { name: 'SUD_DLVL'  ,  displayName: '部門層級'},
+            { name: 'SUD_DPATH' ,  displayName: '層級路徑'},
+            { name: 'SUD_NAME'  ,  displayName: '部門名稱'}
+        ],
+        enableSorting: false,
+        enableColumnMenus: false,
+        enableFiltering: true,
+        enableRowSelection: true,
+        enableSelectAll: true,
+        selectionRowHeaderWidth: 35,
+        paginationPageSizes: [10, 25, 50, 100],
+        paginationPageSize: 100,
+        onRegisterApi: function(gridApi){ 
+            $ctrl.mdDataGridApi = gridApi;
+        } 
+    };
+
+    $ctrl.ok = function() {
+        $uibModalInstance.close($ctrl.mdDataGridApi.selection.getSelectedRows());
+    };
+
+    $ctrl.cancel = function() {
+        $uibModalInstance.dismiss('cancel');
+    };
+});
+"use strict";
+
+angular.module('app.settings').controller('GroupCtrl', function ($scope, $stateParams, $state, AuthApi, ToolboxApi, Session, toaster, $uibModal, $templateCache, $filter, SysCode, UserGrade, RestfulApi, bool) {
+    // console.log($stateParams);
+
+	var $vm = this,
+        _task = [];
+
+	angular.extend(this, {
+        Init : function(){
+            // 不正常登入此頁面
+            if($stateParams.data == null) ReturnToBillboardEditorPage();
+            // 撈UserGroup資料
+            else {
+                LoadUserGroup();
+            }
+        },
+        profile : Session.Get(),
+        boolData : bool,
+        vmData : $stateParams.data,
+        groupMenu : [
+            {"content": "<span><i class=\"fa fa-lg fa-folder-open\"></i> 根目錄</span>", "expanded": true, "children": []}
+        ],
+        checkedData : [],
+        AddGroupPeople : function(){
+            var modalInstance = $uibModal.open({
+                animation: true,
+                ariaLabelledBy: 'modal-title',
+                ariaDescribedBy: 'modal-body',
+                templateUrl: 'addGroupPeople.html',
+                controller: 'AddGroupPeopleModalInstanceCtrl',
+                controllerAs: '$ctrl',
+                size: 'lg',
+                resolve: {
+                    vmData: function () {
+                        return $vm.vmData;
+                    },
+                    depart: function() {
+                        return SysCode.get('Depart');
+                    },
+                    userGrade: function(){
+                        return UserGrade.get();
+                    }
+                }
+            });
+
+            modalInstance.result.then(function(selectedItem) {
+                console.log(selectedItem);
+
+                $vm.vmData.UserGroup = angular.copy(selectedItem);
+
+                // 初始化
+                _task = [];
+
+                // Delete此Group相關人員
+                _task.push({
+                    crudType: 'Delete',
+                    table: 4,
+                    params: {
+                        UG_GROUP : $vm.vmData.SG_GCODE
+                    }
+                });
+
+                // Insert此Group相關人員
+                for(var i in selectedItem){
+                    _task.push({
+                        crudType: 'Insert',
+                        table: 4,
+                        params: {
+                            UG_ID : selectedItem[i].U_ID,
+                            UG_GROUP : $vm.vmData.SG_GCODE
+                        }
+                    });
+                }
+
+            }, function() {
+                // $log.info('Modal dismissed at: ' + new Date());
+            });
+        },
+        Return : function(){
+            ReturnToBillboardEditorPage();
+        },
+        Update : function(){
+
+            // 找出GroupMenu已被Checked
+            _.forEach($vm.groupMenu, function(item){
+                FindChecked(item, 1);
+            })
+
+            var _tasks = [];
+
+            _tasks.push({
+                crudType: 'Update',
+                table: 6,
+                params: {
+                    SG_TITLE       : $vm.vmData.SG_TITLE,
+                    SG_DESC        : $vm.vmData.SG_DESC,
+                    SG_STS         : $vm.vmData.SG_STS,
+                    SG_UP_DATETIME : $filter('date')(new Date, 'yyyy-MM-dd HH:mm:ss')
+                },
+                condition: {
+                    SG_GCODE : $vm.vmData.SG_GCODE
+                }
+            });
+
+            // 把群組人員塞入
+            for(var i in _task){
+                _tasks.push(_task[i]);
+            }
+
+            _tasks.push({
+                crudType: 'Delete',
+                table: 5,
+                params: {
+                    UR_GROUP : $vm.vmData.SG_GCODE
+                }
+            });
+
+            // 把GroupMenu Checked塞入
+            for(var i in $vm.checkedData){
+                _tasks.push({
+                    crudType: 'Insert',
+                    table: 5,
+                    params: {
+                        UR_GROUP : $vm.vmData.SG_GCODE,
+                        UR_SYSID : $vm.checkedData[i].sysId,
+                        UR_PROG  : $vm.checkedData[i].name.toLowerCase()
+                    }
+                });
+            }
+
+            RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res){
+                console.log(res);
+
+                ReturnToBillboardEditorPage();
+
+            }, function (err){
+                
+            });
+        }
+	})
+
+    // 產生GroupMenu
+    function DoGroupMenu(){
+        ToolboxApi.ComposeMenu().then(function(res){ 
+            console.log(res);
+            _.forEach(res.items, function(item) {
+                CreateItem(item, $vm.groupMenu[0], 1);
+            })    
+        })    
+    }
+
+    // 遞迴的方式產生GroupMenu的Item
+    function CreateItem(item, parent, level){
+        var rowData = null;
+
+        // 當為子目錄時
+        if(item.items){
+            rowData = {
+                "content": "<span><i class=\"fa fa-lg fa-plus-circle\"></i> "+$scope.getWord(item.title)+"</span>", 
+                "expanded": true, 
+                "children": []
+            };
+
+            _.forEach(item.items, function(child) {
+                CreateItem(child, rowData, level+1);
+            })
+        }
+        // 當為子項目時
+        else{
+            // 是否在DB資料庫有這筆資料
+            if(($filter('filter')($vm.groupMenuData, {"UR_PROG" : item.title})).length > 0){
+                rowData = {
+                    "content": "<span> <label class=\"checkbox inline-block\"><input type=\"checkbox\" checked=\"checked\" name=\"checkbox-inline\"><i></i>"+$scope.getWord(item.title)+"</label> </span>",
+                    "isChecked": true,
+                    "name": item.title,
+                    "sysId": item.sysId
+                };
+            }else{
+                rowData = {
+                    "content": "<span> <label class=\"checkbox inline-block\"><input type=\"checkbox\" name=\"checkbox-inline\"><i></i>"+$scope.getWord(item.title)+"</label> </span>",
+                    "isChecked": false,
+                    "name": item.title,
+                    "sysId": item.sysId
+                };
+            }
+        } 
+
+        parent.children.push(rowData);
+    }
+
+    // 找出已經被Checked的item
+    function FindChecked(item, level){
+        if(item.children){
+            _.forEach(item.children, function(child) {
+                FindChecked(child, level+1);
+            })
+        }else{
+            if(item.isChecked){
+                $vm.checkedData.push(item);
+            }
+        }
+    }
+
+    function LoadUserGroup(){
+
+        RestfulApi.CRUDMSSQLDataByTask([
+            {
+                crudType: 'Select',
+                querymain: 'group',
+                queryname: 'SelectUserGroup',
+                params: {
+                    UG_GROUP : $vm.vmData.SG_GCODE
+                }
+            },
+            {
+                crudType: 'Select',
+                querymain: 'group',
+                queryname: 'SelectUserGRight',
+                params: {
+                    UR_GROUP : $vm.vmData.SG_GCODE
+                }
+            }
+        ]).then(function (res){
+            console.log(res);
+
+            $vm.vmData.UserGroup = res["returnData"][0];
+            $vm.groupMenuData = res["returnData"][1];
+
+            DoGroupMenu();
+
+        }, function (err){
+            
+        });
+    };
+
+	function ReturnToBillboardEditorPage(){
+        $state.transitionTo("app.settings.accountmanagement");
+    };
+
+})
+.controller('AddGroupPeopleModalInstanceCtrl', function ($uibModalInstance, RestfulApi, vmData, $filter, $timeout, uiGridConstants, depart, userGrade) {
+    var $ctrl = this;
+    $ctrl.vmData = vmData;
+    $ctrl.gradeFilter = userGrade;
+    $ctrl.depart = depart;
+
+    $ctrl.mdData = [];
+
+    $ctrl.MdInit = function(){
+        RestfulApi.SearchMSSQLData({
+            querymain: 'group',
+            queryname: 'SelectAllUserInfoNotWithAdmin'
+        }).then(function (res){
+            console.log(res["returnData"]);
+            // console.log(res);
+            // 顯示所有帳號
+            $ctrl.mdData = res["returnData"];
+            // 把已被選取的帳號打勾
+            $timeout(function() {
+                if($ctrl.mdDataGridApi.selection.selectRow){
+                    // console.log($ctrl.vmData["UserGroup"]);
+                    for(var i in $ctrl.vmData["UserGroup"]){
+                        $ctrl.mdDataGridApi.selection.selectRow($filter('filter')($ctrl.mdData, {U_ID: $ctrl.vmData["UserGroup"][i].U_ID})[0]);
+                    }
+                }
+            });
+        });
+    };
+
+    $ctrl.mdDataOptions = {
+        data:  '$ctrl.mdData',
+        columnDefs: [
+            { name: 'U_ID'     ,  displayName: '帳號' },
+            { name: 'U_NAME'   ,  displayName: '名稱' },
+            { name: 'U_GRADE'  ,  displayName: '職稱', cellFilter: 'gradeFilter', filter: 
+                {
+                    term: null,
+                    type: uiGridConstants.filter.SELECT,
+                    selectOptions: $ctrl.gradeFilter
+                }
+            }
+        ],
+        enableSorting: false,
+        enableColumnMenus: false,
+        enableFiltering: true,
+        enableRowSelection: true,
+        enableSelectAll: true,
+        selectionRowHeaderWidth: 35,
+        paginationPageSizes: [10, 25, 50, 100],
+        paginationPageSize: 100,
+        onRegisterApi: function(gridApi){ 
+            $ctrl.mdDataGridApi = gridApi;
+        } 
+    };
+
+    $ctrl.ok = function() {
+        $uibModalInstance.close($ctrl.mdDataGridApi.selection.getSelectedRows());
+    };
+
+    $ctrl.cancel = function() {
+        $uibModalInstance.dismiss('cancel');
+    };
+});
+"use strict";
+
+angular.module('app.settings').controller('TargetEditorCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, RestfulApi, $filter, FileUploader, SUMMERNOT_CONFIG) {
+    
+    var $vm = this,
+        _tasks = [],
+        _d = new Date(),
+        _filepath = _d.getFullYear() + '\\' + ("0" + (_d.getMonth()+1)).slice(-2) + '\\' + ("0" + _d.getDate()).slice(-2) + '\\';
+
+	angular.extend(this, {
+        Init : function(){
+            if($stateParams.data == null){
+                $vm.vmData = {
+                    "IU" : "Add"
+                }
+            }else{
+                $vm.vmData = $stateParams.data;
+                $vm.vmData["IU"] = "Update";
+
+                var _mail = angular.copy($vm.vmData.FM_MAIL.split(";"));
+                $vm.vmData.FM_MAIL = [];
+                for(var i in _mail){
+                    $vm.vmData.FM_MAIL.push({
+                        text : _mail[i]
+                    });
+                }
+
+                _d = $vm.vmData["FM_CR_DATETIME"].replace(/\Z/g, '');
+
+                // 附件
+                LoadFMAF();
+
+            }
+            console.log($vm.vmData);
+        },
+        profile : Session.Get(),
+        snOptions : SUMMERNOT_CONFIG,
+        uploader : new FileUploader({
+            url: '/toolbox/uploadFile?filePath='+_filepath
+        }),
+        Return : function(){
+            ReturnToAviationMail();
+        },
+        Add : function(){
+            var _mail = angular.copy($vm.vmData.FM_MAIL),
+                _mailObjectToArray = [];
+            for(var i in _mail){
+                _mailObjectToArray.push(_mail[i].text);
+            }
+
+            // 檢查信件是否有資料
+            if(_mailObjectToArray.length > 0){
+                
+                // Insert 主表
+                _tasks.push({
+                    crudType: 'Insert',
+                    table: 24,
+                    params: {
+                        FM_TARGET : $vm.vmData.FM_TARGET,
+                        FM_MAIL : _mailObjectToArray.join(";"),
+                        FM_TITLE : $vm.vmData.FM_TITLE,
+                        FM_CONTENT : $vm.vmData.FM_CONTENT,
+                        FM_CR_USER : $vm.profile.U_ID,
+                        FM_CR_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss')
+                    }
+                });
+
+                // 有上傳檔案 先上傳檔案之後再Insert DB
+                if($vm.uploader.getNotUploadedItems().length > 0){
+                    $vm.uploader.uploadAll();
+                }
+                // 無上傳檔案 直接Insert DB
+                else{
+                    RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res) {
+                        // console.log(res);
+                        ReturnToAviationMail();
+
+                        toaster.pop('success', '訊息', '新增目標成功', 3000);
+                    }, function (err) {
+                        console.log(err);
+                    });
+                }
+
+                // RestfulApi.InsertMSSQLData({
+                //     insertname: 'Insert',
+                //     table: 24,
+                //     params: {
+                //         FM_TARGET : $vm.vmData.FM_TARGET,
+                //         FM_MAIL : _mailObjectToArray.join(";"),
+                //         FM_TITLE : $vm.vmData.FM_TITLE,
+                //         FM_CONTENT : $vm.vmData.FM_CONTENT,
+                //         FM_CR_USER : $vm.profile.U_ID,
+                //         FM_CR_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss')
+                //     }
+                // }).then(function(res) {
+                //     console.log(res);
+
+                //     if(res["returnData"] == 1){
+                //         ReturnToAviationMail();
+
+                //         toaster.pop('success', '訊息', '新增目標成功', 3000);
+                //     }
+
+                // });
+            }else{
+                toaster.pop('danger', '失敗', '沒有任何信件', 3000);
+            }
+        },
+        Update : function(){
+            console.log($vm.vmData);
+
+            var _mail = angular.copy($vm.vmData.FM_MAIL),
+                _mailObjectToArray = [];
+            for(var i in _mail){
+                _mailObjectToArray.push(_mail[i].text);
+            }
+
+            // 檢查信件是否有資料
+            if(_mailObjectToArray.length > 0){
+
+                // Update 主表
+                _tasks.push({
+                    crudType: 'Update',
+                    table: 24,
+                    params: {
+                        FM_TARGET : $vm.vmData.FM_TARGET,
+                        FM_MAIL : _mailObjectToArray.join(";"),
+                        FM_TITLE : $vm.vmData.FM_TITLE,
+                        FM_CONTENT : $vm.vmData.FM_CONTENT,
+                        FM_UP_USER : $vm.profile.U_ID,
+                        FM_UP_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss')
+                    },
+                    condition: {
+                        FM_CR_USER : $vm.vmData.FM_CR_USER,
+                        FM_CR_DATETIME : $vm.vmData.FM_CR_DATETIME
+                    }
+                });
+
+                // 有上傳檔案 先上傳檔案之後再Insert DB
+                if($vm.uploader.getNotUploadedItems().length > 0){
+                    $vm.uploader.uploadAll();
+                }
+                // 無上傳檔案 直接Insert DB
+                else{
+                    RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res) {
+                        console.log(res);
+
+                        ReturnToAviationMail();
+
+                        toaster.pop('success', '訊息', '更新目標成功', 3000);
+                    }, function (err) {
+                        console.log(err);
+                    });
+                }
+
+                // RestfulApi.UpdateMSSQLData({
+                //     updatename: 'Update',
+                //     table: 24,
+                //     params: {
+                //         FM_TARGET : $vm.vmData.FM_TARGET,
+                //         FM_MAIL : _mailObjectToArray.join(";"),
+                //         FM_TITLE : $vm.vmData.FM_TITLE,
+                //         FM_CONTENT : $vm.vmData.FM_CONTENT,
+                //         FM_UP_USER : $vm.profile.U_ID,
+                //         FM_UP_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss')
+                //     },
+                //     condition: {
+                //         FM_CR_USER : $vm.vmData.FM_CR_USER,
+                //         FM_CR_DATETIME : $vm.vmData.FM_CR_DATETIME
+                //     }
+                // }).then(function(res) {
+                //     console.log(res);
+
+                //     if(res["returnData"] == 1){
+                //         ReturnToAviationMail();
+
+                //         toaster.pop('success', '訊息', '更新目標成功', 3000);
+                //     }
+
+                // });
+            }else{
+                toaster.pop('danger', '失敗', '沒有任何信件', 3000);
+            }
+        },
+        /**
+         * [DeleteUploaded description] 刪除已上傳檔案
+         * @param {[type]} pDeleteUploaded [description] 檔案
+         * @param {[type]} pIndex          [description] array index
+         */
+        DeleteUploaded : function(pDeleteUploaded, pIndex){
+            var modalInstance = $uibModal.open({
+                animation: true,
+                ariaLabelledBy: 'modal-title',
+                ariaDescribedBy: 'modal-body',
+                template: $templateCache.get('isChecked'),
+                controller: 'IsCheckedModalInstanceCtrl',
+                controllerAs: '$ctrl',
+                size: 'sm',
+                windowClass: 'center-modal',
+                // appendTo: parentElem,
+                resolve: {
+                    items: function() {
+                        return pDeleteUploaded;
+                    },
+                    show: function(){
+                        return {
+                            title : "是否刪除"
+                        };
+                    }
+                }
+            });
+
+            modalInstance.result.then(function(selectedItem) {
+                // console.log(selectedItem);
+
+                RestfulApi.UpdateMSSQLData({
+                    updatename: 'Update',
+                    table: 30,
+                    params: {
+                        FMAF_SOFT_DELETE : true
+                    },
+                    condition: {
+                        FMAF_ID : selectedItem.BBAF_ID
+                    }
+                }).then(function (res) {
+                    $vm.vmData.UploadedData.splice(pIndex, 1);
+                }, function (err) {
+
+                });
+            }, function() {
+                // $log.info('Modal dismissed at: ' + new Date());
+            });
+        },
+    });
+
+    // Upload Filters
+    $vm.uploader.filters.push({
+        name: 'queueFilter',
+        fn: function(item /*{File|FileLikeObject}*/, options) {
+            // return this.queue.length < $scope.optionParam.UploadQueue;
+            return this.queue.length < 10;
+        }
+    });
+
+    $vm.uploader.filters.push({
+        name: 'sizeFilter',
+        fn: function(item /*{File|FileLikeObject}*/, options) {
+            // return item.size < $scope.optionParam.UploadSize * 1000 * 1000;
+            return item.size < 10 * 1000 * 1000;
+        }
+    });
+
+    // 處理已上傳的部分 : 當相同檔名時，不可上傳
+    $vm.uploader.filters.push({
+        name: 'nameFilter',
+        fn: function(item /*{File|FileLikeObject}*/, options) {
+            var uploadedDataLength = ($filter('filter')($vm.vmData.UploadedData, {FMAF_O_FILENAME: item.name})).length;
+            
+            if(uploadedDataLength > 0){
+                toaster.pop('info', "訊息", "已上傳過相同的檔名。", 3000);
+                return false;
+            }else{
+                return true;
+            }
+        }
+    });
+
+    // 處理未上傳的部分 : 當相同檔名時，不可上傳
+    FileUploader.FileSelect.prototype.isEmptyAfterSelection = function() {
+        return false;
+    };
+
+    // $vm.uploader.filters.push({
+    //     name: 'fileFilter',
+    //     fn: function(item /*{File|FileLikeObject}*/, options) {
+    //         var type = '|' + item.type.slice(item.type.lastIndexOf('/') + 1) + '|',
+    //             typeStr = "|";
+    //         for(var i in $scope.optionParam.UploadType){
+    //             typeStr += $scope.optionParam.UploadType[i] + "|";
+    //         }
+    //         return typeStr.indexOf(type) !== -1;
+    //     }
+    // });
+
+    // Upload Callback Methods
+    $vm.uploader.onWhenAddingFileFailed = function(item /*{File|FileLikeObject}*/, filter, options) {
+        console.info('onWhenAddingFileFailed', item, filter, options);
+        // var title = "", msg;
+        // switch(filter.name){
+        //     case "fileFilter":
+        //         title = item.name;
+        //         msg = "檔案類型錯誤。";
+        //         break;
+        //     case "sizeFilter":
+        //         title = item.name;
+        //         msg = "上傳檔案超過" + $scope.optionParam.UploadSize + "Mb。";
+        //         break;
+        //     case "queueFilter":
+        //         msg = "上傳數量超過" + $scope.optionParam.UploadQueue + "個。";
+        //         break;
+        // }
+        // toaster.pop('info', title, msg, 3000);
+    };
+    $vm.uploader.onAfterAddingFile = function(fileItem) {
+        console.info('onAfterAddingFile', fileItem);
+        var reader = new FileReader();
+
+        reader.onload = function(readerEvt) {
+            var data = readerEvt.target.result;
+            var fileNameArray = fileItem.file.name.split(".");
+            var queueIndex = $vm.uploader.queue.indexOf(fileItem);
+            var rename = angular.copy(CryptoJS.MD5(data).toString() + "." + fileNameArray[fileNameArray.length-1]);
+            
+            // Duplicate File
+            // if($filter('filter')($scope.duplicateFile, rename).length > 0){
+            //     $vm.uploader.queue[queueIndex].remove();
+            //     toaster.pop('info', '上傳檔案重複', fileItem.file["name"], 3000);
+            // }else{
+                // $scope.duplicateFile.push(rename);
+                // $scope.queueFile.push(rename);
+                fileItem.url += '&rFilename='+rename;
+            // }
+            // var dataFile = forumService.b64toBlob(btoa(data), fileItem.file.type);
+            // fileItem.file = dataFile;
+        };
+
+        reader.readAsBinaryString(fileItem._file);
+    };
+    $vm.uploader.onAfterAddingAll = function(addedFileItems) {
+        console.info('onAfterAddingAll', addedFileItems);
+    };
+    $vm.uploader.onBeforeUploadItem = function(item) {
+        console.info('onBeforeUploadItem', item);
+    };
+    $vm.uploader.onProgressItem = function(fileItem, progress) {
+        console.info('onProgressItem', fileItem, progress);
+    };
+    $vm.uploader.onProgressAll = function(progress) {
+        console.info('onProgressAll', progress);
+    };
+    $vm.uploader.onSuccessItem = function(fileItem, response, status, headers) {
+        console.info('onSuccessItem', fileItem, response, status, headers);
+    };
+    $vm.uploader.onErrorItem = function(fileItem, response, status, headers) {
+        console.info('onErrorItem', fileItem, response, status, headers);
+    };
+    $vm.uploader.onCancelItem = function(fileItem, response, status, headers) {
+        console.info('onCancelItem', fileItem, response, status, headers);
+    };
+    $vm.uploader.onCompleteItem = function(fileItem, response, status, headers) {
+        console.info('onCompleteItem', fileItem, response, status, headers);
+        if(status == 200){
+            // 儲存每個上傳檔案的資訊
+            _tasks.push({
+                crudType: 'Insert',
+                table: 30,
+                params: {
+                    FMAF_O_FILENAME : response.oFilename,
+                    FMAF_R_FILENAME : response.rFilename,
+                    FMAF_FILEPATH : response.Filepath,
+                    FMAF_FILESIZE : response.Filesize,
+                    FMAF_CR_USER : $vm.profile.U_ID,
+                    FMAF_CR_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss')
+                }
+            });
+        }else{
+            toaster.pop('error', "檔案上傳失敗", response.oFilename, 3000);
+        }
+    };
+    $vm.uploader.onCompleteAll = function() {
+        console.info('onCompleteAll');
+
+        RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res) {
+            console.log(res);
+            ReturnToAviationMail();
+        }, function (err) {
+            console.log(err);
+        });
+    };
+
+    function LoadFMAF(){
+        RestfulApi.SearchMSSQLData({
+            querymain: 'targetEditor',
+            queryname: 'SelectFMAF',
+            params: {
+                FMAF_CR_USER: $vm.vmData.FM_CR_USER,
+                FMAF_CR_DATETIME: $vm.vmData.FM_CR_DATETIME
+            }
+        }).then(function (res){
+            console.log(res["returnData"]);
+            $vm.vmData.UploadedData = res["returnData"];
+        });
+    };
+
+    function ReturnToAviationMail(){
+        $state.transitionTo($state.current.parent);
+    };
+
+})
+"use strict";
+
+angular.module('app.settings').controller('ExAccountCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, $filter, SysCode, RestfulApi, bool, compy) {
+
+	var $vm = this;
+    // console.log(Account.get());
+
+	angular.extend(this, {
+        Init : function(){
+            if($stateParams.data == null){
+                $vm.vmData = {
+                	CI_STS : false,
+                    IU : "Add"
+                }
+            }else{
+                $vm.vmData = $stateParams.data;
+                $vm.vmData["IU"] = "Update";
+
+                console.log($vm.vmData);
+            }
+        },
+        profile : Session.Get(),
+        boolData : bool,
+        compyData : compy,
+        ForgetPW : function(){
+
+            var _defaultPass = "Eastwind@168";
+
+            var modalInstance = $uibModal.open({
+                animation: true,
+                ariaLabelledBy: 'modal-title',
+                ariaDescribedBy: 'modal-body',
+                template: $templateCache.get('isChecked'),
+                controller: 'IsCheckedModalInstanceCtrl',
+                controllerAs: '$ctrl',
+                size: 'sm',
+                windowClass: 'center-modal',
+                // appendTo: parentElem,
+                resolve: {
+                    items: function() {
+                        return _defaultPass;
+                    },
+                    show: function(){
+                        return {
+                            title : "即將設定為預設密碼" + _defaultPass
+                        };
+                    }
+                }
+            });
+
+            modalInstance.result.then(function(selectedItem) {
+                // console.log(selectedItem);
+                
+                $vm.vmData.CI_PW = selectedItem;
+
+            }, function() {
+                // $log.info('Modal dismissed at: ' + new Date());
+            });
+        },
+        Return : function(){
+        	ReturnToExternalManagementPage();
+        },
+        Add : function(){
+            RestfulApi.InsertMSSQLData({
+                insertname: 'InsertByEncrypt',
+                table: 7,
+                params: {
+                    CI_ID          : $vm.vmData.CI_ID,
+                    CI_PW          : $vm.vmData.CI_PW,
+                    CI_NAME        : $vm.vmData.CI_NAME,
+                    CI_COMPY       : $vm.vmData.CI_COMPY,
+                    CI_STS         : $vm.vmData.CI_STS,
+                    CI_CR_USER     : $vm.profile.U_ID,
+                    CI_CR_DATETIME : $filter('date')(new Date, 'yyyy-MM-dd HH:mm:ss')
+                }
+            }).then(function(res) {
+                // console.log(res);
+                toaster.pop('success', '訊息', '新增外部帳號成功', 3000);
+
+                ReturnToExternalManagementPage();
+
+                // $state.reload()
+            });
+        },
+        Update : function(){
+            RestfulApi.UpdateMSSQLData({
+                updatename: 'UpdateByEncrypt',
+                table: 7,
+                params: {
+                    CI_PW          : $vm.vmData.CI_PW,
+                    CI_NAME        : $vm.vmData.CI_NAME,
+                    CI_COMPY       : $vm.vmData.CI_COMPY,
+                    CI_STS         : $vm.vmData.CI_STS,
+                    CI_UP_USER     : $vm.profile.U_ID,
+                    CI_UP_DATETIME : $filter('date')(new Date, 'yyyy-MM-dd HH:mm:ss')
+                },
+                condition: {
+                    CI_ID         : $vm.vmData.CI_ID
+                }
+            }).then(function (res) {
+                toaster.pop('success', '訊息', '更新外部帳號成功', 3000);
+
+                ReturnToExternalManagementPage();
+
+            }, function (err) {
+
+            });
+        }
+	})
+
+    function ReturnToExternalManagementPage(){
+        $state.transitionTo("app.settings.externalmanagement");
+    };
+
+});
+"use strict";
+
+angular.module('app.settings').controller('ExCompyCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $filter, RestfulApi, bool, coWeights) {
+
+	var $vm = this;
+    // console.log(Account.get());
+
+	angular.extend(this, {
+        Init : function(){
+            // 不正常登入此頁面
+            if($stateParams.data == null){
+               ReturnToExternalManagementPage(); 
+            } else{
+                $vm.vmData = $stateParams.data;
+            }
+        },
+        profile : Session.Get(),
+        boolData : bool,
+        coWeightsData : coWeights,
+        Return : function(){
+        	ReturnToExternalManagementPage();
+        },
+        Update : function(){
+        	console.log($vm.vmData);
+        	RestfulApi.UpdateMSSQLData({
+                updatename: 'Update',
+                table: 8,
+                params: {
+                    CO_ID          : $vm.vmData.CO_ID,
+		        	CO_STS         : $vm.vmData.CO_STS,
+					CO_NAME        : $vm.vmData.CO_NAME,
+					CO_NUMBER      : $vm.vmData.CO_NUMBER,
+					CO_ADDR        : $vm.vmData.CO_ADDR,
+                    CO_AREA        : $vm.vmData.CO_AREA,
+                    CO_WEIGHTS     : $vm.vmData.CO_WEIGHTS,
+                    CO_UP_USER     : $vm.profile.U_ID,
+                    CO_UP_DATETIME : $filter('date')(new Date(), 'yyyy-MM-dd HH:mm:ss')
+                },
+                condition: {
+                    CO_CODE : $vm.vmData.CO_CODE
+                }
+            }).then(function (res) {
+
+                toaster.pop('success', '訊息', '更新行家成功', 3000);
+
+                // 新增成功後，更新compy的值
+                $filter('compyFilter')({}, true);
+                
+                ReturnToExternalManagementPage();
+
+            }, function (err) {
+
+            });
+        }
+	})
+
+	function ReturnToExternalManagementPage(){
+        // $state.transitionTo("app.settings.externalmanagement", null, { 
+        //     reload: true, inherit: false, notify: true
+        // });
+        $state.transitionTo($state.current.parent);
+	}
+
+});
+'use strict';
+
+angular.module('app.tables').directive('jqGrid', function ($compile) {
+    var jqGridCounter = 0;
+
+    return {
+        replace: true,
+        restrict: 'E',
+        scope: {
+            gridData: '='
+        },
+        template: '<div>' +
+            '<table></table>' +
+            '<div class="jqgrid-pagination"></div>' +
+            '</div>',
+        controller: function($scope, $element){
+            $scope.editRow  = function(row){
+                $element.find('table').editRow(row);
+            };
+            $scope.saveRow  = function(row){
+                $element.find('table').saveRow(row);
+            };
+            $scope.restoreRow  = function(row){
+                $element.find('table').restoreRow(row);
+            };
+        },
+        link: function (scope, element) {
+            var gridNumber = jqGridCounter++;
+            var wrapperId = 'jqgrid-' + gridNumber;
+            element.attr('id', wrapperId);
+
+            var tableId = 'jqgrid-table-' + gridNumber;
+            var table = element.find('table');
+            table.attr('id', tableId);
+
+            var pagerId = 'jqgrid-pager-' + gridNumber;
+            element.find('.jqgrid-pagination').attr('id', pagerId);
+
+
+            table.jqGrid({
+                data : scope.gridData.data,
+                datatype : "local",
+                height : 'auto',
+                colNames : scope.gridData.colNames || [],
+                colModel : scope.gridData.colModel || [],
+                rowNum : 10,
+                rowList : [10, 20, 30],
+                pager : '#' + pagerId,
+                sortname : 'id',
+                toolbarfilter : true,
+                viewrecords : true,
+                sortorder : "asc",
+                gridComplete : function() {
+                    var ids = table.jqGrid('getDataIDs');
+                    for (var i = 0; i < ids.length; i++) {
+                        var cl = ids[i];
+                        var be = "<button class='btn btn-xs btn-default' uib-tooltip='Edit Row' tooltip-append-to-body='true' ng-click='editRow("+ cl +")'><i class='fa fa-pencil'></i></button>";
+
+                        var se = "<button class='btn btn-xs btn-default' uib-tooltip='Save Row' tooltip-append-to-body='true' ng-click='saveRow("+ cl +")'><i class='fa fa-save'></i></button>";
+
+                        var ca = "<button class='btn btn-xs btn-default' uib-tooltip='Cancel' tooltip-append-to-body='true' ng-click='restoreRow("+ cl +")'><i class='fa fa-times'></i></button>";
+
+                        table.jqGrid('setRowData', ids[i], {
+                            act : be + se + ca
+                        });
+                    }
+                },
+                editurl : "dummy.html",
+                caption : "SmartAdmin jQgrid Skin",
+                multiselect : true,
+                autowidth : true
+
+            });
+            table.jqGrid('navGrid', '#' + pagerId, {
+                edit : false,
+                add : false,
+                del : true
+            });
+            table.jqGrid('inlineNav', '#' + pagerId);
+
+
+            element.find(".ui-jqgrid").removeClass("ui-widget ui-widget-content");
+            element.find(".ui-jqgrid-view").children().removeClass("ui-widget-header ui-state-default");
+            element.find(".ui-jqgrid-labels, .ui-search-toolbar").children().removeClass("ui-state-default ui-th-column ui-th-ltr");
+            element.find(".ui-jqgrid-pager").removeClass("ui-state-default");
+            element.find(".ui-jqgrid").removeClass("ui-widget-content");
+
+            // add classes
+            element.find(".ui-jqgrid-htable").addClass("table table-bordered table-hover");
+            element.find(".ui-jqgrid-btable").addClass("table table-bordered table-striped");
+
+            element.find(".ui-pg-div").removeClass().addClass("btn btn-sm btn-primary");
+            element.find(".ui-icon.ui-icon-plus").removeClass().addClass("fa fa-plus");
+            element.find(".ui-icon.ui-icon-pencil").removeClass().addClass("fa fa-pencil");
+            element.find(".ui-icon.ui-icon-trash").removeClass().addClass("fa fa-trash-o");
+            element.find(".ui-icon.ui-icon-search").removeClass().addClass("fa fa-search");
+            element.find(".ui-icon.ui-icon-refresh").removeClass().addClass("fa fa-refresh");
+            element.find(".ui-icon.ui-icon-disk").removeClass().addClass("fa fa-save").parent(".btn-primary").removeClass("btn-primary").addClass("btn-success");
+            element.find(".ui-icon.ui-icon-cancel").removeClass().addClass("fa fa-times").parent(".btn-primary").removeClass("btn-primary").addClass("btn-danger");
+
+            element.find(".ui-icon.ui-icon-seek-prev").wrap("<div class='btn btn-sm btn-default'></div>");
+            element.find(".ui-icon.ui-icon-seek-prev").removeClass().addClass("fa fa-backward");
+
+            element.find(".ui-icon.ui-icon-seek-first").wrap("<div class='btn btn-sm btn-default'></div>");
+            element.find(".ui-icon.ui-icon-seek-first").removeClass().addClass("fa fa-fast-backward");
+
+            element.find(".ui-icon.ui-icon-seek-next").wrap("<div class='btn btn-sm btn-default'></div>");
+            element.find(".ui-icon.ui-icon-seek-next").removeClass().addClass("fa fa-forward");
+
+            element.find(".ui-icon.ui-icon-seek-end").wrap("<div class='btn btn-sm btn-default'></div>");
+            element.find(".ui-icon.ui-icon-seek-end").removeClass().addClass("fa fa-fast-forward");
+
+            $(window).on('resize.jqGrid', function() {
+               table.jqGrid('setGridWidth', $("#content").width());
+            });
+
+
+            $compile(element.contents())(scope);
+        }
+    }
+});
 'use strict';
 
 angular.module('app.tables').directive('datatableBasic', function ($compile) {
@@ -24183,127 +24521,6 @@ angular.module('app.tables').directive('datatableTableTools', function () {
         }
     }
 });
-'use strict';
-
-angular.module('app.tables').directive('jqGrid', function ($compile) {
-    var jqGridCounter = 0;
-
-    return {
-        replace: true,
-        restrict: 'E',
-        scope: {
-            gridData: '='
-        },
-        template: '<div>' +
-            '<table></table>' +
-            '<div class="jqgrid-pagination"></div>' +
-            '</div>',
-        controller: function($scope, $element){
-            $scope.editRow  = function(row){
-                $element.find('table').editRow(row);
-            };
-            $scope.saveRow  = function(row){
-                $element.find('table').saveRow(row);
-            };
-            $scope.restoreRow  = function(row){
-                $element.find('table').restoreRow(row);
-            };
-        },
-        link: function (scope, element) {
-            var gridNumber = jqGridCounter++;
-            var wrapperId = 'jqgrid-' + gridNumber;
-            element.attr('id', wrapperId);
-
-            var tableId = 'jqgrid-table-' + gridNumber;
-            var table = element.find('table');
-            table.attr('id', tableId);
-
-            var pagerId = 'jqgrid-pager-' + gridNumber;
-            element.find('.jqgrid-pagination').attr('id', pagerId);
-
-
-            table.jqGrid({
-                data : scope.gridData.data,
-                datatype : "local",
-                height : 'auto',
-                colNames : scope.gridData.colNames || [],
-                colModel : scope.gridData.colModel || [],
-                rowNum : 10,
-                rowList : [10, 20, 30],
-                pager : '#' + pagerId,
-                sortname : 'id',
-                toolbarfilter : true,
-                viewrecords : true,
-                sortorder : "asc",
-                gridComplete : function() {
-                    var ids = table.jqGrid('getDataIDs');
-                    for (var i = 0; i < ids.length; i++) {
-                        var cl = ids[i];
-                        var be = "<button class='btn btn-xs btn-default' uib-tooltip='Edit Row' tooltip-append-to-body='true' ng-click='editRow("+ cl +")'><i class='fa fa-pencil'></i></button>";
-
-                        var se = "<button class='btn btn-xs btn-default' uib-tooltip='Save Row' tooltip-append-to-body='true' ng-click='saveRow("+ cl +")'><i class='fa fa-save'></i></button>";
-
-                        var ca = "<button class='btn btn-xs btn-default' uib-tooltip='Cancel' tooltip-append-to-body='true' ng-click='restoreRow("+ cl +")'><i class='fa fa-times'></i></button>";
-
-                        table.jqGrid('setRowData', ids[i], {
-                            act : be + se + ca
-                        });
-                    }
-                },
-                editurl : "dummy.html",
-                caption : "SmartAdmin jQgrid Skin",
-                multiselect : true,
-                autowidth : true
-
-            });
-            table.jqGrid('navGrid', '#' + pagerId, {
-                edit : false,
-                add : false,
-                del : true
-            });
-            table.jqGrid('inlineNav', '#' + pagerId);
-
-
-            element.find(".ui-jqgrid").removeClass("ui-widget ui-widget-content");
-            element.find(".ui-jqgrid-view").children().removeClass("ui-widget-header ui-state-default");
-            element.find(".ui-jqgrid-labels, .ui-search-toolbar").children().removeClass("ui-state-default ui-th-column ui-th-ltr");
-            element.find(".ui-jqgrid-pager").removeClass("ui-state-default");
-            element.find(".ui-jqgrid").removeClass("ui-widget-content");
-
-            // add classes
-            element.find(".ui-jqgrid-htable").addClass("table table-bordered table-hover");
-            element.find(".ui-jqgrid-btable").addClass("table table-bordered table-striped");
-
-            element.find(".ui-pg-div").removeClass().addClass("btn btn-sm btn-primary");
-            element.find(".ui-icon.ui-icon-plus").removeClass().addClass("fa fa-plus");
-            element.find(".ui-icon.ui-icon-pencil").removeClass().addClass("fa fa-pencil");
-            element.find(".ui-icon.ui-icon-trash").removeClass().addClass("fa fa-trash-o");
-            element.find(".ui-icon.ui-icon-search").removeClass().addClass("fa fa-search");
-            element.find(".ui-icon.ui-icon-refresh").removeClass().addClass("fa fa-refresh");
-            element.find(".ui-icon.ui-icon-disk").removeClass().addClass("fa fa-save").parent(".btn-primary").removeClass("btn-primary").addClass("btn-success");
-            element.find(".ui-icon.ui-icon-cancel").removeClass().addClass("fa fa-times").parent(".btn-primary").removeClass("btn-primary").addClass("btn-danger");
-
-            element.find(".ui-icon.ui-icon-seek-prev").wrap("<div class='btn btn-sm btn-default'></div>");
-            element.find(".ui-icon.ui-icon-seek-prev").removeClass().addClass("fa fa-backward");
-
-            element.find(".ui-icon.ui-icon-seek-first").wrap("<div class='btn btn-sm btn-default'></div>");
-            element.find(".ui-icon.ui-icon-seek-first").removeClass().addClass("fa fa-fast-backward");
-
-            element.find(".ui-icon.ui-icon-seek-next").wrap("<div class='btn btn-sm btn-default'></div>");
-            element.find(".ui-icon.ui-icon-seek-next").removeClass().addClass("fa fa-forward");
-
-            element.find(".ui-icon.ui-icon-seek-end").wrap("<div class='btn btn-sm btn-default'></div>");
-            element.find(".ui-icon.ui-icon-seek-end").removeClass().addClass("fa fa-fast-forward");
-
-            $(window).on('resize.jqGrid', function() {
-               table.jqGrid('setGridWidth', $("#content").width());
-            });
-
-
-            $compile(element.contents())(scope);
-        }
-    }
-});
 "use strict";
 
 angular.module('SmartAdmin.Layout').directive('fullScreen', function(){
@@ -24451,43 +24668,6 @@ angular.module('SmartAdmin.Layout').directive('toggleMenu', function(){
         }
     }
 });
-
-"use strict";
-
-angular.module('SmartAdmin.UI').directive('smartPopoverHtml', function () {
-    return {
-        restrict: "A",
-        link: function(scope, element, attributes){
-            var options = {};
-            options.content = attributes.smartPopoverHtml;
-            options.placement = attributes.popoverPlacement || 'top';
-            options.html = true;
-            options.trigger =  attributes.popoverTrigger || 'click';
-            options.title =  attributes.popoverTitle || attributes.title;
-            element.popover(options)
-
-        }
-
-    };
-});
-
-
-"use strict";
-
-angular.module('SmartAdmin.UI').directive('smartTooltipHtml', function () {
-        return {
-            restrict: 'A',
-            link: function(scope, element, attributes){
-                element.tooltip({
-                    placement: attributes.tooltipPlacement || 'top',
-                    html: true,
-                    title: attributes.smartTooltipHtml
-                })
-            }
-        };
-    }
-);
-
 'use strict';
 
 angular.module('SmartAdmin.Layout').directive('bigBreadcrumbs', function ($rootScope) {
@@ -25736,193 +25916,131 @@ angular.module('SmartAdmin.Layout').factory('SmartCss', function ($rootScope, $t
 
 
 
+
+"use strict";
+
+angular.module('SmartAdmin.UI').directive('smartPopoverHtml', function () {
+    return {
+        restrict: "A",
+        link: function(scope, element, attributes){
+            var options = {};
+            options.content = attributes.smartPopoverHtml;
+            options.placement = attributes.popoverPlacement || 'top';
+            options.html = true;
+            options.trigger =  attributes.popoverTrigger || 'click';
+            options.title =  attributes.popoverTitle || attributes.title;
+            element.popover(options)
+
+        }
+
+    };
+});
+
+
+"use strict";
+
+angular.module('SmartAdmin.UI').directive('smartTooltipHtml', function () {
+        return {
+            restrict: 'A',
+            link: function(scope, element, attributes){
+                element.tooltip({
+                    placement: attributes.tooltipPlacement || 'top',
+                    html: true,
+                    title: attributes.smartTooltipHtml
+                })
+            }
+        };
+    }
+);
+
 'use strict';
 
-angular.module('SmartAdmin.Forms').directive('smartJcrop', function ($q) {
+angular.module('SmartAdmin.Forms').directive('smartCkEditor', function () {
     return {
         restrict: 'A',
-        scope: {
-            coords: '=',
-            options: '=',
-            selection: '='
-        },
-        link: function (scope, element, attributes) {
-            var jcropApi, imageWidth, imageHeight, imageLoaded = $q.defer();
+        compile: function ( tElement) {
+            tElement.removeAttr('smart-ck-editor data-smart-ck-editor');
+            //CKEDITOR.basePath = 'bower_components/ckeditor/';
 
-            var listeners = {
-                onSelectHandlers: [],
-                onChangeHandlers: [],
-                onSelect: function (c) {
-                    angular.forEach(listeners.onSelectHandlers, function (handler) {
-                        handler.call(jcropApi, c)
-                    })
-                },
-                onChange: function (c) {
-                    angular.forEach(listeners.onChangeHandlers, function (handler) {
-                        handler.call(jcropApi, c)
-                    })
+            CKEDITOR.replace( tElement.attr('name'), { height: '380px', startupFocus : true} );
+        }
+    }
+});
+'use strict';
+
+angular.module('SmartAdmin.Forms').directive('smartDestroySummernote', function () {
+    return {
+        restrict: 'A',
+        compile: function (tElement, tAttributes) {
+            tElement.removeAttr('smart-destroy-summernote data-smart-destroy-summernote')
+            tElement.on('click', function() {
+                angular.element(tAttributes.smartDestroySummernote).destroy();
+            })
+        }
+    }
+});
+
+'use strict';
+
+angular.module('SmartAdmin.Forms').directive('smartEditSummernote', function () {
+    return {
+        restrict: 'A',
+        compile: function (tElement, tAttributes) {
+            tElement.removeAttr('smart-edit-summernote data-smart-edit-summernote');
+            tElement.on('click', function(){
+                angular.element(tAttributes.smartEditSummernote).summernote({
+                    focus : true
+                });  
+            });
+        }
+    }
+});
+
+'use strict';
+
+angular.module('SmartAdmin.Forms').directive('smartMarkdownEditor', function () {
+    return {
+        restrict: 'A',
+        compile: function (element, attributes) {
+            element.removeAttr('smart-markdown-editor data-smart-markdown-editor')
+
+            var options = {
+                autofocus:false,
+                savable:true,
+                fullscreen: {
+                    enable: false
                 }
             };
 
-            if (attributes.coords) {
-                var coordsUpdate = function (c) {
-                    scope.$apply(function () {
-                        scope.coords = c;
-                    });
-                };
-                listeners.onSelectHandlers.push(coordsUpdate);
-                listeners.onChangeHandlers.push(coordsUpdate);
+            if(attributes.height){
+                options.height = parseInt(attributes.height);
             }
 
-            var $previewPane = $(attributes.smartJcropPreview),
-                $previewContainer = $previewPane.find('.preview-container'),
-                $previewImg = $previewPane.find('img');
+            element.markdown(options);
+        }
+    }
+});
 
-            if ($previewPane.length && $previewImg.length) {
-                var previewUpdate = function (coords) {
-                    if (parseInt(coords.w) > 0) {
-                        var rx = $previewContainer.width() / coords.w;
-                        var ry = $previewContainer.height() / coords.h;
+'use strict';
 
-                        $previewImg.css({
-                            width: Math.round(rx * imageWidth) + 'px',
-                            height: Math.round(ry * imageHeight) + 'px',
-                            marginLeft: '-' + Math.round(rx * coords.x) + 'px',
-                            marginTop: '-' + Math.round(ry * coords.y) + 'px'
-                        });
-                    }
-                };
-                listeners.onSelectHandlers.push(previewUpdate);
-                listeners.onChangeHandlers.push(previewUpdate);
-            }
-
+angular.module('SmartAdmin.Forms').directive('smartSummernoteEditor', function (lazyScript) {
+    return {
+        restrict: 'A',
+        compile: function (tElement, tAttributes) {
+            tElement.removeAttr('smart-summernote-editor data-smart-summernote-editor');
 
             var options = {
-                onSelect: listeners.onSelect,
-                onChange: listeners.onChange
+                focus : true,
+                tabsize : 2
             };
 
-            if ($previewContainer.length) {
-                options.aspectRatio = $previewContainer.width() / $previewContainer.height()
+            if(tAttributes.height){
+                options.height = tAttributes.height;
             }
 
-            if (attributes.selection) {
-                scope.$watch('selection', function (newVal, oldVal) {
-                    if (newVal != oldVal) {
-                        var rectangle = newVal == 'release' ? [imageWidth / 2, imageHeight / 2, imageWidth / 2, imageHeight / 2] : newVal;
-
-                        var callback = newVal == 'release' ? function () {
-                            jcropApi.release();
-                        } : angular.noop;
-
-                        imageLoaded.promise.then(function () {
-                            if (scope.options && scope.options.animate) {
-                                jcropApi.animateTo(rectangle, callback);
-                            } else {
-                                jcropApi.setSelect(rectangle);
-                            }
-                        });
-                    }
-                });
-            }
-
-            if (attributes.options) {
-
-                var optionNames = [
-                    'bgOpacity', 'bgColor', 'bgFade', 'shade', 'outerImage',
-                    'allowSelect', 'allowMove', 'allowResize',
-                    'aspectRatio'
-                ];
-
-                angular.forEach(optionNames, function (name) {
-                    if (scope.options[name])
-                        options[name] = scope.options[name]
-
-                    scope.$watch('options.' + name, function (newVal, oldVal) {
-                        if (newVal != oldVal) {
-                            imageLoaded.promise.then(function () {
-                                var update = {};
-                                update[name] = newVal;
-                                jcropApi.setOptions(update);
-                            });
-                        }
-                    });
-
-                });
-
-
-                scope.$watch('options.disabled', function (newVal, oldVal) {
-                    if (newVal != oldVal) {
-                        if (newVal) {
-                            jcropApi.disable();
-                        } else {
-                            jcropApi.enable();
-                        }
-                    }
-                });
-
-                scope.$watch('options.destroyed', function (newVal, oldVal) {
-                    if (newVal != oldVal) {
-                        if (newVal) {
-                            jcropApi.destroy();
-                        } else {
-                            _init();
-                        }
-                    }
-                });
-
-                scope.$watch('options.src', function (newVal, oldVal) {
-                    imageLoaded = $q.defer();
-                    if (newVal != oldVal) {
-                        jcropApi.setImage(scope.options.src, function () {
-                            imageLoaded.resolve();
-                        });
-                    }
-                });
-
-                var updateSize = function(){
-                    jcropApi.setOptions({
-                        minSize: [scope.options.minSizeWidth, scope.options.minSizeHeight],
-                        maxSize: [scope.options.maxSizeWidth, scope.options.maxSizeHeight]
-                    });
-                };
-
-                scope.$watch('options.minSizeWidth', function (newVal, oldVal) {
-                    if (newVal != oldVal) updateSize();
-                });
-                scope.$watch('options.minSizeHeight', function (newVal, oldVal) {
-                    if (newVal != oldVal) updateSize();
-                });
-                scope.$watch('options.maxSizeWidth', function (newVal, oldVal) {
-                    if (newVal != oldVal) updateSize();
-                });
-                scope.$watch('options.maxSizeHeight', function (newVal, oldVal) {
-                    if (newVal != oldVal) updateSize();
-                });
-            }
-
-            var _init = function () {
-                element.Jcrop(options, function () {
-                    jcropApi = this;
-                    // Use the API to get the real image size
-                    var bounds = this.getBounds();
-                    imageWidth = bounds[0];
-                    imageHeight = bounds[1];
-
-                    if (attributes.selection && angular.isArray(scope.selection)) {
-                        if (scope.options && scope.options.animate) {
-                            jcropApi.animateTo(scope.selection);
-                        } else {
-                            jcropApi.setSelect(scope.selection);
-                        }
-                    }
-                    imageLoaded.resolve();
-                });
-            };
-
-            _init()
-
-
+            lazyScript.register('build/vendor.ui.js').then(function(){
+                tElement.summernote(options);                
+            });
         }
     }
 });
@@ -26339,92 +26457,191 @@ angular.module('SmartAdmin.Forms').directive('smartReviewForm', function (formsC
 });
 'use strict';
 
-angular.module('SmartAdmin.Forms').directive('smartCkEditor', function () {
+angular.module('SmartAdmin.Forms').directive('smartJcrop', function ($q) {
     return {
         restrict: 'A',
-        compile: function ( tElement) {
-            tElement.removeAttr('smart-ck-editor data-smart-ck-editor');
-            //CKEDITOR.basePath = 'bower_components/ckeditor/';
+        scope: {
+            coords: '=',
+            options: '=',
+            selection: '='
+        },
+        link: function (scope, element, attributes) {
+            var jcropApi, imageWidth, imageHeight, imageLoaded = $q.defer();
 
-            CKEDITOR.replace( tElement.attr('name'), { height: '380px', startupFocus : true} );
-        }
-    }
-});
-'use strict';
-
-angular.module('SmartAdmin.Forms').directive('smartDestroySummernote', function () {
-    return {
-        restrict: 'A',
-        compile: function (tElement, tAttributes) {
-            tElement.removeAttr('smart-destroy-summernote data-smart-destroy-summernote')
-            tElement.on('click', function() {
-                angular.element(tAttributes.smartDestroySummernote).destroy();
-            })
-        }
-    }
-});
-
-'use strict';
-
-angular.module('SmartAdmin.Forms').directive('smartEditSummernote', function () {
-    return {
-        restrict: 'A',
-        compile: function (tElement, tAttributes) {
-            tElement.removeAttr('smart-edit-summernote data-smart-edit-summernote');
-            tElement.on('click', function(){
-                angular.element(tAttributes.smartEditSummernote).summernote({
-                    focus : true
-                });  
-            });
-        }
-    }
-});
-
-'use strict';
-
-angular.module('SmartAdmin.Forms').directive('smartMarkdownEditor', function () {
-    return {
-        restrict: 'A',
-        compile: function (element, attributes) {
-            element.removeAttr('smart-markdown-editor data-smart-markdown-editor')
-
-            var options = {
-                autofocus:false,
-                savable:true,
-                fullscreen: {
-                    enable: false
+            var listeners = {
+                onSelectHandlers: [],
+                onChangeHandlers: [],
+                onSelect: function (c) {
+                    angular.forEach(listeners.onSelectHandlers, function (handler) {
+                        handler.call(jcropApi, c)
+                    })
+                },
+                onChange: function (c) {
+                    angular.forEach(listeners.onChangeHandlers, function (handler) {
+                        handler.call(jcropApi, c)
+                    })
                 }
             };
 
-            if(attributes.height){
-                options.height = parseInt(attributes.height);
+            if (attributes.coords) {
+                var coordsUpdate = function (c) {
+                    scope.$apply(function () {
+                        scope.coords = c;
+                    });
+                };
+                listeners.onSelectHandlers.push(coordsUpdate);
+                listeners.onChangeHandlers.push(coordsUpdate);
             }
 
-            element.markdown(options);
-        }
-    }
-});
+            var $previewPane = $(attributes.smartJcropPreview),
+                $previewContainer = $previewPane.find('.preview-container'),
+                $previewImg = $previewPane.find('img');
 
-'use strict';
+            if ($previewPane.length && $previewImg.length) {
+                var previewUpdate = function (coords) {
+                    if (parseInt(coords.w) > 0) {
+                        var rx = $previewContainer.width() / coords.w;
+                        var ry = $previewContainer.height() / coords.h;
 
-angular.module('SmartAdmin.Forms').directive('smartSummernoteEditor', function (lazyScript) {
-    return {
-        restrict: 'A',
-        compile: function (tElement, tAttributes) {
-            tElement.removeAttr('smart-summernote-editor data-smart-summernote-editor');
+                        $previewImg.css({
+                            width: Math.round(rx * imageWidth) + 'px',
+                            height: Math.round(ry * imageHeight) + 'px',
+                            marginLeft: '-' + Math.round(rx * coords.x) + 'px',
+                            marginTop: '-' + Math.round(ry * coords.y) + 'px'
+                        });
+                    }
+                };
+                listeners.onSelectHandlers.push(previewUpdate);
+                listeners.onChangeHandlers.push(previewUpdate);
+            }
+
 
             var options = {
-                focus : true,
-                tabsize : 2
+                onSelect: listeners.onSelect,
+                onChange: listeners.onChange
             };
 
-            if(tAttributes.height){
-                options.height = tAttributes.height;
+            if ($previewContainer.length) {
+                options.aspectRatio = $previewContainer.width() / $previewContainer.height()
             }
 
-            lazyScript.register('build/vendor.ui.js').then(function(){
-                tElement.summernote(options);                
-            });
+            if (attributes.selection) {
+                scope.$watch('selection', function (newVal, oldVal) {
+                    if (newVal != oldVal) {
+                        var rectangle = newVal == 'release' ? [imageWidth / 2, imageHeight / 2, imageWidth / 2, imageHeight / 2] : newVal;
+
+                        var callback = newVal == 'release' ? function () {
+                            jcropApi.release();
+                        } : angular.noop;
+
+                        imageLoaded.promise.then(function () {
+                            if (scope.options && scope.options.animate) {
+                                jcropApi.animateTo(rectangle, callback);
+                            } else {
+                                jcropApi.setSelect(rectangle);
+                            }
+                        });
+                    }
+                });
+            }
+
+            if (attributes.options) {
+
+                var optionNames = [
+                    'bgOpacity', 'bgColor', 'bgFade', 'shade', 'outerImage',
+                    'allowSelect', 'allowMove', 'allowResize',
+                    'aspectRatio'
+                ];
+
+                angular.forEach(optionNames, function (name) {
+                    if (scope.options[name])
+                        options[name] = scope.options[name]
+
+                    scope.$watch('options.' + name, function (newVal, oldVal) {
+                        if (newVal != oldVal) {
+                            imageLoaded.promise.then(function () {
+                                var update = {};
+                                update[name] = newVal;
+                                jcropApi.setOptions(update);
+                            });
+                        }
+                    });
+
+                });
+
+
+                scope.$watch('options.disabled', function (newVal, oldVal) {
+                    if (newVal != oldVal) {
+                        if (newVal) {
+                            jcropApi.disable();
+                        } else {
+                            jcropApi.enable();
+                        }
+                    }
+                });
+
+                scope.$watch('options.destroyed', function (newVal, oldVal) {
+                    if (newVal != oldVal) {
+                        if (newVal) {
+                            jcropApi.destroy();
+                        } else {
+                            _init();
+                        }
+                    }
+                });
+
+                scope.$watch('options.src', function (newVal, oldVal) {
+                    imageLoaded = $q.defer();
+                    if (newVal != oldVal) {
+                        jcropApi.setImage(scope.options.src, function () {
+                            imageLoaded.resolve();
+                        });
+                    }
+                });
+
+                var updateSize = function(){
+                    jcropApi.setOptions({
+                        minSize: [scope.options.minSizeWidth, scope.options.minSizeHeight],
+                        maxSize: [scope.options.maxSizeWidth, scope.options.maxSizeHeight]
+                    });
+                };
+
+                scope.$watch('options.minSizeWidth', function (newVal, oldVal) {
+                    if (newVal != oldVal) updateSize();
+                });
+                scope.$watch('options.minSizeHeight', function (newVal, oldVal) {
+                    if (newVal != oldVal) updateSize();
+                });
+                scope.$watch('options.maxSizeWidth', function (newVal, oldVal) {
+                    if (newVal != oldVal) updateSize();
+                });
+                scope.$watch('options.maxSizeHeight', function (newVal, oldVal) {
+                    if (newVal != oldVal) updateSize();
+                });
+            }
+
+            var _init = function () {
+                element.Jcrop(options, function () {
+                    jcropApi = this;
+                    // Use the API to get the real image size
+                    var bounds = this.getBounds();
+                    imageWidth = bounds[0];
+                    imageHeight = bounds[1];
+
+                    if (attributes.selection && angular.isArray(scope.selection)) {
+                        if (scope.options && scope.options.animate) {
+                            jcropApi.animateTo(scope.selection);
+                        } else {
+                            jcropApi.setSelect(scope.selection);
+                        }
+                    }
+                    imageLoaded.resolve();
+                });
+            };
+
+            _init()
+
+
         }
     }
 });
@@ -27400,135 +27617,6 @@ angular.module('SmartAdmin.Forms').directive('smartWizard', function () {
         }
     }
 });
-'use strict';
-
-angular.module('SmartAdmin.Layout').directive('demoStates', function ($rootScope) {
-    return {
-        restrict: 'EA',
-        replace: true,
-        templateUrl: 'app/_common/layout/directives/demo/demo-states.tpl.html',
-        scope: true,
-        link: function (scope, element, attributes) {
-            element.parent().css({
-                position: 'relative'
-            });
-
-            element.on('click', '#demo-setting', function () {
-                element.toggleClass('activate')
-            })
-        },
-        controller: function ($scope) {
-            var $root = $('body');
-
-            $scope.$watch('fixedHeader', function (fixedHeader) {
-                localStorage.setItem('sm-fixed-header', fixedHeader);
-                $root.toggleClass('fixed-header', fixedHeader);
-                if (fixedHeader == false) {
-                    $scope.fixedRibbon = false;
-                    $scope.fixedNavigation = false;
-                }
-            });
-
-
-            $scope.$watch('fixedNavigation', function (fixedNavigation) {
-                localStorage.setItem('sm-fixed-navigation', fixedNavigation);
-                $root.toggleClass('fixed-navigation', fixedNavigation);
-                if (fixedNavigation) {
-                    $scope.insideContainer = false;
-                    $scope.fixedHeader = true;
-                } else {
-                    $scope.fixedRibbon = false;
-                }
-            });
-
-
-            $scope.$watch('fixedRibbon', function (fixedRibbon) {
-                localStorage.setItem('sm-fixed-ribbon', fixedRibbon);
-                $root.toggleClass('fixed-ribbon', fixedRibbon);
-                if (fixedRibbon) {
-                    $scope.fixedHeader = true;
-                    $scope.fixedNavigation = true;
-                    $scope.insideContainer = false;
-                }
-            });
-
-            $scope.$watch('fixedPageFooter', function (fixedPageFooter) {
-                localStorage.setItem('sm-fixed-page-footer', fixedPageFooter);
-                $root.toggleClass('fixed-page-footer', fixedPageFooter);
-            });
-
-            $scope.$watch('insideContainer', function (insideContainer) {
-                localStorage.setItem('sm-inside-container', insideContainer);
-                $root.toggleClass('container', insideContainer);
-                if (insideContainer) {
-                    $scope.fixedRibbon = false;
-                    $scope.fixedNavigation = false;
-                }
-            });
-
-            $scope.$watch('rtl', function (rtl) {
-                localStorage.setItem('sm-rtl', rtl);
-                $root.toggleClass('smart-rtl', rtl);
-            });
-
-            $scope.$watch('menuOnTop', function (menuOnTop) {
-                $rootScope.$broadcast('$smartLayoutMenuOnTop', menuOnTop);
-                localStorage.setItem('sm-menu-on-top', menuOnTop);
-                $root.toggleClass('menu-on-top', menuOnTop);
-
-                if(menuOnTop)$root.removeClass('minified');
-            });
-
-            $scope.$watch('colorblindFriendly', function (colorblindFriendly) {
-                localStorage.setItem('sm-colorblind-friendly', colorblindFriendly);
-                $root.toggleClass('colorblind-friendly', colorblindFriendly);
-            });
-
-
-            $scope.fixedHeader = localStorage.getItem('sm-fixed-header') == 'true';
-            $scope.fixedNavigation = localStorage.getItem('sm-fixed-navigation') == 'true';
-            $scope.fixedRibbon = localStorage.getItem('sm-fixed-ribbon') == 'true';
-            $scope.fixedPageFooter = localStorage.getItem('sm-fixed-page-footer') == 'true';
-            $scope.insideContainer = localStorage.getItem('sm-inside-container') == 'true';
-            $scope.rtl = localStorage.getItem('sm-rtl') == 'true';
-            $scope.menuOnTop = localStorage.getItem('sm-menu-on-top') == 'true' || $root.hasClass('menu-on-top');
-            $scope.colorblindFriendly = localStorage.getItem('sm-colorblind-friendly') == 'true';
-
-
-            $scope.skins = appConfig.skins;
-
-
-            $scope.smartSkin = localStorage.getItem('sm-skin') ? localStorage.getItem('sm-skin') : appConfig.smartSkin;
-
-            $scope.setSkin = function (skin) {
-                $scope.smartSkin = skin.name;
-                $root.removeClass(_.pluck($scope.skins, 'name').join(' '));
-                $root.addClass(skin.name);
-                localStorage.setItem('sm-skin', skin.name);
-                $("#logo img").attr('src', skin.logo);
-            };
-
-
-            if($scope.smartSkin != "smart-style-0"){
-                $scope.setSkin(_.find($scope.skins, {name: $scope.smartSkin}))
-            }
-
-
-            $scope.factoryReset = function () {
-                $.SmartMessageBox({
-                    title: "<i class='fa fa-refresh' style='color:green'></i> Clear Local Storage",
-                    content: "Would you like to RESET all your saved widgets and clear LocalStorage?1",
-                    buttons: '[No][Yes]'
-                }, function (ButtonPressed) {
-                    if (ButtonPressed == "Yes" && localStorage) {
-                        localStorage.clear();
-                        location.reload()
-                    }
-                });
-            }
-        }
-    }
-});
 "use strict";
 
 (function ($) {
@@ -27767,6 +27855,135 @@ angular.module('SmartAdmin.Layout').directive('smartMenu', function ($state, $ro
     }
 });
 })();
+'use strict';
+
+angular.module('SmartAdmin.Layout').directive('demoStates', function ($rootScope) {
+    return {
+        restrict: 'EA',
+        replace: true,
+        templateUrl: 'app/_common/layout/directives/demo/demo-states.tpl.html',
+        scope: true,
+        link: function (scope, element, attributes) {
+            element.parent().css({
+                position: 'relative'
+            });
+
+            element.on('click', '#demo-setting', function () {
+                element.toggleClass('activate')
+            })
+        },
+        controller: function ($scope) {
+            var $root = $('body');
+
+            $scope.$watch('fixedHeader', function (fixedHeader) {
+                localStorage.setItem('sm-fixed-header', fixedHeader);
+                $root.toggleClass('fixed-header', fixedHeader);
+                if (fixedHeader == false) {
+                    $scope.fixedRibbon = false;
+                    $scope.fixedNavigation = false;
+                }
+            });
+
+
+            $scope.$watch('fixedNavigation', function (fixedNavigation) {
+                localStorage.setItem('sm-fixed-navigation', fixedNavigation);
+                $root.toggleClass('fixed-navigation', fixedNavigation);
+                if (fixedNavigation) {
+                    $scope.insideContainer = false;
+                    $scope.fixedHeader = true;
+                } else {
+                    $scope.fixedRibbon = false;
+                }
+            });
+
+
+            $scope.$watch('fixedRibbon', function (fixedRibbon) {
+                localStorage.setItem('sm-fixed-ribbon', fixedRibbon);
+                $root.toggleClass('fixed-ribbon', fixedRibbon);
+                if (fixedRibbon) {
+                    $scope.fixedHeader = true;
+                    $scope.fixedNavigation = true;
+                    $scope.insideContainer = false;
+                }
+            });
+
+            $scope.$watch('fixedPageFooter', function (fixedPageFooter) {
+                localStorage.setItem('sm-fixed-page-footer', fixedPageFooter);
+                $root.toggleClass('fixed-page-footer', fixedPageFooter);
+            });
+
+            $scope.$watch('insideContainer', function (insideContainer) {
+                localStorage.setItem('sm-inside-container', insideContainer);
+                $root.toggleClass('container', insideContainer);
+                if (insideContainer) {
+                    $scope.fixedRibbon = false;
+                    $scope.fixedNavigation = false;
+                }
+            });
+
+            $scope.$watch('rtl', function (rtl) {
+                localStorage.setItem('sm-rtl', rtl);
+                $root.toggleClass('smart-rtl', rtl);
+            });
+
+            $scope.$watch('menuOnTop', function (menuOnTop) {
+                $rootScope.$broadcast('$smartLayoutMenuOnTop', menuOnTop);
+                localStorage.setItem('sm-menu-on-top', menuOnTop);
+                $root.toggleClass('menu-on-top', menuOnTop);
+
+                if(menuOnTop)$root.removeClass('minified');
+            });
+
+            $scope.$watch('colorblindFriendly', function (colorblindFriendly) {
+                localStorage.setItem('sm-colorblind-friendly', colorblindFriendly);
+                $root.toggleClass('colorblind-friendly', colorblindFriendly);
+            });
+
+
+            $scope.fixedHeader = localStorage.getItem('sm-fixed-header') == 'true';
+            $scope.fixedNavigation = localStorage.getItem('sm-fixed-navigation') == 'true';
+            $scope.fixedRibbon = localStorage.getItem('sm-fixed-ribbon') == 'true';
+            $scope.fixedPageFooter = localStorage.getItem('sm-fixed-page-footer') == 'true';
+            $scope.insideContainer = localStorage.getItem('sm-inside-container') == 'true';
+            $scope.rtl = localStorage.getItem('sm-rtl') == 'true';
+            $scope.menuOnTop = localStorage.getItem('sm-menu-on-top') == 'true' || $root.hasClass('menu-on-top');
+            $scope.colorblindFriendly = localStorage.getItem('sm-colorblind-friendly') == 'true';
+
+
+            $scope.skins = appConfig.skins;
+
+
+            $scope.smartSkin = localStorage.getItem('sm-skin') ? localStorage.getItem('sm-skin') : appConfig.smartSkin;
+
+            $scope.setSkin = function (skin) {
+                $scope.smartSkin = skin.name;
+                $root.removeClass(_.pluck($scope.skins, 'name').join(' '));
+                $root.addClass(skin.name);
+                localStorage.setItem('sm-skin', skin.name);
+                $("#logo img").attr('src', skin.logo);
+            };
+
+
+            if($scope.smartSkin != "smart-style-0"){
+                $scope.setSkin(_.find($scope.skins, {name: $scope.smartSkin}))
+            }
+
+
+            $scope.factoryReset = function () {
+                $.SmartMessageBox({
+                    title: "<i class='fa fa-refresh' style='color:green'></i> Clear Local Storage",
+                    content: "Would you like to RESET all your saved widgets and clear LocalStorage?1",
+                    buttons: '[No][Yes]'
+                }, function (ButtonPressed) {
+                    if (ButtonPressed == "Yes" && localStorage) {
+                        localStorage.clear();
+                        location.reload()
+                    }
+                });
+            }
+        }
+    }
+});
 /**
  * Jarvis Widget Directive
  *
