@@ -7,12 +7,16 @@ module.exports = function(pQueryname, pParams){
 		 */
 		_CaseA = "SELECT '通報' AS BAN_TYPE, \
 						   IL.* \
-					FROM V_BLFO_JOIN_IL \
+					FROM ( \
+						SELECT IL_GETNAME, IL_GETADDRESS \
+						FROM V_BLFO_JOIN_IL \
+						GROUP BY IL_GETNAME, IL_GETADDRESS \
+					) V_BLFO_JOIN_IL \
 					JOIN ( \
 						SELECT *, \
 						   	   CONVERT(varchar, OL_IMPORTDT, 23 ) AS 'OL_IMPORTDT_EX' \
 						FROM ITEM_LIST \
-						LEFT JOIN ORDER_LIST ON OL_SEQ = IL_SEQ \
+						JOIN ORDER_LIST ON OL_SEQ = IL_SEQ \
 						/*只抓今天*/ \
 						WHERE '"+pParams["IMPORTDT_FROM"]+"' <= OL_IMPORTDT AND OL_IMPORTDT <= '"+pParams["IMPORTDT_TOXX"]+"' \
 					) IL ON \
@@ -28,7 +32,7 @@ module.exports = function(pQueryname, pParams){
 						SELECT *, \
 						   	   CONVERT(varchar, OL_IMPORTDT, 23 ) AS 'OL_IMPORTDT_EX' \
 						FROM ITEM_LIST \
-						LEFT JOIN ORDER_LIST ON OL_SEQ = IL_SEQ \
+						JOIN ORDER_LIST ON OL_SEQ = IL_SEQ \
 						/*只抓今天*/ \
 						WHERE '"+pParams["IMPORTDT_FROM"]+"' <= OL_IMPORTDT AND OL_IMPORTDT <= '"+pParams["IMPORTDT_TOXX"]+"' \
 					) IL ON \
@@ -42,12 +46,16 @@ module.exports = function(pQueryname, pParams){
 		 */
 		_CaseB = "SELECT '通報' AS BAN_TYPE, \
 						   IL.* \
-					FROM V_BLFO_JOIN_IL \
+					FROM ( \
+						SELECT IL_GETADDRESS, IL_GETTEL \
+						FROM V_BLFO_JOIN_IL \
+						GROUP BY IL_GETADDRESS, IL_GETTEL \
+					) V_BLFO_JOIN_IL \
 					JOIN ( \
 						SELECT *, \
 						   	   CONVERT(varchar, OL_IMPORTDT, 23 ) AS 'OL_IMPORTDT_EX' \
 						FROM ITEM_LIST \
-						LEFT JOIN ORDER_LIST ON OL_SEQ = IL_SEQ \
+						JOIN ORDER_LIST ON OL_SEQ = IL_SEQ \
 						/*只抓今天*/ \
 						WHERE '"+pParams["IMPORTDT_FROM"]+"' <= OL_IMPORTDT AND OL_IMPORTDT <= '"+pParams["IMPORTDT_TOXX"]+"' \
 					) IL ON \
@@ -63,7 +71,7 @@ module.exports = function(pQueryname, pParams){
 						SELECT *, \
 						   	   CONVERT(varchar, OL_IMPORTDT, 23 ) AS 'OL_IMPORTDT_EX' \
 						FROM ITEM_LIST \
-						LEFT JOIN ORDER_LIST ON OL_SEQ = IL_SEQ \
+						JOIN ORDER_LIST ON OL_SEQ = IL_SEQ \
 						/*只抓今天*/ \
 						WHERE '"+pParams["IMPORTDT_FROM"]+"' <= OL_IMPORTDT AND OL_IMPORTDT <= '"+pParams["IMPORTDT_TOXX"]+"' \
 					) IL ON \
@@ -77,12 +85,16 @@ module.exports = function(pQueryname, pParams){
 		 */
 		_CaseC = "SELECT '通報' AS BAN_TYPE, \
 						   IL.* \
-					FROM V_BLFO_JOIN_IL \
+					FROM ( \
+						SELECT IL_GETNAME, IL_GETTEL \
+						FROM V_BLFO_JOIN_IL \
+						GROUP BY IL_GETNAME, IL_GETTEL \
+					) V_BLFO_JOIN_IL \
 					JOIN ( \
 						SELECT *, \
 						   	   CONVERT(varchar, OL_IMPORTDT, 23 ) AS 'OL_IMPORTDT_EX' \
 						FROM ITEM_LIST \
-						LEFT JOIN ORDER_LIST ON OL_SEQ = IL_SEQ \
+						JOIN ORDER_LIST ON OL_SEQ = IL_SEQ \
 						/*只抓今天*/ \
 						WHERE '"+pParams["IMPORTDT_FROM"]+"' <= OL_IMPORTDT AND OL_IMPORTDT <= '"+pParams["IMPORTDT_TOXX"]+"' \
 					) IL ON \
@@ -98,7 +110,7 @@ module.exports = function(pQueryname, pParams){
 						SELECT *, \
 						   	   CONVERT(varchar, OL_IMPORTDT, 23 ) AS 'OL_IMPORTDT_EX' \
 						FROM ITEM_LIST \
-						LEFT JOIN ORDER_LIST ON OL_SEQ = IL_SEQ \
+						JOIN ORDER_LIST ON OL_SEQ = IL_SEQ \
 						/*只抓今天*/ \
 						WHERE '"+pParams["IMPORTDT_FROM"]+"' <= OL_IMPORTDT AND OL_IMPORTDT <= '"+pParams["IMPORTDT_TOXX"]+"' \
 					) IL ON \
@@ -113,12 +125,16 @@ module.exports = function(pQueryname, pParams){
 		 */
 		_CaseD = "SELECT '通報' AS BAN_TYPE, \
 						   IL.* \
-					FROM V_BLFO_JOIN_IL \
+					FROM ( \
+						SELECT IL_GETNAME, IL_GETADDRESS, IL_GETTEL \
+						FROM V_BLFO_JOIN_IL \
+						GROUP BY IL_GETNAME, IL_GETADDRESS, IL_GETTEL \
+					) V_BLFO_JOIN_IL \
 					JOIN ( \
 						SELECT *, \
 						   	   CONVERT(varchar, OL_IMPORTDT, 23 ) AS 'OL_IMPORTDT_EX' \
 						FROM ITEM_LIST \
-						LEFT JOIN ORDER_LIST ON OL_SEQ = IL_SEQ \
+						JOIN ORDER_LIST ON OL_SEQ = IL_SEQ \
 						/*只抓今天*/ \
 						WHERE '"+pParams["IMPORTDT_FROM"]+"' <= OL_IMPORTDT AND OL_IMPORTDT <= '"+pParams["IMPORTDT_TOXX"]+"' \
 					) IL ON \
@@ -135,7 +151,7 @@ module.exports = function(pQueryname, pParams){
 						SELECT *, \
 						   	   CONVERT(varchar, OL_IMPORTDT, 23 ) AS 'OL_IMPORTDT_EX' \
 						FROM ITEM_LIST \
-						LEFT JOIN ORDER_LIST ON OL_SEQ = IL_SEQ \
+						JOIN ORDER_LIST ON OL_SEQ = IL_SEQ \
 						/*只抓今天*/ \
 						WHERE '"+pParams["IMPORTDT_FROM"]+"' <= OL_IMPORTDT AND OL_IMPORTDT <= '"+pParams["IMPORTDT_TOXX"]+"' \
 					) IL ON \
@@ -149,12 +165,16 @@ module.exports = function(pQueryname, pParams){
 		 */
 		_CaseE = "SELECT '通報' AS BAN_TYPE, \
 						   IL.* \
-					FROM V_BLFO_JOIN_IL \
+					FROM ( \
+						SELECT IL_GETNAME \
+						FROM V_BLFO_JOIN_IL \
+						GROUP BY IL_GETNAME \
+					) V_BLFO_JOIN_IL \
 					JOIN ( \
 						SELECT *, \
 						   	   CONVERT(varchar, OL_IMPORTDT, 23 ) AS 'OL_IMPORTDT_EX' \
 						FROM ITEM_LIST \
-						LEFT JOIN ORDER_LIST ON OL_SEQ = IL_SEQ \
+						JOIN ORDER_LIST ON OL_SEQ = IL_SEQ \
 						/*只抓今天*/ \
 						WHERE '"+pParams["IMPORTDT_FROM"]+"' <= OL_IMPORTDT AND OL_IMPORTDT <= '"+pParams["IMPORTDT_TOXX"]+"' \
 					) IL ON \
@@ -169,7 +189,7 @@ module.exports = function(pQueryname, pParams){
 						SELECT *, \
 						   	   CONVERT(varchar, OL_IMPORTDT, 23 ) AS 'OL_IMPORTDT_EX' \
 						FROM ITEM_LIST \
-						LEFT JOIN ORDER_LIST ON OL_SEQ = IL_SEQ \
+						JOIN ORDER_LIST ON OL_SEQ = IL_SEQ \
 						/*只抓今天*/ \
 						WHERE '"+pParams["IMPORTDT_FROM"]+"' <= OL_IMPORTDT AND OL_IMPORTDT <= '"+pParams["IMPORTDT_TOXX"]+"' \
 					) IL ON \
@@ -181,12 +201,16 @@ module.exports = function(pQueryname, pParams){
 		 */
 		_CaseF = "SELECT '通報' AS BAN_TYPE, \
 						   IL.* \
-					FROM V_BLFO_JOIN_IL \
+					FROM ( \
+						SELECT IL_GETNAME_NEW \
+						FROM V_BLFO_JOIN_IL \
+						GROUP BY IL_GETNAME_NEW \
+					) V_BLFO_JOIN_IL \
 					JOIN ( \
 						SELECT *, \
 						   	   CONVERT(varchar, OL_IMPORTDT, 23 ) AS 'OL_IMPORTDT_EX' \
 						FROM ITEM_LIST \
-						LEFT JOIN ORDER_LIST ON OL_SEQ = IL_SEQ \
+						JOIN ORDER_LIST ON OL_SEQ = IL_SEQ \
 						/*只抓今天*/ \
 						WHERE '"+pParams["IMPORTDT_FROM"]+"' <= OL_IMPORTDT AND OL_IMPORTDT <= '"+pParams["IMPORTDT_TOXX"]+"' \
 					) IL ON \
@@ -201,7 +225,7 @@ module.exports = function(pQueryname, pParams){
 						SELECT *, \
 						   	   CONVERT(varchar, OL_IMPORTDT, 23 ) AS 'OL_IMPORTDT_EX' \
 						FROM ITEM_LIST \
-						LEFT JOIN ORDER_LIST ON OL_SEQ = IL_SEQ \
+						JOIN ORDER_LIST ON OL_SEQ = IL_SEQ \
 						/*只抓今天*/ \
 						WHERE '"+pParams["IMPORTDT_FROM"]+"' <= OL_IMPORTDT AND OL_IMPORTDT <= '"+pParams["IMPORTDT_TOXX"]+"' \
 					) IL ON \
@@ -213,12 +237,16 @@ module.exports = function(pQueryname, pParams){
 		 */
 		_CaseG = "SELECT '通報' AS BAN_TYPE, \
 						   IL.* \
-					FROM V_BLFO_JOIN_IL \
+					FROM ( \
+						SELECT IL_GETADDRESS \
+						FROM V_BLFO_JOIN_IL \
+						GROUP BY IL_GETADDRESS \
+					) V_BLFO_JOIN_IL \
 					JOIN ( \
 						SELECT *, \
 						   	   CONVERT(varchar, OL_IMPORTDT, 23 ) AS 'OL_IMPORTDT_EX' \
 						FROM ITEM_LIST \
-						LEFT JOIN ORDER_LIST ON OL_SEQ = IL_SEQ \
+						JOIN ORDER_LIST ON OL_SEQ = IL_SEQ \
 						/*只抓今天*/ \
 						WHERE '"+pParams["IMPORTDT_FROM"]+"' <= OL_IMPORTDT AND OL_IMPORTDT <= '"+pParams["IMPORTDT_TOXX"]+"' \
 					) IL ON \
@@ -233,7 +261,7 @@ module.exports = function(pQueryname, pParams){
 						SELECT *, \
 						   	   CONVERT(varchar, OL_IMPORTDT, 23 ) AS 'OL_IMPORTDT_EX' \
 						FROM ITEM_LIST \
-						LEFT JOIN ORDER_LIST ON OL_SEQ = IL_SEQ \
+						JOIN ORDER_LIST ON OL_SEQ = IL_SEQ \
 						/*只抓今天*/ \
 						WHERE '"+pParams["IMPORTDT_FROM"]+"' <= OL_IMPORTDT AND OL_IMPORTDT <= '"+pParams["IMPORTDT_TOXX"]+"' \
 					) IL ON \
@@ -245,12 +273,16 @@ module.exports = function(pQueryname, pParams){
 		 */
 		_CaseH = "SELECT '通報' AS BAN_TYPE, \
 						   IL.* \
-					FROM V_BLFO_JOIN_IL \
+					FROM ( \
+						SELECT IL_GETADDRESS_NEW \
+						FROM V_BLFO_JOIN_IL \
+						GROUP BY IL_GETADDRESS_NEW \
+					) V_BLFO_JOIN_IL \
 					JOIN ( \
 						SELECT *, \
 						   	   CONVERT(varchar, OL_IMPORTDT, 23 ) AS 'OL_IMPORTDT_EX' \
 						FROM ITEM_LIST \
-						LEFT JOIN ORDER_LIST ON OL_SEQ = IL_SEQ \
+						JOIN ORDER_LIST ON OL_SEQ = IL_SEQ \
 						/*只抓今天*/ \
 						WHERE '"+pParams["IMPORTDT_FROM"]+"' <= OL_IMPORTDT AND OL_IMPORTDT <= '"+pParams["IMPORTDT_TOXX"]+"' \
 					) IL ON \
@@ -265,7 +297,7 @@ module.exports = function(pQueryname, pParams){
 						SELECT *, \
 						   	   CONVERT(varchar, OL_IMPORTDT, 23 ) AS 'OL_IMPORTDT_EX' \
 						FROM ITEM_LIST \
-						LEFT JOIN ORDER_LIST ON OL_SEQ = IL_SEQ \
+						JOIN ORDER_LIST ON OL_SEQ = IL_SEQ \
 						/*只抓今天*/ \
 						WHERE '"+pParams["IMPORTDT_FROM"]+"' <= OL_IMPORTDT AND OL_IMPORTDT <= '"+pParams["IMPORTDT_TOXX"]+"' \
 					) IL ON \
@@ -342,7 +374,7 @@ module.exports = function(pQueryname, pParams){
 							FROM ( \
 								SELECT * \
 								FROM ITEM_LIST \
-								LEFT JOIN ORDER_LIST ON OL_SEQ = IL_SEQ \
+								JOIN ORDER_LIST ON OL_SEQ = IL_SEQ \
 								/*只抓今天*/ \
 								WHERE '"+pParams["IMPORTDT_FROM"]+"' <= OL_IMPORTDT AND OL_IMPORTDT <= '"+pParams["IMPORTDT_TOXX"]+"' \
 							) IN_IL ";
@@ -357,7 +389,7 @@ module.exports = function(pQueryname, pParams){
 										FROM ( \
 											SELECT * \
 											FROM ITEM_LIST \
-											LEFT JOIN ORDER_LIST ON OL_SEQ = IL_SEQ \
+											JOIN ORDER_LIST ON OL_SEQ = IL_SEQ \
 											/*不包含今天*/ \
 											WHERE OL_IMPORTDT < '"+pParams["IMPORTDT_FROM"]+"' \
 										) IN_IL \
@@ -380,7 +412,7 @@ module.exports = function(pQueryname, pParams){
 										FROM ( \
 											SELECT * \
 											FROM ITEM_LIST \
-											LEFT JOIN ORDER_LIST ON OL_SEQ = IL_SEQ \
+											JOIN ORDER_LIST ON OL_SEQ = IL_SEQ \
 											/*不包含今天*/ \
 											WHERE OL_IMPORTDT < '"+pParams["IMPORTDT_FROM"]+"' \
 										) IN_IL \
@@ -403,7 +435,7 @@ module.exports = function(pQueryname, pParams){
 										FROM  ( \
 											SELECT * \
 											FROM ITEM_LIST \
-											LEFT JOIN ORDER_LIST ON OL_SEQ = IL_SEQ \
+											JOIN ORDER_LIST ON OL_SEQ = IL_SEQ \
 											/*不包含今天*/ \
 											WHERE OL_IMPORTDT < '"+pParams["IMPORTDT_FROM"]+"' \
 										) IN_IL \
@@ -426,7 +458,7 @@ module.exports = function(pQueryname, pParams){
 										FROM  ( \
 											SELECT * \
 											FROM ITEM_LIST \
-											LEFT JOIN ORDER_LIST ON OL_SEQ = IL_SEQ \
+											JOIN ORDER_LIST ON OL_SEQ = IL_SEQ \
 											/*不包含今天*/ \
 											WHERE OL_IMPORTDT < '"+pParams["IMPORTDT_FROM"]+"' \
 										) IN_IL \
@@ -449,7 +481,7 @@ module.exports = function(pQueryname, pParams){
 										FROM  ( \
 											SELECT * \
 											FROM ITEM_LIST \
-											LEFT JOIN ORDER_LIST ON OL_SEQ = IL_SEQ \
+											JOIN ORDER_LIST ON OL_SEQ = IL_SEQ \
 											/*不包含今天*/ \
 											WHERE OL_IMPORTDT < '"+pParams["IMPORTDT_FROM"]+"' \
 										) IN_IL \
@@ -472,7 +504,7 @@ module.exports = function(pQueryname, pParams){
 										FROM  ( \
 											SELECT * \
 											FROM ITEM_LIST \
-											LEFT JOIN ORDER_LIST ON OL_SEQ = IL_SEQ \
+											JOIN ORDER_LIST ON OL_SEQ = IL_SEQ \
 											/*不包含今天*/ \
 											WHERE OL_IMPORTDT < '"+pParams["IMPORTDT_FROM"]+"' \
 										) IN_IL \
@@ -495,7 +527,7 @@ module.exports = function(pQueryname, pParams){
 										FROM  ( \
 											SELECT * \
 											FROM ITEM_LIST \
-											LEFT JOIN ORDER_LIST ON OL_SEQ = IL_SEQ \
+											JOIN ORDER_LIST ON OL_SEQ = IL_SEQ \
 											/*不包含今天*/ \
 											WHERE OL_IMPORTDT < '"+pParams["IMPORTDT_FROM"]+"' \
 										) IN_IL \
@@ -518,7 +550,7 @@ module.exports = function(pQueryname, pParams){
 										FROM  ( \
 											SELECT * \
 											FROM ITEM_LIST \
-											LEFT JOIN ORDER_LIST ON OL_SEQ = IL_SEQ \
+											JOIN ORDER_LIST ON OL_SEQ = IL_SEQ \
 											/*不包含今天*/ \
 											WHERE OL_IMPORTDT < '"+pParams["IMPORTDT_FROM"]+"' \
 										) IN_IL \
@@ -539,7 +571,7 @@ module.exports = function(pQueryname, pParams){
 							FROM ( \
 								SELECT * \
 								FROM ITEM_LIST \
-								LEFT JOIN ORDER_LIST ON OL_SEQ = IL_SEQ \
+								JOIN ORDER_LIST ON OL_SEQ = IL_SEQ \
 								/*不包含今天*/ \
 								WHERE OL_IMPORTDT < '"+pParams["IMPORTDT_FROM"]+"' \
 							) IN_IL \

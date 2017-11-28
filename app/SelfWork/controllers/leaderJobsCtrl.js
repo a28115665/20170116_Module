@@ -117,16 +117,32 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
                             });
                             break;
                         case '銷倉單':
-                            RestfulApi.DeleteMSSQLData({
-                                deletename: 'Delete',
+
+                            var _tasks = [];
+
+                            // 刪除銷倉單
+                            _tasks.push({
+                                crudType: 'Delete',
                                 table: 10,
                                 params: {
                                     FLL_SEQ : selectedItem.OL_SEQ
                                 }
-                            }).then(function (res) {
+                            });
+
+                            // 刪除銷倉單標記
+                            _tasks.push({
+                                crudType: 'Delete',
+                                table: 28,
+                                params: {
+                                    FLLR_SEQ : selectedItem.OL_SEQ
+                                }
+                            });
+
+                            RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res) {
                                 LoadOrderList();
                                 toaster.pop('success', '訊息', '刪除銷倉單成功', 3000);
                             });
+                            
                             break;
                         case '所有':
 

@@ -104,8 +104,8 @@ angular.module('app.concerns').controller('ResultBanCtrl', function ($scope, $st
                     animation: true,
                     ariaLabelledBy: 'modal-title',
                     ariaDescribedBy: 'modal-body',
-                    templateUrl: 'showHistoryCountModalContent.html',
-                    controller: 'ShowHistoryCountModalInstanceCtrl',
+                    templateUrl: 'showHistoryCountForResultModalContent.html',
+                    controller: 'ShowHistoryCountForResultModalInstanceCtrl',
                     controllerAs: '$ctrl',
                     size: 'lg',
                     // appendTo: parentElem,
@@ -288,7 +288,7 @@ angular.module('app.concerns').controller('ResultBanCtrl', function ($scope, $st
         $state.transitionTo($state.current.parent);
     }
 })
-.controller('ShowHistoryCountModalInstanceCtrl', function ($uibModalInstance, item, type, RestfulApi, uiGridConstants, compy) {
+.controller('ShowHistoryCountForResultModalInstanceCtrl', function ($uibModalInstance, item, type, RestfulApi, uiGridConstants, compy) {
     var $ctrl = this;
 
     $ctrl.Init = function(){

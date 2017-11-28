@@ -69,8 +69,8 @@ angular.module('app.concerns').controller('DailyAlertCtrl', function ($scope, $s
 	angular.extend(this, {
         Init : function(){
             $scope.ShowTabs = true;
-            $vm.IMPORTDT_FROM = $filter('date')(new Date(curDate.getTime() - 24*60*60*1000), 'yyyy-MM-dd') + ' 00:00:00';
-            $vm.IMPORTDT_TOXX = $filter('date')(new Date(curDate.getTime() + 24*60*60*1000), 'yyyy-MM-dd') + ' 23:59:59';
+            $vm.IMPORTDT_FROM = $filter('date')(new Date(curDate.getTime() - 5*24*60*60*1000), 'yyyy-MM-dd') + ' 00:00:00';
+            $vm.IMPORTDT_TOXX = $filter('date')(new Date(curDate.getTime() + 5*24*60*60*1000), 'yyyy-MM-dd') + ' 23:59:59';
             $vm.LoadData();
             LoadILCount();
         },
@@ -211,7 +211,7 @@ angular.module('app.concerns').controller('DailyAlertCtrl', function ($scope, $s
             paginationPageSizes: [10, 25, 50, 100],
             paginationPageSize: 100,
             onRegisterApi: function(gridApi){
-                $vm.caseDGridApi = gridApi;
+                $vm.caseEGridApi = gridApi;
             }
         },
         caseFOptions : {
@@ -224,7 +224,7 @@ angular.module('app.concerns').controller('DailyAlertCtrl', function ($scope, $s
             paginationPageSizes: [10, 25, 50, 100],
             paginationPageSize: 100,
             onRegisterApi: function(gridApi){
-                $vm.caseDGridApi = gridApi;
+                $vm.caseFGridApi = gridApi;
             }
         },
         caseGOptions : {
@@ -237,7 +237,7 @@ angular.module('app.concerns').controller('DailyAlertCtrl', function ($scope, $s
             paginationPageSizes: [10, 25, 50, 100],
             paginationPageSize: 100,
             onRegisterApi: function(gridApi){
-                $vm.caseDGridApi = gridApi;
+                $vm.caseGGridApi = gridApi;
             }
         },
         caseHOptions : {
@@ -250,7 +250,7 @@ angular.module('app.concerns').controller('DailyAlertCtrl', function ($scope, $s
             paginationPageSizes: [10, 25, 50, 100],
             paginationPageSize: 100,
             onRegisterApi: function(gridApi){
-                $vm.caseDGridApi = gridApi;
+                $vm.caseHGridApi = gridApi;
             }
         },
         ExportExcel : function(){
