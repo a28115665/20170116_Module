@@ -321,7 +321,7 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
                     }
                 },
                 // { name: 'W2'          ,  displayName: '報機單負責人', cellFilter: 'userInfoFilter' },
-                { name: 'W3_STATUS'   ,  displayName: '銷艙單狀態', cellTemplate: $templateCache.get('accessibilityToForW3'), filter: 
+                { name: 'W3_STATUS'   ,  displayName: '銷倉單狀態', cellTemplate: $templateCache.get('accessibilityToForW3'), filter: 
                     {
                         term: null,
                         type: uiGridConstants.filter.SELECT,
@@ -334,7 +334,7 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
                         ]
                     }
                 },
-                // { name: 'W3'          ,  displayName: '銷艙單負責人', cellFilter: 'userInfoFilter' },
+                // { name: 'W3'          ,  displayName: '銷倉單負責人', cellFilter: 'userInfoFilter' },
                 // { name: 'W1_STATUS'   ,  displayName: '派送單狀態', cellTemplate: $templateCache.get('accessibilityToForW1'), filter: 
                 //     {
                 //         term: null,
@@ -579,16 +579,6 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
             data:  '$vm.compyStatisticsData',
             columnDefs: [
                 { name: 'CO_NAME'      ,  displayName: '行家' },
-                { name: 'W2_COUNT'     ,  displayName: '報機單(件數)', filters: [
-                    {
-                        condition: uiGridConstants.filter.GREATER_THAN,
-                        placeholder: '最小'
-                    },
-                    {
-                        condition: uiGridConstants.filter.LESS_THAN,
-                        placeholder: '最大'
-                    }
-                ]},
                 { name: 'W2_BAG_COUNT' ,  displayName: '報機單(袋數)', filters: [
                     {
                         condition: uiGridConstants.filter.GREATER_THAN,
@@ -599,7 +589,7 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
                         placeholder: '最大'
                     }
                 ]},
-                { name: 'W3_COUNT'     ,  displayName: '銷艙單(件數)', filters: [
+                { name: 'W2_COUNT'     ,  displayName: '報機單(小號數)', filters: [
                     {
                         condition: uiGridConstants.filter.GREATER_THAN,
                         placeholder: '最小'
@@ -609,7 +599,7 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
                         placeholder: '最大'
                     }
                 ]},
-                { name: 'W3_BAG_COUNT' ,  displayName: '銷艙單(袋數)', filters: [
+                { name: 'OL_W2_COUNT'   ,  displayName: '報機單(份數)', filters: [
                     {
                         condition: uiGridConstants.filter.GREATER_THAN,
                         placeholder: '最小'
@@ -619,7 +609,7 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
                         placeholder: '最大'
                     }
                 ]},
-                { name: 'W1_COUNT'     ,  displayName: '派送單(件數)', filters: [
+                { name: 'OL_W3_COUNT'   ,  displayName: '銷倉單(份數)', filters: [
                     {
                         condition: uiGridConstants.filter.GREATER_THAN,
                         placeholder: '最小'
@@ -629,16 +619,46 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
                         placeholder: '最大'
                     }
                 ]},
-                { name: 'W1_BAG_COUNT' ,  displayName: '派送單(袋數)', filters: [
-                    {
-                        condition: uiGridConstants.filter.GREATER_THAN,
-                        placeholder: '最小'
-                    },
-                    {
-                        condition: uiGridConstants.filter.LESS_THAN,
-                        placeholder: '最大'
-                    }
-                ]}
+                // { name: 'W3_COUNT'     ,  displayName: '銷倉單(件數)', filters: [
+                //     {
+                //         condition: uiGridConstants.filter.GREATER_THAN,
+                //         placeholder: '最小'
+                //     },
+                //     {
+                //         condition: uiGridConstants.filter.LESS_THAN,
+                //         placeholder: '最大'
+                //     }
+                // ]},
+                // { name: 'W3_BAG_COUNT' ,  displayName: '銷倉單(袋數)', filters: [
+                //     {
+                //         condition: uiGridConstants.filter.GREATER_THAN,
+                //         placeholder: '最小'
+                //     },
+                //     {
+                //         condition: uiGridConstants.filter.LESS_THAN,
+                //         placeholder: '最大'
+                //     }
+                // ]},
+                // { name: 'W1_COUNT'     ,  displayName: '派送單(件數)', filters: [
+                //     {
+                //         condition: uiGridConstants.filter.GREATER_THAN,
+                //         placeholder: '最小'
+                //     },
+                //     {
+                //         condition: uiGridConstants.filter.LESS_THAN,
+                //         placeholder: '最大'
+                //     }
+                // ]},
+                // { name: 'W1_BAG_COUNT' ,  displayName: '派送單(袋數)', filters: [
+                //     {
+                //         condition: uiGridConstants.filter.GREATER_THAN,
+                //         placeholder: '最小'
+                //     },
+                //     {
+                //         condition: uiGridConstants.filter.LESS_THAN,
+                //         placeholder: '最大'
+                //     }
+                // ]}
             ],
             enableFiltering: true,
             enableSorting: true,

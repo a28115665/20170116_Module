@@ -227,13 +227,6 @@ module.exports = function(pQueryname, pParams){
 			_SQLCommand += "SELECT CO_NAME, \
 								( \
 									SELECT COUNT(1) \
-									FROM ITEM_LIST \
-									JOIN ORDER_LIST ON OL_SEQ = IL_SEQ AND OL_CO_CODE = CO_CODE \
-									/*只抓今天*/ \
-									WHERE '"+pParams["REAL_IMPORTDT_FROM"]+"' <= OL_REAL_IMPORTDT AND OL_REAL_IMPORTDT <= '"+pParams["REAL_IMPORTDT_TOXX"]+"' \
-								) AS 'W2_COUNT', \
-								( \
-									SELECT COUNT(1) \
 									FROM ( \
 										SELECT IL_BAGNO \
 										FROM ITEM_LIST \
@@ -245,6 +238,35 @@ module.exports = function(pQueryname, pParams){
 									) A \
 								) AS 'W2_BAG_COUNT', \
 								( \
+									SELECT COUNT(1) \
+									FROM ITEM_LIST \
+									JOIN ORDER_LIST ON OL_SEQ = IL_SEQ AND OL_CO_CODE = CO_CODE \
+									/*只抓今天*/ \
+									WHERE '"+pParams["REAL_IMPORTDT_FROM"]+"' <= OL_REAL_IMPORTDT AND OL_REAL_IMPORTDT <= '"+pParams["REAL_IMPORTDT_TOXX"]+"' \
+								) AS 'W2_COUNT', \
+								( \
+									SELECT COUNT(1) \
+									FROM ORDER_LIST \
+									JOIN ( \
+										SELECT IL_SEQ \
+										FROM ITEM_LIST \
+										GROUP BY IL_SEQ \
+									) ITEM_LIST ON OL_SEQ = IL_SEQ AND OL_CO_CODE = CO_CODE \
+									/*只抓今天*/ \
+									WHERE '"+pParams["REAL_IMPORTDT_FROM"]+"' <= OL_REAL_IMPORTDT AND OL_REAL_IMPORTDT <= '"+pParams["REAL_IMPORTDT_TOXX"]+"' \
+								) AS 'OL_W2_COUNT', \
+								( \
+									SELECT COUNT(1) \
+									FROM ORDER_LIST \
+									JOIN ( \
+										SELECT FLL_SEQ \
+										FROM FLIGHT_ITEM_LIST \
+										GROUP BY FLL_SEQ \
+									) ITEM_LIST ON OL_SEQ = FLL_SEQ AND OL_CO_CODE = CO_CODE \
+									/*只抓今天*/ \
+									WHERE '"+pParams["REAL_IMPORTDT_FROM"]+"' <= OL_REAL_IMPORTDT AND OL_REAL_IMPORTDT <= '"+pParams["REAL_IMPORTDT_TOXX"]+"' \
+								) AS 'OL_W3_COUNT' \
+								/*( \
 									SELECT COUNT(1) \
 									FROM FLIGHT_ITEM_LIST \
 									JOIN ORDER_LIST ON OL_SEQ = FLL_SEQ AND OL_CO_CODE = CO_CODE \
@@ -277,7 +299,7 @@ module.exports = function(pQueryname, pParams){
 										AND '"+pParams["REAL_IMPORTDT_FROM"]+"' <= OL_REAL_IMPORTDT AND OL_REAL_IMPORTDT <= '"+pParams["REAL_IMPORTDT_TOXX"]+"' \
 										GROUP BY DIL_BAGNO \
 									) A \
-								) AS 'W1_BAG_COUNT' \
+								) AS 'W1_BAG_COUNT'*/ \
 							FROM COMPY_INFO";
 			
 			// delete pParams["REAL_IMPORTDT_FROM"];
