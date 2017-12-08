@@ -312,13 +312,14 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
             data:  '$vm.flightItemData',
             columnDefs: [
                 { name: 'OL_IMPORTDT'            ,  displayName: '進口日期', width: 80, cellFilter: 'dateFilter' },
-                { name: 'OL_CO_CODE'             ,  displayName: '發銷艙單行家', width: 110, cellFilter: 'compyFilter', filter: 
-                    {
-                        term: null,
-                        type: uiGridConstants.filter.SELECT,
-                        selectOptions: compy
-                    }
-                },
+                // { name: 'OL_CO_CODE'             ,  displayName: '發銷艙單行家', width: 110, cellFilter: 'compyFilter', filter: 
+                //     {
+                //         term: null,
+                //         type: uiGridConstants.filter.SELECT,
+                //         selectOptions: compy
+                //     }
+                // },
+                { name: 'CO_NAME'                ,  displayName: '發銷艙單行家', width: 110 },
                 { name: 'OL_FLIGHTNO'            ,  displayName: '航班', width: 80 },
                 { name: 'FA_ACTL_DEPARTTIME'     ,  displayName: '真實起飛時間', cellFilter: 'datetimeFilter' },
                 { name: 'FA_SCHEDL_ARRIVALTIME'  ,  displayName: '預計抵達時間', cellFilter: 'datetimeFilter' },
@@ -365,13 +366,14 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
             data:  '$vm.masterToBeFilledData',
             columnDefs: [
                 { name: 'OL_IMPORTDT'            ,  displayName: '進口日期', cellFilter: 'dateFilter' },
-                { name: 'OL_CO_CODE'             ,  displayName: '行家', cellFilter: 'compyFilter', filter: 
-                    {
-                        term: null,
-                        type: uiGridConstants.filter.SELECT,
-                        selectOptions: compy
-                    }
-                },
+                // { name: 'OL_CO_CODE'             ,  displayName: '行家', cellFilter: 'compyFilter', filter: 
+                //     {
+                //         term: null,
+                //         type: uiGridConstants.filter.SELECT,
+                //         selectOptions: compy
+                //     }
+                // },
+                { name: 'CO_NAME'                ,  displayName: '行家' },
                 { name: 'OL_FLIGHTNO'            ,  displayName: '航班' },
                 { name: 'OL_MASTER'              ,  displayName: '主號' },
                 { name: 'OL_COUNT'               ,  displayName: '報機單(袋數)', enableCellEdit: false },
@@ -715,6 +717,11 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
                     return;
                 }
 
+                if(_data[0].OE_PRINCIPAL == null){
+                    toaster.pop('warning', '警告', '有資料尚未被中班作業員編輯', 3000);
+                    return;
+                }
+
                 var _oeType = null;
                 for(var i in opType){
                     if(opType[i].label == '報機單'){
@@ -995,13 +1002,14 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
             data:  '$vm.pullGoodsData',
             columnDefs: [
                 { name: 'OL_IMPORTDT'   , displayName: '進口日期', cellFilter: 'dateFilter' },
-                { name: 'OL_CO_CODE'    , displayName: '行家', cellFilter: 'compyFilter', cellFilter: 'compyFilter', filter: 
-                    {
-                        term: null,
-                        type: uiGridConstants.filter.SELECT,
-                        selectOptions: compy
-                    }
-                },
+                // { name: 'OL_CO_CODE'    , displayName: '行家', cellFilter: 'compyFilter', cellFilter: 'compyFilter', filter: 
+                //     {
+                //         term: null,
+                //         type: uiGridConstants.filter.SELECT,
+                //         selectOptions: compy
+                //     }
+                // },
+                { name: 'CO_NAME'       , displayName: '行家' },
                 { name: 'OL_FLIGHTNO'   , displayName: '航班' },
                 { name: 'OL_MASTER'     , displayName: '主號' },
                 { name: 'OL_COUNTRY'    , displayName: '起運國別' },
@@ -1019,6 +1027,19 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
                     {
                         return row.entity.PG_REASON
                     } 
+                },
+                { name: 'W2_STATUS'   ,  displayName: '報機單狀態', cellTemplate: $templateCache.get('accessibilityToForW2'), filter: 
+                    {
+                        term: null,
+                        type: uiGridConstants.filter.SELECT,
+                        selectOptions: [
+                            {label:'未派單', value: '0'},
+                            {label:'已派單', value: '1'},
+                            {label:'已編輯', value: '2'},
+                            {label:'已完成', value: '3'},
+                            {label:'非作業員'  , value: '4'}
+                        ]
+                    }
                 },
                 { name: 'ITEM_LIST'     , displayName: '報機單', enableFiltering: false, enableSorting: false, width: '8%', cellTemplate: $templateCache.get('accessibilityToOperaForJob001') },
                 { name: 'Options'       , displayName: '操作', width: '8%', enableFiltering: false, enableSorting: false, cellTemplate: $templateCache.get('accessibilityToVForPullGoods') }

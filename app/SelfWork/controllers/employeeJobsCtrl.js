@@ -274,13 +274,14 @@ angular.module('app.selfwork').controller('EmployeeJobsCtrl', function ($scope, 
             columnDefs: [
                 { name: 'OL_SUPPLEMENT_COUNT'    ,  displayName: '補件', width: 50, cellTemplate: $templateCache.get('accessibilityToSuppleMent') },
                 { name: 'OL_IMPORTDT'            ,  displayName: '進口日期', width: 80, cellFilter: 'dateFilter' },
-                { name: 'OL_CO_CODE'             ,  displayName: '行家', width: 80, cellFilter: 'compyFilter', filter: 
-                    {
-                        term: null,
-                        type: uiGridConstants.filter.SELECT,
-                        selectOptions: compy
-                    }
-                },
+                // { name: 'OL_CO_CODE'             ,  displayName: '行家', width: 80, cellFilter: 'compyFilter', filter: 
+                //     {
+                //         term: null,
+                //         type: uiGridConstants.filter.SELECT,
+                //         selectOptions: compy
+                //     }
+                // },
+                { name: 'CO_NAME'                ,  displayName: '行家', width: 80 },
                 { name: 'OL_FLIGHTNO'            ,  displayName: '航班', width: 80 },
                 { name: 'FA_SCHEDL_ARRIVALTIME'  ,  displayName: '預計抵達時間', cellFilter: 'datetimeFilter' },
                 { name: 'FA_ACTL_ARRIVALTIME'    ,  displayName: '真實抵達時間', cellFilter: 'datetimeFilter' },

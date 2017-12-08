@@ -8,6 +8,8 @@ module.exports = function(pQueryname, pParams){
 									OL_MASTER, \
 									OL_FLIGHTNO, \
 									OL_IMPORTDT, \
+									OL_REAL_IMPORTDT, \
+									OL_CR_DATETIME, \
 									OL_COUNTRY, \
 									OL_REASON, \
 									OL_ILSTATUS, \
@@ -150,7 +152,12 @@ module.exports = function(pQueryname, pParams){
 									W3_OE.OE_FDATETIME AS 'W3_FDATETIME', \
 									W1_OE.OE_PRINCIPAL AS 'W1_PRINCIPAL', \
 									W1_OE.OE_EDATETIME AS 'W1_EDATETIME', \
-									W1_OE.OE_FDATETIME AS 'W1_FDATETIME' \
+									W1_OE.OE_FDATETIME AS 'W1_FDATETIME', \
+									( \
+										SELECT CO_NAME \
+										FROM COMPY_INFO \
+										WHERE OL_CO_CODE = CO_CODE \
+									) AS 'CO_NAME' \
 							FROM ORDER_LIST \
 							/*報機單*/ \
 							LEFT JOIN ORDER_EDITOR W2_OE ON W2_OE.OE_SEQ = ORDER_LIST.OL_SEQ AND W2_OE.OE_TYPE = 'R' AND (W2_OE.OE_EDATETIME IS NOT NULL OR W2_OE.OE_FDATETIME IS NOT NULL) \
@@ -175,6 +182,9 @@ module.exports = function(pQueryname, pParams){
 							
 			if(pParams["OP_DEPT"] !== undefined){
 				_SQLCommand += " AND OP_DEPT = @OP_DEPT";
+			}
+			if(pParams["OP_SEQ"] !== undefined){
+				_SQLCommand += " AND OP_SEQ IN ('" + pParams["OP_SEQ"].join("','") + "')";
 			}
 		
 			break;
@@ -220,7 +230,7 @@ module.exports = function(pQueryname, pParams){
 									FROM ITEM_LIST \
 									JOIN ORDER_LIST ON OL_SEQ = IL_SEQ AND OL_CO_CODE = CO_CODE \
 									/*只抓今天*/ \
-									WHERE '"+pParams["IMPORTDT_FROM"]+"' <= OL_IMPORTDT AND OL_IMPORTDT <= '"+pParams["IMPORTDT_TOXX"]+"' \
+									WHERE '"+pParams["REAL_IMPORTDT_FROM"]+"' <= OL_REAL_IMPORTDT AND OL_REAL_IMPORTDT <= '"+pParams["REAL_IMPORTDT_TOXX"]+"' \
 								) AS 'W2_COUNT', \
 								( \
 									SELECT COUNT(1) \
@@ -230,7 +240,7 @@ module.exports = function(pQueryname, pParams){
 										JOIN ORDER_LIST ON OL_SEQ = IL_SEQ AND OL_CO_CODE = CO_CODE \
 										WHERE IL_SEQ = OL_SEQ \
 										AND IL_BAGNO IS NOT NULL AND IL_BAGNO != '' \
-										AND '"+pParams["IMPORTDT_FROM"]+"' <= OL_IMPORTDT AND OL_IMPORTDT <= '"+pParams["IMPORTDT_TOXX"]+"' \
+										AND '"+pParams["REAL_IMPORTDT_FROM"]+"' <= OL_REAL_IMPORTDT AND OL_REAL_IMPORTDT <= '"+pParams["REAL_IMPORTDT_TOXX"]+"' \
 										GROUP BY IL_BAGNO \
 									) A \
 								) AS 'W2_BAG_COUNT', \
@@ -239,7 +249,7 @@ module.exports = function(pQueryname, pParams){
 									FROM FLIGHT_ITEM_LIST \
 									JOIN ORDER_LIST ON OL_SEQ = FLL_SEQ AND OL_CO_CODE = CO_CODE \
 									/*只抓今天*/ \
-									WHERE '"+pParams["IMPORTDT_FROM"]+"' <= OL_IMPORTDT AND OL_IMPORTDT <= '"+pParams["IMPORTDT_TOXX"]+"' \
+									WHERE '"+pParams["REAL_IMPORTDT_FROM"]+"' <= OL_REAL_IMPORTDT AND OL_REAL_IMPORTDT <= '"+pParams["REAL_IMPORTDT_TOXX"]+"' \
 								) AS 'W3_COUNT', \
 								( \
 									SELECT COUNT(FLL_BAGNO) \
@@ -247,14 +257,14 @@ module.exports = function(pQueryname, pParams){
 									JOIN ORDER_LIST ON OL_SEQ = FLL_SEQ AND OL_CO_CODE = CO_CODE \
 									WHERE FLL_SEQ = OL_SEQ \
 									AND FLL_BAGNO IS NOT NULL AND FLL_BAGNO != '' \
-									AND '"+pParams["IMPORTDT_FROM"]+"' <= OL_IMPORTDT AND OL_IMPORTDT <= '"+pParams["IMPORTDT_TOXX"]+"' \
+									AND '"+pParams["REAL_IMPORTDT_FROM"]+"' <= OL_REAL_IMPORTDT AND OL_REAL_IMPORTDT <= '"+pParams["REAL_IMPORTDT_TOXX"]+"' \
 								) AS 'W3_BAG_COUNT', \
 								( \
 									SELECT COUNT(1) \
 									FROM Delivery_Item_List \
 									JOIN ORDER_LIST ON OL_SEQ = DIL_SEQ AND OL_CO_CODE = CO_CODE \
 									/*只抓今天*/ \
-									WHERE '"+pParams["IMPORTDT_FROM"]+"' <= OL_IMPORTDT AND OL_IMPORTDT <= '"+pParams["IMPORTDT_TOXX"]+"' \
+									WHERE '"+pParams["REAL_IMPORTDT_FROM"]+"' <= OL_REAL_IMPORTDT AND OL_REAL_IMPORTDT <= '"+pParams["REAL_IMPORTDT_TOXX"]+"' \
 								) AS 'W1_COUNT', \
 								( \
 									SELECT COUNT(1) \
@@ -264,14 +274,14 @@ module.exports = function(pQueryname, pParams){
 										JOIN ORDER_LIST ON OL_SEQ = DIL_SEQ AND OL_CO_CODE = CO_CODE \
 										WHERE DIL_SEQ = OL_SEQ \
 										AND DIL_BAGNO IS NOT NULL AND DIL_BAGNO != '' \
-										AND '"+pParams["IMPORTDT_FROM"]+"' <= OL_IMPORTDT AND OL_IMPORTDT <= '"+pParams["IMPORTDT_TOXX"]+"' \
+										AND '"+pParams["REAL_IMPORTDT_FROM"]+"' <= OL_REAL_IMPORTDT AND OL_REAL_IMPORTDT <= '"+pParams["REAL_IMPORTDT_TOXX"]+"' \
 										GROUP BY DIL_BAGNO \
 									) A \
 								) AS 'W1_BAG_COUNT' \
 							FROM COMPY_INFO";
 			
-			// delete pParams["IMPORTDT_FROM"];
-			// delete pParams["IMPORTDT_TOXX"];
+			// delete pParams["REAL_IMPORTDT_FROM"];
+			// delete pParams["REAL_IMPORTDT_TOXX"];
 			break;
 
 
@@ -281,6 +291,7 @@ module.exports = function(pQueryname, pParams){
 									OL_MASTER, \
 									OL_FLIGHTNO, \
 									OL_IMPORTDT, \
+									OL_REAL_IMPORTDT, \
 									OL_COUNTRY, \
 									OL_CR_USER, \
 									( \
@@ -380,7 +391,40 @@ module.exports = function(pQueryname, pParams){
 										ELSE '' END \
 									) AS 'W1_STATUS', \
 									CONVERT(varchar, OL_IMPORTDT, 23 ) AS 'OL_IMPORTDT_EX', \
-									CO_NAME \
+									CONVERT(varchar, OL_REAL_IMPORTDT, 23 ) AS 'OL_REAL_IMPORTDT_EX', \
+									CO_NAME, \
+									( \
+										SELECT COUNT(1) \
+										FROM ( \
+											SELECT IL_BAGNO \
+											FROM ITEM_LIST \
+											LEFT JOIN PULL_GOODS ON \
+											IL_SEQ = PG_SEQ AND \
+											IL_BAGNO = PG_BAGNO \
+											WHERE IL_SEQ = OL_SEQ \
+											AND IL_BAGNO IS NOT NULL AND IL_BAGNO != '' \
+											AND PG_SEQ IS NULL \
+											GROUP BY IL_BAGNO \
+										) A \
+									) AS 'OL_COUNT', \
+									( \
+										SELECT COUNT(1) \
+										FROM PULL_GOODS \
+										WHERE PG_SEQ = OL_SEQ \
+									) AS 'OL_PULL_COUNT', \
+									( \
+										SELECT COUNT(1) \
+										FROM ( \
+											SELECT FLL_IL_NEWBAGNO \
+											FROM FLIGHT_ITEM_LIST \
+											WHERE FLL_SEQ = OL_SEQ \
+										) A \
+									) AS 'OL_FLL_COUNT', \
+									(\
+										SELECT U_NAME\
+										FROM USER_INFO\
+										WHERE U_ID = W2_OE.OE_PRINCIPAL\
+									) AS 'W2_PRINCIPAL' \
 							FROM ( \
 								SELECT * \
 								FROM ORDER_LIST \

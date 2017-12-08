@@ -123,6 +123,13 @@
 												                匯出Excel
 												            </button>
 									                    </div>
+									                    <div class="form-group">
+												            <button class="btn btn-info"
+												            		ng-disabled="$vm.orderListGridApi.selection.getSelectedRows().length == 0"
+												            		ng-click="$vm.CloseData()">
+												                結單
+												            </button>
+									                    </div>
 									                </fieldset>
 									            </form>
 									        </div>
@@ -142,7 +149,7 @@
 									                    <div class="form-group">
 													        <label class="control-label">說明：</label>
 													        <span>
-										                    	統計今日全行家報機單、銷倉單、派送單的數量
+										                    	統計今日(報機日期)全行家報機單、銷倉單、派送單的數量
 													        </span>
 									                    </div>
 									                </fieldset>

@@ -8,8 +8,8 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
 	angular.extend(this, {
         Init : function(){
             $scope.ShowTabs = true;
-            $vm.IMPORTDT_FROM = $filter('date')(new Date(), 'yyyy-MM-dd') + ' 00:00:00';
-            $vm.IMPORTDT_TOXX = $filter('date')(new Date(), 'yyyy-MM-dd') + ' 23:59:59';
+            $vm.REAL_IMPORTDT_FROM = $filter('date')(new Date(), 'yyyy-MM-dd') + ' 00:00:00';
+            $vm.REAL_IMPORTDT_TOXX = $filter('date')(new Date(), 'yyyy-MM-dd') + ' 23:59:59';
 
             if(userInfoByGrade[0].length == 0){
                 toaster.pop('info', '訊息', '無員工管理', 3000);
@@ -283,13 +283,19 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
             columnDefs: [
                 { name: 'OL_SUPPLEMENT_COUNT'    ,  displayName: '補件', width: 50, cellTemplate: $templateCache.get('accessibilityToSuppleMent') },
                 { name: 'OL_IMPORTDT' ,  displayName: '進口日期', cellFilter: 'dateFilter' },
-                { name: 'OL_CO_CODE'  ,  displayName: '行家', cellFilter: 'compyFilter', filter: 
+                { name: 'OL_REAL_IMPORTDT' ,  displayName: '報機日期', cellFilter: 'dateFilter', cellTooltip: function (row, col) 
                     {
-                        term: null,
-                        type: uiGridConstants.filter.SELECT,
-                        selectOptions: compy
-                    }
+                        return '真實報機日期：' + $filter('dateFilter')(row.entity.OL_CR_DATETIME)
+                    } 
                 },
+                // { name: 'OL_CO_CODE'  ,  displayName: '行家', cellFilter: 'compyFilter', filter: 
+                //     {
+                //         term: null,
+                //         type: uiGridConstants.filter.SELECT,
+                //         selectOptions: compy
+                //     }
+                // },
+                { name: 'CO_NAME'     ,  displayName: '行家' },
                 { name: 'OL_FLIGHTNO' ,  displayName: '航班' },
                 { name: 'OL_MASTER'   ,  displayName: '主號' },
                 { name: 'OL_COUNT'    ,  displayName: '報機單(袋數)', width: 80, enableCellEdit: false },
@@ -468,6 +474,38 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
                 $vm.orderListGridApi.selection.clearSelectedRows();
             }
         },
+        CloseData : function(){
+            if($vm.orderListGridApi.selection.getSelectedRows().length > 0){
+                var _getSelectedRows = $vm.orderListGridApi.selection.getSelectedRows(),
+                    _tasks = [];
+
+                for(var i in _getSelectedRows){
+                    if(_getSelectedRows[i].W2_STATUS == '3' || _getSelectedRows[i].W2_STATUS == '4' || _getSelectedRows[i].W3_STATUS == '3' || _getSelectedRows[i].W3_STATUS == '4'){
+                        console.log(_getSelectedRows[i]);
+                        _tasks.push({
+                            crudType: 'Update',
+                            table: 18,
+                            params: {
+                                OL_FUSER : $vm.profile.U_ID,
+                                OL_FDATETIME : $filter('date')(new Date(), 'yyyy-MM-dd HH:mm:ss')
+                            },
+                            condition: {
+                                OL_SEQ : _getSelectedRows[i].OL_SEQ
+                            }
+                        });
+                    }
+                }
+
+                RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res) {
+                    LoadOrderList();
+                    toaster.pop('success', '訊息', '結單完成', 3000);
+                }, function (err) {
+
+                });
+
+                $vm.orderListGridApi.selection.clearSelectedRows();
+            }
+        },
         CancelPrincipal : function(){
             if($vm.orderListGridApi.selection.getSelectedRows().length > 0){
                 var _getSelectedRows = $vm.orderListGridApi.selection.getSelectedRows(),
@@ -630,8 +668,8 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
                     _exportName = $filter('date')(new Date(), 'yyyyMMdd') + ' 每日行家統計';
                     _queryname = "SelectCompyStatistics";
                     _params = {
-                        IMPORTDT_FROM: $vm.IMPORTDT_FROM,
-                        IMPORTDT_TOXX: $vm.IMPORTDT_TOXX
+                        REAL_IMPORTDT_FROM: $vm.REAL_IMPORTDT_FROM,
+                        REAL_IMPORTDT_TOXX: $vm.REAL_IMPORTDT_TOXX
                     }
                     break;
             }
@@ -652,54 +690,114 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
 
     function LoadOrderList(){
 
-        RestfulApi.CRUDMSSQLDataByTask([
-            {  
-                crudType: 'Select',
-                querymain: 'leaderJobs',
-                queryname: 'SelectOrderList'
-            },
-            {
-                crudType: 'Select',
+        RestfulApi.SearchMSSQLData({
+            querymain: 'leaderJobs',
+            queryname: 'SelectOrderList'
+        }).then(function (resA){
+
+            var _seq = undefined,
+                _resA = resA["returnData"] || [];
+
+            if(_resA.length > 0){
+                _seq = [];
+
+                for(var i in _resA){
+                    _seq.push(_resA[i].OL_SEQ);
+                }
+            }
+
+            RestfulApi.SearchMSSQLData({
                 querymain: 'leaderJobs',
                 queryname: 'SelectOrderPrinpl',
                 params: {
-                    OP_DEPT : $vm.selectAssignDept
+                    OP_DEPT : $vm.selectAssignDept,
+                    OP_SEQ : _seq
                 }
-            }
-        ]).then(function (res){
-            console.log(res["returnData"]);
+            }).then(function (resB){
+                
+                var _resB = resB["returnData"] || [];
 
-            for(var i in res["returnData"][0]){
+                for(var i in _resA){
 
-                var _data =[];
+                    var _data =[];
 
-                for(var j in res["returnData"][1]){
-                    if(res["returnData"][0][i].OL_SEQ == res["returnData"][1][j].OP_SEQ &&
-                        $vm.selectAssignOptype == res["returnData"][1][j].OP_TYPE){
-                        _data.push(res["returnData"][1][j]);
+                    for(var j in _resB){
+                        if(_resA[i].OL_SEQ == _resB[j].OP_SEQ &&
+                            $vm.selectAssignOptype == _resB[j].OP_TYPE){
+                            _data.push(_resB[j]);
+                        }
                     }
+
+                    _resA[i].subGridOptions = {
+                        data: _data,
+                        columnDefs: [ 
+                            {field: "OP_TYPE", name: "類別", cellFilter: 'opTypeFilter' },
+                            {field: "OP_PRINCIPAL", name: "負責人", cellFilter: 'userInfoFilter' },
+                            {field: "OE_EDATETIME_STATUS", name: "編輯者", cellTemplate: $templateCache.get('accessibilityToEdited') }
+                        ],
+                        enableFiltering: false,
+                        enableSorting: true,
+                        enableColumnMenus: false
+                    };
+                    // _resA[i]["AGENT_COUNT"] = _data.length;
                 }
 
-                res["returnData"][0][i].subGridOptions = {
-                    data: _data,
-                    columnDefs: [ 
-                        {field: "OP_TYPE", name: "類別", cellFilter: 'opTypeFilter' },
-                        {field: "OP_PRINCIPAL", name: "負責人", cellFilter: 'userInfoFilter' },
-                        {field: "OE_EDATETIME_STATUS", name: "編輯者", cellTemplate: $templateCache.get('accessibilityToEdited') }
-                    ],
-                    enableFiltering: false,
-                    enableSorting: true,
-                    enableColumnMenus: false
-                };
-                // res["returnData"][0][i]["AGENT_COUNT"] = _data.length;
-            }
+                $vm.vmData = _resA;
 
-            $vm.vmData = res["returnData"][0];
+            });  
 
         }).finally(function() {
-            console.log($vm.vmData);
             SetHeaderClass();
-        });
+        });  
+
+        // RestfulApi.CRUDMSSQLDataByTask([
+        //     {  
+        //         crudType: 'Select',
+        //         querymain: 'leaderJobs',
+        //         queryname: 'SelectOrderList'
+        //     },
+        //     {
+        //         crudType: 'Select',
+        //         querymain: 'leaderJobs',
+        //         queryname: 'SelectOrderPrinpl',
+        //         params: {
+        //             OP_DEPT : $vm.selectAssignDept
+        //         }
+        //     }
+        // ]).then(function (res){
+        //     console.log(res["returnData"]);
+
+        //     for(var i in res["returnData"][0]){
+
+        //         var _data =[];
+
+        //         for(var j in res["returnData"][1]){
+        //             if(res["returnData"][0][i].OL_SEQ == res["returnData"][1][j].OP_SEQ &&
+        //                 $vm.selectAssignOptype == res["returnData"][1][j].OP_TYPE){
+        //                 _data.push(res["returnData"][1][j]);
+        //             }
+        //         }
+
+        //         res["returnData"][0][i].subGridOptions = {
+        //             data: _data,
+        //             columnDefs: [ 
+        //                 {field: "OP_TYPE", name: "類別", cellFilter: 'opTypeFilter' },
+        //                 {field: "OP_PRINCIPAL", name: "負責人", cellFilter: 'userInfoFilter' },
+        //                 {field: "OE_EDATETIME_STATUS", name: "編輯者", cellTemplate: $templateCache.get('accessibilityToEdited') }
+        //             ],
+        //             enableFiltering: false,
+        //             enableSorting: true,
+        //             enableColumnMenus: false
+        //         };
+        //         // res["returnData"][0][i]["AGENT_COUNT"] = _data.length;
+        //     }
+
+        //     $vm.vmData = res["returnData"][0];
+
+        // }).finally(function() {
+        //     console.log($vm.vmData);
+        //     SetHeaderClass();
+        // });
 
     };
 
@@ -769,8 +867,8 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
             querymain: 'leaderJobs',
             queryname: 'SelectCompyStatistics',
             params: {
-                IMPORTDT_FROM: $vm.IMPORTDT_FROM,
-                IMPORTDT_TOXX: $vm.IMPORTDT_TOXX
+                REAL_IMPORTDT_FROM: $vm.REAL_IMPORTDT_FROM,
+                REAL_IMPORTDT_TOXX: $vm.REAL_IMPORTDT_TOXX
             }
         }).then(function (res){
             console.log(res["returnData"]);

@@ -177,41 +177,39 @@ angular.module('app')
                         </div>');
     $templateCache.put('accessibilityToForW2', '\
                         <div class="ui-grid-cell-contents text-center">\
-                            <i class="fa fa-circle-o" data-tooltip-placement="left" data-uib-tooltip="{{row.entity.W2_PRINCIPAL}}" ng-if="row.entity.W2_STATUS == \'1\' && row.entity.OL_COUNT > 0"> </i> \
-                            <i class="fa fa-circle text-warning" data-tooltip-placement="left" data-uib-tooltip="{{row.entity.W2_PRINCIPAL | userInfoFilter}}" ng-if="row.entity.W2_STATUS == \'2\' && row.entity.OL_COUNT > 0"> </i> \
-                            <i class="fa fa-circle text-success" data-tooltip-placement="left" data-uib-tooltip="{{row.entity.W2_PRINCIPAL | userInfoFilter}}" ng-if="row.entity.W2_STATUS == \'3\' && row.entity.OL_COUNT > 0"> </i> \
-                            <i class="fa fa-circle txt-color-magenta" data-tooltip-placement="left" data-uib-tooltip="{{row.entity.W2_PRINCIPAL | userInfoFilter}}" ng-if="row.entity.W2_STATUS == \'4\' && row.entity.OL_COUNT > 0"> </i> \
+                            <i class="fa fa-circle-o" title="{{row.entity.W2_PRINCIPAL | userInfoFilter}}" ng-if="row.entity.W2_STATUS == \'1\' && row.entity.OL_COUNT > 0"> </i> \
+                            <i class="fa fa-circle text-warning" title="{{row.entity.W2_PRINCIPAL | userInfoFilter}}" ng-if="row.entity.W2_STATUS == \'2\' && row.entity.OL_COUNT > 0"> </i> \
+                            <i class="fa fa-circle text-success" title="{{row.entity.W2_PRINCIPAL | userInfoFilter}}" ng-if="row.entity.W2_STATUS == \'3\' && row.entity.OL_COUNT > 0"> </i> \
+                            <i class="fa fa-circle txt-color-magenta" title="{{row.entity.W2_PRINCIPAL | userInfoFilter}}" ng-if="row.entity.W2_STATUS == \'4\' && row.entity.OL_COUNT > 0"> </i> \
                         </div>');
     $templateCache.put('accessibilityToForW3', '\
                         <div class="ui-grid-cell-contents text-center">\
-                            <i class="fa fa-circle-o" data-tooltip-placement="left" data-uib-tooltip="{{row.entity.W3_PRINCIPAL}}" ng-if="row.entity.W3_STATUS == \'1\' && row.entity.OL_FLL_COUNT > 0"> </i> \
-                            <i class="fa fa-circle text-warning" data-tooltip-placement="left" data-uib-tooltip="{{row.entity.W3_PRINCIPAL}}" ng-if="row.entity.W3_STATUS == \'2\' && row.entity.OL_FLL_COUNT > 0"> </i> \
-                            <i class="fa fa-circle text-success" data-tooltip-placement="left" data-uib-tooltip="{{row.entity.W3_PRINCIPAL}}" ng-if="row.entity.W3_STATUS == \'3\' && row.entity.OL_FLL_COUNT > 0"> </i> \
-                            <i class="fa fa-circle txt-color-magenta" data-tooltip-placement="left" data-uib-tooltip="{{row.entity.W3_PRINCIPAL | userInfoFilter}}" ng-if="row.entity.W3_STATUS == \'4\' && row.entity.OL_FLL_COUNT > 0"> </i> \
+                            <i class="fa fa-circle-o" title="{{row.entity.W3_PRINCIPAL | userInfoFilter}}" ng-if="row.entity.W3_STATUS == \'1\' && row.entity.OL_FLL_COUNT > 0"> </i> \
+                            <i class="fa fa-circle text-warning" title="{{row.entity.W3_PRINCIPAL | userInfoFilter}}" ng-if="row.entity.W3_STATUS == \'2\' && row.entity.OL_FLL_COUNT > 0"> </i> \
+                            <i class="fa fa-circle text-success" title="{{row.entity.W3_PRINCIPAL | userInfoFilter}}" ng-if="row.entity.W3_STATUS == \'3\' && row.entity.OL_FLL_COUNT > 0"> </i> \
+                            <i class="fa fa-circle txt-color-magenta" title="{{row.entity.W3_PRINCIPAL | userInfoFilter}}" ng-if="row.entity.W3_STATUS == \'4\' && row.entity.OL_FLL_COUNT > 0"> </i> \
                         </div>');
     $templateCache.put('accessibilityToForW1', '\
                         <div class="ui-grid-cell-contents text-center">\
-                            <i class="fa fa-circle-o" data-tooltip-placement="left" data-uib-tooltip="{{row.entity.W1_PRINCIPAL}}" ng-if="row.entity.W1_STATUS == \'1\'"> </i> \
-                            <i class="fa fa-circle text-warning" data-tooltip-placement="left" data-uib-tooltip="{{row.entity.W1_PRINCIPAL}}" ng-if="row.entity.W1_STATUS == \'2\'"> </i> \
-                            <i class="fa fa-circle text-success" data-tooltip-placement="left" data-uib-tooltip="{{row.entity.W1_PRINCIPAL}}" ng-if="row.entity.W1_STATUS == \'3\'"> </i> \
-                            <i class="fa fa-circle txt-color-magenta" data-tooltip-placement="left" data-uib-tooltip="{{row.entity.W1_PRINCIPAL | userInfoFilter}}" ng-if="row.entity.W1_STATUS == \'4\'"> </i> \
+                            <i class="fa fa-circle-o" title="{{row.entity.W1_PRINCIPAL | userInfoFilter}}" ng-if="row.entity.W1_STATUS == \'1\'"> </i> \
+                            <i class="fa fa-circle text-warning" title="{{row.entity.W1_PRINCIPAL | userInfoFilter}}" ng-if="row.entity.W1_STATUS == \'2\'"> </i> \
+                            <i class="fa fa-circle text-success" title="{{row.entity.W1_PRINCIPAL | userInfoFilter}}" ng-if="row.entity.W1_STATUS == \'3\'"> </i> \
+                            <i class="fa fa-circle txt-color-magenta" title="{{row.entity.W1_PRINCIPAL | userInfoFilter}}" ng-if="row.entity.W1_STATUS == \'4\'"> </i> \
                         </div>');
     $templateCache.put('accessibilityToForUpload', '\
-                        <div class="ui-grid-cell-contents text-center">\
-                            <!--<i class="fa fa-archive" ng-if="row.entity.OL_ILSTATUS == null || row.entity.OL_ILSTATUS == 0"> </i>--> \
+                        <div class="my-ui-grid-cell-contents text-center">\
                             <i class="fa fa-archive text-warning" ng-if="row.entity.OL_ILSTATUS == 1"> </i> \
                             <i class="fa fa-archive text-success" ng-if="row.entity.OL_ILSTATUS == 2"> </i> \
-                            <!--<i class="fa fa-plane" ng-if="row.entity.OL_FLLSTATUS == null || row.entity.OL_FLLSTATUS == 0"> </i>--> \
                             <i class="fa fa-plane text-warning" ng-if="row.entity.OL_FLLSTATUS == 1"> </i> \
                             <i class="fa fa-plane text-success" ng-if="row.entity.OL_FLLSTATUS == 2"> </i> \
                         </div>');
     $templateCache.put('accessibilityToDMCForLeader', '\
                         <div class="ui-grid-cell-contents text-center">\
                             <!-- <a href="javascript:void(0);" class="btn btn-danger btn-xs" ng-click="grid.appScope.$vm.gridMethod.deleteData(row)"> 刪除</a> -->\
-                            <a href="javascript:void(0);" class="btn btn-danger btn-xs" ng-click="grid.appScope.$vm.gridMethod.gridOperation(row)"> 刪除</a>\
-                            <a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethod.modifyData(row)"> 修改</a>\
+                            <button type="button" class="btn btn-danger btn-xs" ng-click="grid.appScope.$vm.gridMethod.gridOperation(row)"> 刪除</button>\
+                            <button type="button" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethod.modifyData(row)"> 修改</button>\
                             <!-- <a href="javascript:void(0);" class="btn btn-primary btn-xs" ng-click="grid.appScope.$vm.gridMethod.closeData(row)" ng-class="(row.entity.W1_STATUS == \'3\' && row.entity.W2_STATUS == \'3\' && row.entity.W3_STATUS == \'3\') ? \'\' : \'disabled\'"> 結單</a> -->\
-                            <a href="javascript:void(0);" class="btn btn-primary btn-xs" ng-click="grid.appScope.$vm.gridMethod.closeData(row)" ng-class="(row.entity.W2_STATUS == \'3\' || row.entity.W2_STATUS == \'4\' || row.entity.W3_STATUS == \'3\' || row.entity.W3_STATUS == \'4\') ? \'\' : \'disabled\'"> 結單</a>\
+                            <button type="button" class="btn btn-primary btn-xs" ng-click="grid.appScope.$vm.gridMethod.closeData(row)" ng-class="(row.entity.W2_STATUS == \'3\' || row.entity.W2_STATUS == \'4\' || row.entity.W3_STATUS == \'3\' || row.entity.W3_STATUS == \'4\') ? \'\' : \'disabled\'"> 結單</button>\
                         </div>');
     $templateCache.put('accessibilityToMForLeaderSearch', '\
                         <div class="ui-grid-cell-contents text-center">\
@@ -340,10 +338,14 @@ angular.module('app')
     $ctrl.compy = compy;
     
     $ctrl.ok = function() {
-        $ctrl.mdData.FLIGHTNO_START = $ctrl.mdData.FLIGHTNO_START.toUpperCase();
-        $ctrl.mdData.OL_FLIGHTNO = $ctrl.mdData.FLIGHTNO_START + ' ' + $ctrl.mdData.FLIGHTNO_END;
+        if($ctrl.mdData.FLIGHTNO_START != null && $ctrl.mdData.FLIGHTNO_END != null){
+            $ctrl.mdData.FLIGHTNO_START = $ctrl.mdData.FLIGHTNO_START.toUpperCase();
+            $ctrl.mdData.OL_FLIGHTNO = $ctrl.mdData.FLIGHTNO_START + ' ' + $ctrl.mdData.FLIGHTNO_END;
+        }
 
-        $ctrl.mdData.OL_COUNTRY = $ctrl.mdData.OL_COUNTRY.toUpperCase();
+        if($ctrl.mdData.OL_COUNTRY != null){
+            $ctrl.mdData.OL_COUNTRY = $ctrl.mdData.OL_COUNTRY.toUpperCase();
+        }
         $ctrl.mdData.OL_IMPORTDT = $ctrl.mdData.OL_IMPORTDT == "" ? null : $ctrl.mdData.OL_IMPORTDT;
         $uibModalInstance.close($ctrl.mdData);
     };
