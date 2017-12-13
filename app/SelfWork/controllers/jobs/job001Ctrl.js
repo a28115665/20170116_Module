@@ -360,6 +360,7 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                 },
                 { name: 'IL_SUPPLEMENT_COUNT', displayName: '補件', width: 50, enableCellEdit: false },
                 { name: 'Index'         , displayName: '序列', width: 50, enableFiltering: false, enableCellEdit: false },
+                { name: 'IL_REMARK'     , displayName: '備註', width: 100, headerCellClass: 'text-primary' },
                 { name: 'IL_G1'         , displayName: '報關種類', width: 80, headerCellClass: 'text-primary' },
                 { name: 'IL_MERGENO'    , displayName: '併票號', width: 80, headerCellClass: 'text-primary' },
                 { name: 'BAGNO_MATCH'   , displayName: '內貨', width: 50, enableCellEdit: false, cellTemplate: $templateCache.get('accessibilityToInternalGoods'), filter: 
@@ -473,7 +474,6 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                 { name: 'IL_GETTEL'     , displayName: '收件電話', width: 100, headerCellClass: 'text-primary' },
                 { name: 'IL_EXTEL'      , displayName: '匯出電話', width: 100, headerCellClass: 'text-primary' },
                 { name: 'IL_TRCOM'      , displayName: '派送公司', width: 100, headerCellClass: 'text-primary' },
-                { name: 'IL_REMARK'     , displayName: '備註', width: 100, headerCellClass: 'text-primary' },
                 { name: 'Options'       , displayName: '操作', width: 120, enableCellEdit: false, enableSorting:false, enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToJob001'), pinnedRight:true, cellClass: 'cell-class-no-style' }
             ],
             // rowTemplate: '<div> \
@@ -848,7 +848,8 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                     _exportName = $filter('date')($vm.vmData.OL_IMPORTDT, 'yyyyMMdd') + ' ' + 
                                   $filter('compyFilter')($vm.vmData.OL_CO_CODE) + ' ' + 
                                   $vm.vmData.OL_FLIGHTNO + ' ' +
-                                  $vm.vmData.OL_COUNT + '袋',
+                                  $vm.vmData.OL_COUNT + '袋 ' +
+                                  $vm.vmData.OL_PULL_COUNT + '袋',
                     _queryname = null,
                     _params = {
                         OL_MASTER : $vm.vmData.OL_MASTER,
@@ -921,7 +922,8 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                               $filter('compyFilter')($vm.vmData.OL_CO_CODE) + ' ' +
                               $vm.vmData.OL_FLIGHTNO + ' ' +
                               // ($vm.vmData.OL_COUNT - $vm.vmData.OL_PULL_COUNT) + '袋';
-                              $vm.vmData.OL_COUNT + '袋';
+                              $vm.vmData.OL_COUNT + '袋 ' +
+                                  $vm.vmData.OL_PULL_COUNT + '袋';
 
             // 如果是拉貨 最後要補上原報機日期
             if($vm.vmData.ORI_OL_IMPORTDT != null){
