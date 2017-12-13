@@ -3,7 +3,7 @@ module.exports = function(pQueryname, pParams){
 
 	switch(pQueryname){
 		case "SelectSearch":
-			_SQLCommand += "SELECT OL_SEQ, \
+			_SQLCommand += "SELECT TOP 1000 OL_SEQ, \
 									OL_CO_CODE, \
 									OL_MASTER, \
 									OL_FLIGHTNO, \

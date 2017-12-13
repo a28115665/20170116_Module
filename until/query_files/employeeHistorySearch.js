@@ -3,7 +3,7 @@ module.exports = function(pQueryname, pParams){
 
 	switch(pQueryname){
 		case "SelectSearch":
-			_SQLCommand += "SELECT OL_SEQ, \
+			_SQLCommand += "SELECT TOP 1000 OL_SEQ, \
 									OL_CO_CODE, \
 									OL_MASTER, \
 									OL_FLIGHTNO, \
@@ -12,16 +12,26 @@ module.exports = function(pQueryname, pParams){
 									OL_REASON, \
 									OL_CR_USER, \
 									OL_CR_DATETIME, \
+									OL_REAL_IMPORTDT, \
 									( \
 										SELECT COUNT(1) \
 										FROM ( \
 											SELECT IL_BAGNO \
 											FROM ITEM_LIST \
+											LEFT JOIN PULL_GOODS ON \
+											IL_SEQ = PG_SEQ AND \
+											IL_BAGNO = PG_BAGNO \
 											WHERE IL_SEQ = OL_SEQ \
 											AND IL_BAGNO IS NOT NULL AND IL_BAGNO != '' \
+											AND PG_SEQ IS NULL \
 											GROUP BY IL_BAGNO \
 										) A \
 									) AS 'OL_COUNT', \
+									( \
+										SELECT COUNT(1) \
+										FROM PULL_GOODS \
+										WHERE PG_SEQ = OL_SEQ \
+									) AS 'OL_PULL_COUNT', \
 									W2_OE.OE_PRINCIPAL AS 'W2_PRINCIPAL', \
 									W2_OE.OE_EDATETIME AS 'W2_EDATETIME', \
 									W2_OE.OE_FDATETIME AS 'W2_FDATETIME', \
@@ -67,6 +77,7 @@ module.exports = function(pQueryname, pParams){
 									W1_OE.OE_EDATETIME AS 'W1_EDATETIME', \
 									W1_OE.OE_FDATETIME AS 'W1_FDATETIME', \
 									CONVERT(varchar, OL_IMPORTDT, 23 ) AS 'OL_IMPORTDT_EX', \
+									CONVERT(varchar, OL_REAL_IMPORTDT, 23 ) AS 'OL_REAL_IMPORTDT_EX', \
 									CO_NAME \
 							FROM ( \
 								SELECT * \
@@ -186,6 +197,7 @@ module.exports = function(pQueryname, pParams){
 									 OL_REASON, \
 									 OL_CR_USER, \
 									 OL_CR_DATETIME, \
+									 OL_REAL_IMPORTDT, \
 									 W2_OE.OE_PRINCIPAL, \
 									 W2_OE.OE_EDATETIME, \
 									 W2_OE.OE_FDATETIME, \
@@ -196,7 +208,7 @@ module.exports = function(pQueryname, pParams){
 									 W1_OE.OE_EDATETIME, \
 									 W1_OE.OE_FDATETIME, \
 									 CO_NAME \
-							ORDER BY OL_CR_DATETIME DESC ";
+							ORDER BY OL_REAL_IMPORTDT DESC ";
 			break;
 	}
 

@@ -122,15 +122,23 @@ angular.module('app.selfwork').controller('LeaderHistorySearchCtrl', function ($
             data:  '$vm.resultData',
             columnDefs: [
                 { name: 'OL_IMPORTDT' ,  displayName: '進口日期', cellFilter: 'dateFilter' },
-                { name: 'OL_CO_CODE'  ,  displayName: '行家', cellFilter: 'compyFilter', filter: 
+                { name: 'OL_REAL_IMPORTDT' ,  displayName: '報機日期', cellFilter: 'dateFilter', cellTooltip: function (row, col) 
                     {
-                        term: null,
-                        type: uiGridConstants.filter.SELECT,
-                        selectOptions: compy
-                    }
+                        return '真實報機日期：' + $filter('dateFilter')(row.entity.OL_CR_DATETIME)
+                    } 
                 },
+                // { name: 'OL_CO_CODE'  ,  displayName: '行家', cellFilter: 'compyFilter', filter: 
+                //     {
+                //         term: null,
+                //         type: uiGridConstants.filter.SELECT,
+                //         selectOptions: compy
+                //     }
+                // },
+                { name: 'CO_NAME'     ,  displayName: '行家' },
                 { name: 'OL_FLIGHTNO' ,  displayName: '航班' },
                 { name: 'OL_MASTER'   ,  displayName: '主號' },
+                { name: 'OL_COUNT'    ,  displayName: '報機單(袋數)', width: 80, enableCellEdit: false },
+                { name: 'OL_PULL_COUNT',  displayName: '拉貨(袋數)', width: 80, enableCellEdit: false },
                 { name: 'OL_COUNTRY'  ,  displayName: '起運國別' },
                 { name: 'OL_REASON'   ,  displayName: '描述', cellTooltip: function (row, col) 
                     {
@@ -167,7 +175,7 @@ angular.module('app.selfwork').controller('LeaderHistorySearchCtrl', function ($
             var _exportName = $filter('date')(new Date(), 'yyyyMMdd') + ' ' + $scope.getWord($state.current.data.title) + '結果';
 
             ToolboxApi.ExportExcelBySql({
-                templates : 1,
+                templates : 12,
                 filename : _exportName,
                 querymain: 'leaderHistorySearch',
                 queryname: 'SelectSearch',
@@ -241,9 +249,9 @@ angular.module('app.selfwork').controller('LeaderHistorySearchCtrl', function ($
         for(var i in pObject){
             if(pObject[i] != null){
                 if(pObject[i].toString() != ""){
-                    if(i == "CRDT_FROM"){
+                    if(i == "REAL_IMPORTDT_FROM" || i == "IMPORTDT_FROM"){
                         _conditions[i] = pObject[i] + ' 00:00:00';
-                    }else if(i == "CRDT_TOXX"){
+                    }else if(i == "REAL_IMPORTDT_TOXX" || i == "IMPORTDT_TOXX"){
                         _conditions[i] = pObject[i] + ' 23:59:59';
                     }else{
                         _conditions[i] = pObject[i];
