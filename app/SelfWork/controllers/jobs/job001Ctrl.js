@@ -909,6 +909,21 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                         params: _params
                     }).then(function (res) {
                         // console.log(res);
+                    
+                        $vm.vmData.TRADE_EXPORT += 1;
+
+                        RestfulApi.InsertMSSQLData({
+                            insertname: 'Insert',
+                            table: 33,
+                            params: {
+                                ILE_SEQ : $vm.vmData.OL_SEQ,
+                                ILE_TYPE : selectedItem,
+                                ILE_CR_DATETIME : $filter('date')(new Date(), 'yyyy-MM-dd HH:mm:ss'),
+                                ILE_CR_USER : $vm.profile.U_ID
+                            }
+                        }).then(function (res) {
+                            
+                        });
                     });
                 }
 
@@ -923,7 +938,7 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                               $vm.vmData.OL_FLIGHTNO + ' ' +
                               // ($vm.vmData.OL_COUNT - $vm.vmData.OL_PULL_COUNT) + '袋';
                               $vm.vmData.OL_COUNT + '袋 ' +
-                                  $vm.vmData.OL_PULL_COUNT + '袋';
+                              $vm.vmData.OL_PULL_COUNT + '袋';
 
             // 如果是拉貨 最後要補上原報機日期
             if($vm.vmData.ORI_OL_IMPORTDT != null){
@@ -955,6 +970,21 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                         }
                     }).then(function (res) {
                         // console.log(res);
+                        
+                        $vm.vmData.FLIGHT_EXPORT += 1;
+                    
+                        RestfulApi.InsertMSSQLData({
+                            insertname: 'Insert',
+                            table: 33,
+                            params: {
+                                ILE_SEQ : $vm.vmData.OL_SEQ,
+                                ILE_TYPE : 11,
+                                ILE_CR_DATETIME : $filter('date')(new Date(), 'yyyy-MM-dd HH:mm:ss'),
+                                ILE_CR_USER : $vm.profile.U_ID
+                            }
+                        }).then(function (res) {
+                            
+                        });
                     });
                 // }else{
                 //     toaster.pop('info', '訊息', '超過300筆，請重新選擇筆數', 3000);
@@ -976,6 +1006,21 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                     }
                 }).then(function (res) {
                     // console.log(res);
+                    
+                    $vm.vmData.FLIGHT_EXPORT += 1;
+                    
+                    RestfulApi.InsertMSSQLData({
+                        insertname: 'Insert',
+                        table: 33,
+                        params: {
+                            ILE_SEQ : $vm.vmData.OL_SEQ,
+                            ILE_TYPE : 11,
+                            ILE_CR_DATETIME : $filter('date')(new Date(), 'yyyy-MM-dd HH:mm:ss'),
+                            ILE_CR_USER : $vm.profile.U_ID
+                        }
+                    }).then(function (res) {
+                        
+                    });
                 });
             }
         },

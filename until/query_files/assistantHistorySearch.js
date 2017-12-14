@@ -12,6 +12,7 @@ module.exports = function(pQueryname, pParams){
 									OL_REASON, \
 									OL_CR_USER, \
 									OL_CR_DATETIME, \
+									OL_REAL_IMPORTDT, \
 									W2_OE.OE_PRINCIPAL AS 'W2_PRINCIPAL', \
 									W2_OE.OE_EDATETIME AS 'W2_EDATETIME', \
 									W2_OE.OE_FDATETIME AS 'W2_FDATETIME', \
@@ -94,6 +95,7 @@ module.exports = function(pQueryname, pParams){
 									 OL_REASON, \
 									 OL_CR_USER, \
 									 OL_CR_DATETIME, \
+									 OL_REAL_IMPORTDT, \
 									 W2_OE.OE_PRINCIPAL, \
 									 W2_OE.OE_EDATETIME, \
 									 W2_OE.OE_FDATETIME, \

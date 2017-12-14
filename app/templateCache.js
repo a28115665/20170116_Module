@@ -122,6 +122,14 @@ angular.module('app')
                         <a href="javascript:void(0);" class="btn btn-success btn-xs" ng-click="grid.appScope.$vm.gridMethod.specialGoods(row)" ng-if="row.entity.SPG_SPECIALGOODS == 2"> 特特貨</a>\
    		  		    </div>');
 
+    $templateCache.put('accessibilityToExportExcelStaus', '\
+                        <div class="my-ui-grid-cell-contents text-center">\
+                            <i class="fa fa-check text-success" title="班機表已匯" ng-if="row.entity.FLIGHT_EXPORT >= 1"> </i> \
+                            <i class="fa fa-question" title="班機表未匯" ng-if="row.entity.FLIGHT_EXPORT == 0"> </i> \
+                            <i class="fa fa-check text-success" title="關貿已匯" ng-if="row.entity.TRADE_EXPORT >= 1"> </i> \
+                            <i class="fa fa-question" title="關貿未匯" ng-if="row.entity.TRADE_EXPORT == 0"> </i> \
+                        </div>');
+
     $templateCache.put('accessibilityToOverSixName', '\
                     <div class="ui-grid-cell-contents text-center">\
                         <span class="label bg-color-red" ng-if="row.entity.GETNAME_COUNT == -1">自訂</span>\

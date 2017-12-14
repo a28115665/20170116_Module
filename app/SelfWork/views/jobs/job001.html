@@ -144,7 +144,7 @@
 				            <a href-void="" class="btn btn-warning" href="#" ng-click="$vm.MergeNoResult()">併票結果</a>
 				        </div>
 				        <div class="widget-toolbar smart-form" role="menu">
-				            <a href-void="" class="btn btn-success" href="#" ng-click="$vm.ExportExcel()">匯出Excel</a>
+				            <a href-void="" class="btn btn-success" href="#" ng-click="$vm.ExportExcel()">匯出關貿</a>
 				        </div>
 				        <div class="widget-toolbar smart-form" role="menu">
 				            <a href-void="" class="btn btn-success" href="#" ng-click="$vm.ExportAirportSchema()">匯出班機表欄位</a>
@@ -173,6 +173,17 @@
 														<span class="cell-class-pull"> 拉貨</span>
 														<span class="cell-class-special"> 特貨</span>
 														<span class="text-primary"> 可編輯欄位</span>
+											        </span>
+							                    </div>
+							                    <div class="form-group">
+											        <label class="control-label">班機表已匯：</label>
+											        <span>
+														<i ng-class="$vm.vmData.FLIGHT_EXPORT >= 1 ? 'fa fa-check text-success' : 'fa fa-remove text-danger'"></i>
+											        </span>
+											        <label class="control-label">｜</label>
+											        <label class="control-label">關貿已匯：</label>
+											        <span>
+														<i ng-class="$vm.vmData.TRADE_EXPORT >= 1 ? 'fa fa-check text-success' : 'fa fa-remove text-danger'"></i>
 											        </span>
 							                    </div>
 							                </fieldset>

@@ -101,7 +101,7 @@
 									        </div>
 									        <label class="col-md-1 control-label text-center">-</label>
 									        <div class="col-md-1">
-									            <input class="form-control" ng-model="$vm.vmData.BAGNO_VIP" placeholder="G1" type="text" maxlength="1">
+									            <input class="form-control" ng-model="$vm.vmData.BAGNO_VIP" placeholder="G1" type="text" maxlength="2">
 									        </div>
 									        <label class="col-md-2 control-label">袋號末五碼</label>
 									        <div class="col-md-4">
@@ -110,15 +110,21 @@
 									    </div>
 									    <div class="form-group">
 									        <label class="col-md-2 control-label">袋號範圍</label>
-									        <div class="col-md-3" ng-class="($vm.vmData.BAGNO_RANGE3_START.length || $vm.vmData.BAGNO_RANGE3_END.length) && !$vm.vmData.BAGNO_RANGE5.length ? ' has-error' : ''">
-									            <input class="form-control" ng-model="$vm.vmData.BAGNO_RANGE5" placeholder="袋號前五碼" type="text" maxlength="5" ng-required="$vm.vmData.BAGNO_RANGE3_START.length || $vm.vmData.BAGNO_RANGE3_END.length">
+									        <div class="col-md-3" ng-class="($vm.vmData.BAGNO_RANGE5_START.length || $vm.vmData.BAGNO_RANGE5_END.length) && !$vm.vmData.BAGNO_RANGE3.length ? ' has-error' : ''">
+									            <input class="form-control" ng-model="$vm.vmData.BAGNO_RANGE3" placeholder="袋號前三碼" type="text" maxlength="3" ui-mask="***" ui-mask-placeholder ng-required="$vm.vmData.BAGNO_RANGE5_START.length || $vm.vmData.BAGNO_RANGE5_END.length">
 									        </div>
-									        <div class="col-md-3" ng-class="($vm.vmData.BAGNO_RANGE5.length || $vm.vmData.BAGNO_RANGE3_END.length) && !$vm.vmData.BAGNO_RANGE3_START.length ? ' has-error' : ''">
-									            <input class="form-control" ng-model="$vm.vmData.BAGNO_RANGE3_START" placeholder="袋號末三碼(起)" type="text" maxlength="3" ui-mask="999" ui-mask-placeholder ng-required="$vm.vmData.BAGNO_RANGE5.length || $vm.vmData.BAGNO_RANGE3_END.length">
+									        <div class="col-md-3" ng-class="($vm.vmData.BAGNO_RANGE3.length || $vm.vmData.BAGNO_RANGE5_END.length) && !$vm.vmData.BAGNO_RANGE5_START.length ? ' has-error' : ''">
+									            <input class="form-control" ng-model="$vm.vmData.BAGNO_RANGE5_START" placeholder="袋號末五碼(起)" type="text" maxlength="5" ui-mask="*****" ui-mask-placeholder ng-required="$vm.vmData.BAGNO_RANGE3.length || $vm.vmData.BAGNO_RANGE5_END.length">
 									        </div>
 									        <label class="col-md-1 control-label text-center">~</label>
-									        <div class="col-md-3" ng-class="($vm.vmData.BAGNO_RANGE5.length || $vm.vmData.BAGNO_RANGE3_START.length) && !$vm.vmData.BAGNO_RANGE3_END.length ? ' has-error' : ''">
-									            <input class="form-control" ng-model="$vm.vmData.BAGNO_RANGE3_END" placeholder="袋號末三碼(迄)" type="text" maxlength="3" ui-mask="999" ui-mask-placeholder ng-required="$vm.vmData.BAGNO_RANGE5.length || $vm.vmData.BAGNO_RANGE3_START.length">
+									        <div class="col-md-3" ng-class="($vm.vmData.BAGNO_RANGE3.length || $vm.vmData.BAGNO_RANGE5_START.length) && !$vm.vmData.BAGNO_RANGE5_END.length ? ' has-error' : ''">
+									            <input class="form-control" ng-model="$vm.vmData.BAGNO_RANGE5_END" placeholder="袋號末五碼(迄)" type="text" maxlength="5" ui-mask="*****" ui-mask-placeholder ng-required="$vm.vmData.BAGNO_RANGE3.length || $vm.vmData.BAGNO_RANGE5_START.length">
+									        </div>
+									    </div>
+									    <div class="form-group">
+									        <label class="col-md-2 control-label">小號</label>
+									        <div class="col-md-4">
+									            <input class="form-control" ng-model="$vm.vmData.SMALLNO" placeholder="小號(模糊查詢)" type="text">
 									        </div>
 									    </div>
 									    <div class="form-group">

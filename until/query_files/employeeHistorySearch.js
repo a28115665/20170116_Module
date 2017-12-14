@@ -142,7 +142,7 @@ module.exports = function(pQueryname, pParams){
 			}
 
 			if(pParams["BAGNO"] !== undefined && pParams["BAGNO_VIP"] == undefined){
-				_SQLCommand += " AND IL_BAGNO = '" + pParams["BAGNO"] + "'";
+				_SQLCommand += " AND IL_BAGNO LIKE '" + pParams["BAGNO"] + "%'";
 				delete pParams["BAGNO"];
 				delete pParams["BAGNO_VIP"];
 			}
@@ -155,15 +155,21 @@ module.exports = function(pQueryname, pParams){
 				_SQLCommand += " AND IL_BAGNO LIKE '%" + pParams["BAGNO_LAST5"] + "'";
 				delete pParams["BAGNO_LAST5"];
 			}
-			if(pParams["BAGNO_RANGE5"] !== undefined && pParams["BAGNO_RANGE3_START"] !== undefined && pParams["BAGNO_RANGE3_END"] !== undefined){
-				var _bagnoStart = pParams["BAGNO_RANGE5"] + pParams["BAGNO_RANGE3_START"],
-					_bagnoEnd = pParams["BAGNO_RANGE5"] + pParams["BAGNO_RANGE3_END"];
-
+			if(pParams["BAGNO_RANGE3"] !== undefined && pParams["BAGNO_RANGE5_START"] !== undefined && pParams["BAGNO_RANGE5_END"] !== undefined){
+				var _bagnoStart = pParams["BAGNO_RANGE3"] + pParams["BAGNO_RANGE5_START"],
+					_bagnoEnd = pParams["BAGNO_RANGE3"] + pParams["BAGNO_RANGE5_END"];
+				console.log(_bagnoStart, _bagnoEnd);
 				_SQLCommand += " AND IL_BAGNO BETWEEN '" + _bagnoStart + "' AND '" + _bagnoEnd + "'";
 				
-				delete pParams["BAGNO_RANGE5"];
-				delete pParams["BAGNO_RANGE3_START"];
-				delete pParams["BAGNO_RANGE3_END"];
+				delete pParams["BAGNO_RANGE3"];
+				delete pParams["BAGNO_RANGE5_START"];
+				delete pParams["BAGNO_RANGE5_END"];
+			}
+			if(pParams["SMALLNO"] !== undefined){
+				pParams["IL_SMALLNO"] = '%'+pParams["SMALLNO"]+'%';
+				_SQLCommand += " AND IL_SMALLNO LIKE @IL_SMALLNO";
+				delete pParams["SMALLNO"];
+				
 			}
 			if(pParams["GETNAME"] !== undefined){
 				pParams["IL_GETNAME"] = '%'+pParams["GETNAME"]+'%';
