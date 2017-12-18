@@ -311,6 +311,7 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
         flightItemOptions : {
             data:  '$vm.flightItemData',
             columnDefs: [
+                { name: 'Index'                  ,  displayName: '序列', width: 50, enableFiltering: false },
                 { name: 'OL_IMPORTDT'            ,  displayName: '進口日期', width: 80, cellFilter: 'dateFilter' },
                 // { name: 'OL_CO_CODE'             ,  displayName: '發銷艙單行家', width: 110, cellFilter: 'compyFilter', filter: 
                 //     {
@@ -326,8 +327,8 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
                 { name: 'FA_ACTL_ARRIVALTIME'    ,  displayName: '真實抵達時間', cellFilter: 'datetimeFilter' },
                 { name: 'FA_ARRIVAL_REMK'        ,  displayName: '狀態', width: 80, cellTemplate: $templateCache.get('accessibilityToArrivalRemark') },
                 { name: 'OL_MASTER'              ,  displayName: '主號', width: 110, cellTemplate: $templateCache.get('accessibilityToMasterForViewOrder') },
-                { name: 'OL_FLL_COUNT'           ,  displayName: '銷艙單(袋數)', width: 80 },
-                { name: 'MAIL_COUNT'             ,  displayName: '寄信次數', width: 60 },
+                { name: 'OL_FLL_COUNT'           ,  displayName: '銷艙單(袋數)', width: 50 },
+                { name: 'MAIL_COUNT'             ,  displayName: '寄信次數', width: 40 },
                 { name: 'OL_COUNTRY'             ,  displayName: '起運國別', width: 60 },
                 { name: 'OL_REASON'              ,  displayName: '描述', width: 100, cellTooltip: function (row, col) 
                     {
@@ -717,7 +718,7 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
                     return;
                 }
 
-                if(_data[0].OE_PRINCIPAL == null){
+                if(_data[0].W2_PRINCIPAL == null){
                     toaster.pop('warning', '警告', '有資料尚未被中班作業員編輯', 3000);
                     return;
                 }
@@ -749,7 +750,7 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
                                 OL_IMPORTDT : $filter('date')(new Date, 'yyyy-MM-dd'),
                                 OL_COUNTRY : _data[0].OL_COUNTRY,
                                 OL_REASON : _text.length > 300 ? "拉貨" : _text,
-                                OE_PRINCIPAL : _data[0].OE_PRINCIPAL
+                                OE_PRINCIPAL : _data[0].W2_PRINCIPAL
                             };
                         },
                         compy: function() {
@@ -904,7 +905,7 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
                 });
 
                 modalInstance.result.then(function(selectedItem) {
-                    // console.log(_data);
+                    // console.log(_data, _oeType);
 
                     var _tasks = [];
 
@@ -932,7 +933,7 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
                             params: {
                                 OE_SEQ : _data[i].PG_MOVED_SEQ,
                                 OE_TYPE : _oeType,
-                                OE_PRINCIPAL : _data[i].OE_PRINCIPAL
+                                OE_PRINCIPAL : _data[i].W2_PRINCIPAL
                             }
                         })
 
@@ -1064,7 +1065,7 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
                 FA_FLIGHTDATE : $filter('date')(new Date(), 'yyyy-MM-dd')
             }
         }).then(function (res){
-            console.log(res["returnData"]);
+            // console.log(res["returnData"]);
             for(var i=0;i<res["returnData"].length;i++){
                 res["returnData"][i]["Index"] = i+1;
             }
@@ -1077,7 +1078,10 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
             querymain: 'assistantJobs',
             queryname: 'SelectOrderList'
         }).then(function (res){
-            console.log(res["returnData"]);
+            // console.log(res["returnData"]);
+            for(var i=0;i<res["returnData"].length;i++){
+                res["returnData"][i]["Index"] = i+1;
+            }
             $vm.flightItemData = res["returnData"];
 
             // var _showFixMaster = false,
