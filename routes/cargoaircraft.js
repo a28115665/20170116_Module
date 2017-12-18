@@ -16,14 +16,18 @@ var GetCargoAircraftTime = function (){
 	    path: "/MOTC/v2/Air/FIDS/Flight?$filter=(ArrivalAirportID%20eq%20%27TPE%27%20or%20ArrivalAirportID%20eq%20%27TSA%27)%20and%20(AirlineID%20eq%20%27B7%27%20or%20AirlineID%20eq%20%27BR%27%20or%20AirlineID%20eq%20%27CA%27%20or%20AirlineID%20eq%20%27CI%27%20or%20AirlineID%20eq%20%27CX%27%20or%20AirlineID%20eq%20%27CZ%27%20or%20AirlineID%20eq%20%27HX%27%20or%20AirlineID%20eq%20%27IT%27%20or%20AirlineID%20eq%20%27KA%27%20or%20AirlineID%20eq%20%27MU%27%20or%20AirlineID%20eq%20%27NH%27%20or%20AirlineID%20eq%20%27NX%27%20or%20AirlineID%20eq%20%27VJ%27%20or%20AirlineID%20eq%20%27ZH%27)&$top=500&$format=JSON",
 	    method: 'GET',
         headers: { 
-        	'Content-Type': 'application/json' 
+        	'Content-Type': 'application/json; charset=utf-8',
+			"Connection": 'keep-alive',
+			"Cache-Control": 'max-age=0',
+			"Upgrade-Insecure-Requests": 1,
+			"User-Agent": 'Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/62.0.3202.89 Safari/537.36 Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8'
         }
     };
 
     var Do = function(){
 
 		var post_req = http.request(post_options, function (post_res) {
-			// console.log(post_res);
+			// console.log(post_res.statusCode);
 			
 			if(post_res.statusCode == 200){
                 var content = '';
@@ -46,34 +50,38 @@ var GetCargoAircraftTime = function (){
 		            		// console.log("ScheduleArrivalTime=>",moment(upsertData[i].ScheduleArrivalTime).format('YYYY-MM-DD HH:mm:ss'));
 		            		// console.log("ActualArrivalTime=>",moment(upsertData[i].ActualArrivalTime).format('YYYY-MM-DD HH:mm:ss'));
 		            		// console.log("UpdateTime=>",moment(upsertData[i].UpdateTime).format('YYYY-MM-DD HH:mm:ss'));
-		            		_conditions.push(JSON.stringify({
-				                crudType : 'Upsert',
-								table : 23,
-				                params : {
-				                	FA_AIR_ROTETYPE       : upsertData[i].AirRouteType,
-				                	FA_DEPART_AIRTID      : upsertData[i].DepartureAirportID,
-									FA_ARRIVAL_AIRPTID    : upsertData[i].ArrivalAirportID,
-									FA_SCHEDL_ARRIVALTIME : upsertData[i].ScheduleArrivalTime == undefined ? null : moment(upsertData[i].ScheduleArrivalTime).format('YYYY-MM-DD HH:mm:ss'),
-									FA_SCHEDL_DEPARTTIME  : upsertData[i].ScheduleDepartureTime == undefined ? null : moment(upsertData[i].ScheduleDepartureTime).format('YYYY-MM-DD HH:mm:ss'),
-									FA_ACTL_ARRIVALTIME   : upsertData[i].ActualArrivalTime == undefined ? null : moment(upsertData[i].ActualArrivalTime).format('YYYY-MM-DD HH:mm:ss'),
-									FA_ACTL_DEPARTTIME    : upsertData[i].ActualDepartureTime == undefined ? null : moment(upsertData[i].ActualDepartureTime).format('YYYY-MM-DD HH:mm:ss'),
-									FA_ARRIVAL_REMK       : upsertData[i].ArrivalRemark,
-									FA_DEPART_REMK        : upsertData[i].DepartureRemark,
-									FA_ARRIVAL_TERNL      : upsertData[i].ArrivalTerminal,
-									FA_DEPART_TERNL       : upsertData[i].DepartureTerminal,
-									FA_ARRIVAL_GATE       : upsertData[i].ArrivalGate == "" ? null : upsertData[i].ArrivalGate,
-									FA_DEPART_GATE        : upsertData[i].DepartureGate == "" ? null : upsertData[i].DepartureGate,
-									FA_UP_DATETIME        : moment(upsertData[i].UpdateTime).format('YYYY-MM-DD HH:mm:ss')
-				                },
-								condition : {
-									FA_FLIGHTDATE : upsertData[i].FlightDate,
-									FA_FLIGHTNUM  : upsertData[i].FlightNumber,
-									FA_AIR_LINEID : upsertData[i].AirlineID
-								}
-		            		}));
+		            		
+		            		// 某些資料會沒有起飛日期
+		            		if(upsertData[i].FlightDate){
+			            		_conditions.push(JSON.stringify({
+					                crudType : 'Upsert',
+									table : 23,
+					                params : {
+					                	FA_AIR_ROTETYPE       : upsertData[i].AirRouteType,
+					                	FA_DEPART_AIRTID      : upsertData[i].DepartureAirportID,
+										FA_ARRIVAL_AIRPTID    : upsertData[i].ArrivalAirportID,
+										FA_SCHEDL_ARRIVALTIME : upsertData[i].ScheduleArrivalTime == undefined ? null : moment(upsertData[i].ScheduleArrivalTime).format('YYYY-MM-DD HH:mm:ss'),
+										FA_SCHEDL_DEPARTTIME  : upsertData[i].ScheduleDepartureTime == undefined ? null : moment(upsertData[i].ScheduleDepartureTime).format('YYYY-MM-DD HH:mm:ss'),
+										FA_ACTL_ARRIVALTIME   : upsertData[i].ActualArrivalTime == undefined ? null : moment(upsertData[i].ActualArrivalTime).format('YYYY-MM-DD HH:mm:ss'),
+										FA_ACTL_DEPARTTIME    : upsertData[i].ActualDepartureTime == undefined ? null : moment(upsertData[i].ActualDepartureTime).format('YYYY-MM-DD HH:mm:ss'),
+										FA_ARRIVAL_REMK       : upsertData[i].ArrivalRemark,
+										FA_DEPART_REMK        : upsertData[i].DepartureRemark,
+										FA_ARRIVAL_TERNL      : upsertData[i].ArrivalTerminal,
+										FA_DEPART_TERNL       : upsertData[i].DepartureTerminal,
+										FA_ARRIVAL_GATE       : upsertData[i].ArrivalGate == "" ? null : upsertData[i].ArrivalGate,
+										FA_DEPART_GATE        : upsertData[i].DepartureGate == "" ? null : upsertData[i].DepartureGate,
+										FA_UP_DATETIME        : moment(upsertData[i].UpdateTime).format('YYYY-MM-DD HH:mm:ss')
+					                },
+									condition : {
+										FA_FLIGHTDATE : upsertData[i].FlightDate,
+										FA_FLIGHTNUM  : upsertData[i].FlightNumber,
+										FA_AIR_LINEID : upsertData[i].AirlineID
+									}
+			            		}));
+		            		}
 
 							// 每100筆就request
-							if(_conditions.length % 100 == 0){
+							if(_conditions.length % 100 == 0 && _conditions.length > 0){
 	            				console.log("已更新航班資訊筆數:", _conditions.length);
 				            	// 塞入DB
 			        			var _post_upsertData100 = querystring.stringify(_conditions);

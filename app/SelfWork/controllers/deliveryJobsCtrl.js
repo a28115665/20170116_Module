@@ -249,13 +249,14 @@ angular.module('app.selfwork').controller('DeliveryJobsCtrl', function ($scope, 
             data:  '$vm.deliveryItemData',
             columnDefs: [
                 { name: 'OL_IMPORTDT' ,  displayName: '進口日期', cellFilter: 'dateFilter' },
-                { name: 'OL_CO_CODE'  ,  displayName: '行家', cellFilter: 'compyFilter', filter: 
-                    {
-                        term: null,
-                        type: uiGridConstants.filter.SELECT,
-                        selectOptions: compy
-                    }
-                },
+                // { name: 'OL_CO_CODE'  ,  displayName: '行家', cellFilter: 'compyFilter', filter: 
+                //     {
+                //         term: null,
+                //         type: uiGridConstants.filter.SELECT,
+                //         selectOptions: compy
+                //     }
+                // },
+                { name: 'CO_NAME'  ,  displayName: '行家' },
                 { name: 'OL_FLIGHTNO' ,  displayName: '航班' },
                 { name: 'OL_MASTER'   ,  displayName: '主號' },
                 { name: 'OL_COUNTRY'  ,  displayName: '起運國別' },

@@ -17,7 +17,53 @@ module.exports = function(pQueryname, pParams){
 								   PG_REASON, \
 								   CONVERT(varchar, OL_IMPORTDT, 23 ) AS 'OL_IMPORTDT_EX', \
 								   CO_NAME, \
-								   W2_OE.OE_PRINCIPAL \
+									( \
+										SELECT COUNT(1) \
+										FROM ( \
+											SELECT IL_BAGNO \
+											FROM ITEM_LIST \
+											LEFT JOIN PULL_GOODS ON \
+											IL_SEQ = PG_SEQ AND \
+											IL_BAGNO = PG_BAGNO \
+											WHERE IL_SEQ = OL_SEQ \
+											AND IL_BAGNO IS NOT NULL AND IL_BAGNO != '' \
+											AND PG_SEQ IS NULL \
+											GROUP BY IL_BAGNO \
+										) A \
+									) AS 'OL_COUNT', \
+								   ( \
+										CASE WHEN ( \
+											/*表示已有完成者*/ \
+											SELECT COUNT(1) \
+											FROM ORDER_PRINPL \
+											LEFT JOIN ORDER_EDITOR ON OE_SEQ = OP_SEQ AND OE_TYPE = OP_TYPE \
+											WHERE OP_SEQ = OL_SEQ AND OP_DEPT = 'W2' AND OE_FDATETIME IS NOT NULL AND OP_PRINCIPAL = OE_PRINCIPAL \
+										) > 0 THEN '3' \
+										WHEN ( \
+											/*表示已有完成者，但非作業員*/ \
+											SELECT COUNT(1) \
+											FROM ORDER_PRINPL \
+											LEFT JOIN ORDER_EDITOR ON OE_SEQ = OP_SEQ AND OE_TYPE = OP_TYPE \
+											WHERE OP_SEQ = OL_SEQ AND OP_DEPT = 'W2' AND OE_FDATETIME IS NOT NULL \
+										) > 0 OR W2_OE.OE_FDATETIME IS NOT NULL THEN '4' \
+										WHEN ( \
+											/*表示未有完成者，但有編輯者*/ \
+											SELECT COUNT(1) \
+											FROM ORDER_PRINPL \
+											LEFT JOIN ORDER_EDITOR ON OE_SEQ = OP_SEQ AND OE_TYPE = OP_TYPE \
+											WHERE OP_SEQ = OL_SEQ AND OP_DEPT = 'W2' AND OE_EDATETIME IS NOT NULL \
+										) > 0 THEN '2' \
+										WHEN ( \
+											/*表示未有完成者，未有編輯者，但有負責人(已派單)*/ \
+											SELECT COUNT(1) \
+											FROM ORDER_PRINPL \
+											LEFT JOIN ORDER_EDITOR ON OE_SEQ = OP_SEQ AND OE_TYPE = OP_TYPE \
+											WHERE OP_SEQ = OL_SEQ AND OP_DEPT = 'W2' \
+										) > 0 THEN '1' \
+										/*表示尚未派單*/ \
+										ELSE '0' END \
+									) AS 'W2_STATUS', \
+									W2_OE.OE_PRINCIPAL AS 'W2_PRINCIPAL' \
 							FROM ( \
 								SELECT * \
 								FROM ORDER_LIST \
@@ -110,6 +156,11 @@ module.exports = function(pQueryname, pParams){
 									W1_OE.OE_PRINCIPAL AS 'W1_PRINCIPAL', \
 									W1_OE.OE_EDATETIME AS 'W1_EDATETIME', \
 									W1_OE.OE_FDATETIME AS 'W1_FDATETIME', \
+									( \
+										SELECT CO_NAME \
+										FROM COMPY_INFO \
+										WHERE OL_CO_CODE = CO_CODE \
+									) AS 'CO_NAME', \
 									FA_SCHEDL_ARRIVALTIME, \
 									FA_ACTL_DEPARTTIME, \
 									FA_ACTL_ARRIVALTIME, \
@@ -172,7 +223,12 @@ module.exports = function(pQueryname, pParams){
 											AND IL_BAGNO IS NOT NULL AND IL_BAGNO != '' \
 											GROUP BY IL_BAGNO \
 										) A \
-									) AS 'OL_COUNT' \
+									) AS 'OL_COUNT', \
+									( \
+										SELECT CO_NAME \
+										FROM COMPY_INFO \
+										WHERE OL_CO_CODE = CO_CODE \
+									) AS 'CO_NAME' \
 							FROM ORDER_LIST ";
 							
 			if(pParams["U_ID"] !== undefined && pParams["U_GRADE"] !== undefined){
@@ -280,7 +336,38 @@ module.exports = function(pQueryname, pParams){
 				var _sql = [];
 
 				for(var i in pParams["SeqAndBagno"]){
-					_sql.push("(  IL_SEQ='" + pParams["SeqAndBagno"][i].IL_SEQ + "' AND IL_BAGNO='" + pParams["SeqAndBagno"][i].IL_BAGNO + "')");
+					_sql.push("(  IL_SEQ='" + pParams["SeqAndBagno"][i].SEQ + "' AND IL_BAGNO='" + pParams["SeqAndBagno"][i].BAGNO + "')");
+				}
+
+				_SQLCommand += " AND (" + _sql.join(" OR ") +") ";
+			}
+
+			break;
+
+		case "CopySpecialGoods":
+			_SQLCommand += "SELECT @SPG_SEQ AS SPG_SEQ, \
+									SPG_NEWBAGNO, \
+									SPG_NEWSMALLNO, \
+									SPG_ORDERINDEX, \
+									SPG_TYPE, \
+									SPG_CR_USER, \
+									SPG_CR_DATETIME, \
+									SPG_UP_USER, \
+									SPG_UP_DATETIME \
+							FROM SPECIAL_GOODS \
+							INNER JOIN ITEM_LIST ON \
+							IL_SEQ = SPG_SEQ AND \
+							IL_NEWBAGNO = SPG_NEWBAGNO AND \
+							IL_NEWSMALLNO = SPG_NEWSMALLNO AND \
+							IL_ORDERINDEX = SPG_ORDERINDEX \
+						    WHERE 1=1";
+
+			if(pParams["SeqAndBagno"] !== undefined){
+
+				var _sql = [];
+
+				for(var i in pParams["SeqAndBagno"]){
+					_sql.push("(  SPG_SEQ='" + pParams["SeqAndBagno"][i].SEQ + "' AND IL_BAGNO='" + pParams["SeqAndBagno"][i].BAGNO + "')");
 				}
 
 				_SQLCommand += " AND (" + _sql.join(" OR ") +") ";

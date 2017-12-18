@@ -15,14 +15,14 @@ angular.module('app.selfwork.leaderoption').controller('CompyDistributionCtrl', 
         compyDistributionOptions : {
             data:  '$vm.compyDistributionData',
             columnDefs: [
-                // { name: 'CO_NUMBER'    ,  displayName: '公司統編' },
-                { name: 'CO_CODE'       ,  displayName: '行家', cellFilter: 'compyFilter', filter: 
-                    {
-                        term: null,
-                        type: uiGridConstants.filter.SELECT,
-                        selectOptions: compy
-                    }
-                },
+                // { name: 'CO_CODE'       ,  displayName: '行家', cellFilter: 'compyFilter', filter: 
+                //     {
+                //         term: null,
+                //         type: uiGridConstants.filter.SELECT,
+                //         selectOptions: compy
+                //     }
+                // },
+                { name: 'CO_NAME'   ,  displayName: '行家' },
                 { name: 'CO_WEIGHTS',  displayName: '權重', cellFilter: 'coWeightsFilter', filter: 
                     {
                         term: null,

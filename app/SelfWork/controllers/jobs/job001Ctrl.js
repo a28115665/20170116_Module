@@ -44,25 +44,25 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                 }).then(function (res) {
                     var _returnData = JSON.parse(res["returnData"]),
                         needToUpdate = false;
-                    console.log(_returnData);
+                    // console.log(_returnData);
 
                     if(!angular.isUndefined(_returnData["IL_NATURE_NEW"])){
                         row.entity.IL_NATURE_NEW = _returnData["IL_NATURE_NEW"];
                         needToUpdate = true;
                     }
-                    if(!angular.isUndefined(_returnData["IL_NEWUNIT"]) || _returnData["IL_NEWUNIT"] != ""){
+                    if(!angular.isUndefined(_returnData["IL_NEWUNIT"]) && _returnData["IL_NEWUNIT"] != ""){
                         row.entity.IL_NEWUNIT = _returnData["IL_NEWUNIT"];
                         needToUpdate = true;
                     }
-                    if(!angular.isUndefined(_returnData["IL_NEWPLACE"]) || _returnData["IL_NEWPLACE"] != ""){
+                    if(!angular.isUndefined(_returnData["IL_NEWPLACE"]) && _returnData["IL_NEWPLACE"] != ""){
                         row.entity.IL_NEWPLACE = _returnData["IL_NEWPLACE"];
                         needToUpdate = true;
                     }
-                    if(!angular.isUndefined(_returnData["IL_TAX2"]) || _returnData["IL_TAX2"] != ""){
+                    if(!angular.isUndefined(_returnData["IL_TAX2"]) && _returnData["IL_TAX2"] != ""){
                         row.entity.IL_TAX2 = _returnData["IL_TAX2"];
                         needToUpdate = true;
                     }
-                    if(!angular.isUndefined(_returnData["IL_TAXRATE"]) || _returnData["IL_TAXRATE"] != ""){
+                    if(!angular.isUndefined(_returnData["IL_TAXRATE"]) && _returnData["IL_TAXRATE"] != ""){
                         row.entity.IL_TAXRATE = _returnData["IL_TAXRATE"];
                         needToUpdate = true;
                     }
@@ -360,6 +360,7 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                 },
                 { name: 'IL_SUPPLEMENT_COUNT', displayName: '補件', width: 50, enableCellEdit: false },
                 { name: 'Index'         , displayName: '序列', width: 50, enableFiltering: false, enableCellEdit: false },
+                { name: 'IL_REMARK'     , displayName: '備註', width: 100, headerCellClass: 'text-primary' },
                 { name: 'IL_G1'         , displayName: '報關種類', width: 80, headerCellClass: 'text-primary' },
                 { name: 'IL_MERGENO'    , displayName: '併票號', width: 80, headerCellClass: 'text-primary' },
                 { name: 'BAGNO_MATCH'   , displayName: '內貨', width: 50, enableCellEdit: false, cellTemplate: $templateCache.get('accessibilityToInternalGoods'), filter: 
@@ -473,7 +474,6 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                 { name: 'IL_GETTEL'     , displayName: '收件電話', width: 100, headerCellClass: 'text-primary' },
                 { name: 'IL_EXTEL'      , displayName: '匯出電話', width: 100, headerCellClass: 'text-primary' },
                 { name: 'IL_TRCOM'      , displayName: '派送公司', width: 100, headerCellClass: 'text-primary' },
-                { name: 'IL_REMARK'     , displayName: '備註', width: 100, headerCellClass: 'text-primary' },
                 { name: 'Options'       , displayName: '操作', width: 120, enableCellEdit: false, enableSorting:false, enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToJob001'), pinnedRight:true, cellClass: 'cell-class-no-style' }
             ],
             // rowTemplate: '<div> \
@@ -848,7 +848,8 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                     _exportName = $filter('date')($vm.vmData.OL_IMPORTDT, 'yyyyMMdd') + ' ' + 
                                   $filter('compyFilter')($vm.vmData.OL_CO_CODE) + ' ' + 
                                   $vm.vmData.OL_FLIGHTNO + ' ' +
-                                  $vm.vmData.OL_COUNT + '袋',
+                                  $vm.vmData.OL_COUNT + '袋 ' +
+                                  $vm.vmData.OL_PULL_COUNT + '袋',
                     _queryname = null,
                     _params = {
                         OL_MASTER : $vm.vmData.OL_MASTER,
@@ -908,6 +909,21 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                         params: _params
                     }).then(function (res) {
                         // console.log(res);
+                    
+                        $vm.vmData.TRADE_EXPORT += 1;
+
+                        RestfulApi.InsertMSSQLData({
+                            insertname: 'Insert',
+                            table: 33,
+                            params: {
+                                ILE_SEQ : $vm.vmData.OL_SEQ,
+                                ILE_TYPE : selectedItem,
+                                ILE_CR_DATETIME : $filter('date')(new Date(), 'yyyy-MM-dd HH:mm:ss'),
+                                ILE_CR_USER : $vm.profile.U_ID
+                            }
+                        }).then(function (res) {
+                            
+                        });
                     });
                 }
 
@@ -920,7 +936,9 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
             var _exportName = $filter('date')($vm.vmData.OL_IMPORTDT, 'yyyyMMdd') + ' ' + 
                               $filter('compyFilter')($vm.vmData.OL_CO_CODE) + ' ' +
                               $vm.vmData.OL_FLIGHTNO + ' ' +
-                              $vm.vmData.OL_COUNT + '袋';
+                              // ($vm.vmData.OL_COUNT - $vm.vmData.OL_PULL_COUNT) + '袋';
+                              $vm.vmData.OL_COUNT + '袋 ' +
+                              $vm.vmData.OL_PULL_COUNT + '袋';
 
             // 如果是拉貨 最後要補上原報機日期
             if($vm.vmData.ORI_OL_IMPORTDT != null){
@@ -952,6 +970,21 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                         }
                     }).then(function (res) {
                         // console.log(res);
+                        
+                        $vm.vmData.FLIGHT_EXPORT += 1;
+                    
+                        RestfulApi.InsertMSSQLData({
+                            insertname: 'Insert',
+                            table: 33,
+                            params: {
+                                ILE_SEQ : $vm.vmData.OL_SEQ,
+                                ILE_TYPE : 11,
+                                ILE_CR_DATETIME : $filter('date')(new Date(), 'yyyy-MM-dd HH:mm:ss'),
+                                ILE_CR_USER : $vm.profile.U_ID
+                            }
+                        }).then(function (res) {
+                            
+                        });
                     });
                 // }else{
                 //     toaster.pop('info', '訊息', '超過300筆，請重新選擇筆數', 3000);
@@ -973,6 +1006,21 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                     }
                 }).then(function (res) {
                     // console.log(res);
+                    
+                    $vm.vmData.FLIGHT_EXPORT += 1;
+                    
+                    RestfulApi.InsertMSSQLData({
+                        insertname: 'Insert',
+                        table: 33,
+                        params: {
+                            ILE_SEQ : $vm.vmData.OL_SEQ,
+                            ILE_TYPE : 11,
+                            ILE_CR_DATETIME : $filter('date')(new Date(), 'yyyy-MM-dd HH:mm:ss'),
+                            ILE_CR_USER : $vm.profile.U_ID
+                        }
+                    }).then(function (res) {
+                        
+                    });
                 });
             }
         },
@@ -1268,6 +1316,7 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                     IL_BAGNO           : entity.IL_BAGNO,
                     IL_SMALLNO         : entity.IL_SMALLNO,
                     IL_NATURE_NEW      : entity.IL_NATURE_NEW,
+                    IL_NEWPLACE        : entity.IL_NEWPLACE,
                     IL_CTN             : entity.IL_CTN,
                     IL_NEWPCS          : entity.IL_NEWPCS,
                     IL_NEWUNIT         : entity.IL_NEWUNIT,

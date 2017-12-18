@@ -98,7 +98,7 @@ angular.module('app.selfwork.leaderoption').controller('DailyLeaveCtrl', functio
         //     });    
         // },
         Update : function(entity){
-            console.log(entity);
+            // console.log(entity);
             // create a fake promise - normally you'd use the promise returned by $http or $resource
             var promise = $q.defer();
             $vm.dailyLeaveGridApi.rowEdit.setSavePromise( entity, promise.promise );
@@ -111,6 +111,7 @@ angular.module('app.selfwork.leaderoption').controller('DailyLeaveCtrl', functio
                 crudType: 'Delete',
                 table: 16,
                 params: {
+                    DL_ID : entity.U_ID,
                     DL_DEPT : $vm.selectAssignDept
                 }
             });

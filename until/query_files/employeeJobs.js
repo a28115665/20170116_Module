@@ -80,9 +80,26 @@ module.exports = function(pQueryname, pParams){
 									W1_OE.OE_PRINCIPAL AS 'W1_PRINCIPAL', \
 									W1_OE.OE_EDATETIME AS 'W1_EDATETIME', \
 									W1_OE.OE_FDATETIME AS 'W1_FDATETIME', \
+									( \
+										SELECT CO_NAME \
+										FROM COMPY_INFO \
+										WHERE OL_CO_CODE = CO_CODE \
+									) AS 'CO_NAME', \
 									FA_SCHEDL_ARRIVALTIME, \
 									FA_ACTL_ARRIVALTIME, \
-									FA_ARRIVAL_REMK \
+									FA_ARRIVAL_REMK, \
+									( \
+										SELECT COUNT(ILE_ID) \
+										FROM ITEM_LIST_EXPORTER \
+										WHERE ILE_SEQ = OL_SEQ \
+										AND ILE_TYPE = '11' \
+									) AS 'FLIGHT_EXPORT', \
+									( \
+										SELECT COUNT(ILE_ID) \
+										FROM ITEM_LIST_EXPORTER \
+										WHERE ILE_SEQ = OL_SEQ \
+										AND ILE_TYPE != '11' \
+									) AS 'TRADE_EXPORT' \
 									/*( \
 										SELECT OL_IMPORTDT \
 										FROM ( \

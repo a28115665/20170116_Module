@@ -184,7 +184,7 @@ angular.module('app.selfwork').controller('Job002Ctrl', function ($scope, $state
                     templates      : 5,
                     filename       : _exportName,
                     OL_MASTER      : $vm.vmData.OL_MASTER,
-                    OL_IMPORTDT    : $filter('date')($vm.vmData.OL_IMPORTDT, 'yyyy-MM-dd'),
+                    OL_IMPORTDT    : $filter('date')($vm.vmData.OL_IMPORTDT, 'yyyy/MM/dd'),
                     OL_FLIGHTNO    : $vm.vmData.OL_FLIGHTNO,
                     OL_COUNTRY     : $vm.vmData.OL_COUNTRY, 
                     OL_TEL         : $vm.vmData.OL_TEL, 

@@ -12,7 +12,7 @@
 		"user": "sa",
 		"password": "2j/ z/ !@#$%",
 		"server": "127.0.0.1",
-		"database": "EWS",
+		"database": "EWS20171206",
 		"pool": {
 	        "max": 50,
 	        "min": 0,
@@ -21,12 +21,12 @@
 	},
 	"WebService" : {
 		"changeNature" : {
-			"host" : "10.1.154.244",
+			"host" : "10.1.31.61",
 			"port" : "80",
 			"url" : "/EWSWS/WebServiceChangeNature.asmx/GetNewNature"
 		},
 		"doTax" : {
-			"host" : "10.1.31.42",
+			"host" : "10.1.31.61",
 			"port" : "80",
 			"url" : "/EWSWS/WebServiceChangeNature.asmx/GetNatureTax"
 		}

@@ -1,6 +1,6 @@
 "use strict";
 
-angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, RestfulApi, $filter, uiGridConstants, compy, bool, opType, OrderStatus, ToolboxApi) {
+angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, RestfulApi, $filter, uiGridConstants, compy, bool, opType, OrderStatus, ToolboxApi, localStorageService) {
     
     var $vm = this;
 
@@ -8,15 +8,24 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
         Init : function(){
             $scope.ShowTabs = true;
             
+            // 帶入LocalStorage資料
+            if(localStorageService.get("AssistantJobs") == null){
+                $vm.defaultTab = 'hr2';
+            }else{
+                $vm.defaultTab = localStorageService.get("AssistantJobs");
+            }
+
             $vm.LoadData();
         },
         profile : Session.Get(),
-        defaultTab : 'hr2',
         TabSwitch : function(pTabID){
             return pTabID == $vm.defaultTab ? 'active' : '';
         },
         LoadData : function(){
-            console.log($vm.defaultTab);
+            // console.log($vm.defaultTab);
+            // 紀錄tab
+            localStorageService.set("AssistantJobs", $vm.defaultTab);
+
             switch($vm.defaultTab){
                 case 'hr1':
                     LoadFlightArrival();
@@ -256,15 +265,42 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
                     // $ctrl.selected = selectedItem;
                     console.log(selectedItem);
 
-                    RestfulApi.DeleteMSSQLData({
-                        deletename: 'Delete',
+                    // RestfulApi.DeleteMSSQLData({
+                    //     deletename: 'Delete',
+                    //     table: 10,
+                    //     params: {
+                    //         FLL_SEQ : selectedItem.OL_SEQ
+                    //     }
+                    // }).then(function (res) {
+                    //     toaster.pop('info', '訊息', '銷倉單刪除成功', 3000);
+                    //     LoadFlightItem();
+                    // });
+
+                    var _tasks = [];
+
+                    // 刪除銷倉單
+                    _tasks.push({
+                        crudType: 'Delete',
                         table: 10,
                         params: {
                             FLL_SEQ : selectedItem.OL_SEQ
                         }
-                    }).then(function (res) {
+                    });
+
+                    // 刪除銷倉單標記
+                    _tasks.push({
+                        crudType: 'Delete',
+                        table: 28,
+                        params: {
+                            FLLR_SEQ : selectedItem.OL_SEQ
+                        }
+                    });
+
+                    RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res) {
                         toaster.pop('info', '訊息', '銷倉單刪除成功', 3000);
                         LoadFlightItem();
+                    }, function (err) {
+
                     });
 
                 }, function() {
@@ -275,22 +311,24 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
         flightItemOptions : {
             data:  '$vm.flightItemData',
             columnDefs: [
+                { name: 'Index'                  ,  displayName: '序列', width: 50, enableFiltering: false },
                 { name: 'OL_IMPORTDT'            ,  displayName: '進口日期', width: 80, cellFilter: 'dateFilter' },
-                { name: 'OL_CO_CODE'             ,  displayName: '發銷艙單行家', width: 110, cellFilter: 'compyFilter', filter: 
-                    {
-                        term: null,
-                        type: uiGridConstants.filter.SELECT,
-                        selectOptions: compy
-                    }
-                },
+                // { name: 'OL_CO_CODE'             ,  displayName: '發銷艙單行家', width: 110, cellFilter: 'compyFilter', filter: 
+                //     {
+                //         term: null,
+                //         type: uiGridConstants.filter.SELECT,
+                //         selectOptions: compy
+                //     }
+                // },
+                { name: 'CO_NAME'                ,  displayName: '發銷艙單行家', width: 110 },
                 { name: 'OL_FLIGHTNO'            ,  displayName: '航班', width: 80 },
                 { name: 'FA_ACTL_DEPARTTIME'     ,  displayName: '真實起飛時間', cellFilter: 'datetimeFilter' },
                 { name: 'FA_SCHEDL_ARRIVALTIME'  ,  displayName: '預計抵達時間', cellFilter: 'datetimeFilter' },
                 { name: 'FA_ACTL_ARRIVALTIME'    ,  displayName: '真實抵達時間', cellFilter: 'datetimeFilter' },
                 { name: 'FA_ARRIVAL_REMK'        ,  displayName: '狀態', width: 80, cellTemplate: $templateCache.get('accessibilityToArrivalRemark') },
                 { name: 'OL_MASTER'              ,  displayName: '主號', width: 110, cellTemplate: $templateCache.get('accessibilityToMasterForViewOrder') },
-                { name: 'OL_FLL_COUNT'           ,  displayName: '銷艙單(袋數)', width: 80 },
-                { name: 'MAIL_COUNT'             ,  displayName: '寄信次數', width: 60 },
+                { name: 'OL_FLL_COUNT'           ,  displayName: '銷艙單(袋數)', width: 50 },
+                { name: 'MAIL_COUNT'             ,  displayName: '寄信次數', width: 40 },
                 { name: 'OL_COUNTRY'             ,  displayName: '起運國別', width: 60 },
                 { name: 'OL_REASON'              ,  displayName: '描述', width: 100, cellTooltip: function (row, col) 
                     {
@@ -329,13 +367,14 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
             data:  '$vm.masterToBeFilledData',
             columnDefs: [
                 { name: 'OL_IMPORTDT'            ,  displayName: '進口日期', cellFilter: 'dateFilter' },
-                { name: 'OL_CO_CODE'             ,  displayName: '行家', cellFilter: 'compyFilter', filter: 
-                    {
-                        term: null,
-                        type: uiGridConstants.filter.SELECT,
-                        selectOptions: compy
-                    }
-                },
+                // { name: 'OL_CO_CODE'             ,  displayName: '行家', cellFilter: 'compyFilter', filter: 
+                //     {
+                //         term: null,
+                //         type: uiGridConstants.filter.SELECT,
+                //         selectOptions: compy
+                //     }
+                // },
+                { name: 'CO_NAME'                ,  displayName: '行家' },
                 { name: 'OL_FLIGHTNO'            ,  displayName: '航班' },
                 { name: 'OL_MASTER'              ,  displayName: '主號' },
                 { name: 'OL_COUNT'               ,  displayName: '報機單(袋數)', enableCellEdit: false },
@@ -585,6 +624,7 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
              * [movedData description] 移機
              * 新增ORDER_LIST
              * 複製ITEM_LIST
+             * 複製SPECIAL_GOODS
              * 更新PULL_GODDS
              */
             movedData : function(){
@@ -603,6 +643,7 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
                     _duplicatMasterValue = "",
                     _sourceMaster = [],
                     _seqAndBagno = [],
+                    _seq = [],
                     _bagno = [];
                 for(var i in _data){
 
@@ -643,9 +684,11 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
                     }
 
                     _seqAndBagno.push({
-                        IL_SEQ : _data[i].PG_SEQ,
-                        IL_BAGNO : _data[i].PG_BAGNO
+                        SEQ : _data[i].PG_SEQ,
+                        BAGNO : _data[i].PG_BAGNO
                     });
+
+                    // _seq.push(_data[i].PG_SEQ);
 
                     _bagno.push(_data[i].PG_BAGNO);
                 }
@@ -672,6 +715,11 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
 
                 if(_emptyMoved){
                     toaster.pop('warning', '警告', '有資料已被移機', 3000);
+                    return;
+                }
+
+                if(_data[0].W2_PRINCIPAL == null){
+                    toaster.pop('warning', '警告', '有資料尚未被中班作業員編輯', 3000);
                     return;
                 }
 
@@ -702,7 +750,7 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
                                 OL_IMPORTDT : $filter('date')(new Date, 'yyyy-MM-dd'),
                                 OL_COUNTRY : _data[0].OL_COUNTRY,
                                 OL_REASON : _text.length > 300 ? "拉貨" : _text,
-                                OE_PRINCIPAL : _data[0].OE_PRINCIPAL
+                                OE_PRINCIPAL : _data[0].W2_PRINCIPAL
                             };
                         },
                         compy: function() {
@@ -716,14 +764,14 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
 
                     var _d = new Date,
                         _tasks = [],
-                        _seq = $vm.profile.U_ID+selectedItem.OL_CO_CODE+$filter('date')(_d, 'yyyyMMddHHmmss');
+                        _newSeq = $vm.profile.U_ID+selectedItem.OL_CO_CODE+$filter('date')(_d, 'yyyyMMddHHmmss');
 
                     // 新增ORDER_LIST
                     _tasks.push({
                         crudType: 'Insert',
                         table: 18,
                         params: {
-                            OL_SEQ : _seq,
+                            OL_SEQ : _newSeq,
                             OL_CO_CODE : selectedItem.OL_CO_CODE,
                             OL_MASTER : selectedItem.OL_MASTER,
                             OL_FLIGHTNO : selectedItem.OL_FLIGHTNO,
@@ -741,7 +789,7 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
                             crudType: 'Insert',
                             table: 22,
                             params: {
-                                OE_SEQ : _seq,
+                                OE_SEQ : _newSeq,
                                 OE_TYPE : _oeType,
                                 OE_PRINCIPAL : selectedItem.OE_PRINCIPAL,
                                 OE_EDATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss'),
@@ -757,7 +805,19 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
                         queryname: 'CopyItemList',
                         table: 9,
                         params: {
-                            IL_SEQ : _seq,
+                            IL_SEQ : _newSeq,
+                            SeqAndBagno : _seqAndBagno
+                        }
+                    })
+
+                    // 複製SPECIAL_GOODS
+                    _tasks.push({
+                        crudType: 'Copy',
+                        querymain: 'assistantJobs',
+                        queryname: 'CopySpecialGoods',
+                        table: 20,
+                        params: {
+                            SPG_SEQ : _newSeq,
                             SeqAndBagno : _seqAndBagno
                         }
                     })
@@ -768,7 +828,7 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
                         table: 19,
                         params: {
                             PG_MOVED : true,
-                            PG_MOVED_SEQ : _seq
+                            PG_MOVED_SEQ : _newSeq
                         },
                         condition: {
                             PG_MASTER : selectedItem.OL_MASTER,
@@ -791,6 +851,7 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
             /**
              * [cancelMovedData description] 取消移機
              * 刪除ORDER_LIST
+             * 刪除SPECIAL_GOODS
              * 更新PULL_GOODS
              */
             cancelMovedData : function(){
@@ -844,7 +905,7 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
                 });
 
                 modalInstance.result.then(function(selectedItem) {
-                    // console.log(_data);
+                    // console.log(_data, _oeType);
 
                     var _tasks = [];
 
@@ -857,6 +918,14 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
                             }
                         });
 
+                        _tasks.push({
+                            crudType: 'Delete',
+                            table: 20,
+                            params: {
+                                SPG_SEQ : _data[i].PG_MOVED_SEQ
+                            }
+                        });
+
                         // 刪除EDITOR
                         _tasks.push({
                             crudType: 'Delete',
@@ -864,7 +933,7 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
                             params: {
                                 OE_SEQ : _data[i].PG_MOVED_SEQ,
                                 OE_TYPE : _oeType,
-                                OE_PRINCIPAL : _data[i].OE_PRINCIPAL
+                                OE_PRINCIPAL : _data[i].W2_PRINCIPAL
                             }
                         })
 
@@ -872,6 +941,8 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
                             crudType: 'Update',
                             table: 19,
                             params: {
+                                PG_MASTER : null,
+                                PG_FLIGHTNO : null,
                                 PG_MOVED : false,
                                 PG_MOVED_SEQ : null,
                                 PG_UP_USER : $vm.profile.U_ID,
@@ -932,13 +1003,14 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
             data:  '$vm.pullGoodsData',
             columnDefs: [
                 { name: 'OL_IMPORTDT'   , displayName: '進口日期', cellFilter: 'dateFilter' },
-                { name: 'OL_CO_CODE'    , displayName: '行家', cellFilter: 'compyFilter', cellFilter: 'compyFilter', filter: 
-                    {
-                        term: null,
-                        type: uiGridConstants.filter.SELECT,
-                        selectOptions: compy
-                    }
-                },
+                // { name: 'OL_CO_CODE'    , displayName: '行家', cellFilter: 'compyFilter', cellFilter: 'compyFilter', filter: 
+                //     {
+                //         term: null,
+                //         type: uiGridConstants.filter.SELECT,
+                //         selectOptions: compy
+                //     }
+                // },
+                { name: 'CO_NAME'       , displayName: '行家' },
                 { name: 'OL_FLIGHTNO'   , displayName: '航班' },
                 { name: 'OL_MASTER'     , displayName: '主號' },
                 { name: 'OL_COUNTRY'    , displayName: '起運國別' },
@@ -956,6 +1028,19 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
                     {
                         return row.entity.PG_REASON
                     } 
+                },
+                { name: 'W2_STATUS'   ,  displayName: '報機單狀態', cellTemplate: $templateCache.get('accessibilityToForW2'), filter: 
+                    {
+                        term: null,
+                        type: uiGridConstants.filter.SELECT,
+                        selectOptions: [
+                            {label:'未派單', value: '0'},
+                            {label:'已派單', value: '1'},
+                            {label:'已編輯', value: '2'},
+                            {label:'已完成', value: '3'},
+                            {label:'非作業員'  , value: '4'}
+                        ]
+                    }
                 },
                 { name: 'ITEM_LIST'     , displayName: '報機單', enableFiltering: false, enableSorting: false, width: '8%', cellTemplate: $templateCache.get('accessibilityToOperaForJob001') },
                 { name: 'Options'       , displayName: '操作', width: '8%', enableFiltering: false, enableSorting: false, cellTemplate: $templateCache.get('accessibilityToVForPullGoods') }
@@ -980,7 +1065,7 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
                 FA_FLIGHTDATE : $filter('date')(new Date(), 'yyyy-MM-dd')
             }
         }).then(function (res){
-            console.log(res["returnData"]);
+            // console.log(res["returnData"]);
             for(var i=0;i<res["returnData"].length;i++){
                 res["returnData"][i]["Index"] = i+1;
             }
@@ -993,7 +1078,10 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
             querymain: 'assistantJobs',
             queryname: 'SelectOrderList'
         }).then(function (res){
-            console.log(res["returnData"]);
+            // console.log(res["returnData"]);
+            for(var i=0;i<res["returnData"].length;i++){
+                res["returnData"][i]["Index"] = i+1;
+            }
             $vm.flightItemData = res["returnData"];
 
             // var _showFixMaster = false,
@@ -1157,10 +1245,16 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
     }
 
     $ctrl.ok = function() {
-        $ctrl.mdData.FLIGHTNO_START = $ctrl.mdData.FLIGHTNO_START.toUpperCase();
-        $ctrl.mdData.OL_FLIGHTNO = $ctrl.mdData.FLIGHTNO_START + ' ' + $ctrl.mdData.FLIGHTNO_END;
 
-        $ctrl.mdData.OL_COUNTRY = $ctrl.mdData.OL_COUNTRY.toUpperCase();
+        if($ctrl.mdData.FLIGHTNO_START && $ctrl.mdData.FLIGHTNO_END){
+            $ctrl.mdData.FLIGHTNO_START = $ctrl.mdData.FLIGHTNO_START.toUpperCase();
+            $ctrl.mdData.OL_FLIGHTNO = $ctrl.mdData.FLIGHTNO_START + ' ' + $ctrl.mdData.FLIGHTNO_END;
+        }
+
+
+        if($ctrl.mdData.OL_COUNTRY){
+            $ctrl.mdData.OL_COUNTRY = $ctrl.mdData.OL_COUNTRY.toUpperCase();
+        }
 
         $uibModalInstance.close($ctrl.mdData);
     };

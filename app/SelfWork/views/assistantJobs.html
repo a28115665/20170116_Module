@@ -96,7 +96,22 @@
 
 									<div class="widget-body-toolbar">
 									    <div class="row">
-									        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 text-right">
+									        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
+									        	<form class="form-inline" role="form">
+									                <fieldset>
+									                    <div class="form-group">
+													        <label class="control-label">標籤說明：</label>
+										                    <div class="form-group">
+																<i class="fa fa-circle-o"> 已派單</i>
+																<i class="fa fa-circle text-warning"> 已編輯</i>
+																<i class="fa fa-circle text-success"> 已完成</i>
+																<i class="fa fa-circle txt-color-magenta"> 非作業員</i>
+										                    </div>
+									                    </div>
+									                </fieldset>
+									            </form>
+									        </div>
+									        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 text-right">
 									        	<form class="form-inline" role="form">
 									                <fieldset>
 									                    <div class="form-group">
@@ -175,7 +190,7 @@
                 完成 
             </button> 
             <button type="button" class="btn btn-danger btn-lg btn-block" ng-click="$ctrl.appScope.gridMethodForJob002.deleteData($ctrl.row);$ctrl.cancel()" ng-show="$vm.profile.U_GRADE <= 9"> 
-                刪除 
+                刪除(銷倉單) 
             </button> 
         </div> 
     </div>

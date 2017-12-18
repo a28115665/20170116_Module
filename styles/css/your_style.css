@@ -97,6 +97,9 @@
 .my-ui-grid-350 {
     height: 350px;
 }
+.my-ui-grid-cell-contents {
+    padding: 5px;
+}
 
 /*黑名單加入*/
 .cell-class-ban {

@@ -21,7 +21,12 @@ module.exports = function(pQueryname, pParams){
 									W3_OE.OE_FDATETIME AS 'W3_FDATETIME', \
 									W1_OE.OE_PRINCIPAL AS 'W1_PRINCIPAL', \
 									W1_OE.OE_EDATETIME AS 'W1_EDATETIME', \
-									W1_OE.OE_FDATETIME AS 'W1_FDATETIME' \
+									W1_OE.OE_FDATETIME AS 'W1_FDATETIME', \
+									( \
+										SELECT CO_NAME \
+										FROM COMPY_INFO \
+										WHERE OL_CO_CODE = CO_CODE \
+									) AS 'CO_NAME' \
 							FROM ORDER_LIST \
 							/*報機單*/ \
 							LEFT JOIN ORDER_EDITOR W2_OE ON W2_OE.OE_SEQ = ORDER_LIST.OL_SEQ AND W2_OE.OE_TYPE = 'R' AND (W2_OE.OE_EDATETIME IS NOT NULL OR W2_OE.OE_FDATETIME IS NOT NULL) \
