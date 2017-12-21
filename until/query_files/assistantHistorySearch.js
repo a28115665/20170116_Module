@@ -47,6 +47,14 @@ module.exports = function(pQueryname, pParams){
 				_SQLCommand += " AND OL_CR_DATETIME <= '" + pParams["CRDT_TOXX"] + "'";
 				delete pParams["CRDT_TOXX"];
 			}
+			if(pParams["REAL_IMPORTDT_FROM"] !== undefined){
+				_SQLCommand += " AND OL_REAL_IMPORTDT >= '" + pParams["REAL_IMPORTDT_FROM"] + "'";
+				delete pParams["REAL_IMPORTDT_FROM"];
+			}
+			if(pParams["REAL_IMPORTDT_TOXX"] !== undefined){
+				_SQLCommand += " AND OL_REAL_IMPORTDT <= '" + pParams["REAL_IMPORTDT_TOXX"] + "'";
+				delete pParams["REAL_IMPORTDT_TOXX"];
+			}
 			if(pParams["IMPORTDT_FROM"] !== undefined){
 				_SQLCommand += " AND OL_IMPORTDT >= '" + pParams["IMPORTDT_FROM"] + "'";
 				delete pParams["IMPORTDT_FROM"];

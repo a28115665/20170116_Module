@@ -351,15 +351,15 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
         job001Options : {
             data: '$vm.job001Data',
             columnDefs: [
-                { name: 'isSelected'    , displayName: '選擇', width: 50, enableCellEdit: false, cellFilter: 'booleanFilter', filter: 
+                { name: 'isSelected'    , displayName: '選擇', width: 50, pinnedLeft:true, enableCellEdit: false, cellFilter: 'booleanFilter', filter: 
                     {
                         term: null,
                         type: uiGridConstants.filter.SELECT,
                         selectOptions: bool
                     }
                 },
-                { name: 'IL_SUPPLEMENT_COUNT', displayName: '補件', width: 50, enableCellEdit: false },
-                { name: 'Index'         , displayName: '序列', width: 50, enableFiltering: false, enableCellEdit: false },
+                { name: 'IL_SUPPLEMENT_COUNT', displayName: '補件', width: 50, pinnedLeft:true, enableCellEdit: false },
+                { name: 'Index'         , displayName: '序列', width: 50, pinnedLeft:true, enableFiltering: false, enableCellEdit: false },
                 { name: 'IL_REMARK'     , displayName: '備註', width: 100, headerCellClass: 'text-primary' },
                 { name: 'IL_G1'         , displayName: '報關種類', width: 80, headerCellClass: 'text-primary' },
                 { name: 'IL_MERGENO'    , displayName: '併票號', width: 80, headerCellClass: 'text-primary' },

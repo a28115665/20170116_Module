@@ -261,7 +261,13 @@ angular.module('app')
                                     <div class="form-group"> \
                                         <label class="col-md-2 control-label">進口日期</label> \
                                         <div class="col-md-10"> \
-                                            <input class="form-control" name="OL_IMPORTDT" type="text" ng-model="$ctrl.mdData.OL_IMPORTDT" ui-mask="9999-99-99" ui-mask-placeholder ui-mask-placeholder-char="_" placeholder="請輸入公佈日期 (西元 年-月-日)" model-view-value="true"/> \
+                                            <input class="form-control" name="OL_IMPORTDT" type="text" ng-model="$ctrl.mdData.OL_IMPORTDT" ui-mask="9999-99-99" ui-mask-placeholder ui-mask-placeholder-char="_" placeholder="請輸入進口日期 (西元 年-月-日)" model-view-value="true"/> \
+                                        </div> \
+                                    </div> \
+                                    <div class="form-group"> \
+                                        <label class="col-md-2 control-label">報機日期</label> \
+                                        <div class="col-md-10"> \
+                                            <input class="form-control" name="OL_REAL_IMPORTDT" type="text" ng-model="$ctrl.mdData.OL_REAL_IMPORTDT" ui-mask="9999-99-99" ui-mask-placeholder ui-mask-placeholder-char="_" placeholder="請輸入報機日期 (西元 年-月-日)" model-view-value="true"/> \
                                         </div> \
                                     </div> \
                                     <div class="form-group"> \
@@ -355,6 +361,7 @@ angular.module('app')
             $ctrl.mdData.OL_COUNTRY = $ctrl.mdData.OL_COUNTRY.toUpperCase();
         }
         $ctrl.mdData.OL_IMPORTDT = $ctrl.mdData.OL_IMPORTDT == "" ? null : $ctrl.mdData.OL_IMPORTDT;
+        $ctrl.mdData.OL_REAL_IMPORTDT = $ctrl.mdData.OL_REAL_IMPORTDT == "" ? null : $ctrl.mdData.OL_REAL_IMPORTDT;
         $uibModalInstance.close($ctrl.mdData);
     };
 

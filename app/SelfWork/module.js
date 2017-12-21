@@ -78,6 +78,9 @@ angular.module('app.selfwork').config(function ($stateProvider){
                     },
                     bool: function (SysCode){
                         return SysCode.get('Boolean');
+                    },
+                    userInfo: function(UserInfo){
+                        return UserInfo.get();
                     }
                 }
             }
