@@ -94,6 +94,31 @@ module.exports = function(pQueryname, pParams){
 				delete pParams["FINISH"];
 			}
 
+			if(pParams["BAGNO"] !== undefined && pParams["BAGNO_VIP"] == undefined){
+				_SQLCommand += " AND FLL_BAGNO LIKE '" + pParams["BAGNO"] + "%'";
+				delete pParams["BAGNO"];
+				delete pParams["BAGNO_VIP"];
+			}
+			if(pParams["BAGNO"] !== undefined && pParams["BAGNO_VIP"] !== undefined){
+				_SQLCommand += " AND FLL_BAGNO = '" + pParams["BAGNO"] + "-" + pParams["BAGNO_VIP"] + "'";
+				delete pParams["BAGNO"];
+				delete pParams["BAGNO_VIP"];
+			}
+			if(pParams["BAGNO_LAST5"] !== undefined){
+				_SQLCommand += " AND FLL_BAGNO LIKE '%" + pParams["BAGNO_LAST5"] + "'";
+				delete pParams["BAGNO_LAST5"];
+			}
+			if(pParams["BAGNO_RANGE3"] !== undefined && pParams["BAGNO_RANGE5_START"] !== undefined && pParams["BAGNO_RANGE5_END"] !== undefined){
+				var _bagnoStart = pParams["BAGNO_RANGE3"] + pParams["BAGNO_RANGE5_START"],
+					_bagnoEnd = pParams["BAGNO_RANGE3"] + pParams["BAGNO_RANGE5_END"];
+				console.log(_bagnoStart, _bagnoEnd);
+				_SQLCommand += " AND FLL_BAGNO BETWEEN '" + _bagnoStart + "' AND '" + _bagnoEnd + "'";
+				
+				delete pParams["BAGNO_RANGE3"];
+				delete pParams["BAGNO_RANGE5_START"];
+				delete pParams["BAGNO_RANGE5_END"];
+			}
+
 			_SQLCommand += " GROUP BY OL_SEQ, \
 									 OL_CO_CODE, \
 									 OL_MASTER, \

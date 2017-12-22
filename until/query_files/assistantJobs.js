@@ -63,7 +63,8 @@ module.exports = function(pQueryname, pParams){
 										/*表示尚未派單*/ \
 										ELSE '0' END \
 									) AS 'W2_STATUS', \
-									W2_OE.OE_PRINCIPAL AS 'W2_PRINCIPAL' \
+									W2_OE.OE_PRINCIPAL AS 'W2_PRINCIPAL', \
+									CAST(0 AS BIT) AS isSelected \
 							FROM ( \
 								SELECT * \
 								FROM ORDER_LIST \

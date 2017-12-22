@@ -367,6 +367,7 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
         masterToBeFilledOptions : {
             data:  '$vm.masterToBeFilledData',
             columnDefs: [
+                { name: 'Index'                  ,  displayName: '序列', width: 50, enableFiltering: false },
                 { name: 'OL_IMPORTDT'            ,  displayName: '進口日期', cellFilter: 'dateFilter' },
                 // { name: 'OL_CO_CODE'             ,  displayName: '行家', cellFilter: 'compyFilter', filter: 
                 //     {
@@ -1003,6 +1004,13 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
         pullGoodsOptions : {
             data:  '$vm.pullGoodsData',
             columnDefs: [
+                { name: 'isSelected'    , displayName: '選擇', width: 50, pinnedLeft:true, enableCellEdit: false, cellFilter: 'booleanFilter', filter: 
+                    {
+                        term: null,
+                        type: uiGridConstants.filter.SELECT,
+                        selectOptions: bool
+                    }
+                },
                 { name: 'OL_IMPORTDT'   , displayName: '進口日期', cellFilter: 'dateFilter' },
                 // { name: 'OL_CO_CODE'    , displayName: '行家', cellFilter: 'compyFilter', cellFilter: 'compyFilter', filter: 
                 //     {
@@ -1049,11 +1057,23 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
             enableFiltering: true,
             enableSorting: true,
             enableColumnMenus: false,
+            enableRowSelection: true,
+            enableSelectAll: true,
             // enableVerticalScrollbar: false,
             paginationPageSizes: [10, 25, 50, 100],
             paginationPageSize: 100,
             onRegisterApi: function(gridApi){
                 $vm.pullGoodsGridApi = gridApi;
+
+                gridApi.selection.on.rowSelectionChanged($scope, function(rowEntity, colDef, newValue, oldValue){
+                    rowEntity.entity["isSelected"] = rowEntity.isSelected;
+                });
+
+                gridApi.selection.on.rowSelectionChangedBatch($scope, function(rowEntity, colDef, newValue, oldValue){
+                    for(var i in rowEntity){
+                        rowEntity[i].entity["isSelected"] = rowEntity[i].isSelected;
+                    }
+                });
             }
         }
     });
@@ -1110,7 +1130,10 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
                 // DEPTS : $vm.profile.DEPTS
             }
         }).then(function (res){
-            console.log(res["returnData"]);
+            // console.log(res["returnData"]);
+            for(var i=0;i<res["returnData"].length;i++){
+                res["returnData"][i]["Index"] = i+1;
+            }
             $vm.masterToBeFilledData = res["returnData"];
         }); 
     };
@@ -1120,10 +1143,19 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
             querymain: 'assistantJobs',
             queryname: 'SelectPullGoods'
         }).then(function (res){
-            console.log(res["returnData"]);
+            // console.log(res["returnData"]);
             $vm.pullGoodsData = res["returnData"];
         }); 
     };
+
+    /**
+     * [ClearSelectedColumn description] isSelected設為否
+     */
+    function ClearSelectedColumn(){
+        for(var i in $vm.pullGoodsData){
+            $vm.pullGoodsData[i].isSelected = false;
+        }
+    }
 
 })
 .controller('ModifyPullGoodsModalInstanceCtrl', function ($uibModalInstance) {
