@@ -732,7 +732,7 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
                 queryname: 'SelectOrderPrinpl',
                 params: {
                     OP_DEPT : $vm.selectAssignDept,
-                    OP_SEQ : _seq
+                    OP_MULTI_SEQ : _seq.toString()
                 }
             }).then(function (resB){
                 

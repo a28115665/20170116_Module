@@ -183,8 +183,8 @@ module.exports = function(pQueryname, pParams){
 			if(pParams["OP_DEPT"] !== undefined){
 				_SQLCommand += " AND OP_DEPT = @OP_DEPT";
 			}
-			if(pParams["OP_SEQ"] !== undefined){
-				_SQLCommand += " AND OP_SEQ IN ('" + pParams["OP_SEQ"].join("','") + "')";
+			if(pParams["OP_MULTI_SEQ"] !== undefined){
+				_SQLCommand += " AND OP_SEQ IN ('" + pParams["OP_MULTI_SEQ"].replace(/,/g, "','") + "')";
 			}
 		
 			break;
