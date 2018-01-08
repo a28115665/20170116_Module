@@ -1,6 +1,6 @@
 "use strict";
 
-angular.module('app.selfwork').controller('LeaderHistorySearchCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, RestfulApi, $filter, compy, bool, uiGridConstants, localStorageService, ToolboxApi) {
+angular.module('app.selfwork').controller('LeaderHistorySearchCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, RestfulApi, $filter, compy, userInfo, bool, uiGridConstants, localStorageService, ToolboxApi) {
     
     var $vm = this;
 
@@ -51,6 +51,7 @@ angular.module('app.selfwork').controller('LeaderHistorySearchCtrl', function ($
                         table: 18,
                         params: {
                             OL_IMPORTDT : selectedItem.OL_IMPORTDT,
+                            OL_REAL_IMPORTDT : selectedItem.OL_REAL_IMPORTDT,
                             OL_CO_CODE  : selectedItem.OL_CO_CODE,
                             OL_FLIGHTNO : selectedItem.OL_FLIGHTNO,
                             OL_MASTER   : selectedItem.OL_MASTER,
@@ -144,6 +145,26 @@ angular.module('app.selfwork').controller('LeaderHistorySearchCtrl', function ($
                     {
                         return row.entity.OL_REASON
                     } 
+                },
+                { name: 'W2_STATUS'   ,  displayName: '狀態', width: 80, cellTemplate: $templateCache.get('accessibilityToForW2'), filter: 
+                    {
+                        term: null,
+                        type: uiGridConstants.filter.SELECT,
+                        selectOptions: [
+                            // {label:'未派單', value: '0'},
+                            {label:'已派單', value: '1'},
+                            {label:'已編輯', value: '2'},
+                            {label:'已完成', value: '3'},
+                            {label:'非作業員'  , value: '4'}
+                        ]
+                    }
+                },
+                { name: 'W2_PRINCIPAL',  displayName: '負責人', cellFilter: 'userInfoFilter', filter: 
+                    {
+                        term: null,
+                        type: uiGridConstants.filter.SELECT,
+                        selectOptions: userInfo
+                    }
                 },
                 { name: 'Options'     ,  displayName: '功能', enableFiltering: false, width: '12%', cellTemplate: $templateCache.get('accessibilityToMForLeaderSearch') }
             ],

@@ -47,6 +47,14 @@ module.exports = function(pQueryname, pParams){
 				_SQLCommand += " AND OL_CR_DATETIME <= '" + pParams["CRDT_TOXX"] + "'";
 				delete pParams["CRDT_TOXX"];
 			}
+			if(pParams["REAL_IMPORTDT_FROM"] !== undefined){
+				_SQLCommand += " AND OL_REAL_IMPORTDT >= '" + pParams["REAL_IMPORTDT_FROM"] + "'";
+				delete pParams["REAL_IMPORTDT_FROM"];
+			}
+			if(pParams["REAL_IMPORTDT_TOXX"] !== undefined){
+				_SQLCommand += " AND OL_REAL_IMPORTDT <= '" + pParams["REAL_IMPORTDT_TOXX"] + "'";
+				delete pParams["REAL_IMPORTDT_TOXX"];
+			}
 			if(pParams["IMPORTDT_FROM"] !== undefined){
 				_SQLCommand += " AND OL_IMPORTDT >= '" + pParams["IMPORTDT_FROM"] + "'";
 				delete pParams["IMPORTDT_FROM"];
@@ -84,6 +92,31 @@ module.exports = function(pQueryname, pParams){
 					_SQLCommand += " AND OL_FDATETIME IS NULL";
 				}
 				delete pParams["FINISH"];
+			}
+
+			if(pParams["BAGNO"] !== undefined && pParams["BAGNO_VIP"] == undefined){
+				_SQLCommand += " AND FLL_BAGNO LIKE '" + pParams["BAGNO"] + "%'";
+				delete pParams["BAGNO"];
+				delete pParams["BAGNO_VIP"];
+			}
+			if(pParams["BAGNO"] !== undefined && pParams["BAGNO_VIP"] !== undefined){
+				_SQLCommand += " AND FLL_BAGNO = '" + pParams["BAGNO"] + "-" + pParams["BAGNO_VIP"] + "'";
+				delete pParams["BAGNO"];
+				delete pParams["BAGNO_VIP"];
+			}
+			if(pParams["BAGNO_LAST5"] !== undefined){
+				_SQLCommand += " AND FLL_BAGNO LIKE '%" + pParams["BAGNO_LAST5"] + "'";
+				delete pParams["BAGNO_LAST5"];
+			}
+			if(pParams["BAGNO_RANGE3"] !== undefined && pParams["BAGNO_RANGE5_START"] !== undefined && pParams["BAGNO_RANGE5_END"] !== undefined){
+				var _bagnoStart = pParams["BAGNO_RANGE3"] + pParams["BAGNO_RANGE5_START"],
+					_bagnoEnd = pParams["BAGNO_RANGE3"] + pParams["BAGNO_RANGE5_END"];
+				console.log(_bagnoStart, _bagnoEnd);
+				_SQLCommand += " AND FLL_BAGNO BETWEEN '" + _bagnoStart + "' AND '" + _bagnoEnd + "'";
+				
+				delete pParams["BAGNO_RANGE3"];
+				delete pParams["BAGNO_RANGE5_START"];
+				delete pParams["BAGNO_RANGE5_END"];
 			}
 
 			_SQLCommand += " GROUP BY OL_SEQ, \

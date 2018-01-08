@@ -209,6 +209,7 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
                         table: 18,
                         params: {
                             OL_IMPORTDT : selectedItem.OL_IMPORTDT,
+                            OL_REAL_IMPORTDT : selectedItem.OL_REAL_IMPORTDT,
                             OL_CO_CODE  : selectedItem.OL_CO_CODE,
                             OL_FLIGHTNO : selectedItem.OL_FLIGHTNO,
                             OL_MASTER   : selectedItem.OL_MASTER,
@@ -731,7 +732,7 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
                 queryname: 'SelectOrderPrinpl',
                 params: {
                     OP_DEPT : $vm.selectAssignDept,
-                    OP_SEQ : _seq
+                    OP_MULTI_SEQ : _seq.toString()
                 }
             }).then(function (resB){
                 

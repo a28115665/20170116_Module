@@ -40,9 +40,13 @@ angular.module('app')
     $templateCache.put('accessibilityToArrivalRemark', '\
                         <div class="ui-grid-cell-contents text-center" ng-switch="row.entity.FA_ARRIVAL_REMK">\
                             <span class="label bg-color-green" ng-switch-when="抵達">{{row.entity.FA_ARRIVAL_REMK}}</span>\
+                            <span class="label bg-color-green" ng-switch-when="已到ARRIVED">{{row.entity.FA_ARRIVAL_REMK}}</span>\
                             <span class="label bg-color-orange" ng-switch-when="時間更改">{{row.entity.FA_ARRIVAL_REMK}}</span>\
+                            <span class="label bg-color-orange" ng-switch-when="時間更改SCHEDULE CHANGE">{{row.entity.FA_ARRIVAL_REMK}}</span>\
                             <span class="label bg-color-blue" ng-switch-when="準時">{{row.entity.FA_ARRIVAL_REMK}}</span>\
+                            <span class="label bg-color-blue" ng-switch-when="準時ON TIME">{{row.entity.FA_ARRIVAL_REMK}}</span>\
                             <span class="label bg-color-red" ng-switch-when="延誤">{{row.entity.FA_ARRIVAL_REMK}}</span>\
+                            <span class="label bg-color-red" ng-switch-when="延遲DELAY">{{row.entity.FA_ARRIVAL_REMK}}</span>\
                             <span class="label bg-color-blueDark" ng-switch-when="取消">{{row.entity.FA_ARRIVAL_REMK}}</span>\
                             <span class="label bg-color-magenta" ng-switch-when="提早">{{row.entity.FA_ARRIVAL_REMK}}</span>\
                             <span class="label bg-color-redLight" ng-switch-when="加班">{{row.entity.FA_ARRIVAL_REMK}}</span>\
@@ -261,7 +265,13 @@ angular.module('app')
                                     <div class="form-group"> \
                                         <label class="col-md-2 control-label">進口日期</label> \
                                         <div class="col-md-10"> \
-                                            <input class="form-control" name="OL_IMPORTDT" type="text" ng-model="$ctrl.mdData.OL_IMPORTDT" ui-mask="9999-99-99" ui-mask-placeholder ui-mask-placeholder-char="_" placeholder="請輸入公佈日期 (西元 年-月-日)" model-view-value="true"/> \
+                                            <input class="form-control" name="OL_IMPORTDT" type="text" ng-model="$ctrl.mdData.OL_IMPORTDT" ui-mask="9999-99-99" ui-mask-placeholder ui-mask-placeholder-char="_" placeholder="請輸入進口日期 (西元 年-月-日)" model-view-value="true"/> \
+                                        </div> \
+                                    </div> \
+                                    <div class="form-group"> \
+                                        <label class="col-md-2 control-label">報機日期</label> \
+                                        <div class="col-md-10"> \
+                                            <input class="form-control" name="OL_REAL_IMPORTDT" type="text" ng-model="$ctrl.mdData.OL_REAL_IMPORTDT" ui-mask="9999-99-99" ui-mask-placeholder ui-mask-placeholder-char="_" placeholder="請輸入報機日期 (西元 年-月-日)" model-view-value="true"/> \
                                         </div> \
                                     </div> \
                                     <div class="form-group"> \
@@ -355,6 +365,7 @@ angular.module('app')
             $ctrl.mdData.OL_COUNTRY = $ctrl.mdData.OL_COUNTRY.toUpperCase();
         }
         $ctrl.mdData.OL_IMPORTDT = $ctrl.mdData.OL_IMPORTDT == "" ? null : $ctrl.mdData.OL_IMPORTDT;
+        $ctrl.mdData.OL_REAL_IMPORTDT = $ctrl.mdData.OL_REAL_IMPORTDT == "" ? null : $ctrl.mdData.OL_REAL_IMPORTDT;
         $uibModalInstance.close($ctrl.mdData);
     };
 
