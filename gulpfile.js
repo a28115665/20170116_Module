@@ -11,6 +11,7 @@ var gulpLivereload = require('gulp-livereload');
 var _ = require('lodash');
 var gulpHtmlVersion = require('gulp-html-version');
 var jsonModify = require('gulp-json-modify');
+var stripDebug = require('gulp-strip-debug');
 
 
 var scripts = require('./app.scripts.json');
@@ -102,7 +103,8 @@ gulp.task('move-public', ['clean', 'version'], function(e){
 
     gulp.src('api/**/*.*').pipe(gulp.dest(destinations['public'] + '/api'));
     gulp.src('app/**/' + source.js.html).pipe(gulp.dest(destinations['public'] + '/app'));
-    gulp.src('build/**/*.*').pipe(gulp.dest(destinations['public'] + '/build'));
+    // 拿掉console
+    gulp.src('build/**/*.*').pipe(stripDebug()).pipe(gulp.dest(destinations['public'] + '/build'));
     gulp.src('sound/**/*.*').pipe(gulp.dest(destinations['public'] + '/sound'));
     gulp.src('styles/**/*.*').pipe(gulp.dest(destinations['public'] + '/styles'));
 

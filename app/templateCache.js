@@ -40,9 +40,13 @@ angular.module('app')
     $templateCache.put('accessibilityToArrivalRemark', '\
                         <div class="ui-grid-cell-contents text-center" ng-switch="row.entity.FA_ARRIVAL_REMK">\
                             <span class="label bg-color-green" ng-switch-when="抵達">{{row.entity.FA_ARRIVAL_REMK}}</span>\
+                            <span class="label bg-color-green" ng-switch-when="已到ARRIVED">{{row.entity.FA_ARRIVAL_REMK}}</span>\
                             <span class="label bg-color-orange" ng-switch-when="時間更改">{{row.entity.FA_ARRIVAL_REMK}}</span>\
+                            <span class="label bg-color-orange" ng-switch-when="時間更改SCHEDULE CHANGE">{{row.entity.FA_ARRIVAL_REMK}}</span>\
                             <span class="label bg-color-blue" ng-switch-when="準時">{{row.entity.FA_ARRIVAL_REMK}}</span>\
+                            <span class="label bg-color-blue" ng-switch-when="準時ON TIME">{{row.entity.FA_ARRIVAL_REMK}}</span>\
                             <span class="label bg-color-red" ng-switch-when="延誤">{{row.entity.FA_ARRIVAL_REMK}}</span>\
+                            <span class="label bg-color-red" ng-switch-when="延遲DELAY">{{row.entity.FA_ARRIVAL_REMK}}</span>\
                             <span class="label bg-color-blueDark" ng-switch-when="取消">{{row.entity.FA_ARRIVAL_REMK}}</span>\
                             <span class="label bg-color-magenta" ng-switch-when="提早">{{row.entity.FA_ARRIVAL_REMK}}</span>\
                             <span class="label bg-color-redLight" ng-switch-when="加班">{{row.entity.FA_ARRIVAL_REMK}}</span>\

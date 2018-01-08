@@ -13,7 +13,7 @@ var GetCargoAircraftTime = function (){
 	    // $filter=startswith(ArrivalGate, '5') and (ArrivalAirportID eq 'TPE' or ArrivalAirportID eq 'TSA') and ArrivalTerminal eq '1'&$top=100&$format=JSON
 	    // AirlineID B7 BR CA CI CX CZ HX IT KA MU NH NX VJ ZH
 	    // $filter=(ArrivalAirportID eq 'TPE' or ArrivalAirportID eq 'TSA') and (AirlineID eq 'B7' or AirlineID eq 'BR' or AirlineID eq 'CA' or AirlineID eq 'CI' or AirlineID eq 'CX' or AirlineID eq 'CZ' or AirlineID eq 'HX' or AirlineID eq 'IT' or AirlineID eq 'KA' or AirlineID eq 'MU' or AirlineID eq 'NH' or AirlineID eq 'NX' or AirlineID eq 'VJ' or AirlineID eq 'ZH')&$top=100&$format=JSON
-	    path: "/MOTC/v2/Air/FIDS/Flight?$filter=(ArrivalAirportID%20eq%20%27TPE%27%20or%20ArrivalAirportID%20eq%20%27TSA%27)%20and%20(AirlineID%20eq%20%27B7%27%20or%20AirlineID%20eq%20%27BR%27%20or%20AirlineID%20eq%20%27CA%27%20or%20AirlineID%20eq%20%27CI%27%20or%20AirlineID%20eq%20%27CX%27%20or%20AirlineID%20eq%20%27CZ%27%20or%20AirlineID%20eq%20%27HX%27%20or%20AirlineID%20eq%20%27IT%27%20or%20AirlineID%20eq%20%27KA%27%20or%20AirlineID%20eq%20%27MU%27%20or%20AirlineID%20eq%20%27NH%27%20or%20AirlineID%20eq%20%27NX%27%20or%20AirlineID%20eq%20%27VJ%27%20or%20AirlineID%20eq%20%27ZH%27)&$top=500&$format=JSON",
+	    path: "/MOTC/v2/Air/FIDS/Flight?$filter=(ArrivalAirportID%20eq%20%27TPE%27%20or%20ArrivalAirportID%20eq%20%27TSA%27)%20and%20(AirlineID%20eq%20%27B7%27%20or%20AirlineID%20eq%20%27BR%27%20or%20AirlineID%20eq%20%27CA%27%20or%20AirlineID%20eq%20%27CI%27%20or%20AirlineID%20eq%20%27CX%27%20or%20AirlineID%20eq%20%27CZ%27%20or%20AirlineID%20eq%20%27HX%27%20or%20AirlineID%20eq%20%27IT%27%20or%20AirlineID%20eq%20%27KA%27%20or%20AirlineID%20eq%20%27MU%27%20or%20AirlineID%20eq%20%27NH%27%20or%20AirlineID%20eq%20%27NX%27%20or%20AirlineID%20eq%20%27VJ%27%20or%20AirlineID%20eq%20%27ZH%27)&$top=700&$format=JSON",
 	    method: 'GET',
         headers: { 
         	'Content-Type': 'application/json; charset=utf-8',
@@ -40,17 +40,17 @@ var GetCargoAircraftTime = function (){
 
 	            post_res.on('end', function(){
 	            	var upsertData = JSON.parse(content),
-	            		_conditions = [];
+	            		_conditions = [],
+	            		_noFlightDate = 0;
 	            	console.log("航班資訊總筆數:", upsertData.length);
 
 	            	// 有資料再request
 	            	if(upsertData.length > 0){
-
 		            	for(var i in upsertData){
 		            		// console.log("ScheduleArrivalTime=>",moment(upsertData[i].ScheduleArrivalTime).format('YYYY-MM-DD HH:mm:ss'));
 		            		// console.log("ActualArrivalTime=>",moment(upsertData[i].ActualArrivalTime).format('YYYY-MM-DD HH:mm:ss'));
 		            		// console.log("UpdateTime=>",moment(upsertData[i].UpdateTime).format('YYYY-MM-DD HH:mm:ss'));
-		            		
+
 		            		// 某些資料會沒有起飛日期
 		            		if(upsertData[i].FlightDate){
 			            		_conditions.push(JSON.stringify({
@@ -78,6 +78,8 @@ var GetCargoAircraftTime = function (){
 										FA_AIR_LINEID : upsertData[i].AirlineID
 									}
 			            		}));
+		            		}else{
+		            			_noFlightDate++;
 		            		}
 
 							// 每100筆就request
@@ -113,6 +115,7 @@ var GetCargoAircraftTime = function (){
 							}
 		            	}
         				console.log("已更新航班資訊筆數:", _conditions.length);
+		            	console.log("無起飛日期筆數(不更新):", _noFlightDate);
 
 		            	// 剩餘筆數
 	        			var _post_upsertData = querystring.stringify(_conditions);

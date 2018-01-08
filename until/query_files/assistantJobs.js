@@ -263,7 +263,7 @@ module.exports = function(pQueryname, pParams){
 			}
 
 			_SQLCommand += " ORDER BY FA_SCHEDL_ARRIVALTIME ";
-
+			
 			break;
 
 		case "SelectBagNoDetail":
