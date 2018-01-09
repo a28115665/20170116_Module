@@ -94,6 +94,12 @@
 							        	<form class="form-inline" role="form">
 							                <fieldset>
 							                    <div class="form-group">
+										            <button class="btn btn-warning"
+										            		ng-click="$vm.ModifyDescription()">
+										                修改品名
+										            </button>
+							                    </div>
+							                    <div class="form-group">
 										            <button class="btn btn-primary"
 										            		ng-click="$vm.Add()">
 										                新增
@@ -138,6 +144,28 @@
 	</section>
 
 </div>
+
+<script type="text/ng-template" id="modifyDescriptionModalContent.html">
+    <div class="modal-header" ng-init="$ctrl.Init()">
+	    <h3 class="modal-title" id="modal-title">修改品名</h3>
+	</div>
+	<div class="modal-body" id="modal-body">
+	    <form class="form-horizontal" name="modifyDescriptionForm">
+			<fieldset>
+				<div class="form-group">
+			        <label class="col-md-2 control-label">品名</label>
+			        <div class="col-md-10">
+			        	<input class="form-control" ng-model="$ctrl.mdData.FLL_DESCRIPTION" type="text" maxlength="50">
+			        </div>
+			    </div>
+			</fieldset>
+	    </form>
+	</div>
+	<div class="modal-footer">
+	    <button class="btn btn-primary" type="button" ng-click="$ctrl.ok()" ng-disabled="!modifyDescriptionForm.$valid">{{getWord('OK')}}</button>
+	    <button class="btn btn-default" type="button" ng-click="$ctrl.cancel()">{{getWord('Cancel')}}</button>
+	</div>
+</script>
 
 <script type="text/ng-template" id="addItemModalContent.html">
     <div class="modal-header" ng-init="$ctrl.Init()">

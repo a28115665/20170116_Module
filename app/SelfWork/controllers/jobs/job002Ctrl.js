@@ -66,6 +66,62 @@ angular.module('app.selfwork').controller('Job002Ctrl', function ($scope, $state
                 gridApi.rowEdit.on.saveRow($scope, $vm.Update);
             }
         },
+        // 修改品名
+        ModifyDescription: function(){
+
+            if($vm.job002GridApi.selection.getSelectedRows().length > 0){
+                var modalInstance = $uibModal.open({
+                    animation: true,
+                    ariaLabelledBy: 'modal-title',
+                    ariaDescribedBy: 'modal-body',
+                    templateUrl: 'modifyDescriptionModalContent.html',
+                    controller: 'ModifyDescriptionModalInstanceCtrl',
+                    controllerAs: '$ctrl',
+                    // size: 'lg',
+                    // appendTo: parentElem,
+                });
+
+                modalInstance.result.then(function(selectedItem) {
+                    // console.log(selectedItem);
+
+                    var _tasks = [];
+
+                    for(var i in $vm.job002GridApi.selection.getSelectedRows()){
+                        _tasks.push({
+                            crudType: 'Update',
+                            table: 10,
+                            params: {
+                                FLL_DESCRIPTION : selectedItem.FLL_DESCRIPTION,
+                                FLL_UP_USER     : $vm.profile.U_ID,
+                                FLL_UP_DATETIME : $filter('date')(new Date, 'yyyy-MM-dd HH:mm:ss')
+                            },
+                            condition: {
+                                FLL_SEQ         : $vm.job002GridApi.selection.getSelectedRows()[i].FLL_SEQ,
+                                FLL_IL_NEWBAGNO : $vm.job002GridApi.selection.getSelectedRows()[i].FLL_IL_NEWBAGNO
+                            }
+                        })
+                    }
+                    console.log(_tasks);
+
+                    RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res){
+                        if(res["returnData"].length > 0){
+
+                            LoadFlightItemList();
+                            toaster.pop('success', '訊息', '更新成功', 3000);
+                        }
+                    }, function (err) {
+                        toaster.pop('danger', '錯誤', '更新失敗', 3000);
+                    }).finally(function(){
+                        $vm.job002GridApi.selection.clearSelectedRows();
+                    }); 
+
+                }, function() {
+                    // $log.info('Modal dismissed at: ' + new Date());
+                });
+            }else{
+                toaster.pop('info', '訊息', '未選擇需要被更新的項目', 3000);
+            }
+        },
         // 新增
         Add: function(){
 
@@ -162,6 +218,8 @@ angular.module('app.selfwork').controller('Job002Ctrl', function ($scope, $state
                 }, function() {
                     // $log.info('Modal dismissed at: ' + new Date());
                 });
+            }else{
+                toaster.pop('info', '訊息', '未選擇需要被刪除的項目', 3000);
             }
         },
         // 匯出Excel
@@ -435,6 +493,23 @@ angular.module('app.selfwork').controller('Job002Ctrl', function ($scope, $state
     };
 
 })
+.controller('ModifyDescriptionModalInstanceCtrl', function ($uibModalInstance) {
+    var $ctrl = this;
+
+    $ctrl.Init = function(){
+        $ctrl.mdData = {
+            FLL_DESCRIPTION : "CHANDLERY"
+        };
+    }
+
+    $ctrl.ok = function() {
+        $uibModalInstance.close($ctrl.mdData);
+    };
+
+    $ctrl.cancel = function() {
+        $uibModalInstance.dismiss('cancel');
+    };
+})
 .controller('AddItemModalInstanceCtrl', function ($uibModalInstance, items) {
     var $ctrl = this;
 
@@ -446,7 +521,7 @@ angular.module('app.selfwork').controller('Job002Ctrl', function ($scope, $state
                 FLL_SEQ : _temp.FLL_SEQ,
                 FLL_ITEM : parseInt(_temp.FLL_ITEM) + 1,
                 FLL_IL_NEWBAGNO : _temp.FLL_SEQ + padLeft("0" + parseInt(_temp.FLL_ITEM), 3),
-                FLL_DESCRIPTION : "CONSOL SAMPLE",
+                FLL_DESCRIPTION : "CHANDLERY",
                 FLL_DECLAREDNO : "",
                 FLL_REMARK : "請進遠雄快遞倉"
             };
