@@ -193,6 +193,74 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                 //     // $log.info('Modal dismissed at: ' + new Date());
                 // });
             },
+            // 刪除
+            deleteData : function(){
+
+                if($vm.job001GridApi.selection.getSelectedRows().length > 0){
+
+                    if($vm.job001GridApi.selection.getSelectedRows().length > 100){
+                        toaster.pop('warning', '警告', '超過100筆，請重新選擇', 3000);
+                        return;
+                    }
+
+                    var modalInstance = $uibModal.open({
+                        animation: true,
+                        ariaLabelledBy: 'modal-title',
+                        ariaDescribedBy: 'modal-body',
+                        template: $templateCache.get('isChecked'),
+                        controller: 'IsCheckedModalInstanceCtrl',
+                        controllerAs: '$ctrl',
+                        size: 'sm',
+                        windowClass: 'center-modal',
+                        // appendTo: parentElem,
+                        resolve: {
+                            items: function() {
+                                return {};
+                            },
+                            show: function(){
+                                return {
+                                    title : "是否刪除"
+                                }
+                            }
+                        }
+                    });
+
+                    modalInstance.result.then(function(selectedItem) {
+
+                        var _tasks = [],
+                            _d = new Date();
+
+                        // Delete資料
+                        for(var i in $vm.job001GridApi.selection.getSelectedRows()){
+                            _tasks.push({
+                                crudType: 'Delete',
+                                table: 9,
+                                params: {
+                                    IL_SEQ         : $vm.job001GridApi.selection.getSelectedRows()[i].IL_SEQ,
+                                    IL_NEWBAGNO    : $vm.job001GridApi.selection.getSelectedRows()[i].IL_NEWBAGNO,
+                                    IL_NEWSMALLNO  : $vm.job001GridApi.selection.getSelectedRows()[i].IL_NEWSMALLNO,
+                                    IL_ORDERINDEX  : $vm.job001GridApi.selection.getSelectedRows()[i].IL_ORDERINDEX
+                                }
+                            });
+                        }
+
+                        RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res){
+                            if(res["returnData"].length > 0){
+                                toaster.pop('success', '訊息', '刪除資料成功', 3000);
+                            }
+                        }, function (err) {
+                            toaster.pop('danger', '錯誤', '刪除資料失敗', 3000);
+                        }).finally(function(){
+                            $vm.job001GridApi.selection.clearSelectedRows();
+                            // ClearSelectedColumn();
+                            LoadItemList();
+                        });  
+
+                    }, function() {
+                        // $log.info('Modal dismissed at: ' + new Date());
+                    });
+                }
+            },
             // 拉貨
             pullGoods : function(row){
                 console.log(row.entity);
