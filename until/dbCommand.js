@@ -28,13 +28,14 @@ var SelectMethod = function (querymain, queryname, params, callback){
 
 	try {
 		var connection = new sql.Connection(setting.MSSQL, function (Error) {  
-		    if (Error) return;
+		    if (Error) return callback(err, null);
 
 			var ps = new sql.PreparedStatement(connection),
 				_params = typeof params == "string" ? JSON.parse(params) : {},
 				SQLCommand = "";
 
 			// 依querymain至各檔案下查詢method
+			if(querymain == undefined) return callback("異常的querymain", null);
 			SQLCommand = queryMethods[querymain](queryname, _params);
 			
 			// schema所需的orm
@@ -129,7 +130,7 @@ var InsertMethod = function (insertname, table, params, callback){
 			// 執行SQL，並且回傳值
 		    ps.prepare(SQLCommand, function(err) {
 			    // ... error checks
-			    if(err) return;
+			    if(err) return callback(err, null, preparedToStatement.PrintSql(SQLCommand, _params));
 			    
 			    /*
 			    	recordset -> 回傳值
@@ -138,7 +139,7 @@ var InsertMethod = function (insertname, table, params, callback){
 				ps.execute(_params, function(err, recordset, affected) {
 					// console.log(err, recordset, affected);
 					// ... error checks
-					if(err) return;
+					if(err) return callback(err, null, preparedToStatement.PrintSql(SQLCommand, _params));
 
 					ps.unprepare(function(err) {
 					    // ... error checks
@@ -231,7 +232,7 @@ var UpdateMethod = function (updatetname, table, params, condition, callback){
 			// 執行SQL，並且回傳值
 		    ps.prepare(SQLCommand, function(err) {
 			    // ... error checks
-			    if(err) return; 
+			    if(err) return callback(err, null, preparedToStatement.PrintSql(SQLCommand, _psParams)); 
 			    
 			    /*
 			    	recordset -> 回傳值
@@ -240,7 +241,7 @@ var UpdateMethod = function (updatetname, table, params, condition, callback){
 				ps.execute(_psParams, function(err, recordset, affected) {
 					// console.log(err, recordset, affected);
 					// ... error checks
-					if(err) return; 
+					if(err) return callback(err, null, preparedToStatement.PrintSql(SQLCommand, _psParams)); 
 
 					ps.unprepare(function(err) {
 					    // ... error checks
@@ -329,7 +330,7 @@ var UpsertMethod = function (upsertname, table, params, condition, callback){
 			// 執行SQL，並且回傳值
 		    ps.prepare(SQLCommand, function(err) {
 			    // ... error checks
-			    if(err) return; 
+			    if(err) return callback(err, null, preparedToStatement.PrintSql(SQLCommand, _psParams)); 
 			    
 			    /*
 			    	recordset -> 回傳值
@@ -338,7 +339,7 @@ var UpsertMethod = function (upsertname, table, params, condition, callback){
 				ps.execute(_psParams, function(err, recordset, affected) {
 					// console.log(err, recordset, affected);
 					// ... error checks
-					if(err) return; 
+					if(err) return callback(err, null, preparedToStatement.PrintSql(SQLCommand, _psParams)); 
 
 					ps.unprepare(function(err) {
 					    // ... error checks
@@ -396,7 +397,7 @@ var DeleteMethod = function (deletename, table, params, callback){
 			// 執行SQL，並且回傳值
 		    ps.prepare(SQLCommand, function(err) {
 			    // ... error checks
-			    if(err) return;
+			    if(err) return callback(err, null, preparedToStatement.PrintSql(SQLCommand, _params));
 			    
 			    /*
 			    	recordset -> 回傳值
@@ -405,7 +406,7 @@ var DeleteMethod = function (deletename, table, params, callback){
 				ps.execute(_params, function(err, recordset, affected) {
 					// console.log(err, recordset, affected);
 					// ... error checks
-					if(err) return;
+					if(err) return callback(err, null, preparedToStatement.PrintSql(SQLCommand, _params));
 
 					ps.unprepare(function(err) {
 					    // ... error checks

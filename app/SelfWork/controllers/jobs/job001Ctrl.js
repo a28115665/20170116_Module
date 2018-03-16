@@ -1372,8 +1372,8 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
             // console.log(entity);
 
             // create a fake promise - normally you'd use the promise returned by $http or $resource
-            var promise = $q.defer();
-            $vm.job001GridApi.rowEdit.setSavePromise( entity, promise.promise );
+            var deferred = $q.defer();
+            $vm.job001GridApi.rowEdit.setSavePromise( entity, deferred.promise );
          
             RestfulApi.UpdateMSSQLData({
                 updatename: 'Update',
@@ -1385,18 +1385,18 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                     IL_SMALLNO         : entity.IL_SMALLNO,
                     IL_NATURE_NEW      : entity.IL_NATURE_NEW,
                     IL_NEWPLACE        : entity.IL_NEWPLACE,
-                    IL_CTN             : entity.IL_CTN,
-                    IL_NEWPCS          : entity.IL_NEWPCS,
+                    IL_CTN             : angular.isNumber(entity.IL_CTN) ? entity.IL_CTN : null,
+                    IL_NEWPCS          : angular.isNumber(entity.IL_NEWPCS) ? entity.IL_NEWPCS : null,
                     IL_NEWUNIT         : entity.IL_NEWUNIT,
-                    IL_WEIGHT_NEW      : entity.IL_WEIGHT_NEW,
+                    IL_WEIGHT_NEW      : angular.isNumber(entity.IL_WEIGHT_NEW) ? entity.IL_WEIGHT_NEW : null,
                     IL_GETNO           : entity.IL_GETNO,
                     IL_NEWSENDNAME     : entity.IL_NEWSENDNAME,
                     IL_GETNAME_NEW     : entity.IL_GETNAME_NEW,
                     IL_GETADDRESS      : entity.IL_GETADDRESS,
                     IL_GETADDRESS_NEW  : entity.IL_GETADDRESS_NEW,
                     IL_GETTEL          : entity.IL_GETTEL,
-                    IL_UNIVALENT_NEW   : entity.IL_UNIVALENT_NEW,
-                    IL_FINALCOST       : entity.IL_FINALCOST,
+                    IL_UNIVALENT_NEW   : angular.isNumber(entity.IL_UNIVALENT_NEW) ? entity.IL_UNIVALENT_NEW : null,
+                    IL_FINALCOST       : angular.isNumber(entity.IL_FINALCOST) ? entity.IL_FINALCOST : null,
                     IL_TAX             : entity.IL_TAX,
                     IL_TRCOM           : entity.IL_TRCOM,
                     IL_REMARK          : entity.IL_REMARK,
@@ -1415,11 +1415,12 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                 }
             }).then(function (res) {
                 // console.log(res);
-                promise.resolve();
+                deferred.resolve();
             }, function (err) {
                 toaster.pop('danger', '錯誤', '更新失敗', 3000);
-                promise.reject();
+                deferred.reject();
             });
+            
         }
     });
 

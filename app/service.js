@@ -32,7 +32,7 @@ angular.module('app')
 	},
 
 	this.UpdateMSSQLData = function (dataSrc) {
-	    // console.log(dataSrc);
+	    // console.log("Update:", dataSrc);
 	    var deferred = $q.defer();
 
 	    Resource.CRUD.update(dataSrc, {}, 
