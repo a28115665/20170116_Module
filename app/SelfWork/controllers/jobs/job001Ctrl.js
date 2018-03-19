@@ -1369,7 +1369,7 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
         Update : function(entity){
             // console.log($vm.job001GridApi.rowEdit);
             // console.log($vm.job001GridApi.rowEdit.getDirtyRows($vm.job001GridApi.grid));
-            // console.log(entity);
+            console.log(entity, angular.isNumber(parseFloat(entity.IL_WEIGHT_NEW)), parseFloat(entity.IL_WEIGHT_NEW));
 
             // create a fake promise - normally you'd use the promise returned by $http or $resource
             var deferred = $q.defer();
@@ -1385,18 +1385,18 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                     IL_SMALLNO         : entity.IL_SMALLNO,
                     IL_NATURE_NEW      : entity.IL_NATURE_NEW,
                     IL_NEWPLACE        : entity.IL_NEWPLACE,
-                    IL_CTN             : angular.isNumber(entity.IL_CTN) ? entity.IL_CTN : null,
-                    IL_NEWPCS          : angular.isNumber(entity.IL_NEWPCS) ? entity.IL_NEWPCS : null,
+                    IL_CTN             : isNaN(parseInt(entity.IL_CTN)) ? null : entity.IL_CTN,
+                    IL_NEWPCS          : isNaN(parseInt(entity.IL_NEWPCS)) ? null : entity.IL_NEWPCS,
                     IL_NEWUNIT         : entity.IL_NEWUNIT,
-                    IL_WEIGHT_NEW      : angular.isNumber(entity.IL_WEIGHT_NEW) ? entity.IL_WEIGHT_NEW : null,
+                    IL_WEIGHT_NEW      : isNaN(parseFloat(entity.IL_WEIGHT_NEW)) ? null : entity.IL_WEIGHT_NEW,
                     IL_GETNO           : entity.IL_GETNO,
                     IL_NEWSENDNAME     : entity.IL_NEWSENDNAME,
                     IL_GETNAME_NEW     : entity.IL_GETNAME_NEW,
                     IL_GETADDRESS      : entity.IL_GETADDRESS,
                     IL_GETADDRESS_NEW  : entity.IL_GETADDRESS_NEW,
                     IL_GETTEL          : entity.IL_GETTEL,
-                    IL_UNIVALENT_NEW   : angular.isNumber(entity.IL_UNIVALENT_NEW) ? entity.IL_UNIVALENT_NEW : null,
-                    IL_FINALCOST       : angular.isNumber(entity.IL_FINALCOST) ? entity.IL_FINALCOST : null,
+                    IL_UNIVALENT_NEW   : isNaN(parseFloat(entity.IL_UNIVALENT_NEW)) ? null : entity.IL_UNIVALENT_NEW,
+                    IL_FINALCOST       : isNaN(parseFloat(entity.IL_FINALCOST)) ? null : entity.IL_FINALCOST,
                     IL_TAX             : entity.IL_TAX,
                     IL_TRCOM           : entity.IL_TRCOM,
                     IL_REMARK          : entity.IL_REMARK,
