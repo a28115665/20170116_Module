@@ -7,6 +7,7 @@ module.exports = function(pQueryname, pParams){
 								   OL_MASTER, \
 								   OL_FLIGHTNO, \
 								   OL_IMPORTDT, \
+								   OL_CR_DATETIME, \
 								   OL_COUNTRY, \
 								   PG_SEQ, \
 								   PG_BAGNO, \
@@ -15,6 +16,8 @@ module.exports = function(pQueryname, pParams){
 								   PG_MASTER, \
 								   PG_FLIGHTNO, \
 								   PG_REASON, \
+								   PG_MOVE_USER, \
+								   PG_MOVE_DATETIME, \
 								   CONVERT(varchar, OL_IMPORTDT, 23 ) AS 'OL_IMPORTDT_EX', \
 								   CO_NAME, \
 									( \
@@ -111,6 +114,12 @@ module.exports = function(pQueryname, pParams){
 											AND FLL_BAGNO IS NOT NULL AND FLL_BAGNO != '' \
 										) A \
 									) AS 'OL_FLL_COUNT', \
+									( \
+										SELECT SUM(FLL_CTN) \
+										FROM FLIGHT_ITEM_LIST \
+										WHERE FLL_SEQ = OL_SEQ \
+										AND FLL_BAGNO IS NOT NULL AND FLL_BAGNO != '' \
+									) AS 'OL_FLL_CTN_COUNT', \
 									( \
 										SELECT COUNT(1) \
 										FROM FLIGHT_MAIL_LOGS \
