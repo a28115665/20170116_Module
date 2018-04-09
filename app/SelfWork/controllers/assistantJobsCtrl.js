@@ -1168,6 +1168,7 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
             queryname: 'SelectPullGoods'
         }).then(function (res){
             // console.log(res["returnData"]);
+            $vm.pullGoodsData = [];
             $vm.pullGoodsData = res["returnData"];
         }); 
     };

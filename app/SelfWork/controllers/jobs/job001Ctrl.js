@@ -847,6 +847,85 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
             });
         },
         /**
+         * [PullGoods description] 拉貨
+         */
+        PullGoods: function(){
+            if($vm.job001GridApi.selection.getSelectedRows().length == 0) {
+                toaster.pop('info', '訊息', '尚未勾選資料。', 3000);
+                return;
+            }
+            if($vm.job001GridApi.selection.getSelectedRows().length > 100) {
+                toaster.pop('info', '訊息', '超過100筆，請重新選擇筆數', 3000);
+                return;
+            }
+
+            var modalInstance = $uibModal.open({
+                animation: true,
+                ariaLabelledBy: 'modal-title',
+                ariaDescribedBy: 'modal-body',
+                templateUrl: 'pullGoodsModalContent.html',
+                controller: 'PullGoodsModalInstanceCtrl',
+                controllerAs: '$ctrl',
+                // size: 'lg',
+                // appendTo: parentElem,
+                resolve: {
+                    vmData: function() {
+                        return {};
+                    }
+                }
+            });
+
+            modalInstance.result.then(function(selectedItem) {
+                // console.log(selectedItem);
+
+                var _seq = $vm.job001GridApi.selection.getSelectedRows()[0].IL_SEQ,
+                    _bagNo = [];
+
+                for(var i in $vm.job001GridApi.selection.getSelectedRows()){
+                    if($vm.job001GridApi.selection.getSelectedRows()[i].IL_BAGNO.length != 8){
+                        toaster.pop('warning', '警告', '序列'+$vm.job001GridApi.selection.getSelectedRows()[i].Index+'的袋號異常，拉貨中止。', 3000);
+                        return;
+                    }
+
+                    if(_bagNo.indexOf($vm.job001GridApi.selection.getSelectedRows()[i].IL_BAGNO) == -1){
+                        _bagNo.push($vm.job001GridApi.selection.getSelectedRows()[i].IL_BAGNO);
+                    }
+                }
+
+                var _task = [];
+
+                for(var i in _bagNo){
+
+                    _task.push({
+                        crudType: 'Insert',
+                        table: 19,
+                        params: {
+                            PG_SEQ         : _seq,
+                            PG_BAGNO       : _bagNo[i],
+                            PG_REASON      : selectedItem.PG_REASON,
+                            PG_CR_USER     : $vm.profile.U_ID,
+                            PG_CR_DATETIME : $filter('date')(new Date, 'yyyy-MM-dd HH:mm:ss')
+                        }
+                    });
+
+                }
+
+                RestfulApi.CRUDMSSQLDataByTask(_task).then(function (res){
+
+                    if(res["returnData"].length > 0){
+                        LoadItemList();
+
+                        // $vm.job001GridApi.selection.clearSelectedRows();
+                        // ClearSelectedColumn();
+                    }
+                });
+
+            }, function() {
+                // $log.info('Modal dismissed at: ' + new Date());
+            });
+
+        },
+        /**
          * [DoTax description] 稅則
          */
         DoTax: function(){
