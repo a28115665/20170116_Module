@@ -293,10 +293,26 @@ angular.module('app')
                                             <input class="form-control" ng-model="$ctrl.mdData.FLIGHTNO_END" placeholder="號碼" type="text" maxlength="4" ng-required="$ctrl.mdData.FLIGHTNO_START.length"> \
                                         </div> \
                                     </div> \
-                                    <div class="form-group"> \
+                                    <!--<div class="form-group"> \
                                         <label class="col-md-2 control-label">主號</label> \
                                         <div class="col-md-10"> \
                                             <input class="form-control" name="OL_MASTER" placeholder="請輸入主號" model-view-value="true" ng-model="$ctrl.mdData.OL_MASTER" type="text" ui-mask="999-99999999" ui-mask-placeholder> \
+                                        </div> \
+                                    </div>--> \
+                                    <div class="form-group"> \
+                                        <label class="col-md-2 control-label">主號</label> \
+                                        <div class="col-md-10"> \
+                                            <div class="input-group"> \
+                                                <input class="form-control" name="OL_MASTER" placeholder="請輸入主號" model-view-value="true" ng-model="$ctrl.mdData.OL_MASTER" type="text" ui-mask="999-99999999" ui-mask-placeholder> \
+                                                <div class="input-group-btn"> \
+                                                    <button class="btn btn-info" type="button" ng-click="$ctrl.ClearMaster()" ng-disabled="$ctrl.firstBagNo == null"> \
+                                                        主號清空 \
+                                                    </button> \
+                                                </div> \
+                                            </div> \
+                                            <div class="note"> \
+                                                點擊按鈕「主號清空」時，描述會帶入報機單的第一袋袋號。 \
+                                            </div> \
                                         </div> \
                                     </div> \
                                     <div class="form-group"> \
@@ -345,16 +361,39 @@ angular.module('app')
         $uibModalInstance.dismiss('cancel');
     };
 })
-.controller('ModifyOrderListModalInstanceCtrl', function ($uibModalInstance, vmData, compy) {
+.controller('ModifyOrderListModalInstanceCtrl', function ($uibModalInstance, vmData, compy, RestfulApi) {
     var $ctrl = this,
         _flightNo = vmData.OL_FLIGHTNO != null ? vmData.OL_FLIGHTNO.split(' ') : [];
+
     if(_flightNo.length == 2){
         vmData.FLIGHTNO_START = _flightNo[0];
         vmData.FLIGHTNO_END = _flightNo[1];
     }
     $ctrl.mdData = angular.copy(vmData);
     $ctrl.compy = compy;
+    $ctrl.firstBagNo = null;
+
+    // 取得此單的第一筆袋號
+    RestfulApi.SearchMSSQLData({
+        querymain: 'job001',
+        queryname: 'GetFirstBagNo',
+        params: {
+            IL_SEQ : $ctrl.mdData.OL_SEQ
+        }
+    }).then(function (res){         
+        var _data = res["returnData"] || [];
+
+        if(_data.length > 0){
+            $ctrl.firstBagNo = _data[0].IL_BAGNO;
+        }
+    }); 
     
+    $ctrl.ClearMaster = function(){
+        $ctrl.mdData.OL_MASTER = null;
+
+        $ctrl.mdData.OL_REASON += $ctrl.firstBagNo;
+    }
+
     $ctrl.ok = function() {
         if($ctrl.mdData.FLIGHTNO_START != null && $ctrl.mdData.FLIGHTNO_END != null){
             $ctrl.mdData.FLIGHTNO_START = $ctrl.mdData.FLIGHTNO_START.toUpperCase();
