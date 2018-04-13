@@ -144,12 +144,31 @@
 									<div class="widget-body-toolbar">
 									    <div class="row">
 									        <div class="col-xs-12 col-sm-12 col-md-8 col-lg-8">
-									        	<form class="form-inline" role="form">
+									        	<form class="form-inline" role="form" name="statisticsForm">
 									                <fieldset>
+									                    <div class="form-group">
+													        <label class="control-label">報機日期(起)：</label>
+													        <span>
+								            					<input class="form-control" name="CRDT_FROM" type="text" ng-model="$vm.REAL_IMPORTDT_FROM" ui-mask="9999-99-99" ui-mask-placeholder ui-mask-placeholder-char="_" placeholder="報機日期起 (西元 年-月-日)" model-view-value="true"/>
+													        </span>
+									                    </div>
+									                    <div class="form-group">
+													        <label class="control-label">報機日期(迄)：</label>
+													        <span>
+								            					<input class="form-control" name="CRDT_TOXX" type="text" ng-model="$vm.REAL_IMPORTDT_TOXX" ui-mask="9999-99-99" ui-mask-placeholder ui-mask-placeholder-char="_" placeholder="報機日期迄 (西元 年-月-日)" model-view-value="true"/>
+													        </span>
+									                    </div>
+									                    <div class="form-group">
+												            <button class="btn btn-primary"
+												            		ng-disabled="!statisticsForm.$valid"
+												            		ng-click="$vm.LoadStatistics()">
+												                {{getWord('Search')}}
+												            </button>
+									                    </div>
 									                    <div class="form-group">
 													        <label class="control-label">說明：</label>
 													        <span>
-										                    	統計今日(報機日期)全行家報機單(袋數、小號數、件數)、銷倉單(件數)的數量
+										                    	統計全行家報機單(袋數、小號數、件數)、銷倉單(件數)的數量
 													        </span>
 									                    </div>
 									                </fieldset>

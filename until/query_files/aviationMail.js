@@ -9,6 +9,24 @@ module.exports = function(pQueryname, pParams){
 							ORDER BY FM_CR_DATETIME DESC ";
 							
 			break;
+
+		case "SelectFlightMailPair":
+
+			_SQLCommand += "SELECT *, \
+								   CASE WHEN FMP_CR_USER IS NULL THEN 0 ELSE 1 END AS 'isChoice' \
+							FROM FLIGHT_MAIL \
+							LEFT JOIN ( \
+								SELECT FMP_CR_DATETIME, \
+									   FMP_CR_USER  \
+								FROM FLIGHT_MAIL_PAIR  \
+								WHERE 1=1 \
+								AND FMP_FLIGHTNO = @FMP_FLIGHTNO \
+								GROUP BY FMP_CR_DATETIME, FMP_CR_USER \
+							) FLIGHT_MAIL_PAIR ON FMP_CR_USER = FM_CR_USER AND FMP_CR_DATETIME = FM_CR_DATETIME \
+							ORDER BY FM_CR_DATETIME DESC ";
+							
+			break;
+
 		case "SelectMailAccount":
 
 			_SQLCommand += "EXEC OpenKeys;";

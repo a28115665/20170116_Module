@@ -193,6 +193,74 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                 //     // $log.info('Modal dismissed at: ' + new Date());
                 // });
             },
+            // 刪除
+            deleteData : function(){
+
+                if($vm.job001GridApi.selection.getSelectedRows().length > 0){
+
+                    if($vm.job001GridApi.selection.getSelectedRows().length > 100){
+                        toaster.pop('warning', '警告', '超過100筆，請重新選擇', 3000);
+                        return;
+                    }
+
+                    var modalInstance = $uibModal.open({
+                        animation: true,
+                        ariaLabelledBy: 'modal-title',
+                        ariaDescribedBy: 'modal-body',
+                        template: $templateCache.get('isChecked'),
+                        controller: 'IsCheckedModalInstanceCtrl',
+                        controllerAs: '$ctrl',
+                        size: 'sm',
+                        windowClass: 'center-modal',
+                        // appendTo: parentElem,
+                        resolve: {
+                            items: function() {
+                                return {};
+                            },
+                            show: function(){
+                                return {
+                                    title : "是否刪除"
+                                }
+                            }
+                        }
+                    });
+
+                    modalInstance.result.then(function(selectedItem) {
+
+                        var _tasks = [],
+                            _d = new Date();
+
+                        // Delete資料
+                        for(var i in $vm.job001GridApi.selection.getSelectedRows()){
+                            _tasks.push({
+                                crudType: 'Delete',
+                                table: 9,
+                                params: {
+                                    IL_SEQ         : $vm.job001GridApi.selection.getSelectedRows()[i].IL_SEQ,
+                                    IL_NEWBAGNO    : $vm.job001GridApi.selection.getSelectedRows()[i].IL_NEWBAGNO,
+                                    IL_NEWSMALLNO  : $vm.job001GridApi.selection.getSelectedRows()[i].IL_NEWSMALLNO,
+                                    IL_ORDERINDEX  : $vm.job001GridApi.selection.getSelectedRows()[i].IL_ORDERINDEX
+                                }
+                            });
+                        }
+
+                        RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res){
+                            if(res["returnData"].length > 0){
+                                toaster.pop('success', '訊息', '刪除資料成功', 3000);
+                            }
+                        }, function (err) {
+                            toaster.pop('danger', '錯誤', '刪除資料失敗', 3000);
+                        }).finally(function(){
+                            $vm.job001GridApi.selection.clearSelectedRows();
+                            // ClearSelectedColumn();
+                            LoadItemList();
+                        });  
+
+                    }, function() {
+                        // $log.info('Modal dismissed at: ' + new Date());
+                    });
+                }
+            },
             // 拉貨
             pullGoods : function(row){
                 console.log(row.entity);
@@ -779,6 +847,85 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
             });
         },
         /**
+         * [PullGoods description] 拉貨
+         */
+        PullGoods: function(){
+            if($vm.job001GridApi.selection.getSelectedRows().length == 0) {
+                toaster.pop('info', '訊息', '尚未勾選資料。', 3000);
+                return;
+            }
+            if($vm.job001GridApi.selection.getSelectedRows().length > 100) {
+                toaster.pop('info', '訊息', '超過100筆，請重新選擇筆數', 3000);
+                return;
+            }
+
+            var modalInstance = $uibModal.open({
+                animation: true,
+                ariaLabelledBy: 'modal-title',
+                ariaDescribedBy: 'modal-body',
+                templateUrl: 'pullGoodsModalContent.html',
+                controller: 'PullGoodsModalInstanceCtrl',
+                controllerAs: '$ctrl',
+                // size: 'lg',
+                // appendTo: parentElem,
+                resolve: {
+                    vmData: function() {
+                        return {};
+                    }
+                }
+            });
+
+            modalInstance.result.then(function(selectedItem) {
+                // console.log(selectedItem);
+
+                var _seq = $vm.job001GridApi.selection.getSelectedRows()[0].IL_SEQ,
+                    _bagNo = [];
+
+                for(var i in $vm.job001GridApi.selection.getSelectedRows()){
+                    if($vm.job001GridApi.selection.getSelectedRows()[i].IL_BAGNO.length != 8){
+                        toaster.pop('warning', '警告', '序列'+$vm.job001GridApi.selection.getSelectedRows()[i].Index+'的袋號異常，拉貨中止。', 3000);
+                        return;
+                    }
+
+                    if(_bagNo.indexOf($vm.job001GridApi.selection.getSelectedRows()[i].IL_BAGNO) == -1){
+                        _bagNo.push($vm.job001GridApi.selection.getSelectedRows()[i].IL_BAGNO);
+                    }
+                }
+
+                var _task = [];
+
+                for(var i in _bagNo){
+
+                    _task.push({
+                        crudType: 'Insert',
+                        table: 19,
+                        params: {
+                            PG_SEQ         : _seq,
+                            PG_BAGNO       : _bagNo[i],
+                            PG_REASON      : selectedItem.PG_REASON,
+                            PG_CR_USER     : $vm.profile.U_ID,
+                            PG_CR_DATETIME : $filter('date')(new Date, 'yyyy-MM-dd HH:mm:ss')
+                        }
+                    });
+
+                }
+
+                RestfulApi.CRUDMSSQLDataByTask(_task).then(function (res){
+
+                    if(res["returnData"].length > 0){
+                        LoadItemList();
+
+                        // $vm.job001GridApi.selection.clearSelectedRows();
+                        // ClearSelectedColumn();
+                    }
+                });
+
+            }, function() {
+                // $log.info('Modal dismissed at: ' + new Date());
+            });
+
+        },
+        /**
          * [DoTax description] 稅則
          */
         DoTax: function(){
@@ -1301,11 +1448,11 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
         Update : function(entity){
             // console.log($vm.job001GridApi.rowEdit);
             // console.log($vm.job001GridApi.rowEdit.getDirtyRows($vm.job001GridApi.grid));
-            // console.log(entity);
+            console.log(entity, angular.isNumber(parseFloat(entity.IL_WEIGHT_NEW)), parseFloat(entity.IL_WEIGHT_NEW));
 
             // create a fake promise - normally you'd use the promise returned by $http or $resource
-            var promise = $q.defer();
-            $vm.job001GridApi.rowEdit.setSavePromise( entity, promise.promise );
+            var deferred = $q.defer();
+            $vm.job001GridApi.rowEdit.setSavePromise( entity, deferred.promise );
          
             RestfulApi.UpdateMSSQLData({
                 updatename: 'Update',
@@ -1317,18 +1464,18 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                     IL_SMALLNO         : entity.IL_SMALLNO,
                     IL_NATURE_NEW      : entity.IL_NATURE_NEW,
                     IL_NEWPLACE        : entity.IL_NEWPLACE,
-                    IL_CTN             : entity.IL_CTN,
-                    IL_NEWPCS          : entity.IL_NEWPCS,
+                    IL_CTN             : isNaN(parseInt(entity.IL_CTN)) ? null : entity.IL_CTN,
+                    IL_NEWPCS          : isNaN(parseInt(entity.IL_NEWPCS)) ? null : entity.IL_NEWPCS,
                     IL_NEWUNIT         : entity.IL_NEWUNIT,
-                    IL_WEIGHT_NEW      : entity.IL_WEIGHT_NEW,
+                    IL_WEIGHT_NEW      : isNaN(parseFloat(entity.IL_WEIGHT_NEW)) ? null : entity.IL_WEIGHT_NEW,
                     IL_GETNO           : entity.IL_GETNO,
                     IL_NEWSENDNAME     : entity.IL_NEWSENDNAME,
                     IL_GETNAME_NEW     : entity.IL_GETNAME_NEW,
                     IL_GETADDRESS      : entity.IL_GETADDRESS,
                     IL_GETADDRESS_NEW  : entity.IL_GETADDRESS_NEW,
                     IL_GETTEL          : entity.IL_GETTEL,
-                    IL_UNIVALENT_NEW   : entity.IL_UNIVALENT_NEW,
-                    IL_FINALCOST       : entity.IL_FINALCOST,
+                    IL_UNIVALENT_NEW   : isNaN(parseFloat(entity.IL_UNIVALENT_NEW)) ? null : entity.IL_UNIVALENT_NEW,
+                    IL_FINALCOST       : isNaN(parseFloat(entity.IL_FINALCOST)) ? null : entity.IL_FINALCOST,
                     IL_TAX             : entity.IL_TAX,
                     IL_TRCOM           : entity.IL_TRCOM,
                     IL_REMARK          : entity.IL_REMARK,
@@ -1347,11 +1494,12 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                 }
             }).then(function (res) {
                 // console.log(res);
-                promise.resolve();
+                deferred.resolve();
             }, function (err) {
                 toaster.pop('danger', '錯誤', '更新失敗', 3000);
-                promise.reject();
+                deferred.reject();
             });
+            
         }
     });
 

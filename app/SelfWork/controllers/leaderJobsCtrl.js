@@ -671,6 +671,15 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
                 $vm.compyStatisticsGridApi = gridApi;
             }
         },
+        LoadStatistics : function(){
+
+            if($vm.REAL_IMPORTDT_FROM != "" && $vm.REAL_IMPORTDT_TOXX != ""){
+                LoadStatistics();
+            }else{
+                toaster.pop('info', '訊息', '請輸入報機日期區間', 3000);
+            }
+
+        },
         ExportExcel : function(){
 
             var _exportName = null,
@@ -894,6 +903,8 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
         }).then(function (res){
             console.log(res["returnData"]);
             $vm.compyStatisticsData = res["returnData"];
+
+            toaster.pop('success', '訊息', '統計查詢成功', 3000);
         });  
     };
 

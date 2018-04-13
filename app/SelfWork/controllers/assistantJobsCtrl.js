@@ -1,6 +1,6 @@
 "use strict";
 
-angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, RestfulApi, $filter, uiGridConstants, compy, bool, opType, OrderStatus, ToolboxApi, localStorageService) {
+angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, RestfulApi, $filter, uiGridConstants, compy, bool, opType, userInfo, OrderStatus, ToolboxApi, localStorageService) {
     
     var $vm = this;
 
@@ -328,10 +328,11 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
                 { name: 'FA_ACTL_ARRIVALTIME'    ,  displayName: '真實抵達時間', cellFilter: 'datetimeFilter' },
                 { name: 'FA_ARRIVAL_REMK'        ,  displayName: '狀態', width: 80, cellTemplate: $templateCache.get('accessibilityToArrivalRemark') },
                 { name: 'OL_MASTER'              ,  displayName: '主號', width: 110, cellTemplate: $templateCache.get('accessibilityToMasterForViewOrder') },
-                { name: 'OL_FLL_COUNT'           ,  displayName: '銷艙單(袋數)', width: 50 },
+                { name: 'OL_FLL_COUNT'           ,  displayName: '袋數', width: 40 },
+                { name: 'OL_FLL_CTN_COUNT'       ,  displayName: '件數', width: 40 },
                 { name: 'MAIL_COUNT'             ,  displayName: '寄信次數', width: 40 },
-                { name: 'OL_COUNTRY'             ,  displayName: '起運國別', width: 60 },
-                { name: 'OL_REASON'              ,  displayName: '描述', width: 100, cellTooltip: function (row, col) 
+                { name: 'OL_COUNTRY'             ,  displayName: '起運國別', width: 40 },
+                { name: 'OL_REASON'              ,  displayName: '描述', cellTooltip: function (row, col) 
                     {
                         return row.entity.OL_REASON
                     } 
@@ -347,6 +348,13 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
                             {label:'已完成', value: '3'},
                             {label:'非作業員'  , value: '4'}
                         ]
+                    }
+                },
+                { name: 'W3_PRINCIPAL'           ,  displayName: '負責人', width: 80, cellFilter: 'userInfoFilter', filter: 
+                    {
+                        term: null,
+                        type: uiGridConstants.filter.SELECT,
+                        selectOptions: userInfo
                     }
                 },
                 // { name: 'ITEM_LIST'           ,  displayName: '報機單', enableFiltering: false, width: '8%', cellTemplate: $templateCache.get('accessibilityToOperaForJob001') },
@@ -749,7 +757,8 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
                                 OL_CO_CODE : _data[0].OL_CO_CODE,
                                 OL_MASTER : _duplicatMasterValue,
                                 OL_FLIGHTNO : _duplicatFlightNoValue,
-                                OL_IMPORTDT : $filter('date')(new Date, 'yyyy-MM-dd'),
+                                // OL_IMPORTDT : $filter('date')(new Date, 'yyyy-MM-dd'),
+                                OL_IMPORTDT : _data[0].OL_CR_DATETIME,
                                 OL_COUNTRY : _data[0].OL_COUNTRY,
                                 OL_REASON : _text.length > 300 ? "拉貨" : _text,
                                 OE_PRINCIPAL : _data[0].W2_PRINCIPAL
@@ -830,7 +839,9 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
                         table: 19,
                         params: {
                             PG_MOVED : true,
-                            PG_MOVED_SEQ : _newSeq
+                            PG_MOVED_SEQ : _newSeq,
+                            PG_MOVE_USER : $vm.profile.U_ID,
+                            PG_MOVE_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss')
                         },
                         condition: {
                             PG_MASTER : selectedItem.OL_MASTER,
@@ -909,7 +920,8 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
                 modalInstance.result.then(function(selectedItem) {
                     // console.log(_data, _oeType);
 
-                    var _tasks = [];
+                    var _tasks = [],
+                        _d = new Date;
 
                     for(var i in _data){
                         _tasks.push({
@@ -948,7 +960,9 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
                                 PG_MOVED : false,
                                 PG_MOVED_SEQ : null,
                                 PG_UP_USER : $vm.profile.U_ID,
-                                PG_UP_DATETIME : $filter('date')(new Date, 'yyyy-MM-dd HH:mm:ss')
+                                PG_UP_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss'),
+                                PG_MOVE_USER : null,
+                                PG_MOVE_DATETIME : null
                             },
                             condition: {
                                 PG_SEQ : _data[i].PG_SEQ,
@@ -1031,6 +1045,16 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
                         selectOptions: bool
                     }
                 },
+                // { name: 'PG_MOVE_USER'  , displayName: '移機人員', cellFilter: 'userInfoFilter', cellTooltip: function (row, col) 
+                //     {
+                //         return '移機時間:' + $filter('datetimeFilter')(row.entity.PG_MOVE_DATETIME)
+                //     }, 
+                //     filter: {
+                //         term: null,
+                //         type: uiGridConstants.filter.SELECT,
+                //         selectOptions: userInfo
+                //     } 
+                // },
                 { name: 'PG_FLIGHTNO'   , displayName: '航班(改)' },
                 { name: 'PG_MASTER'     , displayName: '主號(改)' },
                 { name: 'PG_REASON'     , displayName: '拉貨原因', cellTooltip: function (row, col) 
@@ -1144,6 +1168,7 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
             queryname: 'SelectPullGoods'
         }).then(function (res){
             // console.log(res["returnData"]);
+            $vm.pullGoodsData = [];
             $vm.pullGoodsData = res["returnData"];
         }); 
     };

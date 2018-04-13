@@ -106,6 +106,9 @@ angular.module('app.selfwork').config(function ($stateProvider){
                     },
                     opType : function (SysCode){
                         return SysCode.get('OpType');
+                    },
+                    userInfo: function(UserInfo){
+                        return UserInfo.get();
                     }
                 }
             }

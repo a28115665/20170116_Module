@@ -414,6 +414,14 @@ module.exports = function(pQueryname, pParams){
 							/*OR GETTEL_COUNT IS NOT NULL*/ ) ";
 			
 			break;
+
+		case "GetFirstBagNo":
+			_SQLCommand += "SELECT TOP 1 IL_BAGNO \
+						    FROM ITEM_LIST \
+						    WHERE 1=1 \
+						    AND IL_SEQ = @IL_SEQ \
+						    ORDER BY IL_BAGNO";
+			break;
 	}
 
 	return _SQLCommand;
