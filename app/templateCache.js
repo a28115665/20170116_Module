@@ -391,7 +391,11 @@ angular.module('app')
     $ctrl.ClearMaster = function(){
         $ctrl.mdData.OL_MASTER = null;
 
-        $ctrl.mdData.OL_REASON += $ctrl.firstBagNo;
+        if($ctrl.mdData.OL_REASON != null){
+            $ctrl.mdData.OL_REASON += $ctrl.firstBagNo;
+        }else{
+            $ctrl.mdData.OL_REASON = $ctrl.firstBagNo;
+        }
     }
 
     $ctrl.ok = function() {

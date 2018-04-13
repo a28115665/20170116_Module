@@ -346,7 +346,10 @@ angular.module('app.selfwork').controller('Job002Ctrl', function ($scope, $state
 
             RestfulApi.SearchMSSQLData({
                 querymain: 'aviationMail',
-                queryname: 'SelectFlightMail'
+                queryname: 'SelectFlightMailPair',
+                params: {
+                    FMP_FLIGHTNO : $vm.vmData.OL_FLIGHTNO
+                }
             }).then(function (res){
                 // console.log(res["returnData"]);
 
@@ -558,9 +561,16 @@ angular.module('app.selfwork').controller('Job002Ctrl', function ($scope, $state
         $uibModalInstance.dismiss('cancel');
     };
 })
-.controller('ChoiceMailModalInstanceCtrl', function ($uibModalInstance, items) {
+.controller('ChoiceMailModalInstanceCtrl', function ($uibModalInstance, $filter, $timeout, items) {
     var $ctrl = this;
     $ctrl.mdData = items;
+
+    // 把已被選取的郵件目標打勾
+    $timeout(function() {
+        if($ctrl.mdDataGridApi.selection.selectRow){
+            $ctrl.mdDataGridApi.selection.selectRow($filter('filter')($ctrl.mdData, {isChoice: 1})[0]);
+        }
+    });
 
     $ctrl.mdDataOptions = {
         data:  '$ctrl.mdData',

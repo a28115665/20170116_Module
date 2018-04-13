@@ -1,6 +1,6 @@
 "use strict";
 
-angular.module('app.settings').controller('TargetEditorCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, RestfulApi, $filter, FileUploader, SUMMERNOT_CONFIG) {
+angular.module('app.settings').controller('TargetEditorCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, RestfulApi, $filter, $q, FileUploader, SUMMERNOT_CONFIG) {
     
     var $vm = this,
         _tasks = [],
@@ -27,6 +27,9 @@ angular.module('app.settings').controller('TargetEditorCtrl', function ($scope, 
 
                 _d = $vm.vmData["FM_CR_DATETIME"].replace(/\Z/g, '');
 
+                // 航空班機
+                LoadFMP();
+
                 // 附件
                 LoadFMAF();
 
@@ -38,6 +41,37 @@ angular.module('app.settings').controller('TargetEditorCtrl', function ($scope, 
         uploader : new FileUploader({
             url: '/toolbox/uploadFile?filePath='+_filepath
         }),
+        /**
+         * [OnTagAdding description] 新增前檢查此航班是否已加入別的目標名稱
+         * @param {[type]} $tag [description]
+         */
+        OnTagAdding : function($tag){
+            // console.log($tag);
+
+            return $q(function(resolve, reject) {
+
+                RestfulApi.SearchMSSQLData({
+                    querymain: 'targetEditor',
+                    queryname: 'SelectFMP',
+                    params: {
+                        FMP_FLIGHTNO: $tag.text
+                    }
+                }).then(function (res){
+                    var _data = res["returnData"] || [];
+                    
+                    if(_data.length > 0){
+                        toaster.pop('warning', '警告', "郵件目標名稱「"+_data[0].FM_TARGET+"」已有此航班。", 3000);
+                        reject(false);
+                    }else{
+                        resolve(true);
+                    }
+
+                });
+            });
+        },
+        OnInvalidTag : function(){
+            toaster.pop('warning', '警告', "輸入規則錯誤。", 3000);
+        },
         Return : function(){
             ReturnToAviationMail();
         },
@@ -64,6 +98,19 @@ angular.module('app.settings').controller('TargetEditorCtrl', function ($scope, 
                         FM_CR_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss')
                     }
                 });
+
+                // Insert 航空班機
+                for(var i in $vm.vmData.FMP_FLIGHTNO){
+                    _tasks.push({
+                        crudType: 'Insert',
+                        table: 34,
+                        params: {
+                            FMP_FLIGHTNO : $vm.vmData.FMP_FLIGHTNO[i].text,
+                            FMP_CR_USER : $vm.vmData.FM_CR_USER,
+                            FMP_CR_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss')
+                        }
+                    });
+                }
 
                 // 有上傳檔案 先上傳檔案之後再Insert DB
                 if($vm.uploader.getNotUploadedItems().length > 0){
@@ -135,6 +182,29 @@ angular.module('app.settings').controller('TargetEditorCtrl', function ($scope, 
                         FM_CR_DATETIME : $vm.vmData.FM_CR_DATETIME
                     }
                 });
+
+                // Delete 航空班機
+                _tasks.push({
+                    crudType: 'Delete',
+                    table: 34,
+                    params: {
+                        FMP_CR_USER : $vm.vmData.FM_CR_USER,
+                        FMP_CR_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss')
+                    }
+                });
+
+                // Insert 航空班機
+                for(var i in $vm.vmData.FMP_FLIGHTNO){
+                    _tasks.push({
+                        crudType: 'Insert',
+                        table: 34,
+                        params: {
+                            FMP_FLIGHTNO : $vm.vmData.FMP_FLIGHTNO[i].text,
+                            FMP_CR_USER : $vm.vmData.FM_CR_USER,
+                            FMP_CR_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss')
+                        }
+                    });
+                }
 
                 // 有上傳檔案 先上傳檔案之後再Insert DB
                 if($vm.uploader.getNotUploadedItems().length > 0){
@@ -389,6 +459,28 @@ angular.module('app.settings').controller('TargetEditorCtrl', function ($scope, 
         }).then(function (res){
             console.log(res["returnData"]);
             $vm.vmData.UploadedData = res["returnData"];
+        });
+    };
+
+    function LoadFMP(){
+
+        RestfulApi.SearchMSSQLData({
+            querymain: 'targetEditor',
+            queryname: 'SelectFMP',
+            params: {
+                FMP_CR_USER: $vm.vmData.FM_CR_USER,
+                FMP_CR_DATETIME: $vm.vmData.FM_CR_DATETIME
+            }
+        }).then(function (res){
+            console.log(res["returnData"]);
+
+            var _flightNo = res["returnData"];
+            $vm.vmData.FMP_FLIGHTNO = [];
+            for(var i in _flightNo){
+                $vm.vmData.FMP_FLIGHTNO.push({
+                    text : _flightNo[i].FMP_FLIGHTNO
+                });
+            }
         });
     };
 

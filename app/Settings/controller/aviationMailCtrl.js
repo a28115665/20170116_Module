@@ -51,7 +51,8 @@ angular.module('app.settings').controller('AviationMailCtrl', function ($scope, 
                         deletename: 'Delete',
                         table: 24,
                         params: {
-                            FM_ID : selectedItem.FM_ID
+                            FM_CR_DATETIME : selectedItem.FM_CR_DATETIME,
+                            FM_CR_USER : selectedItem.FM_CR_USER
                         }
                     }).then(function (res) {
                         toaster.pop('success', '訊息', '刪除成功', 3000);

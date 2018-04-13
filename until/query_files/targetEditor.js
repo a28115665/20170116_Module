@@ -20,6 +20,26 @@ module.exports = function(pQueryname, pParams){
 			}
 							
 			break;
+
+		case "SelectFMP":
+
+			_SQLCommand += "SELECT FMP_FLIGHTNO, \
+								   FM_TARGET \
+							FROM FLIGHT_MAIL_PAIR \
+							LEFT JOIN FLIGHT_MAIL ON FMP_CR_USER = FM_CR_USER AND FMP_CR_DATETIME = FM_CR_DATETIME \
+							WHERE 1=1";
+
+			if(pParams["FMP_FLIGHTNO"] !== undefined){
+				_SQLCommand += " AND FMP_FLIGHTNO = @FMP_FLIGHTNO ";
+			}
+			if(pParams["FMP_CR_USER"] !== undefined){
+				_SQLCommand += " AND FMP_CR_USER = @FMP_CR_USER ";
+			}
+			if(pParams["FMP_CR_DATETIME"] !== undefined){
+				_SQLCommand += " AND FMP_CR_DATETIME = @FMP_CR_DATETIME ";
+			}
+							
+			break;
 	}
 
 	return _SQLCommand;
