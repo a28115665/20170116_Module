@@ -141,7 +141,9 @@ module.exports = function(pQueryname, pParams){
 
 
 		case "SelectItemListForEx0MX3":
-			_SQLCommand += "SELECT * \
+			_SQLCommand += "SELECT *, \
+									@CO_NAME AS 'CO_NAME', \
+									IL_UNIVALENT_NEW * IL_NEWPCS_NOREPEAT AS 'IL_FINALCOST_NOREPEAT' \
 							FROM ( \
 								SELECT BLFO_TRACK, \
 										CASE WHEN PG_SEQ IS NULL THEN 0 ELSE 1 END AS 'PG_PULLGOODS', \

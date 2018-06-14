@@ -1059,6 +1059,7 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                     case "0MX3":
                         _templates = "10";
                         _queryname = "SelectItemListForEx0MX3";
+                        _params["CO_NAME"] = $vm.vmData.CO_NAME
                         break;
                     // 介宏格式
                     case "8":

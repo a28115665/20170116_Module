@@ -226,7 +226,7 @@ angular.module('app.settings').controller('ExternalManagementCtrl', function ($s
                         insertname: 'Insert',
                         table: 8,
                         params: {
-                            CO_ID : res["returnData"][0].CO_ID,
+                            CO_ID : res["returnData"].length == 0 ? 1 : res["returnData"][0].CO_ID,
                             CO_NAME : selectedItem.CO_NAME,
                             CO_AREA : selectedItem.CO_AREA,
                             CO_NUMBER : selectedItem.CO_NUMBER,
