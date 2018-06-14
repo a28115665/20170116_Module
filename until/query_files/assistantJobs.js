@@ -67,7 +67,19 @@ module.exports = function(pQueryname, pParams){
 										ELSE '0' END \
 									) AS 'W2_STATUS', \
 									W2_OE.OE_PRINCIPAL AS 'W2_PRINCIPAL', \
-									CAST(0 AS BIT) AS isSelected \
+									CAST(0 AS BIT) AS isSelected, \
+									( \
+										SELECT COUNT(ILE_ID) \
+										FROM ITEM_LIST_EXPORTER \
+										WHERE ILE_SEQ = OL_SEQ \
+										AND ILE_TYPE = '11' \
+									) AS 'FLIGHT_EXPORT', \
+									( \
+										SELECT COUNT(ILE_ID) \
+										FROM ITEM_LIST_EXPORTER \
+										WHERE ILE_SEQ = OL_SEQ \
+										AND ILE_TYPE != '11' \
+									) AS 'TRADE_EXPORT' \
 							FROM ( \
 								SELECT * \
 								FROM ORDER_LIST \
@@ -234,6 +246,11 @@ module.exports = function(pQueryname, pParams){
 											GROUP BY IL_BAGNO \
 										) A \
 									) AS 'OL_COUNT', \
+									ISNULL(( \
+										SELECT COUNT \
+										FROM V_PULL_GOODS_GROUP_BY_SEQ \
+										WHERE PG_SEQ = OL_SEQ \
+									), 0) AS 'OL_PULL_COUNT', \
 									( \
 										SELECT CO_NAME \
 										FROM COMPY_INFO \

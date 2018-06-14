@@ -25,15 +25,15 @@ module.exports = function(pQueryname, pParams){
 											AND PG_SEQ IS NULL \
 											GROUP BY IL_BAGNO \
 										) A \
-									) AS 'OL_COUNT', \
-									( \
-										SELECT COUNT(1) \
-										FROM PULL_GOODS \
+									) AS 'OL_COUNT',  \
+									ISNULL(( \
+										SELECT COUNT \
+										FROM V_PULL_GOODS_GROUP_BY_SEQ \
 										WHERE PG_SEQ = OL_SEQ \
-									) AS 'OL_PULL_COUNT', \
+									), 0) AS 'OL_PULL_COUNT', \
 									( \
-										SELECT MAX(IL_SUPPLEMENT_COUNT) \
-										FROM ITEM_LIST \
+										SELECT MAX(MAX_SUPPLEMENT_COUNT)  \
+										FROM V_MAX_SUPPLEMENT_COUNT \
 										WHERE IL_SEQ = OL_SEQ \
 									) AS 'OL_SUPPLEMENT_COUNT', \
 									W2_OE.OE_PRINCIPAL AS 'W2_PRINCIPAL', \
@@ -159,6 +159,25 @@ module.exports = function(pQueryname, pParams){
 			if(pParams["OE_TYPE"] !== undefined){
 				_SQLCommand += " AND OE_TYPE = @OE_TYPE ";
 			}
+
+			break;
+		case "SelectExportDetail":
+			_SQLCommand += "SELECT  ( \
+										SELECT SC_DESC \
+										FROM SYS_CODE \
+										WHERE SC_CODE = ILE_TYPE \
+										AND SC_TYPE = 'excelType' \
+									) AS ILE_TYPE, \
+									ILE_CR_USER, \
+									ILE_CR_DATETIME \
+							FROM ITEM_LIST_EXPORTER \
+							WHERE 1=1 ";
+
+			if(pParams["ILE_SEQ"] !== undefined){
+				_SQLCommand += " AND ILE_SEQ = @ILE_SEQ ";
+			}
+			
+			_SQLCommand += " ORDER BY ILE_CR_DATETIME DESC";
 
 			break;
 	}

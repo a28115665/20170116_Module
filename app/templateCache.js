@@ -127,7 +127,8 @@ angular.module('app')
    		  		    </div>');
 
     $templateCache.put('accessibilityToExportExcelStaus', '\
-                        <div class="my-ui-grid-cell-contents text-center">\
+                        <div class="my-ui-grid-cell-contents">\
+                            <a href="javascript:void(0);" class="btn btn-info btn-xs" ng-click="grid.appScope.$vm.gridMethod.exportDetail(row)"> 紀錄</a>\
                             <i class="fa fa-check text-success" title="班機表已匯" ng-if="row.entity.FLIGHT_EXPORT >= 1"> </i> \
                             <i class="fa fa-question" title="班機表未匯" ng-if="row.entity.FLIGHT_EXPORT == 0"> </i> \
                             <i class="fa fa-check text-success" title="關貿已匯" ng-if="row.entity.TRADE_EXPORT >= 1"> </i> \

@@ -284,8 +284,11 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                 modalInstance.result.then(function(selectedItem) {
                     console.log(selectedItem);
                     
-                    RestfulApi.InsertMSSQLData({
-                        insertname: 'Insert',
+                    var _task = [];
+
+                    // 儲存拉貨資料
+                    _task.push({
+                        crudType: 'Insert',
                         table: 19,
                         params: {
                             PG_SEQ         : selectedItem.IL_SEQ,
@@ -294,14 +297,39 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                             PG_CR_USER     : $vm.profile.U_ID,
                             PG_CR_DATETIME : $filter('date')(new Date, 'yyyy-MM-dd HH:mm:ss')
                         }
-                    }).then(function (res) {
-                        for(var i in $vm.job001Data){
-                            if($vm.job001Data[i].IL_BAGNO == selectedItem.IL_BAGNO){
-                                $vm.job001Data[i].PG_PULLGOODS = true;
-                            }
-                        }
-                        // LoadItemList();
                     });
+
+                    RestfulApi.CRUDMSSQLDataByTask(_task).then(function (res){
+
+                        if(res["returnData"].length > 0){
+                            
+                            for(var i in $vm.job001Data){
+                                if($vm.job001Data[i].IL_BAGNO == selectedItem.IL_BAGNO){
+                                    $vm.job001Data[i].PG_PULLGOODS = true;
+                                }
+                            }
+
+                        }
+                    });
+
+                    // RestfulApi.InsertMSSQLData({
+                    //     insertname: 'Insert',
+                    //     table: 19,
+                    //     params: {
+                    //         PG_SEQ         : selectedItem.IL_SEQ,
+                    //         PG_BAGNO       : selectedItem.IL_BAGNO,
+                    //         PG_REASON      : selectedItem.PG_REASON,
+                    //         PG_CR_USER     : $vm.profile.U_ID,
+                    //         PG_CR_DATETIME : $filter('date')(new Date, 'yyyy-MM-dd HH:mm:ss')
+                    //     }
+                    // }).then(function (res) {
+                    //     for(var i in $vm.job001Data){
+                    //         if($vm.job001Data[i].IL_BAGNO == selectedItem.IL_BAGNO){
+                    //             $vm.job001Data[i].PG_PULLGOODS = true;
+                    //         }
+                    //     }
+                    //     // LoadItemList();
+                    // });
 
                 }, function() {
                     // $log.info('Modal dismissed at: ' + new Date());
@@ -1007,11 +1035,13 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                     };
 
                 switch(selectedItem){
+                    // 關貿格式(G1)
                     case "0G1":
                         _templates = "0";
                         _queryname = "SelectItemListForEx0";
                         _params["IL_G1"] = "'G1'";
                         break;
+                    // 關貿格式(X2)
                     case "0X2":
                         _templates = "0";
                         _queryname = "SelectItemListForEx0";
@@ -1019,15 +1049,19 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                         // 不包含併X3(也就是mergeno是null)
                         _params["IL_MERGENO"] = null;
                         break;
+                    // 關貿格式(X3)
                     case "0X3":
                         _templates = "0";
                         _queryname = "SelectItemListForEx0";
                         _params["IL_G1"] = "'X3'";
                         break;
+                    // 關貿格式(併X3)
                     case "0MX3":
                         _templates = "10";
                         _queryname = "SelectItemListForEx0MX3";
+                        _params["CO_NAME"] = $vm.vmData.CO_NAME
                         break;
+                    // 介宏格式
                     case "8":
                         _templates = "8";
                         _queryname = "SelectItemListForEx8";

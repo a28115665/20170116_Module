@@ -94,6 +94,48 @@ angular.module('app.selfwork').controller('EmployeeJobsCtrl', function ($scope, 
             // 貨物查看
             viewOrder : function(row){
                 OrderStatus.Get(row)
+            },
+            // 匯出紀錄
+            exportDetail : function(row){
+                console.log(row.entity);
+
+                RestfulApi.SearchMSSQLData({
+                    querymain: 'employeeJobs',
+                    queryname: 'SelectExportDetail',
+                    params: {
+                        ILE_SEQ : row.entity.OL_SEQ
+                    }
+                }).then(function (res){
+
+                    console.log(res);
+
+                    var modalInstance = $uibModal.open({
+                        animation: true,
+                        ariaLabelledBy: 'modal-title',
+                        ariaDescribedBy: 'modal-body',
+                        templateUrl: 'exportDetailModalContent.html',
+                        controller: 'ExportDetailModalInstanceCtrl',
+                        controllerAs: '$ctrl',
+                        // backdrop: 'static',
+                        size: 'lg',
+                        // appendTo: parentElem,
+                        resolve: {
+                            item: function(){
+                                return row.entity;
+                            },
+                            vmData: function() {
+                                return res["returnData"];
+                            }
+                        }
+                    });
+
+                    modalInstance.result.then(function(selectedItem) {
+                        // $ctrl.selected = selectedItem;
+                    }, function() {
+                        // $log.info('Modal dismissed at: ' + new Date());
+                    });
+
+                }); 
             }
         },
         gridMethodForJob001 : {
@@ -296,7 +338,7 @@ angular.module('app.selfwork').controller('EmployeeJobsCtrl', function ($scope, 
                         return row.entity.OL_REASON
                     } 
                 },
-                { name: 'W2_STATUS'              ,  displayName: '狀態', width: 80, cellTemplate: $templateCache.get('accessibilityToForW2'), filter: 
+                { name: 'W2_STATUS'              ,  displayName: '狀態', width: 47, cellTemplate: $templateCache.get('accessibilityToForW2'), filter: 
                     {
                         term: null,
                         type: uiGridConstants.filter.SELECT,
@@ -316,11 +358,11 @@ angular.module('app.selfwork').controller('EmployeeJobsCtrl', function ($scope, 
                         selectOptions: userInfo
                     }
                 },
-                { name: 'EXPORT'                 ,  displayName: '匯出', width: '5%', enableCellEdit: false, enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToExportExcelStaus') },
-                { name: 'ITEM_LIST'              ,  displayName: '報機單', enableFiltering: false, width: '8%', cellTemplate: $templateCache.get('accessibilityToOperaForJob001') },
-                { name: 'FLIGHT_ITEM_LIST'       ,  displayName: '銷艙單', enableFiltering: false, width: '8%', cellTemplate: $templateCache.get('accessibilityToOperaForJob002') },
+                { name: 'EXPORT'                 ,  displayName: '匯出', width: 85, enableCellEdit: false, enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToExportExcelStaus') },
+                { name: 'ITEM_LIST'              ,  displayName: '報機單', enableFiltering: false, width: 86, cellTemplate: $templateCache.get('accessibilityToOperaForJob001') },
+                { name: 'FLIGHT_ITEM_LIST'       ,  displayName: '銷艙單', enableFiltering: false, width: 86, cellTemplate: $templateCache.get('accessibilityToOperaForJob002') },
                 // { name: 'DELIVERY_ITEM_LIST'  ,  displayName: '派送單', enableFiltering: false, width: '8%', cellTemplate: $templateCache.get('accessibilityToOperaForJob003') },
-                { name: 'Options'                ,  displayName: '操作', width: '5%', enableCellEdit: false, enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToM') }
+                { name: 'Options'                ,  displayName: '操作', width: 54, enableCellEdit: false, enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToM') }
             ],
             enableFiltering: true,
             enableSorting: true,
@@ -387,4 +429,45 @@ angular.module('app.selfwork').controller('EmployeeJobsCtrl', function ($scope, 
         });    
     };
 
+})
+.controller('ExportDetailModalInstanceCtrl', function ($uibModalInstance, item, vmData) {
+    var $ctrl = this;
+
+    $ctrl.MdInit = function(){
+        $ctrl.item = item;
+        $ctrl.mdData = vmData;
+    }
+
+    ILE_CR_DATETIME:"2018-03-13T18:49:46.000Z"
+    ILE_CR_USER:"allentsui9453"
+    ILE_ID:14015
+    ILE_SEQ:"Co0005Co000520180311181324"
+    ILE_TYPE:"11"
+
+    $ctrl.mdDataOptions = {
+        data:  '$ctrl.mdData',
+        columnDefs: [
+            { name: 'ILE_TYPE'         , displayName: '匯出類型' },
+            { name: 'ILE_CR_USER'      , displayName: '匯出人員', cellFilter: 'userInfoFilter' },
+            { name: 'ILE_CR_DATETIME'  , displayName: '匯出時間', cellFilter: 'datetimeFilter' }
+        ],
+        enableFiltering: true,
+        enableSorting: true,
+        enableColumnMenus: false,
+        multiSelect: false,
+        // enableVerticalScrollbar: false,
+        paginationPageSizes: [10, 25, 50, 100],
+        paginationPageSize: 100,
+        onRegisterApi: function(gridApi){
+            $ctrl.mdDataGridApi = gridApi;
+        }
+    }
+
+    $ctrl.ok = function() {
+        $uibModalInstance.close();
+    };
+
+    $ctrl.cancel = function() {
+        $uibModalInstance.dismiss('cancel');
+    };
 });
