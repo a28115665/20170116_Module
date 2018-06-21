@@ -28,12 +28,18 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
             console.log($vm.defaultTab);
             switch($vm.defaultTab){
                 case 'hr1':
-                    $vm.selectAssignDept = userInfoByGrade[0][0].value;
+                    if(userInfoByGrade[0].length == 0){
+                        toaster.pop('info', '訊息', '無員工管理', 3000);
+                        $vm.vmData = [];
+                        $vm.compyStatisticsData = [];
+                    }else{
+                        $vm.selectAssignDept = userInfoByGrade[0][0].value;
 
-                    AssignOptype();
-                    LoadOrderList();
-                    LoadPrincipal();
-                    LoadParm();
+                        AssignOptype();
+                        LoadOrderList();
+                        LoadPrincipal();
+                        LoadParm();
+                    }
                     break;
                 case 'hr2':
                     LoadStatistics();
@@ -724,57 +730,57 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
             querymain: 'leaderJobs',
             queryname: 'SelectOrderList'
         }).then(function (resA){
-
-            var _seq = undefined,
+            
+            var _seq = [],
                 _resA = resA["returnData"] || [];
 
             if(_resA.length > 0){
-                _seq = [];
+                // _seq = [];
 
                 for(var i in _resA){
                     _seq.push(_resA[i].OL_SEQ);
                 }
-            }
 
-            RestfulApi.SearchMSSQLData({
-                querymain: 'leaderJobs',
-                queryname: 'SelectOrderPrinpl',
-                params: {
-                    OP_DEPT : $vm.selectAssignDept,
-                    OP_MULTI_SEQ : _seq.toString()
-                }
-            }).then(function (resB){
-                
-                var _resB = resB["returnData"] || [];
+                RestfulApi.SearchMSSQLData({
+                    querymain: 'leaderJobs',
+                    queryname: 'SelectOrderPrinpl',
+                    params: {
+                        OP_DEPT : $vm.selectAssignDept,
+                        OP_MULTI_SEQ : _seq.toString()
+                    }
+                }).then(function (resB){
+                    
+                    var _resB = resB["returnData"] || [];
 
-                for(var i in _resA){
+                    for(var i in _resA){
 
-                    var _data =[];
+                        var _data =[];
 
-                    for(var j in _resB){
-                        if(_resA[i].OL_SEQ == _resB[j].OP_SEQ &&
-                            $vm.selectAssignOptype == _resB[j].OP_TYPE){
-                            _data.push(_resB[j]);
+                        for(var j in _resB){
+                            if(_resA[i].OL_SEQ == _resB[j].OP_SEQ &&
+                                $vm.selectAssignOptype == _resB[j].OP_TYPE){
+                                _data.push(_resB[j]);
+                            }
                         }
+
+                        _resA[i].subGridOptions = {
+                            data: _data,
+                            columnDefs: [ 
+                                {field: "OP_TYPE", name: "類別", cellFilter: 'opTypeFilter' },
+                                {field: "OP_PRINCIPAL", name: "負責人", cellFilter: 'userInfoFilter' },
+                                {field: "OE_EDATETIME_STATUS", name: "編輯者", cellTemplate: $templateCache.get('accessibilityToEdited') }
+                            ],
+                            enableFiltering: false,
+                            enableSorting: true,
+                            enableColumnMenus: false
+                        };
+                        // _resA[i]["AGENT_COUNT"] = _data.length;
                     }
 
-                    _resA[i].subGridOptions = {
-                        data: _data,
-                        columnDefs: [ 
-                            {field: "OP_TYPE", name: "類別", cellFilter: 'opTypeFilter' },
-                            {field: "OP_PRINCIPAL", name: "負責人", cellFilter: 'userInfoFilter' },
-                            {field: "OE_EDATETIME_STATUS", name: "編輯者", cellTemplate: $templateCache.get('accessibilityToEdited') }
-                        ],
-                        enableFiltering: false,
-                        enableSorting: true,
-                        enableColumnMenus: false
-                    };
-                    // _resA[i]["AGENT_COUNT"] = _data.length;
-                }
+                    $vm.vmData = _resA;
 
-                $vm.vmData = _resA;
-
-            });  
+                });  
+            }
 
         }).finally(function() {
             SetHeaderClass();
