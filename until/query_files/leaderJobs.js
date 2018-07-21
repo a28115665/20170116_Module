@@ -300,7 +300,11 @@ module.exports = function(pQueryname, pParams){
 										GROUP BY DIL_BAGNO \
 									) A \
 								) AS 'W1_BAG_COUNT'*/ \
-							FROM COMPY_INFO";
+							FROM ( \
+								SELECT * \
+								FROM COMPY_INFO \
+								WHERE CO_STS = 0 \
+							) COMPY_INFO";
 			
 			// delete pParams["REAL_IMPORTDT_FROM"];
 			// delete pParams["REAL_IMPORTDT_TOXX"];
