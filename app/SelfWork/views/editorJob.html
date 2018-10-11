@@ -1,0 +1,185 @@
+<!-- MAIN CONTENT -->
+<div id="content">
+
+	<div class="row">
+		<big-breadcrumbs items="['SelfWork', 'Jobs', 'EditorJob']" icon="truck" class="col-xs-12 col-sm-7 col-md-7 col-lg-4"></big-breadcrumbs>
+	</div>
+
+	<!-- widget grid -->
+	<section id="widget-grid" data-widget-grid>
+	    <!-- row -->
+	    <div class="row">
+
+	    	<!-- NEW WIDGET START -->
+	        <article class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+	        	<!-- Widget ID (each widget will need unique ID)-->
+				<div id="billboard" data-widget-sortable="false" data-widget-colorbutton="false" data-widget-togglebutton="false" data-widget-editbutton="false" data-widget-fullscreenbutton="false" data-widget-deletebutton="false" data-widget-color="blue" data-jarvis-widget>
+				    <!-- widget options:
+				        usage: <div data-jarvis-widget id="wid-id-0" data-widget-editbutton="false">
+				        data-widget-colorbutton="false"
+				        data-widget-editbutton="false"
+				        data-widget-togglebutton="false"
+				        data-widget-deletebutton="false"
+				        data-widget-fullscreenbutton="false"
+				        data-widget-custombutton="false"
+				        data-widget-collapsed="true"
+				        data-widget-sortable="false"
+				    -->
+				    <header>
+				        <h2>篩選條件 </h2>
+				    </header>
+				    <!-- widget div-->
+				    <div>
+				        <!-- widget content -->
+						<div class="widget-body">
+
+							<form id="search-form"
+		                          name="searchform"
+		                          class="form-horizontal">
+							    <fieldset>
+							    	<div class="form-group">
+								        <label class="col-md-2 control-label">清關條碼</label>
+								        <div class="col-md-4">
+								       		<select data-smart-select2 multiple style="width:100%" class="select2" placeholder="  請選擇清關條碼">
+								       			<option value="{{data}}" ng-repeat="data in $vm.searchCondition.a">{{data}}</option>
+									        </select>
+								        </div>
+								        <label class="col-md-2 control-label">提單號</label>
+								        <div class="col-md-4">
+								       		<select data-smart-select2 multiple style="width:100%" class="select2" placeholder="  請選擇提單號">
+								       			<option value="{{data}}" ng-repeat="data in $vm.searchCondition.b">{{data}}</option>
+									        </select>
+								        </div>
+								    </div>
+								    <div class="form-group">
+								        <label class="col-md-2 control-label">寄件人或公司</label>
+								        <div class="col-md-4">
+								       		<select data-smart-select2 multiple style="width:100%" class="select2" placeholder="  請選擇寄件人或公司">
+								       			<option value="{{data}}" ng-repeat="data in $vm.searchCondition.c">{{data}}</option>
+									        </select>
+								        </div>
+								        <label class="col-md-2 control-label">派送公司</label>
+								        <div class="col-md-4">
+								       		<select data-smart-select2 multiple style="width:100%" class="select2" placeholder="  請選擇派送公司">
+								       			<option value="{{data}}" ng-repeat="data in $vm.searchCondition.d">{{data}}</option>
+									        </select>
+								        </div>
+								    </div>
+								</fieldset>
+
+		                        <div class="form-actions">
+								    <div class="row">
+								        <div class="col-md-12">
+								            <button class="btn btn-default" type="submit">
+								                {{getWord('Cancel')}}
+								            </button>
+								            <button class="btn btn-primary" type="submit">
+								                <i class="fa fa-filter"></i>
+								                {{getWord('Filter')}}
+								            </button>
+								        </div>
+								    </div>
+								</div>
+		                    </form>
+
+						</div>
+						<!-- end widget content -->
+				    </div>
+				    <!-- end widget div -->
+				</div>
+				<!-- end widget -->
+	        </article>
+	        <!-- End WIDGET START -->
+
+	        <!-- NEW WIDGET START -->
+	        <article class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+	        	<!-- Widget ID (each widget will need unique ID)-->
+				<div id="billboard" data-widget-sortable="false" data-widget-colorbutton="false" data-widget-togglebutton="false" data-widget-editbutton="false" data-widget-fullscreenbutton="false" data-widget-deletebutton="false" data-widget-color="blue" data-jarvis-widget>
+				    <!-- widget options:
+				        usage: <div data-jarvis-widget id="wid-id-0" data-widget-editbutton="false">
+				        data-widget-colorbutton="false"
+				        data-widget-editbutton="false"
+				        data-widget-togglebutton="false"
+				        data-widget-deletebutton="false"
+				        data-widget-fullscreenbutton="false"
+				        data-widget-custombutton="false"
+				        data-widget-collapsed="true"
+				        data-widget-sortable="false"
+				    -->
+				    <header>
+				        <h2>編輯 </h2>
+				        <div class="widget-toolbar smart-form" role="menu">
+				            <a href-void="" class="btn btn-success" href="#">匯出Excel</a>
+				        </div>
+				        <div class="widget-toolbar smart-form" role="menu">
+				            <a href-void="" class="btn btn-warning" href="#">改單</a>
+				        </div>
+				        <div class="widget-toolbar smart-form" role="menu">
+				            <a href-void="" class="btn btn-danger" href="#">取消併票</a>
+				        </div>
+				        <div class="widget-toolbar smart-form" role="menu">
+				            <a href-void="" class="btn btn-primary" href="#">併票</a>
+				        </div>
+				        <div class="widget-toolbar smart-form" role="menu">
+				            <label class="input"> 
+				            	<i class="icon-append fa fa-search"></i>
+				                <input type="text" placeholder="篩選內容" ng-enter="$vm.Filter()" ng-model="$vm.filterValue">
+				                <b class="tooltip tooltip-top-right">
+				                    <i class="fa fa-warning txt-color-teal"></i>
+				                    按下確認鍵後篩選
+				                </b>
+				            </label>
+				        </div>
+				    </header>
+				    <!-- widget div-->
+				    <div>
+				        <!-- widget content -->
+						<div class="widget-body no-padding">
+
+							<div class="table-responsive">
+
+								<div id="grid1" ui-grid="$vm.editorOrderOptions" class="my-ui-grid" ui-grid-pagination ui-grid-resize-columns ui-grid-selection ui-grid-tree-view ui-grid-pinning></div>
+
+							</div>
+
+						</div>
+						<!-- end widget content -->
+				    </div>
+				    <!-- end widget div -->
+				</div>
+				<!-- end widget -->
+	        </article>
+	        <!-- End WIDGET START -->
+
+	    </div>
+	</section>
+
+</div>
+
+<script type="text/ng-template" id="myModalContent.html">
+    <div class="modal-header">
+	    <h3 class="modal-title" id="modal-title">黑名單</h3>
+	</div>
+	<div class="modal-body" id="modal-body">
+	    <form class="form-horizontal">
+			<fieldset>
+				<div class="form-group">
+			        <label class="col-md-2 control-label">收件人/公司</label>
+			        <div class="col-md-10">
+			            <input class="form-control" ng-model="$ctrl.items.k" type="text">
+			        </div>
+			    </div>
+				<div class="form-group">
+			        <label class="col-md-2 control-label">收件地址</label>
+			        <div class="col-md-10">
+			            <input class="form-control" ng-model="$ctrl.items.l" type="text" data-required>
+			        </div>
+			    </div>
+			</fieldset>
+	    </form>
+	</div>
+	<div class="modal-footer">
+	    <button class="btn btn-primary" type="button" ng-click="$ctrl.ok()">{{getWord('OK')}}</button>
+	    <button class="btn btn-default" type="button" ng-click="$ctrl.cancel()">{{getWord('Cancel')}}</button>
+	</div>
+</script>

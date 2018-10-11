@@ -33,6 +33,7 @@ angular.module('app', [
     'ngTagsInput',
     'summernote',
     'LocalStorageModule',
+    'ui.bootstrap.datetimepicker',
 
     // Smartadmin Angular Common Module
     'SmartAdmin',

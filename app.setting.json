@@ -12,7 +12,7 @@
 		"user": "sa",
 		"password": "2j/ z/ !@#$%",
 		"server": "127.0.0.1",
-		"database": "EWS20180314",
+		"database": "EWS",
 		"pool": {
 	        "max": 50,
 	        "min": 0,
