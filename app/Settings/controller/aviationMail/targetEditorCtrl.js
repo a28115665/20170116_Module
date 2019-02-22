@@ -60,7 +60,7 @@ angular.module('app.settings').controller('TargetEditorCtrl', function ($scope, 
                     var _data = res["returnData"] || [];
                     
                     if(_data.length > 0){
-                        toaster.pop('warning', '警告', "郵件目標名稱「"+_data[0].FM_TARGET+"」已有此航班。", 3000);
+                        toaster.pop('warning', '警告', "郵件目標名稱「"+_data[0].FM_TARGET+"」已有航班「"+$tag.text+"」。", 3000);
                         reject(false);
                     }else{
                         resolve(true);
@@ -70,7 +70,7 @@ angular.module('app.settings').controller('TargetEditorCtrl', function ($scope, 
             });
         },
         OnInvalidTag : function(){
-            toaster.pop('warning', '警告', "輸入規則錯誤。", 3000);
+            toaster.pop('warning', '警告', "航班輸入規則錯誤。", 3000);
         },
         Return : function(){
             ReturnToAviationMail();
@@ -106,7 +106,8 @@ angular.module('app.settings').controller('TargetEditorCtrl', function ($scope, 
                         table: 34,
                         params: {
                             FMP_FLIGHTNO : $vm.vmData.FMP_FLIGHTNO[i].text,
-                            FMP_CR_USER : $vm.vmData.FM_CR_USER,
+                            // FMP_CR_USER : $vm.vmData.FM_CR_USER,
+                            FMP_CR_USER : $vm.profile.U_ID,
                             FMP_CR_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss')
                         }
                     });

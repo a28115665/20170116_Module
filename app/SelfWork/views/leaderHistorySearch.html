@@ -99,10 +99,10 @@
 		                        <div class="form-actions">
 								    <div class="row">
 								        <div class="col-md-12">
-								            <button class="btn btn-default" type="submit" ng-click="$vm.Cancel()">
+								            <button class="btn btn-default" form="search-form" type="button" value="Button" ng-click="$vm.Cancel()">
 								                {{getWord('Cancel')}}
 								            </button>
-								            <button class="btn btn-primary" type="submit" ng-click="$vm.Search()" ng-disabled="!searchform.$valid">
+								            <button class="btn btn-primary" form="search-form" type="submit" value="Submit" ng-click="$vm.Search()" ng-disabled="!searchform.$valid">
 								                <i class="fa fa-search"></i>
 								                {{getWord('Search')}}
 								            </button>
