@@ -329,7 +329,7 @@ angular.module('app')
 		if (!input) {
 		    return '';
 		} else {
-		    return $filter('date')(input.replace(/\Z/g, ''), 'yyyy-MM-dd');
+		    return $filter('date')(input, 'yyyy-MM-dd', 'GMT');
 		}
 
 	};
@@ -341,7 +341,7 @@ angular.module('app')
 		if (!input) {
 		    return '';
 		} else {
-		    return $filter('date')(input.replace(/\Z/g, ''), 'yyyy-MM-dd HH:mm:ss');
+		    return $filter('date')(input, 'yyyy-MM-dd HH:mm:ss', 'GMT');
 		}
 
 	};

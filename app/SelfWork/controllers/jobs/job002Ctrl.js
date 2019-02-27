@@ -225,7 +225,7 @@ angular.module('app.selfwork').controller('Job002Ctrl', function ($scope, $state
         // 匯出Excel
         ExportExcel: function(){
 
-            var _exportName = $filter('date')($vm.vmData.OL_IMPORTDT, 'yyyyMMdd') + ' ' + 
+            var _exportName = $filter('date')($vm.vmData.OL_IMPORTDT, 'yyyyMMdd', 'GMT') + ' ' + 
                               $vm.vmData.OL_MASTER + ' ' + 
                               $vm.vmData.OL_FLIGHTNO;
                 // _totalBag = 0,
@@ -242,7 +242,7 @@ angular.module('app.selfwork').controller('Job002Ctrl', function ($scope, $state
                     templates      : 5,
                     filename       : _exportName,
                     OL_MASTER      : $vm.vmData.OL_MASTER,
-                    OL_IMPORTDT    : $filter('date')($vm.vmData.OL_IMPORTDT, 'yyyy/MM/dd'),
+                    OL_IMPORTDT    : $filter('date')($vm.vmData.OL_IMPORTDT, 'yyyy/MM/dd', 'GMT'),
                     OL_FLIGHTNO    : $vm.vmData.OL_FLIGHTNO,
                     OL_COUNTRY     : $vm.vmData.OL_COUNTRY, 
                     OL_TEL         : $vm.vmData.OL_TEL, 
@@ -388,12 +388,12 @@ angular.module('app.selfwork').controller('Job002Ctrl', function ($scope, $state
                             },
                             data: function(){
 
-                                var _exportName = $filter('date')($vm.vmData.OL_IMPORTDT, 'yyyyMMdd') + ' ' + 
+                                var _exportName = $filter('date')($vm.vmData.OL_IMPORTDT, 'yyyyMMdd', 'GMT') + ' ' + 
                                                   $filter('compyFilter')($vm.vmData.OL_CO_CODE) + ' ' + 
                                                   $vm.vmData.OL_FLIGHTNO;
 
                                 $vm.vmData["_exportName"] = _exportName;
-                                $vm.vmData["OL_IMPORTDT"] = $filter('date')($vm.vmData.OL_IMPORTDT, 'yyyy-MM-dd');
+                                $vm.vmData["OL_IMPORTDT"] = $filter('date')($vm.vmData.OL_IMPORTDT, 'yyyy-MM-dd', 'GMT');
                                 $vm.vmData["OL_TOTALBAG"] = $vm.job002GridApi.grid.columns[4].getAggregationValue();
                                 $vm.vmData["OL_TOTALWEIGHT"] = $vm.job002GridApi.grid.columns[5].getAggregationValue().toFixed(2);
 

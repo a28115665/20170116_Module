@@ -48,7 +48,7 @@ angular.module('app.settings').controller('SysLogsCtrl', function ($scope, $stat
         // 匯出Excel
         ExportExcel: function(){
 
-            var _exportName = $filter('date')($vm.vmData.OL_IMPORTDT, 'yyyyMMdd') + ' ' + 
+            var _exportName = $filter('date')($vm.vmData.OL_IMPORTDT, 'yyyyMMdd', 'GMT') + ' ' + 
                               $filter('compyFilter')($vm.vmData.OL_CO_CODE) + ' ' + 
                               $vm.vmData.OL_FLIGHTNO;
                 // _totalBag = 0,
@@ -65,7 +65,7 @@ angular.module('app.settings').controller('SysLogsCtrl', function ($scope, $stat
                     templates      : 5,
                     filename       : _exportName,
                     OL_MASTER      : $vm.vmData.OL_MASTER,
-                    OL_IMPORTDT    : $filter('date')($vm.vmData.OL_IMPORTDT, 'yyyy-MM-dd'),
+                    OL_IMPORTDT    : $filter('date')($vm.vmData.OL_IMPORTDT, 'yyyy-MM-dd', 'GMT'),
                     OL_FLIGHTNO    : $vm.vmData.OL_FLIGHTNO,
                     OL_COUNTRY     : $vm.vmData.OL_COUNTRY, 
                     OL_TEL         : $vm.vmData.OL_TEL, 
