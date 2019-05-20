@@ -272,6 +272,7 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                     templateUrl: 'pullGoodsModalContent.html',
                     controller: 'PullGoodsModalInstanceCtrl',
                     controllerAs: '$ctrl',
+                    backdrop: 'static',
                     // size: 'lg',
                     // appendTo: parentElem,
                     resolve: {
@@ -389,6 +390,7 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                     controller: 'SpecialGoodsModalInstanceCtrl',
                     controllerAs: '$ctrl',
                     size: 'sm',
+                    backdrop: 'static',
                     // appendTo: parentElem,
                     resolve: {
                         items: function() {
@@ -737,6 +739,7 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                 templateUrl: 'mergeNoModalContent.html',
                 controller: 'MergeNoModalInstanceCtrl',
                 controllerAs: '$ctrl',
+                backdrop: 'static',
                 // size: 'lg',
                 // appendTo: parentElem,
                 resolve: {
@@ -806,6 +809,7 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                 controller: 'MultiSpecialGoodsModalInstanceCtrl',
                 controllerAs: '$ctrl',
                 size: 'sm',
+                backdrop: 'static',
                 // appendTo: parentElem,
                 resolve: {
                     specialGoods: function(SysCode) {
@@ -894,6 +898,7 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                 templateUrl: 'pullGoodsModalContent.html',
                 controller: 'PullGoodsModalInstanceCtrl',
                 controllerAs: '$ctrl',
+                backdrop: 'static',
                 // size: 'lg',
                 // appendTo: parentElem,
                 resolve: {
