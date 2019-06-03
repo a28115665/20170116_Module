@@ -38,6 +38,11 @@ var GetCargoAircraftTime = function (){
 	                content += chunk;
 	            });
 
+		        post_res.on('error', function(err) {
+		            // Handle error
+		            // console.log(err);
+		        });
+
 	            post_res.on('end', function(){
 	            	var upsertData = JSON.parse(content),
 	            		_conditions = [],
@@ -92,7 +97,7 @@ var GetCargoAircraftTime = function (){
 						            host: '127.0.0.1',
 						            port: setting.NodeJs.port,
 						            path: '/restful/crudByTask?' + _post_upsertData100,
-						            method: 'GET',
+						            method: 'GET'
 						        };
 
 						        var _post_req = http.request(_post_upsertData_options100, function (_post_res){
@@ -104,10 +109,27 @@ var GetCargoAircraftTime = function (){
 						                _content += chunk;
 						            });
 
+							        _post_res.on('error', function(err) {
+							            // Handle error
+							            console.log('更新航班資訊失敗，原因:', err);
+							        });
+
 						            _post_res.on('end', function(){
 						            	// console.log(JSON.parse(content));
 									})
 						        });
+
+								_post_req.on('error', function(e) {
+									// console.log(`${e}`);
+								});
+								_post_req.on('timeout', function(e) {
+									console.log(`timeout:${e}`);
+								    _post_req.abort();
+								});
+								_post_req.on('uncaughtException', function(e) {
+									console.log(`uncaughtException:${e}`);
+								    _post_req.abort();
+								});
 
 						        _post_req.end();
 						        
@@ -136,10 +158,27 @@ var GetCargoAircraftTime = function (){
 				                _content += chunk;
 				            });
 
+					        _post_res.on('error', function(err) {
+					            // Handle error
+					            console.log('更新航班資訊失敗，原因:', err);
+					        });
+
 				            _post_res.on('end', function(){
 				            	// console.log(JSON.parse(content));
 							})
 				        });
+
+						_post_req.on('error', function(e) {
+							// console.log(`${e}`);
+						});
+						_post_req.on('timeout', function(e) {
+							console.log(`timeout:${e}`);
+						    _post_req.abort();
+						});
+						_post_req.on('uncaughtException', function(e) {
+							console.log(`uncaughtException:${e}`);
+						    _post_req.abort();
+						});
 
 				        _post_req.end();
 	            	}

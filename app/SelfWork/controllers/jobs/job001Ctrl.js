@@ -272,6 +272,7 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                     templateUrl: 'pullGoodsModalContent.html',
                     controller: 'PullGoodsModalInstanceCtrl',
                     controllerAs: '$ctrl',
+                    backdrop: 'static',
                     // size: 'lg',
                     // appendTo: parentElem,
                     resolve: {
@@ -389,6 +390,7 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                     controller: 'SpecialGoodsModalInstanceCtrl',
                     controllerAs: '$ctrl',
                     size: 'sm',
+                    backdrop: 'static',
                     // appendTo: parentElem,
                     resolve: {
                         items: function() {
@@ -737,6 +739,7 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                 templateUrl: 'mergeNoModalContent.html',
                 controller: 'MergeNoModalInstanceCtrl',
                 controllerAs: '$ctrl',
+                backdrop: 'static',
                 // size: 'lg',
                 // appendTo: parentElem,
                 resolve: {
@@ -806,6 +809,7 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                 controller: 'MultiSpecialGoodsModalInstanceCtrl',
                 controllerAs: '$ctrl',
                 size: 'sm',
+                backdrop: 'static',
                 // appendTo: parentElem,
                 resolve: {
                     specialGoods: function(SysCode) {
@@ -894,6 +898,7 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                 templateUrl: 'pullGoodsModalContent.html',
                 controller: 'PullGoodsModalInstanceCtrl',
                 controllerAs: '$ctrl',
+                backdrop: 'static',
                 // size: 'lg',
                 // appendTo: parentElem,
                 resolve: {
@@ -1020,7 +1025,7 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                 console.log(selectedItem);
 
                 var _templates = angular.copy(selectedItem),
-                    _exportName = $filter('date')($vm.vmData.OL_IMPORTDT, 'yyyyMMdd') + ' ' + 
+                    _exportName = $filter('date')($vm.vmData.OL_IMPORTDT, 'yyyyMMdd', 'GMT') + ' ' + 
                                   $filter('compyFilter')($vm.vmData.OL_CO_CODE) + ' ' + 
                                   $vm.vmData.OL_FLIGHTNO + ' ' +
                                   $vm.vmData.OL_COUNT + '袋 ' +
@@ -1028,7 +1033,7 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                     _queryname = null,
                     _params = {
                         OL_MASTER : $vm.vmData.OL_MASTER,
-                        OL_IMPORTDT : $filter('date')($vm.vmData.OL_IMPORTDT, 'yyyy-MM-dd'),
+                        OL_IMPORTDT : $filter('date')($vm.vmData.OL_IMPORTDT, 'yyyy-MM-dd', 'GMT'),
                         OL_FLIGHTNO : $vm.vmData.OL_FLIGHTNO,
                         OL_COUNTRY : $vm.vmData.OL_COUNTRY,                
                         IL_SEQ : $vm.vmData.OL_SEQ
@@ -1114,7 +1119,7 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
         },
         // 匯出班機表欄位
         ExportAirportSchema : function(){
-            var _exportName = $filter('date')($vm.vmData.OL_IMPORTDT, 'yyyyMMdd') + ' ' + 
+            var _exportName = $filter('date')($vm.vmData.OL_IMPORTDT, 'yyyyMMdd', 'GMT') + ' ' + 
                               $filter('compyFilter')($vm.vmData.OL_CO_CODE) + ' ' +
                               $vm.vmData.OL_FLIGHTNO + ' ' +
                               // ($vm.vmData.OL_COUNT - $vm.vmData.OL_PULL_COUNT) + '袋';
@@ -1123,7 +1128,7 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
 
             // 如果是拉貨 最後要補上原報機日期
             if($vm.vmData.ORI_OL_IMPORTDT != null){
-                _exportName += ' ' + $filter('date')($vm.vmData.ORI_OL_IMPORTDT, 'yyyyMMdd')
+                _exportName += ' ' + $filter('date')($vm.vmData.ORI_OL_IMPORTDT, 'yyyyMMdd', 'GMT')
             }
 
             // 選擇筆數匯出
@@ -1143,7 +1148,7 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                         queryname: 'SelectItemListForFlight',
                         params: {
                             OL_MASTER : $vm.vmData.OL_MASTER,
-                            OL_IMPORTDT : $filter('date')($vm.vmData.OL_IMPORTDT, 'yyyy-MM-dd'),
+                            OL_IMPORTDT : $filter('date')($vm.vmData.OL_IMPORTDT, 'yyyy-MM-dd', 'GMT'),
                             OL_FLIGHTNO : $vm.vmData.OL_FLIGHTNO,
                             OL_COUNTRY : $vm.vmData.OL_COUNTRY,               
                             IL_SEQ : $vm.vmData.OL_SEQ,
@@ -1180,7 +1185,7 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                     queryname: 'SelectItemListForFlight',
                     params: {
                         OL_MASTER : $vm.vmData.OL_MASTER,
-                        OL_IMPORTDT : $filter('date')($vm.vmData.OL_IMPORTDT, 'yyyy-MM-dd'),
+                        OL_IMPORTDT : $filter('date')($vm.vmData.OL_IMPORTDT, 'yyyy-MM-dd', 'GMT'),
                         OL_FLIGHTNO : $vm.vmData.OL_FLIGHTNO,
                         OL_COUNTRY : $vm.vmData.OL_COUNTRY,               
                         IL_SEQ : $vm.vmData.OL_SEQ
@@ -1326,7 +1331,7 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
          */
         OverSix : function(pType){
             if(!angular.isUndefined($vm.vmData.OL_IMPORTDT)){
-                var _year = $filter('date')($vm.vmData.OL_IMPORTDT, 'yyyy'),
+                var _year = $filter('date')($vm.vmData.OL_IMPORTDT, 'yyyy', 'GMT'),
                     _queryname = null,
                     _type = null;
 

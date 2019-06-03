@@ -60,7 +60,7 @@ angular.module('app.selfwork').controller('Job003Ctrl', function ($scope, $state
             }
         },
         ExportExcel: function(){
-            var _exportName = $filter('date')($vm.vmData.OL_IMPORTDT, 'yyyyMMdd') + ' ' + 
+            var _exportName = $filter('date')($vm.vmData.OL_IMPORTDT, 'yyyyMMdd', 'GMT') + ' ' + 
                               $filter('compyFilter')($vm.vmData.OL_CO_CODE) + ' ' + 
                               $vm.vmData.OL_FLIGHTNO;
 
@@ -71,7 +71,7 @@ angular.module('app.selfwork').controller('Job003Ctrl', function ($scope, $state
                 queryname: 'SelectDeliveryItemList',
                 params: {
                     OL_MASTER : $vm.vmData.OL_MASTER,
-                    OL_IMPORTDT : $filter('date')($vm.vmData.OL_IMPORTDT, 'yyyy-MM-dd'),
+                    OL_IMPORTDT : $filter('date')($vm.vmData.OL_IMPORTDT, 'yyyy-MM-dd', 'GMT'),
                     OL_FLIGHTNO : $vm.vmData.OL_FLIGHTNO,
                     OL_COUNTRY : $vm.vmData.OL_COUNTRY,                
                     DIL_SEQ: $vm.vmData.OL_SEQ

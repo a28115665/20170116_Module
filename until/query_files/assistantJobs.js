@@ -21,18 +21,21 @@ module.exports = function(pQueryname, pParams){
 								   CONVERT(varchar, OL_IMPORTDT, 23 ) AS 'OL_IMPORTDT_EX', \
 								   CO_NAME, \
 									( \
-										SELECT COUNT(1) \
-										FROM ( \
-											SELECT IL_BAGNO \
-											FROM ITEM_LIST \
-											LEFT JOIN PULL_GOODS ON \
-											IL_SEQ = PG_SEQ AND \
-											IL_BAGNO = PG_BAGNO \
-											WHERE IL_SEQ = OL_SEQ \
-											AND IL_BAGNO IS NOT NULL AND IL_BAGNO != '' \
-											AND PG_SEQ IS NULL \
-											GROUP BY IL_BAGNO \
-										) A \
+										( \
+											SELECT COUNT(1) \
+											FROM ( \
+												SELECT IL_BAGNO \
+												FROM ITEM_LIST \
+												WHERE IL_SEQ = OL_SEQ \
+												AND IL_BAGNO IS NOT NULL AND IL_BAGNO != '' \
+												GROUP BY IL_BAGNO \
+											) A \
+										) - \
+										( \
+											SELECT COUNT(1) \
+											FROM PULL_GOODS \
+											WHERE PG_SEQ = OL_SEQ \
+										) \
 									) AS 'OL_COUNT', \
 								   ( \
 										CASE WHEN ( \

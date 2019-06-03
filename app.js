@@ -1,3 +1,4 @@
+var compression = require('compression');
 var express = require('express');
 var path = require('path');
 // var favicon = require('serve-favicon');
@@ -52,6 +53,7 @@ Object.defineProperty(global, '__line', {
 // uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 // app.use(logger('dev'));
+app.use(compression());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
@@ -127,4 +129,8 @@ app.use(function(err, req, res, next) {
 // server port 3000
 app.listen(setting.NodeJs.port, function() {
     return console.info("Express server listening on port " + (this.address().port) + " in " + process.env.NODE_ENV + " mode");
+}).on('error', function(err){
+    console.log('server error handler');
+    console.log(err);
 });
+

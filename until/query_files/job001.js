@@ -231,6 +231,11 @@ module.exports = function(pQueryname, pParams){
 									END AS 'SPG_SPECIALGOODS', \
 									PG_MOVED, \
 									ITEM_LIST.*, \
+									REPLACE(( \
+										CASE WHEN LEFT(IL_GETTEL, 3) = '886' THEN '0' + SUBSTRING(IL_GETTEL, 4, LEN(IL_GETTEL)) \
+										WHEN LEN(IL_GETTEL) = 9 THEN '0' + IL_GETTEL \
+										ELSE IL_GETTEL END \
+									), '-', '') AS IL_GETTEL_EX, \
 									CASE WHEN ROW_NUMBER() OVER(PARTITION BY IL_BAGNO ORDER BY IL_BAGNO) = 1 \
 									THEN IL_BAGNO ELSE NULL END AS 'IL_BAGNOEX_NOREPEAT' \
 							FROM ITEM_LIST \

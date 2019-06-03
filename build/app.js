@@ -3992,7 +3992,7 @@ angular.module('app')
 		if (!input) {
 		    return '';
 		} else {
-		    return $filter('date')(input.replace(/\Z/g, ''), 'yyyy-MM-dd');
+		    return $filter('date')(input, 'yyyy-MM-dd', 'GMT');
 		}
 
 	};
@@ -4004,7 +4004,7 @@ angular.module('app')
 		if (!input) {
 		    return '';
 		} else {
-		    return $filter('date')(input.replace(/\Z/g, ''), 'yyyy-MM-dd HH:mm:ss');
+		    return $filter('date')(input, 'yyyy-MM-dd HH:mm:ss', 'GMT');
 		}
 
 	};
@@ -5771,6 +5771,92 @@ angular.module('app.auth').controller('LoginCtrl', function ($scope, $state, Goo
     });
 })
 
+
+
+'use strict';
+
+angular.module('app.auth').factory('User', function ($http, $q, APP_CONFIG) {
+    var dfd = $q.defer();
+
+    var UserModel = {
+        initialized: dfd.promise,
+        username: undefined,
+        picture: undefined
+    };
+     $http.get(APP_CONFIG.apiRootUrl + '/user.json').then(function(response){
+         UserModel.username = response.data.username;
+         UserModel.picture= response.data.picture;
+         dfd.resolve(UserModel)
+     });
+
+    return UserModel;
+});
+
+'use strict';
+
+angular.module('app.calendar').controller('CalendarCtrl', function ($scope, $log, CalendarEvent) {
+
+
+    // Events scope
+    $scope.events = [];
+
+    // Unassigned events scope
+    $scope.eventsExternal = [
+        {
+            title: "Office Meeting",
+            description: "Currently busy",
+            className: "bg-color-darken txt-color-white",
+            icon: "fa-time"
+        },
+        {
+            title: "Lunch Break",
+            description: "No Description",
+            className: "bg-color-blue txt-color-white",
+            icon: "fa-pie"
+        },
+        {
+            title: "URGENT",
+            description: "urgent tasks",
+            className: "bg-color-red txt-color-white",
+            icon: "fa-alert"
+        }
+    ];
+
+
+    // Queriing our events from CalendarEvent resource...
+    // Scope update will automatically update the calendar
+    CalendarEvent.query().$promise.then(function (events) {
+        $scope.events = events;
+    });
+
+
+    $scope.newEvent = {};
+
+    $scope.addEvent = function() {
+
+        $log.log("Adding new event:", $scope.newEvent);
+
+        var newEventDefaults = {
+            title: "Untitled Event",
+            description: "no description",
+            className: "bg-color-darken txt-color-white",
+            icon: "fa-info"
+        };
+
+
+        $scope.newEvent = angular.extend(newEventDefaults, $scope.newEvent);
+
+        $scope.eventsExternal.unshift($scope.newEvent);
+
+        $scope.newEvent = {};
+
+        // $log.log("New events now:", $scope.eventsExternal);
+
+    };
+
+
+});
+
 "use strict";
 
 angular.module('app.calendar').directive('dragableEvent', function ($log) {
@@ -5929,71 +6015,6 @@ angular.module('app.calendar').directive('fullCalendar', function (CalendarEvent
         }
     }
 });
-'use strict';
-
-angular.module('app.calendar').controller('CalendarCtrl', function ($scope, $log, CalendarEvent) {
-
-
-    // Events scope
-    $scope.events = [];
-
-    // Unassigned events scope
-    $scope.eventsExternal = [
-        {
-            title: "Office Meeting",
-            description: "Currently busy",
-            className: "bg-color-darken txt-color-white",
-            icon: "fa-time"
-        },
-        {
-            title: "Lunch Break",
-            description: "No Description",
-            className: "bg-color-blue txt-color-white",
-            icon: "fa-pie"
-        },
-        {
-            title: "URGENT",
-            description: "urgent tasks",
-            className: "bg-color-red txt-color-white",
-            icon: "fa-alert"
-        }
-    ];
-
-
-    // Queriing our events from CalendarEvent resource...
-    // Scope update will automatically update the calendar
-    CalendarEvent.query().$promise.then(function (events) {
-        $scope.events = events;
-    });
-
-
-    $scope.newEvent = {};
-
-    $scope.addEvent = function() {
-
-        $log.log("Adding new event:", $scope.newEvent);
-
-        var newEventDefaults = {
-            title: "Untitled Event",
-            description: "no description",
-            className: "bg-color-darken txt-color-white",
-            icon: "fa-info"
-        };
-
-
-        $scope.newEvent = angular.extend(newEventDefaults, $scope.newEvent);
-
-        $scope.eventsExternal.unshift($scope.newEvent);
-
-        $scope.newEvent = {};
-
-        // $log.log("New events now:", $scope.eventsExternal);
-
-    };
-
-
-});
-
 
 "use strict";
 
@@ -7324,27 +7345,6 @@ angular.module('app.concerns').controller('DailyAlertCtrl', function ($scope, $s
         $uibModalInstance.dismiss('cancel');
     };
 });
-
-
-'use strict';
-
-angular.module('app.auth').factory('User', function ($http, $q, APP_CONFIG) {
-    var dfd = $q.defer();
-
-    var UserModel = {
-        initialized: dfd.promise,
-        username: undefined,
-        picture: undefined
-    };
-     $http.get(APP_CONFIG.apiRootUrl + '/user.json').then(function(response){
-         UserModel.username = response.data.username;
-         UserModel.picture= response.data.picture;
-         dfd.resolve(UserModel)
-     });
-
-    return UserModel;
-});
-
 "use strict";	
 
 angular.module('app').controller("ActivitiesCtrl", function ActivitiesCtrl($scope, $log, activityService){
@@ -7474,25 +7474,6 @@ angular.module('app').factory('Project', function($http, APP_CONFIG){
         list: $http.get(APP_CONFIG.apiRootUrl + '/projects.json')
     }
 });
-"use strict";
-
-angular.module('app').directive('recentProjects', function(Project){
-    return {
-        restrict: "EA",
-        replace: true,
-        templateUrl: "app/dashboard/projects/recent-projects.tpl.html",
-        scope: true,
-        link: function(scope, element){
-
-            Project.list.then(function(response){
-                scope.projects = response.data;
-            });
-            scope.clearProjects = function(){
-                scope.projects = [];
-            }
-        }
-    }
-});
 angular.module("app").run(["$templateCache", function($templateCache) {$templateCache.put("app/app/dashboard/live-feeds.tpl.html","<div jarvis-widget id=\"live-feeds-widget\" data-widget-togglebutton=\"false\" data-widget-editbutton=\"false\"\r\n     data-widget-fullscreenbutton=\"false\" data-widget-colorbutton=\"false\" data-widget-deletebutton=\"false\">\r\n<!-- widget options:\r\nusage: <div class=\"jarviswidget\" id=\"wid-id-0\" data-widget-editbutton=\"false\">\r\n\r\ndata-widget-colorbutton=\"false\"\r\ndata-widget-editbutton=\"false\"\r\ndata-widget-togglebutton=\"false\"\r\ndata-widget-deletebutton=\"false\"\r\ndata-widget-fullscreenbutton=\"false\"\r\ndata-widget-custombutton=\"false\"\r\ndata-widget-collapsed=\"true\"\r\ndata-widget-sortable=\"false\"\r\n\r\n-->\r\n<header>\r\n    <span class=\"widget-icon\"> <i class=\"glyphicon glyphicon-stats txt-color-darken\"></i> </span>\r\n\r\n    <h2>Live Feeds </h2>\r\n\r\n    <ul class=\"nav nav-tabs pull-right in\" id=\"myTab\">\r\n        <li class=\"active\">\r\n            <a data-toggle=\"tab\" href=\"#s1\"><i class=\"fa fa-clock-o\"></i> <span class=\"hidden-mobile hidden-tablet\">Live Stats</span></a>\r\n        </li>\r\n\r\n        <li>\r\n            <a data-toggle=\"tab\" href=\"#s2\"><i class=\"fa fa-facebook\"></i> <span class=\"hidden-mobile hidden-tablet\">Social Network</span></a>\r\n        </li>\r\n\r\n        <li>\r\n            <a data-toggle=\"tab\" href=\"#s3\"><i class=\"fa fa-dollar\"></i> <span class=\"hidden-mobile hidden-tablet\">Revenue</span></a>\r\n        </li>\r\n    </ul>\r\n\r\n</header>\r\n\r\n<!-- widget div-->\r\n<div class=\"no-padding\">\r\n\r\n    <div class=\"widget-body\">\r\n        <!-- content -->\r\n        <div id=\"myTabContent\" class=\"tab-content\">\r\n            <div class=\"tab-pane fade active in padding-10 no-padding-bottom\" id=\"s1\">\r\n                <div class=\"row no-space\">\r\n                    <div class=\"col-xs-12 col-sm-12 col-md-8 col-lg-8\">\r\n														<span class=\"demo-liveupdate-1\"> <span\r\n                                                                class=\"onoffswitch-title\">Live switch</span> <span\r\n                                                                class=\"onoffswitch\">\r\n																<input type=\"checkbox\" name=\"start_interval\" ng-model=\"autoUpdate\"\r\n                                                                       class=\"onoffswitch-checkbox\" id=\"start_interval\">\r\n																<label class=\"onoffswitch-label\" for=\"start_interval\">\r\n                                                                    <span class=\"onoffswitch-inner\"\r\n                                                                          data-swchon-text=\"ON\"\r\n                                                                          data-swchoff-text=\"OFF\"></span>\r\n                                                                    <span class=\"onoffswitch-switch\"></span>\r\n                                                                </label> </span> </span>\r\n\r\n                        <div id=\"updating-chart\" class=\"chart-large txt-color-blue\" flot-basic flot-data=\"liveStats\" flot-options=\"liveStatsOptions\"></div>\r\n\r\n                    </div>\r\n                    <div class=\"col-xs-12 col-sm-12 col-md-4 col-lg-4 show-stats\">\r\n\r\n                        <div class=\"row\">\r\n                            <div class=\"col-xs-6 col-sm-6 col-md-12 col-lg-12\"><span class=\"text\"> My Tasks <span\r\n                                    class=\"pull-right\">130/200</span> </span>\r\n\r\n                                <div class=\"progress\">\r\n                                    <div class=\"progress-bar bg-color-blueDark\" style=\"width: 65%;\"></div>\r\n                                </div>\r\n                            </div>\r\n                            <div class=\"col-xs-6 col-sm-6 col-md-12 col-lg-12\"><span class=\"text\"> Transfered <span\r\n                                    class=\"pull-right\">440 GB</span> </span>\r\n\r\n                                <div class=\"progress\">\r\n                                    <div class=\"progress-bar bg-color-blue\" style=\"width: 34%;\"></div>\r\n                                </div>\r\n                            </div>\r\n                            <div class=\"col-xs-6 col-sm-6 col-md-12 col-lg-12\"><span class=\"text\"> Bugs Squashed<span\r\n                                    class=\"pull-right\">77%</span> </span>\r\n\r\n                                <div class=\"progress\">\r\n                                    <div class=\"progress-bar bg-color-blue\" style=\"width: 77%;\"></div>\r\n                                </div>\r\n                            </div>\r\n                            <div class=\"col-xs-6 col-sm-6 col-md-12 col-lg-12\"><span class=\"text\"> User Testing <span\r\n                                    class=\"pull-right\">7 Days</span> </span>\r\n\r\n                                <div class=\"progress\">\r\n                                    <div class=\"progress-bar bg-color-greenLight\" style=\"width: 84%;\"></div>\r\n                                </div>\r\n                            </div>\r\n\r\n                            <span class=\"show-stat-buttons\"> <span class=\"col-xs-12 col-sm-6 col-md-6 col-lg-6\"> <a\r\n                                    href-void class=\"btn btn-default btn-block hidden-xs\">Generate PDF</a> </span> <span\r\n                                    class=\"col-xs-12 col-sm-6 col-md-6 col-lg-6\"> <a href-void\r\n                                                                                     class=\"btn btn-default btn-block hidden-xs\">Report\r\n                                a bug</a> </span> </span>\r\n\r\n                        </div>\r\n\r\n                    </div>\r\n                </div>\r\n\r\n                <div class=\"show-stat-microcharts\" data-sparkline-container data-easy-pie-chart-container>\r\n                    <div class=\"col-xs-12 col-sm-3 col-md-3 col-lg-3\">\r\n\r\n                        <div class=\"easy-pie-chart txt-color-orangeDark\" data-percent=\"33\" data-pie-size=\"50\">\r\n                            <span class=\"percent percent-sign\">35</span>\r\n                        </div>\r\n                        <span class=\"easy-pie-title\"> Server Load <i class=\"fa fa-caret-up icon-color-bad\"></i> </span>\r\n                        <ul class=\"smaller-stat hidden-sm pull-right\">\r\n                            <li>\r\n                                <span class=\"label bg-color-greenLight\"><i class=\"fa fa-caret-up\"></i> 97%</span>\r\n                            </li>\r\n                            <li>\r\n                                <span class=\"label bg-color-blueLight\"><i class=\"fa fa-caret-down\"></i> 44%</span>\r\n                            </li>\r\n                        </ul>\r\n                        <div class=\"sparkline txt-color-greenLight hidden-sm hidden-md pull-right\"\r\n                             data-sparkline-type=\"line\" data-sparkline-height=\"33px\" data-sparkline-width=\"70px\"\r\n                             data-fill-color=\"transparent\">\r\n                            130, 187, 250, 257, 200, 210, 300, 270, 363, 247, 270, 363, 247\r\n                        </div>\r\n                    </div>\r\n                    <div class=\"col-xs-12 col-sm-3 col-md-3 col-lg-3\">\r\n                        <div class=\"easy-pie-chart txt-color-greenLight\" data-percent=\"78.9\" data-pie-size=\"50\">\r\n                            <span class=\"percent percent-sign\">78.9 </span>\r\n                        </div>\r\n                        <span class=\"easy-pie-title\"> Disk Space <i class=\"fa fa-caret-down icon-color-good\"></i></span>\r\n                        <ul class=\"smaller-stat hidden-sm pull-right\">\r\n                            <li>\r\n                                <span class=\"label bg-color-blueDark\"><i class=\"fa fa-caret-up\"></i> 76%</span>\r\n                            </li>\r\n                            <li>\r\n                                <span class=\"label bg-color-blue\"><i class=\"fa fa-caret-down\"></i> 3%</span>\r\n                            </li>\r\n                        </ul>\r\n                        <div class=\"sparkline txt-color-blue hidden-sm hidden-md pull-right\" data-sparkline-type=\"line\"\r\n                             data-sparkline-height=\"33px\" data-sparkline-width=\"70px\" data-fill-color=\"transparent\">\r\n                            257, 200, 210, 300, 270, 363, 130, 187, 250, 247, 270, 363, 247\r\n                        </div>\r\n                    </div>\r\n                    <div class=\"col-xs-12 col-sm-3 col-md-3 col-lg-3\">\r\n                        <div class=\"easy-pie-chart txt-color-blue\" data-percent=\"23\" data-pie-size=\"50\">\r\n                            <span class=\"percent percent-sign\">23 </span>\r\n                        </div>\r\n                        <span class=\"easy-pie-title\"> Transfered <i class=\"fa fa-caret-up icon-color-good\"></i></span>\r\n                        <ul class=\"smaller-stat hidden-sm pull-right\">\r\n                            <li>\r\n                                <span class=\"label bg-color-darken\">10GB</span>\r\n                            </li>\r\n                            <li>\r\n                                <span class=\"label bg-color-blueDark\"><i class=\"fa fa-caret-up\"></i> 10%</span>\r\n                            </li>\r\n                        </ul>\r\n                        <div class=\"sparkline txt-color-darken hidden-sm hidden-md pull-right\"\r\n                             data-sparkline-type=\"line\" data-sparkline-height=\"33px\" data-sparkline-width=\"70px\"\r\n                             data-fill-color=\"transparent\">\r\n                            200, 210, 363, 247, 300, 270, 130, 187, 250, 257, 363, 247, 270\r\n                        </div>\r\n                    </div>\r\n                    <div class=\"col-xs-12 col-sm-3 col-md-3 col-lg-3\">\r\n                        <div class=\"easy-pie-chart txt-color-darken\" data-percent=\"36\" data-pie-size=\"50\">\r\n                            <span class=\"percent degree-sign\">36 <i class=\"fa fa-caret-up\"></i></span>\r\n                        </div>\r\n                        <span class=\"easy-pie-title\"> Temperature <i\r\n                                class=\"fa fa-caret-down icon-color-good\"></i></span>\r\n                        <ul class=\"smaller-stat hidden-sm pull-right\">\r\n                            <li>\r\n                                <span class=\"label bg-color-red\"><i class=\"fa fa-caret-up\"></i> 124</span>\r\n                            </li>\r\n                            <li>\r\n                                <span class=\"label bg-color-blue\"><i class=\"fa fa-caret-down\"></i> 40 F</span>\r\n                            </li>\r\n                        </ul>\r\n                        <div class=\"sparkline txt-color-red hidden-sm hidden-md pull-right\" data-sparkline-type=\"line\"\r\n                             data-sparkline-height=\"33px\" data-sparkline-width=\"70px\" data-fill-color=\"transparent\">\r\n                            2700, 3631, 2471, 2700, 3631, 2471, 1300, 1877, 2500, 2577, 2000, 2100, 3000\r\n                        </div>\r\n                    </div>\r\n                </div>\r\n\r\n            </div>\r\n            <!-- end s1 tab pane -->\r\n\r\n            <div class=\"tab-pane fade\" id=\"s2\">\r\n                <div class=\"widget-body-toolbar bg-color-white\">\r\n\r\n                    <form class=\"form-inline\" role=\"form\">\r\n\r\n                        <div class=\"form-group\">\r\n                            <label class=\"sr-only\" for=\"s123\">Show From</label>\r\n                            <input type=\"email\" class=\"form-control input-sm\" id=\"s123\" placeholder=\"Show From\">\r\n                        </div>\r\n                        <div class=\"form-group\">\r\n                            <input type=\"email\" class=\"form-control input-sm\" id=\"s124\" placeholder=\"To\">\r\n                        </div>\r\n\r\n                        <div class=\"btn-group hidden-phone pull-right\">\r\n                            <a class=\"btn dropdown-toggle btn-xs btn-default\" data-toggle=\"dropdown\"><i\r\n                                    class=\"fa fa-cog\"></i> More <span class=\"caret\"> </span> </a>\r\n                            <ul class=\"dropdown-menu pull-right\">\r\n                                <li>\r\n                                    <a href-void><i class=\"fa fa-file-text-alt\"></i> Export to PDF</a>\r\n                                </li>\r\n                                <li>\r\n                                    <a href-void><i class=\"fa fa-question-sign\"></i> Help</a>\r\n                                </li>\r\n                            </ul>\r\n                        </div>\r\n\r\n                    </form>\r\n\r\n                </div>\r\n                <div class=\"padding-10\">\r\n                    <div id=\"statsChart\" class=\"chart-large has-legend-unique\" flot-basic flot-data=\"statsData\" flot-options=\"statsDisplayOptions\"></div>\r\n                </div>\r\n\r\n            </div>\r\n            <!-- end s2 tab pane -->\r\n\r\n            <div class=\"tab-pane fade\" id=\"s3\">\r\n\r\n                <div class=\"widget-body-toolbar bg-color-white smart-form\" id=\"rev-toggles\">\r\n\r\n                    <div class=\"inline-group\">\r\n\r\n                        <label for=\"gra-0\" class=\"checkbox\">\r\n                            <input type=\"checkbox\" id=\"gra-0\" ng-model=\"targetsShow\">\r\n                            <i></i> Target </label>\r\n                        <label for=\"gra-1\" class=\"checkbox\">\r\n                            <input type=\"checkbox\" id=\"gra-1\" ng-model=\"actualsShow\">\r\n                            <i></i> Actual </label>\r\n                        <label for=\"gra-2\" class=\"checkbox\">\r\n                            <input type=\"checkbox\" id=\"gra-2\" ng-model=\"signupsShow\">\r\n                            <i></i> Signups </label>\r\n                    </div>\r\n\r\n                    <div class=\"btn-group hidden-phone pull-right\">\r\n                        <a class=\"btn dropdown-toggle btn-xs btn-default\" data-toggle=\"dropdown\"><i\r\n                                class=\"fa fa-cog\"></i> More <span class=\"caret\"> </span> </a>\r\n                        <ul class=\"dropdown-menu pull-right\">\r\n                            <li>\r\n                                <a href-void><i class=\"fa fa-file-text-alt\"></i> Export to PDF</a>\r\n                            </li>\r\n                            <li>\r\n                                <a href-void><i class=\"fa fa-question-sign\"></i> Help</a>\r\n                            </li>\r\n                        </ul>\r\n                    </div>\r\n\r\n                </div>\r\n\r\n                <div class=\"padding-10\">\r\n                    <div id=\"flotcontainer\" class=\"chart-large has-legend-unique\" flot-basic flot-data=\"revenewData\" flot-options=\"revenewDisplayOptions\" ></div>\r\n                </div>\r\n            </div>\r\n            <!-- end s3 tab pane -->\r\n        </div>\r\n\r\n        <!-- end content -->\r\n    </div>\r\n\r\n</div>\r\n<!-- end widget div -->\r\n</div>\r\n");
 $templateCache.put("app/app/layout/layout.tpl.html","<!-- HEADER -->\r\n<div data-smart-include=\"app/layout/partials/header.tpl.html\" class=\"placeholder-header\"></div>\r\n<!-- END HEADER -->\r\n\r\n\r\n<!-- Left panel : Navigation area -->\r\n<!-- Note: This width of the aside area can be adjusted through LESS variables -->\r\n<div data-smart-include=\"app/layout/partials/navigation.tpl.html\" class=\"placeholder-left-panel\"></div>\r\n\r\n<!-- END NAVIGATION -->\r\n\r\n<!-- MAIN PANEL -->\r\n<div id=\"main\" role=\"main\">\r\n    <!-- 小齒輪 -->\r\n    <!-- <demo-states></demo-states> -->\r\n\r\n    <!-- RIBBON -->\r\n    <div id=\"ribbon\">\r\n\r\n		<span class=\"ribbon-button-alignment\">\r\n			<span id=\"refresh\" class=\"btn btn-ribbon\" reset-widgets\r\n                  tooltip-placement=\"bottom\"\r\n                  smart-tooltip-html=\"<i class=\'text-warning fa fa-warning\'></i> Warning! This will reset all your widget settings.\">\r\n				<i class=\"fa fa-refresh\"></i>\r\n			</span>\r\n		</span>\r\n\r\n        <!-- breadcrumb -->\r\n        <state-breadcrumbs></state-breadcrumbs>\r\n        <!-- end breadcrumb -->\r\n\r\n\r\n    </div>\r\n    <!-- END RIBBON -->\r\n\r\n\r\n    <div data-smart-router-animation-wrap=\"content content@app\" data-wrap-for=\"#content\">\r\n        <div data-ui-view=\"content\" data-autoscroll=\"false\"></div>\r\n    </div>\r\n\r\n</div>\r\n<!-- END MAIN PANEL -->\r\n\r\n<!-- PAGE FOOTER -->\r\n<div data-smart-include=\"app/layout/partials/footer.tpl.html\"></div>\r\n\r\n<div data-smart-include=\"app/layout/shortcut/shortcut.tpl.html\"></div>\r\n\r\n<!-- END PAGE FOOTER -->\r\n\r\n\r\n");
 $templateCache.put("app/app/auth/directives/login-info.tpl.html","<div class=\"login-info ng-cloak\">\r\n    <span> <!-- User image size is adjusted inside CSS, it should stay as it -->\r\n        <!-- <a  href=\"\" toggle-shortcut>\r\n            <img ng-src=\"{{user.picture}}\" alt=\"me\" class=\"online\">\r\n                <span>{{user.U_NAME}}\r\n                </span>\r\n            <i class=\"fa fa-angle-down\"></i>\r\n        </a> -->\r\n        <a  href=\"\">\r\n            <img ng-src=\"{{user.picture}}\" alt=\"me\" class=\"online\">\r\n                <span>{{user.U_NAME}}\r\n                </span>\r\n        </a>\r\n     </span>\r\n</div>");
@@ -7501,12 +7482,12 @@ $templateCache.put("app/app/calendar/views/calendar.tpl.html","<!-- MAIN CONTENT
 $templateCache.put("app/app/dashboard/projects/recent-projects.tpl.html","<div class=\"project-context hidden-xs dropdown\" dropdown>\r\n\r\n    <span class=\"label\">{{getWord(\'Projects\')}}:</span>\r\n    <span class=\"project-selector dropdown-toggle\" data-toggle=\"dropdown\">{{getWord(\'Recent projects\')}} <i ng-if=\"projects.length\"\r\n            class=\"fa fa-angle-down\"></i></span>\r\n\r\n    <ul class=\"dropdown-menu\" ng-if=\"projects.length\">\r\n        <li ng-repeat=\"project in projects\">\r\n            <a href=\"{{project.href}}\">{{project.title}}</a>\r\n        </li>\r\n        <li class=\"divider\"></li>\r\n        <li>\r\n            <a ng-click=\"clearProjects()\"><i class=\"fa fa-power-off\"></i> Clear</a>\r\n        </li>\r\n    </ul>\r\n\r\n</div>");
 $templateCache.put("app/app/dashboard/todo/todo-widget.tpl.html","<div id=\"todo-widget\" jarvis-widget data-widget-editbutton=\"false\" data-widget-color=\"blue\"\r\n     ng-controller=\"TodoCtrl\">\r\n    <header>\r\n        <span class=\"widget-icon\"> <i class=\"fa fa-check txt-color-white\"></i> </span>\r\n\r\n        <h2> ToDo\'s </h2>\r\n\r\n        <div class=\"widget-toolbar\">\r\n            <!-- add: non-hidden - to disable auto hide -->\r\n            <button class=\"btn btn-xs btn-default\" ng-class=\"{active: newTodo}\" ng-click=\"toggleAdd()\"><i ng-class=\"{ \'fa fa-plus\': !newTodo, \'fa fa-times\': newTodo}\"></i> Add</button>\r\n\r\n        </div>\r\n    </header>\r\n    <!-- widget div-->\r\n    <div>\r\n        <div class=\"widget-body no-padding smart-form\">\r\n            <!-- content goes here -->\r\n            <div ng-show=\"newTodo\">\r\n                <h5 class=\"todo-group-title\"><i class=\"fa fa-plus-circle\"></i> New Todo</h5>\r\n\r\n                <form name=\"newTodoForm\" class=\"smart-form\">\r\n                    <fieldset>\r\n                        <section>\r\n                            <label class=\"input\">\r\n                                <input type=\"text\" required class=\"input-lg\" ng-model=\"newTodo.title\"\r\n                                       placeholder=\"What needs to be done?\">\r\n                            </label>\r\n                        </section>\r\n                        <section>\r\n                            <div class=\"col-xs-6\">\r\n                                <label class=\"select\">\r\n                                    <select class=\"input-sm\" ng-model=\"newTodo.state\"\r\n                                            ng-options=\"state as state for state in states\"></select> <i></i> </label>\r\n                            </div>\r\n                        </section>\r\n                    </fieldset>\r\n                    <footer>\r\n                        <button ng-disabled=\"newTodoForm.$invalid\" type=\"button\" class=\"btn btn-primary\"\r\n                                ng-click=\"createTodo()\">\r\n                            Add\r\n                        </button>\r\n                        <button type=\"button\" class=\"btn btn-default\" ng-click=\"toggleAdd()\">\r\n                            Cancel\r\n                        </button>\r\n                    </footer>\r\n                </form>\r\n            </div>\r\n\r\n            <todo-list state=\"Critical\"  title=\"Critical Tasks\" icon=\"warning\" todos=\"todos\"></todo-list>\r\n\r\n            <todo-list state=\"Important\" title=\"Important Tasks\" icon=\"exclamation\" todos=\"todos\"></todo-list>\r\n\r\n            <todo-list state=\"Completed\" title=\"Completed Tasks\" icon=\"check\" todos=\"todos\"></todo-list>\r\n\r\n            <!-- end content -->\r\n        </div>\r\n\r\n    </div>\r\n    <!-- end widget div -->\r\n</div>");
 $templateCache.put("app/app/layout/language/language-selector.tpl.html","<ul class=\"header-dropdown-list hidden-xs ng-cloak\" ng-controller=\"LanguagesCtrl\">\r\n    <li class=\"dropdown\" dropdown>\r\n        <a class=\"dropdown-toggle\" data-toggle=\"dropdown\" href> <img src=\"styles/img/blank.gif\" class=\"flag flag-{{currentLanguage.key}}\" alt=\"{{currentLanguage.alt}}\"> <span> {{currentLanguage.title}} </span>\r\n            <i class=\"fa fa-angle-down\"></i> </a>\r\n        <ul class=\"dropdown-menu pull-right\">\r\n            <li ng-class=\"{active: language==currentLanguage}\" ng-repeat=\"language in languages\">\r\n                <a ng-click=\"selectLanguage(language)\"><img src=\"styles/img/blank.gif\" class=\"flag flag-{{language.key}}\" alt=\"{{language.alt}}\"> {{language.title}}</a>\r\n            </li>\r\n        </ul>\r\n    </li>\r\n</ul>\r\n");
-$templateCache.put("app/app/layout/shortcut/shortcut.tpl.html","<div id=\"shortcut\">\r\n	<ul>\r\n		<li>\r\n			<a href=\"#/inbox/\" class=\"jarvismetro-tile big-cubes bg-color-blue\"> <span class=\"iconbox\"> <i class=\"fa fa-envelope fa-4x\"></i> <span>Mail <span class=\"label pull-right bg-color-darken\">14</span></span> </span> </a>\r\n		</li>\r\n		<li>\r\n			<a href=\"#/calendar\" class=\"jarvismetro-tile big-cubes bg-color-orangeDark\"> <span class=\"iconbox\"> <i class=\"fa fa-calendar fa-4x\"></i> <span>Calendar</span> </span> </a>\r\n		</li>\r\n		<li>\r\n			<a href=\"#/maps\" class=\"jarvismetro-tile big-cubes bg-color-purple\"> <span class=\"iconbox\"> <i class=\"fa fa-map-marker fa-4x\"></i> <span>Maps</span> </span> </a>\r\n		</li>\r\n		<li>\r\n			<a href=\"#/invoice\" class=\"jarvismetro-tile big-cubes bg-color-blueDark\"> <span class=\"iconbox\"> <i class=\"fa fa-book fa-4x\"></i> <span>Invoice <span class=\"label pull-right bg-color-darken\">99</span></span> </span> </a>\r\n		</li>\r\n		<li>\r\n			<a href=\"#/gallery\" class=\"jarvismetro-tile big-cubes bg-color-greenLight\"> <span class=\"iconbox\"> <i class=\"fa fa-picture-o fa-4x\"></i> <span>Gallery </span> </span> </a>\r\n		</li>\r\n		<li>\r\n			<a href=\"#/profile\" class=\"jarvismetro-tile big-cubes selected bg-color-pinkDark\"> <span class=\"iconbox\"> <i class=\"fa fa-user fa-4x\"></i> <span>My Profile </span> </span> </a>\r\n		</li>\r\n	</ul>\r\n</div>");
 $templateCache.put("app/app/layout/partials/footer.tpl.html","<div class=\"page-footer\">\r\n    <div class=\"row\">\r\n        <div class=\"col-xs-12 col-sm-6\">\r\n            <span class=\"txt-color-white\">東風物流貨運承攬有限公司 © 2017</span>\r\n        </div>\r\n\r\n        <div class=\"col-xs-6 col-sm-6 text-right hidden-xs\">\r\n            <!-- <div class=\"txt-color-white inline-block\">\r\n                <i class=\"txt-color-blueLight hidden-mobile\">Last account activity <i class=\"fa fa-clock-o\"></i>\r\n                    <strong>52 mins ago &nbsp;</strong> </i>\r\n\r\n                <div class=\"btn-group dropup\">\r\n                    <button class=\"btn btn-xs dropdown-toggle bg-color-blue txt-color-white\" data-toggle=\"dropdown\">\r\n                        <i class=\"fa fa-link\"></i> <span class=\"caret\"></span>\r\n                    </button>\r\n                    <ul class=\"dropdown-menu pull-right text-left\">\r\n                        <li>\r\n                            <div class=\"padding-5\">\r\n                                <p class=\"txt-color-darken font-sm no-margin\">Download Progress</p>\r\n\r\n                                <div class=\"progress progress-micro no-margin\">\r\n                                    <div class=\"progress-bar progress-bar-success\" style=\"width: 50%;\"></div>\r\n                                </div>\r\n                            </div>\r\n                        </li>\r\n                        <li class=\"divider\"></li>\r\n                        <li>\r\n                            <div class=\"padding-5\">\r\n                                <p class=\"txt-color-darken font-sm no-margin\">Server Load</p>\r\n\r\n                                <div class=\"progress progress-micro no-margin\">\r\n                                    <div class=\"progress-bar progress-bar-success\" style=\"width: 20%;\"></div>\r\n                                </div>\r\n                            </div>\r\n                        </li>\r\n                        <li class=\"divider\"></li>\r\n                        <li>\r\n                            <div class=\"padding-5\">\r\n                                <p class=\"txt-color-darken font-sm no-margin\">Memory Load <span class=\"text-danger\">*critical*</span>\r\n                                </p>\r\n\r\n                                <div class=\"progress progress-micro no-margin\">\r\n                                    <div class=\"progress-bar progress-bar-danger\" style=\"width: 70%;\"></div>\r\n                                </div>\r\n                            </div>\r\n                        </li>\r\n                        <li class=\"divider\"></li>\r\n                        <li>\r\n                            <div class=\"padding-5\">\r\n                                <button class=\"btn btn-block btn-default\">refresh</button>\r\n                            </div>\r\n                        </li>\r\n                    </ul>\r\n                </div>\r\n            </div> -->\r\n        </div>\r\n    </div>\r\n</div>");
 $templateCache.put("app/app/layout/partials/header.tpl.html","<header id=\"header\">\r\n    <div id=\"logo-group\">\r\n        <!-- PLACE YOUR LOGO HERE -->\r\n        <span id=\"logo\"> <img src=\"styles/img/ews/title_logo.png\" alt=\"東風管理系統\"> </span>\r\n        <!-- END LOGO PLACEHOLDER -->\r\n        <!-- Note: The activity badge color changes when clicked and resets the number to 0\r\n    Suggestion: You may want to set a flag when this happens to tick off all checked messages / notifications -->\r\n        <!-- <span id=\"activity\" class=\"activity-dropdown\" activities-dropdown-toggle> \r\n            <i class=\"fa fa-user\"></i> \r\n            <b class=\"badge bg-color-red\">21</b> \r\n        </span> -->\r\n        <div smart-include=\"app/dashboard/activities/activities.html\"></div>\r\n    </div>\r\n    <!-- <recent-projects></recent-projects> -->\r\n    <!-- pulled right: nav area -->\r\n    <div class=\"pull-right\">\r\n        <!-- collapse menu button -->\r\n        <div id=\"hide-menu\" class=\"btn-header pull-right\">\r\n            <span> <a toggle-menu title=\"Collapse Menu\"><i\r\n                class=\"fa fa-reorder\"></i></a> </span>\r\n        </div>\r\n        <!-- end collapse menu -->\r\n        <!-- #MOBILE -->\r\n        <!-- Top menu profile link : this shows only when top menu is active -->\r\n        <ul id=\"mobile-profile-img\" class=\"header-dropdown-list hidden-xs padding-5\">\r\n            <li class=\"\">\r\n                <a href=\"#\" class=\"dropdown-toggle no-margin userdropdown\" data-toggle=\"dropdown\">\r\n                    <img src=\"styles/img/avatars/eastwind.png\" alt=\"John Doe\" class=\"online\" />\r\n                </a>\r\n                <ul class=\"dropdown-menu pull-right\">\r\n                    <li>\r\n                        <a href-void class=\"padding-10 padding-top-0 padding-bottom-0\"><i\r\n                            class=\"fa fa-cog\"></i> Setting</a>\r\n                    </li>\r\n                    <li class=\"divider\"></li>\r\n                    <li>\r\n                        <a ui-sref=\"app.appViews.profileDemo\" class=\"padding-10 padding-top-0 padding-bottom-0\"> <i class=\"fa fa-user\"></i>\r\n                            <u>P</u>rofile</a>\r\n                    </li>\r\n                    <li class=\"divider\"></li>\r\n                    <li>\r\n                        <a href-void class=\"padding-10 padding-top-0 padding-bottom-0\" data-action=\"toggleShortcut\"><i class=\"fa fa-arrow-down\"></i> <u>S</u>hortcut</a>\r\n                    </li>\r\n                    <li class=\"divider\"></li>\r\n                    <li>\r\n                        <a href-void class=\"padding-10 padding-top-0 padding-bottom-0\" data-action=\"launchFullscreen\"><i class=\"fa fa-arrows-alt\"></i> Full <u>S</u>creen</a>\r\n                    </li>\r\n                    <li class=\"divider\"></li>\r\n                    <li>\r\n                        <a href=\"#/login\" class=\"padding-10 padding-top-5 padding-bottom-5\" data-action=\"userLogout\"><i\r\n                            class=\"fa fa-sign-out fa-lg\"></i> <strong><u>L</u>ogout</strong></a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n        </ul>\r\n        <!-- logout button -->\r\n        <div id=\"logout\" class=\"btn-header transparent pull-right\">\r\n            <span> \r\n                <a ui-sref=\"login\" \r\n                   title=\"Sign Out\" \r\n                   data-action=\"userLogout\"\r\n                   data-logout-msg=\"You can improve your security further after logging out by closing this opened browser\">\r\n                   <i class=\"fa fa-sign-out\"></i>\r\n                </a> \r\n            </span>\r\n        </div>\r\n        <!-- end logout button -->\r\n        <!-- search mobile button (this is hidden till mobile view port) -->\r\n        <div id=\"search-mobile\" class=\"btn-header transparent pull-right\" data-search-mobile>\r\n            <span> <a href=\"#\" title=\"Search\"><i class=\"fa fa-search\"></i></a> </span>\r\n        </div>\r\n        <!-- end search mobile button -->\r\n        <!-- input: search field -->\r\n        <!-- <form action=\"#/search\" class=\"header-search pull-right\">\r\n            <input id=\"search-fld\" type=\"text\" name=\"param\" placeholder=\"Find reports and more\" data-autocomplete=\'[\r\n                    \"ActionScript\",\r\n                    \"AppleScript\",\r\n                    \"Asp\",\r\n                    \"BASIC\",\r\n                    \"C\",\r\n                    \"C++\",\r\n                    \"Clojure\",\r\n                    \"COBOL\",\r\n                    \"ColdFusion\",\r\n                    \"Erlang\",\r\n                    \"Fortran\",\r\n                    \"Groovy\",\r\n                    \"Haskell\",\r\n                    \"Java\",\r\n                    \"JavaScript\",\r\n                    \"Lisp\",\r\n                    \"Perl\",\r\n                    \"PHP\",\r\n                    \"Python\",\r\n                    \"Ruby\",\r\n                    \"Scala\",\r\n                    \"Scheme\"]\'>\r\n            <button type=\"submit\">\r\n                <i class=\"fa fa-search\"></i>\r\n            </button>\r\n            <a href=\"$\" id=\"cancel-search-js\" title=\"Cancel Search\"><i class=\"fa fa-times\"></i></a>\r\n        </form> -->\r\n        <!-- end input: search field -->\r\n        <!-- fullscreen button -->\r\n        <div id=\"fullscreen\" class=\"btn-header transparent pull-right\">\r\n            <span> <a full-screen title=\"Full Screen\"><i\r\n                class=\"fa fa-arrows-alt\"></i></a> </span>\r\n        </div>\r\n        <!-- end fullscreen button -->\r\n        <!-- #Voice Command: Start Speech -->\r\n        <!-- <div id=\"speech-btn\" class=\"btn-header transparent pull-right hidden-sm hidden-xs\">\r\n            <div>\r\n                <a title=\"Voice Command\" id=\"voice-command-btn\" speech-recognition><i class=\"fa fa-microphone\"></i></a>\r\n                <div class=\"popover bottom\">\r\n                    <div class=\"arrow\"></div>\r\n                    <div class=\"popover-content\">\r\n                        <h4 class=\"vc-title\">Voice command activated <br>\r\n                        <small>Please speak clearly into the mic</small>\r\n                    </h4>\r\n                        <h4 class=\"vc-title-error text-center\">\r\n                        <i class=\"fa fa-microphone-slash\"></i> Voice command failed\r\n                        <br>\r\n                        <small class=\"txt-color-red\">Must <strong>\"Allow\"</strong> Microphone</small>\r\n                        <br>\r\n                        <small class=\"txt-color-red\">Must have <strong>Internet Connection</strong></small>\r\n                    </h4>\r\n                        <a href-void class=\"btn btn-success\" id=\"speech-help-btn\">See Commands</a>\r\n                        <a href-void class=\"btn bg-color-purple txt-color-white\" onclick=\"$(\'#speech-btn .popover\').fadeOut(50);\">Close Popup</a>\r\n                    </div>\r\n                </div>\r\n            </div>\r\n        </div> -->\r\n        <!-- end voice command -->\r\n        \r\n        <!-- multiple lang dropdown : find all flags in the flags page -->\r\n        <language-selector></language-selector>\r\n        <!-- end multiple lang -->\r\n    </div>\r\n    <!-- end pulled right: nav area -->\r\n</header>\r\n");
 $templateCache.put("app/app/layout/partials/navigation.tpl.html","<aside id=\"left-panel\">\r\n\r\n    <!-- User info -->\r\n    <div login-info></div>\r\n    <!-- end user info -->\r\n\r\n    <nav data-smart-menu-items=\"/api/menu-items.json\">\r\n    <!-- <nav> -->\r\n        <!-- NOTE: Notice the gaps after each icon usage <i></i>..\r\n        Please note that these links work a bit different than\r\n        traditional href=\"\" links. See documentation for details.\r\n        -->\r\n\r\n        <!-- <ul data-smart-menu>\r\n            <li data-menu-collapse>\r\n                <a href=\"#\" title=\"Dashboard\"><i class=\"fa fa-lg fa-fw fa-home\"></i> <span\r\n                        class=\"menu-item-parent\">{{getWord(\'Dashboard\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.dashboard\">{{getWord(\'Analytics Dashboard\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.dashboard-social\">{{getWord(\'Social Wall\')}}</a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\" title=\"Restful\">\r\n                    <i class=\"fa fa-lg fa-fw fa-home\"></i> \r\n                    <span class=\"menu-item-parent\">{{getWord(\'Restful\')}}</span>\r\n                </a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.restful.alantest\">{{getWord(\'AlanTest\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.restful.gridtest\">{{getWord(\'GridTest\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.restful.exceltest\">{{getWord(\'ExcelTest\')}}</a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-ui-sref-active=\"active\">\r\n                <a data-ui-sref=\"app.mainwork\" title=\"MainWork\">\r\n                    <i class=\"fa fa-lg fa-fw fa-newspaper-o\"></i> \r\n                    <span class=\"menu-item-parent\">{{getWord(\'MainWork\')}}</span>\r\n                </a>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\" title=\"SelfWork\">\r\n                    <i class=\"fa fa-lg fa-fw fa-truck\"></i> \r\n                    <span class=\"menu-item-parent\">{{getWord(\'SelfWork\')}}</span>\r\n                </a>\r\n                <ul>\r\n                    <li data-menu-collapse>\r\n                        <a href=\"#\"><i class=\"fa fa-fw fa-folder-open\"></i> {{getWord(\'LeaderOption\')}} </a>\r\n                        <ul>\r\n                            <li data-ui-sref-active=\"active\">\r\n                                <a data-ui-sref=\"app.selfwork.leaderoption.compydistribution\"><i class=\"fa fa-building-o\"></i> {{getWord(\'CompyDistribution\')}}</a>\r\n                            </li>\r\n                            <li data-ui-sref-active=\"active\">\r\n                                <a data-ui-sref=\"app.selfwork.leaderoption.agentsetting\"><i class=\"fa fa-braille\"></i> {{getWord(\'AgentSetting\')}}</a>\r\n                            </li>\r\n                            <li data-ui-sref-active=\"active\">\r\n                                <a data-ui-sref=\"app.selfwork.leaderoption.dailyleave\"><i class=\"fa fa-child\"></i> {{getWord(\'DailyLeave\')}}</a>\r\n                            </li>\r\n                        </ul>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.selfwork.customoversix\"><i class=\"fa fa-cube\"></i> {{getWord(\'CustomOverSix\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.selfwork.leaderjobs\"><i class=\"fa fa-cubes\"></i> {{getWord(\'LeaderJobs\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.selfwork.leaderhistorysearch\"><i class=\"fa fa-history\"></i> {{getWord(\'LeaderHistorySearch\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.selfwork.assistantjobs\"><i class=\"fa fa-cube\"></i> {{getWord(\'AssistantJobs\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.selfwork.assistanthistorysearch\"><i class=\"fa fa-history\"></i> {{getWord(\'AssistantHistorySearch\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.selfwork.employeejobs\"><i class=\"fa fa-cube\"></i> {{getWord(\'EmployeeJobs\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.selfwork.employeehistorysearch\"><i class=\"fa fa-history\"></i> {{getWord(\'EmployeeHistorySearch\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.selfwork.deliveryjobs\"><i class=\"fa fa-cube\"></i> {{getWord(\'DeliveryJobs\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.selfwork.deliveryhistorysearch\"><i class=\"fa fa-history\"></i> {{getWord(\'DeliveryHistorySearch\')}}</a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\" title=\"Concerns\"><i class=\"fa fa-lg fa-fw fa-address-book-o\"></i> <span\r\n                        class=\"menu-item-parent\">{{getWord(\'Concerns\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.concerns.ban\"><i class=\"fa fa-ban\"></i> {{getWord(\'Ban\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.concerns.dailyalert\"><i class=\"fa fa-bell-o\"></i> {{getWord(\'DailyAlert\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.concerns.banhistorysearch\"><i class=\"fa fa-history\"></i> {{getWord(\'HistorySearch\')}}</a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\" title=\"Settings\"><i class=\"fa fa-lg fa-fw fa-cog\"></i> <span\r\n                        class=\"menu-item-parent\">{{getWord(\'Settings\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.settings.profile\"><i class=\"fa fa-user\"></i> {{getWord(\'Profile\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.settings.accountmanagement\"><i class=\"fa fa-sitemap\"></i> {{getWord(\'AccountManagement\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.settings.billboardeditor\"><i class=\"fa fa-newspaper-o\"></i> {{getWord(\'BillboardEditor\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.settings.externalmanagement\"><i class=\"fa fa-external-link\"></i> {{getWord(\'ExternalManagement\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.settings.aviationmail\"><i class=\"fa fa-envelope-o\"></i> {{getWord(\'AviationMail\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.settings.excompybagno\"><i class=\"fa fa-shopping-bag\"></i> {{getWord(\'ExcompyBagno\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.settings.bagnocount\"><i class=\"fa fa-hourglass-half\"></i> {{getWord(\'BagnoCount\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.settings.syslogs\"><i class=\"fa fa-database\"></i> {{getWord(\'SysLogs\')}}</a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse class=\"top-menu-invisible\">\r\n                <a href=\"#\"><i class=\"fa fa-lg fa-fw fa-cube txt-color-blue\"></i> <span class=\"menu-item-parent\">{{getWord(\'SmartAdmin Intel\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.smartAdmin.appLayouts\"><i class=\"fa fa-gear\"></i>\r\n                            {{getWord(\'App Layouts\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.smartAdmin.prebuiltSkins\"><i class=\"fa fa-picture-o\"></i>\r\n                            {{getWord(\'Prebuilt Skins\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.smartAdmin.appLayout\"><i class=\"fa fa-cube\"></i> {{getWord(\'App Settings\')}}</a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-ui-sref-active=\"active\">\r\n                <a data-ui-sref=\"app.inbox.folder\" title=\"Outlook\">\r\n                    <i class=\"fa fa-lg fa-fw fa-inbox\"></i> <span class=\"menu-item-parent\">{{getWord(\'Outlook\')}}</span><span\r\n                        unread-messages-count class=\"badge pull-right inbox-badge\"></span></a>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\"><i class=\"fa fa-lg fa-fw fa-bar-chart-o\"></i> <span class=\"menu-item-parent\">{{getWord(\'Graphs\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.graphs.flot\">{{getWord(\'Flot Chart\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.graphs.morris\">{{getWord(\'Morris Charts\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.graphs.sparkline\">{{getWord(\'Sparkline\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.graphs.easyPieCharts\">{{getWord(\'Easy Pie Charts\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.graphs.dygraphs\">{{getWord(\'Dygraphs\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.graphs.chartjs\">Chart.js</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.graphs.highchartTables\">Highchart Tables <span\r\n                                class=\"badge pull-right inbox-badge bg-color-yellow\">new</span></a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\"><i class=\"fa fa-lg fa-fw fa-table\"></i> <span\r\n                        class=\"menu-item-parent\">{{getWord(\'Tables\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.tables.normal\">{{getWord(\'Normal Tables\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.tables.datatables\">{{getWord(\'Data Tables\')}} <span\r\n                                class=\"badge inbox-badge bg-color-greenLight\">v1.10</span></a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.tables.jqgrid\">{{getWord(\'Jquery Grid\')}}</a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\"><i class=\"fa fa-lg fa-fw fa-pencil-square-o\"></i> <span class=\"menu-item-parent\">{{getWord(\'Forms\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.form.elements\">{{getWord(\'Smart Form Elements\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.form.layouts\">{{getWord(\'Smart Form Layouts\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.form.validation\">{{getWord(\'Smart Form Validation\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.form.bootstrapForms\">{{getWord(\'Bootstrap Form Elements\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.form.bootstrapValidation\">{{getWord(\'Bootstrap Form Validation\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.form.plugins\">{{getWord(\'Form Plugins\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.form.wizards\">{{getWord(\'Wizards\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.form.editors\">{{getWord(\'Bootstrap Editors\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.form.dropzone\">{{getWord(\'Dropzone\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.form.imageEditor\">{{getWord(\'Image Cropping\')}} <span\r\n                                class=\"badge pull-right inbox-badge bg-color-yellow\">new</span></a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\"><i class=\"fa fa-lg fa-fw fa-desktop\"></i> <span class=\"menu-item-parent\">{{getWord(\'UI Elements\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.ui.general\">{{getWord(\'General Elements\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.ui.buttons\">{{getWord(\'Buttons\')}}</a>\r\n                    </li>\r\n                    <li data-menu-collapse>\r\n                        <a href=\"#\">{{getWord(\'Icons\')}}</a>\r\n                        <ul>\r\n                            <li data-ui-sref-active=\"active\">\r\n                                <a data-ui-sref=\"app.ui.iconsFa\"><i class=\"fa fa-plane\"></i> {{getWord(\'Font Awesome\')}}</a>\r\n                            </li>\r\n                            <li data-ui-sref-active=\"active\">\r\n                                <a data-ui-sref=\"app.ui.iconsGlyph\"><i class=\"glyphicon glyphicon-plane\"></i>\r\n                                    {{getWord(\'Glyph Icons\')}}</a>\r\n                            </li>\r\n                            <li data-ui-sref-active=\"active\">\r\n                                <a data-ui-sref=\"app.ui.iconsFlags\"><i class=\"fa fa-flag\"></i> {{getWord(\'Flags\')}}</a>\r\n                            </li>\r\n                        </ul>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.ui.grid\">{{getWord(\'Grid\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.ui.treeView\">{{getWord(\'Tree View\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.ui.nestableLists\">{{getWord(\'Nestable Lists\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.ui.jqueryUi\">{{getWord(\'JQuery UI\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.ui.typography\">{{getWord(\'Typography\')}}</a>\r\n                    </li>\r\n                    <li data-menu-collapse>\r\n                        <a href=\"#\">{{getWord(\'Six Level Menu\')}}</a>\r\n                        <ul>\r\n                            <li data-menu-collapse>\r\n                                <a href=\"#\"><i class=\"fa fa-fw fa-folder-open\"></i> {{getWord(\'Item #2\')}}</a>\r\n                                <ul>\r\n                                    <li data-menu-collapse>\r\n                                        <a href=\"#\"><i class=\"fa fa-fw fa-folder-open\"></i> {{getWord(\'Sub #2.1\')}} </a>\r\n                                        <ul>\r\n                                            <li>\r\n                                                <a href=\"#\"><i class=\"fa fa-fw fa-file-text\"></i> {{getWord(\'Item\r\n                                                    #2.1.1\')}}</a>\r\n                                            </li>\r\n                                            <li data-menu-collapse>\r\n                                                <a href=\"#\"><i class=\"fa fa-fw fa-plus\"></i>{{getWord(\'Expand\')}}</a>\r\n                                                <ul>\r\n                                                    <li>\r\n                                                        <a href=\"#\"><i class=\"fa fa-fw fa-file-text\"></i>\r\n                                                            {{getWord(\'File\')}}</a>\r\n                                                    </li>\r\n                                                    <li>\r\n                                                        <a href=\"#\"><i class=\"fa fa-fw fa-trash-o\"></i>\r\n                                                            {{getWord(\'Delete\')}}</a></li>\r\n                                                </ul>\r\n                                            </li>\r\n                                        </ul>\r\n                                    </li>\r\n                                </ul>\r\n                            </li>\r\n                            <li data-menu-collapse>\r\n                                <a href=\"#\"><i class=\"fa fa-fw fa-folder-open\"></i> {{getWord(\'Item #3\')}}</a>\r\n\r\n                                <ul>\r\n                                    <li data-menu-collapse>\r\n                                        <a href=\"#\"><i class=\"fa fa-fw fa-folder-open\"></i> {{getWord(\'3ed Level\')}}\r\n                                        </a>\r\n                                        <ul>\r\n                                            <li>\r\n                                                <a href=\"#\"><i class=\"fa fa-fw fa-file-text\"></i>\r\n                                                    {{getWord(\'File\')}}</a>\r\n                                            </li>\r\n                                            <li>\r\n                                                <a href=\"#\"><i class=\"fa fa-fw fa-file-text\"></i>\r\n                                                    {{getWord(\'File\')}}</a>\r\n                                            </li>\r\n                                        </ul>\r\n                                    </li>\r\n                                </ul>\r\n\r\n                            </li>\r\n                        </ul>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n\r\n            <li data-ui-sref-active=\"active\">\r\n                <a data-ui-sref=\"app.widgets\" title=\"Widgets\"><i class=\"fa fa-lg fa-fw fa-list-alt\"></i> <span class=\"menu-item-parent\">{{getWord(\'Widgets\')}}</span></a>\r\n            </li>\r\n\r\n\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\">\r\n                    <i class=\"fa fa-lg fa-fw fa-cloud\"><em>3</em></i> <span class=\"menu-item-parent\">{{getWord(\'Cool Features\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.calendar\" title=\"Calendar\"><i\r\n                                class=\"fa fa-lg fa-fw fa-calendar\"></i> <span\r\n                                class=\"menu-item-parent\">{{getWord(\'Calendar\')}}</span></a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.maps\"><i class=\"fa fa-lg fa-fw fa-map-marker\"></i> <span class=\"menu-item-parent\">{{getWord(\'GMap Skins\')}}</span><span\r\n                                class=\"badge bg-color-greenLight pull-right inbox-badge\">9</span></a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\">\r\n                    <i class=\"fa fa-lg fa-fw fa-puzzle-piece\"></i> <span class=\"menu-item-parent\">{{getWord(\'App Views\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.appViews.projects\"><i class=\"fa fa-file-text-o\"></i>\r\n                            {{getWord(\'Projects\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.appViews.blogDemo\"><i class=\"fa fa-paragraph\"></i> {{getWord(\'Blog\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.appViews.galleryDemo\"><i class=\"fa fa-picture-o\"></i>\r\n                            {{getWord(\'Gallery\')}}</a>\r\n                    </li>\r\n\r\n                    <li data-menu-collapse>\r\n                        <a href=\"#\"><i class=\"fa fa-comments\"></i> {{getWord(\'Forum Layout\')}}</a>\r\n                        <ul>\r\n                            <li data-ui-sref-active=\"active\">\r\n                                <a data-ui-sref=\"app.appViews.forumDemo\"><i class=\"fa fa-picture-o\"></i>\r\n                                    {{getWord(\'General View\')}}</a>\r\n                            </li>\r\n                            <li data-ui-sref-active=\"active\">\r\n                                <a data-ui-sref=\"app.appViews.forumTopicDemo\"><i class=\"fa fa-picture-o\"></i>\r\n                                    {{getWord(\'Topic View\')}}</a>\r\n                            </li>\r\n                            <li data-ui-sref-active=\"active\">\r\n                                <a data-ui-sref=\"app.appViews.forumPostDemo\"><i class=\"fa fa-picture-o\"></i>\r\n                                    {{getWord(\'Post View\')}}</a>\r\n                            </li>\r\n                        </ul>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.appViews.profileDemo\"><i class=\"fa fa-group\"></i>\r\n                            {{getWord(\'Profile\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.appViews.timelineDemo\"><i class=\"fa fa-clock-o\"></i>\r\n                            {{getWord(\'Timeline\')}}</a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\">\r\n                    <i class=\"fa fa-lg fa-fw fa-shopping-cart\"></i> <span class=\"menu-item-parent\">{{getWord(\'E-Commerce\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.eCommerce.orders\" title=\"Orders\"> {{getWord(\'Orders\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.eCommerce.products\" title=\"Products View\"> {{getWord(\'Products View\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.eCommerce.detail\" title=\"Products Detail\"> {{getWord(\'Products Detail\')}}</a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\"><i class=\"fa fa-lg fa-fw fa-windows\"></i> <span class=\"menu-item-parent\">{{getWord(\'Miscellaneous\')}}</span></a>\r\n                <ul>\r\n                    <li>\r\n                        <a href=\"http://bootstraphunter.com/smartadmin-landing/\" target=\"_blank\">{{getWord(\'Landing\r\n                            Page\')}} <i class=\"fa fa-external-link\"></i></a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.misc.pricingTable\">{{getWord(\'Pricing Tables\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.misc.invoice\">{{getWord(\'Invoice\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"login\">{{getWord(\'Login\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"register\">{{getWord(\'Register\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"lock\">{{getWord(\'Locked Screen\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.misc.error404\">{{getWord(\'Error 404\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.misc.error500\">{{getWord(\'Error 500\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.misc.blank\">{{getWord(\'Blank Page\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.misc.emailTemplate\">{{getWord(\'Email Template\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.misc.search\">{{getWord(\'Search Page\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.misc.ckeditor\">{{getWord(\'CK Editor\')}}</a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse class=\"chat-users top-menu-invisible\">\r\n                <a href=\"#\"><i class=\"fa fa-lg fa-fw fa-comment-o\"><em class=\"bg-color-pink flash animated\">!</em></i>\r\n                    <span class=\"menu-item-parent\">{{getWord(\'Smart Chat API\')}} <sup>{{getWord(\'beta\')}}</sup></span></a>\r\n                <div aside-chat-widget></div>\r\n            </li>\r\n        </ul> -->\r\n\r\n        <!-- NOTE: This allows you to pull menu items from server -->\r\n        <!-- <ul data-smart-menu-items=\"/api/menu-items.json\"></ul> -->\r\n    </nav>\r\n\r\n  <span class=\"minifyme\" data-action=\"minifyMenu\" minify-menu>\r\n    <i class=\"fa fa-arrow-circle-left hit\"></i>\r\n  </span>\r\n\r\n</aside>");
 $templateCache.put("app/app/layout/partials/sub-header.tpl.html","<div class=\"col-xs-12 col-sm-5 col-md-5 col-lg-8\" data-sparkline-container>\r\n    <ul id=\"sparks\" class=\"\">\r\n        <li class=\"sparks-info\">\r\n            <h5> My Income <span class=\"txt-color-blue\">$47,171</span></h5>\r\n            <div class=\"sparkline txt-color-blue hidden-mobile hidden-md hidden-sm\">\r\n                1300, 1877, 2500, 2577, 2000, 2100, 3000, 2700, 3631, 2471, 2700, 3631, 2471\r\n            </div>\r\n        </li>\r\n        <li class=\"sparks-info\">\r\n            <h5> Site Traffic <span class=\"txt-color-purple\"><i class=\"fa fa-arrow-circle-up\"></i>&nbsp;45%</span></h5>\r\n            <div class=\"sparkline txt-color-purple hidden-mobile hidden-md hidden-sm\">\r\n                110,150,300,130,400,240,220,310,220,300, 270, 210\r\n            </div>\r\n        </li>\r\n        <li class=\"sparks-info\">\r\n            <h5> Site Orders <span class=\"txt-color-greenDark\"><i class=\"fa fa-shopping-cart\"></i>&nbsp;2447</span></h5>\r\n            <div class=\"sparkline txt-color-greenDark hidden-mobile hidden-md hidden-sm\">\r\n                110,150,300,130,400,240,220,310,220,300, 270, 210\r\n            </div>\r\n        </li>\r\n    </ul>\r\n</div>\r\n			");
 $templateCache.put("app/app/layout/partials/voice-commands.tpl.html","<!-- TRIGGER BUTTON:\r\n<a href=\"/my-ajax-page.html\" data-toggle=\"modal\" data-target=\"#remoteModal\" class=\"btn btn-default\">Open Modal</a>  -->\r\n\r\n<!-- MODAL PLACE HOLDER\r\n<div class=\"modal fade\" id=\"remoteModal\" tabindex=\"-1\" role=\"dialog\" aria-labelledby=\"remoteModalLabel\" aria-hidden=\"true\">\r\n<div class=\"modal-dialog\">\r\n<div class=\"modal-content\"></div>\r\n</div>\r\n</div>   -->\r\n<!--////////////////////////////////////-->\r\n\r\n<!--<div class=\"modal-header\">\r\n<button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-hidden=\"true\">\r\n&times;\r\n</button>\r\n<h4 class=\"modal-title\" id=\"myModalLabel\">Command List</h4>\r\n</div>-->\r\n<div class=\"modal-body\">\r\n\r\n	<h1><i class=\"fa fa-microphone text-muted\"></i>&nbsp;&nbsp; SmartAdmin Voice Command</h1>\r\n	<hr class=\"simple\">\r\n	<h5>Instruction</h5>\r\n\r\n	Click <span class=\"text-success\">\"Allow\"</span> to access your microphone and activate Voice Command.\r\n	You will notice a <span class=\"text-primary\"><strong>BLUE</strong> Flash</span> on the microphone icon indicating activation.\r\n	The icon will appear <span class=\"text-danger\"><strong>RED</strong></span> <span class=\"label label-danger\"><i class=\"fa fa-microphone fa-lg\"></i></span> if you <span class=\"text-danger\">\"Deny\"</span> access or don\'t have any microphone installed.\r\n	<br>\r\n	<br>\r\n	As a security precaution, your browser will disconnect the microphone every 60 to 120 seconds (sooner if not being used). In which case Voice Command will prompt you again to <span class=\"text-success\">\"Allow\"</span> or <span class=\"text-danger\">\"Deny\"</span> access to your microphone.\r\n	<br>\r\n	<br>\r\n	If you host your page over <strong>http<span class=\"text-success\">s</span></strong> (secure socket layer) protocol you can wave this security measure and have an unintrupted Voice Command.\r\n	<br>\r\n	<br>\r\n	<h5>Commands</h5>\r\n	<ul>\r\n		<li>\r\n			<strong>\'show\' </strong> then say the <strong>*page*</strong> you want to go to. For example <strong>\"show inbox\"</strong> or <strong>\"show calendar\"</strong>\r\n		</li>\r\n		<li>\r\n			<strong>\'mute\' </strong> - mutes all sound effects for the theme.\r\n		</li>\r\n		<li>\r\n			<strong>\'sound on\'</strong> - unmutes all sound effects for the theme.\r\n		</li>\r\n		<li>\r\n			<span class=\"text-danger\"><strong>\'stop\'</strong></span> - deactivates voice command.\r\n		</li>\r\n		<li>\r\n			<span class=\"text-primary\"><strong>\'help\'</strong></span> - brings up the command list\r\n		</li>\r\n		<li>\r\n			<span class=\"text-danger\"><strong>\'got it\'</strong></span> - closes help modal\r\n		</li>\r\n		<li>\r\n			<strong>\'hide navigation\'</strong> - toggle navigation collapse\r\n		</li>\r\n		<li>\r\n			<strong>\'show navigation\'</strong> - toggle navigation to open (can be used again to close)\r\n		</li>\r\n		<li>\r\n			<strong>\'scroll up\'</strong> - scrolls to the top of the page\r\n		</li>\r\n		<li>\r\n			<strong>\'scroll down\'</strong> - scrollts to the bottom of the page\r\n		</li>\r\n		<li>\r\n			<strong>\'go back\' </strong> - goes back in history (history -1 click)\r\n		</li>\r\n		<li>\r\n			<strong>\'logout\'</strong> - logs you out\r\n		</li>\r\n	</ul>\r\n	<br>\r\n	<h5>Adding your own commands</h5>\r\n	Voice Command supports up to 80 languages. Adding your own commands is extreamly easy. All commands are stored inside <strong>app.config.js</strong> file under the <code>var commands = {...}</code>. \r\n\r\n	<hr class=\"simple\">\r\n	<div class=\"text-right\">\r\n		<button type=\"button\" class=\"btn btn-success btn-lg\" data-dismiss=\"modal\">\r\n			Got it!\r\n		</button>\r\n	</div>\r\n\r\n</div>\r\n<!--<div class=\"modal-footer\">\r\n<button type=\"button\" class=\"btn btn-primary\" data-dismiss=\"modal\">Got it!</button>\r\n</div> -->");
+$templateCache.put("app/app/layout/shortcut/shortcut.tpl.html","<div id=\"shortcut\">\r\n	<ul>\r\n		<li>\r\n			<a href=\"#/inbox/\" class=\"jarvismetro-tile big-cubes bg-color-blue\"> <span class=\"iconbox\"> <i class=\"fa fa-envelope fa-4x\"></i> <span>Mail <span class=\"label pull-right bg-color-darken\">14</span></span> </span> </a>\r\n		</li>\r\n		<li>\r\n			<a href=\"#/calendar\" class=\"jarvismetro-tile big-cubes bg-color-orangeDark\"> <span class=\"iconbox\"> <i class=\"fa fa-calendar fa-4x\"></i> <span>Calendar</span> </span> </a>\r\n		</li>\r\n		<li>\r\n			<a href=\"#/maps\" class=\"jarvismetro-tile big-cubes bg-color-purple\"> <span class=\"iconbox\"> <i class=\"fa fa-map-marker fa-4x\"></i> <span>Maps</span> </span> </a>\r\n		</li>\r\n		<li>\r\n			<a href=\"#/invoice\" class=\"jarvismetro-tile big-cubes bg-color-blueDark\"> <span class=\"iconbox\"> <i class=\"fa fa-book fa-4x\"></i> <span>Invoice <span class=\"label pull-right bg-color-darken\">99</span></span> </span> </a>\r\n		</li>\r\n		<li>\r\n			<a href=\"#/gallery\" class=\"jarvismetro-tile big-cubes bg-color-greenLight\"> <span class=\"iconbox\"> <i class=\"fa fa-picture-o fa-4x\"></i> <span>Gallery </span> </span> </a>\r\n		</li>\r\n		<li>\r\n			<a href=\"#/profile\" class=\"jarvismetro-tile big-cubes selected bg-color-pinkDark\"> <span class=\"iconbox\"> <i class=\"fa fa-user fa-4x\"></i> <span>My Profile </span> </span> </a>\r\n		</li>\r\n	</ul>\r\n</div>");
 $templateCache.put("app/public/app/dashboard/live-feeds.tpl.html","<div jarvis-widget id=\"live-feeds-widget\" data-widget-togglebutton=\"false\" data-widget-editbutton=\"false\"\r\n     data-widget-fullscreenbutton=\"false\" data-widget-colorbutton=\"false\" data-widget-deletebutton=\"false\">\r\n<!-- widget options:\r\nusage: <div class=\"jarviswidget\" id=\"wid-id-0\" data-widget-editbutton=\"false\">\r\n\r\ndata-widget-colorbutton=\"false\"\r\ndata-widget-editbutton=\"false\"\r\ndata-widget-togglebutton=\"false\"\r\ndata-widget-deletebutton=\"false\"\r\ndata-widget-fullscreenbutton=\"false\"\r\ndata-widget-custombutton=\"false\"\r\ndata-widget-collapsed=\"true\"\r\ndata-widget-sortable=\"false\"\r\n\r\n-->\r\n<header>\r\n    <span class=\"widget-icon\"> <i class=\"glyphicon glyphicon-stats txt-color-darken\"></i> </span>\r\n\r\n    <h2>Live Feeds </h2>\r\n\r\n    <ul class=\"nav nav-tabs pull-right in\" id=\"myTab\">\r\n        <li class=\"active\">\r\n            <a data-toggle=\"tab\" href=\"#s1\"><i class=\"fa fa-clock-o\"></i> <span class=\"hidden-mobile hidden-tablet\">Live Stats</span></a>\r\n        </li>\r\n\r\n        <li>\r\n            <a data-toggle=\"tab\" href=\"#s2\"><i class=\"fa fa-facebook\"></i> <span class=\"hidden-mobile hidden-tablet\">Social Network</span></a>\r\n        </li>\r\n\r\n        <li>\r\n            <a data-toggle=\"tab\" href=\"#s3\"><i class=\"fa fa-dollar\"></i> <span class=\"hidden-mobile hidden-tablet\">Revenue</span></a>\r\n        </li>\r\n    </ul>\r\n\r\n</header>\r\n\r\n<!-- widget div-->\r\n<div class=\"no-padding\">\r\n\r\n    <div class=\"widget-body\">\r\n        <!-- content -->\r\n        <div id=\"myTabContent\" class=\"tab-content\">\r\n            <div class=\"tab-pane fade active in padding-10 no-padding-bottom\" id=\"s1\">\r\n                <div class=\"row no-space\">\r\n                    <div class=\"col-xs-12 col-sm-12 col-md-8 col-lg-8\">\r\n														<span class=\"demo-liveupdate-1\"> <span\r\n                                                                class=\"onoffswitch-title\">Live switch</span> <span\r\n                                                                class=\"onoffswitch\">\r\n																<input type=\"checkbox\" name=\"start_interval\" ng-model=\"autoUpdate\"\r\n                                                                       class=\"onoffswitch-checkbox\" id=\"start_interval\">\r\n																<label class=\"onoffswitch-label\" for=\"start_interval\">\r\n                                                                    <span class=\"onoffswitch-inner\"\r\n                                                                          data-swchon-text=\"ON\"\r\n                                                                          data-swchoff-text=\"OFF\"></span>\r\n                                                                    <span class=\"onoffswitch-switch\"></span>\r\n                                                                </label> </span> </span>\r\n\r\n                        <div id=\"updating-chart\" class=\"chart-large txt-color-blue\" flot-basic flot-data=\"liveStats\" flot-options=\"liveStatsOptions\"></div>\r\n\r\n                    </div>\r\n                    <div class=\"col-xs-12 col-sm-12 col-md-4 col-lg-4 show-stats\">\r\n\r\n                        <div class=\"row\">\r\n                            <div class=\"col-xs-6 col-sm-6 col-md-12 col-lg-12\"><span class=\"text\"> My Tasks <span\r\n                                    class=\"pull-right\">130/200</span> </span>\r\n\r\n                                <div class=\"progress\">\r\n                                    <div class=\"progress-bar bg-color-blueDark\" style=\"width: 65%;\"></div>\r\n                                </div>\r\n                            </div>\r\n                            <div class=\"col-xs-6 col-sm-6 col-md-12 col-lg-12\"><span class=\"text\"> Transfered <span\r\n                                    class=\"pull-right\">440 GB</span> </span>\r\n\r\n                                <div class=\"progress\">\r\n                                    <div class=\"progress-bar bg-color-blue\" style=\"width: 34%;\"></div>\r\n                                </div>\r\n                            </div>\r\n                            <div class=\"col-xs-6 col-sm-6 col-md-12 col-lg-12\"><span class=\"text\"> Bugs Squashed<span\r\n                                    class=\"pull-right\">77%</span> </span>\r\n\r\n                                <div class=\"progress\">\r\n                                    <div class=\"progress-bar bg-color-blue\" style=\"width: 77%;\"></div>\r\n                                </div>\r\n                            </div>\r\n                            <div class=\"col-xs-6 col-sm-6 col-md-12 col-lg-12\"><span class=\"text\"> User Testing <span\r\n                                    class=\"pull-right\">7 Days</span> </span>\r\n\r\n                                <div class=\"progress\">\r\n                                    <div class=\"progress-bar bg-color-greenLight\" style=\"width: 84%;\"></div>\r\n                                </div>\r\n                            </div>\r\n\r\n                            <span class=\"show-stat-buttons\"> <span class=\"col-xs-12 col-sm-6 col-md-6 col-lg-6\"> <a\r\n                                    href-void class=\"btn btn-default btn-block hidden-xs\">Generate PDF</a> </span> <span\r\n                                    class=\"col-xs-12 col-sm-6 col-md-6 col-lg-6\"> <a href-void\r\n                                                                                     class=\"btn btn-default btn-block hidden-xs\">Report\r\n                                a bug</a> </span> </span>\r\n\r\n                        </div>\r\n\r\n                    </div>\r\n                </div>\r\n\r\n                <div class=\"show-stat-microcharts\" data-sparkline-container data-easy-pie-chart-container>\r\n                    <div class=\"col-xs-12 col-sm-3 col-md-3 col-lg-3\">\r\n\r\n                        <div class=\"easy-pie-chart txt-color-orangeDark\" data-percent=\"33\" data-pie-size=\"50\">\r\n                            <span class=\"percent percent-sign\">35</span>\r\n                        </div>\r\n                        <span class=\"easy-pie-title\"> Server Load <i class=\"fa fa-caret-up icon-color-bad\"></i> </span>\r\n                        <ul class=\"smaller-stat hidden-sm pull-right\">\r\n                            <li>\r\n                                <span class=\"label bg-color-greenLight\"><i class=\"fa fa-caret-up\"></i> 97%</span>\r\n                            </li>\r\n                            <li>\r\n                                <span class=\"label bg-color-blueLight\"><i class=\"fa fa-caret-down\"></i> 44%</span>\r\n                            </li>\r\n                        </ul>\r\n                        <div class=\"sparkline txt-color-greenLight hidden-sm hidden-md pull-right\"\r\n                             data-sparkline-type=\"line\" data-sparkline-height=\"33px\" data-sparkline-width=\"70px\"\r\n                             data-fill-color=\"transparent\">\r\n                            130, 187, 250, 257, 200, 210, 300, 270, 363, 247, 270, 363, 247\r\n                        </div>\r\n                    </div>\r\n                    <div class=\"col-xs-12 col-sm-3 col-md-3 col-lg-3\">\r\n                        <div class=\"easy-pie-chart txt-color-greenLight\" data-percent=\"78.9\" data-pie-size=\"50\">\r\n                            <span class=\"percent percent-sign\">78.9 </span>\r\n                        </div>\r\n                        <span class=\"easy-pie-title\"> Disk Space <i class=\"fa fa-caret-down icon-color-good\"></i></span>\r\n                        <ul class=\"smaller-stat hidden-sm pull-right\">\r\n                            <li>\r\n                                <span class=\"label bg-color-blueDark\"><i class=\"fa fa-caret-up\"></i> 76%</span>\r\n                            </li>\r\n                            <li>\r\n                                <span class=\"label bg-color-blue\"><i class=\"fa fa-caret-down\"></i> 3%</span>\r\n                            </li>\r\n                        </ul>\r\n                        <div class=\"sparkline txt-color-blue hidden-sm hidden-md pull-right\" data-sparkline-type=\"line\"\r\n                             data-sparkline-height=\"33px\" data-sparkline-width=\"70px\" data-fill-color=\"transparent\">\r\n                            257, 200, 210, 300, 270, 363, 130, 187, 250, 247, 270, 363, 247\r\n                        </div>\r\n                    </div>\r\n                    <div class=\"col-xs-12 col-sm-3 col-md-3 col-lg-3\">\r\n                        <div class=\"easy-pie-chart txt-color-blue\" data-percent=\"23\" data-pie-size=\"50\">\r\n                            <span class=\"percent percent-sign\">23 </span>\r\n                        </div>\r\n                        <span class=\"easy-pie-title\"> Transfered <i class=\"fa fa-caret-up icon-color-good\"></i></span>\r\n                        <ul class=\"smaller-stat hidden-sm pull-right\">\r\n                            <li>\r\n                                <span class=\"label bg-color-darken\">10GB</span>\r\n                            </li>\r\n                            <li>\r\n                                <span class=\"label bg-color-blueDark\"><i class=\"fa fa-caret-up\"></i> 10%</span>\r\n                            </li>\r\n                        </ul>\r\n                        <div class=\"sparkline txt-color-darken hidden-sm hidden-md pull-right\"\r\n                             data-sparkline-type=\"line\" data-sparkline-height=\"33px\" data-sparkline-width=\"70px\"\r\n                             data-fill-color=\"transparent\">\r\n                            200, 210, 363, 247, 300, 270, 130, 187, 250, 257, 363, 247, 270\r\n                        </div>\r\n                    </div>\r\n                    <div class=\"col-xs-12 col-sm-3 col-md-3 col-lg-3\">\r\n                        <div class=\"easy-pie-chart txt-color-darken\" data-percent=\"36\" data-pie-size=\"50\">\r\n                            <span class=\"percent degree-sign\">36 <i class=\"fa fa-caret-up\"></i></span>\r\n                        </div>\r\n                        <span class=\"easy-pie-title\"> Temperature <i\r\n                                class=\"fa fa-caret-down icon-color-good\"></i></span>\r\n                        <ul class=\"smaller-stat hidden-sm pull-right\">\r\n                            <li>\r\n                                <span class=\"label bg-color-red\"><i class=\"fa fa-caret-up\"></i> 124</span>\r\n                            </li>\r\n                            <li>\r\n                                <span class=\"label bg-color-blue\"><i class=\"fa fa-caret-down\"></i> 40 F</span>\r\n                            </li>\r\n                        </ul>\r\n                        <div class=\"sparkline txt-color-red hidden-sm hidden-md pull-right\" data-sparkline-type=\"line\"\r\n                             data-sparkline-height=\"33px\" data-sparkline-width=\"70px\" data-fill-color=\"transparent\">\r\n                            2700, 3631, 2471, 2700, 3631, 2471, 1300, 1877, 2500, 2577, 2000, 2100, 3000\r\n                        </div>\r\n                    </div>\r\n                </div>\r\n\r\n            </div>\r\n            <!-- end s1 tab pane -->\r\n\r\n            <div class=\"tab-pane fade\" id=\"s2\">\r\n                <div class=\"widget-body-toolbar bg-color-white\">\r\n\r\n                    <form class=\"form-inline\" role=\"form\">\r\n\r\n                        <div class=\"form-group\">\r\n                            <label class=\"sr-only\" for=\"s123\">Show From</label>\r\n                            <input type=\"email\" class=\"form-control input-sm\" id=\"s123\" placeholder=\"Show From\">\r\n                        </div>\r\n                        <div class=\"form-group\">\r\n                            <input type=\"email\" class=\"form-control input-sm\" id=\"s124\" placeholder=\"To\">\r\n                        </div>\r\n\r\n                        <div class=\"btn-group hidden-phone pull-right\">\r\n                            <a class=\"btn dropdown-toggle btn-xs btn-default\" data-toggle=\"dropdown\"><i\r\n                                    class=\"fa fa-cog\"></i> More <span class=\"caret\"> </span> </a>\r\n                            <ul class=\"dropdown-menu pull-right\">\r\n                                <li>\r\n                                    <a href-void><i class=\"fa fa-file-text-alt\"></i> Export to PDF</a>\r\n                                </li>\r\n                                <li>\r\n                                    <a href-void><i class=\"fa fa-question-sign\"></i> Help</a>\r\n                                </li>\r\n                            </ul>\r\n                        </div>\r\n\r\n                    </form>\r\n\r\n                </div>\r\n                <div class=\"padding-10\">\r\n                    <div id=\"statsChart\" class=\"chart-large has-legend-unique\" flot-basic flot-data=\"statsData\" flot-options=\"statsDisplayOptions\"></div>\r\n                </div>\r\n\r\n            </div>\r\n            <!-- end s2 tab pane -->\r\n\r\n            <div class=\"tab-pane fade\" id=\"s3\">\r\n\r\n                <div class=\"widget-body-toolbar bg-color-white smart-form\" id=\"rev-toggles\">\r\n\r\n                    <div class=\"inline-group\">\r\n\r\n                        <label for=\"gra-0\" class=\"checkbox\">\r\n                            <input type=\"checkbox\" id=\"gra-0\" ng-model=\"targetsShow\">\r\n                            <i></i> Target </label>\r\n                        <label for=\"gra-1\" class=\"checkbox\">\r\n                            <input type=\"checkbox\" id=\"gra-1\" ng-model=\"actualsShow\">\r\n                            <i></i> Actual </label>\r\n                        <label for=\"gra-2\" class=\"checkbox\">\r\n                            <input type=\"checkbox\" id=\"gra-2\" ng-model=\"signupsShow\">\r\n                            <i></i> Signups </label>\r\n                    </div>\r\n\r\n                    <div class=\"btn-group hidden-phone pull-right\">\r\n                        <a class=\"btn dropdown-toggle btn-xs btn-default\" data-toggle=\"dropdown\"><i\r\n                                class=\"fa fa-cog\"></i> More <span class=\"caret\"> </span> </a>\r\n                        <ul class=\"dropdown-menu pull-right\">\r\n                            <li>\r\n                                <a href-void><i class=\"fa fa-file-text-alt\"></i> Export to PDF</a>\r\n                            </li>\r\n                            <li>\r\n                                <a href-void><i class=\"fa fa-question-sign\"></i> Help</a>\r\n                            </li>\r\n                        </ul>\r\n                    </div>\r\n\r\n                </div>\r\n\r\n                <div class=\"padding-10\">\r\n                    <div id=\"flotcontainer\" class=\"chart-large has-legend-unique\" flot-basic flot-data=\"revenewData\" flot-options=\"revenewDisplayOptions\" ></div>\r\n                </div>\r\n            </div>\r\n            <!-- end s3 tab pane -->\r\n        </div>\r\n\r\n        <!-- end content -->\r\n    </div>\r\n\r\n</div>\r\n<!-- end widget div -->\r\n</div>\r\n");
 $templateCache.put("app/public/app/layout/layout.tpl.html","<!-- HEADER -->\r\n<div data-smart-include=\"app/layout/partials/header.tpl.html\" class=\"placeholder-header\"></div>\r\n<!-- END HEADER -->\r\n\r\n\r\n<!-- Left panel : Navigation area -->\r\n<!-- Note: This width of the aside area can be adjusted through LESS variables -->\r\n<div data-smart-include=\"app/layout/partials/navigation.tpl.html\" class=\"placeholder-left-panel\"></div>\r\n\r\n<!-- END NAVIGATION -->\r\n\r\n<!-- MAIN PANEL -->\r\n<div id=\"main\" role=\"main\">\r\n    <!-- 小齒輪 -->\r\n    <!-- <demo-states></demo-states> -->\r\n\r\n    <!-- RIBBON -->\r\n    <div id=\"ribbon\">\r\n\r\n		<span class=\"ribbon-button-alignment\">\r\n			<span id=\"refresh\" class=\"btn btn-ribbon\" reset-widgets\r\n                  tooltip-placement=\"bottom\"\r\n                  smart-tooltip-html=\"<i class=\'text-warning fa fa-warning\'></i> Warning! This will reset all your widget settings.\">\r\n				<i class=\"fa fa-refresh\"></i>\r\n			</span>\r\n		</span>\r\n\r\n        <!-- breadcrumb -->\r\n        <state-breadcrumbs></state-breadcrumbs>\r\n        <!-- end breadcrumb -->\r\n\r\n\r\n    </div>\r\n    <!-- END RIBBON -->\r\n\r\n\r\n    <div data-smart-router-animation-wrap=\"content content@app\" data-wrap-for=\"#content\">\r\n        <div data-ui-view=\"content\" data-autoscroll=\"false\"></div>\r\n    </div>\r\n\r\n</div>\r\n<!-- END MAIN PANEL -->\r\n\r\n<!-- PAGE FOOTER -->\r\n<div data-smart-include=\"app/layout/partials/footer.tpl.html\"></div>\r\n\r\n<div data-smart-include=\"app/layout/shortcut/shortcut.tpl.html\"></div>\r\n\r\n<!-- END PAGE FOOTER -->\r\n\r\n\r\n");
 $templateCache.put("app/app/dashboard/chat/directives/aside-chat-widget.tpl.html","<ul>\r\n    <li>\r\n        <div class=\"display-users\">\r\n            <input class=\"form-control chat-user-filter\" placeholder=\"Filter\" type=\"text\">\r\n            <dl>\r\n                <dt>\r\n                    <a href=\"#\" class=\"usr\"\r\n                       data-chat-id=\"cha1\"\r\n                       data-chat-fname=\"Sadi\"\r\n                       data-chat-lname=\"Orlaf\"\r\n                       data-chat-status=\"busy\"\r\n                       data-chat-alertmsg=\"Sadi Orlaf is in a meeting. Please do not disturb!\"\r\n                       data-chat-alertshow=\"true\"\r\n                       popover-trigger=\"hover\"\r\n                       popover-placement=\"right\"\r\n                       smart-popover-html=\"\r\n										<div class=\'usr-card\'>\r\n											<img src=\'styles/img/avatars/5.png\' alt=\'Sadi Orlaf\'>\r\n											<div class=\'usr-card-content\'>\r\n												<h3>Sadi Orlaf</h3>\r\n												<p>Marketing Executive</p>\r\n											</div>\r\n										</div>\r\n									\">\r\n                        <i></i>Sadi Orlaf\r\n                    </a>\r\n                </dt>\r\n                <dt>\r\n                    <a href=\"#\" class=\"usr\"\r\n                       data-chat-id=\"cha2\"\r\n                       data-chat-fname=\"Jessica\"\r\n                       data-chat-lname=\"Dolof\"\r\n                       data-chat-status=\"online\"\r\n                       data-chat-alertmsg=\"\"\r\n                       data-chat-alertshow=\"false\"\r\n                       popover-trigger=\"hover\"\r\n                       popover-placement=\"right\"\r\n                       smart-popover-html=\"\r\n										<div class=\'usr-card\'>\r\n											<img src=\'styles/img/avatars/1.png\' alt=\'Jessica Dolof\'>\r\n											<div class=\'usr-card-content\'>\r\n												<h3>Jessica Dolof</h3>\r\n												<p>Sales Administrator</p>\r\n											</div>\r\n										</div>\r\n									\">\r\n                        <i></i>Jessica Dolof\r\n                    </a>\r\n                </dt>\r\n                <dt>\r\n                    <a href=\"#\" class=\"usr\"\r\n                       data-chat-id=\"cha3\"\r\n                       data-chat-fname=\"Zekarburg\"\r\n                       data-chat-lname=\"Almandalie\"\r\n                       data-chat-status=\"online\"\r\n                       popover-trigger=\"hover\"\r\n                       popover-placement=\"right\"\r\n                       smart-popover-html=\"\r\n										<div class=\'usr-card\'>\r\n											<img src=\'styles/img/avatars/3.png\' alt=\'Zekarburg Almandalie\'>\r\n											<div class=\'usr-card-content\'>\r\n												<h3>Zekarburg Almandalie</h3>\r\n												<p>Sales Admin</p>\r\n											</div>\r\n										</div>\r\n									\">\r\n                        <i></i>Zekarburg Almandalie\r\n                    </a>\r\n                </dt>\r\n                <dt>\r\n                    <a href=\"#\" class=\"usr\"\r\n                       data-chat-id=\"cha4\"\r\n                       data-chat-fname=\"Barley\"\r\n                       data-chat-lname=\"Krazurkth\"\r\n                       data-chat-status=\"away\"\r\n                       popover-trigger=\"hover\"\r\n                       popover-placement=\"right\"\r\n                       smart-popover-html=\"\r\n										<div class=\'usr-card\'>\r\n											<img src=\'styles/img/avatars/4.png\' alt=\'Barley Krazurkth\'>\r\n											<div class=\'usr-card-content\'>\r\n												<h3>Barley Krazurkth</h3>\r\n												<p>Sales Director</p>\r\n											</div>\r\n										</div>\r\n									\">\r\n                        <i></i>Barley Krazurkth\r\n                    </a>\r\n                </dt>\r\n                <dt>\r\n                    <a href=\"#\" class=\"usr offline\"\r\n                       data-chat-id=\"cha5\"\r\n                       data-chat-fname=\"Farhana\"\r\n                       data-chat-lname=\"Amrin\"\r\n                       data-chat-status=\"incognito\"\r\n                       popover-trigger=\"hover\"\r\n                       popover-placement=\"right\"\r\n                       smart-popover-html=\"\r\n										<div class=\'usr-card\'>\r\n											<img src=\'styles/img/avatars/female.png\' alt=\'Farhana Amrin\'>\r\n											<div class=\'usr-card-content\'>\r\n												<h3>Farhana Amrin</h3>\r\n												<p>Support Admin <small><i class=\'fa fa-music\'></i> Playing Beethoven Classics</small></p>\r\n											</div>\r\n										</div>\r\n									\">\r\n                        <i></i>Farhana Amrin (offline)\r\n                    </a>\r\n                </dt>\r\n                <dt>\r\n                    <a href=\"#\" class=\"usr offline\"\r\n                       data-chat-id=\"cha6\"\r\n                       data-chat-fname=\"Lezley\"\r\n                       data-chat-lname=\"Jacob\"\r\n                       data-chat-status=\"incognito\"\r\n                       popover-trigger=\"hover\"\r\n                       popover-placement=\"right\"\r\n                       smart-popover-html=\"\r\n										<div class=\'usr-card\'>\r\n											<img src=\'styles/img/avatars/male.png\' alt=\'Lezley Jacob\'>\r\n											<div class=\'usr-card-content\'>\r\n												<h3>Lezley Jacob</h3>\r\n												<p>Sales Director</p>\r\n											</div>\r\n										</div>\r\n									\">\r\n                        <i></i>Lezley Jacob (offline)\r\n                    </a>\r\n                </dt>\r\n            </dl>\r\n\r\n\r\n            <!--<a href=\"chat.html\" class=\"btn btn-xs btn-default btn-block sa-chat-learnmore-btn\">About the API</a>-->\r\n        </div>\r\n    </li>\r\n</ul>");
@@ -7514,8 +7495,8 @@ $templateCache.put("app/app/dashboard/chat/directives/chat-users.tpl.html","<div
 $templateCache.put("app/app/dashboard/chat/directives/chat-widget.tpl.html","<div id=\"chat-widget\" jarvis-widget data-widget-color=\"blueDark\" data-widget-editbutton=\"false\"\r\n     data-widget-fullscreenbutton=\"false\">\r\n\r\n\r\n    <header>\r\n        <span class=\"widget-icon\"> <i class=\"fa fa-comments txt-color-white\"></i> </span>\r\n\r\n        <h2> SmartMessage </h2>\r\n\r\n        <div class=\"widget-toolbar\">\r\n            <!-- add: non-hidden - to disable auto hide -->\r\n\r\n            <div class=\"btn-group\" data-dropdown>\r\n                <button class=\"btn dropdown-toggle btn-xs btn-success\" data-toggle=\"dropdown\">\r\n                    Status <i class=\"fa fa-caret-down\"></i>\r\n                </button>\r\n                <ul class=\"dropdown-menu pull-right js-status-update\">\r\n                    <li>\r\n                        <a href-void><i class=\"fa fa-circle txt-color-green\"></i> Online</a>\r\n                    </li>\r\n                    <li>\r\n                        <a href-void><i class=\"fa fa-circle txt-color-red\"></i> Busy</a>\r\n                    </li>\r\n                    <li>\r\n                        <a href-void><i class=\"fa fa-circle txt-color-orange\"></i> Away</a>\r\n                    </li>\r\n                    <li class=\"divider\"></li>\r\n                    <li>\r\n                        <a href-void><i class=\"fa fa-power-off\"></i> Log Off</a>\r\n                    </li>\r\n                </ul>\r\n            </div>\r\n        </div>\r\n    </header>\r\n\r\n    <!-- widget div-->\r\n    <div>\r\n        <div class=\"widget-body widget-hide-overflow no-padding\">\r\n            <!-- content goes here -->\r\n\r\n            <chat-users></chat-users>\r\n\r\n            <!-- CHAT BODY -->\r\n            <div id=\"chat-body\" class=\"chat-body custom-scroll\">\r\n                <ul>\r\n                    <li class=\"message\" ng-repeat=\"message in chatMessages\">\r\n                        <img class=\"message-picture online\" ng-src=\"{{message.user.picture}}\">\r\n\r\n                        <div class=\"message-text\">\r\n                            <time>\r\n                                {{message.date | date }}\r\n                            </time>\r\n                            <a ng-click=\"messageTo(message.user)\" class=\"username\">{{message.user.username}}</a>\r\n                            <div ng-bind-html=\"message.body\"></div>\r\n\r\n                        </div>\r\n                    </li>\r\n                </ul>\r\n            </div>\r\n\r\n            <!-- CHAT FOOTER -->\r\n            <div class=\"chat-footer\">\r\n\r\n                <!-- CHAT TEXTAREA -->\r\n                <div class=\"textarea-div\">\r\n\r\n                    <div class=\"typearea\">\r\n                        <textarea placeholder=\"Write a reply...\" id=\"textarea-expand\"\r\n                                  class=\"custom-scroll\" ng-model=\"newMessage\"></textarea>\r\n                    </div>\r\n\r\n                </div>\r\n\r\n                <!-- CHAT REPLY/SEND -->\r\n											<span class=\"textarea-controls\">\r\n												<button class=\"btn btn-sm btn-primary pull-right\" ng-click=\"sendMessage()\">\r\n                                                    Reply\r\n                                                </button> <span class=\"pull-right smart-form\"\r\n                                                                style=\"margin-top: 3px; margin-right: 10px;\"> <label\r\n                                                    class=\"checkbox pull-right\">\r\n                                                <input type=\"checkbox\" name=\"subscription\" id=\"subscription\">\r\n                                                <i></i>Press <strong> ENTER </strong> to send </label> </span> <a\r\n                                                    href-void class=\"pull-left\"><i\r\n                                                    class=\"fa fa-camera fa-fw fa-lg\"></i></a> </span>\r\n\r\n            </div>\r\n\r\n            <!-- end content -->\r\n        </div>\r\n\r\n    </div>\r\n    <!-- end widget div -->\r\n</div>");
 $templateCache.put("app/app/dashboard/todo/directives/todo-list.tpl.html","<div>\r\n    <h5 class=\"todo-group-title\"><i class=\"fa fa-{{icon}}\"></i> {{title}} (\r\n        <small class=\"num-of-tasks\">{{scopeItems.length}}</small>\r\n        )\r\n    </h5>\r\n    <ul class=\"todo\">\r\n        <li ng-class=\"{complete: todo.completedAt}\" ng-repeat=\"todo in todos | orderBy: todo._id | filter: filter  track by todo._id\" >\r\n    	<span class=\"handle\"> <label class=\"checkbox\">\r\n            <input type=\"checkbox\" ng-click=\"todo.toggle()\" ng-checked=\"todo.completedAt\"\r\n                   name=\"checkbox-inline\">\r\n            <i></i> </label> </span>\r\n\r\n            <p>\r\n                <strong>Ticket #{{$index + 1}}</strong> - {{todo.title}}\r\n                <span class=\"text-muted\" ng-if=\"todo.description\">{{todo.description}}</span>\r\n                <span class=\"date\">{{todo.createdAt | date}} &dash; <a ng-click=\"deleteTodo(todo)\" class=\"text-muted\"><i\r\n                        class=\"fa fa-trash\"></i></a></span>\r\n\r\n            </p>\r\n        </li>\r\n    </ul>\r\n</div>");
 $templateCache.put("app/public/app/auth/directives/login-info.tpl.html","<div class=\"login-info ng-cloak\">\r\n    <span> <!-- User image size is adjusted inside CSS, it should stay as it -->\r\n        <!-- <a  href=\"\" toggle-shortcut>\r\n            <img ng-src=\"{{user.picture}}\" alt=\"me\" class=\"online\">\r\n                <span>{{user.U_NAME}}\r\n                </span>\r\n            <i class=\"fa fa-angle-down\"></i>\r\n        </a> -->\r\n        <a  href=\"\">\r\n            <img ng-src=\"{{user.picture}}\" alt=\"me\" class=\"online\">\r\n                <span>{{user.U_NAME}}\r\n                </span>\r\n        </a>\r\n     </span>\r\n</div>");
-$templateCache.put("app/public/app/calendar/views/calendar.tpl.html","<!-- MAIN CONTENT -->\r\n<div id=\"content\">\r\n\r\n    <div class=\"row\">\r\n        <big-breadcrumbs items=\"[\'Home\', \'Calendar\']\" class=\"col-xs-12 col-sm-7 col-md-7 col-lg-4\"></big-breadcrumbs>\r\n        <div smart-include=\"app/layout/partials/sub-header.tpl.html\"></div>\r\n    </div>\r\n    <!-- widget grid -->\r\n    <section id=\"widget-grid\" widget-grid>\r\n        <!-- row -->\r\n        <div class=\"row\" ng-controller=\"CalendarCtrl\" >\r\n\r\n\r\n            <div class=\"col-sm-12 col-md-12 col-lg-3\">\r\n                <!-- new widget -->\r\n                <div class=\"jarviswidget jarviswidget-color-blueDark\">\r\n                    <header>\r\n                        <h2> Add Events </h2>\r\n                    </header>\r\n\r\n                    <!-- widget div-->\r\n                    <div>\r\n\r\n                        <div class=\"widget-body\">\r\n                            <!-- content goes here -->\r\n\r\n                            <form id=\"add-event-form\">\r\n                                <fieldset>\r\n\r\n                                    <div class=\"form-group\">\r\n                                        <label>Select Event Icon</label>\r\n                                        <div class=\"btn-group btn-group-sm btn-group-justified\" data-toggle=\"buttons\" > <!--  -->\r\n                                            <label class=\"btn btn-default active\">\r\n                                                <input type=\"radio\" name=\"iconselect\" id=\"icon-1\" value=\"fa-info\" radio-toggle ng-model=\"newEvent.icon\">\r\n                                                <i class=\"fa fa-info text-muted\"></i> </label>\r\n                                            <label class=\"btn btn-default\">\r\n                                                <input type=\"radio\" name=\"iconselect\" id=\"icon-2\" value=\"fa-warning\" radio-toggle  ng-model=\"newEvent.icon\">\r\n                                                <i class=\"fa fa-warning text-muted\"></i> </label>\r\n                                            <label class=\"btn btn-default\">\r\n                                                <input type=\"radio\" name=\"iconselect\" id=\"icon-3\" value=\"fa-check\" radio-toggle  ng-model=\"newEvent.icon\">\r\n                                                <i class=\"fa fa-check text-muted\"></i> </label>\r\n                                            <label class=\"btn btn-default\">\r\n                                                <input type=\"radio\" name=\"iconselect\" id=\"icon-4\" value=\"fa-user\" radio-toggle  ng-model=\"newEvent.icon\">\r\n                                                <i class=\"fa fa-user text-muted\"></i> </label>\r\n                                            <label class=\"btn btn-default\">\r\n                                                <input type=\"radio\" name=\"iconselect\" id=\"icon-5\" value=\"fa-lock\" radio-toggle  ng-model=\"newEvent.icon\">\r\n                                                <i class=\"fa fa-lock text-muted\"></i> </label>\r\n                                            <label class=\"btn btn-default\">\r\n                                                <input type=\"radio\" name=\"iconselect\" id=\"icon-6\" value=\"fa-clock-o\" radio-toggle  ng-model=\"newEvent.icon\">\r\n                                                <i class=\"fa fa-clock-o text-muted\"></i> </label>\r\n                                        </div>\r\n                                    </div>\r\n\r\n                                    <div class=\"form-group\">\r\n                                        <label>Event Title</label>\r\n                                        <input ng-model=\"newEvent.title\" class=\"form-control\"  id=\"title\" name=\"title\" maxlength=\"40\" type=\"text\" placeholder=\"Event Title\">\r\n                                    </div>\r\n                                    <div class=\"form-group\">\r\n                                        <label>Event Description</label>\r\n                                        <textarea  ng-model=\"newEvent.description\" class=\"form-control\" placeholder=\"Please be brief\" rows=\"3\" maxlength=\"40\" id=\"description\"></textarea>\r\n                                        <p class=\"note\">Maxlength is set to 40 characters</p>\r\n                                    </div>\r\n\r\n                                    <div class=\"form-group\">\r\n                                        <label>Select Event Color</label>\r\n                                        <div class=\"btn-group btn-group-justified btn-select-tick\" data-toggle=\"buttons\" >\r\n                                            <label class=\"btn bg-color-darken active\">\r\n                                                <input   ng-model=\"newEvent.className\" radio-toggle   type=\"radio\" name=\"priority\" id=\"option1\" value=\"bg-color-darken txt-color-white\" >\r\n                                                <i class=\"fa fa-check txt-color-white\"></i> </label>\r\n                                            <label class=\"btn bg-color-blue\">\r\n                                                <input  ng-model=\"newEvent.className\" radio-toggle   type=\"radio\" name=\"priority\" id=\"option2\" value=\"bg-color-blue txt-color-white\">\r\n                                                <i class=\"fa fa-check txt-color-white\"></i> </label>\r\n                                            <label class=\"btn bg-color-orange\">\r\n                                                <input  ng-model=\"newEvent.className\" radio-toggle   type=\"radio\" name=\"priority\" id=\"option3\" value=\"bg-color-orange txt-color-white\">\r\n                                                <i class=\"fa fa-check txt-color-white\"></i> </label>\r\n                                            <label class=\"btn bg-color-greenLight\">\r\n                                                <input  ng-model=\"newEvent.className\" radio-toggle   type=\"radio\" name=\"priority\" id=\"option4\" value=\"bg-color-greenLight txt-color-white\">\r\n                                                <i class=\"fa fa-check txt-color-white\"></i> </label>\r\n                                            <label class=\"btn bg-color-blueLight\">\r\n                                                <input  ng-model=\"newEvent.className\" radio-toggle   type=\"radio\" name=\"priority\" id=\"option5\" value=\"bg-color-blueLight txt-color-white\">\r\n                                                <i class=\"fa fa-check txt-color-white\"></i> </label>\r\n                                            <label class=\"btn bg-color-red\">\r\n                                                <input  ng-model=\"newEvent.className\" radio-toggle   type=\"radio\" name=\"priority\" id=\"option6\" value=\"bg-color-red txt-color-white\">\r\n                                                <i class=\"fa fa-check txt-color-white\"></i> </label>\r\n                                        </div>\r\n                                    </div>\r\n\r\n                                </fieldset>\r\n                                <div class=\"form-actions\">\r\n                                    <div class=\"row\">\r\n                                        <div class=\"col-md-12\">\r\n                                            <button class=\"btn btn-default\" type=\"button\" id=\"add-event\" ng-click=\"addEvent()\" >\r\n                                                Add Event\r\n                                            </button>\r\n                                        </div>\r\n                                    </div>\r\n                                </div>\r\n                            </form>\r\n\r\n                            <!-- end content -->\r\n                        </div>\r\n\r\n                    </div>\r\n                    <!-- end widget div -->\r\n                </div>\r\n                <!-- end widget -->\r\n\r\n                <div class=\"well well-sm\" id=\"event-container\">\r\n                    <form>\r\n                        <legend>\r\n                            Draggable Events\r\n                        </legend>\r\n                        <ul id=\'external-events\' class=\"list-unstyled\">\r\n\r\n                            <li ng-repeat=\"event in eventsExternal\" dragable-event>\r\n                                <span class=\"{{event.className}}\" \r\n                                    data-description=\"{{event.description}}\"\r\n                                    data-icon=\"{{event.icon}}\"\r\n                                >\r\n                                {{event.title}}</span>\r\n                            </li>\r\n                            \r\n                        </ul>\r\n\r\n                        <!-- <ul id=\'external-events\' class=\"list-unstyled\">\r\n                            <li>\r\n                                <span class=\"bg-color-darken txt-color-white\" data-description=\"Currently busy\" data-icon=\"fa-time\">Office Meeting</span>\r\n                            </li>\r\n                            <li>\r\n                                <span class=\"bg-color-blue txt-color-white\" data-description=\"No Description\" data-icon=\"fa-pie\">Lunch Break</span>\r\n                            </li>\r\n                            <li>\r\n                                <span class=\"bg-color-red txt-color-white\" data-description=\"Urgent Tasks\" data-icon=\"fa-alert\">URGENT</span>\r\n                            </li>\r\n                        </ul> -->\r\n\r\n                        <div class=\"checkbox\">\r\n                            <label>\r\n                                <input type=\"checkbox\" id=\"drop-remove\" class=\"checkbox style-0\" checked=\"checked\">\r\n                                <span>remove after drop</span> </label>\r\n\r\n                        </div>\r\n                    </form>\r\n\r\n                </div>\r\n            </div>\r\n\r\n\r\n            <article class=\"col-sm-12 col-md-12 col-lg-9\">\r\n                <full-calendar id=\"main-calendar-widget\" data-events=\"events\"></full-calendar>\r\n            </article>\r\n        </div>\r\n    </section>\r\n</div>");
 $templateCache.put("app/public/app/calendar/directives/full-calendar.tpl.html","<div jarvis-widget data-widget-color=\"blueDark\">\r\n    <header>\r\n        <span class=\"widget-icon\"> <i class=\"fa fa-calendar\"></i> </span>\r\n\r\n        <h2> My Events </h2>\r\n\r\n        <div class=\"widget-toolbar\">\r\n            <!-- add: non-hidden - to disable auto hide -->\r\n            <div class=\"btn-group dropdown\" dropdown >\r\n                <button class=\"btn dropdown-toggle btn-xs btn-default\" data-toggle=\"dropdown\">\r\n                    Showing <i class=\"fa fa-caret-down\"></i>\r\n                </button>\r\n                <ul class=\"dropdown-menu js-status-update pull-right\">\r\n                    <li>\r\n                        <a ng-click=\"changeView(\'month\')\">Month</a>\r\n                    </li>\r\n                    <li>\r\n                        <a ng-click=\"changeView(\'agendaWeek\')\">Agenda</a>\r\n                    </li>\r\n                    <li>\r\n                        <a ng-click=\"changeView(\'agendaDay\')\">Today</a>\r\n                    </li>\r\n                </ul>\r\n            </div>\r\n        </div>\r\n    </header>\r\n\r\n    <!-- widget div-->\r\n    <div>\r\n        <div class=\"widget-body no-padding\">\r\n            <!-- content goes here -->\r\n            <div class=\"widget-body-toolbar\">\r\n\r\n                <div id=\"calendar-buttons\">\r\n\r\n                    <div class=\"btn-group\">\r\n                        <a ng-click=\"prev()\" class=\"btn btn-default btn-xs\"><i\r\n                                class=\"fa fa-chevron-left\"></i></a>\r\n                        <a ng-click=\"next()\" class=\"btn btn-default btn-xs\"><i\r\n                                class=\"fa fa-chevron-right\"></i></a>\r\n                    </div>\r\n                </div>\r\n            </div>\r\n            <div id=\"calendar\"></div>\r\n\r\n            <!-- end content -->\r\n        </div>\r\n\r\n    </div>\r\n    <!-- end widget div -->\r\n</div>\r\n");
+$templateCache.put("app/public/app/calendar/views/calendar.tpl.html","<!-- MAIN CONTENT -->\r\n<div id=\"content\">\r\n\r\n    <div class=\"row\">\r\n        <big-breadcrumbs items=\"[\'Home\', \'Calendar\']\" class=\"col-xs-12 col-sm-7 col-md-7 col-lg-4\"></big-breadcrumbs>\r\n        <div smart-include=\"app/layout/partials/sub-header.tpl.html\"></div>\r\n    </div>\r\n    <!-- widget grid -->\r\n    <section id=\"widget-grid\" widget-grid>\r\n        <!-- row -->\r\n        <div class=\"row\" ng-controller=\"CalendarCtrl\" >\r\n\r\n\r\n            <div class=\"col-sm-12 col-md-12 col-lg-3\">\r\n                <!-- new widget -->\r\n                <div class=\"jarviswidget jarviswidget-color-blueDark\">\r\n                    <header>\r\n                        <h2> Add Events </h2>\r\n                    </header>\r\n\r\n                    <!-- widget div-->\r\n                    <div>\r\n\r\n                        <div class=\"widget-body\">\r\n                            <!-- content goes here -->\r\n\r\n                            <form id=\"add-event-form\">\r\n                                <fieldset>\r\n\r\n                                    <div class=\"form-group\">\r\n                                        <label>Select Event Icon</label>\r\n                                        <div class=\"btn-group btn-group-sm btn-group-justified\" data-toggle=\"buttons\" > <!--  -->\r\n                                            <label class=\"btn btn-default active\">\r\n                                                <input type=\"radio\" name=\"iconselect\" id=\"icon-1\" value=\"fa-info\" radio-toggle ng-model=\"newEvent.icon\">\r\n                                                <i class=\"fa fa-info text-muted\"></i> </label>\r\n                                            <label class=\"btn btn-default\">\r\n                                                <input type=\"radio\" name=\"iconselect\" id=\"icon-2\" value=\"fa-warning\" radio-toggle  ng-model=\"newEvent.icon\">\r\n                                                <i class=\"fa fa-warning text-muted\"></i> </label>\r\n                                            <label class=\"btn btn-default\">\r\n                                                <input type=\"radio\" name=\"iconselect\" id=\"icon-3\" value=\"fa-check\" radio-toggle  ng-model=\"newEvent.icon\">\r\n                                                <i class=\"fa fa-check text-muted\"></i> </label>\r\n                                            <label class=\"btn btn-default\">\r\n                                                <input type=\"radio\" name=\"iconselect\" id=\"icon-4\" value=\"fa-user\" radio-toggle  ng-model=\"newEvent.icon\">\r\n                                                <i class=\"fa fa-user text-muted\"></i> </label>\r\n                                            <label class=\"btn btn-default\">\r\n                                                <input type=\"radio\" name=\"iconselect\" id=\"icon-5\" value=\"fa-lock\" radio-toggle  ng-model=\"newEvent.icon\">\r\n                                                <i class=\"fa fa-lock text-muted\"></i> </label>\r\n                                            <label class=\"btn btn-default\">\r\n                                                <input type=\"radio\" name=\"iconselect\" id=\"icon-6\" value=\"fa-clock-o\" radio-toggle  ng-model=\"newEvent.icon\">\r\n                                                <i class=\"fa fa-clock-o text-muted\"></i> </label>\r\n                                        </div>\r\n                                    </div>\r\n\r\n                                    <div class=\"form-group\">\r\n                                        <label>Event Title</label>\r\n                                        <input ng-model=\"newEvent.title\" class=\"form-control\"  id=\"title\" name=\"title\" maxlength=\"40\" type=\"text\" placeholder=\"Event Title\">\r\n                                    </div>\r\n                                    <div class=\"form-group\">\r\n                                        <label>Event Description</label>\r\n                                        <textarea  ng-model=\"newEvent.description\" class=\"form-control\" placeholder=\"Please be brief\" rows=\"3\" maxlength=\"40\" id=\"description\"></textarea>\r\n                                        <p class=\"note\">Maxlength is set to 40 characters</p>\r\n                                    </div>\r\n\r\n                                    <div class=\"form-group\">\r\n                                        <label>Select Event Color</label>\r\n                                        <div class=\"btn-group btn-group-justified btn-select-tick\" data-toggle=\"buttons\" >\r\n                                            <label class=\"btn bg-color-darken active\">\r\n                                                <input   ng-model=\"newEvent.className\" radio-toggle   type=\"radio\" name=\"priority\" id=\"option1\" value=\"bg-color-darken txt-color-white\" >\r\n                                                <i class=\"fa fa-check txt-color-white\"></i> </label>\r\n                                            <label class=\"btn bg-color-blue\">\r\n                                                <input  ng-model=\"newEvent.className\" radio-toggle   type=\"radio\" name=\"priority\" id=\"option2\" value=\"bg-color-blue txt-color-white\">\r\n                                                <i class=\"fa fa-check txt-color-white\"></i> </label>\r\n                                            <label class=\"btn bg-color-orange\">\r\n                                                <input  ng-model=\"newEvent.className\" radio-toggle   type=\"radio\" name=\"priority\" id=\"option3\" value=\"bg-color-orange txt-color-white\">\r\n                                                <i class=\"fa fa-check txt-color-white\"></i> </label>\r\n                                            <label class=\"btn bg-color-greenLight\">\r\n                                                <input  ng-model=\"newEvent.className\" radio-toggle   type=\"radio\" name=\"priority\" id=\"option4\" value=\"bg-color-greenLight txt-color-white\">\r\n                                                <i class=\"fa fa-check txt-color-white\"></i> </label>\r\n                                            <label class=\"btn bg-color-blueLight\">\r\n                                                <input  ng-model=\"newEvent.className\" radio-toggle   type=\"radio\" name=\"priority\" id=\"option5\" value=\"bg-color-blueLight txt-color-white\">\r\n                                                <i class=\"fa fa-check txt-color-white\"></i> </label>\r\n                                            <label class=\"btn bg-color-red\">\r\n                                                <input  ng-model=\"newEvent.className\" radio-toggle   type=\"radio\" name=\"priority\" id=\"option6\" value=\"bg-color-red txt-color-white\">\r\n                                                <i class=\"fa fa-check txt-color-white\"></i> </label>\r\n                                        </div>\r\n                                    </div>\r\n\r\n                                </fieldset>\r\n                                <div class=\"form-actions\">\r\n                                    <div class=\"row\">\r\n                                        <div class=\"col-md-12\">\r\n                                            <button class=\"btn btn-default\" type=\"button\" id=\"add-event\" ng-click=\"addEvent()\" >\r\n                                                Add Event\r\n                                            </button>\r\n                                        </div>\r\n                                    </div>\r\n                                </div>\r\n                            </form>\r\n\r\n                            <!-- end content -->\r\n                        </div>\r\n\r\n                    </div>\r\n                    <!-- end widget div -->\r\n                </div>\r\n                <!-- end widget -->\r\n\r\n                <div class=\"well well-sm\" id=\"event-container\">\r\n                    <form>\r\n                        <legend>\r\n                            Draggable Events\r\n                        </legend>\r\n                        <ul id=\'external-events\' class=\"list-unstyled\">\r\n\r\n                            <li ng-repeat=\"event in eventsExternal\" dragable-event>\r\n                                <span class=\"{{event.className}}\" \r\n                                    data-description=\"{{event.description}}\"\r\n                                    data-icon=\"{{event.icon}}\"\r\n                                >\r\n                                {{event.title}}</span>\r\n                            </li>\r\n                            \r\n                        </ul>\r\n\r\n                        <!-- <ul id=\'external-events\' class=\"list-unstyled\">\r\n                            <li>\r\n                                <span class=\"bg-color-darken txt-color-white\" data-description=\"Currently busy\" data-icon=\"fa-time\">Office Meeting</span>\r\n                            </li>\r\n                            <li>\r\n                                <span class=\"bg-color-blue txt-color-white\" data-description=\"No Description\" data-icon=\"fa-pie\">Lunch Break</span>\r\n                            </li>\r\n                            <li>\r\n                                <span class=\"bg-color-red txt-color-white\" data-description=\"Urgent Tasks\" data-icon=\"fa-alert\">URGENT</span>\r\n                            </li>\r\n                        </ul> -->\r\n\r\n                        <div class=\"checkbox\">\r\n                            <label>\r\n                                <input type=\"checkbox\" id=\"drop-remove\" class=\"checkbox style-0\" checked=\"checked\">\r\n                                <span>remove after drop</span> </label>\r\n\r\n                        </div>\r\n                    </form>\r\n\r\n                </div>\r\n            </div>\r\n\r\n\r\n            <article class=\"col-sm-12 col-md-12 col-lg-9\">\r\n                <full-calendar id=\"main-calendar-widget\" data-events=\"events\"></full-calendar>\r\n            </article>\r\n        </div>\r\n    </section>\r\n</div>");
 $templateCache.put("app/public/app/dashboard/projects/recent-projects.tpl.html","<div class=\"project-context hidden-xs dropdown\" dropdown>\r\n\r\n    <span class=\"label\">{{getWord(\'Projects\')}}:</span>\r\n    <span class=\"project-selector dropdown-toggle\" data-toggle=\"dropdown\">{{getWord(\'Recent projects\')}} <i ng-if=\"projects.length\"\r\n            class=\"fa fa-angle-down\"></i></span>\r\n\r\n    <ul class=\"dropdown-menu\" ng-if=\"projects.length\">\r\n        <li ng-repeat=\"project in projects\">\r\n            <a href=\"{{project.href}}\">{{project.title}}</a>\r\n        </li>\r\n        <li class=\"divider\"></li>\r\n        <li>\r\n            <a ng-click=\"clearProjects()\"><i class=\"fa fa-power-off\"></i> Clear</a>\r\n        </li>\r\n    </ul>\r\n\r\n</div>");
 $templateCache.put("app/public/app/dashboard/todo/todo-widget.tpl.html","<div id=\"todo-widget\" jarvis-widget data-widget-editbutton=\"false\" data-widget-color=\"blue\"\r\n     ng-controller=\"TodoCtrl\">\r\n    <header>\r\n        <span class=\"widget-icon\"> <i class=\"fa fa-check txt-color-white\"></i> </span>\r\n\r\n        <h2> ToDo\'s </h2>\r\n\r\n        <div class=\"widget-toolbar\">\r\n            <!-- add: non-hidden - to disable auto hide -->\r\n            <button class=\"btn btn-xs btn-default\" ng-class=\"{active: newTodo}\" ng-click=\"toggleAdd()\"><i ng-class=\"{ \'fa fa-plus\': !newTodo, \'fa fa-times\': newTodo}\"></i> Add</button>\r\n\r\n        </div>\r\n    </header>\r\n    <!-- widget div-->\r\n    <div>\r\n        <div class=\"widget-body no-padding smart-form\">\r\n            <!-- content goes here -->\r\n            <div ng-show=\"newTodo\">\r\n                <h5 class=\"todo-group-title\"><i class=\"fa fa-plus-circle\"></i> New Todo</h5>\r\n\r\n                <form name=\"newTodoForm\" class=\"smart-form\">\r\n                    <fieldset>\r\n                        <section>\r\n                            <label class=\"input\">\r\n                                <input type=\"text\" required class=\"input-lg\" ng-model=\"newTodo.title\"\r\n                                       placeholder=\"What needs to be done?\">\r\n                            </label>\r\n                        </section>\r\n                        <section>\r\n                            <div class=\"col-xs-6\">\r\n                                <label class=\"select\">\r\n                                    <select class=\"input-sm\" ng-model=\"newTodo.state\"\r\n                                            ng-options=\"state as state for state in states\"></select> <i></i> </label>\r\n                            </div>\r\n                        </section>\r\n                    </fieldset>\r\n                    <footer>\r\n                        <button ng-disabled=\"newTodoForm.$invalid\" type=\"button\" class=\"btn btn-primary\"\r\n                                ng-click=\"createTodo()\">\r\n                            Add\r\n                        </button>\r\n                        <button type=\"button\" class=\"btn btn-default\" ng-click=\"toggleAdd()\">\r\n                            Cancel\r\n                        </button>\r\n                    </footer>\r\n                </form>\r\n            </div>\r\n\r\n            <todo-list state=\"Critical\"  title=\"Critical Tasks\" icon=\"warning\" todos=\"todos\"></todo-list>\r\n\r\n            <todo-list state=\"Important\" title=\"Important Tasks\" icon=\"exclamation\" todos=\"todos\"></todo-list>\r\n\r\n            <todo-list state=\"Completed\" title=\"Completed Tasks\" icon=\"check\" todos=\"todos\"></todo-list>\r\n\r\n            <!-- end content -->\r\n        </div>\r\n\r\n    </div>\r\n    <!-- end widget div -->\r\n</div>");
 $templateCache.put("app/public/app/layout/language/language-selector.tpl.html","<ul class=\"header-dropdown-list hidden-xs ng-cloak\" ng-controller=\"LanguagesCtrl\">\r\n    <li class=\"dropdown\" dropdown>\r\n        <a class=\"dropdown-toggle\" data-toggle=\"dropdown\" href> <img src=\"styles/img/blank.gif\" class=\"flag flag-{{currentLanguage.key}}\" alt=\"{{currentLanguage.alt}}\"> <span> {{currentLanguage.title}} </span>\r\n            <i class=\"fa fa-angle-down\"></i> </a>\r\n        <ul class=\"dropdown-menu pull-right\">\r\n            <li ng-class=\"{active: language==currentLanguage}\" ng-repeat=\"language in languages\">\r\n                <a ng-click=\"selectLanguage(language)\"><img src=\"styles/img/blank.gif\" class=\"flag flag-{{language.key}}\" alt=\"{{language.alt}}\"> {{language.title}}</a>\r\n            </li>\r\n        </ul>\r\n    </li>\r\n</ul>\r\n");
@@ -7533,38 +7514,35 @@ $templateCache.put("app/app/_common/forms/directives/bootstrap-validation/bootst
 $templateCache.put("app/app/_common/forms/directives/bootstrap-validation/bootstrap-profile-form.tpl.html","<form id=\"profileForm\">\r\n\r\n    <fieldset>\r\n        <legend>\r\n            Default Form Elements\r\n        </legend>\r\n        <div class=\"form-group\">\r\n            <label>Email address</label>\r\n            <input type=\"text\" class=\"form-control\" name=\"email\" />\r\n        </div>\r\n    </fieldset>\r\n    <fieldset>\r\n        <div class=\"form-group\">\r\n            <label>Password</label>\r\n            <input type=\"password\" class=\"form-control\" name=\"password\" />\r\n        </div>\r\n    </fieldset>\r\n\r\n    <div class=\"form-actions\">\r\n        <div class=\"row\">\r\n            <div class=\"col-md-12\">\r\n                <button class=\"btn btn-default\" type=\"submit\">\r\n                    <i class=\"fa fa-eye\"></i>\r\n                    Validate\r\n                </button>\r\n            </div>\r\n        </div>\r\n    </div>\r\n</form>\r\n");
 $templateCache.put("app/app/_common/forms/directives/bootstrap-validation/bootstrap-toggling-form.tpl.html","<form id=\"togglingForm\" method=\"post\" class=\"form-horizontal\">\r\n\r\n    <fieldset>\r\n        <legend>\r\n            Default Form Elements\r\n        </legend>\r\n        <div class=\"form-group\">\r\n            <label class=\"col-lg-3 control-label\">Full name <sup>*</sup></label>\r\n            <div class=\"col-lg-4\">\r\n                <input type=\"text\" class=\"form-control\" name=\"firstName\" placeholder=\"First name\" />\r\n            </div>\r\n            <div class=\"col-lg-4\">\r\n                <input type=\"text\" class=\"form-control\" name=\"lastName\" placeholder=\"Last name\" />\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n\r\n    <fieldset>\r\n        <div class=\"form-group\">\r\n            <label class=\"col-lg-3 control-label\">Company <sup>*</sup></label>\r\n            <div class=\"col-lg-5\">\r\n                <input type=\"text\" class=\"form-control\" name=\"company\"\r\n                       required data-bv-notempty-message=\"The company name is required\" />\r\n            </div>\r\n            <div class=\"col-lg-2\">\r\n                <button type=\"button\" class=\"btn btn-info btn-sm\" data-toggle=\"#jobInfo\">\r\n                    Add more info\r\n                </button>\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n\r\n    <!-- These fields will not be validated as long as they are not visible -->\r\n    <div id=\"jobInfo\" style=\"display: none;\">\r\n        <fieldset>\r\n            <div class=\"form-group\">\r\n                <label class=\"col-lg-3 control-label\">Job title <sup>*</sup></label>\r\n                <div class=\"col-lg-5\">\r\n                    <input type=\"text\" class=\"form-control\" name=\"job\" />\r\n                </div>\r\n            </div>\r\n        </fieldset>\r\n\r\n        <fieldset>\r\n            <div class=\"form-group\">\r\n                <label class=\"col-lg-3 control-label\">Department <sup>*</sup></label>\r\n                <div class=\"col-lg-5\">\r\n                    <input type=\"text\" class=\"form-control\" name=\"department\" />\r\n                </div>\r\n            </div>\r\n        </fieldset>\r\n    </div>\r\n\r\n    <fieldset>\r\n        <div class=\"form-group\">\r\n            <label class=\"col-lg-3 control-label\">Mobile phone <sup>*</sup></label>\r\n            <div class=\"col-lg-5\">\r\n                <input type=\"text\" class=\"form-control\" name=\"mobilePhone\" />\r\n            </div>\r\n            <div class=\"col-lg-2\">\r\n                <button type=\"button\" class=\"btn btn-info btn-sm\" data-toggle=\"#phoneInfo\">\r\n                    Add more phone numbers\r\n                </button>\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n    <!-- These fields will not be validated as long as they are not visible -->\r\n    <div id=\"phoneInfo\" style=\"display: none;\">\r\n\r\n        <fieldset>\r\n            <div class=\"form-group\">\r\n                <label class=\"col-lg-3 control-label\">Home phone</label>\r\n                <div class=\"col-lg-5\">\r\n                    <input type=\"text\" class=\"form-control\" name=\"homePhone\" />\r\n                </div>\r\n            </div>\r\n        </fieldset>\r\n        <fieldset>\r\n            <div class=\"form-group\">\r\n                <label class=\"col-lg-3 control-label\">Office phone</label>\r\n                <div class=\"col-lg-5\">\r\n                    <input type=\"text\" class=\"form-control\" name=\"officePhone\" />\r\n                </div>\r\n            </div>\r\n        </fieldset>\r\n    </div>\r\n\r\n    <div class=\"form-actions\">\r\n        <div class=\"row\">\r\n            <div class=\"col-md-12\">\r\n                <button class=\"btn btn-default\" type=\"submit\">\r\n                    <i class=\"fa fa-eye\"></i>\r\n                    Validate\r\n                </button>\r\n            </div>\r\n        </div>\r\n    </div>\r\n</form>");
 $templateCache.put("app/app/_common/layout/directives/demo/demo-states.tpl.html","<div class=\"demo\"><span id=\"demo-setting\"><i class=\"fa fa-cog txt-color-blueDark\"></i></span>\r\n\r\n    <form>\r\n        <legend class=\"no-padding margin-bottom-10\">Layout Options</legend>\r\n        <section>\r\n            <label><input type=\"checkbox\" ng-model=\"fixedHeader\"\r\n                          class=\"checkbox style-0\"><span>Fixed Header</span></label>\r\n            <label><input type=\"checkbox\"\r\n                          ng-model=\"fixedNavigation\"\r\n                          class=\"checkbox style-0\"><span>Fixed Navigation</span></label>\r\n            <label><input type=\"checkbox\"\r\n                          ng-model=\"fixedRibbon\"\r\n                          class=\"checkbox style-0\"><span>Fixed Ribbon</span></label>\r\n            <label><input type=\"checkbox\"\r\n                          ng-model=\"fixedPageFooter\"\r\n                          class=\"checkbox style-0\"><span>Fixed Footer</span></label>\r\n            <label><input type=\"checkbox\"\r\n                          ng-model=\"insideContainer\"\r\n                          class=\"checkbox style-0\"><span>Inside <b>.container</b></span></label>\r\n            <label><input type=\"checkbox\"\r\n                          ng-model=\"rtl\"\r\n                          class=\"checkbox style-0\"><span>RTL</span></label>\r\n            <label><input type=\"checkbox\"\r\n                          ng-model=\"menuOnTop\"\r\n                          class=\"checkbox style-0\"><span>Menu on <b>top</b></span></label>\r\n            <label><input type=\"checkbox\"\r\n                          ng-model=\"colorblindFriendly\"\r\n                          class=\"checkbox style-0\"><span>For Colorblind <div\r\n                    class=\"font-xs text-right\">(experimental)\r\n            </div></span>\r\n            </label><span id=\"smart-bgimages\"></span></section>\r\n        <section><h6 class=\"margin-top-10 semi-bold margin-bottom-5\">Clear Localstorage</h6><a\r\n                ng-click=\"factoryReset()\" class=\"btn btn-xs btn-block btn-primary\" id=\"reset-smart-widget\"><i\r\n                class=\"fa fa-refresh\"></i> Factory Reset</a></section>\r\n\r\n        <h6 class=\"margin-top-10 semi-bold margin-bottom-5\">SmartAdmin Skins</h6>\r\n\r\n\r\n        <section id=\"smart-styles\">\r\n            <a ng-repeat=\"skin in skins\" ng-click=\"setSkin(skin)\" class=\"{{skin.class}}\" style=\"{{skin.style}}\"><i ng-if=\"skin.name == $parent.smartSkin\" class=\"fa fa-check fa-fw\"></i> {{skin.label}} <sup ng-if=\"skin.beta\">beta</sup></a>\r\n        </section>\r\n    </form>\r\n</div>");
-$templateCache.put("app/public/app/dashboard/todo/directives/todo-list.tpl.html","<div>\r\n    <h5 class=\"todo-group-title\"><i class=\"fa fa-{{icon}}\"></i> {{title}} (\r\n        <small class=\"num-of-tasks\">{{scopeItems.length}}</small>\r\n        )\r\n    </h5>\r\n    <ul class=\"todo\">\r\n        <li ng-class=\"{complete: todo.completedAt}\" ng-repeat=\"todo in todos | orderBy: todo._id | filter: filter  track by todo._id\" >\r\n    	<span class=\"handle\"> <label class=\"checkbox\">\r\n            <input type=\"checkbox\" ng-click=\"todo.toggle()\" ng-checked=\"todo.completedAt\"\r\n                   name=\"checkbox-inline\">\r\n            <i></i> </label> </span>\r\n\r\n            <p>\r\n                <strong>Ticket #{{$index + 1}}</strong> - {{todo.title}}\r\n                <span class=\"text-muted\" ng-if=\"todo.description\">{{todo.description}}</span>\r\n                <span class=\"date\">{{todo.createdAt | date}} &dash; <a ng-click=\"deleteTodo(todo)\" class=\"text-muted\"><i\r\n                        class=\"fa fa-trash\"></i></a></span>\r\n\r\n            </p>\r\n        </li>\r\n    </ul>\r\n</div>");
 $templateCache.put("app/public/app/dashboard/chat/directives/aside-chat-widget.tpl.html","<ul>\r\n    <li>\r\n        <div class=\"display-users\">\r\n            <input class=\"form-control chat-user-filter\" placeholder=\"Filter\" type=\"text\">\r\n            <dl>\r\n                <dt>\r\n                    <a href=\"#\" class=\"usr\"\r\n                       data-chat-id=\"cha1\"\r\n                       data-chat-fname=\"Sadi\"\r\n                       data-chat-lname=\"Orlaf\"\r\n                       data-chat-status=\"busy\"\r\n                       data-chat-alertmsg=\"Sadi Orlaf is in a meeting. Please do not disturb!\"\r\n                       data-chat-alertshow=\"true\"\r\n                       popover-trigger=\"hover\"\r\n                       popover-placement=\"right\"\r\n                       smart-popover-html=\"\r\n										<div class=\'usr-card\'>\r\n											<img src=\'styles/img/avatars/5.png\' alt=\'Sadi Orlaf\'>\r\n											<div class=\'usr-card-content\'>\r\n												<h3>Sadi Orlaf</h3>\r\n												<p>Marketing Executive</p>\r\n											</div>\r\n										</div>\r\n									\">\r\n                        <i></i>Sadi Orlaf\r\n                    </a>\r\n                </dt>\r\n                <dt>\r\n                    <a href=\"#\" class=\"usr\"\r\n                       data-chat-id=\"cha2\"\r\n                       data-chat-fname=\"Jessica\"\r\n                       data-chat-lname=\"Dolof\"\r\n                       data-chat-status=\"online\"\r\n                       data-chat-alertmsg=\"\"\r\n                       data-chat-alertshow=\"false\"\r\n                       popover-trigger=\"hover\"\r\n                       popover-placement=\"right\"\r\n                       smart-popover-html=\"\r\n										<div class=\'usr-card\'>\r\n											<img src=\'styles/img/avatars/1.png\' alt=\'Jessica Dolof\'>\r\n											<div class=\'usr-card-content\'>\r\n												<h3>Jessica Dolof</h3>\r\n												<p>Sales Administrator</p>\r\n											</div>\r\n										</div>\r\n									\">\r\n                        <i></i>Jessica Dolof\r\n                    </a>\r\n                </dt>\r\n                <dt>\r\n                    <a href=\"#\" class=\"usr\"\r\n                       data-chat-id=\"cha3\"\r\n                       data-chat-fname=\"Zekarburg\"\r\n                       data-chat-lname=\"Almandalie\"\r\n                       data-chat-status=\"online\"\r\n                       popover-trigger=\"hover\"\r\n                       popover-placement=\"right\"\r\n                       smart-popover-html=\"\r\n										<div class=\'usr-card\'>\r\n											<img src=\'styles/img/avatars/3.png\' alt=\'Zekarburg Almandalie\'>\r\n											<div class=\'usr-card-content\'>\r\n												<h3>Zekarburg Almandalie</h3>\r\n												<p>Sales Admin</p>\r\n											</div>\r\n										</div>\r\n									\">\r\n                        <i></i>Zekarburg Almandalie\r\n                    </a>\r\n                </dt>\r\n                <dt>\r\n                    <a href=\"#\" class=\"usr\"\r\n                       data-chat-id=\"cha4\"\r\n                       data-chat-fname=\"Barley\"\r\n                       data-chat-lname=\"Krazurkth\"\r\n                       data-chat-status=\"away\"\r\n                       popover-trigger=\"hover\"\r\n                       popover-placement=\"right\"\r\n                       smart-popover-html=\"\r\n										<div class=\'usr-card\'>\r\n											<img src=\'styles/img/avatars/4.png\' alt=\'Barley Krazurkth\'>\r\n											<div class=\'usr-card-content\'>\r\n												<h3>Barley Krazurkth</h3>\r\n												<p>Sales Director</p>\r\n											</div>\r\n										</div>\r\n									\">\r\n                        <i></i>Barley Krazurkth\r\n                    </a>\r\n                </dt>\r\n                <dt>\r\n                    <a href=\"#\" class=\"usr offline\"\r\n                       data-chat-id=\"cha5\"\r\n                       data-chat-fname=\"Farhana\"\r\n                       data-chat-lname=\"Amrin\"\r\n                       data-chat-status=\"incognito\"\r\n                       popover-trigger=\"hover\"\r\n                       popover-placement=\"right\"\r\n                       smart-popover-html=\"\r\n										<div class=\'usr-card\'>\r\n											<img src=\'styles/img/avatars/female.png\' alt=\'Farhana Amrin\'>\r\n											<div class=\'usr-card-content\'>\r\n												<h3>Farhana Amrin</h3>\r\n												<p>Support Admin <small><i class=\'fa fa-music\'></i> Playing Beethoven Classics</small></p>\r\n											</div>\r\n										</div>\r\n									\">\r\n                        <i></i>Farhana Amrin (offline)\r\n                    </a>\r\n                </dt>\r\n                <dt>\r\n                    <a href=\"#\" class=\"usr offline\"\r\n                       data-chat-id=\"cha6\"\r\n                       data-chat-fname=\"Lezley\"\r\n                       data-chat-lname=\"Jacob\"\r\n                       data-chat-status=\"incognito\"\r\n                       popover-trigger=\"hover\"\r\n                       popover-placement=\"right\"\r\n                       smart-popover-html=\"\r\n										<div class=\'usr-card\'>\r\n											<img src=\'styles/img/avatars/male.png\' alt=\'Lezley Jacob\'>\r\n											<div class=\'usr-card-content\'>\r\n												<h3>Lezley Jacob</h3>\r\n												<p>Sales Director</p>\r\n											</div>\r\n										</div>\r\n									\">\r\n                        <i></i>Lezley Jacob (offline)\r\n                    </a>\r\n                </dt>\r\n            </dl>\r\n\r\n\r\n            <!--<a href=\"chat.html\" class=\"btn btn-xs btn-default btn-block sa-chat-learnmore-btn\">About the API</a>-->\r\n        </div>\r\n    </li>\r\n</ul>");
 $templateCache.put("app/public/app/dashboard/chat/directives/chat-users.tpl.html","<div id=\"chat-container\" ng-class=\"{open: open}\">\r\n    <span class=\"chat-list-open-close\" ng-click=\"openToggle()\"><i class=\"fa fa-user\"></i><b>!</b></span>\r\n\r\n    <div class=\"chat-list-body custom-scroll\">\r\n        <ul id=\"chat-users\">\r\n            <li ng-repeat=\"chatUser in chatUsers | filter: chatUserFilter\">\r\n                <a ng-click=\"messageTo(chatUser)\"><img ng-src=\"{{chatUser.picture}}\">{{chatUser.username}} <span\r\n                        class=\"badge badge-inverse\">{{chatUser.username.length}}</span><span class=\"state\"><i\r\n                        class=\"fa fa-circle txt-color-green pull-right\"></i></span></a>\r\n            </li>\r\n        </ul>\r\n    </div>\r\n    <div class=\"chat-list-footer\">\r\n        <div class=\"control-group\">\r\n            <form class=\"smart-form\">\r\n                <section>\r\n                    <label class=\"input\" >\r\n                        <input type=\"text\" ng-model=\"chatUserFilter\" id=\"filter-chat-list\" placeholder=\"Filter\">\r\n                    </label>\r\n                </section>\r\n            </form>\r\n        </div>\r\n    </div>\r\n</div>");
 $templateCache.put("app/public/app/dashboard/chat/directives/chat-widget.tpl.html","<div id=\"chat-widget\" jarvis-widget data-widget-color=\"blueDark\" data-widget-editbutton=\"false\"\r\n     data-widget-fullscreenbutton=\"false\">\r\n\r\n\r\n    <header>\r\n        <span class=\"widget-icon\"> <i class=\"fa fa-comments txt-color-white\"></i> </span>\r\n\r\n        <h2> SmartMessage </h2>\r\n\r\n        <div class=\"widget-toolbar\">\r\n            <!-- add: non-hidden - to disable auto hide -->\r\n\r\n            <div class=\"btn-group\" data-dropdown>\r\n                <button class=\"btn dropdown-toggle btn-xs btn-success\" data-toggle=\"dropdown\">\r\n                    Status <i class=\"fa fa-caret-down\"></i>\r\n                </button>\r\n                <ul class=\"dropdown-menu pull-right js-status-update\">\r\n                    <li>\r\n                        <a href-void><i class=\"fa fa-circle txt-color-green\"></i> Online</a>\r\n                    </li>\r\n                    <li>\r\n                        <a href-void><i class=\"fa fa-circle txt-color-red\"></i> Busy</a>\r\n                    </li>\r\n                    <li>\r\n                        <a href-void><i class=\"fa fa-circle txt-color-orange\"></i> Away</a>\r\n                    </li>\r\n                    <li class=\"divider\"></li>\r\n                    <li>\r\n                        <a href-void><i class=\"fa fa-power-off\"></i> Log Off</a>\r\n                    </li>\r\n                </ul>\r\n            </div>\r\n        </div>\r\n    </header>\r\n\r\n    <!-- widget div-->\r\n    <div>\r\n        <div class=\"widget-body widget-hide-overflow no-padding\">\r\n            <!-- content goes here -->\r\n\r\n            <chat-users></chat-users>\r\n\r\n            <!-- CHAT BODY -->\r\n            <div id=\"chat-body\" class=\"chat-body custom-scroll\">\r\n                <ul>\r\n                    <li class=\"message\" ng-repeat=\"message in chatMessages\">\r\n                        <img class=\"message-picture online\" ng-src=\"{{message.user.picture}}\">\r\n\r\n                        <div class=\"message-text\">\r\n                            <time>\r\n                                {{message.date | date }}\r\n                            </time>\r\n                            <a ng-click=\"messageTo(message.user)\" class=\"username\">{{message.user.username}}</a>\r\n                            <div ng-bind-html=\"message.body\"></div>\r\n\r\n                        </div>\r\n                    </li>\r\n                </ul>\r\n            </div>\r\n\r\n            <!-- CHAT FOOTER -->\r\n            <div class=\"chat-footer\">\r\n\r\n                <!-- CHAT TEXTAREA -->\r\n                <div class=\"textarea-div\">\r\n\r\n                    <div class=\"typearea\">\r\n                        <textarea placeholder=\"Write a reply...\" id=\"textarea-expand\"\r\n                                  class=\"custom-scroll\" ng-model=\"newMessage\"></textarea>\r\n                    </div>\r\n\r\n                </div>\r\n\r\n                <!-- CHAT REPLY/SEND -->\r\n											<span class=\"textarea-controls\">\r\n												<button class=\"btn btn-sm btn-primary pull-right\" ng-click=\"sendMessage()\">\r\n                                                    Reply\r\n                                                </button> <span class=\"pull-right smart-form\"\r\n                                                                style=\"margin-top: 3px; margin-right: 10px;\"> <label\r\n                                                    class=\"checkbox pull-right\">\r\n                                                <input type=\"checkbox\" name=\"subscription\" id=\"subscription\">\r\n                                                <i></i>Press <strong> ENTER </strong> to send </label> </span> <a\r\n                                                    href-void class=\"pull-left\"><i\r\n                                                    class=\"fa fa-camera fa-fw fa-lg\"></i></a> </span>\r\n\r\n            </div>\r\n\r\n            <!-- end content -->\r\n        </div>\r\n\r\n    </div>\r\n    <!-- end widget div -->\r\n</div>");
-$templateCache.put("app/public/app/_common/layout/directives/demo/demo-states.tpl.html","<div class=\"demo\"><span id=\"demo-setting\"><i class=\"fa fa-cog txt-color-blueDark\"></i></span>\r\n\r\n    <form>\r\n        <legend class=\"no-padding margin-bottom-10\">Layout Options</legend>\r\n        <section>\r\n            <label><input type=\"checkbox\" ng-model=\"fixedHeader\"\r\n                          class=\"checkbox style-0\"><span>Fixed Header</span></label>\r\n            <label><input type=\"checkbox\"\r\n                          ng-model=\"fixedNavigation\"\r\n                          class=\"checkbox style-0\"><span>Fixed Navigation</span></label>\r\n            <label><input type=\"checkbox\"\r\n                          ng-model=\"fixedRibbon\"\r\n                          class=\"checkbox style-0\"><span>Fixed Ribbon</span></label>\r\n            <label><input type=\"checkbox\"\r\n                          ng-model=\"fixedPageFooter\"\r\n                          class=\"checkbox style-0\"><span>Fixed Footer</span></label>\r\n            <label><input type=\"checkbox\"\r\n                          ng-model=\"insideContainer\"\r\n                          class=\"checkbox style-0\"><span>Inside <b>.container</b></span></label>\r\n            <label><input type=\"checkbox\"\r\n                          ng-model=\"rtl\"\r\n                          class=\"checkbox style-0\"><span>RTL</span></label>\r\n            <label><input type=\"checkbox\"\r\n                          ng-model=\"menuOnTop\"\r\n                          class=\"checkbox style-0\"><span>Menu on <b>top</b></span></label>\r\n            <label><input type=\"checkbox\"\r\n                          ng-model=\"colorblindFriendly\"\r\n                          class=\"checkbox style-0\"><span>For Colorblind <div\r\n                    class=\"font-xs text-right\">(experimental)\r\n            </div></span>\r\n            </label><span id=\"smart-bgimages\"></span></section>\r\n        <section><h6 class=\"margin-top-10 semi-bold margin-bottom-5\">Clear Localstorage</h6><a\r\n                ng-click=\"factoryReset()\" class=\"btn btn-xs btn-block btn-primary\" id=\"reset-smart-widget\"><i\r\n                class=\"fa fa-refresh\"></i> Factory Reset</a></section>\r\n\r\n        <h6 class=\"margin-top-10 semi-bold margin-bottom-5\">SmartAdmin Skins</h6>\r\n\r\n\r\n        <section id=\"smart-styles\">\r\n            <a ng-repeat=\"skin in skins\" ng-click=\"setSkin(skin)\" class=\"{{skin.class}}\" style=\"{{skin.style}}\"><i ng-if=\"skin.name == $parent.smartSkin\" class=\"fa fa-check fa-fw\"></i> {{skin.label}} <sup ng-if=\"skin.beta\">beta</sup></a>\r\n        </section>\r\n    </form>\r\n</div>");
+$templateCache.put("app/public/app/dashboard/todo/directives/todo-list.tpl.html","<div>\r\n    <h5 class=\"todo-group-title\"><i class=\"fa fa-{{icon}}\"></i> {{title}} (\r\n        <small class=\"num-of-tasks\">{{scopeItems.length}}</small>\r\n        )\r\n    </h5>\r\n    <ul class=\"todo\">\r\n        <li ng-class=\"{complete: todo.completedAt}\" ng-repeat=\"todo in todos | orderBy: todo._id | filter: filter  track by todo._id\" >\r\n    	<span class=\"handle\"> <label class=\"checkbox\">\r\n            <input type=\"checkbox\" ng-click=\"todo.toggle()\" ng-checked=\"todo.completedAt\"\r\n                   name=\"checkbox-inline\">\r\n            <i></i> </label> </span>\r\n\r\n            <p>\r\n                <strong>Ticket #{{$index + 1}}</strong> - {{todo.title}}\r\n                <span class=\"text-muted\" ng-if=\"todo.description\">{{todo.description}}</span>\r\n                <span class=\"date\">{{todo.createdAt | date}} &dash; <a ng-click=\"deleteTodo(todo)\" class=\"text-muted\"><i\r\n                        class=\"fa fa-trash\"></i></a></span>\r\n\r\n            </p>\r\n        </li>\r\n    </ul>\r\n</div>");
 $templateCache.put("app/public/app/_common/forms/directives/bootstrap-validation/bootstrap-attribute-form.tpl.html","<form id=\"attributeForm\" class=\"form-horizontal\"\r\n      data-bv-message=\"This value is not valid\"\r\n      data-bv-feedbackicons-valid=\"glyphicon glyphicon-ok\"\r\n      data-bv-feedbackicons-invalid=\"glyphicon glyphicon-remove\"\r\n      data-bv-feedbackicons-validating=\"glyphicon glyphicon-refresh\">\r\n\r\n    <fieldset>\r\n        <legend>\r\n            Set validator options via HTML attributes\r\n        </legend>\r\n\r\n        <div class=\"alert alert-warning\">\r\n            <code>&lt; input\r\n                data-bv-validatorname\r\n                data-bv-validatorname-validatoroption=\"...\" / &gt;</code>\r\n\r\n            <br>\r\n            <br>\r\n            More validator options can be found here:\r\n            <a href=\"http://bootstrapvalidator.com/validators/\" target=\"_blank\">http://bootstrapvalidator.com/validators/</a>\r\n        </div>\r\n\r\n        <div class=\"form-group\">\r\n            <label class=\"col-lg-3 control-label\">Full name</label>\r\n            <div class=\"col-lg-4\">\r\n                <input type=\"text\" class=\"form-control\" name=\"firstName\" placeholder=\"First name\"\r\n                       data-bv-notempty=\"true\"\r\n                       data-bv-notempty-message=\"The first name is required and cannot be empty\" />\r\n            </div>\r\n            <div class=\"col-lg-4\">\r\n                <input type=\"text\" class=\"form-control\" name=\"lastName\" placeholder=\"Last name\"\r\n                       data-bv-notempty=\"true\"\r\n                       data-bv-notempty-message=\"The last name is required and cannot be empty\" />\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n\r\n    <fieldset>\r\n        <div class=\"form-group\">\r\n            <label class=\"col-lg-3 control-label\">Username</label>\r\n            <div class=\"col-lg-5\">\r\n                <input type=\"text\" class=\"form-control\" name=\"username\"\r\n                       data-bv-message=\"The username is not valid\"\r\n\r\n                       data-bv-notempty=\"true\"\r\n                       data-bv-notempty-message=\"The username is required and cannot be empty\"\r\n\r\n                       data-bv-regexp=\"true\"\r\n                       data-bv-regexp-regexp=\"^[a-zA-Z0-9_\\.]+$\"\r\n                       data-bv-regexp-message=\"The username can only consist of alphabetical, number, dot and underscore\"\r\n\r\n                       data-bv-stringlength=\"true\"\r\n                       data-bv-stringlength-min=\"6\"\r\n                       data-bv-stringlength-max=\"30\"\r\n                       data-bv-stringlength-message=\"The username must be more than 6 and less than 30 characters long\"\r\n\r\n                       data-bv-different=\"true\"\r\n                       data-bv-different-field=\"password\"\r\n                       data-bv-different-message=\"The username and password cannot be the same as each other\" />\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n\r\n    <fieldset>\r\n        <div class=\"form-group\">\r\n            <label class=\"col-lg-3 control-label\">Email address</label>\r\n            <div class=\"col-lg-5\">\r\n                <input class=\"form-control\" name=\"email\" type=\"email\"\r\n                       data-bv-emailaddress=\"true\"\r\n                       data-bv-emailaddress-message=\"The input is not a valid email address\" />\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n\r\n    <fieldset>\r\n        <div class=\"form-group\">\r\n            <label class=\"col-lg-3 control-label\">Password</label>\r\n            <div class=\"col-lg-5\">\r\n                <input type=\"password\" class=\"form-control\" name=\"password\"\r\n                       data-bv-notempty=\"true\"\r\n                       data-bv-notempty-message=\"The password is required and cannot be empty\"\r\n\r\n                       data-bv-identical=\"true\"\r\n                       data-bv-identical-field=\"confirmPassword\"\r\n                       data-bv-identical-message=\"The password and its confirm are not the same\"\r\n\r\n                       data-bv-different=\"true\"\r\n                       data-bv-different-field=\"username\"\r\n                       data-bv-different-message=\"The password cannot be the same as username\" />\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n\r\n    <fieldset>\r\n        <div class=\"form-group\">\r\n            <label class=\"col-lg-3 control-label\">Retype password</label>\r\n            <div class=\"col-lg-5\">\r\n                <input type=\"password\" class=\"form-control\" name=\"confirmPassword\"\r\n                       data-bv-notempty=\"true\"\r\n                       data-bv-notempty-message=\"The confirm password is required and cannot be empty\"\r\n\r\n                       data-bv-identical=\"true\"\r\n                       data-bv-identical-field=\"password\"\r\n                       data-bv-identical-message=\"The password and its confirm are not the same\"\r\n\r\n                       data-bv-different=\"true\"\r\n                       data-bv-different-field=\"username\"\r\n                       data-bv-different-message=\"The password cannot be the same as username\" />\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n\r\n    <fieldset>\r\n        <div class=\"form-group\">\r\n            <label class=\"col-lg-3 control-label\">Languages</label>\r\n            <div class=\"col-lg-5\">\r\n                <div class=\"checkbox\">\r\n                    <label>\r\n                        <input type=\"checkbox\" name=\"languages[]\" value=\"english\"\r\n                               data-bv-message=\"Please specify at least one language you can speak\"\r\n                               data-bv-notempty=\"true\" />\r\n                        English </label>\r\n                </div>\r\n                <div class=\"checkbox\">\r\n                    <label>\r\n                        <input type=\"checkbox\" name=\"languages[]\" value=\"french\" />\r\n                        French </label>\r\n                </div>\r\n                <div class=\"checkbox\">\r\n                    <label>\r\n                        <input type=\"checkbox\" name=\"languages[]\" value=\"german\" />\r\n                        German </label>\r\n                </div>\r\n                <div class=\"checkbox\">\r\n                    <label>\r\n                        <input type=\"checkbox\" name=\"languages[]\" value=\"russian\" />\r\n                        Russian </label>\r\n                </div>\r\n                <div class=\"checkbox\">\r\n                    <label>\r\n                        <input type=\"checkbox\" name=\"languages[]\" value=\"other\" />\r\n                        Other </label>\r\n                </div>\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n\r\n    <div class=\"form-actions\">\r\n        <div class=\"row\">\r\n            <div class=\"col-md-12\">\r\n                <button class=\"btn btn-default\" type=\"submit\">\r\n                    <i class=\"fa fa-eye\"></i>\r\n                    Validate\r\n                </button>\r\n            </div>\r\n        </div>\r\n    </div>\r\n\r\n</form>\r\n     ");
 $templateCache.put("app/public/app/_common/forms/directives/bootstrap-validation/bootstrap-button-group-form.tpl.html","<form id=\"buttonGroupForm\" method=\"post\" class=\"form-horizontal\">\r\n\r\n    <fieldset>\r\n        <legend>\r\n            Default Form Elements\r\n        </legend>\r\n        <div class=\"form-group\">\r\n            <label class=\"col-lg-3 control-label\">Gender</label>\r\n            <div class=\"col-lg-9\">\r\n                <div class=\"btn-group\" data-toggle=\"buttons\">\r\n                    <label class=\"btn btn-default\">\r\n                        <input type=\"radio\" name=\"gender\" value=\"male\" />\r\n                        Male </label>\r\n                    <label class=\"btn btn-default\">\r\n                        <input type=\"radio\" name=\"gender\" value=\"female\" />\r\n                        Female </label>\r\n                    <label class=\"btn btn-default\">\r\n                        <input type=\"radio\" name=\"gender\" value=\"other\" />\r\n                        Other </label>\r\n                </div>\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n\r\n    <fieldset>\r\n        <div class=\"form-group\">\r\n            <label class=\"col-lg-3 control-label\">Languages</label>\r\n            <div class=\"col-lg-9\">\r\n                <div class=\"btn-group\" data-toggle=\"buttons\">\r\n                    <label class=\"btn btn-default\">\r\n                        <input type=\"checkbox\" name=\"languages[]\" value=\"english\" />\r\n                        English </label>\r\n                    <label class=\"btn btn-default\">\r\n                        <input type=\"checkbox\" name=\"languages[]\" value=\"german\" />\r\n                        German </label>\r\n                    <label class=\"btn btn-default\">\r\n                        <input type=\"checkbox\" name=\"languages[]\" value=\"french\" />\r\n                        French </label>\r\n                    <label class=\"btn btn-default\">\r\n                        <input type=\"checkbox\" name=\"languages[]\" value=\"russian\" />\r\n                        Russian </label>\r\n                    <label class=\"btn btn-default\">\r\n                        <input type=\"checkbox\" name=\"languages[]\" value=\"italian\">\r\n                        Italian </label>\r\n                </div>\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n\r\n    <div class=\"form-actions\">\r\n        <div class=\"row\">\r\n            <div class=\"col-md-12\">\r\n                <button class=\"btn btn-default\" type=\"submit\">\r\n                    <i class=\"fa fa-eye\"></i>\r\n                    Validate\r\n                </button>\r\n            </div>\r\n        </div>\r\n    </div>\r\n\r\n</form>\r\n");
 $templateCache.put("app/public/app/_common/forms/directives/bootstrap-validation/bootstrap-contact-form.tpl.html","<form id=\"contactForm\" method=\"post\" class=\"form-horizontal\">\r\n\r\n    <fieldset>\r\n        <legend>Showing messages in custom area</legend>\r\n        <div class=\"form-group\">\r\n            <label class=\"col-md-3 control-label\">Full name</label>\r\n            <div class=\"col-md-6\">\r\n                <input type=\"text\" class=\"form-control\" name=\"fullName\" />\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n\r\n    <fieldset>\r\n        <div class=\"form-group\">\r\n            <label class=\"col-md-3 control-label\">Email</label>\r\n            <div class=\"col-md-6\">\r\n                <input type=\"text\" class=\"form-control\" name=\"email\" />\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n\r\n    <fieldset>\r\n        <div class=\"form-group\">\r\n            <label class=\"col-md-3 control-label\">Title</label>\r\n            <div class=\"col-md-6\">\r\n                <input type=\"text\" class=\"form-control\" name=\"title\" />\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n\r\n    <fieldset>\r\n        <div class=\"form-group\">\r\n            <label class=\"col-md-3 control-label\">Content</label>\r\n            <div class=\"col-md-6\">\r\n                <textarea class=\"form-control\" name=\"content\" rows=\"5\"></textarea>\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n\r\n    <fieldset>\r\n        <!-- #messages is where the messages are placed inside -->\r\n        <div class=\"form-group\">\r\n            <div class=\"col-md-9 col-md-offset-3\">\r\n                <div id=\"messages\"></div>\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n\r\n    <div class=\"form-actions\">\r\n        <div class=\"row\">\r\n            <div class=\"col-md-12\">\r\n                <button class=\"btn btn-default\" type=\"submit\">\r\n                    <i class=\"fa fa-eye\"></i>\r\n                    Validate\r\n                </button>\r\n            </div>\r\n        </div>\r\n    </div>\r\n\r\n</form>\r\n");
 $templateCache.put("app/public/app/_common/forms/directives/bootstrap-validation/bootstrap-movie-form.tpl.html","\r\n<form id=\"movieForm\" method=\"post\">\r\n\r\n    <fieldset>\r\n        <legend>\r\n            Default Form Elements\r\n        </legend>\r\n        <div class=\"form-group\">\r\n            <div class=\"row\">\r\n                <div class=\"col-md-8\">\r\n                    <label class=\"control-label\">Movie title</label>\r\n                    <input type=\"text\" class=\"form-control\" name=\"title\" />\r\n                </div>\r\n\r\n                <div class=\"col-md-4 selectContainer\">\r\n                    <label class=\"control-label\">Genre</label>\r\n                    <select class=\"form-control\" name=\"genre\">\r\n                        <option value=\"\">Choose a genre</option>\r\n                        <option value=\"action\">Action</option>\r\n                        <option value=\"comedy\">Comedy</option>\r\n                        <option value=\"horror\">Horror</option>\r\n                        <option value=\"romance\">Romance</option>\r\n                    </select>\r\n                </div>\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n\r\n    <fieldset>\r\n        <div class=\"form-group\">\r\n            <div class=\"row\">\r\n                <div class=\"col-sm-12 col-md-4\">\r\n                    <label class=\"control-label\">Director</label>\r\n                    <input type=\"text\" class=\"form-control\" name=\"director\" />\r\n                </div>\r\n\r\n                <div class=\"col-sm-12 col-md-4\">\r\n                    <label class=\"control-label\">Writer</label>\r\n                    <input type=\"text\" class=\"form-control\" name=\"writer\" />\r\n                </div>\r\n\r\n                <div class=\"col-sm-12 col-md-4\">\r\n                    <label class=\"control-label\">Producer</label>\r\n                    <input type=\"text\" class=\"form-control\" name=\"producer\" />\r\n                </div>\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n\r\n    <fieldset>\r\n        <div class=\"form-group\">\r\n            <div class=\"row\">\r\n                <div class=\"col-sm-12 col-md-6\">\r\n                    <label class=\"control-label\">Website</label>\r\n                    <input type=\"text\" class=\"form-control\" name=\"website\" />\r\n                </div>\r\n\r\n                <div class=\"col-sm-12 col-md-6\">\r\n                    <label class=\"control-label\">Youtube trailer</label>\r\n                    <input type=\"text\" class=\"form-control\" name=\"trailer\" />\r\n                </div>\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n\r\n    <fieldset>\r\n        <div class=\"form-group\">\r\n            <label class=\"control-label\">Review</label>\r\n            <textarea class=\"form-control\" name=\"review\" rows=\"8\"></textarea>\r\n        </div>\r\n    </fieldset>\r\n\r\n    <fieldset>\r\n        <div class=\"form-group\">\r\n\r\n            <div class=\"row\">\r\n                <div class=\"col-sm-12 col-md-12\">\r\n                    <label class=\"control-label\">Rating</label>\r\n                </div>\r\n\r\n                <div class=\"col-sm-12 col-md-10\">\r\n\r\n                    <label class=\"radio radio-inline no-margin\">\r\n                        <input type=\"radio\" name=\"rating\" value=\"terrible\" class=\"radiobox style-2\" />\r\n                        <span>Terrible</span> </label>\r\n\r\n                    <label class=\"radio radio-inline\">\r\n                        <input type=\"radio\" name=\"rating\" value=\"watchable\" class=\"radiobox style-2\" />\r\n                        <span>Watchable</span> </label>\r\n                    <label class=\"radio radio-inline\">\r\n                        <input type=\"radio\" name=\"rating\" value=\"best\" class=\"radiobox style-2\" />\r\n                        <span>Best ever</span> </label>\r\n\r\n                </div>\r\n\r\n            </div>\r\n\r\n        </div>\r\n    </fieldset>\r\n\r\n    <div class=\"form-actions\">\r\n        <div class=\"row\">\r\n            <div class=\"col-md-12\">\r\n                <button class=\"btn btn-default\" type=\"submit\">\r\n                    <i class=\"fa fa-eye\"></i>\r\n                    Validate\r\n                </button>\r\n            </div>\r\n        </div>\r\n    </div>\r\n\r\n</form>\r\n\r\n ");
 $templateCache.put("app/public/app/_common/forms/directives/bootstrap-validation/bootstrap-product-form.tpl.html","<form id=\"productForm\" class=\"form-horizontal\">\r\n\r\n    <fieldset>\r\n        <legend>\r\n            Default Form Elements\r\n        </legend>\r\n        <div class=\"form-group\">\r\n            <label class=\"col-xs-2 col-lg-3 control-label\">Price</label>\r\n            <div class=\"col-xs-9 col-lg-6 inputGroupContainer\">\r\n                <div class=\"input-group\">\r\n                    <input type=\"text\" class=\"form-control\" name=\"price\" />\r\n                    <span class=\"input-group-addon\">$</span>\r\n                </div>\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n\r\n    <fieldset>\r\n        <div class=\"form-group\">\r\n            <label class=\"col-xs-2 col-lg-3 control-label\">Amount</label>\r\n            <div class=\"col-xs-9 col-lg-6 inputGroupContainer\">\r\n                <div class=\"input-group\">\r\n                    <span class=\"input-group-addon\">&#8364;</span>\r\n                    <input type=\"text\" class=\"form-control\" name=\"amount\" />\r\n                </div>\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n\r\n    <fieldset>\r\n        <div class=\"form-group\">\r\n            <label class=\"col-xs-2 col-lg-3 control-label\">Color</label>\r\n            <div class=\"col-xs-9 col-lg-6 selectContainer\">\r\n                <select class=\"form-control\" name=\"color\">\r\n                    <option value=\"\">Choose a color</option>\r\n                    <option value=\"blue\">Blue</option>\r\n                    <option value=\"green\">Green</option>\r\n                    <option value=\"red\">Red</option>\r\n                    <option value=\"yellow\">Yellow</option>\r\n                    <option value=\"white\">White</option>\r\n                </select>\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n\r\n    <fieldset>\r\n        <div class=\"form-group\">\r\n            <label class=\"col-xs-2 col-lg-3 control-label\">Size</label>\r\n            <div class=\"col-xs-9 col-lg-6 selectContainer\">\r\n                <select class=\"form-control\" name=\"size\">\r\n                    <option value=\"\">Choose a size</option>\r\n                    <option value=\"S\">S</option>\r\n                    <option value=\"M\">M</option>\r\n                    <option value=\"L\">L</option>\r\n                    <option value=\"XL\">XL</option>\r\n                </select>\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n\r\n    <div class=\"form-actions\">\r\n        <div class=\"row\">\r\n            <div class=\"col-md-12\">\r\n                <button class=\"btn btn-default\" type=\"submit\">\r\n                    <i class=\"fa fa-eye\"></i>\r\n                    Validate\r\n                </button>\r\n            </div>\r\n        </div>\r\n    </div>\r\n</form>\r\n\r\n");
 $templateCache.put("app/public/app/_common/forms/directives/bootstrap-validation/bootstrap-profile-form.tpl.html","<form id=\"profileForm\">\r\n\r\n    <fieldset>\r\n        <legend>\r\n            Default Form Elements\r\n        </legend>\r\n        <div class=\"form-group\">\r\n            <label>Email address</label>\r\n            <input type=\"text\" class=\"form-control\" name=\"email\" />\r\n        </div>\r\n    </fieldset>\r\n    <fieldset>\r\n        <div class=\"form-group\">\r\n            <label>Password</label>\r\n            <input type=\"password\" class=\"form-control\" name=\"password\" />\r\n        </div>\r\n    </fieldset>\r\n\r\n    <div class=\"form-actions\">\r\n        <div class=\"row\">\r\n            <div class=\"col-md-12\">\r\n                <button class=\"btn btn-default\" type=\"submit\">\r\n                    <i class=\"fa fa-eye\"></i>\r\n                    Validate\r\n                </button>\r\n            </div>\r\n        </div>\r\n    </div>\r\n</form>\r\n");
-$templateCache.put("app/public/app/_common/forms/directives/bootstrap-validation/bootstrap-toggling-form.tpl.html","<form id=\"togglingForm\" method=\"post\" class=\"form-horizontal\">\r\n\r\n    <fieldset>\r\n        <legend>\r\n            Default Form Elements\r\n        </legend>\r\n        <div class=\"form-group\">\r\n            <label class=\"col-lg-3 control-label\">Full name <sup>*</sup></label>\r\n            <div class=\"col-lg-4\">\r\n                <input type=\"text\" class=\"form-control\" name=\"firstName\" placeholder=\"First name\" />\r\n            </div>\r\n            <div class=\"col-lg-4\">\r\n                <input type=\"text\" class=\"form-control\" name=\"lastName\" placeholder=\"Last name\" />\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n\r\n    <fieldset>\r\n        <div class=\"form-group\">\r\n            <label class=\"col-lg-3 control-label\">Company <sup>*</sup></label>\r\n            <div class=\"col-lg-5\">\r\n                <input type=\"text\" class=\"form-control\" name=\"company\"\r\n                       required data-bv-notempty-message=\"The company name is required\" />\r\n            </div>\r\n            <div class=\"col-lg-2\">\r\n                <button type=\"button\" class=\"btn btn-info btn-sm\" data-toggle=\"#jobInfo\">\r\n                    Add more info\r\n                </button>\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n\r\n    <!-- These fields will not be validated as long as they are not visible -->\r\n    <div id=\"jobInfo\" style=\"display: none;\">\r\n        <fieldset>\r\n            <div class=\"form-group\">\r\n                <label class=\"col-lg-3 control-label\">Job title <sup>*</sup></label>\r\n                <div class=\"col-lg-5\">\r\n                    <input type=\"text\" class=\"form-control\" name=\"job\" />\r\n                </div>\r\n            </div>\r\n        </fieldset>\r\n\r\n        <fieldset>\r\n            <div class=\"form-group\">\r\n                <label class=\"col-lg-3 control-label\">Department <sup>*</sup></label>\r\n                <div class=\"col-lg-5\">\r\n                    <input type=\"text\" class=\"form-control\" name=\"department\" />\r\n                </div>\r\n            </div>\r\n        </fieldset>\r\n    </div>\r\n\r\n    <fieldset>\r\n        <div class=\"form-group\">\r\n            <label class=\"col-lg-3 control-label\">Mobile phone <sup>*</sup></label>\r\n            <div class=\"col-lg-5\">\r\n                <input type=\"text\" class=\"form-control\" name=\"mobilePhone\" />\r\n            </div>\r\n            <div class=\"col-lg-2\">\r\n                <button type=\"button\" class=\"btn btn-info btn-sm\" data-toggle=\"#phoneInfo\">\r\n                    Add more phone numbers\r\n                </button>\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n    <!-- These fields will not be validated as long as they are not visible -->\r\n    <div id=\"phoneInfo\" style=\"display: none;\">\r\n\r\n        <fieldset>\r\n            <div class=\"form-group\">\r\n                <label class=\"col-lg-3 control-label\">Home phone</label>\r\n                <div class=\"col-lg-5\">\r\n                    <input type=\"text\" class=\"form-control\" name=\"homePhone\" />\r\n                </div>\r\n            </div>\r\n        </fieldset>\r\n        <fieldset>\r\n            <div class=\"form-group\">\r\n                <label class=\"col-lg-3 control-label\">Office phone</label>\r\n                <div class=\"col-lg-5\">\r\n                    <input type=\"text\" class=\"form-control\" name=\"officePhone\" />\r\n                </div>\r\n            </div>\r\n        </fieldset>\r\n    </div>\r\n\r\n    <div class=\"form-actions\">\r\n        <div class=\"row\">\r\n            <div class=\"col-md-12\">\r\n                <button class=\"btn btn-default\" type=\"submit\">\r\n                    <i class=\"fa fa-eye\"></i>\r\n                    Validate\r\n                </button>\r\n            </div>\r\n        </div>\r\n    </div>\r\n</form>");}]);
-'use strict';
+$templateCache.put("app/public/app/_common/forms/directives/bootstrap-validation/bootstrap-toggling-form.tpl.html","<form id=\"togglingForm\" method=\"post\" class=\"form-horizontal\">\r\n\r\n    <fieldset>\r\n        <legend>\r\n            Default Form Elements\r\n        </legend>\r\n        <div class=\"form-group\">\r\n            <label class=\"col-lg-3 control-label\">Full name <sup>*</sup></label>\r\n            <div class=\"col-lg-4\">\r\n                <input type=\"text\" class=\"form-control\" name=\"firstName\" placeholder=\"First name\" />\r\n            </div>\r\n            <div class=\"col-lg-4\">\r\n                <input type=\"text\" class=\"form-control\" name=\"lastName\" placeholder=\"Last name\" />\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n\r\n    <fieldset>\r\n        <div class=\"form-group\">\r\n            <label class=\"col-lg-3 control-label\">Company <sup>*</sup></label>\r\n            <div class=\"col-lg-5\">\r\n                <input type=\"text\" class=\"form-control\" name=\"company\"\r\n                       required data-bv-notempty-message=\"The company name is required\" />\r\n            </div>\r\n            <div class=\"col-lg-2\">\r\n                <button type=\"button\" class=\"btn btn-info btn-sm\" data-toggle=\"#jobInfo\">\r\n                    Add more info\r\n                </button>\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n\r\n    <!-- These fields will not be validated as long as they are not visible -->\r\n    <div id=\"jobInfo\" style=\"display: none;\">\r\n        <fieldset>\r\n            <div class=\"form-group\">\r\n                <label class=\"col-lg-3 control-label\">Job title <sup>*</sup></label>\r\n                <div class=\"col-lg-5\">\r\n                    <input type=\"text\" class=\"form-control\" name=\"job\" />\r\n                </div>\r\n            </div>\r\n        </fieldset>\r\n\r\n        <fieldset>\r\n            <div class=\"form-group\">\r\n                <label class=\"col-lg-3 control-label\">Department <sup>*</sup></label>\r\n                <div class=\"col-lg-5\">\r\n                    <input type=\"text\" class=\"form-control\" name=\"department\" />\r\n                </div>\r\n            </div>\r\n        </fieldset>\r\n    </div>\r\n\r\n    <fieldset>\r\n        <div class=\"form-group\">\r\n            <label class=\"col-lg-3 control-label\">Mobile phone <sup>*</sup></label>\r\n            <div class=\"col-lg-5\">\r\n                <input type=\"text\" class=\"form-control\" name=\"mobilePhone\" />\r\n            </div>\r\n            <div class=\"col-lg-2\">\r\n                <button type=\"button\" class=\"btn btn-info btn-sm\" data-toggle=\"#phoneInfo\">\r\n                    Add more phone numbers\r\n                </button>\r\n            </div>\r\n        </div>\r\n    </fieldset>\r\n    <!-- These fields will not be validated as long as they are not visible -->\r\n    <div id=\"phoneInfo\" style=\"display: none;\">\r\n\r\n        <fieldset>\r\n            <div class=\"form-group\">\r\n                <label class=\"col-lg-3 control-label\">Home phone</label>\r\n                <div class=\"col-lg-5\">\r\n                    <input type=\"text\" class=\"form-control\" name=\"homePhone\" />\r\n                </div>\r\n            </div>\r\n        </fieldset>\r\n        <fieldset>\r\n            <div class=\"form-group\">\r\n                <label class=\"col-lg-3 control-label\">Office phone</label>\r\n                <div class=\"col-lg-5\">\r\n                    <input type=\"text\" class=\"form-control\" name=\"officePhone\" />\r\n                </div>\r\n            </div>\r\n        </fieldset>\r\n    </div>\r\n\r\n    <div class=\"form-actions\">\r\n        <div class=\"row\">\r\n            <div class=\"col-md-12\">\r\n                <button class=\"btn btn-default\" type=\"submit\">\r\n                    <i class=\"fa fa-eye\"></i>\r\n                    Validate\r\n                </button>\r\n            </div>\r\n        </div>\r\n    </div>\r\n</form>");
+$templateCache.put("app/public/app/_common/layout/directives/demo/demo-states.tpl.html","<div class=\"demo\"><span id=\"demo-setting\"><i class=\"fa fa-cog txt-color-blueDark\"></i></span>\r\n\r\n    <form>\r\n        <legend class=\"no-padding margin-bottom-10\">Layout Options</legend>\r\n        <section>\r\n            <label><input type=\"checkbox\" ng-model=\"fixedHeader\"\r\n                          class=\"checkbox style-0\"><span>Fixed Header</span></label>\r\n            <label><input type=\"checkbox\"\r\n                          ng-model=\"fixedNavigation\"\r\n                          class=\"checkbox style-0\"><span>Fixed Navigation</span></label>\r\n            <label><input type=\"checkbox\"\r\n                          ng-model=\"fixedRibbon\"\r\n                          class=\"checkbox style-0\"><span>Fixed Ribbon</span></label>\r\n            <label><input type=\"checkbox\"\r\n                          ng-model=\"fixedPageFooter\"\r\n                          class=\"checkbox style-0\"><span>Fixed Footer</span></label>\r\n            <label><input type=\"checkbox\"\r\n                          ng-model=\"insideContainer\"\r\n                          class=\"checkbox style-0\"><span>Inside <b>.container</b></span></label>\r\n            <label><input type=\"checkbox\"\r\n                          ng-model=\"rtl\"\r\n                          class=\"checkbox style-0\"><span>RTL</span></label>\r\n            <label><input type=\"checkbox\"\r\n                          ng-model=\"menuOnTop\"\r\n                          class=\"checkbox style-0\"><span>Menu on <b>top</b></span></label>\r\n            <label><input type=\"checkbox\"\r\n                          ng-model=\"colorblindFriendly\"\r\n                          class=\"checkbox style-0\"><span>For Colorblind <div\r\n                    class=\"font-xs text-right\">(experimental)\r\n            </div></span>\r\n            </label><span id=\"smart-bgimages\"></span></section>\r\n        <section><h6 class=\"margin-top-10 semi-bold margin-bottom-5\">Clear Localstorage</h6><a\r\n                ng-click=\"factoryReset()\" class=\"btn btn-xs btn-block btn-primary\" id=\"reset-smart-widget\"><i\r\n                class=\"fa fa-refresh\"></i> Factory Reset</a></section>\r\n\r\n        <h6 class=\"margin-top-10 semi-bold margin-bottom-5\">SmartAdmin Skins</h6>\r\n\r\n\r\n        <section id=\"smart-styles\">\r\n            <a ng-repeat=\"skin in skins\" ng-click=\"setSkin(skin)\" class=\"{{skin.class}}\" style=\"{{skin.style}}\"><i ng-if=\"skin.name == $parent.smartSkin\" class=\"fa fa-check fa-fw\"></i> {{skin.label}} <sup ng-if=\"skin.beta\">beta</sup></a>\r\n        </section>\r\n    </form>\r\n</div>");}]);
+"use strict";
 
-angular.module('app.eCommerce').controller('OrdersDemoCtrl', function ($scope, orders) {
+angular.module('app').directive('recentProjects', function(Project){
+    return {
+        restrict: "EA",
+        replace: true,
+        templateUrl: "app/dashboard/projects/recent-projects.tpl.html",
+        scope: true,
+        link: function(scope, element){
 
-    $scope.orders = orders.data;
-
-    $scope.tableOptions =  {
-        "data": orders.data.data,
-//            "bDestroy": true,
-        "iDisplayLength": 15,
-        columns: [
-            {data: "orderId"},
-            {data: "customerId"},
-            {data: "purchase"},
-            {data: "delivery"},
-            {data: "basePrice"},
-            {data: "postalZip"},
-            {data: "status"}
-        ],
-        "order": [[1, 'asc']]
+            Project.list.then(function(response){
+                scope.projects = response.data;
+            });
+            scope.clearProjects = function(){
+                scope.projects = [];
+            }
+        }
     }
 });
 "use strict";
@@ -7603,6 +7581,28 @@ angular.module('app').controller('TodoCtrl', function ($scope, $timeout, Todo) {
 
     };
 
+});
+'use strict';
+
+angular.module('app.eCommerce').controller('OrdersDemoCtrl', function ($scope, orders) {
+
+    $scope.orders = orders.data;
+
+    $scope.tableOptions =  {
+        "data": orders.data.data,
+//            "bDestroy": true,
+        "iDisplayLength": 15,
+        columns: [
+            {data: "orderId"},
+            {data: "customerId"},
+            {data: "purchase"},
+            {data: "delivery"},
+            {data: "basePrice"},
+            {data: "postalZip"},
+            {data: "status"}
+        ],
+        "order": [[1, 'asc']]
+    }
 });
 
 "use strict";
@@ -7912,75 +7912,6 @@ angular.module('app.forms').controller('ModalDemoCtrl', function($scope, $modalI
 });
 "use strict";
 
-angular.module('app.inbox').directive('messageLabels', function (InboxConfig) {
-    return {
-        replace: true,
-        restrict: 'AE',
-        link: function (scope, element) {
-
-            if (scope.message.labels && scope.message.labels.length) {
-                InboxConfig.success(function (config) {
-                    var html = _.map(scope.message.labels, function (label) {
-                        return '<span class="label bg-color-'+config.labels[label].color +'">' + config.labels[label].name + '</span>';
-                    }).join('');
-                    element.replaceWith(html);
-                });
-
-            } else {
-                element.replaceWith('');
-            }
-        }
-    }
-});
-"use strict";
-
-angular.module('app.inbox').directive('unreadMessagesCount', function(InboxConfig){
-    return {
-        restrict: 'A',
-        link: function(scope, element){
-            InboxConfig.success(function(config){
-                element.html(_.find(config.folders, {key: 'inbox'}).unread);
-            })
-        }
-    }
-});
-"use strict";
-
-angular.module('app.inbox').factory('InboxConfig', function($http, APP_CONFIG){
-    return $http.get(APP_CONFIG.apiRootUrl + '/inbox.json');
-})
-"use strict";
-
-angular.module('app.inbox').factory('InboxMessage', function($resource, APP_CONFIG){
-   var InboxMessage = $resource(APP_CONFIG.apiRootUrl + '/messages.json/:id', {'id': '@_id'}, {
-        get:{
-            url: APP_CONFIG.apiRootUrl + '/message.json',
-            isArray: false
-        }
-    });
-
-    _.extend(InboxMessage.prototype, {
-        selected: false,
-        hasAttachments: function(){
-            return (_.isArray(this.attachments) && this.attachments.length)
-        },
-        fullAttachmentsTootlip: function(){
-            return 'FILES: ' + _.pluck(this.attachments, 'name').join(', ');
-        },
-        getBodyTeaser: function(){
-            var clearBody  = this.body.replace(/<[^<>]+?>/gm, ' ').replace(/(\s{2}|\n)/gm, ' ');
-
-            var teaserMaxLength = 55 - this.subject.length;
-
-            return clearBody.length > teaserMaxLength ? clearBody.substring(0, teaserMaxLength) + '...' : clearBody;
-        }
-    });
-
-    return InboxMessage;
-
-});
-"use strict";
-
 angular.module('app.graphs').controller('FlotCtrl', function ($scope) {
 
 
@@ -8286,66 +8217,73 @@ angular.module('app.graphs').controller('FlotCtrl', function ($scope) {
 });
 "use strict";
 
-angular.module('app').directive('toggleShortcut', function($log,$timeout) {
+angular.module('app.inbox').directive('messageLabels', function (InboxConfig) {
+    return {
+        replace: true,
+        restrict: 'AE',
+        link: function (scope, element) {
 
-	var initDomEvents = function($element){
+            if (scope.message.labels && scope.message.labels.length) {
+                InboxConfig.success(function (config) {
+                    var html = _.map(scope.message.labels, function (label) {
+                        return '<span class="label bg-color-'+config.labels[label].color +'">' + config.labels[label].name + '</span>';
+                    }).join('');
+                    element.replaceWith(html);
+                });
 
-		var shortcut_dropdown = $('#shortcut');
+            } else {
+                element.replaceWith('');
+            }
+        }
+    }
+});
+"use strict";
 
-		$element.on('click',function(){
-		
-			if (shortcut_dropdown.is(":visible")) {
-				shortcut_buttons_hide();
-			} else {
-				shortcut_buttons_show();
-			}
+angular.module('app.inbox').directive('unreadMessagesCount', function(InboxConfig){
+    return {
+        restrict: 'A',
+        link: function(scope, element){
+            InboxConfig.success(function(config){
+                element.html(_.find(config.folders, {key: 'inbox'}).unread);
+            })
+        }
+    }
+});
+"use strict";
 
-		})
-
-		shortcut_dropdown.find('a').click(function(e) {
-			e.preventDefault();
-			window.location = $(this).attr('href');
-			setTimeout(shortcut_buttons_hide, 300);
-		});
-
-		
-
-		// SHORTCUT buttons goes away if mouse is clicked outside of the area
-		$(document).mouseup(function(e) {
-			if (shortcut_dropdown && !shortcut_dropdown.is(e.target) && shortcut_dropdown.has(e.target).length === 0) {
-				shortcut_buttons_hide();
-			}
-		});
-
-		// SHORTCUT ANIMATE HIDE
-		function shortcut_buttons_hide() {
-			shortcut_dropdown.animate({
-				height : "hide"
-			}, 300, "easeOutCirc");
-			$('body').removeClass('shortcut-on');
-
-		}
-
-		// SHORTCUT ANIMATE SHOW
-		function shortcut_buttons_show() {
-			shortcut_dropdown.animate({
-				height : "show"
-			}, 200, "easeOutCirc");
-			$('body').addClass('shortcut-on');
-		}
-	}
-
-	var link = function($scope,$element){
-		$timeout(function(){
-			initDomEvents($element);
-		});
-	}
-
-	return{
-		restrict:'EA',
-		link:link
-	}
+angular.module('app.inbox').factory('InboxConfig', function($http, APP_CONFIG){
+    return $http.get(APP_CONFIG.apiRootUrl + '/inbox.json');
 })
+"use strict";
+
+angular.module('app.inbox').factory('InboxMessage', function($resource, APP_CONFIG){
+   var InboxMessage = $resource(APP_CONFIG.apiRootUrl + '/messages.json/:id', {'id': '@_id'}, {
+        get:{
+            url: APP_CONFIG.apiRootUrl + '/message.json',
+            isArray: false
+        }
+    });
+
+    _.extend(InboxMessage.prototype, {
+        selected: false,
+        hasAttachments: function(){
+            return (_.isArray(this.attachments) && this.attachments.length)
+        },
+        fullAttachmentsTootlip: function(){
+            return 'FILES: ' + _.pluck(this.attachments, 'name').join(', ');
+        },
+        getBodyTeaser: function(){
+            var clearBody  = this.body.replace(/<[^<>]+?>/gm, ' ').replace(/(\s{2}|\n)/gm, ' ');
+
+            var teaserMaxLength = 55 - this.subject.length;
+
+            return clearBody.length > teaserMaxLength ? clearBody.substring(0, teaserMaxLength) + '...' : clearBody;
+        }
+    });
+
+    return InboxMessage;
+
+});
 "use strict";
 
 angular.module('app').controller("LanguagesCtrl",  function LanguagesCtrl($scope, $rootScope, $log, Language, APP_CONFIG){
@@ -8448,54 +8386,66 @@ angular.module('app').directive('languageSelector', function(Language){
 });
 "use strict";
 
+angular.module('app').directive('toggleShortcut', function($log,$timeout) {
 
-angular.module('app.maps').factory('SmartMapStyle', function ($q, $http, APP_CONFIG) {
+	var initDomEvents = function($element){
 
-    var styles = {
-        'colorful': { name: 'Colorful', url: APP_CONFIG.apiRootUrl + '/maps/colorful.json'},
-        'greyscale': { name: 'greyscale', url: APP_CONFIG.apiRootUrl + '/maps/greyscale.json'},
-        'metro': { name: 'metro', url: APP_CONFIG.apiRootUrl + '/maps/metro.json'},
-        'mono-color': { name: 'mono-color', url: APP_CONFIG.apiRootUrl + '/maps/mono-color.json'},
-        'monochrome': { name: 'monochrome', url: APP_CONFIG.apiRootUrl + '/maps/monochrome.json'},
-        'nightvision': { name: 'Nightvision', url: APP_CONFIG.apiRootUrl + '/maps/nightvision.json'},
-        'nightvision-highlight': { name: 'nightvision-highlight', url: APP_CONFIG.apiRootUrl + '/maps/nightvision-highlight.json'},
-        'old-paper': { name: 'Old Paper', url: APP_CONFIG.apiRootUrl + '/maps/old-paper.json'}
-    };
+		var shortcut_dropdown = $('#shortcut');
 
+		$element.on('click',function(){
+		
+			if (shortcut_dropdown.is(":visible")) {
+				shortcut_buttons_hide();
+			} else {
+				shortcut_buttons_show();
+			}
 
-    function getMapType(key){
-        var keyData = styles[key];
+		})
 
-        if(!keyData.cache){
-            keyData.cache = createMapType(keyData)
-        }
+		shortcut_dropdown.find('a').click(function(e) {
+			e.preventDefault();
+			window.location = $(this).attr('href');
+			setTimeout(shortcut_buttons_hide, 300);
+		});
 
-        return keyData.cache;
-    }
+		
 
-    function createMapType(keyData){
-        var dfd = $q.defer();
-        $http.get(keyData.url).then(function(resp){
-            var styleData = resp.data;
-            var type = new google.maps.StyledMapType(styleData, {name: keyData.name})
-            dfd.resolve(type);
-        }, function(reason){
-            console.error(reason);
-            dfd.reject(reason);
-        });
+		// SHORTCUT buttons goes away if mouse is clicked outside of the area
+		$(document).mouseup(function(e) {
+			if (shortcut_dropdown && !shortcut_dropdown.is(e.target) && shortcut_dropdown.has(e.target).length === 0) {
+				shortcut_buttons_hide();
+			}
+		});
 
-        return dfd.promise;
-    }
+		// SHORTCUT ANIMATE HIDE
+		function shortcut_buttons_hide() {
+			shortcut_dropdown.animate({
+				height : "hide"
+			}, 300, "easeOutCirc");
+			$('body').removeClass('shortcut-on');
 
+		}
 
-    return {
-        getMapType: getMapType,
-        styles: styles
-    }
+		// SHORTCUT ANIMATE SHOW
+		function shortcut_buttons_show() {
+			shortcut_dropdown.animate({
+				height : "show"
+			}, 200, "easeOutCirc");
+			$('body').addClass('shortcut-on');
+		}
+	}
 
+	var link = function($scope,$element){
+		$timeout(function(){
+			initDomEvents($element);
+		});
+	}
 
-
-});
+	return{
+		restrict:'EA',
+		link:link
+	}
+})
 "use strict";
 
 angular.module('app.mainwork').controller('MainWorkCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, RestfulApi, ToolboxApi) {
@@ -8778,6 +8728,56 @@ angular.module('app.maps').controller('MapsDemoCtrl',
 
 
     });
+"use strict";
+
+
+angular.module('app.maps').factory('SmartMapStyle', function ($q, $http, APP_CONFIG) {
+
+    var styles = {
+        'colorful': { name: 'Colorful', url: APP_CONFIG.apiRootUrl + '/maps/colorful.json'},
+        'greyscale': { name: 'greyscale', url: APP_CONFIG.apiRootUrl + '/maps/greyscale.json'},
+        'metro': { name: 'metro', url: APP_CONFIG.apiRootUrl + '/maps/metro.json'},
+        'mono-color': { name: 'mono-color', url: APP_CONFIG.apiRootUrl + '/maps/mono-color.json'},
+        'monochrome': { name: 'monochrome', url: APP_CONFIG.apiRootUrl + '/maps/monochrome.json'},
+        'nightvision': { name: 'Nightvision', url: APP_CONFIG.apiRootUrl + '/maps/nightvision.json'},
+        'nightvision-highlight': { name: 'nightvision-highlight', url: APP_CONFIG.apiRootUrl + '/maps/nightvision-highlight.json'},
+        'old-paper': { name: 'Old Paper', url: APP_CONFIG.apiRootUrl + '/maps/old-paper.json'}
+    };
+
+
+    function getMapType(key){
+        var keyData = styles[key];
+
+        if(!keyData.cache){
+            keyData.cache = createMapType(keyData)
+        }
+
+        return keyData.cache;
+    }
+
+    function createMapType(keyData){
+        var dfd = $q.defer();
+        $http.get(keyData.url).then(function(resp){
+            var styleData = resp.data;
+            var type = new google.maps.StyledMapType(styleData, {name: keyData.name})
+            dfd.resolve(type);
+        }, function(reason){
+            console.error(reason);
+            dfd.reject(reason);
+        });
+
+        return dfd.promise;
+    }
+
+
+    return {
+        getMapType: getMapType,
+        styles: styles
+    }
+
+
+
+});
 "use strict";
 
 angular.module('app.restful').controller('ExcelTestCtrl', function ($scope, $stateParams, $state, ToolboxApi, Session, toaster, $uibModal) {
@@ -9394,7 +9394,7 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
                 { name: 'OL_FLIGHTNO'            ,  displayName: '航班', width: 80 },
                 { name: 'FA_ACTL_DEPARTTIME'     ,  displayName: '真實起飛時間', cellFilter: 'datetimeFilter' },
                 { name: 'FA_SCHEDL_ARRIVALTIME'  ,  displayName: '預計抵達時間', cellFilter: 'datetimeFilter' },
-                { name: 'FA_ACTL_ARRIVALTIME'    ,  displayName: '真實抵達時間', cellFilter: 'datetimeFilter' },
+                // { name: 'FA_ACTL_ARRIVALTIME'    ,  displayName: '真實抵達時間', cellFilter: 'datetimeFilter' },
                 { name: 'FA_ARRIVAL_REMK'        ,  displayName: '狀態', width: 80, cellTemplate: $templateCache.get('accessibilityToArrivalRemark') },
                 { name: 'OL_MASTER'              ,  displayName: '主號', width: 110, cellTemplate: $templateCache.get('accessibilityToMasterForViewOrder') },
                 { name: 'OL_FLL_COUNT'           ,  displayName: '袋數', width: 40 },
@@ -11661,6 +11661,7 @@ angular.module('app.selfwork').controller('EmployeeJobsCtrl', function ($scope, 
                     template: $templateCache.get('modifyOrderList'),
                     controller: 'ModifyOrderListModalInstanceCtrl',
                     controllerAs: '$ctrl',
+                    backdrop: 'static',
                     // size: 'sm',
                     // windowClass: 'center-modal',
                     // appendTo: parentElem,
@@ -11937,7 +11938,7 @@ angular.module('app.selfwork').controller('EmployeeJobsCtrl', function ($scope, 
                 { name: 'CO_NAME'                ,  displayName: '行家', width: 80 },
                 { name: 'OL_FLIGHTNO'            ,  displayName: '航班', width: 80 },
                 { name: 'FA_SCHEDL_ARRIVALTIME'  ,  displayName: '預計抵達時間', cellFilter: 'datetimeFilter' },
-                { name: 'FA_ACTL_ARRIVALTIME'    ,  displayName: '真實抵達時間', cellFilter: 'datetimeFilter' },
+                // { name: 'FA_ACTL_ARRIVALTIME'    ,  displayName: '真實抵達時間', cellFilter: 'datetimeFilter' },
                 { name: 'FA_ARRIVAL_REMK'        ,  displayName: '狀態', width: 60, cellTemplate: $templateCache.get('accessibilityToArrivalRemark') },
                 { name: 'OL_MASTER'              ,  displayName: '主號', width: 110, cellTemplate: $templateCache.get('accessibilityToMasterForViewOrder') },
                 { name: 'OL_COUNT'               ,  displayName: '報機單(袋數)' },
@@ -12406,12 +12407,18 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
             console.log($vm.defaultTab);
             switch($vm.defaultTab){
                 case 'hr1':
-                    $vm.selectAssignDept = userInfoByGrade[0][0].value;
+                    if(userInfoByGrade[0].length == 0){
+                        toaster.pop('info', '訊息', '無員工管理', 3000);
+                        $vm.vmData = [];
+                        $vm.compyStatisticsData = [];
+                    }else{
+                        $vm.selectAssignDept = userInfoByGrade[0][0].value;
 
-                    AssignOptype();
-                    LoadOrderList();
-                    LoadPrincipal();
-                    LoadParm();
+                        AssignOptype();
+                        LoadOrderList();
+                        LoadPrincipal();
+                        LoadParm();
+                    }
                     break;
                 case 'hr2':
                     LoadStatistics();
@@ -13102,57 +13109,57 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
             querymain: 'leaderJobs',
             queryname: 'SelectOrderList'
         }).then(function (resA){
-
-            var _seq = undefined,
+            
+            var _seq = [],
                 _resA = resA["returnData"] || [];
 
             if(_resA.length > 0){
-                _seq = [];
+                // _seq = [];
 
                 for(var i in _resA){
                     _seq.push(_resA[i].OL_SEQ);
                 }
-            }
 
-            RestfulApi.SearchMSSQLData({
-                querymain: 'leaderJobs',
-                queryname: 'SelectOrderPrinpl',
-                params: {
-                    OP_DEPT : $vm.selectAssignDept,
-                    OP_MULTI_SEQ : _seq.toString()
-                }
-            }).then(function (resB){
-                
-                var _resB = resB["returnData"] || [];
+                RestfulApi.SearchMSSQLData({
+                    querymain: 'leaderJobs',
+                    queryname: 'SelectOrderPrinpl',
+                    params: {
+                        OP_DEPT : $vm.selectAssignDept,
+                        OP_MULTI_SEQ : _seq.toString()
+                    }
+                }).then(function (resB){
+                    
+                    var _resB = resB["returnData"] || [];
 
-                for(var i in _resA){
+                    for(var i in _resA){
 
-                    var _data =[];
+                        var _data =[];
 
-                    for(var j in _resB){
-                        if(_resA[i].OL_SEQ == _resB[j].OP_SEQ &&
-                            $vm.selectAssignOptype == _resB[j].OP_TYPE){
-                            _data.push(_resB[j]);
+                        for(var j in _resB){
+                            if(_resA[i].OL_SEQ == _resB[j].OP_SEQ &&
+                                $vm.selectAssignOptype == _resB[j].OP_TYPE){
+                                _data.push(_resB[j]);
+                            }
                         }
+
+                        _resA[i].subGridOptions = {
+                            data: _data,
+                            columnDefs: [ 
+                                {field: "OP_TYPE", name: "類別", cellFilter: 'opTypeFilter' },
+                                {field: "OP_PRINCIPAL", name: "負責人", cellFilter: 'userInfoFilter' },
+                                {field: "OE_EDATETIME_STATUS", name: "編輯者", cellTemplate: $templateCache.get('accessibilityToEdited') }
+                            ],
+                            enableFiltering: false,
+                            enableSorting: true,
+                            enableColumnMenus: false
+                        };
+                        // _resA[i]["AGENT_COUNT"] = _data.length;
                     }
 
-                    _resA[i].subGridOptions = {
-                        data: _data,
-                        columnDefs: [ 
-                            {field: "OP_TYPE", name: "類別", cellFilter: 'opTypeFilter' },
-                            {field: "OP_PRINCIPAL", name: "負責人", cellFilter: 'userInfoFilter' },
-                            {field: "OE_EDATETIME_STATUS", name: "編輯者", cellTemplate: $templateCache.get('accessibilityToEdited') }
-                        ],
-                        enableFiltering: false,
-                        enableSorting: true,
-                        enableColumnMenus: false
-                    };
-                    // _resA[i]["AGENT_COUNT"] = _data.length;
-                }
+                    $vm.vmData = _resA;
 
-                $vm.vmData = _resA;
-
-            });  
+                });  
+            }
 
         }).finally(function() {
             SetHeaderClass();
@@ -15264,7 +15271,7 @@ angular.module('app.settings').controller('SysLogsCtrl', function ($scope, $stat
         // 匯出Excel
         ExportExcel: function(){
 
-            var _exportName = $filter('date')($vm.vmData.OL_IMPORTDT, 'yyyyMMdd') + ' ' + 
+            var _exportName = $filter('date')($vm.vmData.OL_IMPORTDT, 'yyyyMMdd', 'GMT') + ' ' + 
                               $filter('compyFilter')($vm.vmData.OL_CO_CODE) + ' ' + 
                               $vm.vmData.OL_FLIGHTNO;
                 // _totalBag = 0,
@@ -15281,7 +15288,7 @@ angular.module('app.settings').controller('SysLogsCtrl', function ($scope, $stat
                     templates      : 5,
                     filename       : _exportName,
                     OL_MASTER      : $vm.vmData.OL_MASTER,
-                    OL_IMPORTDT    : $filter('date')($vm.vmData.OL_IMPORTDT, 'yyyy-MM-dd'),
+                    OL_IMPORTDT    : $filter('date')($vm.vmData.OL_IMPORTDT, 'yyyy-MM-dd', 'GMT'),
                     OL_FLIGHTNO    : $vm.vmData.OL_FLIGHTNO,
                     OL_COUNTRY     : $vm.vmData.OL_COUNTRY, 
                     OL_TEL         : $vm.vmData.OL_TEL, 
@@ -15326,6 +15333,259 @@ angular.module('app.settings').controller('SysLogsCtrl', function ($scope, $stat
     };
 
 })
+/**
+ * Created by griga on 2/9/16.
+ */
+
+
+angular.module('app.tables').controller('DatatablesCtrl', function(DTOptionsBuilder, DTColumnBuilder){
+
+
+    this.standardOptions = DTOptionsBuilder
+        .fromSource('api/tables/datatables.standard.json')
+         //Add Bootstrap compatibility
+        .withDOM("<'dt-toolbar'<'col-xs-12 col-sm-6'f><'col-sm-6 col-xs-12 hidden-xs'l>r>" +
+            "t" +
+            "<'dt-toolbar-footer'<'col-sm-6 col-xs-12 hidden-xs'i><'col-xs-12 col-sm-6'p>>")
+        .withBootstrap();
+    this.standardColumns = [
+        DTColumnBuilder.newColumn('id').withClass('text-danger'),
+        DTColumnBuilder.newColumn('name'),
+        DTColumnBuilder.newColumn('phone'),
+        DTColumnBuilder.newColumn('company'),
+        DTColumnBuilder.newColumn('zip'),
+        DTColumnBuilder.newColumn('city'),
+        DTColumnBuilder.newColumn('date')
+    ];
+
+
+});
+'use strict';
+
+angular.module('app.tables').controller('JqGridCtrl', function ($scope) {
+    $scope.gridData = {
+        data: [
+            {
+                id: "1",
+                date: "2007-10-01",
+                name: "test",
+                note: "note",
+                amount: "200.00",
+                tax: "10.00",
+                total: "210.00"
+            },
+            {
+                id: "2",
+                date: "2007-10-02",
+                name: "test2",
+                note: "note2",
+                amount: "300.00",
+                tax: "20.00",
+                total: "320.00"
+            },
+            {
+                id: "3",
+                date: "2007-09-01",
+                name: "test3",
+                note: "note3",
+                amount: "400.00",
+                tax: "30.00",
+                total: "430.00"
+            },
+            {
+                id: "4",
+                date: "2007-10-04",
+                name: "test",
+                note: "note",
+                amount: "200.00",
+                tax: "10.00",
+                total: "210.00"
+            },
+            {
+                id: "5",
+                date: "2007-10-05",
+                name: "test2",
+                note: "note2",
+                amount: "300.00",
+                tax: "20.00",
+                total: "320.00"
+            },
+            {
+                id: "6",
+                date: "2007-09-06",
+                name: "test3",
+                note: "note3",
+                amount: "400.00",
+                tax: "30.00",
+                total: "430.00"
+            },
+            {
+                id: "7",
+                date: "2007-10-04",
+                name: "test",
+                note: "note",
+                amount: "200.00",
+                tax: "10.00",
+                total: "210.00"
+            },
+            {
+                id: "8",
+                date: "2007-10-03",
+                name: "test2",
+                note: "note2",
+                amount: "300.00",
+                tax: "20.00",
+                total: "320.00"
+            },
+            {
+                id: "9",
+                date: "2007-09-01",
+                name: "test3",
+                note: "note3",
+                amount: "400.00",
+                tax: "30.00",
+                total: "430.00"
+            },
+            {
+                id: "10",
+                date: "2007-10-01",
+                name: "test",
+                note: "note",
+                amount: "200.00",
+                tax: "10.00",
+                total: "210.00"
+            },
+            {
+                id: "11",
+                date: "2007-10-02",
+                name: "test2",
+                note: "note2",
+                amount: "300.00",
+                tax: "20.00",
+                total: "320.00"
+            },
+            {
+                id: "12",
+                date: "2007-09-01",
+                name: "test3",
+                note: "note3",
+                amount: "400.00",
+                tax: "30.00",
+                total: "430.00"
+            },
+            {
+                id: "13",
+                date: "2007-10-04",
+                name: "test",
+                note: "note",
+                amount: "200.00",
+                tax: "10.00",
+                total: "210.00"
+            },
+            {
+                id: "14",
+                date: "2007-10-05",
+                name: "test2",
+                note: "note2",
+                amount: "300.00",
+                tax: "20.00",
+                total: "320.00"
+            },
+            {
+                id: "15",
+                date: "2007-09-06",
+                name: "test3",
+                note: "note3",
+                amount: "400.00",
+                tax: "30.00",
+                total: "430.00"
+            },
+            {
+                id: "16",
+                date: "2007-10-04",
+                name: "test",
+                note: "note",
+                amount: "200.00",
+                tax: "10.00",
+                total: "210.00"
+            },
+            {
+                id: "17",
+                date: "2007-10-03",
+                name: "test2",
+                note: "note2",
+                amount: "300.00",
+                tax: "20.00",
+                total: "320.00"
+            },
+            {
+                id: "18",
+                date: "2007-09-01",
+                name: "test3",
+                note: "note3",
+                amount: "400.00",
+                tax: "30.00",
+                total: "430.00"
+            }
+        ],
+        colNames: ['Actions', 'Inv No', 'Date', 'Client', 'Amount', 'Tax', 'Total', 'Notes'],
+        colModel: [
+            {
+                name: 'act',
+                index: 'act',
+                sortable: false
+            },
+            {
+                name: 'id',
+                index: 'id'
+            },
+            {
+                name: 'date',
+                index: 'date',
+                editable: true
+            },
+            {
+                name: 'name',
+                index: 'name',
+                editable: true
+            },
+            {
+                name: 'amount',
+                index: 'amount',
+                align: "right",
+                editable: true
+            },
+            {
+                name: 'tax',
+                index: 'tax',
+                align: "right",
+                editable: true
+            },
+            {
+                name: 'total',
+                index: 'total',
+                align: "right",
+                editable: true
+            },
+            {
+                name: 'note',
+                index: 'note',
+                sortable: false,
+                editable: true
+            }
+        ]
+    }
+
+
+    $scope.getSelection = function(){
+        alert(jQuery('table').jqGrid('getGridParam', 'selarrrow'));
+    };
+
+    $scope.selectRow = function(row){
+       jQuery('table').jqGrid('setSelection', row);
+
+    }
+});
 "use strict";
 
 angular.module('app.ui').controller('GeneralElementsCtrl', function ($scope, $sce) {
@@ -16136,259 +16396,6 @@ angular.module('app.ui').directive('smartTreeview', function ($compile, $sce) {
         }
     };
 });
-/**
- * Created by griga on 2/9/16.
- */
-
-
-angular.module('app.tables').controller('DatatablesCtrl', function(DTOptionsBuilder, DTColumnBuilder){
-
-
-    this.standardOptions = DTOptionsBuilder
-        .fromSource('api/tables/datatables.standard.json')
-         //Add Bootstrap compatibility
-        .withDOM("<'dt-toolbar'<'col-xs-12 col-sm-6'f><'col-sm-6 col-xs-12 hidden-xs'l>r>" +
-            "t" +
-            "<'dt-toolbar-footer'<'col-sm-6 col-xs-12 hidden-xs'i><'col-xs-12 col-sm-6'p>>")
-        .withBootstrap();
-    this.standardColumns = [
-        DTColumnBuilder.newColumn('id').withClass('text-danger'),
-        DTColumnBuilder.newColumn('name'),
-        DTColumnBuilder.newColumn('phone'),
-        DTColumnBuilder.newColumn('company'),
-        DTColumnBuilder.newColumn('zip'),
-        DTColumnBuilder.newColumn('city'),
-        DTColumnBuilder.newColumn('date')
-    ];
-
-
-});
-'use strict';
-
-angular.module('app.tables').controller('JqGridCtrl', function ($scope) {
-    $scope.gridData = {
-        data: [
-            {
-                id: "1",
-                date: "2007-10-01",
-                name: "test",
-                note: "note",
-                amount: "200.00",
-                tax: "10.00",
-                total: "210.00"
-            },
-            {
-                id: "2",
-                date: "2007-10-02",
-                name: "test2",
-                note: "note2",
-                amount: "300.00",
-                tax: "20.00",
-                total: "320.00"
-            },
-            {
-                id: "3",
-                date: "2007-09-01",
-                name: "test3",
-                note: "note3",
-                amount: "400.00",
-                tax: "30.00",
-                total: "430.00"
-            },
-            {
-                id: "4",
-                date: "2007-10-04",
-                name: "test",
-                note: "note",
-                amount: "200.00",
-                tax: "10.00",
-                total: "210.00"
-            },
-            {
-                id: "5",
-                date: "2007-10-05",
-                name: "test2",
-                note: "note2",
-                amount: "300.00",
-                tax: "20.00",
-                total: "320.00"
-            },
-            {
-                id: "6",
-                date: "2007-09-06",
-                name: "test3",
-                note: "note3",
-                amount: "400.00",
-                tax: "30.00",
-                total: "430.00"
-            },
-            {
-                id: "7",
-                date: "2007-10-04",
-                name: "test",
-                note: "note",
-                amount: "200.00",
-                tax: "10.00",
-                total: "210.00"
-            },
-            {
-                id: "8",
-                date: "2007-10-03",
-                name: "test2",
-                note: "note2",
-                amount: "300.00",
-                tax: "20.00",
-                total: "320.00"
-            },
-            {
-                id: "9",
-                date: "2007-09-01",
-                name: "test3",
-                note: "note3",
-                amount: "400.00",
-                tax: "30.00",
-                total: "430.00"
-            },
-            {
-                id: "10",
-                date: "2007-10-01",
-                name: "test",
-                note: "note",
-                amount: "200.00",
-                tax: "10.00",
-                total: "210.00"
-            },
-            {
-                id: "11",
-                date: "2007-10-02",
-                name: "test2",
-                note: "note2",
-                amount: "300.00",
-                tax: "20.00",
-                total: "320.00"
-            },
-            {
-                id: "12",
-                date: "2007-09-01",
-                name: "test3",
-                note: "note3",
-                amount: "400.00",
-                tax: "30.00",
-                total: "430.00"
-            },
-            {
-                id: "13",
-                date: "2007-10-04",
-                name: "test",
-                note: "note",
-                amount: "200.00",
-                tax: "10.00",
-                total: "210.00"
-            },
-            {
-                id: "14",
-                date: "2007-10-05",
-                name: "test2",
-                note: "note2",
-                amount: "300.00",
-                tax: "20.00",
-                total: "320.00"
-            },
-            {
-                id: "15",
-                date: "2007-09-06",
-                name: "test3",
-                note: "note3",
-                amount: "400.00",
-                tax: "30.00",
-                total: "430.00"
-            },
-            {
-                id: "16",
-                date: "2007-10-04",
-                name: "test",
-                note: "note",
-                amount: "200.00",
-                tax: "10.00",
-                total: "210.00"
-            },
-            {
-                id: "17",
-                date: "2007-10-03",
-                name: "test2",
-                note: "note2",
-                amount: "300.00",
-                tax: "20.00",
-                total: "320.00"
-            },
-            {
-                id: "18",
-                date: "2007-09-01",
-                name: "test3",
-                note: "note3",
-                amount: "400.00",
-                tax: "30.00",
-                total: "430.00"
-            }
-        ],
-        colNames: ['Actions', 'Inv No', 'Date', 'Client', 'Amount', 'Tax', 'Total', 'Notes'],
-        colModel: [
-            {
-                name: 'act',
-                index: 'act',
-                sortable: false
-            },
-            {
-                name: 'id',
-                index: 'id'
-            },
-            {
-                name: 'date',
-                index: 'date',
-                editable: true
-            },
-            {
-                name: 'name',
-                index: 'name',
-                editable: true
-            },
-            {
-                name: 'amount',
-                index: 'amount',
-                align: "right",
-                editable: true
-            },
-            {
-                name: 'tax',
-                index: 'tax',
-                align: "right",
-                editable: true
-            },
-            {
-                name: 'total',
-                index: 'total',
-                align: "right",
-                editable: true
-            },
-            {
-                name: 'note',
-                index: 'note',
-                sortable: false,
-                editable: true
-            }
-        ]
-    }
-
-
-    $scope.getSelection = function(){
-        alert(jQuery('table').jqGrid('getGridParam', 'selarrrow'));
-    };
-
-    $scope.selectRow = function(row){
-       jQuery('table').jqGrid('setSelection', row);
-
-    }
-});
 "use strict";
 
 angular.module('app.auth').directive('facebookSignin', function ($rootScope, ezfb) {
@@ -16429,67 +16436,6 @@ angular.module('app.auth').directive('googleSignin', function ($rootScope, Googl
     };
 });
 
-'use strict';
-
-angular.module('app.chat').factory('ChatApi', function ($q, $rootScope, User, $http, APP_CONFIG) {
-    var dfd = $q.defer();
-    var _user;
-    var ChatSrv = {
-        initialized: dfd.promise,
-        users: [],
-        messages: [],
-        statuses: ['Online', 'Busy', 'Away', 'Log Off'],
-        status: 'Online',
-        setUser: function (user) {
-            if (ChatSrv.users.indexOf(_user) != -1)
-                ChatSrv.users.splice(ChatSrv.users.indexOf(_user), 1);
-            _user = user;
-            ChatSrv.users.push(_user);
-        },
-        sendMessage: function (text) {
-            var message = {
-                user: _user,
-                body: text,
-                date: new Date()
-            };
-            this.messages.push(message);
-        }
-    };
-
-
-    $http.get(APP_CONFIG.apiRootUrl + '/chat.json').then(function(res){
-        ChatSrv.messages = res.data.messages;
-        ChatSrv.users = res.data.users;
-        dfd.resolve();
-    });
-
-    ChatSrv.initialized.then(function () {
-
-        User.initialized.then(function () {
-            ChatSrv.setUser({
-                username: User.username,
-                picture: User.picture,
-                status: ChatSrv.status
-            });
-        });
-
-        $rootScope.$watch(function () {
-            return User.username
-        }, function (name, oldName) {
-            if (name != oldName) {
-                ChatSrv.setUser({
-                    username: User.username,
-                    picture: User.picture,
-                    status: ChatSrv.status
-                });
-            }
-        });
-    });
-
-
-    return ChatSrv;
-
-});
 "use strict";
 
 angular.module('app.concerns').controller('ResultBanCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, $timeout, uiGridConstants, RestfulApi, $filter, compy, localStorageService, ToolboxApi) {
@@ -16904,6 +16850,67 @@ angular.module('app.concerns').controller('ResultBanCtrl', function ($scope, $st
     $ctrl.cancel = function() {
         $uibModalInstance.dismiss('cancel');
     };
+});
+'use strict';
+
+angular.module('app.chat').factory('ChatApi', function ($q, $rootScope, User, $http, APP_CONFIG) {
+    var dfd = $q.defer();
+    var _user;
+    var ChatSrv = {
+        initialized: dfd.promise,
+        users: [],
+        messages: [],
+        statuses: ['Online', 'Busy', 'Away', 'Log Off'],
+        status: 'Online',
+        setUser: function (user) {
+            if (ChatSrv.users.indexOf(_user) != -1)
+                ChatSrv.users.splice(ChatSrv.users.indexOf(_user), 1);
+            _user = user;
+            ChatSrv.users.push(_user);
+        },
+        sendMessage: function (text) {
+            var message = {
+                user: _user,
+                body: text,
+                date: new Date()
+            };
+            this.messages.push(message);
+        }
+    };
+
+
+    $http.get(APP_CONFIG.apiRootUrl + '/chat.json').then(function(res){
+        ChatSrv.messages = res.data.messages;
+        ChatSrv.users = res.data.users;
+        dfd.resolve();
+    });
+
+    ChatSrv.initialized.then(function () {
+
+        User.initialized.then(function () {
+            ChatSrv.setUser({
+                username: User.username,
+                picture: User.picture,
+                status: ChatSrv.status
+            });
+        });
+
+        $rootScope.$watch(function () {
+            return User.username
+        }, function (name, oldName) {
+            if (name != oldName) {
+                ChatSrv.setUser({
+                    username: User.username,
+                    picture: User.picture,
+                    status: ChatSrv.status
+                });
+            }
+        });
+    });
+
+
+    return ChatSrv;
+
 });
 (function() {
         
@@ -17511,6 +17518,86 @@ angular.module('app.chat').directive('chatWidget', function (ChatApi) {
             })
         }
     }
+});
+"use strict";
+
+ angular.module('app').directive('todoList', function ($timeout, Todo) {
+
+    return {
+        restrict: 'E',
+        replace: true,
+        templateUrl: 'app/dashboard/todo/directives/todo-list.tpl.html',
+        scope: {
+            todos: '='
+        },
+        link: function (scope, element, attributes) {
+            scope.title = attributes.title
+            scope.icon = attributes.icon
+            scope.state = attributes.state
+            scope.filter = {
+                state: scope.state
+            }
+
+            element.find('.todo').sortable({
+                handle: '.handle',
+                connectWith: ".todo",
+                receive: function (event, ui) {
+
+                    console.log(ui.item.scope().todo,scope.state)
+                    var todo = ui.item.scope().todo;
+                    var state = scope.state
+                    // // console.log(ui.item, todo, state)
+                    // // console.log(state, todo)
+                    if (todo && state) {
+                        todo.setState(state);
+                         // ui.sender.sortable("cancel");
+                        // scope.$apply();
+                    } else {
+                        console.log('Wat', todo, state);
+                    }
+                    
+                }
+            }).disableSelection();
+
+        }
+    }
+});
+"use strict";
+
+angular.module('app').factory('Todo', function (Restangular, APP_CONFIG, $httpBackend) {
+
+    var normalize = function(todo) {
+        if(!todo._id){
+            todo._id = _.unique('todo')
+        }
+        todo.toggle = function(){
+            if (!todo.completedAt) {
+                todo.state = 'Completed';
+                todo.completedAt = JSON.stringify(new Date());
+            } else {
+                todo.state = 'Critical';
+                todo.completedAt = null;
+            }
+        };
+
+        todo.setState = function(state){
+            todo.state = state;
+            if (state == 'Completed') {
+                todo.completedAt = JSON.stringify(new Date());
+            } else {
+                todo.completedAt = null;
+            }
+        };
+
+        return todo;
+    };
+
+    var Todo = Restangular.all(APP_CONFIG.apiRootUrl + '/todos.json');
+
+    Restangular.extendModel(APP_CONFIG.apiRootUrl + '/todos.json', normalize);
+    Todo.normalize = normalize;
+
+    return Todo
 });
 'use strict';
 
@@ -18437,6 +18524,18 @@ angular.module('app.graphs').directive('flotSiteStatsChart', function(FlotConfig
 });
 'use strict';
 
+angular.module('app.graphs').directive('highchartTable', function (lazyScript) {
+    return {
+        restrict: 'A',
+        link: function (scope, element) {
+            lazyScript.register('build/vendor.graphs.js').then(function(){
+                element.highchartTable();
+            })
+        }
+    }
+});
+'use strict';
+
 angular.module('app.graphs').directive('easyPieChartContainer', function () {
     return {
         restrict: 'A',
@@ -18926,65 +19025,6 @@ angular.module('app.graphs').directive('sparklineContainer', function () {
 
             drawSparklines();
 
-        }
-    }
-});
-'use strict';
-
-angular.module('app.graphs').directive('highchartTable', function (lazyScript) {
-    return {
-        restrict: 'A',
-        link: function (scope, element) {
-            lazyScript.register('build/vendor.graphs.js').then(function(){
-                element.highchartTable();
-            })
-        }
-    }
-});
-'use strict';
-
-angular.module('app.graphs').directive('vectorMap', function () {
-    return {
-        restrict: 'EA',
-        scope: {
-            mapData: '='
-        },
-        link: function (scope, element, attributes) {
-            var data = scope.mapData;
-
-            element.vectorMap({
-                map: 'world_mill_en',
-                backgroundColor: '#fff',
-                regionStyle: {
-                    initial: {
-                        fill: '#c4c4c4'
-                    },
-                    hover: {
-                        "fill-opacity": 1
-                    }
-                },
-                series: {
-                    regions: [
-                        {
-                            values: data,
-                            scale: ['#85a8b6', '#4d7686'],
-                            normalizeFunction: 'polynomial'
-                        }
-                    ]
-                },
-                onRegionLabelShow: function (e, el, code) {
-                    if (typeof data[code] == 'undefined') {
-                        e.preventDefault();
-                    } else {
-                        var countrylbl = data[code];
-                        el.html(el.html() + ': ' + countrylbl + ' visits');
-                    }
-                }
-            });
-
-            element.on('$destroy', function(){
-                element.children('.jvectormap-container').data('mapObject').remove();
-            })
         }
     }
 });
@@ -19680,85 +19720,3019 @@ angular.module('app.graphs').directive('morrisYearGraph', function(){
         }
     }
 });
-"use strict";
+'use strict';
 
- angular.module('app').directive('todoList', function ($timeout, Todo) {
-
+angular.module('app.graphs').directive('vectorMap', function () {
     return {
-        restrict: 'E',
-        replace: true,
-        templateUrl: 'app/dashboard/todo/directives/todo-list.tpl.html',
+        restrict: 'EA',
         scope: {
-            todos: '='
+            mapData: '='
         },
         link: function (scope, element, attributes) {
-            scope.title = attributes.title
-            scope.icon = attributes.icon
-            scope.state = attributes.state
-            scope.filter = {
-                state: scope.state
-            }
+            var data = scope.mapData;
 
-            element.find('.todo').sortable({
-                handle: '.handle',
-                connectWith: ".todo",
-                receive: function (event, ui) {
-
-                    console.log(ui.item.scope().todo,scope.state)
-                    var todo = ui.item.scope().todo;
-                    var state = scope.state
-                    // // console.log(ui.item, todo, state)
-                    // // console.log(state, todo)
-                    if (todo && state) {
-                        todo.setState(state);
-                         // ui.sender.sortable("cancel");
-                        // scope.$apply();
-                    } else {
-                        console.log('Wat', todo, state);
+            element.vectorMap({
+                map: 'world_mill_en',
+                backgroundColor: '#fff',
+                regionStyle: {
+                    initial: {
+                        fill: '#c4c4c4'
+                    },
+                    hover: {
+                        "fill-opacity": 1
                     }
-                    
+                },
+                series: {
+                    regions: [
+                        {
+                            values: data,
+                            scale: ['#85a8b6', '#4d7686'],
+                            normalizeFunction: 'polynomial'
+                        }
+                    ]
+                },
+                onRegionLabelShow: function (e, el, code) {
+                    if (typeof data[code] == 'undefined') {
+                        e.preventDefault();
+                    } else {
+                        var countrylbl = data[code];
+                        el.html(el.html() + ': ' + countrylbl + ' visits');
+                    }
                 }
-            }).disableSelection();
+            });
 
+            element.on('$destroy', function(){
+                element.children('.jvectormap-container').data('mapObject').remove();
+            })
         }
     }
 });
 "use strict";
 
-angular.module('app').factory('Todo', function (Restangular, APP_CONFIG, $httpBackend) {
+angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, RestfulApi, ToolboxApi, uiGridConstants, $filter, $q, bool) {
+    // console.log($stateParams, $state);
 
-    var normalize = function(todo) {
-        if(!todo._id){
-            todo._id = _.unique('todo')
+    var $vm = this,
+        cellClassEditabled = [];
+
+    angular.extend(this, {
+        Init : function(){
+            // 不正常登入此頁面
+            if($stateParams.data == null){
+                ReturnToEmployeejobsPage();
+            }else{
+
+                $vm.bigBreadcrumbsItems = $state.current.name.split(".");
+                $vm.bigBreadcrumbsItems.shift();
+
+                $vm.vmData = $stateParams.data;
+
+                // 測試用
+                // if($vm.vmData == null){
+                //     $vm.vmData = {
+                //         OL_SEQ : 'AdminTest20170525190758',
+                //         OL_IMPORTDT : '2017-04-19T10:10:47.906Z'
+                //     };
+                // }
+                
+                LoadItemList();
+            }
+        },
+        profile : Session.Get(),
+        gridMethod : {
+            // 改單
+            changeNature : function(row){
+                console.log(row);
+                
+                row.entity.loading = true;
+                ToolboxApi.ChangeNature({
+                    ID : $vm.profile.U_ID,
+                    PW : $vm.profile.U_PW,
+                    NATURE : row.entity.IL_NATURE,
+                    NATURE_NEW : row.entity.IL_NATURE_NEW
+                }).then(function (res) {
+                    var _returnData = JSON.parse(res["returnData"]),
+                        needToUpdate = false;
+                    // console.log(_returnData);
+
+                    if(!angular.isUndefined(_returnData["IL_NATURE_NEW"])){
+                        row.entity.IL_NATURE_NEW = _returnData["IL_NATURE_NEW"];
+                        needToUpdate = true;
+                    }
+                    if(!angular.isUndefined(_returnData["IL_NEWUNIT"]) && _returnData["IL_NEWUNIT"] != ""){
+                        row.entity.IL_NEWUNIT = _returnData["IL_NEWUNIT"];
+                        needToUpdate = true;
+                    }
+                    if(!angular.isUndefined(_returnData["IL_NEWPLACE"]) && _returnData["IL_NEWPLACE"] != ""){
+                        row.entity.IL_NEWPLACE = _returnData["IL_NEWPLACE"];
+                        needToUpdate = true;
+                    }
+                    if(!angular.isUndefined(_returnData["IL_TAX2"]) && _returnData["IL_TAX2"] != ""){
+                        row.entity.IL_TAX2 = _returnData["IL_TAX2"];
+                        needToUpdate = true;
+                    }
+                    if(!angular.isUndefined(_returnData["IL_TAXRATE"]) && _returnData["IL_TAXRATE"] != ""){
+                        row.entity.IL_TAXRATE = _returnData["IL_TAXRATE"];
+                        needToUpdate = true;
+                    }
+
+                    if(needToUpdate){
+                        $vm.job001GridApi.rowEdit.setRowsDirty([row.entity]);
+                    }
+
+                }).finally(function() {
+                    row.entity.loading = false;
+                });
+            },
+            // 加入黑名單
+            banData : function(){
+
+                if($vm.job001GridApi.selection.getSelectedRows().length > 0){
+
+                    if($vm.job001GridApi.selection.getSelectedRows().length > 100){
+                        toaster.pop('warning', '警告', '超過100筆，請重新選擇', 3000);
+                        return;
+                    }
+
+                    var modalInstance = $uibModal.open({
+                        animation: true,
+                        ariaLabelledBy: 'modal-title',
+                        ariaDescribedBy: 'modal-body',
+                        template: $templateCache.get('isChecked'),
+                        controller: 'IsCheckedModalInstanceCtrl',
+                        controllerAs: '$ctrl',
+                        size: 'sm',
+                        windowClass: 'center-modal',
+                        // appendTo: parentElem,
+                        resolve: {
+                            items: function() {
+                                return {};
+                            },
+                            show: function(){
+                                return {
+                                    title : "是否加入黑名單"
+                                }
+                            }
+                        }
+                    });
+
+                    modalInstance.result.then(function(selectedItem) {
+
+                        var _tasks = [],
+                            _d = new Date();
+
+                        // Insert黑名單
+                        for(var i in $vm.job001GridApi.selection.getSelectedRows()){
+                            // 如果不是黑名單的Row才需要被加入
+                            if($vm.job001GridApi.selection.getSelectedRows()[i].BLFO_TRACK != true){
+                                _tasks.push({
+                                    crudType: 'Insert',
+                                    table: 13,
+                                    params: {
+                                        BLFO_SEQ         : $vm.job001GridApi.selection.getSelectedRows()[i].IL_SEQ,
+                                        BLFO_NEWBAGNO    : $vm.job001GridApi.selection.getSelectedRows()[i].IL_NEWBAGNO,
+                                        BLFO_NEWSMALLNO  : $vm.job001GridApi.selection.getSelectedRows()[i].IL_NEWSMALLNO,
+                                        BLFO_ORDERINDEX  : $vm.job001GridApi.selection.getSelectedRows()[i].IL_ORDERINDEX,
+                                        BLFO_CR_USER     : $vm.profile.U_ID,
+                                        BLFO_CR_DATETIME : $filter('date')(new Date, 'yyyy-MM-dd HH:mm:ss')
+                                    }
+                                });
+                            }
+                        }
+
+                        RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res){
+                            if(res["returnData"].length > 0){
+
+                                for(var i in $vm.job001GridApi.selection.getSelectedRows()){
+                                    if($vm.job001GridApi.selection.getSelectedRows()[i].BLFO_TRACK != true){
+                                        $vm.job001GridApi.selection.getSelectedRows()[i].BLFO_TRACK = true;
+                                    }
+                                }
+                                toaster.pop('success', '訊息', '加入黑名單成功', 3000);
+                            }
+                        }, function (err) {
+                            toaster.pop('danger', '錯誤', '加入黑名單失敗', 3000);
+                        }).finally(function(){
+                            $vm.job001GridApi.selection.clearSelectedRows();
+                            ClearSelectedColumn();
+                        });  
+
+                    }, function() {
+                        // $log.info('Modal dismissed at: ' + new Date());
+                    });
+                }
+
+                // console.log(row);
+                // var modalInstance = $uibModal.open({
+                //     animation: true,
+                //     ariaLabelledBy: 'modal-title',
+                //     ariaDescribedBy: 'modal-body',
+                //     templateUrl: 'opAddBanModalContent.html',
+                //     controller: 'OPAddBanModalInstanceCtrl',
+                //     controllerAs: '$ctrl',
+                //     // size: 'lg',
+                //     // appendTo: parentElem,
+                //     resolve: {
+                //         vmData: function() {
+                //             return row.entity;
+                //         }
+                //     }
+                // });
+
+                // modalInstance.result.then(function(selectedItem) {
+                //     // $ctrl.selected = selectedItem;
+                //     console.log(selectedItem);
+                //     RestfulApi.InsertMSSQLData({
+                //         insertname: 'Insert',
+                //         table: 13,
+                //         params: {
+                //             BLFO_SEQ         : selectedItem.IL_SEQ,
+                //             BLFO_NEWBAGNO    : selectedItem.IL_NEWBAGNO,
+                //             BLFO_NEWSMALLNO  : selectedItem.IL_NEWSMALLNO,
+                //             BLFO_ORDERINDEX  : selectedItem.IL_ORDERINDEX,
+                //             BLFO_CR_USER     : $vm.profile.U_ID,
+                //             BLFO_CR_DATETIME : $filter('date')(new Date, 'yyyy-MM-dd HH:mm:ss')
+                //         }
+                //     }).then(function(res) {
+                //         // 加入後需要Disabled
+                //         row.entity.BLFO_TRACK = true;
+                //     });
+
+                // }, function() {
+                //     // $log.info('Modal dismissed at: ' + new Date());
+                // });
+            },
+            // 刪除
+            deleteData : function(){
+
+                if($vm.job001GridApi.selection.getSelectedRows().length > 0){
+
+                    if($vm.job001GridApi.selection.getSelectedRows().length > 100){
+                        toaster.pop('warning', '警告', '超過100筆，請重新選擇', 3000);
+                        return;
+                    }
+
+                    var modalInstance = $uibModal.open({
+                        animation: true,
+                        ariaLabelledBy: 'modal-title',
+                        ariaDescribedBy: 'modal-body',
+                        template: $templateCache.get('isChecked'),
+                        controller: 'IsCheckedModalInstanceCtrl',
+                        controllerAs: '$ctrl',
+                        size: 'sm',
+                        windowClass: 'center-modal',
+                        // appendTo: parentElem,
+                        resolve: {
+                            items: function() {
+                                return {};
+                            },
+                            show: function(){
+                                return {
+                                    title : "是否刪除"
+                                }
+                            }
+                        }
+                    });
+
+                    modalInstance.result.then(function(selectedItem) {
+
+                        var _tasks = [],
+                            _d = new Date();
+
+                        // Delete資料
+                        for(var i in $vm.job001GridApi.selection.getSelectedRows()){
+                            _tasks.push({
+                                crudType: 'Delete',
+                                table: 9,
+                                params: {
+                                    IL_SEQ         : $vm.job001GridApi.selection.getSelectedRows()[i].IL_SEQ,
+                                    IL_NEWBAGNO    : $vm.job001GridApi.selection.getSelectedRows()[i].IL_NEWBAGNO,
+                                    IL_NEWSMALLNO  : $vm.job001GridApi.selection.getSelectedRows()[i].IL_NEWSMALLNO,
+                                    IL_ORDERINDEX  : $vm.job001GridApi.selection.getSelectedRows()[i].IL_ORDERINDEX
+                                }
+                            });
+                        }
+
+                        RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res){
+                            if(res["returnData"].length > 0){
+                                toaster.pop('success', '訊息', '刪除資料成功', 3000);
+                            }
+                        }, function (err) {
+                            toaster.pop('danger', '錯誤', '刪除資料失敗', 3000);
+                        }).finally(function(){
+                            $vm.job001GridApi.selection.clearSelectedRows();
+                            // ClearSelectedColumn();
+                            LoadItemList();
+                        });  
+
+                    }, function() {
+                        // $log.info('Modal dismissed at: ' + new Date());
+                    });
+                }
+            },
+            // 拉貨
+            pullGoods : function(row){
+                console.log(row.entity);
+
+                var modalInstance = $uibModal.open({
+                    animation: true,
+                    ariaLabelledBy: 'modal-title',
+                    ariaDescribedBy: 'modal-body',
+                    templateUrl: 'pullGoodsModalContent.html',
+                    controller: 'PullGoodsModalInstanceCtrl',
+                    controllerAs: '$ctrl',
+                    backdrop: 'static',
+                    // size: 'lg',
+                    // appendTo: parentElem,
+                    resolve: {
+                        vmData: function() {
+                            return row.entity;
+                        }
+                    }
+                });
+
+                modalInstance.result.then(function(selectedItem) {
+                    console.log(selectedItem);
+                    
+                    var _task = [];
+
+                    // 儲存拉貨資料
+                    _task.push({
+                        crudType: 'Insert',
+                        table: 19,
+                        params: {
+                            PG_SEQ         : selectedItem.IL_SEQ,
+                            PG_BAGNO       : selectedItem.IL_BAGNO,
+                            PG_REASON      : selectedItem.PG_REASON,
+                            PG_CR_USER     : $vm.profile.U_ID,
+                            PG_CR_DATETIME : $filter('date')(new Date, 'yyyy-MM-dd HH:mm:ss')
+                        }
+                    });
+
+                    RestfulApi.CRUDMSSQLDataByTask(_task).then(function (res){
+
+                        if(res["returnData"].length > 0){
+                            
+                            for(var i in $vm.job001Data){
+                                if($vm.job001Data[i].IL_BAGNO == selectedItem.IL_BAGNO){
+                                    $vm.job001Data[i].PG_PULLGOODS = true;
+                                }
+                            }
+
+                        }
+                    });
+
+                    // RestfulApi.InsertMSSQLData({
+                    //     insertname: 'Insert',
+                    //     table: 19,
+                    //     params: {
+                    //         PG_SEQ         : selectedItem.IL_SEQ,
+                    //         PG_BAGNO       : selectedItem.IL_BAGNO,
+                    //         PG_REASON      : selectedItem.PG_REASON,
+                    //         PG_CR_USER     : $vm.profile.U_ID,
+                    //         PG_CR_DATETIME : $filter('date')(new Date, 'yyyy-MM-dd HH:mm:ss')
+                    //     }
+                    // }).then(function (res) {
+                    //     for(var i in $vm.job001Data){
+                    //         if($vm.job001Data[i].IL_BAGNO == selectedItem.IL_BAGNO){
+                    //             $vm.job001Data[i].PG_PULLGOODS = true;
+                    //         }
+                    //     }
+                    //     // LoadItemList();
+                    // });
+
+                }, function() {
+                    // $log.info('Modal dismissed at: ' + new Date());
+                });
+            },
+            // // 取消拉貨
+            // cancelPullGoods : function(row){
+            //     console.log(row.entity);
+            //     var modalInstance = $uibModal.open({
+            //         animation: true,
+            //         ariaLabelledBy: 'modal-title',
+            //         ariaDescribedBy: 'modal-body',
+            //         template: $templateCache.get('isChecked'),
+            //         controller: 'IsCheckedModalInstanceCtrl',
+            //         controllerAs: '$ctrl',
+            //         size: 'sm',
+            //         windowClass: 'center-modal',
+            //         // appendTo: parentElem,
+            //         resolve: {
+            //             items: function() {
+            //                 return row.entity;
+            //             },
+            //             show: function(){
+            //                 return {};
+            //             }
+            //         }
+            //     });
+
+            //     modalInstance.result.then(function(selectedItem) {
+            //         // $ctrl.selected = selectedItem;
+            //         console.log(selectedItem);
+                    
+            //         RestfulApi.DeleteMSSQLData({
+            //             deletename: 'Delete',
+            //             table: 19,
+            //             params: {
+            //                 PG_SEQ         : selectedItem.IL_SEQ,
+            //                 PG_BAGNO       : selectedItem.IL_BAGNO
+            //             }
+            //         }).then(function (res) {
+            //             LoadItemList();
+            //         });
+
+            //     }, function() {
+            //         // $log.info('Modal dismissed at: ' + new Date());
+            //     });
+            // }
+            // 特貨
+            specialGoods : function(row){
+                console.log(row);
+                
+                var modalInstance = $uibModal.open({
+                    animation: true,
+                    ariaLabelledBy: 'modal-title',
+                    ariaDescribedBy: 'modal-body',
+                    templateUrl: 'specialGoodsModalContent.html',
+                    controller: 'SpecialGoodsModalInstanceCtrl',
+                    controllerAs: '$ctrl',
+                    size: 'sm',
+                    backdrop: 'static',
+                    // appendTo: parentElem,
+                    resolve: {
+                        items: function() {
+                            return row.entity;
+                        },
+                        specialGoods: function(SysCode) {
+                            return SysCode.get('SpecialGoods');
+                        }
+                    }
+                });
+
+                modalInstance.result.then(function(selectedItem) {
+
+                    console.log(selectedItem);
+
+                    if(selectedItem.SPG_TYPE == null){
+                        RestfulApi.DeleteMSSQLData({
+                            deletename: 'Delete',
+                            table: 20,
+                            params: {
+                                SPG_SEQ         : selectedItem.IL_SEQ,
+                                SPG_NEWBAGNO    : selectedItem.IL_NEWBAGNO,
+                                SPG_NEWSMALLNO  : selectedItem.IL_NEWSMALLNO,
+                                SPG_ORDERINDEX  : selectedItem.IL_ORDERINDEX
+                            }
+                        }).then(function (res) {
+                            // 變更特貨類型
+                            row.entity.SPG_SPECIALGOODS = 0;
+                        });
+                    }else{
+                        RestfulApi.UpsertMSSQLData({
+                            upsertname: 'Upsert',
+                            table: 20,
+                            params: {
+                                SPG_TYPE        : selectedItem.SPG_TYPE,
+                                SPG_CR_USER     : $vm.profile.U_ID,
+                                SPG_CR_DATETIME : $filter('date')(new Date, 'yyyy-MM-dd HH:mm:ss')
+                            },
+                            condition: {
+                                SPG_SEQ         : selectedItem.IL_SEQ,
+                                SPG_NEWBAGNO    : selectedItem.IL_NEWBAGNO,
+                                SPG_NEWSMALLNO  : selectedItem.IL_NEWSMALLNO,
+                                SPG_ORDERINDEX  : selectedItem.IL_ORDERINDEX
+                            }
+                        }).then(function (res) {
+                            // 變更特貨類型
+                            row.entity.SPG_SPECIALGOODS = selectedItem.SPG_TYPE;
+                        });
+                    }
+
+                }, function() {
+                    // $log.info('Modal dismissed at: ' + new Date());
+                });
+            }
+        },
+        job001Options : {
+            data: '$vm.job001Data',
+            columnDefs: [
+                { name: 'isSelected'    , displayName: '選擇', width: 50, pinnedLeft:true, enableCellEdit: false, cellFilter: 'booleanFilter', filter: 
+                    {
+                        term: null,
+                        type: uiGridConstants.filter.SELECT,
+                        selectOptions: bool
+                    }
+                },
+                { name: 'IL_SUPPLEMENT_COUNT', displayName: '補件', width: 50, pinnedLeft:true, enableCellEdit: false },
+                { name: 'Index'         , displayName: '序列', width: 50, pinnedLeft:true, enableFiltering: false, enableCellEdit: false },
+                { name: 'IL_REMARK'     , displayName: '備註', width: 100, headerCellClass: 'text-primary' },
+                { name: 'IL_G1'         , displayName: '報關種類', width: 80, headerCellClass: 'text-primary' },
+                { name: 'IL_MERGENO'    , displayName: '併票號', width: 80, headerCellClass: 'text-primary' },
+                { name: 'BAGNO_MATCH'   , displayName: '內貨', width: 50, enableCellEdit: false, cellTemplate: $templateCache.get('accessibilityToInternalGoods'), filter: 
+                    {
+                        term: null,
+                        type: uiGridConstants.filter.SELECT,
+                        selectOptions: [
+                            {label:'否', value: '0'},
+                            {label:'是', value: '1'}
+                        ]
+                    }
+                },
+                { name: 'IL_BAGNO'      , displayName: '袋號', width: 80, headerCellClass: 'text-primary' },
+                { name: 'IL_SMALLNO'    , displayName: '小號', width: 110, headerCellClass: 'text-primary' },
+                { name: 'IL_NATURE'     , displayName: '品名', width: 120, enableCellEdit: false, cellTooltip: function (row, col) 
+                    {
+                        return row.entity.IL_NATURE
+                    } 
+                },
+                { name: 'IL_NATURE_NEW' , displayName: '新品名', width: 120, headerCellClass: 'text-primary', cellTooltip: function (row, col) 
+                    {
+                        return row.entity.IL_NATURE_NEW
+                    } 
+                },
+                { name: 'IL_TAX2'       , displayName: '稅則', width: 100, headerCellClass: 'text-primary' },
+                { name: 'ChangeNature'  , displayName: '改單', width: 50, enableCellEdit: false, enableSorting:false, cellTemplate: $templateCache.get('accessibilityToChangeNature'), cellClass: 'cell-class-no-style' },
+                { name: 'IL_CTN'        , displayName: '件數', width: 50, headerCellClass: 'text-primary' },
+                { name: 'IL_PLACE'      , displayName: '產地', width: 50, enableCellEdit: false },
+                { name: 'IL_NEWPLACE'   , displayName: '新產地', width: 70, headerCellClass: 'text-primary' },
+                { name: 'IL_WEIGHT'     , displayName: '重量', width: 70, enableCellEdit: false, filters: [
+                    {
+                        condition: uiGridConstants.filter.GREATER_THAN,
+                        placeholder: '最小'
+                    },
+                    {
+                        condition: uiGridConstants.filter.LESS_THAN,
+                        placeholder: '最大'
+                    }
+                ]},
+                { name: 'IL_WEIGHT_NEW' , displayName: '新重量', width: 70, headerCellClass: 'text-primary', filters: [
+                    {
+                        condition: uiGridConstants.filter.GREATER_THAN,
+                        placeholder: '最小'
+                    },
+                    {
+                        condition: uiGridConstants.filter.LESS_THAN,
+                        placeholder: '最大'
+                    }
+                ]},
+                { name: 'IL_PCS'        , displayName: '數量', width: 70, enableCellEdit: false, filters: [
+                    {
+                        condition: uiGridConstants.filter.GREATER_THAN,
+                        placeholder: '最小'
+                    },
+                    {
+                        condition: uiGridConstants.filter.LESS_THAN,
+                        placeholder: '最大'
+                    }  
+                ]},
+                { name: 'IL_NEWPCS'     , displayName: '新數量', width: 70, headerCellClass: 'text-primary', filters: [
+                    {
+                        condition: uiGridConstants.filter.GREATER_THAN,
+                        placeholder: '最小'
+                    },
+                    {
+                        condition: uiGridConstants.filter.LESS_THAN,
+                        placeholder: '最大'
+                    }
+                ]},
+                { name: 'IL_UNIVALENT'  , displayName: '單價', width: 70, enableCellEdit: false, filters: [
+                    {
+                        condition: uiGridConstants.filter.GREATER_THAN,
+                        placeholder: '最小'
+                    },
+                    {
+                        condition: uiGridConstants.filter.LESS_THAN,
+                        placeholder: '最大'
+                    }
+                ]},
+                { name: 'IL_UNIVALENT_NEW', displayName: '新單價', width: 70, headerCellClass: 'text-primary', filters: [
+                    {
+                        condition: uiGridConstants.filter.GREATER_THAN,
+                        placeholder: '最小'
+                    },
+                    {
+                        condition: uiGridConstants.filter.LESS_THAN,
+                        placeholder: '最大'
+                    }
+                ]},
+                { name: 'IL_FINALCOST'  , displayName: '完稅價格', width: 80, headerCellClass: 'text-primary', filters: [
+                    {
+                        condition: uiGridConstants.filter.GREATER_THAN,
+                        placeholder: '最小'
+                    },
+                    {
+                        condition: uiGridConstants.filter.LESS_THAN,
+                        placeholder: '最大'
+                    }
+                ]},
+                { name: 'IL_UNIT'       , displayName: '單位', width: 70, enableCellEdit: false },
+                { name: 'IL_NEWUNIT'    , displayName: '新單位', width: 70, headerCellClass: 'text-primary' },
+                { name: 'IL_GETNO'      , displayName: '收件者統編', width: 100, headerCellClass: 'text-primary' },
+                { name: 'IL_EXNO'       , displayName: '匯出統編', width: 80, headerCellClass: 'text-primary' },
+                { name: 'IL_SENDNAME'   , displayName: '寄件人', width: 80, enableCellEdit: false },
+                { name: 'IL_NEWSENDNAME', displayName: '新寄件人', width: 80, headerCellClass: 'text-primary' },
+                { name: 'IL_TAX'        , displayName: '稅費歸屬', width: 80, headerCellClass: 'text-primary' },
+                { name: 'IL_GETNAME'    , displayName: '收件人公司', width: 100, enableCellEdit: false },
+                { name: 'IL_GETNAME_NEW', displayName: '新收件人公司', width: 100, headerCellClass: 'text-primary' },
+                { name: 'IL_GETADDRESS' , displayName: '收件地址', width: 300, headerCellClass: 'text-primary' },
+                { name: 'IL_GETADDRESS_NEW' , displayName: '新收件地址', width: 300, headerCellClass: 'text-primary' },
+                { name: 'IL_GETTEL'     , displayName: '收件電話', width: 100, headerCellClass: 'text-primary' },
+                { name: 'IL_EXTEL'      , displayName: '匯出電話', width: 100, headerCellClass: 'text-primary' },
+                { name: 'IL_TRCOM'      , displayName: '派送公司', width: 100, headerCellClass: 'text-primary' },
+                { name: 'Options'       , displayName: '操作', width: 120, enableCellEdit: false, enableSorting:false, enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToJob001'), pinnedRight:true, cellClass: 'cell-class-no-style' }
+            ],
+            // rowTemplate: '<div> \
+            //                 <div ng-repeat="(colRenderIndex, col) in colContainer.renderedColumns track by col.colDef.name" class="ui-grid-cell" ng-class="row.entity.BLFO_TRACK != null ? \'cell-class-pull cell-class-ban\' : \'\'" ui-grid-cell></div> \
+            //               </div>',
+            rowTemplate: '<div> \
+                            <div ng-repeat="(colRenderIndex, col) in colContainer.renderedColumns track by col.colDef.name" class="ui-grid-cell" ng-class="{\'cell-class-ban\' : row.entity.BLFO_TRACK != null, \'cell-class-pull\' : row.entity.PG_PULLGOODS == true, \'cell-class-special\' : row.entity.SPG_SPECIALGOODS != 0}" ui-grid-cell></div> \
+                          </div>',
+            enableFiltering: true,
+            enableSorting: true,
+            enableColumnMenus: false,
+            // enableVerticalScrollbar: false,
+		    enableRowSelection: true,
+    		enableSelectAll: true,
+            paginationPageSizes: [50, 100, 150, 200, 250, 300],
+            paginationPageSize: 100,
+            // rowEditWaitInterval: -1,
+            onRegisterApi: function(gridApi){
+                $vm.job001GridApi = gridApi;
+
+                gridApi.rowEdit.on.saveRow($scope, $vm.Update);
+
+                gridApi.edit.on.afterCellEdit($scope, function(rowEntity, colDef, newValue, oldValue){
+
+                    if(colDef.name == 'IL_GETNAME_NEW'){
+                        var _temp = encodeURI(rowEntity.IL_GETNAME_NEW),
+                            regex = /%09/gi;
+
+                        _temp = _temp.replace(regex, "%20");
+                        rowEntity.IL_GETNAME_NEW = decodeURI(_temp);
+                    }
+
+                    // 新單價 = 新重量 * 100 / 新數量
+                    if(colDef.name == 'IL_WEIGHT_NEW' || colDef.name == 'IL_NEWPCS'){
+                        var _weight = parseFloat(rowEntity.IL_WEIGHT_NEW).toFixed(2),
+                            _pcs = parseInt(rowEntity.IL_NEWPCS);
+
+                        // 如果都不是空值 才開始計算
+                        if(!isNaN(_weight) && !isNaN(_pcs)){
+                            // 如果數量不為0
+                            if(parseInt(_pcs) != 0){
+                                rowEntity.IL_UNIVALENT_NEW = (_weight * 100) / _pcs;
+                            }else{
+                                rowEntity.IL_UNIVALENT_NEW = 0;
+                            }
+                        }
+                    }
+
+                    // 計算稅
+                    var _univalent = parseInt(rowEntity.IL_UNIVALENT_NEW),
+                        _pcs = parseInt(rowEntity.IL_NEWPCS),
+                        _finalcost = parseInt(rowEntity.IL_FINALCOST),
+                        start = 0;
+
+                    if(!isNaN(_univalent)){
+                        start += 1;
+                    }
+                    if(!isNaN(_pcs)){
+                        start += 1;
+                    }
+                    if(!isNaN(_finalcost)){
+                        start += 1;
+                    }
+
+                    // 表示可以開始計算
+                    if(start >= 2){
+                        // 新單價
+                        if(colDef.name == 'IL_UNIVALENT_NEW'){
+                            //如果數量有值
+                            if(!isNaN(_pcs)){
+                                _finalcost = _pcs * _univalent;
+                            }
+                        }
+
+                        // 新數量
+                        if(colDef.name == 'IL_NEWPCS'){
+                            if(!isNaN(_univalent)){
+                                _finalcost = _pcs * _univalent;
+                            }
+                        }
+
+                        // 當完稅價格小於100
+                        if(_finalcost < 100 && _finalcost != 0){
+                            // 給個新值 100~125
+                            var maxNum = 125;  
+                            var minNum = 100;  
+                            _finalcost = Math.floor(Math.random() * (maxNum - minNum + 1)) + minNum; 
+                        }
+
+                        // 當完稅價格超過1500 提醒使用者
+                        if(_finalcost > 1500){
+                            toaster.pop('warning', '警告', '完稅價格超過1500元，請注意', 3000);
+                        }
+                        
+                        // 當數量不為空 帶出單價 (會與新單價衝突)
+                        if(colDef.name == 'IL_FINALCOST' || colDef.name == 'IL_NEWPCS' || colDef.name == 'IL_UNIVALENT_NEW'){
+                            if(!isNaN(_pcs)){
+                                if(parseInt(_pcs) != 0){
+                                    _univalent = Math.round(_finalcost / _pcs);
+                                }else{
+                                    _univalent = 0;
+                                }
+                            }
+                        }
+
+                        // 完稅價格
+                        if(colDef.name == 'IL_FINALCOST' || colDef.name == 'IL_WEIGHT_NEW'){
+                            // 避免帳不平 再次計算完稅價格
+                            if(!isNaN(_pcs) && !isNaN(_univalent)){
+                                _finalcost = _pcs * _univalent;
+                            }
+                        }
+
+                        // console.log("_univalent:", _univalent," _pcs:" , _pcs," _finalcost:" , _finalcost);
+                        rowEntity.IL_UNIVALENT_NEW = isNaN(_univalent) ? null : _univalent;
+                        rowEntity.IL_NEWPCS = isNaN(_pcs) ? null : _pcs;
+                        rowEntity.IL_FINALCOST = isNaN(_finalcost) ? null : _finalcost;
+                    }
+
+                    $vm.job001GridApi.rowEdit.setRowsDirty([rowEntity]);
+
+                    // console.log('edited row id:' + rowEntity.Index + ' Column:' + colDef.name + ' newValue:' + newValue + ' oldValue:' + oldValue);
+                });
+
+                gridApi.selection.on.rowSelectionChanged($scope, function(rowEntity, colDef, newValue, oldValue){
+                    rowEntity.entity["isSelected"] = rowEntity.isSelected;
+                });
+
+                gridApi.selection.on.rowSelectionChangedBatch($scope, function(rowEntity, colDef, newValue, oldValue){
+                    for(var i in rowEntity){
+                        rowEntity[i].entity["isSelected"] = rowEntity[i].isSelected;
+                    }
+                });
+            }
+        },
+        // 併票
+        MergeNo: function(){
+            if($vm.job001GridApi.selection.getSelectedRows().length == 0) {
+                toaster.pop('info', '訊息', '尚未勾選資料。', 3000);
+                return;
+            }
+
+            // 取得第一個袋號當併票號
+            var _mergeNo = $vm.job001GridApi.selection.getSelectedRows()[0].IL_BAGNO,
+                _natureNew = [],
+                _bagNo = [];
+
+            // 塞入新品名
+            for(var i in $vm.job001GridApi.selection.getSelectedRows()){
+                // console.log($vm.job001GridApi.selection.getSelectedRows()[i].IL_NATURE_NEW);
+                if($vm.job001GridApi.selection.getSelectedRows()[i].IL_NATURE_NEW != null){
+                    _natureNew.push($vm.job001GridApi.selection.getSelectedRows()[i].IL_NATURE_NEW);
+                }
+
+                // 算出袋數 重複不塞入
+                if($filter('filter')(_bagNo, $vm.job001GridApi.selection.getSelectedRows()[i].IL_BAGNO).length == 0){
+                    _bagNo.push($vm.job001GridApi.selection.getSelectedRows()[i].IL_BAGNO);
+                }
+
+            }
+            var modalInstance = $uibModal.open({
+                animation: true,
+                ariaLabelledBy: 'modal-title',
+                ariaDescribedBy: 'modal-body',
+                templateUrl: 'mergeNoModalContent.html',
+                controller: 'MergeNoModalInstanceCtrl',
+                controllerAs: '$ctrl',
+                backdrop: 'static',
+                // size: 'lg',
+                // appendTo: parentElem,
+                resolve: {
+                    mergeNo: function() {
+                        return _mergeNo;
+                    },
+                    natureNew: function() {
+                        return _natureNew;
+                    },
+                    bagNo: function(){
+                        return _bagNo;
+                    }
+                }
+            });
+
+            modalInstance.result.then(function(selectedItem) {
+                // $ctrl.selected = selectedItem;
+                console.log(selectedItem);
+
+                // 變更併票號與新品名
+                for(var i in $vm.job001GridApi.selection.getSelectedRows()){
+                    var _index = $vm.job001GridApi.selection.getSelectedRows()[i].Index;
+                    $vm.job001Data[_index-1].IL_MERGENO = selectedItem.mergeNo;
+                    $vm.job001Data[_index-1].IL_NATURE_NEW = selectedItem.natureNew;
+                }
+
+                $vm.job001GridApi.rowEdit.setRowsDirty($vm.job001GridApi.selection.getSelectedRows());
+                $vm.job001GridApi.selection.clearSelectedRows();
+                ClearSelectedColumn();
+            }, function() {
+                // $log.info('Modal dismissed at: ' + new Date());
+            });
+        },
+        // 取消併票
+        CancelNo: function(){
+            if($vm.job001GridApi.selection.getSelectedRows().length == 0) {
+                toaster.pop('info', '訊息', '尚未勾選資料。', 3000);
+                return;
+            }
+
+            for(var i in $vm.job001GridApi.selection.getSelectedRows()){
+                var _index = $vm.job001GridApi.selection.getSelectedRows()[i].Index;
+                $vm.job001Data[_index-1].IL_MERGENO = null;
+                // $vm.job001Data[_index-1].IL_NATURE_NEW = null;
+            }
+
+            $vm.job001GridApi.rowEdit.setRowsDirty($vm.job001GridApi.selection.getSelectedRows());
+            $vm.job001GridApi.selection.clearSelectedRows();
+            ClearSelectedColumn();
+        },
+        // 特貨註記
+        MultiSpecialGoods: function(){
+            if($vm.job001GridApi.selection.getSelectedRows().length == 0) {
+                toaster.pop('info', '訊息', '尚未勾選資料。', 3000);
+                return;
+            }
+            if($vm.job001GridApi.selection.getSelectedRows().length > 100) {
+                toaster.pop('info', '訊息', '超過100筆，請重新選擇筆數', 3000);
+                return;
+            }
+
+            var modalInstance = $uibModal.open({
+                animation: true,
+                ariaLabelledBy: 'modal-title',
+                ariaDescribedBy: 'modal-body',
+                templateUrl: 'specialGoodsModalContent.html',
+                controller: 'MultiSpecialGoodsModalInstanceCtrl',
+                controllerAs: '$ctrl',
+                size: 'sm',
+                backdrop: 'static',
+                // appendTo: parentElem,
+                resolve: {
+                    specialGoods: function(SysCode) {
+                        return SysCode.get('SpecialGoods');
+                    }
+                }
+            });
+
+            modalInstance.result.then(function(selectedItem) {
+
+                // console.log(selectedItem);
+
+                var _task = [];
+
+                for(var i in $vm.job001GridApi.selection.getSelectedRows()){
+
+                    if(angular.isUndefined(selectedItem)){
+                        _task.push({
+                            crudType: 'Delete',
+                            table: 20,
+                            params: {
+                                SPG_SEQ         : $vm.job001GridApi.selection.getSelectedRows()[i].IL_SEQ,
+                                SPG_NEWBAGNO    : $vm.job001GridApi.selection.getSelectedRows()[i].IL_NEWBAGNO,
+                                SPG_NEWSMALLNO  : $vm.job001GridApi.selection.getSelectedRows()[i].IL_NEWSMALLNO,
+                                SPG_ORDERINDEX  : $vm.job001GridApi.selection.getSelectedRows()[i].IL_ORDERINDEX
+                            }
+                        });
+                    }else{
+                        _task.push({
+                            crudType: 'Upsert',
+                            table: 20,
+                            params: {
+                                SPG_TYPE        : selectedItem.SPG_TYPE,
+                                SPG_CR_USER     : $vm.profile.U_ID,
+                                SPG_CR_DATETIME : $filter('date')(new Date, 'yyyy-MM-dd HH:mm:ss')
+                            },
+                            condition: {
+                                SPG_SEQ         : $vm.job001GridApi.selection.getSelectedRows()[i].IL_SEQ,
+                                SPG_NEWBAGNO    : $vm.job001GridApi.selection.getSelectedRows()[i].IL_NEWBAGNO,
+                                SPG_NEWSMALLNO  : $vm.job001GridApi.selection.getSelectedRows()[i].IL_NEWSMALLNO,
+                                SPG_ORDERINDEX  : $vm.job001GridApi.selection.getSelectedRows()[i].IL_ORDERINDEX
+                            }
+                        });
+                    }
+
+                }
+
+                RestfulApi.CRUDMSSQLDataByTask(_task).then(function (res){
+
+                    if(res["returnData"].length > 0){
+                        // 變更特貨類型
+                        for(var i in $vm.job001GridApi.selection.getSelectedRows()){
+                            if(angular.isUndefined(selectedItem)){
+                                $vm.job001GridApi.selection.getSelectedRows()[i].SPG_SPECIALGOODS = 0;
+                            }else{
+                                $vm.job001GridApi.selection.getSelectedRows()[i].SPG_SPECIALGOODS = selectedItem.SPG_TYPE;
+                            }
+                        }
+
+                        $vm.job001GridApi.selection.clearSelectedRows();
+                        ClearSelectedColumn();
+                    }
+                });
+
+            }, function() {
+                // $log.info('Modal dismissed at: ' + new Date());
+            });
+        },
+        /**
+         * [PullGoods description] 拉貨
+         */
+        PullGoods: function(){
+            if($vm.job001GridApi.selection.getSelectedRows().length == 0) {
+                toaster.pop('info', '訊息', '尚未勾選資料。', 3000);
+                return;
+            }
+            if($vm.job001GridApi.selection.getSelectedRows().length > 100) {
+                toaster.pop('info', '訊息', '超過100筆，請重新選擇筆數', 3000);
+                return;
+            }
+
+            var modalInstance = $uibModal.open({
+                animation: true,
+                ariaLabelledBy: 'modal-title',
+                ariaDescribedBy: 'modal-body',
+                templateUrl: 'pullGoodsModalContent.html',
+                controller: 'PullGoodsModalInstanceCtrl',
+                controllerAs: '$ctrl',
+                backdrop: 'static',
+                // size: 'lg',
+                // appendTo: parentElem,
+                resolve: {
+                    vmData: function() {
+                        return {};
+                    }
+                }
+            });
+
+            modalInstance.result.then(function(selectedItem) {
+                // console.log(selectedItem);
+
+                var _seq = $vm.job001GridApi.selection.getSelectedRows()[0].IL_SEQ,
+                    _bagNo = [];
+
+                for(var i in $vm.job001GridApi.selection.getSelectedRows()){
+                    if($vm.job001GridApi.selection.getSelectedRows()[i].IL_BAGNO.length != 8){
+                        toaster.pop('warning', '警告', '序列'+$vm.job001GridApi.selection.getSelectedRows()[i].Index+'的袋號異常，拉貨中止。', 3000);
+                        return;
+                    }
+
+                    if(_bagNo.indexOf($vm.job001GridApi.selection.getSelectedRows()[i].IL_BAGNO) == -1){
+                        _bagNo.push($vm.job001GridApi.selection.getSelectedRows()[i].IL_BAGNO);
+                    }
+                }
+
+                var _task = [];
+
+                for(var i in _bagNo){
+
+                    _task.push({
+                        crudType: 'Insert',
+                        table: 19,
+                        params: {
+                            PG_SEQ         : _seq,
+                            PG_BAGNO       : _bagNo[i],
+                            PG_REASON      : selectedItem.PG_REASON,
+                            PG_CR_USER     : $vm.profile.U_ID,
+                            PG_CR_DATETIME : $filter('date')(new Date, 'yyyy-MM-dd HH:mm:ss')
+                        }
+                    });
+
+                }
+
+                RestfulApi.CRUDMSSQLDataByTask(_task).then(function (res){
+
+                    if(res["returnData"].length > 0){
+                        LoadItemList();
+
+                        // $vm.job001GridApi.selection.clearSelectedRows();
+                        // ClearSelectedColumn();
+                    }
+                });
+
+            }, function() {
+                // $log.info('Modal dismissed at: ' + new Date());
+            });
+
+        },
+        /**
+         * [DoTax description] 稅則
+         */
+        DoTax: function(){
+            if($vm.job001GridApi.selection.getSelectedRows().length == 0) {
+                toaster.pop('info', '訊息', '尚未勾選資料。', 3000);
+                return;
+            }
+
+            $vm.DoTaxLoading = true;
+
+            var _natureNewList = [];
+            for(var i in $vm.job001GridApi.selection.getSelectedRows()){
+                if($vm.job001GridApi.selection.getSelectedRows()[i].IL_NATURE_NEW != null && $vm.job001GridApi.selection.getSelectedRows()[i].IL_NATURE_NEW != ''){
+                    _natureNewList.push({
+                        "Nature_NEW": $vm.job001GridApi.selection.getSelectedRows()[i].IL_NATURE_NEW,
+                        "RowIndex": $vm.job001GridApi.selection.getSelectedRows()[i].Index
+                    });
+                }
+            }
+
+            if(_natureNewList.length == 0){
+                toaster.pop('info', '訊息', '無新品名資料。', 3000);
+                return;
+            }
+
+            ToolboxApi.DoTax({
+                ID : $vm.profile.U_ID,
+                PW : $vm.profile.U_PW,
+                NATURE_NEW_LIST : _natureNewList
+            }).then(function (res) {
+                var _returnData = JSON.parse(res["returnData"]);
+                // console.log(_returnData);
+
+                for(var i in _returnData){
+                    $vm.job001Data[parseInt(_returnData[i].RowIndex) - 1].IL_TAX2 = _returnData[i].Tax;
+                    $vm.job001Data[parseInt(_returnData[i].RowIndex) - 1].IL_TAXRATE = _returnData[i].TaxRate;
+                    $vm.job001GridApi.rowEdit.setRowsDirty([$vm.job001Data[parseInt(_returnData[i].RowIndex) - 1]]);
+                }
+
+                $vm.job001GridApi.selection.clearSelectedRows();
+
+            }).finally(function() {
+                $vm.DoTaxLoading = false;
+            });
+        },
+        ExportExcel: function(){
+            console.log($vm.vmData);
+
+            var modalInstance = $uibModal.open({
+                animation: true,
+                ariaLabelledBy: 'modal-title',
+                ariaDescribedBy: 'modal-body',
+                templateUrl: 'excelMenu.html',
+                controller: 'ExcelMenuModalInstanceCtrl',
+                controllerAs: '$ctrl',
+                // scope: $scope,
+                size: 'sm',
+                // windowClass: 'center-modal',
+                // appendTo: parentElem
+            });
+
+            modalInstance.result.then(function(selectedItem) {
+                // $ctrl.selected = selectedItem;
+                console.log(selectedItem);
+
+                var _templates = angular.copy(selectedItem),
+                    _exportName = $filter('date')($vm.vmData.OL_IMPORTDT, 'yyyyMMdd', 'GMT') + ' ' + 
+                                  $filter('compyFilter')($vm.vmData.OL_CO_CODE) + ' ' + 
+                                  $vm.vmData.OL_FLIGHTNO + ' ' +
+                                  $vm.vmData.OL_COUNT + '袋 ' +
+                                  $vm.vmData.OL_PULL_COUNT + '袋',
+                    _queryname = null,
+                    _params = {
+                        OL_MASTER : $vm.vmData.OL_MASTER,
+                        OL_IMPORTDT : $filter('date')($vm.vmData.OL_IMPORTDT, 'yyyy-MM-dd', 'GMT'),
+                        OL_FLIGHTNO : $vm.vmData.OL_FLIGHTNO,
+                        OL_COUNTRY : $vm.vmData.OL_COUNTRY,                
+                        IL_SEQ : $vm.vmData.OL_SEQ
+                    };
+
+                switch(selectedItem){
+                    // 關貿格式(G1)
+                    case "0G1":
+                        _templates = "0";
+                        _queryname = "SelectItemListForEx0";
+                        _params["IL_G1"] = "'G1'";
+                        break;
+                    // 關貿格式(X2)
+                    case "0X2":
+                        _templates = "0";
+                        _queryname = "SelectItemListForEx0";
+                        _params["IL_G1"] = "'','X2'";
+                        // 不包含併X3(也就是mergeno是null)
+                        _params["IL_MERGENO"] = null;
+                        break;
+                    // 關貿格式(X3)
+                    case "0X3":
+                        _templates = "0";
+                        _queryname = "SelectItemListForEx0";
+                        _params["IL_G1"] = "'X3'";
+                        break;
+                    // 關貿格式(併X3)
+                    case "0MX3":
+                        _templates = "10";
+                        _queryname = "SelectItemListForEx0MX3";
+                        _params["CO_NAME"] = $vm.vmData.CO_NAME
+                        break;
+                    // 介宏格式
+                    case "8":
+                        _templates = "8";
+                        _queryname = "SelectItemListForEx8";
+                        break;
+                }
+
+                if(_queryname != null){
+
+                    // 選擇筆數匯出
+                    if($vm.job001GridApi.selection.getSelectedRows().length > 0){
+                        var _newSmallNo = [];
+                        for(var i in $vm.job001GridApi.selection.getSelectedRows()){
+                            _newSmallNo.push($vm.job001GridApi.selection.getSelectedRows()[i].IL_NEWSMALLNO);
+                        }
+
+                        // 加入選擇的筆數至SQL條件
+                        _params["NewSmallNo"] = "'"+_newSmallNo.join("','")+"'";
+
+                    }
+
+                    ToolboxApi.ExportExcelBySql({
+                        templates : _templates,
+                        filename : _exportName,
+                        querymain: 'job001',
+                        queryname: _queryname,
+                        params: _params
+                    }).then(function (res) {
+                        // console.log(res);
+                    
+                        $vm.vmData.TRADE_EXPORT += 1;
+
+                        RestfulApi.InsertMSSQLData({
+                            insertname: 'Insert',
+                            table: 33,
+                            params: {
+                                ILE_SEQ : $vm.vmData.OL_SEQ,
+                                ILE_TYPE : selectedItem,
+                                ILE_CR_DATETIME : $filter('date')(new Date(), 'yyyy-MM-dd HH:mm:ss'),
+                                ILE_CR_USER : $vm.profile.U_ID
+                            }
+                        }).then(function (res) {
+                            
+                        });
+                    });
+                }
+
+            }, function() {
+                // $log.info('Modal dismissed at: ' + new Date());
+            });
+        },
+        // 匯出班機表欄位
+        ExportAirportSchema : function(){
+            var _exportName = $filter('date')($vm.vmData.OL_IMPORTDT, 'yyyyMMdd', 'GMT') + ' ' + 
+                              $filter('compyFilter')($vm.vmData.OL_CO_CODE) + ' ' +
+                              $vm.vmData.OL_FLIGHTNO + ' ' +
+                              // ($vm.vmData.OL_COUNT - $vm.vmData.OL_PULL_COUNT) + '袋';
+                              $vm.vmData.OL_COUNT + '袋 ' +
+                              $vm.vmData.OL_PULL_COUNT + '袋';
+
+            // 如果是拉貨 最後要補上原報機日期
+            if($vm.vmData.ORI_OL_IMPORTDT != null){
+                _exportName += ' ' + $filter('date')($vm.vmData.ORI_OL_IMPORTDT, 'yyyyMMdd', 'GMT')
+            }
+
+            // 選擇筆數匯出
+            if($vm.job001GridApi.selection.getSelectedRows().length > 0){
+
+                // if($vm.job001GridApi.selection.getSelectedRows().length < 1000){
+
+                    var _newSmallNo = [];
+                    for(var i in $vm.job001GridApi.selection.getSelectedRows()){
+                        _newSmallNo.push($vm.job001GridApi.selection.getSelectedRows()[i].IL_NEWSMALLNO);
+                    }
+
+                    ToolboxApi.ExportExcelBySql({
+                        templates : 11,
+                        filename : _exportName,
+                        querymain: 'job001',
+                        queryname: 'SelectItemListForFlight',
+                        params: {
+                            OL_MASTER : $vm.vmData.OL_MASTER,
+                            OL_IMPORTDT : $filter('date')($vm.vmData.OL_IMPORTDT, 'yyyy-MM-dd', 'GMT'),
+                            OL_FLIGHTNO : $vm.vmData.OL_FLIGHTNO,
+                            OL_COUNTRY : $vm.vmData.OL_COUNTRY,               
+                            IL_SEQ : $vm.vmData.OL_SEQ,
+                            NewSmallNo : "'"+_newSmallNo.join("','")+"'"
+                        }
+                    }).then(function (res) {
+                        // console.log(res);
+                        
+                        $vm.vmData.FLIGHT_EXPORT += 1;
+                    
+                        RestfulApi.InsertMSSQLData({
+                            insertname: 'Insert',
+                            table: 33,
+                            params: {
+                                ILE_SEQ : $vm.vmData.OL_SEQ,
+                                ILE_TYPE : 11,
+                                ILE_CR_DATETIME : $filter('date')(new Date(), 'yyyy-MM-dd HH:mm:ss'),
+                                ILE_CR_USER : $vm.profile.U_ID
+                            }
+                        }).then(function (res) {
+                            
+                        });
+                    });
+                // }else{
+                //     toaster.pop('info', '訊息', '超過300筆，請重新選擇筆數', 3000);
+                // }
+            }
+            // 全部匯出
+            else{
+                ToolboxApi.ExportExcelBySql({
+                    templates : 11,
+                    filename : _exportName,
+                    querymain: 'job001',
+                    queryname: 'SelectItemListForFlight',
+                    params: {
+                        OL_MASTER : $vm.vmData.OL_MASTER,
+                        OL_IMPORTDT : $filter('date')($vm.vmData.OL_IMPORTDT, 'yyyy-MM-dd', 'GMT'),
+                        OL_FLIGHTNO : $vm.vmData.OL_FLIGHTNO,
+                        OL_COUNTRY : $vm.vmData.OL_COUNTRY,               
+                        IL_SEQ : $vm.vmData.OL_SEQ
+                    }
+                }).then(function (res) {
+                    // console.log(res);
+                    
+                    $vm.vmData.FLIGHT_EXPORT += 1;
+                    
+                    RestfulApi.InsertMSSQLData({
+                        insertname: 'Insert',
+                        table: 33,
+                        params: {
+                            ILE_SEQ : $vm.vmData.OL_SEQ,
+                            ILE_TYPE : 11,
+                            ILE_CR_DATETIME : $filter('date')(new Date(), 'yyyy-MM-dd HH:mm:ss'),
+                            ILE_CR_USER : $vm.profile.U_ID
+                        }
+                    }).then(function (res) {
+                        
+                    });
+                });
+            }
+        },
+        // 顯示併票結果
+        MergeNoResult : function(){
+            var modalInstance = $uibModal.open({
+                animation: true,
+                ariaLabelledBy: 'modal-title',
+                ariaDescribedBy: 'modal-body',
+                templateUrl: 'mergeNoResultModalContent.html',
+                controller: 'MergeNoResultModalInstanceCtrl',
+                controllerAs: '$ctrl',
+                backdrop: 'static',
+                size: 'lg',
+                // appendTo: parentElem,
+                resolve: {
+                    job001Data: function() {
+                        return $vm.job001Data;
+                    }
+                }
+            });
+
+            modalInstance.result.then(function(selectedItem) {
+                // $ctrl.selected = selectedItem;
+            }, function() {
+                // $log.info('Modal dismissed at: ' + new Date());
+            });
+        },
+        /**
+         * 依類型找出相同
+         * N : 收件人
+         * A : 地址
+         * N+A : 收件人 + 地址
+         */
+        RepeatData : function(pType){
+
+            var _queryname = null;
+            switch(pType){
+                case "N":
+                    _queryname = 'SelectRepeatName';
+                    break;
+                case "A":
+                    _queryname = 'SelectRepeatAddress';
+                    break;
+                case "N+A":
+                    _queryname = 'SelectRepeatNameAndAddress';
+                    break;
+            }
+
+            if (_queryname != null){ 
+                RestfulApi.SearchMSSQLData({
+                    querymain: 'job001',
+                    queryname: _queryname,
+                    params: {
+                        IL_SEQ: $vm.vmData.OL_SEQ
+                    }
+                }).then(function (res){
+                    // console.log(res["returnData"]);
+                    if(res["returnData"].length > 0){
+                        var modalInstance = $uibModal.open({
+                            animation: true,
+                            ariaLabelledBy: 'modal-title',
+                            ariaDescribedBy: 'modal-body',
+                            templateUrl: 'repeatDataModalContent.html',
+                            controller: 'RepeatDataModalInstanceCtrl',
+                            controllerAs: '$ctrl',
+                            backdrop: 'static',
+                            size: 'lg',
+                            // appendTo: parentElem,
+                            resolve: {
+                                repeatData: function() {
+                                    return res["returnData"];
+                                }
+                            }
+                        });
+
+                        modalInstance.result.then(function(selectedItem) {
+                            console.log(selectedItem);
+
+                            if(selectedItem.length > 0){
+                                var _getDirtyData = [];
+                                for(var i in selectedItem){
+
+                                    var _beUpdate = $filter('filter')($vm.job001Data, { 
+                                        IL_SEQ : selectedItem[i].entity.IL_SEQ,
+                                        IL_NEWBAGNO : selectedItem[i].entity.IL_NEWBAGNO,
+                                        IL_NEWSMALLNO : selectedItem[i].entity.IL_NEWSMALLNO,
+                                        IL_ORDERINDEX : selectedItem[i].entity.IL_ORDERINDEX
+                                    });
+
+                                    if(_beUpdate.length > 0){
+                                        var _index = _beUpdate[0].Index - 1;
+
+                                        // 更新收件者相同的值
+                                        for(var j in $vm.job001GridApi.grid.columns){
+                                            var _colDef = $vm.job001GridApi.grid.columns[j].colDef;
+                                            if(_colDef.enableCellEdit){
+                                                console.log(_colDef.name);
+                                                $vm.job001Data[_index][_colDef.name] = selectedItem[i].entity[_colDef.name];
+                                            }
+                                        }
+
+                                        _getDirtyData.push($vm.job001Data[_index]);
+                                    }
+                                }
+                                $vm.job001GridApi.rowEdit.setRowsDirty(_getDirtyData);
+                            }
+
+                        }, function() {
+                            // $log.info('Modal dismissed at: ' + new Date());
+                        });
+                    }else{
+                        toaster.pop('info', '訊息', '無重複收件者名稱', 3000);
+                    }
+                }); 
+            }
+        },
+        /**
+         * 篩選出收件人 收件地址 收件電話 超過六次的資料
+         * N|A : 收件人 | 地址
+         * N+A : 收件人 + 地址
+         */
+        OverSix : function(pType){
+            if(!angular.isUndefined($vm.vmData.OL_IMPORTDT)){
+                var _year = $filter('date')($vm.vmData.OL_IMPORTDT, 'yyyy', 'GMT'),
+                    _queryname = null,
+                    _type = null;
+
+                if($vm.vmData.OL_IMPORTDT < _year+'-06-30T23:59:59.999Z'){
+                    console.log('上半年');
+                    _type = '上半年';
+                    // _queryname = 'SelectOverSixFirst';
+
+                    switch(pType){
+                        case "N|A":
+                            _queryname = 'SelectOverSixFirst';
+                            break;
+                        case "N+A":
+                            _queryname = 'SelectOverSixCompoundFirst';
+                            break;
+                    }
+                }
+                if(_year+'-07-01T00:00:00.000Z' < $vm.vmData.OL_IMPORTDT){
+                    console.log('下半年');
+                    _type = '下半年';
+                    // _queryname = 'SelectOverSixSecond';
+
+                    switch(pType){
+                        case "N|A":
+                            _queryname = 'SelectOverSixSecond';
+                            break;
+                        case "N+A":
+                            _queryname = 'SelectOverSixCompoundSecond';
+                            break;
+                    }
+                }
+
+                if(_queryname != null){
+                    RestfulApi.SearchMSSQLData({
+                        querymain: 'job001',
+                        queryname: _queryname,
+                        params: {
+                            IL_SEQ: $vm.vmData.OL_SEQ
+                        }
+                    }).then(function (res){
+                        console.log(res["returnData"]);
+                        if(res["returnData"].length > 0){
+                            var modalInstance = $uibModal.open({
+                                animation: true,
+                                ariaLabelledBy: 'modal-title',
+                                ariaDescribedBy: 'modal-body',
+                                templateUrl: 'overSixModalContent.html',
+                                controller: 'OverSixModalInstanceCtrl',
+                                controllerAs: '$ctrl',
+                                backdrop: 'static',
+                                size: 'lg',
+                                // appendTo: parentElem,
+                                resolve: {
+                                    overSixData: function() {
+                                        return res["returnData"];
+                                    },
+                                    type: function(){
+                                        return _type;
+                                    }
+                                }
+                            });
+
+                            modalInstance.result.then(function(selectedItem) {
+                                console.log(selectedItem);
+
+                                if(selectedItem.length > 0){
+                                    var _getDirtyData = [];
+                                    for(var i in selectedItem){
+
+                                        var _beUpdate = $filter('filter')($vm.job001Data, { 
+                                            IL_SEQ : selectedItem[i].entity.IL_SEQ,
+                                            IL_NEWBAGNO : selectedItem[i].entity.IL_NEWBAGNO,
+                                            IL_NEWSMALLNO : selectedItem[i].entity.IL_NEWSMALLNO,
+                                            IL_ORDERINDEX : selectedItem[i].entity.IL_ORDERINDEX
+                                        });
+
+                                        if(_beUpdate.length > 0){
+                                            var _index = _beUpdate[0].Index - 1;
+
+                                            // 更新超過六次的值
+                                            for(var j in $vm.job001GridApi.grid.columns){
+                                                var _colDef = $vm.job001GridApi.grid.columns[j].colDef;
+                                                if(_colDef.enableCellEdit){
+                                                    console.log(_colDef.name);
+                                                    $vm.job001Data[_index][_colDef.name] = selectedItem[i].entity[_colDef.name];
+                                                }
+                                            }
+
+                                            _getDirtyData.push($vm.job001Data[_index]);
+                                        }
+                                    }
+                                    $vm.job001GridApi.rowEdit.setRowsDirty(_getDirtyData);
+                                }
+
+                            }, function() {
+                                // $log.info('Modal dismissed at: ' + new Date());
+                            });
+                        }else{
+                            toaster.pop('info', '訊息', '無 收件人、收件地址、收件電話 超過六次的資料', 3000);
+                        }
+                    }); 
+                }
+            }
+        },
+        Return : function(){
+            ReturnToEmployeejobsPage();
+        },
+        Close : function(){
+            var modalInstance = $uibModal.open({
+                animation: true,
+                ariaLabelledBy: 'modal-title',
+                ariaDescribedBy: 'modal-body',
+                template: $templateCache.get('isChecked'),
+                controller: 'IsCheckedModalInstanceCtrl',
+                controllerAs: '$ctrl',
+                size: 'sm',
+                windowClass: 'center-modal',
+                // appendTo: parentElem,
+                resolve: {
+                    items: function() {
+                        return {};
+                    },
+                    show: function(){
+                        return {
+                            title : "是否完成"
+                        }
+                    }
+                }
+            });
+
+            modalInstance.result.then(function(selectedItem) {
+                // $ctrl.selected = selectedItem;
+
+                RestfulApi.UpdateMSSQLData({
+                    updatename: 'Update',
+                    table: 22,
+                    params: {
+                        OE_FDATETIME : $filter('date')(new Date(), 'yyyy-MM-dd HH:mm:ss')
+                    },
+                    condition: {
+                        OE_SEQ : $vm.vmData.OL_SEQ,
+                        OE_TYPE : 'R',
+                        OE_PRINCIPAL : $vm.profile.U_ID
+                    }
+                }).then(function (res) {
+                    ReturnToEmployeejobsPage();
+                });
+
+            }, function() {
+                // $log.info('Modal dismissed at: ' + new Date());
+            });
+        },
+        Update : function(entity){
+            // console.log($vm.job001GridApi.rowEdit);
+            // console.log($vm.job001GridApi.rowEdit.getDirtyRows($vm.job001GridApi.grid));
+            console.log(entity, angular.isNumber(parseFloat(entity.IL_WEIGHT_NEW)), parseFloat(entity.IL_WEIGHT_NEW));
+
+            // create a fake promise - normally you'd use the promise returned by $http or $resource
+            var deferred = $q.defer();
+            $vm.job001GridApi.rowEdit.setSavePromise( entity, deferred.promise );
+         
+            RestfulApi.UpdateMSSQLData({
+                updatename: 'Update',
+                table: 9,
+                params: {
+                    IL_G1              : entity.IL_G1,
+                    IL_MERGENO         : entity.IL_MERGENO,
+                    IL_BAGNO           : entity.IL_BAGNO,
+                    IL_SMALLNO         : entity.IL_SMALLNO,
+                    IL_NATURE_NEW      : entity.IL_NATURE_NEW,
+                    IL_NEWPLACE        : entity.IL_NEWPLACE,
+                    IL_CTN             : isNaN(parseInt(entity.IL_CTN)) ? null : entity.IL_CTN,
+                    IL_NEWPCS          : isNaN(parseInt(entity.IL_NEWPCS)) ? null : entity.IL_NEWPCS,
+                    IL_NEWUNIT         : entity.IL_NEWUNIT,
+                    IL_WEIGHT_NEW      : isNaN(parseFloat(entity.IL_WEIGHT_NEW)) ? null : entity.IL_WEIGHT_NEW,
+                    IL_GETNO           : entity.IL_GETNO,
+                    IL_NEWSENDNAME     : entity.IL_NEWSENDNAME,
+                    IL_GETNAME_NEW     : entity.IL_GETNAME_NEW,
+                    IL_GETADDRESS      : entity.IL_GETADDRESS,
+                    IL_GETADDRESS_NEW  : entity.IL_GETADDRESS_NEW,
+                    IL_GETTEL          : entity.IL_GETTEL,
+                    IL_UNIVALENT_NEW   : isNaN(parseFloat(entity.IL_UNIVALENT_NEW)) ? null : entity.IL_UNIVALENT_NEW,
+                    IL_FINALCOST       : isNaN(parseFloat(entity.IL_FINALCOST)) ? null : entity.IL_FINALCOST,
+                    IL_TAX             : entity.IL_TAX,
+                    IL_TRCOM           : entity.IL_TRCOM,
+                    IL_REMARK          : entity.IL_REMARK,
+                    IL_EXTEL           : entity.IL_EXTEL,
+                    IL_EXNO            : entity.IL_EXNO,
+                    IL_TAX2            : entity.IL_TAX2,
+                    IL_TAXRATE         : angular.isNumber(entity.IL_TAXRATE) ? entity.IL_TAXRATE : null,
+                    IL_UP_DATETIME     : $filter('date')(new Date(), 'yyyy-MM-dd HH:mm:ss'),
+                    IL_UP_USER         : $vm.profile.U_ID
+                },
+                condition: {
+                    IL_SEQ        : entity.IL_SEQ,
+                    IL_NEWBAGNO   : entity.IL_NEWBAGNO,
+                    IL_NEWSMALLNO : entity.IL_NEWSMALLNO,
+                    IL_ORDERINDEX : entity.IL_ORDERINDEX
+                }
+            }).then(function (res) {
+                // console.log(res);
+                deferred.resolve();
+            }, function (err) {
+                toaster.pop('danger', '錯誤', '更新失敗', 3000);
+                deferred.reject();
+            });
+            
         }
-        todo.toggle = function(){
-            if (!todo.completedAt) {
-                todo.state = 'Completed';
-                todo.completedAt = JSON.stringify(new Date());
-            } else {
-                todo.state = 'Critical';
-                todo.completedAt = null;
-            }
-        };
+    });
 
-        todo.setState = function(state){
-            todo.state = state;
-            if (state == 'Completed') {
-                todo.completedAt = JSON.stringify(new Date());
-            } else {
-                todo.completedAt = null;
+    function LoadItemList(){
+        RestfulApi.SearchMSSQLData({
+            querymain: 'job001',
+            queryname: 'SelectItemList',
+            params: {
+                IL_SEQ: $vm.vmData.OL_SEQ
             }
-        };
-
-        return todo;
+        }).then(function (res){
+            // console.log(res["returnData"]);
+            for(var i=0;i<res["returnData"].length;i++){
+                res["returnData"][i]["Index"] = i+1;
+            }
+            $vm.job001Data = angular.copy(res["returnData"]);
+        }); 
     };
 
-    var Todo = Restangular.all(APP_CONFIG.apiRootUrl + '/todos.json');
+    /**
+     * [ClearSelectedColumn description] isSelected設為否
+     */
+    function ClearSelectedColumn(){
+        for(var i in $vm.job001Data){
+            $vm.job001Data[i].isSelected = false;
+        }
+    }
 
-    Restangular.extendModel(APP_CONFIG.apiRootUrl + '/todos.json', normalize);
-    Todo.normalize = normalize;
+    function ReturnToEmployeejobsPage(){
+        $state.transitionTo($state.current.parent);
+    };
 
-    return Todo
+})
+.controller('ExcelMenuModalInstanceCtrl', function ($uibModalInstance) {
+    var $ctrl = this;
+    
+    $ctrl.ok = function(pType) {
+        $uibModalInstance.close(pType);
+    };
+
+    $ctrl.cancel = function() {
+        $uibModalInstance.dismiss('cancel');
+    };
+})
+.controller('MergeNoModalInstanceCtrl', function ($uibModalInstance, mergeNo, natureNew, bagNo) {
+    var $ctrl = this;
+    $ctrl.natureNew = natureNew;
+
+    $ctrl.mdData = {
+        mergeNo : mergeNo,
+        natureNew : null,
+        bagNo : bagNo
+    };
+
+    $ctrl.Init = function(){
+        $ctrl.mergeNoChoice = '1';
+    };
+
+    $ctrl.ok = function() {
+        $uibModalInstance.close($ctrl.mdData);
+    };
+
+    $ctrl.cancel = function() {
+        $uibModalInstance.dismiss('cancel');
+    };
+})
+.controller('OPAddBanModalInstanceCtrl', function ($uibModalInstance, vmData) {
+    var $ctrl = this;
+    $ctrl.mdData = vmData;
+
+    $ctrl.ok = function() {
+        $uibModalInstance.close($ctrl.mdData);
+    };
+
+    $ctrl.cancel = function() {
+        $uibModalInstance.dismiss('cancel');
+    };
+})
+.controller('PullGoodsModalInstanceCtrl', function ($uibModalInstance, vmData) {
+    var $ctrl = this;
+    $ctrl.mdData = vmData;
+
+    $ctrl.ok = function() {
+        $uibModalInstance.close($ctrl.mdData);
+    };
+
+    $ctrl.cancel = function() {
+        $uibModalInstance.dismiss('cancel');
+    };
+})
+.controller('SpecialGoodsModalInstanceCtrl', function ($uibModalInstance, items, specialGoods) {
+    var $ctrl = this;
+
+    $ctrl.Init = function(){
+        $ctrl.mdData = items;
+        $ctrl.specialGoodsData = specialGoods;
+
+        if($ctrl.mdData.SPG_SPECIALGOODS != 0){
+            $ctrl.mdData['SPG_TYPE'] = $ctrl.mdData.SPG_SPECIALGOODS.toString();
+        }
+    }
+
+
+    $ctrl.ok = function() {
+        $uibModalInstance.close($ctrl.mdData);
+    };
+
+    $ctrl.cancel = function() {
+        $uibModalInstance.dismiss('cancel');
+    };
+})
+.controller('MultiSpecialGoodsModalInstanceCtrl', function ($uibModalInstance, specialGoods) {
+    var $ctrl = this;
+
+    $ctrl.Init = function(){
+        $ctrl.specialGoodsData = specialGoods;
+    }
+
+    $ctrl.ok = function() {
+        $uibModalInstance.close($ctrl.mdData);
+    };
+
+    $ctrl.cancel = function() {
+        $uibModalInstance.dismiss('cancel');
+    };
+})
+.controller('MergeNoResultModalInstanceCtrl', function ($uibModalInstance, job001Data, uiGridGroupingConstants) {
+    var $ctrl = this;
+    $ctrl.items = job001Data;
+
+    $ctrl.MdInit = function(){
+        DoMergeNoSplit();
+        // console.log($ctrl.job001DataHaveMergeNo);
+        // console.log($ctrl.job001DataNotMergeNo);
+    };
+
+    $ctrl.job001DataHaveMergeNoOption = {
+        data: '$ctrl.job001DataHaveMergeNo',
+        columnDefs: [
+            { name: 'Index'           , displayName: '序列', width: 50},
+            { name: 'IL_G1'           , displayName: '報關種類', width: 115 },
+            { name: 'IL_MERGENO'      , displayName: '併票號', width: 129, grouping: { groupPriority: 0 } },
+            { name: 'IL_BAGNO'        , displayName: '袋號', width: 129 },
+            { name: 'IL_SMALLNO'      , displayName: '小號', width: 115 },
+            { name: 'IL_NATURE'    , displayName: '品名', width: 115 },
+            { name: 'IL_NATURE_NEW'   , displayName: '新品名', width: 115, treeAggregationType: uiGridGroupingConstants.aggregation.MAX, 
+                customTreeAggregationFinalizerFn: function( aggregation ) {
+                    aggregation.rendered = aggregation.value;
+                }
+            },
+            { name: 'IL_CTN'          , displayName: '件數', width: 115, treeAggregationType: uiGridGroupingConstants.aggregation.SUM, 
+                customTreeAggregationFinalizerFn: function( aggregation ) {
+                    aggregation.rendered = aggregation.value;
+                }
+            },
+            { name: 'IL_PLACE'        , displayName: '產地', width: 115 },
+            { name: 'IL_NEWPLACE'     , displayName: '新產地', width: 115 },
+            { name: 'IL_WEIGHT'       , displayName: '重量', width: 115, treeAggregationType: uiGridGroupingConstants.aggregation.SUM, 
+                customTreeAggregationFinalizerFn: function( aggregation ) {
+                    aggregation.rendered = Math.round(aggregation.value * 100) / 100;
+                }
+            },
+            { name: 'IL_WEIGHT_NEW'   , displayName: '新重量', width: 115, treeAggregationType: uiGridGroupingConstants.aggregation.SUM, 
+                customTreeAggregationFinalizerFn: function( aggregation ) {
+                    // console.log(aggregation);
+                    aggregation.rendered = Math.round(aggregation.value * 100) / 100;
+                }
+            },
+            { name: 'IL_PCS'       , displayName: '數量', width: 115, treeAggregationType: uiGridGroupingConstants.aggregation.SUM, 
+                customTreeAggregationFinalizerFn: function( aggregation ) {
+                    aggregation.rendered = aggregation.value;
+                }
+            },
+            { name: 'IL_NEWPCS'       , displayName: '新數量', width: 115, treeAggregationType: uiGridGroupingConstants.aggregation.SUM, 
+                customTreeAggregationFinalizerFn: function( aggregation ) {
+                    // console.log(aggregation);
+                    aggregation.rendered = aggregation.value;
+                }
+            },
+            { name: 'IL_UNIVALENT'    , displayName: '單價', width: 115 },
+            { name: 'IL_UNIVALENT_NEW', displayName: '新單價', width: 115 },
+            { name: 'IL_FINALCOST'    , displayName: '完稅價格', width: 115 },
+            { name: 'IL_UNIT'         , displayName: '單位', width: 115 },
+            { name: 'IL_NEWUNIT'      , displayName: '新單位', width: 115 },
+            { name: 'IL_GETNO'        , displayName: '收件者統編', width: 115 },
+            { name: 'IL_EXNO'         , displayName: '匯出統編', width: 115 },
+            { name: 'IL_SENDNAME'     , displayName: '寄件人', width: 115 },
+            { name: 'IL_NEWSENDNAME'  , displayName: '新寄件人', width: 115 },
+            { name: 'IL_TAX'          , displayName: '稅費歸屬', width: 115 },
+            { name: 'IL_GETNAME'      , displayName: '收件人公司', width: 115 },
+            { name: 'IL_GETNAME_NEW'  , displayName: '新收件人公司', width: 115 },
+            { name: 'IL_GETADDRESS'   , displayName: '收件地址', width: 300 },
+            { name: 'IL_GETADDRESS_NEW', displayName: '新收件地址', width: 300 },
+            { name: 'IL_GETTEL'       , displayName: '收件電話', width: 115 },
+            { name: 'IL_EXTEL'        , displayName: '匯出電話', width: 115 },
+            { name: 'IL_TRCOM'        , displayName: '派送公司', width: 115 },
+            { name: 'IL_REMARK'       , displayName: '備註', width: 115 },
+            { name: 'IL_TAX2'         , displayName: '稅則', width: 115 }
+        ],
+        enableFiltering: false,
+        enableSorting: true,
+        enableColumnMenus: false,
+        groupingShowCounts: false,
+        // enableVerticalScrollbar: false,
+        paginationPageSizes: [50, 100, 150, 200, 250, 300],
+        paginationPageSize: 100,
+        onRegisterApi: function(gridApi){
+            $ctrl.job001DataHaveMergeNoGridApi = gridApi;
+            // HandleWindowResize($ctrl.job001DataHaveMergeNoGridApi);
+        }
+    };
+
+    $ctrl.job001DataNotMergeNoOption = {
+        data: '$ctrl.job001DataNotMergeNo',
+        columnDefs: [
+            { name: 'Index'           , displayName: '序列', width: 50},
+            { name: 'IL_G1'           , displayName: '報關種類', width: 80 },
+            { name: 'IL_MERGENO'      , displayName: '併票號', width: 80 },
+            { name: 'IL_BAGNO'        , displayName: '袋號', width: 80 },
+            { name: 'IL_SMALLNO'      , displayName: '小號', width: 110 },
+            { name: 'IL_NATURE'       , displayName: '品名', width: 120 },
+            { name: 'IL_NATURE_NEW'   , displayName: '新品名', width: 120 },
+            { name: 'IL_CTN'          , displayName: '件數', width: 50 },
+            { name: 'IL_PLACE'        , displayName: '產地', width: 50 },
+            { name: 'IL_NEWPLACE'     , displayName: '新產地', width: 70 },
+            { name: 'IL_WEIGHT'       , displayName: '重量', width: 70 },
+            { name: 'IL_WEIGHT_NEW'   , displayName: '新重量', width: 70 },
+            { name: 'IL_PCS'          , displayName: '數量', width: 70 },
+            { name: 'IL_NEWPCS'       , displayName: '新數量', width: 70 },
+            { name: 'IL_UNIVALENT'    , displayName: '單價', width: 70 },
+            { name: 'IL_UNIVALENT_NEW', displayName: '新單價', width: 70 },
+            { name: 'IL_FINALCOST'    , displayName: '完稅價格', width: 80 },
+            { name: 'IL_UNIT'         , displayName: '單位', width: 70 },
+            { name: 'IL_NEWUNIT'      , displayName: '新單位', width: 70 },
+            { name: 'IL_GETNO'        , displayName: '收件者統編', width: 100 },
+            { name: 'IL_EXNO'         , displayName: '匯出統編', width: 80 },
+            { name: 'IL_SENDNAME'     , displayName: '寄件人', width: 80 },
+            { name: 'IL_NEWSENDNAME'  , displayName: '新寄件人', width: 80 },
+            { name: 'IL_TAX'          , displayName: '稅費歸屬', width: 80 },
+            { name: 'IL_GETNAME'      , displayName: '收件人公司', width: 100 },
+            { name: 'IL_GETNAME_NEW'  , displayName: '新收件人公司', width: 100 },
+            { name: 'IL_GETADDRESS'   , displayName: '收件地址', width: 300 },
+            { name: 'IL_GETADDRESS_NEW', displayName: '新收件地址', width: 300 },
+            { name: 'IL_GETTEL'       , displayName: '收件電話', width: 100 },
+            { name: 'IL_EXTEL'        , displayName: '匯出電話', width: 100 },
+            { name: 'IL_TRCOM'        , displayName: '派送公司', width: 100 },
+            { name: 'IL_REMARK'       , displayName: '備註', width: 100 },
+            { name: 'IL_TAX2'         , displayName: '稅則', width: 100 }
+        ],
+        enableFiltering: false,
+        enableSorting: true,
+        enableColumnMenus: false,
+        // enableVerticalScrollbar: false,
+        paginationPageSizes: [50, 100, 150, 200, 250, 300],
+        paginationPageSize: 100,
+        onRegisterApi: function(gridApi){
+            $ctrl.job001DataNotMergeNoGridApi = gridApi;
+            // HandleWindowResize($ctrl.job001DataNotMergeNoGridApi);
+        }
+    }
+
+    function DoMergeNoSplit(){
+        $ctrl.job001DataHaveMergeNo = [];
+        $ctrl.job001DataNotMergeNo = [];
+
+        for(var i in job001Data){
+            if(job001Data[i].IL_MERGENO){
+                $ctrl.job001DataHaveMergeNo.push(job001Data[i]);
+            }else{
+                $ctrl.job001DataNotMergeNo.push(job001Data[i]);
+            }
+        }
+    }
+
+    $ctrl.ok = function() {
+        $uibModalInstance.close($ctrl.selected.item);
+    };
+
+    $ctrl.cancel = function() {
+        $uibModalInstance.dismiss('cancel');
+    };
+})
+.controller('RepeatDataModalInstanceCtrl', function ($uibModalInstance, $q, $scope, repeatData) {
+    var $ctrl = this;
+    $ctrl.mdData = repeatData;
+
+    $ctrl.repeatDataOption = {
+        data: '$ctrl.mdData',
+        columnDefs: [
+            { name: 'IL_G1'           , displayName: '報關種類', width: 80, headerCellClass: 'text-primary' },
+            { name: 'IL_MERGENO'      , displayName: '併票號', width: 80, headerCellClass: 'text-primary' },
+            { name: 'IL_BAGNO'        , displayName: '袋號', width: 80, headerCellClass: 'text-primary' },
+            { name: 'IL_SMALLNO'      , displayName: '小號', width: 110, headerCellClass: 'text-primary' },
+            { name: 'IL_NATURE'       , displayName: '品名', width: 120, enableCellEdit: false },
+            { name: 'IL_NATURE_NEW'   , displayName: '新品名', width: 120, headerCellClass: 'text-primary' },
+            { name: 'IL_CTN'          , displayName: '件數', width: 50, headerCellClass: 'text-primary' },
+            { name: 'IL_PLACE'        , displayName: '產地', width: 50, enableCellEdit: false },
+            { name: 'IL_NEWPLACE'     , displayName: '新產地', width: 70, headerCellClass: 'text-primary' },
+            { name: 'IL_WEIGHT'       , displayName: '重量', width: 70, enableCellEdit: false },
+            { name: 'IL_WEIGHT_NEW'   , displayName: '新重量', width: 70, headerCellClass: 'text-primary' },
+            { name: 'IL_PCS'          , displayName: '數量', width: 70, enableCellEdit: false },
+            { name: 'IL_NEWPCS'       , displayName: '新數量', width: 70, headerCellClass: 'text-primary' },
+            { name: 'IL_UNIVALENT'    , displayName: '單價', width: 70, enableCellEdit: false },
+            { name: 'IL_UNIVALENT_NEW', displayName: '新單價', width: 70, headerCellClass: 'text-primary' },
+            { name: 'IL_FINALCOST'    , displayName: '完稅價格', width: 80, headerCellClass: 'text-primary' },
+            { name: 'IL_UNIT'         , displayName: '單位', width: 70, enableCellEdit: false },
+            { name: 'IL_NEWUNIT'      , displayName: '新單位', width: 70, headerCellClass: 'text-primary' },
+            { name: 'IL_GETNO'        , displayName: '收件者統編', width: 100, headerCellClass: 'text-primary' },
+            { name: 'IL_EXNO'         , displayName: '匯出統編', width: 80, headerCellClass: 'text-primary' },
+            { name: 'IL_SENDNAME'     , displayName: '寄件人', width: 80, enableCellEdit: false },
+            { name: 'IL_NEWSENDNAME'  , displayName: '新寄件人', width: 80, headerCellClass: 'text-primary' },
+            { name: 'IL_TAX'          , displayName: '稅費歸屬', width: 80, headerCellClass: 'text-primary' },
+            { name: 'IL_GETNAME'      , displayName: '收件人公司', width: 100, enableCellEdit: false },
+            { name: 'IL_GETNAME_NEW'  , displayName: '新收件人公司', width: 100, headerCellClass: 'text-primary' },
+            { name: 'IL_GETADDRESS'   , displayName: '收件地址', width: 300, enableCellEdit: false },
+            { name: 'IL_GETADDRESS_NEW', displayName: '新收件地址', width: 300, headerCellClass: 'text-primary' },
+            { name: 'IL_GETTEL'       , displayName: '收件電話', width: 100, headerCellClass: 'text-primary' },
+            { name: 'IL_EXTEL'        , displayName: '匯出電話', width: 100, headerCellClass: 'text-primary' },
+            { name: 'IL_TRCOM'        , displayName: '派送公司', width: 100, headerCellClass: 'text-primary' },
+            { name: 'IL_REMARK'       , displayName: '備註', width: 100, headerCellClass: 'text-primary' },
+            { name: 'IL_TAX2'         , displayName: '稅則', width: 100, headerCellClass: 'text-primary' }
+
+            // { name: 'IL_G1'         , displayName: '報關種類', width: 115, headerCellClass: 'text-primary' },
+            // { name: 'IL_MERGENO'    , displayName: '併票號', width: 129, headerCellClass: 'text-primary' },
+            // { name: 'IL_BAGNO'      , displayName: '袋號', width: 129, headerCellClass: 'text-primary' },
+            // { name: 'IL_SMALLNO'    , displayName: '小號', width: 115, headerCellClass: 'text-primary' },
+            // { name: 'IL_NATURE'     , displayName: '品名', width: 115, enableCellEdit: false },
+            // { name: 'IL_NATURE_NEW' , displayName: '新品名', width: 115, headerCellClass: 'text-primary' },
+            // { name: 'IL_CTN'        , displayName: '件數', width: 115, headerCellClass: 'text-primary' },
+            // { name: 'IL_PLACE'      , displayName: '產地', width: 115, enableCellEdit: false },
+            // { name: 'IL_NEWPLACE'   , displayName: '新產地', width: 115, headerCellClass: 'text-primary' },
+            // { name: 'IL_WEIGHT'     , displayName: '重量', width: 115, enableCellEdit: false },
+            // { name: 'IL_WEIGHT_NEW' , displayName: '新重量', width: 115, headerCellClass: 'text-primary' },
+            // { name: 'IL_PCS'        , displayName: '數量', width: 115, enableCellEdit: false },
+            // { name: 'IL_NEWPCS'     , displayName: '新數量', width: 115, headerCellClass: 'text-primary' },
+            // { name: 'IL_UNIVALENT'  , displayName: '單價', width: 115, enableCellEdit: false },
+            // { name: 'IL_UNIVALENT_NEW', displayName: '新單價', width: 115, headerCellClass: 'text-primary' },
+            // { name: 'IL_FINALCOST'  , displayName: '完稅價格', width: 115, headerCellClass: 'text-primary' },
+            // { name: 'IL_UNIT'       , displayName: '單位', width: 115, enableCellEdit: false },
+            // { name: 'IL_NEWUNIT'    , displayName: '新單位', width: 115, headerCellClass: 'text-primary' },
+            // { name: 'IL_GETNO'      , displayName: '收件者統編', width: 115, headerCellClass: 'text-primary' },
+            // { name: 'IL_EXNO'       , displayName: '匯出統編', width: 115, headerCellClass: 'text-primary' },
+            // { name: 'IL_SENDNAME'   , displayName: '寄件人', width: 115, enableCellEdit: false },
+            // { name: 'IL_NEWSENDNAME', displayName: '新寄件人', width: 115, headerCellClass: 'text-primary' },
+            // { name: 'IL_TAX'        , displayName: '稅費歸屬', width: 115, headerCellClass: 'text-primary' },
+            // { name: 'IL_GETNAME'    , displayName: '收件人公司', width: 115, enableCellEdit: false },
+            // { name: 'IL_GETNAME_NEW', displayName: '新收件人公司', width: 115, headerCellClass: 'text-primary' },
+            // { name: 'IL_GETADDRESS' , displayName: '收件地址', width: 300, enableCellEdit: false },
+            // { name: 'IL_GETADDRESS_NEW' , displayName: '新收件地址', width: 300, headerCellClass: 'text-primary' },
+            // { name: 'IL_GETTEL'     , displayName: '收件電話', width: 115, headerCellClass: 'text-primary' },
+            // { name: 'IL_EXTEL'      , displayName: '匯出電話', width: 115, headerCellClass: 'text-primary' },
+            // { name: 'IL_TRCOM'      , displayName: '派送公司', width: 115, headerCellClass: 'text-primary' },
+            // { name: 'IL_REMARK'     , displayName: '備註', width: 115, headerCellClass: 'text-primary' },
+            // { name: 'IL_TAX2'       , displayName: '稅則', width: 115, headerCellClass: 'text-primary' }
+        ],
+        enableFiltering: false,
+        enableSorting: true,
+        enableColumnMenus: false,
+        // enableVerticalScrollbar: false,
+        paginationPageSizes: [50, 100, 150, 200, 250, 300],
+        paginationPageSize: 100,
+        rowEditWaitInterval: -1,
+        onRegisterApi: function(gridApi){
+            $ctrl.repeatDataGridApi = gridApi;
+        }
+    }
+
+    $ctrl.ok = function() {
+        $uibModalInstance.close($ctrl.repeatDataGridApi.rowEdit.getDirtyRows());
+    };
+
+    $ctrl.cancel = function() {
+        $uibModalInstance.dismiss('cancel');
+    };
+})
+.controller('OverSixModalInstanceCtrl', function ($uibModalInstance, $q, $scope, $templateCache, overSixData, type) {
+    var $ctrl = this;
+    $ctrl.type = type;
+    $ctrl.mdData = overSixData;
+
+    $ctrl.overSixOption = {
+        data: '$ctrl.mdData',
+        columnDefs: [
+            { name: 'IL_G1'           , displayName: '報關種類', width: 80, headerCellClass: 'text-primary' },
+            { name: 'IL_MERGENO'      , displayName: '併票號', width: 80, headerCellClass: 'text-primary' },
+            { name: 'IL_BAGNO'        , displayName: '袋號', width: 80, headerCellClass: 'text-primary' },
+            { name: 'IL_SMALLNO'      , displayName: '小號', width: 110, headerCellClass: 'text-primary' },
+            { name: 'IL_NATURE'       , displayName: '品名', width: 120, enableCellEdit: false },
+            { name: 'IL_NATURE_NEW'   , displayName: '新品名', width: 120, headerCellClass: 'text-primary' },
+            { name: 'IL_CTN'          , displayName: '件數', width: 50, headerCellClass: 'text-primary' },
+            { name: 'IL_PLACE'        , displayName: '產地', width: 50, enableCellEdit: false },
+            { name: 'IL_NEWPLACE'     , displayName: '新產地', width: 70, headerCellClass: 'text-primary' },
+            { name: 'IL_WEIGHT'       , displayName: '重量', width: 70, enableCellEdit: false },
+            { name: 'IL_WEIGHT_NEW'   , displayName: '新重量', width: 70, headerCellClass: 'text-primary' },
+            { name: 'IL_PCS'          , displayName: '數量', width: 70, enableCellEdit: false },
+            { name: 'IL_NEWPCS'       , displayName: '新數量', width: 70, headerCellClass: 'text-primary' },
+            { name: 'IL_UNIVALENT'    , displayName: '單價', width: 70, enableCellEdit: false },
+            { name: 'IL_UNIVALENT_NEW', displayName: '新單價', width: 70, headerCellClass: 'text-primary' },
+            { name: 'IL_FINALCOST'    , displayName: '完稅價格', width: 80, headerCellClass: 'text-primary' },
+            { name: 'IL_UNIT'         , displayName: '單位', width: 70, enableCellEdit: false },
+            { name: 'IL_NEWUNIT'      , displayName: '新單位', width: 70, headerCellClass: 'text-primary' },
+            { name: 'IL_GETNO'        , displayName: '收件者統編', width: 100, headerCellClass: 'text-primary' },
+            { name: 'IL_EXNO'         , displayName: '匯出統編', width: 80, headerCellClass: 'text-primary' },
+            { name: 'IL_SENDNAME'     , displayName: '寄件人', width: 80, enableCellEdit: false },
+            { name: 'IL_NEWSENDNAME'  , displayName: '新寄件人', width: 80, headerCellClass: 'text-primary' },
+            { name: 'IL_TAX'          , displayName: '稅費歸屬', width: 80, headerCellClass: 'text-primary' },
+            { name: 'IL_GETNAME'      , displayName: '收件人公司', width: 100, enableCellEdit: false },
+            { name: 'IL_GETNAME_NEW'  , displayName: '新收件人公司', width: 100, headerCellClass: 'text-primary' },
+            { name: 'IL_GETADDRESS'   , displayName: '收件地址', width: 300, enableCellEdit: false },
+            { name: 'IL_GETADDRESS_NEW', displayName: '新收件地址', width: 300, headerCellClass: 'text-primary' },
+            { name: 'IL_GETTEL'       , displayName: '收件電話', width: 100, headerCellClass: 'text-primary' },
+            { name: 'IL_EXTEL'        , displayName: '匯出電話', width: 100, headerCellClass: 'text-primary' },
+            { name: 'IL_TRCOM'        , displayName: '派送公司', width: 100, headerCellClass: 'text-primary' },
+            { name: 'IL_REMARK'       , displayName: '備註', width: 100, headerCellClass: 'text-primary' },
+            { name: 'IL_TAX2'         , displayName: '稅則', width: 100, headerCellClass: 'text-primary' },
+            { name: 'GETNAME_COUNT'   , displayName: '收件人公司', width: 100, headerCellClass: 'text-danger', enableCellEdit: false, pinnedRight:true, cellTemplate: $templateCache.get('accessibilityToOverSixName') },
+            { name: 'GETADDRESS_COUNT', displayName: '收件地址', width: 100, headerCellClass: 'text-danger', enableCellEdit: false, pinnedRight:true, cellTemplate: $templateCache.get('accessibilityToOverSixAddress') }
+            
+            // { name: 'IL_G1'         , displayName: '報關種類', width: 115, headerCellClass: 'text-primary' },
+            // { name: 'IL_MERGENO'    , displayName: '併票號', width: 129, headerCellClass: 'text-primary' },
+            // { name: 'IL_BAGNO'      , displayName: '袋號', width: 129, headerCellClass: 'text-primary' },
+            // { name: 'IL_SMALLNO'    , displayName: '小號', width: 115, headerCellClass: 'text-primary' },
+            // { name: 'IL_NATURE'     , displayName: '品名', width: 115, enableCellEdit: false },
+            // { name: 'IL_NATURE_NEW' , displayName: '新品名', width: 115, headerCellClass: 'text-primary' },
+            // { name: 'IL_CTN'        , displayName: '件數', width: 115, headerCellClass: 'text-primary' },
+            // { name: 'IL_PLACE'      , displayName: '產地', width: 115, enableCellEdit: false },
+            // { name: 'IL_NEWPLACE'   , displayName: '新產地', width: 115, headerCellClass: 'text-primary' },
+            // { name: 'IL_WEIGHT'     , displayName: '重量', width: 115, enableCellEdit: false },
+            // { name: 'IL_WEIGHT_NEW' , displayName: '新重量', width: 115, headerCellClass: 'text-primary' },
+            // { name: 'IL_PCS'        , displayName: '數量', width: 115, enableCellEdit: false },
+            // { name: 'IL_NEWPCS'     , displayName: '新數量', width: 115, headerCellClass: 'text-primary' },
+            // { name: 'IL_UNIVALENT'  , displayName: '單價', width: 115, enableCellEdit: false },
+            // { name: 'IL_UNIVALENT_NEW', displayName: '新單價', width: 115, headerCellClass: 'text-primary' },
+            // { name: 'IL_FINALCOST'  , displayName: '完稅價格', width: 115, headerCellClass: 'text-primary' },
+            // { name: 'IL_UNIT'       , displayName: '單位', width: 115, enableCellEdit: false },
+            // { name: 'IL_NEWUNIT'    , displayName: '新單位', width: 115, headerCellClass: 'text-primary' },
+            // { name: 'IL_GETNO'      , displayName: '收件者統編', width: 115, headerCellClass: 'text-primary' },
+            // { name: 'IL_EXNO'       , displayName: '匯出統編', width: 115, headerCellClass: 'text-primary' },
+            // { name: 'IL_SENDNAME'   , displayName: '寄件人', width: 115, enableCellEdit: false },
+            // { name: 'IL_NEWSENDNAME', displayName: '新寄件人', width: 115, headerCellClass: 'text-primary' },
+            // { name: 'IL_TAX'        , displayName: '稅費歸屬', width: 115, headerCellClass: 'text-primary' },
+            // { name: 'IL_GETNAME'    , displayName: '收件人公司', width: 115, enableCellEdit: false },
+            // { name: 'IL_GETNAME_NEW', displayName: '新收件人公司', width: 115, headerCellClass: 'text-primary' },
+            // { name: 'IL_GETADDRESS' , displayName: '收件地址', width: 300, enableCellEdit: false },
+            // { name: 'IL_GETADDRESS_NEW' , displayName: '新收件地址', width: 300, headerCellClass: 'text-primary' },
+            // { name: 'IL_GETTEL'     , displayName: '收件電話', width: 115, headerCellClass: 'text-primary' },
+            // { name: 'IL_EXTEL'      , displayName: '匯出電話', width: 115, headerCellClass: 'text-primary' },
+            // { name: 'IL_TRCOM'      , displayName: '派送公司', width: 115, headerCellClass: 'text-primary' },
+            // { name: 'IL_REMARK'     , displayName: '備註', width: 115, headerCellClass: 'text-primary' },
+            // { name: 'IL_TAX2'       , displayName: '稅則', width: 115, headerCellClass: 'text-primary' },
+            // { name: 'GETNAME_COUNT'   , displayName: '收件人公司', width: 115, headerCellClass: 'text-danger', enableCellEdit: false, pinnedRight:true },
+            // { name: 'GETADDRESS_COUNT', displayName: '收件地址', width: 115, headerCellClass: 'text-danger', enableCellEdit: false, pinnedRight:true }
+
+        ],
+        enableFiltering: false,
+        enableSorting: true,
+        enableColumnMenus: false,
+        // enableVerticalScrollbar: false,
+        paginationPageSizes: [50, 100, 150, 200, 250, 300],
+        paginationPageSize: 100,
+        rowEditWaitInterval: -1,
+        onRegisterApi: function(gridApi){
+            $ctrl.overSixGridApi = gridApi;
+        }
+    }
+
+    $ctrl.ok = function() {
+        $uibModalInstance.close($ctrl.overSixGridApi.rowEdit.getDirtyRows());
+    };
+
+    $ctrl.cancel = function() {
+        $uibModalInstance.dismiss('cancel');
+    };
+});
+"use strict";
+
+angular.module('app.selfwork').controller('Job002Ctrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, RestfulApi, uiGridConstants, $filter, $q, ToolboxApi) {
+    // console.log($stateParams, $state);
+
+    var $vm = this,
+        cellClassEditabled = [];
+
+    angular.extend(this, {
+        Init : function(){
+            // 不正常登入此頁面
+            if($stateParams.data == null){
+                ReturnToEmployeejobsPage();
+            }else{
+                $vm.bigBreadcrumbsItems = $state.current.name.split(".");
+                $vm.bigBreadcrumbsItems.shift();
+                
+                $vm.vmData = $stateParams.data;
+
+                // 測試用
+                // if($vm.vmData == null){
+                //     $vm.vmData = {
+                //         OL_SEQ : 'Co0001Co000120170712205825'
+                //     };
+                // }
+                
+                LoadFlightItemList();
+            }
+        },
+        profile : Session.Get(),
+        defaultChoice : 'Left',
+        job002Options : {
+            data: '$vm.job002Data',
+            columnDefs: [
+                // { name: 'Index'           , displayName: '序列', width: 50, enableCellEdit: false, enableFiltering: false, headerCellClass: 'text-muted'},
+                { name: 'FLL_ITEM'        , displayName: '序號', enableCellEdit: false },
+                { name: 'BAGNO_MATCH'     , displayName: '內貨', enableCellEdit: false, cellTemplate: $templateCache.get('accessibilityToInternalGoods'), filter: 
+                    {
+                        term: null,
+                        type: uiGridConstants.filter.SELECT,
+                        selectOptions: [
+                            {label:'否', value: '0'},
+                            {label:'是', value: '1'}
+                        ]
+                    }
+                },
+                { name: 'FLL_BAGNO'       , displayName: '袋號', headerCellClass: 'text-primary' },
+                { name: 'FLL_CTN'         , displayName: '件數', headerCellClass: 'text-primary', aggregationType: uiGridConstants.aggregationTypes.sum },
+                { name: 'FLL_WEIGHT'      , displayName: '重量', headerCellClass: 'text-primary', aggregationType: uiGridConstants.aggregationTypes.sum, footerCellFilter: 'number: 2' },
+                { name: 'FLL_DESCRIPTION' , displayName: '品名', headerCellClass: 'text-primary' },
+                { name: 'FLL_DECLAREDNO'  , displayName: '宣告序號', headerCellClass: 'text-primary' },
+                { name: 'FLL_REMARK'      , displayName: '備註', headerCellClass: 'text-primary' }
+            ],
+            enableFiltering: true,
+            enableSorting: true,
+            enableColumnMenus: false,
+            // enableVerticalScrollbar: false,
+		    enableRowSelection: true,
+    		enableSelectAll: true,
+            showColumnFooter: true,
+            // paginationPageSizes: [50, 100, 150, 200, 250, 300],
+            // paginationPageSize: 100,
+            onRegisterApi: function(gridApi){
+                $vm.job002GridApi = gridApi;
+
+                gridApi.rowEdit.on.saveRow($scope, $vm.Update);
+            }
+        },
+        // 修改品名
+        ModifyDescription: function(){
+
+            if($vm.job002GridApi.selection.getSelectedRows().length > 0){
+                var modalInstance = $uibModal.open({
+                    animation: true,
+                    ariaLabelledBy: 'modal-title',
+                    ariaDescribedBy: 'modal-body',
+                    templateUrl: 'modifyDescriptionModalContent.html',
+                    controller: 'ModifyDescriptionModalInstanceCtrl',
+                    controllerAs: '$ctrl',
+                    // size: 'lg',
+                    // appendTo: parentElem,
+                });
+
+                modalInstance.result.then(function(selectedItem) {
+                    // console.log(selectedItem);
+
+                    var _tasks = [];
+
+                    for(var i in $vm.job002GridApi.selection.getSelectedRows()){
+                        _tasks.push({
+                            crudType: 'Update',
+                            table: 10,
+                            params: {
+                                FLL_DESCRIPTION : selectedItem.FLL_DESCRIPTION,
+                                FLL_UP_USER     : $vm.profile.U_ID,
+                                FLL_UP_DATETIME : $filter('date')(new Date, 'yyyy-MM-dd HH:mm:ss')
+                            },
+                            condition: {
+                                FLL_SEQ         : $vm.job002GridApi.selection.getSelectedRows()[i].FLL_SEQ,
+                                FLL_IL_NEWBAGNO : $vm.job002GridApi.selection.getSelectedRows()[i].FLL_IL_NEWBAGNO
+                            }
+                        })
+                    }
+                    console.log(_tasks);
+
+                    RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res){
+                        if(res["returnData"].length > 0){
+
+                            LoadFlightItemList();
+                            toaster.pop('success', '訊息', '更新成功', 3000);
+                        }
+                    }, function (err) {
+                        toaster.pop('danger', '錯誤', '更新失敗', 3000);
+                    }).finally(function(){
+                        $vm.job002GridApi.selection.clearSelectedRows();
+                    }); 
+
+                }, function() {
+                    // $log.info('Modal dismissed at: ' + new Date());
+                });
+            }else{
+                toaster.pop('info', '訊息', '未選擇需要被更新的項目', 3000);
+            }
+        },
+        // 新增
+        Add: function(){
+
+            var modalInstance = $uibModal.open({
+                animation: true,
+                ariaLabelledBy: 'modal-title',
+                ariaDescribedBy: 'modal-body',
+                templateUrl: 'addItemModalContent.html',
+                controller: 'AddItemModalInstanceCtrl',
+                controllerAs: '$ctrl',
+                // size: 'lg',
+                // appendTo: parentElem,
+                resolve: {
+                    items: function() {
+                        return $vm.job002Data;
+                    }
+                }
+            });
+
+            modalInstance.result.then(function(selectedItem) {
+                // console.log(selectedItem);
+
+                selectedItem["FLL_CR_USER"] = $vm.profile.U_ID;
+                selectedItem["FLL_CR_DATETIME"] = $filter('date')(new Date, 'yyyy-MM-dd HH:mm:ss');
+                
+                RestfulApi.InsertMSSQLData({
+                    insertname: 'Insert',
+                    table: 10,
+                    params: selectedItem
+                }).then(function (res) {
+                    if(res["returnData"] == 1){
+                        LoadFlightItemList();
+                        toaster.pop('success', '訊息', '新增成功', 3000);
+                    }
+                });
+
+            }, function() {
+                // $log.info('Modal dismissed at: ' + new Date());
+            });
+        },
+        // 刪除
+        Delete: function(){
+            if($vm.job002GridApi.selection.getSelectedRows().length > 0){
+
+                var modalInstance = $uibModal.open({
+                    animation: true,
+                    ariaLabelledBy: 'modal-title',
+                    ariaDescribedBy: 'modal-body',
+                    template: $templateCache.get('isChecked'),
+                    controller: 'IsCheckedModalInstanceCtrl',
+                    controllerAs: '$ctrl',
+                    size: 'sm',
+                    windowClass: 'center-modal',
+                    // appendTo: parentElem,
+                    resolve: {
+                        items: function() {
+                            return {};
+                        },
+                        show: function(){
+                            return {
+                                title : "是否刪除"
+                            }
+                        }
+                    }
+                });
+
+                modalInstance.result.then(function(selectedItem) {
+
+                    var _tasks = [];
+
+                    for(var i in $vm.job002GridApi.selection.getSelectedRows()){
+                        _tasks.push({
+                            crudType: 'Delete',
+                            table: 10,
+                            params: {
+                                FLL_SEQ         : $vm.job002GridApi.selection.getSelectedRows()[i].FLL_SEQ,
+                                FLL_IL_NEWBAGNO : $vm.job002GridApi.selection.getSelectedRows()[i].FLL_IL_NEWBAGNO
+                            }
+                        })
+                    }
+
+                    RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res){
+                        if(res["returnData"].length > 0){
+
+                            LoadFlightItemList();
+                            toaster.pop('success', '訊息', '刪除成功', 3000);
+                        }
+                    }, function (err) {
+                        toaster.pop('danger', '錯誤', '刪除失敗', 3000);
+                    }).finally(function(){
+                        $vm.job002GridApi.selection.clearSelectedRows();
+                    }); 
+
+                }, function() {
+                    // $log.info('Modal dismissed at: ' + new Date());
+                });
+            }else{
+                toaster.pop('info', '訊息', '未選擇需要被刪除的項目', 3000);
+            }
+        },
+        // 匯出Excel
+        ExportExcel: function(){
+
+            var _exportName = $filter('date')($vm.vmData.OL_IMPORTDT, 'yyyyMMdd', 'GMT') + ' ' + 
+                              $vm.vmData.OL_MASTER + ' ' + 
+                              $vm.vmData.OL_FLIGHTNO;
+                // _totalBag = 0,
+                // _totalWeight = 0;
+
+            // 計算件數和重量
+            // for(var i in $vm.job002Data){
+            //     _totalBag += $vm.job002Data[i].FLL_CTN;
+            //     _totalWeight += $vm.job002Data[i].FLL_WEIGHT;
+            // }
+
+            ToolboxApi.ExportExcelByMultiSql([
+                {
+                    templates      : 5,
+                    filename       : _exportName,
+                    OL_MASTER      : $vm.vmData.OL_MASTER,
+                    OL_IMPORTDT    : $filter('date')($vm.vmData.OL_IMPORTDT, 'yyyy/MM/dd', 'GMT'),
+                    OL_FLIGHTNO    : $vm.vmData.OL_FLIGHTNO,
+                    OL_COUNTRY     : $vm.vmData.OL_COUNTRY, 
+                    OL_TEL         : $vm.vmData.OL_TEL, 
+                    OL_FAX         : $vm.vmData.OL_FAX, 
+                    OL_TOTALBAG    : $vm.job002GridApi.grid.columns[4].getAggregationValue(), 
+                    OL_TOTALWEIGHT : $vm.job002GridApi.grid.columns[5].getAggregationValue().toFixed(2)
+                },
+                {
+                    crudType: 'Select',
+                    querymain: 'job002',
+                    queryname: 'SelectFlightItemList',
+                    params: {               
+                        FLL_SEQ: $vm.vmData.OL_SEQ
+                    }
+                },
+                {
+                    crudType: 'Select',
+                    querymain: 'job002',
+                    queryname: 'SelectRemark',
+                    params: {               
+                        FLL_SEQ: $vm.vmData.OL_SEQ
+                    }
+                }
+            ]).then(function (res) {
+                // console.log(res);
+            });
+
+        },
+        // 底部編輯
+        EditorRemark: function(){
+
+            RestfulApi.SearchMSSQLData({
+                querymain: 'job002',
+                queryname: 'SelectRemark',
+                params: {               
+                    FLL_SEQ: $vm.vmData.OL_SEQ
+                }
+            }).then(function (res){
+                console.log(res["returnData"]);
+            
+                var modalInstance = $uibModal.open({
+                    animation: true,
+                    ariaLabelledBy: 'modal-title',
+                    ariaDescribedBy: 'modal-body',
+                    templateUrl: 'editorRemarkModalContent.html',
+                    controller: 'EditorRemarkModalInstanceCtrl',
+                    controllerAs: '$ctrl',
+                    // size: 'sm',
+                    // appendTo: parentElem,
+                    resolve: {
+                        items: function() {
+                            return res["returnData"];
+                        }
+                    }
+                });
+
+                modalInstance.result.then(function(selectedItem) {
+
+                    console.log(selectedItem);
+
+                    var _tasks = [];
+
+                    _tasks.push({
+                        crudType: 'Delete',
+                        table: 28,
+                        params: {
+                            FLLR_SEQ : $vm.vmData.OL_SEQ
+                        }
+                    })
+
+                    for(var i in selectedItem){
+                        _tasks.push({
+                            crudType: 'Insert',
+                            table: 28,
+                            params: {
+                                FLLR_SEQ         : $vm.vmData.OL_SEQ,
+                                FLLR_ROWINDEX    : i,
+                                FLLR_REMARK      : selectedItem[i].text,
+                                FLLR_CR_USER     : $vm.profile.U_ID,
+                                FLLR_CR_DATETIME : $filter('date')(new Date, 'yyyy-MM-dd HH:mm:ss')
+                            }
+                        })
+                    }
+
+                    RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res){
+                        if(res["returnData"].length > 0){
+
+                            toaster.pop('success', '訊息', '底部編輯成功', 3000);
+                        }
+                    }, function (err) {
+                        toaster.pop('danger', '錯誤', '底部編輯失敗', 3000);
+                    });
+
+                }, function() {
+                    // $log.info('Modal dismissed at: ' + new Date());
+                });
+            }); 
+        },
+        // 寄信
+        SendMail: function(){
+
+            RestfulApi.SearchMSSQLData({
+                querymain: 'aviationMail',
+                queryname: 'SelectFlightMailPair',
+                params: {
+                    FMP_FLIGHTNO : $vm.vmData.OL_FLIGHTNO
+                }
+            }).then(function (res){
+                // console.log(res["returnData"]);
+
+                var modalInstance = $uibModal.open({
+                    animation: true,
+                    ariaLabelledBy: 'modal-title',
+                    ariaDescribedBy: 'modal-body',
+                    templateUrl: 'choiceMailModalContent.html',
+                    controller: 'ChoiceMailModalInstanceCtrl',
+                    controllerAs: '$ctrl',
+                    size: 'lg',
+                    backdrop: 'static',
+                    resolve: {
+                        items: function() {
+                            return res["returnData"];
+                        }
+                    }
+                });
+
+                modalInstance.result.then(function(selectedItem) {
+                    // console.log(selectedItem);
+                    var _flightMail = selectedItem;
+
+                    modalInstance = $uibModal.open({
+                        animation: true,
+                        ariaLabelledBy: 'modal-title',
+                        ariaDescribedBy: 'modal-body',
+                        templateUrl: 'sendMailModalContent.html',
+                        controller: 'SendMailModalInstanceCtrl',
+                        controllerAs: '$ctrl',
+                        size: 'lg',
+                        backdrop: 'static',
+                        resolve: {
+                            items: function() {
+                                return _flightMail;
+                            },
+                            data: function(){
+
+                                var _exportName = $filter('date')($vm.vmData.OL_IMPORTDT, 'yyyyMMdd', 'GMT') + ' ' + 
+                                                  $filter('compyFilter')($vm.vmData.OL_CO_CODE) + ' ' + 
+                                                  $vm.vmData.OL_FLIGHTNO;
+
+                                $vm.vmData["_exportName"] = _exportName;
+                                $vm.vmData["OL_IMPORTDT"] = $filter('date')($vm.vmData.OL_IMPORTDT, 'yyyy-MM-dd', 'GMT');
+                                $vm.vmData["OL_TOTALBAG"] = $vm.job002GridApi.grid.columns[4].getAggregationValue();
+                                $vm.vmData["OL_TOTALWEIGHT"] = $vm.job002GridApi.grid.columns[5].getAggregationValue().toFixed(2);
+
+                                return $vm.vmData;
+                            },
+                            profile: function(){
+                                return $vm.profile
+                            }
+                        }
+                    });
+
+                    modalInstance.result.then(function(selectedItem) {
+                        console.log(_flightMail);
+
+                        if(selectedItem == "ok"){
+
+                            RestfulApi.InsertMSSQLData({
+                                insertname: 'Insert',
+                                table: 31,
+                                params: {
+                                    FML_SEQ : $vm.vmData.OL_SEQ,
+                                    FML_SENDER  : $vm.profile.U_ID,
+                                    FML_SEND_DATETIME : $filter('date')(new Date(), 'yyyy-MM-dd HH:mm:ss'),
+                                    FML_CR_USER : _flightMail[0].FM_CR_USER,
+                                    FML_CR_DATETIME : _flightMail[0].FM_CR_DATETIME
+                                }
+                            }).then(function(_res) {
+
+                                if(_res["returnData"] == 1){
+                                    toaster.pop('success', '訊息', '寄信成功', 3000);
+                                }
+
+                            });
+                            
+                        }else{
+                            toaster.pop('danger', '錯誤', '寄信失敗', 3000);
+                        }
+                    }, function() {
+                        // $log.info('Modal dismissed at: ' + new Date());
+                    });
+
+                }, function() {
+                    // $log.info('Modal dismissed at: ' + new Date());
+                });
+            }); 
+        },
+        Return : function(){
+            ReturnToEmployeejobsPage();
+        },
+        Update : function(entity){
+            // create a fake promise - normally you'd use the promise returned by $http or $resource
+            var promise = $q.defer();
+            $vm.job002GridApi.rowEdit.setSavePromise( entity, promise.promise );
+         
+            RestfulApi.UpdateMSSQLData({
+                updatename: 'Update',
+                table: 10,
+                params: {
+                    // FLL_ITEM         : entity.FLL_ITEM,
+                    FLL_BAGNO        : entity.FLL_BAGNO,
+                    FLL_CTN          : entity.FLL_CTN,
+                    FLL_WEIGHT       : entity.FLL_WEIGHT,
+                    FLL_DESCRIPTION  : entity.FLL_DESCRIPTION,
+                    FLL_DECLAREDNO   : entity.FLL_DECLAREDNO,
+                    FLL_REMARK       : entity.FLL_REMARK
+                },
+                condition: {
+                    FLL_SEQ         : entity.FLL_SEQ,
+                    FLL_IL_NEWBAGNO : entity.FLL_IL_NEWBAGNO
+                }
+            }).then(function (res) {
+                promise.resolve();
+            }, function (err) {
+                toaster.pop('danger', '錯誤', '更新失敗', 3000);
+                promise.reject();
+            });
+        }
+    });
+
+    function LoadFlightItemList(){
+        RestfulApi.SearchMSSQLData({
+            querymain: 'job002',
+            queryname: 'SelectFlightItemList',
+            params: {
+                FLL_SEQ: $vm.vmData.OL_SEQ
+            }
+        }).then(function (res){
+            console.log(res["returnData"]);
+            // for(var i=0;i<res["returnData"].length;i++){
+            //     res["returnData"][i]["Index"] = i+1;
+            // }
+            $vm.job002Data = res["returnData"];
+        }).finally(function() {
+            HandleWindowResize($vm.job002GridApi);
+        }); 
+    };
+
+    function ReturnToEmployeejobsPage(){
+        $state.transitionTo($state.current.parent);
+    };
+
+})
+.controller('ModifyDescriptionModalInstanceCtrl', function ($uibModalInstance) {
+    var $ctrl = this;
+
+    $ctrl.Init = function(){
+        $ctrl.mdData = {
+            FLL_DESCRIPTION : "CHANDLERY"
+        };
+    }
+
+    $ctrl.ok = function() {
+        $uibModalInstance.close($ctrl.mdData);
+    };
+
+    $ctrl.cancel = function() {
+        $uibModalInstance.dismiss('cancel');
+    };
+})
+.controller('AddItemModalInstanceCtrl', function ($uibModalInstance, items) {
+    var $ctrl = this;
+
+    $ctrl.Init = function(){
+        var _length = items.length;
+        if(_length > 0){
+            var _temp = items[_length-1];
+            $ctrl.mdData = {
+                FLL_SEQ : _temp.FLL_SEQ,
+                FLL_ITEM : parseInt(_temp.FLL_ITEM) + 1,
+                FLL_IL_NEWBAGNO : _temp.FLL_SEQ + padLeft("0" + parseInt(_temp.FLL_ITEM), 3),
+                FLL_DESCRIPTION : "CHANDLERY",
+                FLL_DECLAREDNO : "",
+                FLL_REMARK : "請進遠雄快遞倉"
+            };
+        }
+    }
+
+    $ctrl.ok = function() {
+        $uibModalInstance.close($ctrl.mdData);
+    };
+
+    $ctrl.cancel = function() {
+        $uibModalInstance.dismiss('cancel');
+    };
+})
+.controller('EditorRemarkModalInstanceCtrl', function ($uibModalInstance, items) {
+    var $ctrl = this;
+
+    $ctrl.Init = function(){
+        $ctrl.mdData = [];
+
+        for(var i in items){
+            $ctrl.mdData.push({
+                id : i,
+                text : items[i].FLLR_REMARK
+            });
+        }
+    }
+
+    $ctrl.ok = function() {
+        $uibModalInstance.close($ctrl.mdData);
+    };
+
+    $ctrl.cancel = function() {
+        $uibModalInstance.dismiss('cancel');
+    };
+})
+.controller('ChoiceMailModalInstanceCtrl', function ($uibModalInstance, $filter, $timeout, items) {
+    var $ctrl = this;
+    $ctrl.mdData = items;
+
+    // 把已被選取的郵件目標打勾
+    $timeout(function() {
+        if($ctrl.mdDataGridApi.selection.selectRow){
+            $ctrl.mdDataGridApi.selection.selectRow($filter('filter')($ctrl.mdData, {isChoice: 1})[0]);
+        }
+    });
+
+    $ctrl.mdDataOptions = {
+        data:  '$ctrl.mdData',
+        columnDefs: [
+            { name: 'FM_TARGET', displayName: '目標名稱', width: '100' },
+            { name: 'FM_MAIL'  , displayName: '信箱' }
+        ],
+        enableFiltering: true,
+        enableSorting: true,
+        enableColumnMenus: false,
+        multiSelect: false,
+        // enableVerticalScrollbar: false,
+        paginationPageSizes: [10, 25, 50, 100],
+        paginationPageSize: 100,
+        onRegisterApi: function(gridApi){
+            $ctrl.mdDataGridApi = gridApi;
+        }
+    }
+
+    $ctrl.ok = function() {
+        $uibModalInstance.close($ctrl.mdDataGridApi.selection.getSelectedRows());
+    };
+
+    $ctrl.cancel = function() {
+        $uibModalInstance.dismiss('cancel');
+    };
+})
+.controller('SendMailModalInstanceCtrl', function ($uibModalInstance, RestfulApi, ToolboxApi, SUMMERNOT_CONFIG, $filter, FileUploader, items, data, profile) {
+    var $ctrl = this,
+        _d = new Date(),
+        _filepath = _d.getFullYear() + '\\' + ("0" + (_d.getMonth()+1)).slice(-2) + '\\' + ("0" + _d.getDate()).slice(-2) + '\\';
+
+    $ctrl.Init = function(){
+        var _mail = angular.copy(items[0].FM_MAIL.split(";"));
+        items[0].FM_MAIL = [];
+        for(var i in _mail){
+            items[0].FM_MAIL.push({
+                text : _mail[i]
+            });
+        }
+
+        $ctrl.mdData = angular.copy(items[0]);
+        $ctrl.snOptions = SUMMERNOT_CONFIG;
+
+        LoadFMAF();
+    }
+
+    $ctrl.uploader = new FileUploader({
+        url: '/toolbox/uploadFile?filePath='+_filepath
+    })
+
+    // Upload Filters
+    $ctrl.uploader.filters.push({
+        name: 'queueFilter',
+        fn: function(item /*{File|FileLikeObject}*/, options) {
+            // return this.queue.length < $scope.optionParam.UploadQueue;
+            return this.queue.length < 10;
+        }
+    });
+
+    $ctrl.uploader.filters.push({
+        name: 'sizeFilter',
+        fn: function(item /*{File|FileLikeObject}*/, options) {
+            // return item.size < $scope.optionParam.UploadSize * 1000 * 1000;
+            return item.size < 10 * 1000 * 1000;
+        }
+    });
+
+    // 處理已上傳的部分 : 當相同檔名時，不可上傳
+    $ctrl.uploader.filters.push({
+        name: 'nameFilter',
+        fn: function(item /*{File|FileLikeObject}*/, options) {
+            var uploadedDataLength = ($filter('filter')($ctrl.mdData.UploadedData, {FMAF_O_FILENAME: item.name})).length;
+            
+            if(uploadedDataLength > 0){
+                toaster.pop('info', "訊息", "已上傳過相同的檔名。", 3000);
+                return false;
+            }else{
+                return true;
+            }
+        }
+    });
+
+    // 處理未上傳的部分 : 當相同檔名時，不可上傳
+    FileUploader.FileSelect.prototype.isEmptyAfterSelection = function() {
+        return false;
+    };
+
+    // $ctrl.uploader.filters.push({
+    //     name: 'fileFilter',
+    //     fn: function(item /*{File|FileLikeObject}*/, options) {
+    //         var type = '|' + item.type.slice(item.type.lastIndexOf('/') + 1) + '|',
+    //             typeStr = "|";
+    //         for(var i in $scope.optionParam.UploadType){
+    //             typeStr += $scope.optionParam.UploadType[i] + "|";
+    //         }
+    //         return typeStr.indexOf(type) !== -1;
+    //     }
+    // });
+
+    // Upload Callback Methods
+    $ctrl.uploader.onWhenAddingFileFailed = function(item /*{File|FileLikeObject}*/, filter, options) {
+        console.info('onWhenAddingFileFailed', item, filter, options);
+        // var title = "", msg;
+        // switch(filter.name){
+        //     case "fileFilter":
+        //         title = item.name;
+        //         msg = "檔案類型錯誤。";
+        //         break;
+        //     case "sizeFilter":
+        //         title = item.name;
+        //         msg = "上傳檔案超過" + $scope.optionParam.UploadSize + "Mb。";
+        //         break;
+        //     case "queueFilter":
+        //         msg = "上傳數量超過" + $scope.optionParam.UploadQueue + "個。";
+        //         break;
+        // }
+        // toaster.pop('info', title, msg, 3000);
+    };
+    $ctrl.uploader.onAfterAddingFile = function(fileItem) {
+        console.info('onAfterAddingFile', fileItem);
+        var reader = new FileReader();
+
+        reader.onload = function(readerEvt) {
+            var data = readerEvt.target.result;
+            var fileNameArray = fileItem.file.name.split(".");
+            var queueIndex = $ctrl.uploader.queue.indexOf(fileItem);
+            var rename = angular.copy(CryptoJS.MD5(data).toString() + "." + fileNameArray[fileNameArray.length-1]);
+            
+            // Duplicate File
+            // if($filter('filter')($scope.duplicateFile, rename).length > 0){
+            //     $ctrl.uploader.queue[queueIndex].remove();
+            //     toaster.pop('info', '上傳檔案重複', fileItem.file["name"], 3000);
+            // }else{
+                // $scope.duplicateFile.push(rename);
+                // $scope.queueFile.push(rename);
+                fileItem.url += '&rFilename='+rename;
+            // }
+            // var dataFile = forumService.b64toBlob(btoa(data), fileItem.file.type);
+            // fileItem.file = dataFile;
+        };
+
+        reader.readAsBinaryString(fileItem._file);
+    };
+    $ctrl.uploader.onAfterAddingAll = function(addedFileItems) {
+        console.info('onAfterAddingAll', addedFileItems);
+    };
+    $ctrl.uploader.onBeforeUploadItem = function(item) {
+        console.info('onBeforeUploadItem', item);
+    };
+    $ctrl.uploader.onProgressItem = function(fileItem, progress) {
+        console.info('onProgressItem', fileItem, progress);
+    };
+    $ctrl.uploader.onProgressAll = function(progress) {
+        console.info('onProgressAll', progress);
+    };
+    $ctrl.uploader.onSuccessItem = function(fileItem, response, status, headers) {
+        console.info('onSuccessItem', fileItem, response, status, headers);
+    };
+    $ctrl.uploader.onErrorItem = function(fileItem, response, status, headers) {
+        console.info('onErrorItem', fileItem, response, status, headers);
+    };
+    $ctrl.uploader.onCancelItem = function(fileItem, response, status, headers) {
+        console.info('onCancelItem', fileItem, response, status, headers);
+    };
+    $ctrl.uploader.onCompleteItem = function(fileItem, response, status, headers) {
+        console.info('onCompleteItem', fileItem, response, status, headers);
+        if(status == 200){
+            // 儲存使用者每個上傳檔案的資訊
+            $ctrl.mdData.UserUploadedData.push({
+                FMAF_O_FILENAME : response.oFilename,
+                FMAF_R_FILENAME : response.rFilename,
+                FMAF_FILEPATH : response.Filepath,
+                FMAF_FILESIZE : response.Filesize,
+                FMAF_CR_USER : profile.U_ID,
+                FMAF_CR_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss')
+            });
+        }else{
+            toaster.pop('error', "檔案上傳失敗", response.oFilename, 3000);
+        }
+    };
+    $ctrl.uploader.onCompleteAll = function() {
+        console.info('onCompleteAll');
+
+        SendMail();
+    };
+    
+    function LoadFMAF(){
+        RestfulApi.SearchMSSQLData({
+            querymain: 'targetEditor',
+            queryname: 'SelectFMAF',
+            params: {
+                FMAF_CR_USER: $ctrl.mdData.FM_CR_USER,
+                FMAF_CR_DATETIME: $ctrl.mdData.FM_CR_DATETIME
+            }
+        }).then(function (res){
+            // console.log(res["returnData"]);
+            // 信件預設檔案
+            $ctrl.mdData.UploadedData = res["returnData"];
+
+            // 使用者上傳檔案
+            $ctrl.mdData.UserUploadedData = [];
+        });
+    }; 
+    
+    function SendMail(){
+        ToolboxApi.SendMail({
+            mailContent : $ctrl.mdData
+            // queryContent : data
+        }).then(function (res) {
+            // console.log(res["returnData"]);
+            $uibModalInstance.close(res["returnData"]);
+        }).finally(function(){
+            $ctrl.sending = false;
+        });
+    }
+
+    $ctrl.ok = function() {
+
+        $ctrl.sending = true;
+
+        // 有上傳檔案 先上傳檔案之後再寄信
+        if($ctrl.uploader.getNotUploadedItems().length > 0){
+            $ctrl.uploader.uploadAll();
+        }
+        // 無上傳檔案 直接寄信
+        else{
+            SendMail();
+        }
+
+    };
+
+    $ctrl.cancel = function() {
+        $uibModalInstance.dismiss('cancel');
+    };
+});
+"use strict";
+
+angular.module('app.selfwork').controller('Job003Ctrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, RestfulApi, uiGridConstants, $filter, $q, ToolboxApi) {
+    // console.log($stateParams, $state);
+
+    var $vm = this,
+        cellClassEditabled = [];
+
+    angular.extend(this, {
+        Init : function(){
+            // 不正常登入此頁面
+            if($stateParams.data == null){
+                ReturnToEmployeejobsPage();
+            }else{
+                $vm.bigBreadcrumbsItems = $state.current.name.split(".");
+                $vm.bigBreadcrumbsItems.shift();
+                
+                $vm.vmData = $stateParams.data;
+
+                // 測試用
+                // if($vm.vmData == null){
+                //     $vm.vmData = {
+                //         OL_SEQ : 'AdminTest20170418195141'
+                //     };
+                // }
+                
+                LoadFlightItemList();
+            }
+        },
+        profile : Session.Get(),
+        defaultChoice : 'Left',
+        job003Options : {
+            data: '$vm.job003Data',
+            columnDefs: [
+                { name: 'Index'         , displayName: '序列', width: 50, enableCellEdit: false, enableFiltering: false},
+                { name: 'DIL_DRIVER'    , displayName: '司機' },
+                { name: 'DIL_BAGNO'     , displayName: '袋號' },
+                { name: 'DIL_ORDERNO'   , displayName: '提單號' },
+                { name: 'DIL_BARCODE'   , displayName: '條碼號' },
+                { name: 'DIL_CTN'       , displayName: '件數' },
+                { name: 'DIL_WEIGHT'    , displayName: '重量' },
+                { name: 'DIL_GETNAME'   , displayName: '收件人公司' },
+                { name: 'DIL_GETADDRESS', displayName: '收件地址' },
+                { name: 'DIL_GETTEL'    , displayName: '收件人電話' },
+                { name: 'DIL_INCOME'    , displayName: '代收款' },
+                { name: 'DIL_REMARK'    , displayName: '備註' }
+            ],
+            enableFiltering: true,
+            enableSorting: true,
+            enableColumnMenus: false,
+            // enableVerticalScrollbar: false,
+		    enableRowSelection: true,
+    		enableSelectAll: true,
+            paginationPageSizes: [50, 100, 150, 200, 250, 300],
+            paginationPageSize: 100,
+            onRegisterApi: function(gridApi){
+                $vm.job003GridApi = gridApi;
+
+                // gridApi.rowEdit.on.saveRow($scope, $vm.Update);
+            }
+        },
+        ExportExcel: function(){
+            var _exportName = $filter('date')($vm.vmData.OL_IMPORTDT, 'yyyyMMdd', 'GMT') + ' ' + 
+                              $filter('compyFilter')($vm.vmData.OL_CO_CODE) + ' ' + 
+                              $vm.vmData.OL_FLIGHTNO;
+
+            ToolboxApi.ExportExcelBySql({
+                templates : 4,
+                filename : _exportName,
+                querymain: 'job003',
+                queryname: 'SelectDeliveryItemList',
+                params: {
+                    OL_MASTER : $vm.vmData.OL_MASTER,
+                    OL_IMPORTDT : $filter('date')($vm.vmData.OL_IMPORTDT, 'yyyy-MM-dd', 'GMT'),
+                    OL_FLIGHTNO : $vm.vmData.OL_FLIGHTNO,
+                    OL_COUNTRY : $vm.vmData.OL_COUNTRY,                
+                    DIL_SEQ: $vm.vmData.OL_SEQ
+                }
+            }).then(function (res) {
+                // console.log(res);
+            });
+        },
+        Return : function(){
+            ReturnToEmployeejobsPage();
+        },
+        Update : function(entity){
+            // create a fake promise - normally you'd use the promise returned by $http or $resource
+            var promise = $q.defer();
+            $vm.job003GridApi.rowEdit.setSavePromise( entity, promise.promise );
+         
+            RestfulApi.UpdateMSSQLData({
+                updatename: 'Update',
+                table: 11,
+                params: {
+                    DIL_DRIVER : entity.DIL_DRIVER,
+                    DIL_BAGNO : entity.DIL_BAGNO,
+                    DIL_ORDERNO : entity.DIL_ORDERNO,
+                    DIL_BARCODE : entity.DIL_BARCODE,
+                    DIL_CTN : entity.DIL_CTN,
+                    DIL_WEIGHT : entity.DIL_WEIGHT,
+                    DIL_GETNAME : entity.DIL_GETNAME,
+                    DIL_GETADDRESS : entity.DIL_GETADDRESS,
+                    DIL_GETTEL : entity.DIL_GETTEL,
+                    DIL_INCOME : entity.DIL_INCOME,
+                    DIL_REMARK : entity.DIL_REMARK
+                },
+                condition: {
+                    DIL_SEQ           : entity.DIL_SEQ,
+                    DIL_IL_NEWBAGNO   : entity.DIL_IL_NEWBAGNO,
+                    DIL_IL_NEWSMALLNO : entity.DIL_IL_NEWSMALLNO
+                }
+            }).then(function (res) {
+                promise.resolve();
+            }, function (err) {
+                toaster.pop('danger', '錯誤', '更新失敗', 3000);
+                promise.reject();
+            });
+        }
+    });
+
+    function LoadFlightItemList(){
+        RestfulApi.SearchMSSQLData({
+            querymain: 'job003',
+            queryname: 'SelectDeliveryItemList',
+            params: {
+                DIL_SEQ: $vm.vmData.OL_SEQ
+            }
+        }).then(function (res){
+            console.log(res["returnData"]);
+            for(var i=0;i<res["returnData"].length;i++){
+                res["returnData"][i]["Index"] = i+1;
+            }
+            $vm.job003Data = res["returnData"];
+        }).finally(function() {
+            HandleWindowResize($vm.job003GridApi);
+        }); 
+    };
+
+    function ReturnToEmployeejobsPage(){
+        $state.transitionTo($state.current.parent);
+    };
+
 });
 "use strict";
 
@@ -20678,2968 +23652,6 @@ angular.module('app.selfwork.leaderoption').controller('DailyLeaveCtrl', functio
 })
 "use strict";
 
-angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, RestfulApi, ToolboxApi, uiGridConstants, $filter, $q, bool) {
-    // console.log($stateParams, $state);
-
-    var $vm = this,
-        cellClassEditabled = [];
-
-    angular.extend(this, {
-        Init : function(){
-            // 不正常登入此頁面
-            if($stateParams.data == null){
-                ReturnToEmployeejobsPage();
-            }else{
-
-                $vm.bigBreadcrumbsItems = $state.current.name.split(".");
-                $vm.bigBreadcrumbsItems.shift();
-
-                $vm.vmData = $stateParams.data;
-
-                // 測試用
-                // if($vm.vmData == null){
-                //     $vm.vmData = {
-                //         OL_SEQ : 'AdminTest20170525190758',
-                //         OL_IMPORTDT : '2017-04-19T10:10:47.906Z'
-                //     };
-                // }
-                
-                LoadItemList();
-            }
-        },
-        profile : Session.Get(),
-        gridMethod : {
-            // 改單
-            changeNature : function(row){
-                console.log(row);
-                
-                row.entity.loading = true;
-                ToolboxApi.ChangeNature({
-                    ID : $vm.profile.U_ID,
-                    PW : $vm.profile.U_PW,
-                    NATURE : row.entity.IL_NATURE,
-                    NATURE_NEW : row.entity.IL_NATURE_NEW
-                }).then(function (res) {
-                    var _returnData = JSON.parse(res["returnData"]),
-                        needToUpdate = false;
-                    // console.log(_returnData);
-
-                    if(!angular.isUndefined(_returnData["IL_NATURE_NEW"])){
-                        row.entity.IL_NATURE_NEW = _returnData["IL_NATURE_NEW"];
-                        needToUpdate = true;
-                    }
-                    if(!angular.isUndefined(_returnData["IL_NEWUNIT"]) && _returnData["IL_NEWUNIT"] != ""){
-                        row.entity.IL_NEWUNIT = _returnData["IL_NEWUNIT"];
-                        needToUpdate = true;
-                    }
-                    if(!angular.isUndefined(_returnData["IL_NEWPLACE"]) && _returnData["IL_NEWPLACE"] != ""){
-                        row.entity.IL_NEWPLACE = _returnData["IL_NEWPLACE"];
-                        needToUpdate = true;
-                    }
-                    if(!angular.isUndefined(_returnData["IL_TAX2"]) && _returnData["IL_TAX2"] != ""){
-                        row.entity.IL_TAX2 = _returnData["IL_TAX2"];
-                        needToUpdate = true;
-                    }
-                    if(!angular.isUndefined(_returnData["IL_TAXRATE"]) && _returnData["IL_TAXRATE"] != ""){
-                        row.entity.IL_TAXRATE = _returnData["IL_TAXRATE"];
-                        needToUpdate = true;
-                    }
-
-                    if(needToUpdate){
-                        $vm.job001GridApi.rowEdit.setRowsDirty([row.entity]);
-                    }
-
-                }).finally(function() {
-                    row.entity.loading = false;
-                });
-            },
-            // 加入黑名單
-            banData : function(){
-
-                if($vm.job001GridApi.selection.getSelectedRows().length > 0){
-
-                    if($vm.job001GridApi.selection.getSelectedRows().length > 100){
-                        toaster.pop('warning', '警告', '超過100筆，請重新選擇', 3000);
-                        return;
-                    }
-
-                    var modalInstance = $uibModal.open({
-                        animation: true,
-                        ariaLabelledBy: 'modal-title',
-                        ariaDescribedBy: 'modal-body',
-                        template: $templateCache.get('isChecked'),
-                        controller: 'IsCheckedModalInstanceCtrl',
-                        controllerAs: '$ctrl',
-                        size: 'sm',
-                        windowClass: 'center-modal',
-                        // appendTo: parentElem,
-                        resolve: {
-                            items: function() {
-                                return {};
-                            },
-                            show: function(){
-                                return {
-                                    title : "是否加入黑名單"
-                                }
-                            }
-                        }
-                    });
-
-                    modalInstance.result.then(function(selectedItem) {
-
-                        var _tasks = [],
-                            _d = new Date();
-
-                        // Insert黑名單
-                        for(var i in $vm.job001GridApi.selection.getSelectedRows()){
-                            // 如果不是黑名單的Row才需要被加入
-                            if($vm.job001GridApi.selection.getSelectedRows()[i].BLFO_TRACK != true){
-                                _tasks.push({
-                                    crudType: 'Insert',
-                                    table: 13,
-                                    params: {
-                                        BLFO_SEQ         : $vm.job001GridApi.selection.getSelectedRows()[i].IL_SEQ,
-                                        BLFO_NEWBAGNO    : $vm.job001GridApi.selection.getSelectedRows()[i].IL_NEWBAGNO,
-                                        BLFO_NEWSMALLNO  : $vm.job001GridApi.selection.getSelectedRows()[i].IL_NEWSMALLNO,
-                                        BLFO_ORDERINDEX  : $vm.job001GridApi.selection.getSelectedRows()[i].IL_ORDERINDEX,
-                                        BLFO_CR_USER     : $vm.profile.U_ID,
-                                        BLFO_CR_DATETIME : $filter('date')(new Date, 'yyyy-MM-dd HH:mm:ss')
-                                    }
-                                });
-                            }
-                        }
-
-                        RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res){
-                            if(res["returnData"].length > 0){
-
-                                for(var i in $vm.job001GridApi.selection.getSelectedRows()){
-                                    if($vm.job001GridApi.selection.getSelectedRows()[i].BLFO_TRACK != true){
-                                        $vm.job001GridApi.selection.getSelectedRows()[i].BLFO_TRACK = true;
-                                    }
-                                }
-                                toaster.pop('success', '訊息', '加入黑名單成功', 3000);
-                            }
-                        }, function (err) {
-                            toaster.pop('danger', '錯誤', '加入黑名單失敗', 3000);
-                        }).finally(function(){
-                            $vm.job001GridApi.selection.clearSelectedRows();
-                            ClearSelectedColumn();
-                        });  
-
-                    }, function() {
-                        // $log.info('Modal dismissed at: ' + new Date());
-                    });
-                }
-
-                // console.log(row);
-                // var modalInstance = $uibModal.open({
-                //     animation: true,
-                //     ariaLabelledBy: 'modal-title',
-                //     ariaDescribedBy: 'modal-body',
-                //     templateUrl: 'opAddBanModalContent.html',
-                //     controller: 'OPAddBanModalInstanceCtrl',
-                //     controllerAs: '$ctrl',
-                //     // size: 'lg',
-                //     // appendTo: parentElem,
-                //     resolve: {
-                //         vmData: function() {
-                //             return row.entity;
-                //         }
-                //     }
-                // });
-
-                // modalInstance.result.then(function(selectedItem) {
-                //     // $ctrl.selected = selectedItem;
-                //     console.log(selectedItem);
-                //     RestfulApi.InsertMSSQLData({
-                //         insertname: 'Insert',
-                //         table: 13,
-                //         params: {
-                //             BLFO_SEQ         : selectedItem.IL_SEQ,
-                //             BLFO_NEWBAGNO    : selectedItem.IL_NEWBAGNO,
-                //             BLFO_NEWSMALLNO  : selectedItem.IL_NEWSMALLNO,
-                //             BLFO_ORDERINDEX  : selectedItem.IL_ORDERINDEX,
-                //             BLFO_CR_USER     : $vm.profile.U_ID,
-                //             BLFO_CR_DATETIME : $filter('date')(new Date, 'yyyy-MM-dd HH:mm:ss')
-                //         }
-                //     }).then(function(res) {
-                //         // 加入後需要Disabled
-                //         row.entity.BLFO_TRACK = true;
-                //     });
-
-                // }, function() {
-                //     // $log.info('Modal dismissed at: ' + new Date());
-                // });
-            },
-            // 刪除
-            deleteData : function(){
-
-                if($vm.job001GridApi.selection.getSelectedRows().length > 0){
-
-                    if($vm.job001GridApi.selection.getSelectedRows().length > 100){
-                        toaster.pop('warning', '警告', '超過100筆，請重新選擇', 3000);
-                        return;
-                    }
-
-                    var modalInstance = $uibModal.open({
-                        animation: true,
-                        ariaLabelledBy: 'modal-title',
-                        ariaDescribedBy: 'modal-body',
-                        template: $templateCache.get('isChecked'),
-                        controller: 'IsCheckedModalInstanceCtrl',
-                        controllerAs: '$ctrl',
-                        size: 'sm',
-                        windowClass: 'center-modal',
-                        // appendTo: parentElem,
-                        resolve: {
-                            items: function() {
-                                return {};
-                            },
-                            show: function(){
-                                return {
-                                    title : "是否刪除"
-                                }
-                            }
-                        }
-                    });
-
-                    modalInstance.result.then(function(selectedItem) {
-
-                        var _tasks = [],
-                            _d = new Date();
-
-                        // Delete資料
-                        for(var i in $vm.job001GridApi.selection.getSelectedRows()){
-                            _tasks.push({
-                                crudType: 'Delete',
-                                table: 9,
-                                params: {
-                                    IL_SEQ         : $vm.job001GridApi.selection.getSelectedRows()[i].IL_SEQ,
-                                    IL_NEWBAGNO    : $vm.job001GridApi.selection.getSelectedRows()[i].IL_NEWBAGNO,
-                                    IL_NEWSMALLNO  : $vm.job001GridApi.selection.getSelectedRows()[i].IL_NEWSMALLNO,
-                                    IL_ORDERINDEX  : $vm.job001GridApi.selection.getSelectedRows()[i].IL_ORDERINDEX
-                                }
-                            });
-                        }
-
-                        RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res){
-                            if(res["returnData"].length > 0){
-                                toaster.pop('success', '訊息', '刪除資料成功', 3000);
-                            }
-                        }, function (err) {
-                            toaster.pop('danger', '錯誤', '刪除資料失敗', 3000);
-                        }).finally(function(){
-                            $vm.job001GridApi.selection.clearSelectedRows();
-                            // ClearSelectedColumn();
-                            LoadItemList();
-                        });  
-
-                    }, function() {
-                        // $log.info('Modal dismissed at: ' + new Date());
-                    });
-                }
-            },
-            // 拉貨
-            pullGoods : function(row){
-                console.log(row.entity);
-
-                var modalInstance = $uibModal.open({
-                    animation: true,
-                    ariaLabelledBy: 'modal-title',
-                    ariaDescribedBy: 'modal-body',
-                    templateUrl: 'pullGoodsModalContent.html',
-                    controller: 'PullGoodsModalInstanceCtrl',
-                    controllerAs: '$ctrl',
-                    // size: 'lg',
-                    // appendTo: parentElem,
-                    resolve: {
-                        vmData: function() {
-                            return row.entity;
-                        }
-                    }
-                });
-
-                modalInstance.result.then(function(selectedItem) {
-                    console.log(selectedItem);
-                    
-                    var _task = [];
-
-                    // 儲存拉貨資料
-                    _task.push({
-                        crudType: 'Insert',
-                        table: 19,
-                        params: {
-                            PG_SEQ         : selectedItem.IL_SEQ,
-                            PG_BAGNO       : selectedItem.IL_BAGNO,
-                            PG_REASON      : selectedItem.PG_REASON,
-                            PG_CR_USER     : $vm.profile.U_ID,
-                            PG_CR_DATETIME : $filter('date')(new Date, 'yyyy-MM-dd HH:mm:ss')
-                        }
-                    });
-
-                    RestfulApi.CRUDMSSQLDataByTask(_task).then(function (res){
-
-                        if(res["returnData"].length > 0){
-                            
-                            for(var i in $vm.job001Data){
-                                if($vm.job001Data[i].IL_BAGNO == selectedItem.IL_BAGNO){
-                                    $vm.job001Data[i].PG_PULLGOODS = true;
-                                }
-                            }
-
-                        }
-                    });
-
-                    // RestfulApi.InsertMSSQLData({
-                    //     insertname: 'Insert',
-                    //     table: 19,
-                    //     params: {
-                    //         PG_SEQ         : selectedItem.IL_SEQ,
-                    //         PG_BAGNO       : selectedItem.IL_BAGNO,
-                    //         PG_REASON      : selectedItem.PG_REASON,
-                    //         PG_CR_USER     : $vm.profile.U_ID,
-                    //         PG_CR_DATETIME : $filter('date')(new Date, 'yyyy-MM-dd HH:mm:ss')
-                    //     }
-                    // }).then(function (res) {
-                    //     for(var i in $vm.job001Data){
-                    //         if($vm.job001Data[i].IL_BAGNO == selectedItem.IL_BAGNO){
-                    //             $vm.job001Data[i].PG_PULLGOODS = true;
-                    //         }
-                    //     }
-                    //     // LoadItemList();
-                    // });
-
-                }, function() {
-                    // $log.info('Modal dismissed at: ' + new Date());
-                });
-            },
-            // // 取消拉貨
-            // cancelPullGoods : function(row){
-            //     console.log(row.entity);
-            //     var modalInstance = $uibModal.open({
-            //         animation: true,
-            //         ariaLabelledBy: 'modal-title',
-            //         ariaDescribedBy: 'modal-body',
-            //         template: $templateCache.get('isChecked'),
-            //         controller: 'IsCheckedModalInstanceCtrl',
-            //         controllerAs: '$ctrl',
-            //         size: 'sm',
-            //         windowClass: 'center-modal',
-            //         // appendTo: parentElem,
-            //         resolve: {
-            //             items: function() {
-            //                 return row.entity;
-            //             },
-            //             show: function(){
-            //                 return {};
-            //             }
-            //         }
-            //     });
-
-            //     modalInstance.result.then(function(selectedItem) {
-            //         // $ctrl.selected = selectedItem;
-            //         console.log(selectedItem);
-                    
-            //         RestfulApi.DeleteMSSQLData({
-            //             deletename: 'Delete',
-            //             table: 19,
-            //             params: {
-            //                 PG_SEQ         : selectedItem.IL_SEQ,
-            //                 PG_BAGNO       : selectedItem.IL_BAGNO
-            //             }
-            //         }).then(function (res) {
-            //             LoadItemList();
-            //         });
-
-            //     }, function() {
-            //         // $log.info('Modal dismissed at: ' + new Date());
-            //     });
-            // }
-            // 特貨
-            specialGoods : function(row){
-                console.log(row);
-                
-                var modalInstance = $uibModal.open({
-                    animation: true,
-                    ariaLabelledBy: 'modal-title',
-                    ariaDescribedBy: 'modal-body',
-                    templateUrl: 'specialGoodsModalContent.html',
-                    controller: 'SpecialGoodsModalInstanceCtrl',
-                    controllerAs: '$ctrl',
-                    size: 'sm',
-                    // appendTo: parentElem,
-                    resolve: {
-                        items: function() {
-                            return row.entity;
-                        },
-                        specialGoods: function(SysCode) {
-                            return SysCode.get('SpecialGoods');
-                        }
-                    }
-                });
-
-                modalInstance.result.then(function(selectedItem) {
-
-                    console.log(selectedItem);
-
-                    if(selectedItem.SPG_TYPE == null){
-                        RestfulApi.DeleteMSSQLData({
-                            deletename: 'Delete',
-                            table: 20,
-                            params: {
-                                SPG_SEQ         : selectedItem.IL_SEQ,
-                                SPG_NEWBAGNO    : selectedItem.IL_NEWBAGNO,
-                                SPG_NEWSMALLNO  : selectedItem.IL_NEWSMALLNO,
-                                SPG_ORDERINDEX  : selectedItem.IL_ORDERINDEX
-                            }
-                        }).then(function (res) {
-                            // 變更特貨類型
-                            row.entity.SPG_SPECIALGOODS = 0;
-                        });
-                    }else{
-                        RestfulApi.UpsertMSSQLData({
-                            upsertname: 'Upsert',
-                            table: 20,
-                            params: {
-                                SPG_TYPE        : selectedItem.SPG_TYPE,
-                                SPG_CR_USER     : $vm.profile.U_ID,
-                                SPG_CR_DATETIME : $filter('date')(new Date, 'yyyy-MM-dd HH:mm:ss')
-                            },
-                            condition: {
-                                SPG_SEQ         : selectedItem.IL_SEQ,
-                                SPG_NEWBAGNO    : selectedItem.IL_NEWBAGNO,
-                                SPG_NEWSMALLNO  : selectedItem.IL_NEWSMALLNO,
-                                SPG_ORDERINDEX  : selectedItem.IL_ORDERINDEX
-                            }
-                        }).then(function (res) {
-                            // 變更特貨類型
-                            row.entity.SPG_SPECIALGOODS = selectedItem.SPG_TYPE;
-                        });
-                    }
-
-                }, function() {
-                    // $log.info('Modal dismissed at: ' + new Date());
-                });
-            }
-        },
-        job001Options : {
-            data: '$vm.job001Data',
-            columnDefs: [
-                { name: 'isSelected'    , displayName: '選擇', width: 50, pinnedLeft:true, enableCellEdit: false, cellFilter: 'booleanFilter', filter: 
-                    {
-                        term: null,
-                        type: uiGridConstants.filter.SELECT,
-                        selectOptions: bool
-                    }
-                },
-                { name: 'IL_SUPPLEMENT_COUNT', displayName: '補件', width: 50, pinnedLeft:true, enableCellEdit: false },
-                { name: 'Index'         , displayName: '序列', width: 50, pinnedLeft:true, enableFiltering: false, enableCellEdit: false },
-                { name: 'IL_REMARK'     , displayName: '備註', width: 100, headerCellClass: 'text-primary' },
-                { name: 'IL_G1'         , displayName: '報關種類', width: 80, headerCellClass: 'text-primary' },
-                { name: 'IL_MERGENO'    , displayName: '併票號', width: 80, headerCellClass: 'text-primary' },
-                { name: 'BAGNO_MATCH'   , displayName: '內貨', width: 50, enableCellEdit: false, cellTemplate: $templateCache.get('accessibilityToInternalGoods'), filter: 
-                    {
-                        term: null,
-                        type: uiGridConstants.filter.SELECT,
-                        selectOptions: [
-                            {label:'否', value: '0'},
-                            {label:'是', value: '1'}
-                        ]
-                    }
-                },
-                { name: 'IL_BAGNO'      , displayName: '袋號', width: 80, headerCellClass: 'text-primary' },
-                { name: 'IL_SMALLNO'    , displayName: '小號', width: 110, headerCellClass: 'text-primary' },
-                { name: 'IL_NATURE'     , displayName: '品名', width: 120, enableCellEdit: false, cellTooltip: function (row, col) 
-                    {
-                        return row.entity.IL_NATURE
-                    } 
-                },
-                { name: 'IL_NATURE_NEW' , displayName: '新品名', width: 120, headerCellClass: 'text-primary', cellTooltip: function (row, col) 
-                    {
-                        return row.entity.IL_NATURE_NEW
-                    } 
-                },
-                { name: 'IL_TAX2'       , displayName: '稅則', width: 100, headerCellClass: 'text-primary' },
-                { name: 'ChangeNature'  , displayName: '改單', width: 50, enableCellEdit: false, enableSorting:false, cellTemplate: $templateCache.get('accessibilityToChangeNature'), cellClass: 'cell-class-no-style' },
-                { name: 'IL_CTN'        , displayName: '件數', width: 50, headerCellClass: 'text-primary' },
-                { name: 'IL_PLACE'      , displayName: '產地', width: 50, enableCellEdit: false },
-                { name: 'IL_NEWPLACE'   , displayName: '新產地', width: 70, headerCellClass: 'text-primary' },
-                { name: 'IL_WEIGHT'     , displayName: '重量', width: 70, enableCellEdit: false, filters: [
-                    {
-                        condition: uiGridConstants.filter.GREATER_THAN,
-                        placeholder: '最小'
-                    },
-                    {
-                        condition: uiGridConstants.filter.LESS_THAN,
-                        placeholder: '最大'
-                    }
-                ]},
-                { name: 'IL_WEIGHT_NEW' , displayName: '新重量', width: 70, headerCellClass: 'text-primary', filters: [
-                    {
-                        condition: uiGridConstants.filter.GREATER_THAN,
-                        placeholder: '最小'
-                    },
-                    {
-                        condition: uiGridConstants.filter.LESS_THAN,
-                        placeholder: '最大'
-                    }
-                ]},
-                { name: 'IL_PCS'        , displayName: '數量', width: 70, enableCellEdit: false, filters: [
-                    {
-                        condition: uiGridConstants.filter.GREATER_THAN,
-                        placeholder: '最小'
-                    },
-                    {
-                        condition: uiGridConstants.filter.LESS_THAN,
-                        placeholder: '最大'
-                    }  
-                ]},
-                { name: 'IL_NEWPCS'     , displayName: '新數量', width: 70, headerCellClass: 'text-primary', filters: [
-                    {
-                        condition: uiGridConstants.filter.GREATER_THAN,
-                        placeholder: '最小'
-                    },
-                    {
-                        condition: uiGridConstants.filter.LESS_THAN,
-                        placeholder: '最大'
-                    }
-                ]},
-                { name: 'IL_UNIVALENT'  , displayName: '單價', width: 70, enableCellEdit: false, filters: [
-                    {
-                        condition: uiGridConstants.filter.GREATER_THAN,
-                        placeholder: '最小'
-                    },
-                    {
-                        condition: uiGridConstants.filter.LESS_THAN,
-                        placeholder: '最大'
-                    }
-                ]},
-                { name: 'IL_UNIVALENT_NEW', displayName: '新單價', width: 70, headerCellClass: 'text-primary', filters: [
-                    {
-                        condition: uiGridConstants.filter.GREATER_THAN,
-                        placeholder: '最小'
-                    },
-                    {
-                        condition: uiGridConstants.filter.LESS_THAN,
-                        placeholder: '最大'
-                    }
-                ]},
-                { name: 'IL_FINALCOST'  , displayName: '完稅價格', width: 80, headerCellClass: 'text-primary', filters: [
-                    {
-                        condition: uiGridConstants.filter.GREATER_THAN,
-                        placeholder: '最小'
-                    },
-                    {
-                        condition: uiGridConstants.filter.LESS_THAN,
-                        placeholder: '最大'
-                    }
-                ]},
-                { name: 'IL_UNIT'       , displayName: '單位', width: 70, enableCellEdit: false },
-                { name: 'IL_NEWUNIT'    , displayName: '新單位', width: 70, headerCellClass: 'text-primary' },
-                { name: 'IL_GETNO'      , displayName: '收件者統編', width: 100, headerCellClass: 'text-primary' },
-                { name: 'IL_EXNO'       , displayName: '匯出統編', width: 80, headerCellClass: 'text-primary' },
-                { name: 'IL_SENDNAME'   , displayName: '寄件人', width: 80, enableCellEdit: false },
-                { name: 'IL_NEWSENDNAME', displayName: '新寄件人', width: 80, headerCellClass: 'text-primary' },
-                { name: 'IL_TAX'        , displayName: '稅費歸屬', width: 80, headerCellClass: 'text-primary' },
-                { name: 'IL_GETNAME'    , displayName: '收件人公司', width: 100, enableCellEdit: false },
-                { name: 'IL_GETNAME_NEW', displayName: '新收件人公司', width: 100, headerCellClass: 'text-primary' },
-                { name: 'IL_GETADDRESS' , displayName: '收件地址', width: 300, headerCellClass: 'text-primary' },
-                { name: 'IL_GETADDRESS_NEW' , displayName: '新收件地址', width: 300, headerCellClass: 'text-primary' },
-                { name: 'IL_GETTEL'     , displayName: '收件電話', width: 100, headerCellClass: 'text-primary' },
-                { name: 'IL_EXTEL'      , displayName: '匯出電話', width: 100, headerCellClass: 'text-primary' },
-                { name: 'IL_TRCOM'      , displayName: '派送公司', width: 100, headerCellClass: 'text-primary' },
-                { name: 'Options'       , displayName: '操作', width: 120, enableCellEdit: false, enableSorting:false, enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToJob001'), pinnedRight:true, cellClass: 'cell-class-no-style' }
-            ],
-            // rowTemplate: '<div> \
-            //                 <div ng-repeat="(colRenderIndex, col) in colContainer.renderedColumns track by col.colDef.name" class="ui-grid-cell" ng-class="row.entity.BLFO_TRACK != null ? \'cell-class-pull cell-class-ban\' : \'\'" ui-grid-cell></div> \
-            //               </div>',
-            rowTemplate: '<div> \
-                            <div ng-repeat="(colRenderIndex, col) in colContainer.renderedColumns track by col.colDef.name" class="ui-grid-cell" ng-class="{\'cell-class-ban\' : row.entity.BLFO_TRACK != null, \'cell-class-pull\' : row.entity.PG_PULLGOODS == true, \'cell-class-special\' : row.entity.SPG_SPECIALGOODS != 0}" ui-grid-cell></div> \
-                          </div>',
-            enableFiltering: true,
-            enableSorting: true,
-            enableColumnMenus: false,
-            // enableVerticalScrollbar: false,
-		    enableRowSelection: true,
-    		enableSelectAll: true,
-            paginationPageSizes: [50, 100, 150, 200, 250, 300],
-            paginationPageSize: 100,
-            // rowEditWaitInterval: -1,
-            onRegisterApi: function(gridApi){
-                $vm.job001GridApi = gridApi;
-
-                gridApi.rowEdit.on.saveRow($scope, $vm.Update);
-
-                gridApi.edit.on.afterCellEdit($scope, function(rowEntity, colDef, newValue, oldValue){
-
-                    if(colDef.name == 'IL_GETNAME_NEW'){
-                        var _temp = encodeURI(rowEntity.IL_GETNAME_NEW),
-                            regex = /%09/gi;
-
-                        _temp = _temp.replace(regex, "%20");
-                        rowEntity.IL_GETNAME_NEW = decodeURI(_temp);
-                    }
-
-                    // 新單價 = 新重量 * 100 / 新數量
-                    if(colDef.name == 'IL_WEIGHT_NEW' || colDef.name == 'IL_NEWPCS'){
-                        var _weight = parseFloat(rowEntity.IL_WEIGHT_NEW).toFixed(2),
-                            _pcs = parseInt(rowEntity.IL_NEWPCS);
-
-                        // 如果都不是空值 才開始計算
-                        if(!isNaN(_weight) && !isNaN(_pcs)){
-                            // 如果數量不為0
-                            if(parseInt(_pcs) != 0){
-                                rowEntity.IL_UNIVALENT_NEW = (_weight * 100) / _pcs;
-                            }else{
-                                rowEntity.IL_UNIVALENT_NEW = 0;
-                            }
-                        }
-                    }
-
-                    // 計算稅
-                    var _univalent = parseInt(rowEntity.IL_UNIVALENT_NEW),
-                        _pcs = parseInt(rowEntity.IL_NEWPCS),
-                        _finalcost = parseInt(rowEntity.IL_FINALCOST),
-                        start = 0;
-
-                    if(!isNaN(_univalent)){
-                        start += 1;
-                    }
-                    if(!isNaN(_pcs)){
-                        start += 1;
-                    }
-                    if(!isNaN(_finalcost)){
-                        start += 1;
-                    }
-
-                    // 表示可以開始計算
-                    if(start >= 2){
-                        // 新單價
-                        if(colDef.name == 'IL_UNIVALENT_NEW'){
-                            //如果數量有值
-                            if(!isNaN(_pcs)){
-                                _finalcost = _pcs * _univalent;
-                            }
-                        }
-
-                        // 新數量
-                        if(colDef.name == 'IL_NEWPCS'){
-                            if(!isNaN(_univalent)){
-                                _finalcost = _pcs * _univalent;
-                            }
-                        }
-
-                        // 當完稅價格小於100
-                        if(_finalcost < 100 && _finalcost != 0){
-                            // 給個新值 100~125
-                            var maxNum = 125;  
-                            var minNum = 100;  
-                            _finalcost = Math.floor(Math.random() * (maxNum - minNum + 1)) + minNum; 
-                        }
-
-                        // 當完稅價格超過1500 提醒使用者
-                        if(_finalcost > 1500){
-                            toaster.pop('warning', '警告', '完稅價格超過1500元，請注意', 3000);
-                        }
-                        
-                        // 當數量不為空 帶出單價 (會與新單價衝突)
-                        if(colDef.name == 'IL_FINALCOST' || colDef.name == 'IL_NEWPCS' || colDef.name == 'IL_UNIVALENT_NEW'){
-                            if(!isNaN(_pcs)){
-                                if(parseInt(_pcs) != 0){
-                                    _univalent = Math.round(_finalcost / _pcs);
-                                }else{
-                                    _univalent = 0;
-                                }
-                            }
-                        }
-
-                        // 完稅價格
-                        if(colDef.name == 'IL_FINALCOST' || colDef.name == 'IL_WEIGHT_NEW'){
-                            // 避免帳不平 再次計算完稅價格
-                            if(!isNaN(_pcs) && !isNaN(_univalent)){
-                                _finalcost = _pcs * _univalent;
-                            }
-                        }
-
-                        // console.log("_univalent:", _univalent," _pcs:" , _pcs," _finalcost:" , _finalcost);
-                        rowEntity.IL_UNIVALENT_NEW = isNaN(_univalent) ? null : _univalent;
-                        rowEntity.IL_NEWPCS = isNaN(_pcs) ? null : _pcs;
-                        rowEntity.IL_FINALCOST = isNaN(_finalcost) ? null : _finalcost;
-                    }
-
-                    $vm.job001GridApi.rowEdit.setRowsDirty([rowEntity]);
-
-                    // console.log('edited row id:' + rowEntity.Index + ' Column:' + colDef.name + ' newValue:' + newValue + ' oldValue:' + oldValue);
-                });
-
-                gridApi.selection.on.rowSelectionChanged($scope, function(rowEntity, colDef, newValue, oldValue){
-                    rowEntity.entity["isSelected"] = rowEntity.isSelected;
-                });
-
-                gridApi.selection.on.rowSelectionChangedBatch($scope, function(rowEntity, colDef, newValue, oldValue){
-                    for(var i in rowEntity){
-                        rowEntity[i].entity["isSelected"] = rowEntity[i].isSelected;
-                    }
-                });
-            }
-        },
-        // 併票
-        MergeNo: function(){
-            if($vm.job001GridApi.selection.getSelectedRows().length == 0) {
-                toaster.pop('info', '訊息', '尚未勾選資料。', 3000);
-                return;
-            }
-
-            // 取得第一個袋號當併票號
-            var _mergeNo = $vm.job001GridApi.selection.getSelectedRows()[0].IL_BAGNO,
-                _natureNew = [],
-                _bagNo = [];
-
-            // 塞入新品名
-            for(var i in $vm.job001GridApi.selection.getSelectedRows()){
-                // console.log($vm.job001GridApi.selection.getSelectedRows()[i].IL_NATURE_NEW);
-                if($vm.job001GridApi.selection.getSelectedRows()[i].IL_NATURE_NEW != null){
-                    _natureNew.push($vm.job001GridApi.selection.getSelectedRows()[i].IL_NATURE_NEW);
-                }
-
-                // 算出袋數 重複不塞入
-                if($filter('filter')(_bagNo, $vm.job001GridApi.selection.getSelectedRows()[i].IL_BAGNO).length == 0){
-                    _bagNo.push($vm.job001GridApi.selection.getSelectedRows()[i].IL_BAGNO);
-                }
-
-            }
-            var modalInstance = $uibModal.open({
-                animation: true,
-                ariaLabelledBy: 'modal-title',
-                ariaDescribedBy: 'modal-body',
-                templateUrl: 'mergeNoModalContent.html',
-                controller: 'MergeNoModalInstanceCtrl',
-                controllerAs: '$ctrl',
-                // size: 'lg',
-                // appendTo: parentElem,
-                resolve: {
-                    mergeNo: function() {
-                        return _mergeNo;
-                    },
-                    natureNew: function() {
-                        return _natureNew;
-                    },
-                    bagNo: function(){
-                        return _bagNo;
-                    }
-                }
-            });
-
-            modalInstance.result.then(function(selectedItem) {
-                // $ctrl.selected = selectedItem;
-                console.log(selectedItem);
-
-                // 變更併票號與新品名
-                for(var i in $vm.job001GridApi.selection.getSelectedRows()){
-                    var _index = $vm.job001GridApi.selection.getSelectedRows()[i].Index;
-                    $vm.job001Data[_index-1].IL_MERGENO = selectedItem.mergeNo;
-                    $vm.job001Data[_index-1].IL_NATURE_NEW = selectedItem.natureNew;
-                }
-
-                $vm.job001GridApi.rowEdit.setRowsDirty($vm.job001GridApi.selection.getSelectedRows());
-                $vm.job001GridApi.selection.clearSelectedRows();
-                ClearSelectedColumn();
-            }, function() {
-                // $log.info('Modal dismissed at: ' + new Date());
-            });
-        },
-        // 取消併票
-        CancelNo: function(){
-            if($vm.job001GridApi.selection.getSelectedRows().length == 0) {
-                toaster.pop('info', '訊息', '尚未勾選資料。', 3000);
-                return;
-            }
-
-            for(var i in $vm.job001GridApi.selection.getSelectedRows()){
-                var _index = $vm.job001GridApi.selection.getSelectedRows()[i].Index;
-                $vm.job001Data[_index-1].IL_MERGENO = null;
-                // $vm.job001Data[_index-1].IL_NATURE_NEW = null;
-            }
-
-            $vm.job001GridApi.rowEdit.setRowsDirty($vm.job001GridApi.selection.getSelectedRows());
-            $vm.job001GridApi.selection.clearSelectedRows();
-            ClearSelectedColumn();
-        },
-        // 特貨註記
-        MultiSpecialGoods: function(){
-            if($vm.job001GridApi.selection.getSelectedRows().length == 0) {
-                toaster.pop('info', '訊息', '尚未勾選資料。', 3000);
-                return;
-            }
-            if($vm.job001GridApi.selection.getSelectedRows().length > 100) {
-                toaster.pop('info', '訊息', '超過100筆，請重新選擇筆數', 3000);
-                return;
-            }
-
-            var modalInstance = $uibModal.open({
-                animation: true,
-                ariaLabelledBy: 'modal-title',
-                ariaDescribedBy: 'modal-body',
-                templateUrl: 'specialGoodsModalContent.html',
-                controller: 'MultiSpecialGoodsModalInstanceCtrl',
-                controllerAs: '$ctrl',
-                size: 'sm',
-                // appendTo: parentElem,
-                resolve: {
-                    specialGoods: function(SysCode) {
-                        return SysCode.get('SpecialGoods');
-                    }
-                }
-            });
-
-            modalInstance.result.then(function(selectedItem) {
-
-                // console.log(selectedItem);
-
-                var _task = [];
-
-                for(var i in $vm.job001GridApi.selection.getSelectedRows()){
-
-                    if(angular.isUndefined(selectedItem)){
-                        _task.push({
-                            crudType: 'Delete',
-                            table: 20,
-                            params: {
-                                SPG_SEQ         : $vm.job001GridApi.selection.getSelectedRows()[i].IL_SEQ,
-                                SPG_NEWBAGNO    : $vm.job001GridApi.selection.getSelectedRows()[i].IL_NEWBAGNO,
-                                SPG_NEWSMALLNO  : $vm.job001GridApi.selection.getSelectedRows()[i].IL_NEWSMALLNO,
-                                SPG_ORDERINDEX  : $vm.job001GridApi.selection.getSelectedRows()[i].IL_ORDERINDEX
-                            }
-                        });
-                    }else{
-                        _task.push({
-                            crudType: 'Upsert',
-                            table: 20,
-                            params: {
-                                SPG_TYPE        : selectedItem.SPG_TYPE,
-                                SPG_CR_USER     : $vm.profile.U_ID,
-                                SPG_CR_DATETIME : $filter('date')(new Date, 'yyyy-MM-dd HH:mm:ss')
-                            },
-                            condition: {
-                                SPG_SEQ         : $vm.job001GridApi.selection.getSelectedRows()[i].IL_SEQ,
-                                SPG_NEWBAGNO    : $vm.job001GridApi.selection.getSelectedRows()[i].IL_NEWBAGNO,
-                                SPG_NEWSMALLNO  : $vm.job001GridApi.selection.getSelectedRows()[i].IL_NEWSMALLNO,
-                                SPG_ORDERINDEX  : $vm.job001GridApi.selection.getSelectedRows()[i].IL_ORDERINDEX
-                            }
-                        });
-                    }
-
-                }
-
-                RestfulApi.CRUDMSSQLDataByTask(_task).then(function (res){
-
-                    if(res["returnData"].length > 0){
-                        // 變更特貨類型
-                        for(var i in $vm.job001GridApi.selection.getSelectedRows()){
-                            if(angular.isUndefined(selectedItem)){
-                                $vm.job001GridApi.selection.getSelectedRows()[i].SPG_SPECIALGOODS = 0;
-                            }else{
-                                $vm.job001GridApi.selection.getSelectedRows()[i].SPG_SPECIALGOODS = selectedItem.SPG_TYPE;
-                            }
-                        }
-
-                        $vm.job001GridApi.selection.clearSelectedRows();
-                        ClearSelectedColumn();
-                    }
-                });
-
-            }, function() {
-                // $log.info('Modal dismissed at: ' + new Date());
-            });
-        },
-        /**
-         * [PullGoods description] 拉貨
-         */
-        PullGoods: function(){
-            if($vm.job001GridApi.selection.getSelectedRows().length == 0) {
-                toaster.pop('info', '訊息', '尚未勾選資料。', 3000);
-                return;
-            }
-            if($vm.job001GridApi.selection.getSelectedRows().length > 100) {
-                toaster.pop('info', '訊息', '超過100筆，請重新選擇筆數', 3000);
-                return;
-            }
-
-            var modalInstance = $uibModal.open({
-                animation: true,
-                ariaLabelledBy: 'modal-title',
-                ariaDescribedBy: 'modal-body',
-                templateUrl: 'pullGoodsModalContent.html',
-                controller: 'PullGoodsModalInstanceCtrl',
-                controllerAs: '$ctrl',
-                // size: 'lg',
-                // appendTo: parentElem,
-                resolve: {
-                    vmData: function() {
-                        return {};
-                    }
-                }
-            });
-
-            modalInstance.result.then(function(selectedItem) {
-                // console.log(selectedItem);
-
-                var _seq = $vm.job001GridApi.selection.getSelectedRows()[0].IL_SEQ,
-                    _bagNo = [];
-
-                for(var i in $vm.job001GridApi.selection.getSelectedRows()){
-                    if($vm.job001GridApi.selection.getSelectedRows()[i].IL_BAGNO.length != 8){
-                        toaster.pop('warning', '警告', '序列'+$vm.job001GridApi.selection.getSelectedRows()[i].Index+'的袋號異常，拉貨中止。', 3000);
-                        return;
-                    }
-
-                    if(_bagNo.indexOf($vm.job001GridApi.selection.getSelectedRows()[i].IL_BAGNO) == -1){
-                        _bagNo.push($vm.job001GridApi.selection.getSelectedRows()[i].IL_BAGNO);
-                    }
-                }
-
-                var _task = [];
-
-                for(var i in _bagNo){
-
-                    _task.push({
-                        crudType: 'Insert',
-                        table: 19,
-                        params: {
-                            PG_SEQ         : _seq,
-                            PG_BAGNO       : _bagNo[i],
-                            PG_REASON      : selectedItem.PG_REASON,
-                            PG_CR_USER     : $vm.profile.U_ID,
-                            PG_CR_DATETIME : $filter('date')(new Date, 'yyyy-MM-dd HH:mm:ss')
-                        }
-                    });
-
-                }
-
-                RestfulApi.CRUDMSSQLDataByTask(_task).then(function (res){
-
-                    if(res["returnData"].length > 0){
-                        LoadItemList();
-
-                        // $vm.job001GridApi.selection.clearSelectedRows();
-                        // ClearSelectedColumn();
-                    }
-                });
-
-            }, function() {
-                // $log.info('Modal dismissed at: ' + new Date());
-            });
-
-        },
-        /**
-         * [DoTax description] 稅則
-         */
-        DoTax: function(){
-            if($vm.job001GridApi.selection.getSelectedRows().length == 0) {
-                toaster.pop('info', '訊息', '尚未勾選資料。', 3000);
-                return;
-            }
-
-            $vm.DoTaxLoading = true;
-
-            var _natureNewList = [];
-            for(var i in $vm.job001GridApi.selection.getSelectedRows()){
-                if($vm.job001GridApi.selection.getSelectedRows()[i].IL_NATURE_NEW != null && $vm.job001GridApi.selection.getSelectedRows()[i].IL_NATURE_NEW != ''){
-                    _natureNewList.push({
-                        "Nature_NEW": $vm.job001GridApi.selection.getSelectedRows()[i].IL_NATURE_NEW,
-                        "RowIndex": $vm.job001GridApi.selection.getSelectedRows()[i].Index
-                    });
-                }
-            }
-
-            if(_natureNewList.length == 0){
-                toaster.pop('info', '訊息', '無新品名資料。', 3000);
-                return;
-            }
-
-            ToolboxApi.DoTax({
-                ID : $vm.profile.U_ID,
-                PW : $vm.profile.U_PW,
-                NATURE_NEW_LIST : _natureNewList
-            }).then(function (res) {
-                var _returnData = JSON.parse(res["returnData"]);
-                // console.log(_returnData);
-
-                for(var i in _returnData){
-                    $vm.job001Data[parseInt(_returnData[i].RowIndex) - 1].IL_TAX2 = _returnData[i].Tax;
-                    $vm.job001Data[parseInt(_returnData[i].RowIndex) - 1].IL_TAXRATE = _returnData[i].TaxRate;
-                    $vm.job001GridApi.rowEdit.setRowsDirty([$vm.job001Data[parseInt(_returnData[i].RowIndex) - 1]]);
-                }
-
-                $vm.job001GridApi.selection.clearSelectedRows();
-
-            }).finally(function() {
-                $vm.DoTaxLoading = false;
-            });
-        },
-        ExportExcel: function(){
-            console.log($vm.vmData);
-
-            var modalInstance = $uibModal.open({
-                animation: true,
-                ariaLabelledBy: 'modal-title',
-                ariaDescribedBy: 'modal-body',
-                templateUrl: 'excelMenu.html',
-                controller: 'ExcelMenuModalInstanceCtrl',
-                controllerAs: '$ctrl',
-                // scope: $scope,
-                size: 'sm',
-                // windowClass: 'center-modal',
-                // appendTo: parentElem
-            });
-
-            modalInstance.result.then(function(selectedItem) {
-                // $ctrl.selected = selectedItem;
-                console.log(selectedItem);
-
-                var _templates = angular.copy(selectedItem),
-                    _exportName = $filter('date')($vm.vmData.OL_IMPORTDT, 'yyyyMMdd') + ' ' + 
-                                  $filter('compyFilter')($vm.vmData.OL_CO_CODE) + ' ' + 
-                                  $vm.vmData.OL_FLIGHTNO + ' ' +
-                                  $vm.vmData.OL_COUNT + '袋 ' +
-                                  $vm.vmData.OL_PULL_COUNT + '袋',
-                    _queryname = null,
-                    _params = {
-                        OL_MASTER : $vm.vmData.OL_MASTER,
-                        OL_IMPORTDT : $filter('date')($vm.vmData.OL_IMPORTDT, 'yyyy-MM-dd'),
-                        OL_FLIGHTNO : $vm.vmData.OL_FLIGHTNO,
-                        OL_COUNTRY : $vm.vmData.OL_COUNTRY,                
-                        IL_SEQ : $vm.vmData.OL_SEQ
-                    };
-
-                switch(selectedItem){
-                    // 關貿格式(G1)
-                    case "0G1":
-                        _templates = "0";
-                        _queryname = "SelectItemListForEx0";
-                        _params["IL_G1"] = "'G1'";
-                        break;
-                    // 關貿格式(X2)
-                    case "0X2":
-                        _templates = "0";
-                        _queryname = "SelectItemListForEx0";
-                        _params["IL_G1"] = "'','X2'";
-                        // 不包含併X3(也就是mergeno是null)
-                        _params["IL_MERGENO"] = null;
-                        break;
-                    // 關貿格式(X3)
-                    case "0X3":
-                        _templates = "0";
-                        _queryname = "SelectItemListForEx0";
-                        _params["IL_G1"] = "'X3'";
-                        break;
-                    // 關貿格式(併X3)
-                    case "0MX3":
-                        _templates = "10";
-                        _queryname = "SelectItemListForEx0MX3";
-                        _params["CO_NAME"] = $vm.vmData.CO_NAME
-                        break;
-                    // 介宏格式
-                    case "8":
-                        _templates = "8";
-                        _queryname = "SelectItemListForEx8";
-                        break;
-                }
-
-                if(_queryname != null){
-
-                    // 選擇筆數匯出
-                    if($vm.job001GridApi.selection.getSelectedRows().length > 0){
-                        var _newSmallNo = [];
-                        for(var i in $vm.job001GridApi.selection.getSelectedRows()){
-                            _newSmallNo.push($vm.job001GridApi.selection.getSelectedRows()[i].IL_NEWSMALLNO);
-                        }
-
-                        // 加入選擇的筆數至SQL條件
-                        _params["NewSmallNo"] = "'"+_newSmallNo.join("','")+"'";
-
-                    }
-
-                    ToolboxApi.ExportExcelBySql({
-                        templates : _templates,
-                        filename : _exportName,
-                        querymain: 'job001',
-                        queryname: _queryname,
-                        params: _params
-                    }).then(function (res) {
-                        // console.log(res);
-                    
-                        $vm.vmData.TRADE_EXPORT += 1;
-
-                        RestfulApi.InsertMSSQLData({
-                            insertname: 'Insert',
-                            table: 33,
-                            params: {
-                                ILE_SEQ : $vm.vmData.OL_SEQ,
-                                ILE_TYPE : selectedItem,
-                                ILE_CR_DATETIME : $filter('date')(new Date(), 'yyyy-MM-dd HH:mm:ss'),
-                                ILE_CR_USER : $vm.profile.U_ID
-                            }
-                        }).then(function (res) {
-                            
-                        });
-                    });
-                }
-
-            }, function() {
-                // $log.info('Modal dismissed at: ' + new Date());
-            });
-        },
-        // 匯出班機表欄位
-        ExportAirportSchema : function(){
-            var _exportName = $filter('date')($vm.vmData.OL_IMPORTDT, 'yyyyMMdd') + ' ' + 
-                              $filter('compyFilter')($vm.vmData.OL_CO_CODE) + ' ' +
-                              $vm.vmData.OL_FLIGHTNO + ' ' +
-                              // ($vm.vmData.OL_COUNT - $vm.vmData.OL_PULL_COUNT) + '袋';
-                              $vm.vmData.OL_COUNT + '袋 ' +
-                              $vm.vmData.OL_PULL_COUNT + '袋';
-
-            // 如果是拉貨 最後要補上原報機日期
-            if($vm.vmData.ORI_OL_IMPORTDT != null){
-                _exportName += ' ' + $filter('date')($vm.vmData.ORI_OL_IMPORTDT, 'yyyyMMdd')
-            }
-
-            // 選擇筆數匯出
-            if($vm.job001GridApi.selection.getSelectedRows().length > 0){
-
-                // if($vm.job001GridApi.selection.getSelectedRows().length < 1000){
-
-                    var _newSmallNo = [];
-                    for(var i in $vm.job001GridApi.selection.getSelectedRows()){
-                        _newSmallNo.push($vm.job001GridApi.selection.getSelectedRows()[i].IL_NEWSMALLNO);
-                    }
-
-                    ToolboxApi.ExportExcelBySql({
-                        templates : 11,
-                        filename : _exportName,
-                        querymain: 'job001',
-                        queryname: 'SelectItemListForFlight',
-                        params: {
-                            OL_MASTER : $vm.vmData.OL_MASTER,
-                            OL_IMPORTDT : $filter('date')($vm.vmData.OL_IMPORTDT, 'yyyy-MM-dd'),
-                            OL_FLIGHTNO : $vm.vmData.OL_FLIGHTNO,
-                            OL_COUNTRY : $vm.vmData.OL_COUNTRY,               
-                            IL_SEQ : $vm.vmData.OL_SEQ,
-                            NewSmallNo : "'"+_newSmallNo.join("','")+"'"
-                        }
-                    }).then(function (res) {
-                        // console.log(res);
-                        
-                        $vm.vmData.FLIGHT_EXPORT += 1;
-                    
-                        RestfulApi.InsertMSSQLData({
-                            insertname: 'Insert',
-                            table: 33,
-                            params: {
-                                ILE_SEQ : $vm.vmData.OL_SEQ,
-                                ILE_TYPE : 11,
-                                ILE_CR_DATETIME : $filter('date')(new Date(), 'yyyy-MM-dd HH:mm:ss'),
-                                ILE_CR_USER : $vm.profile.U_ID
-                            }
-                        }).then(function (res) {
-                            
-                        });
-                    });
-                // }else{
-                //     toaster.pop('info', '訊息', '超過300筆，請重新選擇筆數', 3000);
-                // }
-            }
-            // 全部匯出
-            else{
-                ToolboxApi.ExportExcelBySql({
-                    templates : 11,
-                    filename : _exportName,
-                    querymain: 'job001',
-                    queryname: 'SelectItemListForFlight',
-                    params: {
-                        OL_MASTER : $vm.vmData.OL_MASTER,
-                        OL_IMPORTDT : $filter('date')($vm.vmData.OL_IMPORTDT, 'yyyy-MM-dd'),
-                        OL_FLIGHTNO : $vm.vmData.OL_FLIGHTNO,
-                        OL_COUNTRY : $vm.vmData.OL_COUNTRY,               
-                        IL_SEQ : $vm.vmData.OL_SEQ
-                    }
-                }).then(function (res) {
-                    // console.log(res);
-                    
-                    $vm.vmData.FLIGHT_EXPORT += 1;
-                    
-                    RestfulApi.InsertMSSQLData({
-                        insertname: 'Insert',
-                        table: 33,
-                        params: {
-                            ILE_SEQ : $vm.vmData.OL_SEQ,
-                            ILE_TYPE : 11,
-                            ILE_CR_DATETIME : $filter('date')(new Date(), 'yyyy-MM-dd HH:mm:ss'),
-                            ILE_CR_USER : $vm.profile.U_ID
-                        }
-                    }).then(function (res) {
-                        
-                    });
-                });
-            }
-        },
-        // 顯示併票結果
-        MergeNoResult : function(){
-            var modalInstance = $uibModal.open({
-                animation: true,
-                ariaLabelledBy: 'modal-title',
-                ariaDescribedBy: 'modal-body',
-                templateUrl: 'mergeNoResultModalContent.html',
-                controller: 'MergeNoResultModalInstanceCtrl',
-                controllerAs: '$ctrl',
-                backdrop: 'static',
-                size: 'lg',
-                // appendTo: parentElem,
-                resolve: {
-                    job001Data: function() {
-                        return $vm.job001Data;
-                    }
-                }
-            });
-
-            modalInstance.result.then(function(selectedItem) {
-                // $ctrl.selected = selectedItem;
-            }, function() {
-                // $log.info('Modal dismissed at: ' + new Date());
-            });
-        },
-        /**
-         * 依類型找出相同
-         * N : 收件人
-         * A : 地址
-         * N+A : 收件人 + 地址
-         */
-        RepeatData : function(pType){
-
-            var _queryname = null;
-            switch(pType){
-                case "N":
-                    _queryname = 'SelectRepeatName';
-                    break;
-                case "A":
-                    _queryname = 'SelectRepeatAddress';
-                    break;
-                case "N+A":
-                    _queryname = 'SelectRepeatNameAndAddress';
-                    break;
-            }
-
-            if (_queryname != null){ 
-                RestfulApi.SearchMSSQLData({
-                    querymain: 'job001',
-                    queryname: _queryname,
-                    params: {
-                        IL_SEQ: $vm.vmData.OL_SEQ
-                    }
-                }).then(function (res){
-                    // console.log(res["returnData"]);
-                    if(res["returnData"].length > 0){
-                        var modalInstance = $uibModal.open({
-                            animation: true,
-                            ariaLabelledBy: 'modal-title',
-                            ariaDescribedBy: 'modal-body',
-                            templateUrl: 'repeatDataModalContent.html',
-                            controller: 'RepeatDataModalInstanceCtrl',
-                            controllerAs: '$ctrl',
-                            backdrop: 'static',
-                            size: 'lg',
-                            // appendTo: parentElem,
-                            resolve: {
-                                repeatData: function() {
-                                    return res["returnData"];
-                                }
-                            }
-                        });
-
-                        modalInstance.result.then(function(selectedItem) {
-                            console.log(selectedItem);
-
-                            if(selectedItem.length > 0){
-                                var _getDirtyData = [];
-                                for(var i in selectedItem){
-
-                                    var _beUpdate = $filter('filter')($vm.job001Data, { 
-                                        IL_SEQ : selectedItem[i].entity.IL_SEQ,
-                                        IL_NEWBAGNO : selectedItem[i].entity.IL_NEWBAGNO,
-                                        IL_NEWSMALLNO : selectedItem[i].entity.IL_NEWSMALLNO,
-                                        IL_ORDERINDEX : selectedItem[i].entity.IL_ORDERINDEX
-                                    });
-
-                                    if(_beUpdate.length > 0){
-                                        var _index = _beUpdate[0].Index - 1;
-
-                                        // 更新收件者相同的值
-                                        for(var j in $vm.job001GridApi.grid.columns){
-                                            var _colDef = $vm.job001GridApi.grid.columns[j].colDef;
-                                            if(_colDef.enableCellEdit){
-                                                console.log(_colDef.name);
-                                                $vm.job001Data[_index][_colDef.name] = selectedItem[i].entity[_colDef.name];
-                                            }
-                                        }
-
-                                        _getDirtyData.push($vm.job001Data[_index]);
-                                    }
-                                }
-                                $vm.job001GridApi.rowEdit.setRowsDirty(_getDirtyData);
-                            }
-
-                        }, function() {
-                            // $log.info('Modal dismissed at: ' + new Date());
-                        });
-                    }else{
-                        toaster.pop('info', '訊息', '無重複收件者名稱', 3000);
-                    }
-                }); 
-            }
-        },
-        /**
-         * 篩選出收件人 收件地址 收件電話 超過六次的資料
-         * N|A : 收件人 | 地址
-         * N+A : 收件人 + 地址
-         */
-        OverSix : function(pType){
-            if(!angular.isUndefined($vm.vmData.OL_IMPORTDT)){
-                var _year = $filter('date')($vm.vmData.OL_IMPORTDT, 'yyyy'),
-                    _queryname = null,
-                    _type = null;
-
-                if($vm.vmData.OL_IMPORTDT < _year+'-06-30T23:59:59.999Z'){
-                    console.log('上半年');
-                    _type = '上半年';
-                    // _queryname = 'SelectOverSixFirst';
-
-                    switch(pType){
-                        case "N|A":
-                            _queryname = 'SelectOverSixFirst';
-                            break;
-                        case "N+A":
-                            _queryname = 'SelectOverSixCompoundFirst';
-                            break;
-                    }
-                }
-                if(_year+'-07-01T00:00:00.000Z' < $vm.vmData.OL_IMPORTDT){
-                    console.log('下半年');
-                    _type = '下半年';
-                    // _queryname = 'SelectOverSixSecond';
-
-                    switch(pType){
-                        case "N|A":
-                            _queryname = 'SelectOverSixSecond';
-                            break;
-                        case "N+A":
-                            _queryname = 'SelectOverSixCompoundSecond';
-                            break;
-                    }
-                }
-
-                if(_queryname != null){
-                    RestfulApi.SearchMSSQLData({
-                        querymain: 'job001',
-                        queryname: _queryname,
-                        params: {
-                            IL_SEQ: $vm.vmData.OL_SEQ
-                        }
-                    }).then(function (res){
-                        console.log(res["returnData"]);
-                        if(res["returnData"].length > 0){
-                            var modalInstance = $uibModal.open({
-                                animation: true,
-                                ariaLabelledBy: 'modal-title',
-                                ariaDescribedBy: 'modal-body',
-                                templateUrl: 'overSixModalContent.html',
-                                controller: 'OverSixModalInstanceCtrl',
-                                controllerAs: '$ctrl',
-                                backdrop: 'static',
-                                size: 'lg',
-                                // appendTo: parentElem,
-                                resolve: {
-                                    overSixData: function() {
-                                        return res["returnData"];
-                                    },
-                                    type: function(){
-                                        return _type;
-                                    }
-                                }
-                            });
-
-                            modalInstance.result.then(function(selectedItem) {
-                                console.log(selectedItem);
-
-                                if(selectedItem.length > 0){
-                                    var _getDirtyData = [];
-                                    for(var i in selectedItem){
-
-                                        var _beUpdate = $filter('filter')($vm.job001Data, { 
-                                            IL_SEQ : selectedItem[i].entity.IL_SEQ,
-                                            IL_NEWBAGNO : selectedItem[i].entity.IL_NEWBAGNO,
-                                            IL_NEWSMALLNO : selectedItem[i].entity.IL_NEWSMALLNO,
-                                            IL_ORDERINDEX : selectedItem[i].entity.IL_ORDERINDEX
-                                        });
-
-                                        if(_beUpdate.length > 0){
-                                            var _index = _beUpdate[0].Index - 1;
-
-                                            // 更新超過六次的值
-                                            for(var j in $vm.job001GridApi.grid.columns){
-                                                var _colDef = $vm.job001GridApi.grid.columns[j].colDef;
-                                                if(_colDef.enableCellEdit){
-                                                    console.log(_colDef.name);
-                                                    $vm.job001Data[_index][_colDef.name] = selectedItem[i].entity[_colDef.name];
-                                                }
-                                            }
-
-                                            _getDirtyData.push($vm.job001Data[_index]);
-                                        }
-                                    }
-                                    $vm.job001GridApi.rowEdit.setRowsDirty(_getDirtyData);
-                                }
-
-                            }, function() {
-                                // $log.info('Modal dismissed at: ' + new Date());
-                            });
-                        }else{
-                            toaster.pop('info', '訊息', '無 收件人、收件地址、收件電話 超過六次的資料', 3000);
-                        }
-                    }); 
-                }
-            }
-        },
-        Return : function(){
-            ReturnToEmployeejobsPage();
-        },
-        Close : function(){
-            var modalInstance = $uibModal.open({
-                animation: true,
-                ariaLabelledBy: 'modal-title',
-                ariaDescribedBy: 'modal-body',
-                template: $templateCache.get('isChecked'),
-                controller: 'IsCheckedModalInstanceCtrl',
-                controllerAs: '$ctrl',
-                size: 'sm',
-                windowClass: 'center-modal',
-                // appendTo: parentElem,
-                resolve: {
-                    items: function() {
-                        return {};
-                    },
-                    show: function(){
-                        return {
-                            title : "是否完成"
-                        }
-                    }
-                }
-            });
-
-            modalInstance.result.then(function(selectedItem) {
-                // $ctrl.selected = selectedItem;
-
-                RestfulApi.UpdateMSSQLData({
-                    updatename: 'Update',
-                    table: 22,
-                    params: {
-                        OE_FDATETIME : $filter('date')(new Date(), 'yyyy-MM-dd HH:mm:ss')
-                    },
-                    condition: {
-                        OE_SEQ : $vm.vmData.OL_SEQ,
-                        OE_TYPE : 'R',
-                        OE_PRINCIPAL : $vm.profile.U_ID
-                    }
-                }).then(function (res) {
-                    ReturnToEmployeejobsPage();
-                });
-
-            }, function() {
-                // $log.info('Modal dismissed at: ' + new Date());
-            });
-        },
-        Update : function(entity){
-            // console.log($vm.job001GridApi.rowEdit);
-            // console.log($vm.job001GridApi.rowEdit.getDirtyRows($vm.job001GridApi.grid));
-            console.log(entity, angular.isNumber(parseFloat(entity.IL_WEIGHT_NEW)), parseFloat(entity.IL_WEIGHT_NEW));
-
-            // create a fake promise - normally you'd use the promise returned by $http or $resource
-            var deferred = $q.defer();
-            $vm.job001GridApi.rowEdit.setSavePromise( entity, deferred.promise );
-         
-            RestfulApi.UpdateMSSQLData({
-                updatename: 'Update',
-                table: 9,
-                params: {
-                    IL_G1              : entity.IL_G1,
-                    IL_MERGENO         : entity.IL_MERGENO,
-                    IL_BAGNO           : entity.IL_BAGNO,
-                    IL_SMALLNO         : entity.IL_SMALLNO,
-                    IL_NATURE_NEW      : entity.IL_NATURE_NEW,
-                    IL_NEWPLACE        : entity.IL_NEWPLACE,
-                    IL_CTN             : isNaN(parseInt(entity.IL_CTN)) ? null : entity.IL_CTN,
-                    IL_NEWPCS          : isNaN(parseInt(entity.IL_NEWPCS)) ? null : entity.IL_NEWPCS,
-                    IL_NEWUNIT         : entity.IL_NEWUNIT,
-                    IL_WEIGHT_NEW      : isNaN(parseFloat(entity.IL_WEIGHT_NEW)) ? null : entity.IL_WEIGHT_NEW,
-                    IL_GETNO           : entity.IL_GETNO,
-                    IL_NEWSENDNAME     : entity.IL_NEWSENDNAME,
-                    IL_GETNAME_NEW     : entity.IL_GETNAME_NEW,
-                    IL_GETADDRESS      : entity.IL_GETADDRESS,
-                    IL_GETADDRESS_NEW  : entity.IL_GETADDRESS_NEW,
-                    IL_GETTEL          : entity.IL_GETTEL,
-                    IL_UNIVALENT_NEW   : isNaN(parseFloat(entity.IL_UNIVALENT_NEW)) ? null : entity.IL_UNIVALENT_NEW,
-                    IL_FINALCOST       : isNaN(parseFloat(entity.IL_FINALCOST)) ? null : entity.IL_FINALCOST,
-                    IL_TAX             : entity.IL_TAX,
-                    IL_TRCOM           : entity.IL_TRCOM,
-                    IL_REMARK          : entity.IL_REMARK,
-                    IL_EXTEL           : entity.IL_EXTEL,
-                    IL_EXNO            : entity.IL_EXNO,
-                    IL_TAX2            : entity.IL_TAX2,
-                    IL_TAXRATE         : angular.isNumber(entity.IL_TAXRATE) ? entity.IL_TAXRATE : null,
-                    IL_UP_DATETIME     : $filter('date')(new Date(), 'yyyy-MM-dd HH:mm:ss'),
-                    IL_UP_USER         : $vm.profile.U_ID
-                },
-                condition: {
-                    IL_SEQ        : entity.IL_SEQ,
-                    IL_NEWBAGNO   : entity.IL_NEWBAGNO,
-                    IL_NEWSMALLNO : entity.IL_NEWSMALLNO,
-                    IL_ORDERINDEX : entity.IL_ORDERINDEX
-                }
-            }).then(function (res) {
-                // console.log(res);
-                deferred.resolve();
-            }, function (err) {
-                toaster.pop('danger', '錯誤', '更新失敗', 3000);
-                deferred.reject();
-            });
-            
-        }
-    });
-
-    function LoadItemList(){
-        RestfulApi.SearchMSSQLData({
-            querymain: 'job001',
-            queryname: 'SelectItemList',
-            params: {
-                IL_SEQ: $vm.vmData.OL_SEQ
-            }
-        }).then(function (res){
-            // console.log(res["returnData"]);
-            for(var i=0;i<res["returnData"].length;i++){
-                res["returnData"][i]["Index"] = i+1;
-            }
-            $vm.job001Data = angular.copy(res["returnData"]);
-        }); 
-    };
-
-    /**
-     * [ClearSelectedColumn description] isSelected設為否
-     */
-    function ClearSelectedColumn(){
-        for(var i in $vm.job001Data){
-            $vm.job001Data[i].isSelected = false;
-        }
-    }
-
-    function ReturnToEmployeejobsPage(){
-        $state.transitionTo($state.current.parent);
-    };
-
-})
-.controller('ExcelMenuModalInstanceCtrl', function ($uibModalInstance) {
-    var $ctrl = this;
-    
-    $ctrl.ok = function(pType) {
-        $uibModalInstance.close(pType);
-    };
-
-    $ctrl.cancel = function() {
-        $uibModalInstance.dismiss('cancel');
-    };
-})
-.controller('MergeNoModalInstanceCtrl', function ($uibModalInstance, mergeNo, natureNew, bagNo) {
-    var $ctrl = this;
-    $ctrl.natureNew = natureNew;
-
-    $ctrl.mdData = {
-        mergeNo : mergeNo,
-        natureNew : null,
-        bagNo : bagNo
-    };
-
-    $ctrl.Init = function(){
-        $ctrl.mergeNoChoice = '1';
-    };
-
-    $ctrl.ok = function() {
-        $uibModalInstance.close($ctrl.mdData);
-    };
-
-    $ctrl.cancel = function() {
-        $uibModalInstance.dismiss('cancel');
-    };
-})
-.controller('OPAddBanModalInstanceCtrl', function ($uibModalInstance, vmData) {
-    var $ctrl = this;
-    $ctrl.mdData = vmData;
-
-    $ctrl.ok = function() {
-        $uibModalInstance.close($ctrl.mdData);
-    };
-
-    $ctrl.cancel = function() {
-        $uibModalInstance.dismiss('cancel');
-    };
-})
-.controller('PullGoodsModalInstanceCtrl', function ($uibModalInstance, vmData) {
-    var $ctrl = this;
-    $ctrl.mdData = vmData;
-
-    $ctrl.ok = function() {
-        $uibModalInstance.close($ctrl.mdData);
-    };
-
-    $ctrl.cancel = function() {
-        $uibModalInstance.dismiss('cancel');
-    };
-})
-.controller('SpecialGoodsModalInstanceCtrl', function ($uibModalInstance, items, specialGoods) {
-    var $ctrl = this;
-
-    $ctrl.Init = function(){
-        $ctrl.mdData = items;
-        $ctrl.specialGoodsData = specialGoods;
-
-        if($ctrl.mdData.SPG_SPECIALGOODS != 0){
-            $ctrl.mdData['SPG_TYPE'] = $ctrl.mdData.SPG_SPECIALGOODS.toString();
-        }
-    }
-
-
-    $ctrl.ok = function() {
-        $uibModalInstance.close($ctrl.mdData);
-    };
-
-    $ctrl.cancel = function() {
-        $uibModalInstance.dismiss('cancel');
-    };
-})
-.controller('MultiSpecialGoodsModalInstanceCtrl', function ($uibModalInstance, specialGoods) {
-    var $ctrl = this;
-
-    $ctrl.Init = function(){
-        $ctrl.specialGoodsData = specialGoods;
-    }
-
-    $ctrl.ok = function() {
-        $uibModalInstance.close($ctrl.mdData);
-    };
-
-    $ctrl.cancel = function() {
-        $uibModalInstance.dismiss('cancel');
-    };
-})
-.controller('MergeNoResultModalInstanceCtrl', function ($uibModalInstance, job001Data, uiGridGroupingConstants) {
-    var $ctrl = this;
-    $ctrl.items = job001Data;
-
-    $ctrl.MdInit = function(){
-        DoMergeNoSplit();
-        // console.log($ctrl.job001DataHaveMergeNo);
-        // console.log($ctrl.job001DataNotMergeNo);
-    };
-
-    $ctrl.job001DataHaveMergeNoOption = {
-        data: '$ctrl.job001DataHaveMergeNo',
-        columnDefs: [
-            { name: 'Index'           , displayName: '序列', width: 50},
-            { name: 'IL_G1'           , displayName: '報關種類', width: 115 },
-            { name: 'IL_MERGENO'      , displayName: '併票號', width: 129, grouping: { groupPriority: 0 } },
-            { name: 'IL_BAGNO'        , displayName: '袋號', width: 129 },
-            { name: 'IL_SMALLNO'      , displayName: '小號', width: 115 },
-            { name: 'IL_NATURE'    , displayName: '品名', width: 115 },
-            { name: 'IL_NATURE_NEW'   , displayName: '新品名', width: 115, treeAggregationType: uiGridGroupingConstants.aggregation.MAX, 
-                customTreeAggregationFinalizerFn: function( aggregation ) {
-                    aggregation.rendered = aggregation.value;
-                }
-            },
-            { name: 'IL_CTN'          , displayName: '件數', width: 115, treeAggregationType: uiGridGroupingConstants.aggregation.SUM, 
-                customTreeAggregationFinalizerFn: function( aggregation ) {
-                    aggregation.rendered = aggregation.value;
-                }
-            },
-            { name: 'IL_PLACE'        , displayName: '產地', width: 115 },
-            { name: 'IL_NEWPLACE'     , displayName: '新產地', width: 115 },
-            { name: 'IL_WEIGHT'       , displayName: '重量', width: 115, treeAggregationType: uiGridGroupingConstants.aggregation.SUM, 
-                customTreeAggregationFinalizerFn: function( aggregation ) {
-                    aggregation.rendered = Math.round(aggregation.value * 100) / 100;
-                }
-            },
-            { name: 'IL_WEIGHT_NEW'   , displayName: '新重量', width: 115, treeAggregationType: uiGridGroupingConstants.aggregation.SUM, 
-                customTreeAggregationFinalizerFn: function( aggregation ) {
-                    // console.log(aggregation);
-                    aggregation.rendered = Math.round(aggregation.value * 100) / 100;
-                }
-            },
-            { name: 'IL_PCS'       , displayName: '數量', width: 115, treeAggregationType: uiGridGroupingConstants.aggregation.SUM, 
-                customTreeAggregationFinalizerFn: function( aggregation ) {
-                    aggregation.rendered = aggregation.value;
-                }
-            },
-            { name: 'IL_NEWPCS'       , displayName: '新數量', width: 115, treeAggregationType: uiGridGroupingConstants.aggregation.SUM, 
-                customTreeAggregationFinalizerFn: function( aggregation ) {
-                    // console.log(aggregation);
-                    aggregation.rendered = aggregation.value;
-                }
-            },
-            { name: 'IL_UNIVALENT'    , displayName: '單價', width: 115 },
-            { name: 'IL_UNIVALENT_NEW', displayName: '新單價', width: 115 },
-            { name: 'IL_FINALCOST'    , displayName: '完稅價格', width: 115 },
-            { name: 'IL_UNIT'         , displayName: '單位', width: 115 },
-            { name: 'IL_NEWUNIT'      , displayName: '新單位', width: 115 },
-            { name: 'IL_GETNO'        , displayName: '收件者統編', width: 115 },
-            { name: 'IL_EXNO'         , displayName: '匯出統編', width: 115 },
-            { name: 'IL_SENDNAME'     , displayName: '寄件人', width: 115 },
-            { name: 'IL_NEWSENDNAME'  , displayName: '新寄件人', width: 115 },
-            { name: 'IL_TAX'          , displayName: '稅費歸屬', width: 115 },
-            { name: 'IL_GETNAME'      , displayName: '收件人公司', width: 115 },
-            { name: 'IL_GETNAME_NEW'  , displayName: '新收件人公司', width: 115 },
-            { name: 'IL_GETADDRESS'   , displayName: '收件地址', width: 300 },
-            { name: 'IL_GETADDRESS_NEW', displayName: '新收件地址', width: 300 },
-            { name: 'IL_GETTEL'       , displayName: '收件電話', width: 115 },
-            { name: 'IL_EXTEL'        , displayName: '匯出電話', width: 115 },
-            { name: 'IL_TRCOM'        , displayName: '派送公司', width: 115 },
-            { name: 'IL_REMARK'       , displayName: '備註', width: 115 },
-            { name: 'IL_TAX2'         , displayName: '稅則', width: 115 }
-        ],
-        enableFiltering: false,
-        enableSorting: true,
-        enableColumnMenus: false,
-        groupingShowCounts: false,
-        // enableVerticalScrollbar: false,
-        paginationPageSizes: [50, 100, 150, 200, 250, 300],
-        paginationPageSize: 100,
-        onRegisterApi: function(gridApi){
-            $ctrl.job001DataHaveMergeNoGridApi = gridApi;
-            // HandleWindowResize($ctrl.job001DataHaveMergeNoGridApi);
-        }
-    };
-
-    $ctrl.job001DataNotMergeNoOption = {
-        data: '$ctrl.job001DataNotMergeNo',
-        columnDefs: [
-            { name: 'Index'           , displayName: '序列', width: 50},
-            { name: 'IL_G1'           , displayName: '報關種類', width: 80 },
-            { name: 'IL_MERGENO'      , displayName: '併票號', width: 80 },
-            { name: 'IL_BAGNO'        , displayName: '袋號', width: 80 },
-            { name: 'IL_SMALLNO'      , displayName: '小號', width: 110 },
-            { name: 'IL_NATURE'       , displayName: '品名', width: 120 },
-            { name: 'IL_NATURE_NEW'   , displayName: '新品名', width: 120 },
-            { name: 'IL_CTN'          , displayName: '件數', width: 50 },
-            { name: 'IL_PLACE'        , displayName: '產地', width: 50 },
-            { name: 'IL_NEWPLACE'     , displayName: '新產地', width: 70 },
-            { name: 'IL_WEIGHT'       , displayName: '重量', width: 70 },
-            { name: 'IL_WEIGHT_NEW'   , displayName: '新重量', width: 70 },
-            { name: 'IL_PCS'          , displayName: '數量', width: 70 },
-            { name: 'IL_NEWPCS'       , displayName: '新數量', width: 70 },
-            { name: 'IL_UNIVALENT'    , displayName: '單價', width: 70 },
-            { name: 'IL_UNIVALENT_NEW', displayName: '新單價', width: 70 },
-            { name: 'IL_FINALCOST'    , displayName: '完稅價格', width: 80 },
-            { name: 'IL_UNIT'         , displayName: '單位', width: 70 },
-            { name: 'IL_NEWUNIT'      , displayName: '新單位', width: 70 },
-            { name: 'IL_GETNO'        , displayName: '收件者統編', width: 100 },
-            { name: 'IL_EXNO'         , displayName: '匯出統編', width: 80 },
-            { name: 'IL_SENDNAME'     , displayName: '寄件人', width: 80 },
-            { name: 'IL_NEWSENDNAME'  , displayName: '新寄件人', width: 80 },
-            { name: 'IL_TAX'          , displayName: '稅費歸屬', width: 80 },
-            { name: 'IL_GETNAME'      , displayName: '收件人公司', width: 100 },
-            { name: 'IL_GETNAME_NEW'  , displayName: '新收件人公司', width: 100 },
-            { name: 'IL_GETADDRESS'   , displayName: '收件地址', width: 300 },
-            { name: 'IL_GETADDRESS_NEW', displayName: '新收件地址', width: 300 },
-            { name: 'IL_GETTEL'       , displayName: '收件電話', width: 100 },
-            { name: 'IL_EXTEL'        , displayName: '匯出電話', width: 100 },
-            { name: 'IL_TRCOM'        , displayName: '派送公司', width: 100 },
-            { name: 'IL_REMARK'       , displayName: '備註', width: 100 },
-            { name: 'IL_TAX2'         , displayName: '稅則', width: 100 }
-        ],
-        enableFiltering: false,
-        enableSorting: true,
-        enableColumnMenus: false,
-        // enableVerticalScrollbar: false,
-        paginationPageSizes: [50, 100, 150, 200, 250, 300],
-        paginationPageSize: 100,
-        onRegisterApi: function(gridApi){
-            $ctrl.job001DataNotMergeNoGridApi = gridApi;
-            // HandleWindowResize($ctrl.job001DataNotMergeNoGridApi);
-        }
-    }
-
-    function DoMergeNoSplit(){
-        $ctrl.job001DataHaveMergeNo = [];
-        $ctrl.job001DataNotMergeNo = [];
-
-        for(var i in job001Data){
-            if(job001Data[i].IL_MERGENO){
-                $ctrl.job001DataHaveMergeNo.push(job001Data[i]);
-            }else{
-                $ctrl.job001DataNotMergeNo.push(job001Data[i]);
-            }
-        }
-    }
-
-    $ctrl.ok = function() {
-        $uibModalInstance.close($ctrl.selected.item);
-    };
-
-    $ctrl.cancel = function() {
-        $uibModalInstance.dismiss('cancel');
-    };
-})
-.controller('RepeatDataModalInstanceCtrl', function ($uibModalInstance, $q, $scope, repeatData) {
-    var $ctrl = this;
-    $ctrl.mdData = repeatData;
-
-    $ctrl.repeatDataOption = {
-        data: '$ctrl.mdData',
-        columnDefs: [
-            { name: 'IL_G1'           , displayName: '報關種類', width: 80, headerCellClass: 'text-primary' },
-            { name: 'IL_MERGENO'      , displayName: '併票號', width: 80, headerCellClass: 'text-primary' },
-            { name: 'IL_BAGNO'        , displayName: '袋號', width: 80, headerCellClass: 'text-primary' },
-            { name: 'IL_SMALLNO'      , displayName: '小號', width: 110, headerCellClass: 'text-primary' },
-            { name: 'IL_NATURE'       , displayName: '品名', width: 120, enableCellEdit: false },
-            { name: 'IL_NATURE_NEW'   , displayName: '新品名', width: 120, headerCellClass: 'text-primary' },
-            { name: 'IL_CTN'          , displayName: '件數', width: 50, headerCellClass: 'text-primary' },
-            { name: 'IL_PLACE'        , displayName: '產地', width: 50, enableCellEdit: false },
-            { name: 'IL_NEWPLACE'     , displayName: '新產地', width: 70, headerCellClass: 'text-primary' },
-            { name: 'IL_WEIGHT'       , displayName: '重量', width: 70, enableCellEdit: false },
-            { name: 'IL_WEIGHT_NEW'   , displayName: '新重量', width: 70, headerCellClass: 'text-primary' },
-            { name: 'IL_PCS'          , displayName: '數量', width: 70, enableCellEdit: false },
-            { name: 'IL_NEWPCS'       , displayName: '新數量', width: 70, headerCellClass: 'text-primary' },
-            { name: 'IL_UNIVALENT'    , displayName: '單價', width: 70, enableCellEdit: false },
-            { name: 'IL_UNIVALENT_NEW', displayName: '新單價', width: 70, headerCellClass: 'text-primary' },
-            { name: 'IL_FINALCOST'    , displayName: '完稅價格', width: 80, headerCellClass: 'text-primary' },
-            { name: 'IL_UNIT'         , displayName: '單位', width: 70, enableCellEdit: false },
-            { name: 'IL_NEWUNIT'      , displayName: '新單位', width: 70, headerCellClass: 'text-primary' },
-            { name: 'IL_GETNO'        , displayName: '收件者統編', width: 100, headerCellClass: 'text-primary' },
-            { name: 'IL_EXNO'         , displayName: '匯出統編', width: 80, headerCellClass: 'text-primary' },
-            { name: 'IL_SENDNAME'     , displayName: '寄件人', width: 80, enableCellEdit: false },
-            { name: 'IL_NEWSENDNAME'  , displayName: '新寄件人', width: 80, headerCellClass: 'text-primary' },
-            { name: 'IL_TAX'          , displayName: '稅費歸屬', width: 80, headerCellClass: 'text-primary' },
-            { name: 'IL_GETNAME'      , displayName: '收件人公司', width: 100, enableCellEdit: false },
-            { name: 'IL_GETNAME_NEW'  , displayName: '新收件人公司', width: 100, headerCellClass: 'text-primary' },
-            { name: 'IL_GETADDRESS'   , displayName: '收件地址', width: 300, enableCellEdit: false },
-            { name: 'IL_GETADDRESS_NEW', displayName: '新收件地址', width: 300, headerCellClass: 'text-primary' },
-            { name: 'IL_GETTEL'       , displayName: '收件電話', width: 100, headerCellClass: 'text-primary' },
-            { name: 'IL_EXTEL'        , displayName: '匯出電話', width: 100, headerCellClass: 'text-primary' },
-            { name: 'IL_TRCOM'        , displayName: '派送公司', width: 100, headerCellClass: 'text-primary' },
-            { name: 'IL_REMARK'       , displayName: '備註', width: 100, headerCellClass: 'text-primary' },
-            { name: 'IL_TAX2'         , displayName: '稅則', width: 100, headerCellClass: 'text-primary' }
-
-            // { name: 'IL_G1'         , displayName: '報關種類', width: 115, headerCellClass: 'text-primary' },
-            // { name: 'IL_MERGENO'    , displayName: '併票號', width: 129, headerCellClass: 'text-primary' },
-            // { name: 'IL_BAGNO'      , displayName: '袋號', width: 129, headerCellClass: 'text-primary' },
-            // { name: 'IL_SMALLNO'    , displayName: '小號', width: 115, headerCellClass: 'text-primary' },
-            // { name: 'IL_NATURE'     , displayName: '品名', width: 115, enableCellEdit: false },
-            // { name: 'IL_NATURE_NEW' , displayName: '新品名', width: 115, headerCellClass: 'text-primary' },
-            // { name: 'IL_CTN'        , displayName: '件數', width: 115, headerCellClass: 'text-primary' },
-            // { name: 'IL_PLACE'      , displayName: '產地', width: 115, enableCellEdit: false },
-            // { name: 'IL_NEWPLACE'   , displayName: '新產地', width: 115, headerCellClass: 'text-primary' },
-            // { name: 'IL_WEIGHT'     , displayName: '重量', width: 115, enableCellEdit: false },
-            // { name: 'IL_WEIGHT_NEW' , displayName: '新重量', width: 115, headerCellClass: 'text-primary' },
-            // { name: 'IL_PCS'        , displayName: '數量', width: 115, enableCellEdit: false },
-            // { name: 'IL_NEWPCS'     , displayName: '新數量', width: 115, headerCellClass: 'text-primary' },
-            // { name: 'IL_UNIVALENT'  , displayName: '單價', width: 115, enableCellEdit: false },
-            // { name: 'IL_UNIVALENT_NEW', displayName: '新單價', width: 115, headerCellClass: 'text-primary' },
-            // { name: 'IL_FINALCOST'  , displayName: '完稅價格', width: 115, headerCellClass: 'text-primary' },
-            // { name: 'IL_UNIT'       , displayName: '單位', width: 115, enableCellEdit: false },
-            // { name: 'IL_NEWUNIT'    , displayName: '新單位', width: 115, headerCellClass: 'text-primary' },
-            // { name: 'IL_GETNO'      , displayName: '收件者統編', width: 115, headerCellClass: 'text-primary' },
-            // { name: 'IL_EXNO'       , displayName: '匯出統編', width: 115, headerCellClass: 'text-primary' },
-            // { name: 'IL_SENDNAME'   , displayName: '寄件人', width: 115, enableCellEdit: false },
-            // { name: 'IL_NEWSENDNAME', displayName: '新寄件人', width: 115, headerCellClass: 'text-primary' },
-            // { name: 'IL_TAX'        , displayName: '稅費歸屬', width: 115, headerCellClass: 'text-primary' },
-            // { name: 'IL_GETNAME'    , displayName: '收件人公司', width: 115, enableCellEdit: false },
-            // { name: 'IL_GETNAME_NEW', displayName: '新收件人公司', width: 115, headerCellClass: 'text-primary' },
-            // { name: 'IL_GETADDRESS' , displayName: '收件地址', width: 300, enableCellEdit: false },
-            // { name: 'IL_GETADDRESS_NEW' , displayName: '新收件地址', width: 300, headerCellClass: 'text-primary' },
-            // { name: 'IL_GETTEL'     , displayName: '收件電話', width: 115, headerCellClass: 'text-primary' },
-            // { name: 'IL_EXTEL'      , displayName: '匯出電話', width: 115, headerCellClass: 'text-primary' },
-            // { name: 'IL_TRCOM'      , displayName: '派送公司', width: 115, headerCellClass: 'text-primary' },
-            // { name: 'IL_REMARK'     , displayName: '備註', width: 115, headerCellClass: 'text-primary' },
-            // { name: 'IL_TAX2'       , displayName: '稅則', width: 115, headerCellClass: 'text-primary' }
-        ],
-        enableFiltering: false,
-        enableSorting: true,
-        enableColumnMenus: false,
-        // enableVerticalScrollbar: false,
-        paginationPageSizes: [50, 100, 150, 200, 250, 300],
-        paginationPageSize: 100,
-        rowEditWaitInterval: -1,
-        onRegisterApi: function(gridApi){
-            $ctrl.repeatDataGridApi = gridApi;
-        }
-    }
-
-    $ctrl.ok = function() {
-        $uibModalInstance.close($ctrl.repeatDataGridApi.rowEdit.getDirtyRows());
-    };
-
-    $ctrl.cancel = function() {
-        $uibModalInstance.dismiss('cancel');
-    };
-})
-.controller('OverSixModalInstanceCtrl', function ($uibModalInstance, $q, $scope, $templateCache, overSixData, type) {
-    var $ctrl = this;
-    $ctrl.type = type;
-    $ctrl.mdData = overSixData;
-
-    $ctrl.overSixOption = {
-        data: '$ctrl.mdData',
-        columnDefs: [
-            { name: 'IL_G1'           , displayName: '報關種類', width: 80, headerCellClass: 'text-primary' },
-            { name: 'IL_MERGENO'      , displayName: '併票號', width: 80, headerCellClass: 'text-primary' },
-            { name: 'IL_BAGNO'        , displayName: '袋號', width: 80, headerCellClass: 'text-primary' },
-            { name: 'IL_SMALLNO'      , displayName: '小號', width: 110, headerCellClass: 'text-primary' },
-            { name: 'IL_NATURE'       , displayName: '品名', width: 120, enableCellEdit: false },
-            { name: 'IL_NATURE_NEW'   , displayName: '新品名', width: 120, headerCellClass: 'text-primary' },
-            { name: 'IL_CTN'          , displayName: '件數', width: 50, headerCellClass: 'text-primary' },
-            { name: 'IL_PLACE'        , displayName: '產地', width: 50, enableCellEdit: false },
-            { name: 'IL_NEWPLACE'     , displayName: '新產地', width: 70, headerCellClass: 'text-primary' },
-            { name: 'IL_WEIGHT'       , displayName: '重量', width: 70, enableCellEdit: false },
-            { name: 'IL_WEIGHT_NEW'   , displayName: '新重量', width: 70, headerCellClass: 'text-primary' },
-            { name: 'IL_PCS'          , displayName: '數量', width: 70, enableCellEdit: false },
-            { name: 'IL_NEWPCS'       , displayName: '新數量', width: 70, headerCellClass: 'text-primary' },
-            { name: 'IL_UNIVALENT'    , displayName: '單價', width: 70, enableCellEdit: false },
-            { name: 'IL_UNIVALENT_NEW', displayName: '新單價', width: 70, headerCellClass: 'text-primary' },
-            { name: 'IL_FINALCOST'    , displayName: '完稅價格', width: 80, headerCellClass: 'text-primary' },
-            { name: 'IL_UNIT'         , displayName: '單位', width: 70, enableCellEdit: false },
-            { name: 'IL_NEWUNIT'      , displayName: '新單位', width: 70, headerCellClass: 'text-primary' },
-            { name: 'IL_GETNO'        , displayName: '收件者統編', width: 100, headerCellClass: 'text-primary' },
-            { name: 'IL_EXNO'         , displayName: '匯出統編', width: 80, headerCellClass: 'text-primary' },
-            { name: 'IL_SENDNAME'     , displayName: '寄件人', width: 80, enableCellEdit: false },
-            { name: 'IL_NEWSENDNAME'  , displayName: '新寄件人', width: 80, headerCellClass: 'text-primary' },
-            { name: 'IL_TAX'          , displayName: '稅費歸屬', width: 80, headerCellClass: 'text-primary' },
-            { name: 'IL_GETNAME'      , displayName: '收件人公司', width: 100, enableCellEdit: false },
-            { name: 'IL_GETNAME_NEW'  , displayName: '新收件人公司', width: 100, headerCellClass: 'text-primary' },
-            { name: 'IL_GETADDRESS'   , displayName: '收件地址', width: 300, enableCellEdit: false },
-            { name: 'IL_GETADDRESS_NEW', displayName: '新收件地址', width: 300, headerCellClass: 'text-primary' },
-            { name: 'IL_GETTEL'       , displayName: '收件電話', width: 100, headerCellClass: 'text-primary' },
-            { name: 'IL_EXTEL'        , displayName: '匯出電話', width: 100, headerCellClass: 'text-primary' },
-            { name: 'IL_TRCOM'        , displayName: '派送公司', width: 100, headerCellClass: 'text-primary' },
-            { name: 'IL_REMARK'       , displayName: '備註', width: 100, headerCellClass: 'text-primary' },
-            { name: 'IL_TAX2'         , displayName: '稅則', width: 100, headerCellClass: 'text-primary' },
-            { name: 'GETNAME_COUNT'   , displayName: '收件人公司', width: 100, headerCellClass: 'text-danger', enableCellEdit: false, pinnedRight:true, cellTemplate: $templateCache.get('accessibilityToOverSixName') },
-            { name: 'GETADDRESS_COUNT', displayName: '收件地址', width: 100, headerCellClass: 'text-danger', enableCellEdit: false, pinnedRight:true, cellTemplate: $templateCache.get('accessibilityToOverSixAddress') }
-            
-            // { name: 'IL_G1'         , displayName: '報關種類', width: 115, headerCellClass: 'text-primary' },
-            // { name: 'IL_MERGENO'    , displayName: '併票號', width: 129, headerCellClass: 'text-primary' },
-            // { name: 'IL_BAGNO'      , displayName: '袋號', width: 129, headerCellClass: 'text-primary' },
-            // { name: 'IL_SMALLNO'    , displayName: '小號', width: 115, headerCellClass: 'text-primary' },
-            // { name: 'IL_NATURE'     , displayName: '品名', width: 115, enableCellEdit: false },
-            // { name: 'IL_NATURE_NEW' , displayName: '新品名', width: 115, headerCellClass: 'text-primary' },
-            // { name: 'IL_CTN'        , displayName: '件數', width: 115, headerCellClass: 'text-primary' },
-            // { name: 'IL_PLACE'      , displayName: '產地', width: 115, enableCellEdit: false },
-            // { name: 'IL_NEWPLACE'   , displayName: '新產地', width: 115, headerCellClass: 'text-primary' },
-            // { name: 'IL_WEIGHT'     , displayName: '重量', width: 115, enableCellEdit: false },
-            // { name: 'IL_WEIGHT_NEW' , displayName: '新重量', width: 115, headerCellClass: 'text-primary' },
-            // { name: 'IL_PCS'        , displayName: '數量', width: 115, enableCellEdit: false },
-            // { name: 'IL_NEWPCS'     , displayName: '新數量', width: 115, headerCellClass: 'text-primary' },
-            // { name: 'IL_UNIVALENT'  , displayName: '單價', width: 115, enableCellEdit: false },
-            // { name: 'IL_UNIVALENT_NEW', displayName: '新單價', width: 115, headerCellClass: 'text-primary' },
-            // { name: 'IL_FINALCOST'  , displayName: '完稅價格', width: 115, headerCellClass: 'text-primary' },
-            // { name: 'IL_UNIT'       , displayName: '單位', width: 115, enableCellEdit: false },
-            // { name: 'IL_NEWUNIT'    , displayName: '新單位', width: 115, headerCellClass: 'text-primary' },
-            // { name: 'IL_GETNO'      , displayName: '收件者統編', width: 115, headerCellClass: 'text-primary' },
-            // { name: 'IL_EXNO'       , displayName: '匯出統編', width: 115, headerCellClass: 'text-primary' },
-            // { name: 'IL_SENDNAME'   , displayName: '寄件人', width: 115, enableCellEdit: false },
-            // { name: 'IL_NEWSENDNAME', displayName: '新寄件人', width: 115, headerCellClass: 'text-primary' },
-            // { name: 'IL_TAX'        , displayName: '稅費歸屬', width: 115, headerCellClass: 'text-primary' },
-            // { name: 'IL_GETNAME'    , displayName: '收件人公司', width: 115, enableCellEdit: false },
-            // { name: 'IL_GETNAME_NEW', displayName: '新收件人公司', width: 115, headerCellClass: 'text-primary' },
-            // { name: 'IL_GETADDRESS' , displayName: '收件地址', width: 300, enableCellEdit: false },
-            // { name: 'IL_GETADDRESS_NEW' , displayName: '新收件地址', width: 300, headerCellClass: 'text-primary' },
-            // { name: 'IL_GETTEL'     , displayName: '收件電話', width: 115, headerCellClass: 'text-primary' },
-            // { name: 'IL_EXTEL'      , displayName: '匯出電話', width: 115, headerCellClass: 'text-primary' },
-            // { name: 'IL_TRCOM'      , displayName: '派送公司', width: 115, headerCellClass: 'text-primary' },
-            // { name: 'IL_REMARK'     , displayName: '備註', width: 115, headerCellClass: 'text-primary' },
-            // { name: 'IL_TAX2'       , displayName: '稅則', width: 115, headerCellClass: 'text-primary' },
-            // { name: 'GETNAME_COUNT'   , displayName: '收件人公司', width: 115, headerCellClass: 'text-danger', enableCellEdit: false, pinnedRight:true },
-            // { name: 'GETADDRESS_COUNT', displayName: '收件地址', width: 115, headerCellClass: 'text-danger', enableCellEdit: false, pinnedRight:true }
-
-        ],
-        enableFiltering: false,
-        enableSorting: true,
-        enableColumnMenus: false,
-        // enableVerticalScrollbar: false,
-        paginationPageSizes: [50, 100, 150, 200, 250, 300],
-        paginationPageSize: 100,
-        rowEditWaitInterval: -1,
-        onRegisterApi: function(gridApi){
-            $ctrl.overSixGridApi = gridApi;
-        }
-    }
-
-    $ctrl.ok = function() {
-        $uibModalInstance.close($ctrl.overSixGridApi.rowEdit.getDirtyRows());
-    };
-
-    $ctrl.cancel = function() {
-        $uibModalInstance.dismiss('cancel');
-    };
-});
-"use strict";
-
-angular.module('app.selfwork').controller('Job002Ctrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, RestfulApi, uiGridConstants, $filter, $q, ToolboxApi) {
-    // console.log($stateParams, $state);
-
-    var $vm = this,
-        cellClassEditabled = [];
-
-    angular.extend(this, {
-        Init : function(){
-            // 不正常登入此頁面
-            if($stateParams.data == null){
-                ReturnToEmployeejobsPage();
-            }else{
-                $vm.bigBreadcrumbsItems = $state.current.name.split(".");
-                $vm.bigBreadcrumbsItems.shift();
-                
-                $vm.vmData = $stateParams.data;
-
-                // 測試用
-                // if($vm.vmData == null){
-                //     $vm.vmData = {
-                //         OL_SEQ : 'Co0001Co000120170712205825'
-                //     };
-                // }
-                
-                LoadFlightItemList();
-            }
-        },
-        profile : Session.Get(),
-        defaultChoice : 'Left',
-        job002Options : {
-            data: '$vm.job002Data',
-            columnDefs: [
-                // { name: 'Index'           , displayName: '序列', width: 50, enableCellEdit: false, enableFiltering: false, headerCellClass: 'text-muted'},
-                { name: 'FLL_ITEM'        , displayName: '序號', enableCellEdit: false },
-                { name: 'BAGNO_MATCH'     , displayName: '內貨', enableCellEdit: false, cellTemplate: $templateCache.get('accessibilityToInternalGoods'), filter: 
-                    {
-                        term: null,
-                        type: uiGridConstants.filter.SELECT,
-                        selectOptions: [
-                            {label:'否', value: '0'},
-                            {label:'是', value: '1'}
-                        ]
-                    }
-                },
-                { name: 'FLL_BAGNO'       , displayName: '袋號', headerCellClass: 'text-primary' },
-                { name: 'FLL_CTN'         , displayName: '件數', headerCellClass: 'text-primary', aggregationType: uiGridConstants.aggregationTypes.sum },
-                { name: 'FLL_WEIGHT'      , displayName: '重量', headerCellClass: 'text-primary', aggregationType: uiGridConstants.aggregationTypes.sum, footerCellFilter: 'number: 2' },
-                { name: 'FLL_DESCRIPTION' , displayName: '品名', headerCellClass: 'text-primary' },
-                { name: 'FLL_DECLAREDNO'  , displayName: '宣告序號', headerCellClass: 'text-primary' },
-                { name: 'FLL_REMARK'      , displayName: '備註', headerCellClass: 'text-primary' }
-            ],
-            enableFiltering: true,
-            enableSorting: true,
-            enableColumnMenus: false,
-            // enableVerticalScrollbar: false,
-		    enableRowSelection: true,
-    		enableSelectAll: true,
-            showColumnFooter: true,
-            // paginationPageSizes: [50, 100, 150, 200, 250, 300],
-            // paginationPageSize: 100,
-            onRegisterApi: function(gridApi){
-                $vm.job002GridApi = gridApi;
-
-                gridApi.rowEdit.on.saveRow($scope, $vm.Update);
-            }
-        },
-        // 修改品名
-        ModifyDescription: function(){
-
-            if($vm.job002GridApi.selection.getSelectedRows().length > 0){
-                var modalInstance = $uibModal.open({
-                    animation: true,
-                    ariaLabelledBy: 'modal-title',
-                    ariaDescribedBy: 'modal-body',
-                    templateUrl: 'modifyDescriptionModalContent.html',
-                    controller: 'ModifyDescriptionModalInstanceCtrl',
-                    controllerAs: '$ctrl',
-                    // size: 'lg',
-                    // appendTo: parentElem,
-                });
-
-                modalInstance.result.then(function(selectedItem) {
-                    // console.log(selectedItem);
-
-                    var _tasks = [];
-
-                    for(var i in $vm.job002GridApi.selection.getSelectedRows()){
-                        _tasks.push({
-                            crudType: 'Update',
-                            table: 10,
-                            params: {
-                                FLL_DESCRIPTION : selectedItem.FLL_DESCRIPTION,
-                                FLL_UP_USER     : $vm.profile.U_ID,
-                                FLL_UP_DATETIME : $filter('date')(new Date, 'yyyy-MM-dd HH:mm:ss')
-                            },
-                            condition: {
-                                FLL_SEQ         : $vm.job002GridApi.selection.getSelectedRows()[i].FLL_SEQ,
-                                FLL_IL_NEWBAGNO : $vm.job002GridApi.selection.getSelectedRows()[i].FLL_IL_NEWBAGNO
-                            }
-                        })
-                    }
-                    console.log(_tasks);
-
-                    RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res){
-                        if(res["returnData"].length > 0){
-
-                            LoadFlightItemList();
-                            toaster.pop('success', '訊息', '更新成功', 3000);
-                        }
-                    }, function (err) {
-                        toaster.pop('danger', '錯誤', '更新失敗', 3000);
-                    }).finally(function(){
-                        $vm.job002GridApi.selection.clearSelectedRows();
-                    }); 
-
-                }, function() {
-                    // $log.info('Modal dismissed at: ' + new Date());
-                });
-            }else{
-                toaster.pop('info', '訊息', '未選擇需要被更新的項目', 3000);
-            }
-        },
-        // 新增
-        Add: function(){
-
-            var modalInstance = $uibModal.open({
-                animation: true,
-                ariaLabelledBy: 'modal-title',
-                ariaDescribedBy: 'modal-body',
-                templateUrl: 'addItemModalContent.html',
-                controller: 'AddItemModalInstanceCtrl',
-                controllerAs: '$ctrl',
-                // size: 'lg',
-                // appendTo: parentElem,
-                resolve: {
-                    items: function() {
-                        return $vm.job002Data;
-                    }
-                }
-            });
-
-            modalInstance.result.then(function(selectedItem) {
-                // console.log(selectedItem);
-
-                selectedItem["FLL_CR_USER"] = $vm.profile.U_ID;
-                selectedItem["FLL_CR_DATETIME"] = $filter('date')(new Date, 'yyyy-MM-dd HH:mm:ss');
-                
-                RestfulApi.InsertMSSQLData({
-                    insertname: 'Insert',
-                    table: 10,
-                    params: selectedItem
-                }).then(function (res) {
-                    if(res["returnData"] == 1){
-                        LoadFlightItemList();
-                        toaster.pop('success', '訊息', '新增成功', 3000);
-                    }
-                });
-
-            }, function() {
-                // $log.info('Modal dismissed at: ' + new Date());
-            });
-        },
-        // 刪除
-        Delete: function(){
-            if($vm.job002GridApi.selection.getSelectedRows().length > 0){
-
-                var modalInstance = $uibModal.open({
-                    animation: true,
-                    ariaLabelledBy: 'modal-title',
-                    ariaDescribedBy: 'modal-body',
-                    template: $templateCache.get('isChecked'),
-                    controller: 'IsCheckedModalInstanceCtrl',
-                    controllerAs: '$ctrl',
-                    size: 'sm',
-                    windowClass: 'center-modal',
-                    // appendTo: parentElem,
-                    resolve: {
-                        items: function() {
-                            return {};
-                        },
-                        show: function(){
-                            return {
-                                title : "是否刪除"
-                            }
-                        }
-                    }
-                });
-
-                modalInstance.result.then(function(selectedItem) {
-
-                    var _tasks = [];
-
-                    for(var i in $vm.job002GridApi.selection.getSelectedRows()){
-                        _tasks.push({
-                            crudType: 'Delete',
-                            table: 10,
-                            params: {
-                                FLL_SEQ         : $vm.job002GridApi.selection.getSelectedRows()[i].FLL_SEQ,
-                                FLL_IL_NEWBAGNO : $vm.job002GridApi.selection.getSelectedRows()[i].FLL_IL_NEWBAGNO
-                            }
-                        })
-                    }
-
-                    RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res){
-                        if(res["returnData"].length > 0){
-
-                            LoadFlightItemList();
-                            toaster.pop('success', '訊息', '刪除成功', 3000);
-                        }
-                    }, function (err) {
-                        toaster.pop('danger', '錯誤', '刪除失敗', 3000);
-                    }).finally(function(){
-                        $vm.job002GridApi.selection.clearSelectedRows();
-                    }); 
-
-                }, function() {
-                    // $log.info('Modal dismissed at: ' + new Date());
-                });
-            }else{
-                toaster.pop('info', '訊息', '未選擇需要被刪除的項目', 3000);
-            }
-        },
-        // 匯出Excel
-        ExportExcel: function(){
-
-            var _exportName = $filter('date')($vm.vmData.OL_IMPORTDT, 'yyyyMMdd') + ' ' + 
-                              $vm.vmData.OL_MASTER + ' ' + 
-                              $vm.vmData.OL_FLIGHTNO;
-                // _totalBag = 0,
-                // _totalWeight = 0;
-
-            // 計算件數和重量
-            // for(var i in $vm.job002Data){
-            //     _totalBag += $vm.job002Data[i].FLL_CTN;
-            //     _totalWeight += $vm.job002Data[i].FLL_WEIGHT;
-            // }
-
-            ToolboxApi.ExportExcelByMultiSql([
-                {
-                    templates      : 5,
-                    filename       : _exportName,
-                    OL_MASTER      : $vm.vmData.OL_MASTER,
-                    OL_IMPORTDT    : $filter('date')($vm.vmData.OL_IMPORTDT, 'yyyy/MM/dd'),
-                    OL_FLIGHTNO    : $vm.vmData.OL_FLIGHTNO,
-                    OL_COUNTRY     : $vm.vmData.OL_COUNTRY, 
-                    OL_TEL         : $vm.vmData.OL_TEL, 
-                    OL_FAX         : $vm.vmData.OL_FAX, 
-                    OL_TOTALBAG    : $vm.job002GridApi.grid.columns[4].getAggregationValue(), 
-                    OL_TOTALWEIGHT : $vm.job002GridApi.grid.columns[5].getAggregationValue().toFixed(2)
-                },
-                {
-                    crudType: 'Select',
-                    querymain: 'job002',
-                    queryname: 'SelectFlightItemList',
-                    params: {               
-                        FLL_SEQ: $vm.vmData.OL_SEQ
-                    }
-                },
-                {
-                    crudType: 'Select',
-                    querymain: 'job002',
-                    queryname: 'SelectRemark',
-                    params: {               
-                        FLL_SEQ: $vm.vmData.OL_SEQ
-                    }
-                }
-            ]).then(function (res) {
-                // console.log(res);
-            });
-
-        },
-        // 底部編輯
-        EditorRemark: function(){
-
-            RestfulApi.SearchMSSQLData({
-                querymain: 'job002',
-                queryname: 'SelectRemark',
-                params: {               
-                    FLL_SEQ: $vm.vmData.OL_SEQ
-                }
-            }).then(function (res){
-                console.log(res["returnData"]);
-            
-                var modalInstance = $uibModal.open({
-                    animation: true,
-                    ariaLabelledBy: 'modal-title',
-                    ariaDescribedBy: 'modal-body',
-                    templateUrl: 'editorRemarkModalContent.html',
-                    controller: 'EditorRemarkModalInstanceCtrl',
-                    controllerAs: '$ctrl',
-                    // size: 'sm',
-                    // appendTo: parentElem,
-                    resolve: {
-                        items: function() {
-                            return res["returnData"];
-                        }
-                    }
-                });
-
-                modalInstance.result.then(function(selectedItem) {
-
-                    console.log(selectedItem);
-
-                    var _tasks = [];
-
-                    _tasks.push({
-                        crudType: 'Delete',
-                        table: 28,
-                        params: {
-                            FLLR_SEQ : $vm.vmData.OL_SEQ
-                        }
-                    })
-
-                    for(var i in selectedItem){
-                        _tasks.push({
-                            crudType: 'Insert',
-                            table: 28,
-                            params: {
-                                FLLR_SEQ         : $vm.vmData.OL_SEQ,
-                                FLLR_ROWINDEX    : i,
-                                FLLR_REMARK      : selectedItem[i].text,
-                                FLLR_CR_USER     : $vm.profile.U_ID,
-                                FLLR_CR_DATETIME : $filter('date')(new Date, 'yyyy-MM-dd HH:mm:ss')
-                            }
-                        })
-                    }
-
-                    RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res){
-                        if(res["returnData"].length > 0){
-
-                            toaster.pop('success', '訊息', '底部編輯成功', 3000);
-                        }
-                    }, function (err) {
-                        toaster.pop('danger', '錯誤', '底部編輯失敗', 3000);
-                    });
-
-                }, function() {
-                    // $log.info('Modal dismissed at: ' + new Date());
-                });
-            }); 
-        },
-        // 寄信
-        SendMail: function(){
-
-            RestfulApi.SearchMSSQLData({
-                querymain: 'aviationMail',
-                queryname: 'SelectFlightMailPair',
-                params: {
-                    FMP_FLIGHTNO : $vm.vmData.OL_FLIGHTNO
-                }
-            }).then(function (res){
-                // console.log(res["returnData"]);
-
-                var modalInstance = $uibModal.open({
-                    animation: true,
-                    ariaLabelledBy: 'modal-title',
-                    ariaDescribedBy: 'modal-body',
-                    templateUrl: 'choiceMailModalContent.html',
-                    controller: 'ChoiceMailModalInstanceCtrl',
-                    controllerAs: '$ctrl',
-                    size: 'lg',
-                    backdrop: 'static',
-                    resolve: {
-                        items: function() {
-                            return res["returnData"];
-                        }
-                    }
-                });
-
-                modalInstance.result.then(function(selectedItem) {
-                    // console.log(selectedItem);
-                    var _flightMail = selectedItem;
-
-                    modalInstance = $uibModal.open({
-                        animation: true,
-                        ariaLabelledBy: 'modal-title',
-                        ariaDescribedBy: 'modal-body',
-                        templateUrl: 'sendMailModalContent.html',
-                        controller: 'SendMailModalInstanceCtrl',
-                        controllerAs: '$ctrl',
-                        size: 'lg',
-                        backdrop: 'static',
-                        resolve: {
-                            items: function() {
-                                return _flightMail;
-                            },
-                            data: function(){
-
-                                var _exportName = $filter('date')($vm.vmData.OL_IMPORTDT, 'yyyyMMdd') + ' ' + 
-                                                  $filter('compyFilter')($vm.vmData.OL_CO_CODE) + ' ' + 
-                                                  $vm.vmData.OL_FLIGHTNO;
-
-                                $vm.vmData["_exportName"] = _exportName;
-                                $vm.vmData["OL_IMPORTDT"] = $filter('date')($vm.vmData.OL_IMPORTDT, 'yyyy-MM-dd');
-                                $vm.vmData["OL_TOTALBAG"] = $vm.job002GridApi.grid.columns[4].getAggregationValue();
-                                $vm.vmData["OL_TOTALWEIGHT"] = $vm.job002GridApi.grid.columns[5].getAggregationValue().toFixed(2);
-
-                                return $vm.vmData;
-                            },
-                            profile: function(){
-                                return $vm.profile
-                            }
-                        }
-                    });
-
-                    modalInstance.result.then(function(selectedItem) {
-                        console.log(_flightMail);
-
-                        if(selectedItem == "ok"){
-
-                            RestfulApi.InsertMSSQLData({
-                                insertname: 'Insert',
-                                table: 31,
-                                params: {
-                                    FML_SEQ : $vm.vmData.OL_SEQ,
-                                    FML_SENDER  : $vm.profile.U_ID,
-                                    FML_SEND_DATETIME : $filter('date')(new Date(), 'yyyy-MM-dd HH:mm:ss'),
-                                    FML_CR_USER : _flightMail[0].FM_CR_USER,
-                                    FML_CR_DATETIME : _flightMail[0].FM_CR_DATETIME
-                                }
-                            }).then(function(_res) {
-
-                                if(_res["returnData"] == 1){
-                                    toaster.pop('success', '訊息', '寄信成功', 3000);
-                                }
-
-                            });
-                            
-                        }else{
-                            toaster.pop('danger', '錯誤', '寄信失敗', 3000);
-                        }
-                    }, function() {
-                        // $log.info('Modal dismissed at: ' + new Date());
-                    });
-
-                }, function() {
-                    // $log.info('Modal dismissed at: ' + new Date());
-                });
-            }); 
-        },
-        Return : function(){
-            ReturnToEmployeejobsPage();
-        },
-        Update : function(entity){
-            // create a fake promise - normally you'd use the promise returned by $http or $resource
-            var promise = $q.defer();
-            $vm.job002GridApi.rowEdit.setSavePromise( entity, promise.promise );
-         
-            RestfulApi.UpdateMSSQLData({
-                updatename: 'Update',
-                table: 10,
-                params: {
-                    // FLL_ITEM         : entity.FLL_ITEM,
-                    FLL_BAGNO        : entity.FLL_BAGNO,
-                    FLL_CTN          : entity.FLL_CTN,
-                    FLL_WEIGHT       : entity.FLL_WEIGHT,
-                    FLL_DESCRIPTION  : entity.FLL_DESCRIPTION,
-                    FLL_DECLAREDNO   : entity.FLL_DECLAREDNO,
-                    FLL_REMARK       : entity.FLL_REMARK
-                },
-                condition: {
-                    FLL_SEQ         : entity.FLL_SEQ,
-                    FLL_IL_NEWBAGNO : entity.FLL_IL_NEWBAGNO
-                }
-            }).then(function (res) {
-                promise.resolve();
-            }, function (err) {
-                toaster.pop('danger', '錯誤', '更新失敗', 3000);
-                promise.reject();
-            });
-        }
-    });
-
-    function LoadFlightItemList(){
-        RestfulApi.SearchMSSQLData({
-            querymain: 'job002',
-            queryname: 'SelectFlightItemList',
-            params: {
-                FLL_SEQ: $vm.vmData.OL_SEQ
-            }
-        }).then(function (res){
-            console.log(res["returnData"]);
-            // for(var i=0;i<res["returnData"].length;i++){
-            //     res["returnData"][i]["Index"] = i+1;
-            // }
-            $vm.job002Data = res["returnData"];
-        }).finally(function() {
-            HandleWindowResize($vm.job002GridApi);
-        }); 
-    };
-
-    function ReturnToEmployeejobsPage(){
-        $state.transitionTo($state.current.parent);
-    };
-
-})
-.controller('ModifyDescriptionModalInstanceCtrl', function ($uibModalInstance) {
-    var $ctrl = this;
-
-    $ctrl.Init = function(){
-        $ctrl.mdData = {
-            FLL_DESCRIPTION : "CHANDLERY"
-        };
-    }
-
-    $ctrl.ok = function() {
-        $uibModalInstance.close($ctrl.mdData);
-    };
-
-    $ctrl.cancel = function() {
-        $uibModalInstance.dismiss('cancel');
-    };
-})
-.controller('AddItemModalInstanceCtrl', function ($uibModalInstance, items) {
-    var $ctrl = this;
-
-    $ctrl.Init = function(){
-        var _length = items.length;
-        if(_length > 0){
-            var _temp = items[_length-1];
-            $ctrl.mdData = {
-                FLL_SEQ : _temp.FLL_SEQ,
-                FLL_ITEM : parseInt(_temp.FLL_ITEM) + 1,
-                FLL_IL_NEWBAGNO : _temp.FLL_SEQ + padLeft("0" + parseInt(_temp.FLL_ITEM), 3),
-                FLL_DESCRIPTION : "CHANDLERY",
-                FLL_DECLAREDNO : "",
-                FLL_REMARK : "請進遠雄快遞倉"
-            };
-        }
-    }
-
-    $ctrl.ok = function() {
-        $uibModalInstance.close($ctrl.mdData);
-    };
-
-    $ctrl.cancel = function() {
-        $uibModalInstance.dismiss('cancel');
-    };
-})
-.controller('EditorRemarkModalInstanceCtrl', function ($uibModalInstance, items) {
-    var $ctrl = this;
-
-    $ctrl.Init = function(){
-        $ctrl.mdData = [];
-
-        for(var i in items){
-            $ctrl.mdData.push({
-                id : i,
-                text : items[i].FLLR_REMARK
-            });
-        }
-    }
-
-    $ctrl.ok = function() {
-        $uibModalInstance.close($ctrl.mdData);
-    };
-
-    $ctrl.cancel = function() {
-        $uibModalInstance.dismiss('cancel');
-    };
-})
-.controller('ChoiceMailModalInstanceCtrl', function ($uibModalInstance, $filter, $timeout, items) {
-    var $ctrl = this;
-    $ctrl.mdData = items;
-
-    // 把已被選取的郵件目標打勾
-    $timeout(function() {
-        if($ctrl.mdDataGridApi.selection.selectRow){
-            $ctrl.mdDataGridApi.selection.selectRow($filter('filter')($ctrl.mdData, {isChoice: 1})[0]);
-        }
-    });
-
-    $ctrl.mdDataOptions = {
-        data:  '$ctrl.mdData',
-        columnDefs: [
-            { name: 'FM_TARGET', displayName: '目標名稱', width: '100' },
-            { name: 'FM_MAIL'  , displayName: '信箱' }
-        ],
-        enableFiltering: true,
-        enableSorting: true,
-        enableColumnMenus: false,
-        multiSelect: false,
-        // enableVerticalScrollbar: false,
-        paginationPageSizes: [10, 25, 50, 100],
-        paginationPageSize: 100,
-        onRegisterApi: function(gridApi){
-            $ctrl.mdDataGridApi = gridApi;
-        }
-    }
-
-    $ctrl.ok = function() {
-        $uibModalInstance.close($ctrl.mdDataGridApi.selection.getSelectedRows());
-    };
-
-    $ctrl.cancel = function() {
-        $uibModalInstance.dismiss('cancel');
-    };
-})
-.controller('SendMailModalInstanceCtrl', function ($uibModalInstance, RestfulApi, ToolboxApi, SUMMERNOT_CONFIG, $filter, FileUploader, items, data, profile) {
-    var $ctrl = this,
-        _d = new Date(),
-        _filepath = _d.getFullYear() + '\\' + ("0" + (_d.getMonth()+1)).slice(-2) + '\\' + ("0" + _d.getDate()).slice(-2) + '\\';
-
-    $ctrl.Init = function(){
-        var _mail = angular.copy(items[0].FM_MAIL.split(";"));
-        items[0].FM_MAIL = [];
-        for(var i in _mail){
-            items[0].FM_MAIL.push({
-                text : _mail[i]
-            });
-        }
-
-        $ctrl.mdData = angular.copy(items[0]);
-        $ctrl.snOptions = SUMMERNOT_CONFIG;
-
-        LoadFMAF();
-    }
-
-    $ctrl.uploader = new FileUploader({
-        url: '/toolbox/uploadFile?filePath='+_filepath
-    })
-
-    // Upload Filters
-    $ctrl.uploader.filters.push({
-        name: 'queueFilter',
-        fn: function(item /*{File|FileLikeObject}*/, options) {
-            // return this.queue.length < $scope.optionParam.UploadQueue;
-            return this.queue.length < 10;
-        }
-    });
-
-    $ctrl.uploader.filters.push({
-        name: 'sizeFilter',
-        fn: function(item /*{File|FileLikeObject}*/, options) {
-            // return item.size < $scope.optionParam.UploadSize * 1000 * 1000;
-            return item.size < 10 * 1000 * 1000;
-        }
-    });
-
-    // 處理已上傳的部分 : 當相同檔名時，不可上傳
-    $ctrl.uploader.filters.push({
-        name: 'nameFilter',
-        fn: function(item /*{File|FileLikeObject}*/, options) {
-            var uploadedDataLength = ($filter('filter')($ctrl.mdData.UploadedData, {FMAF_O_FILENAME: item.name})).length;
-            
-            if(uploadedDataLength > 0){
-                toaster.pop('info', "訊息", "已上傳過相同的檔名。", 3000);
-                return false;
-            }else{
-                return true;
-            }
-        }
-    });
-
-    // 處理未上傳的部分 : 當相同檔名時，不可上傳
-    FileUploader.FileSelect.prototype.isEmptyAfterSelection = function() {
-        return false;
-    };
-
-    // $ctrl.uploader.filters.push({
-    //     name: 'fileFilter',
-    //     fn: function(item /*{File|FileLikeObject}*/, options) {
-    //         var type = '|' + item.type.slice(item.type.lastIndexOf('/') + 1) + '|',
-    //             typeStr = "|";
-    //         for(var i in $scope.optionParam.UploadType){
-    //             typeStr += $scope.optionParam.UploadType[i] + "|";
-    //         }
-    //         return typeStr.indexOf(type) !== -1;
-    //     }
-    // });
-
-    // Upload Callback Methods
-    $ctrl.uploader.onWhenAddingFileFailed = function(item /*{File|FileLikeObject}*/, filter, options) {
-        console.info('onWhenAddingFileFailed', item, filter, options);
-        // var title = "", msg;
-        // switch(filter.name){
-        //     case "fileFilter":
-        //         title = item.name;
-        //         msg = "檔案類型錯誤。";
-        //         break;
-        //     case "sizeFilter":
-        //         title = item.name;
-        //         msg = "上傳檔案超過" + $scope.optionParam.UploadSize + "Mb。";
-        //         break;
-        //     case "queueFilter":
-        //         msg = "上傳數量超過" + $scope.optionParam.UploadQueue + "個。";
-        //         break;
-        // }
-        // toaster.pop('info', title, msg, 3000);
-    };
-    $ctrl.uploader.onAfterAddingFile = function(fileItem) {
-        console.info('onAfterAddingFile', fileItem);
-        var reader = new FileReader();
-
-        reader.onload = function(readerEvt) {
-            var data = readerEvt.target.result;
-            var fileNameArray = fileItem.file.name.split(".");
-            var queueIndex = $ctrl.uploader.queue.indexOf(fileItem);
-            var rename = angular.copy(CryptoJS.MD5(data).toString() + "." + fileNameArray[fileNameArray.length-1]);
-            
-            // Duplicate File
-            // if($filter('filter')($scope.duplicateFile, rename).length > 0){
-            //     $ctrl.uploader.queue[queueIndex].remove();
-            //     toaster.pop('info', '上傳檔案重複', fileItem.file["name"], 3000);
-            // }else{
-                // $scope.duplicateFile.push(rename);
-                // $scope.queueFile.push(rename);
-                fileItem.url += '&rFilename='+rename;
-            // }
-            // var dataFile = forumService.b64toBlob(btoa(data), fileItem.file.type);
-            // fileItem.file = dataFile;
-        };
-
-        reader.readAsBinaryString(fileItem._file);
-    };
-    $ctrl.uploader.onAfterAddingAll = function(addedFileItems) {
-        console.info('onAfterAddingAll', addedFileItems);
-    };
-    $ctrl.uploader.onBeforeUploadItem = function(item) {
-        console.info('onBeforeUploadItem', item);
-    };
-    $ctrl.uploader.onProgressItem = function(fileItem, progress) {
-        console.info('onProgressItem', fileItem, progress);
-    };
-    $ctrl.uploader.onProgressAll = function(progress) {
-        console.info('onProgressAll', progress);
-    };
-    $ctrl.uploader.onSuccessItem = function(fileItem, response, status, headers) {
-        console.info('onSuccessItem', fileItem, response, status, headers);
-    };
-    $ctrl.uploader.onErrorItem = function(fileItem, response, status, headers) {
-        console.info('onErrorItem', fileItem, response, status, headers);
-    };
-    $ctrl.uploader.onCancelItem = function(fileItem, response, status, headers) {
-        console.info('onCancelItem', fileItem, response, status, headers);
-    };
-    $ctrl.uploader.onCompleteItem = function(fileItem, response, status, headers) {
-        console.info('onCompleteItem', fileItem, response, status, headers);
-        if(status == 200){
-            // 儲存使用者每個上傳檔案的資訊
-            $ctrl.mdData.UserUploadedData.push({
-                FMAF_O_FILENAME : response.oFilename,
-                FMAF_R_FILENAME : response.rFilename,
-                FMAF_FILEPATH : response.Filepath,
-                FMAF_FILESIZE : response.Filesize,
-                FMAF_CR_USER : profile.U_ID,
-                FMAF_CR_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss')
-            });
-        }else{
-            toaster.pop('error', "檔案上傳失敗", response.oFilename, 3000);
-        }
-    };
-    $ctrl.uploader.onCompleteAll = function() {
-        console.info('onCompleteAll');
-
-        SendMail();
-    };
-    
-    function LoadFMAF(){
-        RestfulApi.SearchMSSQLData({
-            querymain: 'targetEditor',
-            queryname: 'SelectFMAF',
-            params: {
-                FMAF_CR_USER: $ctrl.mdData.FM_CR_USER,
-                FMAF_CR_DATETIME: $ctrl.mdData.FM_CR_DATETIME
-            }
-        }).then(function (res){
-            // console.log(res["returnData"]);
-            // 信件預設檔案
-            $ctrl.mdData.UploadedData = res["returnData"];
-
-            // 使用者上傳檔案
-            $ctrl.mdData.UserUploadedData = [];
-        });
-    }; 
-    
-    function SendMail(){
-        ToolboxApi.SendMail({
-            mailContent : $ctrl.mdData
-            // queryContent : data
-        }).then(function (res) {
-            // console.log(res["returnData"]);
-            $uibModalInstance.close(res["returnData"]);
-        }).finally(function(){
-            $ctrl.sending = false;
-        });
-    }
-
-    $ctrl.ok = function() {
-
-        $ctrl.sending = true;
-
-        // 有上傳檔案 先上傳檔案之後再寄信
-        if($ctrl.uploader.getNotUploadedItems().length > 0){
-            $ctrl.uploader.uploadAll();
-        }
-        // 無上傳檔案 直接寄信
-        else{
-            SendMail();
-        }
-
-    };
-
-    $ctrl.cancel = function() {
-        $uibModalInstance.dismiss('cancel');
-    };
-});
-"use strict";
-
-angular.module('app.selfwork').controller('Job003Ctrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, RestfulApi, uiGridConstants, $filter, $q, ToolboxApi) {
-    // console.log($stateParams, $state);
-
-    var $vm = this,
-        cellClassEditabled = [];
-
-    angular.extend(this, {
-        Init : function(){
-            // 不正常登入此頁面
-            if($stateParams.data == null){
-                ReturnToEmployeejobsPage();
-            }else{
-                $vm.bigBreadcrumbsItems = $state.current.name.split(".");
-                $vm.bigBreadcrumbsItems.shift();
-                
-                $vm.vmData = $stateParams.data;
-
-                // 測試用
-                // if($vm.vmData == null){
-                //     $vm.vmData = {
-                //         OL_SEQ : 'AdminTest20170418195141'
-                //     };
-                // }
-                
-                LoadFlightItemList();
-            }
-        },
-        profile : Session.Get(),
-        defaultChoice : 'Left',
-        job003Options : {
-            data: '$vm.job003Data',
-            columnDefs: [
-                { name: 'Index'         , displayName: '序列', width: 50, enableCellEdit: false, enableFiltering: false},
-                { name: 'DIL_DRIVER'    , displayName: '司機' },
-                { name: 'DIL_BAGNO'     , displayName: '袋號' },
-                { name: 'DIL_ORDERNO'   , displayName: '提單號' },
-                { name: 'DIL_BARCODE'   , displayName: '條碼號' },
-                { name: 'DIL_CTN'       , displayName: '件數' },
-                { name: 'DIL_WEIGHT'    , displayName: '重量' },
-                { name: 'DIL_GETNAME'   , displayName: '收件人公司' },
-                { name: 'DIL_GETADDRESS', displayName: '收件地址' },
-                { name: 'DIL_GETTEL'    , displayName: '收件人電話' },
-                { name: 'DIL_INCOME'    , displayName: '代收款' },
-                { name: 'DIL_REMARK'    , displayName: '備註' }
-            ],
-            enableFiltering: true,
-            enableSorting: true,
-            enableColumnMenus: false,
-            // enableVerticalScrollbar: false,
-		    enableRowSelection: true,
-    		enableSelectAll: true,
-            paginationPageSizes: [50, 100, 150, 200, 250, 300],
-            paginationPageSize: 100,
-            onRegisterApi: function(gridApi){
-                $vm.job003GridApi = gridApi;
-
-                // gridApi.rowEdit.on.saveRow($scope, $vm.Update);
-            }
-        },
-        ExportExcel: function(){
-            var _exportName = $filter('date')($vm.vmData.OL_IMPORTDT, 'yyyyMMdd') + ' ' + 
-                              $filter('compyFilter')($vm.vmData.OL_CO_CODE) + ' ' + 
-                              $vm.vmData.OL_FLIGHTNO;
-
-            ToolboxApi.ExportExcelBySql({
-                templates : 4,
-                filename : _exportName,
-                querymain: 'job003',
-                queryname: 'SelectDeliveryItemList',
-                params: {
-                    OL_MASTER : $vm.vmData.OL_MASTER,
-                    OL_IMPORTDT : $filter('date')($vm.vmData.OL_IMPORTDT, 'yyyy-MM-dd'),
-                    OL_FLIGHTNO : $vm.vmData.OL_FLIGHTNO,
-                    OL_COUNTRY : $vm.vmData.OL_COUNTRY,                
-                    DIL_SEQ: $vm.vmData.OL_SEQ
-                }
-            }).then(function (res) {
-                // console.log(res);
-            });
-        },
-        Return : function(){
-            ReturnToEmployeejobsPage();
-        },
-        Update : function(entity){
-            // create a fake promise - normally you'd use the promise returned by $http or $resource
-            var promise = $q.defer();
-            $vm.job003GridApi.rowEdit.setSavePromise( entity, promise.promise );
-         
-            RestfulApi.UpdateMSSQLData({
-                updatename: 'Update',
-                table: 11,
-                params: {
-                    DIL_DRIVER : entity.DIL_DRIVER,
-                    DIL_BAGNO : entity.DIL_BAGNO,
-                    DIL_ORDERNO : entity.DIL_ORDERNO,
-                    DIL_BARCODE : entity.DIL_BARCODE,
-                    DIL_CTN : entity.DIL_CTN,
-                    DIL_WEIGHT : entity.DIL_WEIGHT,
-                    DIL_GETNAME : entity.DIL_GETNAME,
-                    DIL_GETADDRESS : entity.DIL_GETADDRESS,
-                    DIL_GETTEL : entity.DIL_GETTEL,
-                    DIL_INCOME : entity.DIL_INCOME,
-                    DIL_REMARK : entity.DIL_REMARK
-                },
-                condition: {
-                    DIL_SEQ           : entity.DIL_SEQ,
-                    DIL_IL_NEWBAGNO   : entity.DIL_IL_NEWBAGNO,
-                    DIL_IL_NEWSMALLNO : entity.DIL_IL_NEWSMALLNO
-                }
-            }).then(function (res) {
-                promise.resolve();
-            }, function (err) {
-                toaster.pop('danger', '錯誤', '更新失敗', 3000);
-                promise.reject();
-            });
-        }
-    });
-
-    function LoadFlightItemList(){
-        RestfulApi.SearchMSSQLData({
-            querymain: 'job003',
-            queryname: 'SelectDeliveryItemList',
-            params: {
-                DIL_SEQ: $vm.vmData.OL_SEQ
-            }
-        }).then(function (res){
-            console.log(res["returnData"]);
-            for(var i=0;i<res["returnData"].length;i++){
-                res["returnData"][i]["Index"] = i+1;
-            }
-            $vm.job003Data = res["returnData"];
-        }).finally(function() {
-            HandleWindowResize($vm.job003GridApi);
-        }); 
-    };
-
-    function ReturnToEmployeejobsPage(){
-        $state.transitionTo($state.current.parent);
-    };
-
-});
-"use strict";
-
 angular.module('app.settings').controller('AccountCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, RestfulApi, $filter, bool, role, userGrade, $templateCache) {
 
     var $vm = this,
@@ -24327,7 +24339,7 @@ angular.module('app.settings').controller('TargetEditorCtrl', function ($scope, 
                     var _data = res["returnData"] || [];
                     
                     if(_data.length > 0){
-                        toaster.pop('warning', '警告', "郵件目標名稱「"+_data[0].FM_TARGET+"」已有此航班。", 3000);
+                        toaster.pop('warning', '警告', "郵件目標名稱「"+_data[0].FM_TARGET+"」已有航班「"+$tag.text+"」。", 3000);
                         reject(false);
                     }else{
                         resolve(true);
@@ -24337,7 +24349,7 @@ angular.module('app.settings').controller('TargetEditorCtrl', function ($scope, 
             });
         },
         OnInvalidTag : function(){
-            toaster.pop('warning', '警告', "輸入規則錯誤。", 3000);
+            toaster.pop('warning', '警告', "航班輸入規則錯誤。", 3000);
         },
         Return : function(){
             ReturnToAviationMail();
@@ -24373,7 +24385,8 @@ angular.module('app.settings').controller('TargetEditorCtrl', function ($scope, 
                         table: 34,
                         params: {
                             FMP_FLIGHTNO : $vm.vmData.FMP_FLIGHTNO[i].text,
-                            FMP_CR_USER : $vm.vmData.FM_CR_USER,
+                            // FMP_CR_USER : $vm.vmData.FM_CR_USER,
+                            FMP_CR_USER : $vm.profile.U_ID,
                             FMP_CR_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss')
                         }
                     });
@@ -24937,127 +24950,6 @@ angular.module('app.settings').controller('ExCompyCtrl', function ($scope, $stat
 });
 'use strict';
 
-angular.module('app.tables').directive('jqGrid', function ($compile) {
-    var jqGridCounter = 0;
-
-    return {
-        replace: true,
-        restrict: 'E',
-        scope: {
-            gridData: '='
-        },
-        template: '<div>' +
-            '<table></table>' +
-            '<div class="jqgrid-pagination"></div>' +
-            '</div>',
-        controller: function($scope, $element){
-            $scope.editRow  = function(row){
-                $element.find('table').editRow(row);
-            };
-            $scope.saveRow  = function(row){
-                $element.find('table').saveRow(row);
-            };
-            $scope.restoreRow  = function(row){
-                $element.find('table').restoreRow(row);
-            };
-        },
-        link: function (scope, element) {
-            var gridNumber = jqGridCounter++;
-            var wrapperId = 'jqgrid-' + gridNumber;
-            element.attr('id', wrapperId);
-
-            var tableId = 'jqgrid-table-' + gridNumber;
-            var table = element.find('table');
-            table.attr('id', tableId);
-
-            var pagerId = 'jqgrid-pager-' + gridNumber;
-            element.find('.jqgrid-pagination').attr('id', pagerId);
-
-
-            table.jqGrid({
-                data : scope.gridData.data,
-                datatype : "local",
-                height : 'auto',
-                colNames : scope.gridData.colNames || [],
-                colModel : scope.gridData.colModel || [],
-                rowNum : 10,
-                rowList : [10, 20, 30],
-                pager : '#' + pagerId,
-                sortname : 'id',
-                toolbarfilter : true,
-                viewrecords : true,
-                sortorder : "asc",
-                gridComplete : function() {
-                    var ids = table.jqGrid('getDataIDs');
-                    for (var i = 0; i < ids.length; i++) {
-                        var cl = ids[i];
-                        var be = "<button class='btn btn-xs btn-default' uib-tooltip='Edit Row' tooltip-append-to-body='true' ng-click='editRow("+ cl +")'><i class='fa fa-pencil'></i></button>";
-
-                        var se = "<button class='btn btn-xs btn-default' uib-tooltip='Save Row' tooltip-append-to-body='true' ng-click='saveRow("+ cl +")'><i class='fa fa-save'></i></button>";
-
-                        var ca = "<button class='btn btn-xs btn-default' uib-tooltip='Cancel' tooltip-append-to-body='true' ng-click='restoreRow("+ cl +")'><i class='fa fa-times'></i></button>";
-
-                        table.jqGrid('setRowData', ids[i], {
-                            act : be + se + ca
-                        });
-                    }
-                },
-                editurl : "dummy.html",
-                caption : "SmartAdmin jQgrid Skin",
-                multiselect : true,
-                autowidth : true
-
-            });
-            table.jqGrid('navGrid', '#' + pagerId, {
-                edit : false,
-                add : false,
-                del : true
-            });
-            table.jqGrid('inlineNav', '#' + pagerId);
-
-
-            element.find(".ui-jqgrid").removeClass("ui-widget ui-widget-content");
-            element.find(".ui-jqgrid-view").children().removeClass("ui-widget-header ui-state-default");
-            element.find(".ui-jqgrid-labels, .ui-search-toolbar").children().removeClass("ui-state-default ui-th-column ui-th-ltr");
-            element.find(".ui-jqgrid-pager").removeClass("ui-state-default");
-            element.find(".ui-jqgrid").removeClass("ui-widget-content");
-
-            // add classes
-            element.find(".ui-jqgrid-htable").addClass("table table-bordered table-hover");
-            element.find(".ui-jqgrid-btable").addClass("table table-bordered table-striped");
-
-            element.find(".ui-pg-div").removeClass().addClass("btn btn-sm btn-primary");
-            element.find(".ui-icon.ui-icon-plus").removeClass().addClass("fa fa-plus");
-            element.find(".ui-icon.ui-icon-pencil").removeClass().addClass("fa fa-pencil");
-            element.find(".ui-icon.ui-icon-trash").removeClass().addClass("fa fa-trash-o");
-            element.find(".ui-icon.ui-icon-search").removeClass().addClass("fa fa-search");
-            element.find(".ui-icon.ui-icon-refresh").removeClass().addClass("fa fa-refresh");
-            element.find(".ui-icon.ui-icon-disk").removeClass().addClass("fa fa-save").parent(".btn-primary").removeClass("btn-primary").addClass("btn-success");
-            element.find(".ui-icon.ui-icon-cancel").removeClass().addClass("fa fa-times").parent(".btn-primary").removeClass("btn-primary").addClass("btn-danger");
-
-            element.find(".ui-icon.ui-icon-seek-prev").wrap("<div class='btn btn-sm btn-default'></div>");
-            element.find(".ui-icon.ui-icon-seek-prev").removeClass().addClass("fa fa-backward");
-
-            element.find(".ui-icon.ui-icon-seek-first").wrap("<div class='btn btn-sm btn-default'></div>");
-            element.find(".ui-icon.ui-icon-seek-first").removeClass().addClass("fa fa-fast-backward");
-
-            element.find(".ui-icon.ui-icon-seek-next").wrap("<div class='btn btn-sm btn-default'></div>");
-            element.find(".ui-icon.ui-icon-seek-next").removeClass().addClass("fa fa-forward");
-
-            element.find(".ui-icon.ui-icon-seek-end").wrap("<div class='btn btn-sm btn-default'></div>");
-            element.find(".ui-icon.ui-icon-seek-end").removeClass().addClass("fa fa-fast-forward");
-
-            $(window).on('resize.jqGrid', function() {
-               table.jqGrid('setGridWidth', $("#content").width());
-            });
-
-
-            $compile(element.contents())(scope);
-        }
-    }
-});
-'use strict';
-
 angular.module('app.tables').directive('datatableBasic', function ($compile) {
     return {
         restrict: 'A',
@@ -25353,6 +25245,127 @@ angular.module('app.tables').directive('datatableTableTools', function () {
                     responsiveHelper.respond();
                 }
             });
+        }
+    }
+});
+'use strict';
+
+angular.module('app.tables').directive('jqGrid', function ($compile) {
+    var jqGridCounter = 0;
+
+    return {
+        replace: true,
+        restrict: 'E',
+        scope: {
+            gridData: '='
+        },
+        template: '<div>' +
+            '<table></table>' +
+            '<div class="jqgrid-pagination"></div>' +
+            '</div>',
+        controller: function($scope, $element){
+            $scope.editRow  = function(row){
+                $element.find('table').editRow(row);
+            };
+            $scope.saveRow  = function(row){
+                $element.find('table').saveRow(row);
+            };
+            $scope.restoreRow  = function(row){
+                $element.find('table').restoreRow(row);
+            };
+        },
+        link: function (scope, element) {
+            var gridNumber = jqGridCounter++;
+            var wrapperId = 'jqgrid-' + gridNumber;
+            element.attr('id', wrapperId);
+
+            var tableId = 'jqgrid-table-' + gridNumber;
+            var table = element.find('table');
+            table.attr('id', tableId);
+
+            var pagerId = 'jqgrid-pager-' + gridNumber;
+            element.find('.jqgrid-pagination').attr('id', pagerId);
+
+
+            table.jqGrid({
+                data : scope.gridData.data,
+                datatype : "local",
+                height : 'auto',
+                colNames : scope.gridData.colNames || [],
+                colModel : scope.gridData.colModel || [],
+                rowNum : 10,
+                rowList : [10, 20, 30],
+                pager : '#' + pagerId,
+                sortname : 'id',
+                toolbarfilter : true,
+                viewrecords : true,
+                sortorder : "asc",
+                gridComplete : function() {
+                    var ids = table.jqGrid('getDataIDs');
+                    for (var i = 0; i < ids.length; i++) {
+                        var cl = ids[i];
+                        var be = "<button class='btn btn-xs btn-default' uib-tooltip='Edit Row' tooltip-append-to-body='true' ng-click='editRow("+ cl +")'><i class='fa fa-pencil'></i></button>";
+
+                        var se = "<button class='btn btn-xs btn-default' uib-tooltip='Save Row' tooltip-append-to-body='true' ng-click='saveRow("+ cl +")'><i class='fa fa-save'></i></button>";
+
+                        var ca = "<button class='btn btn-xs btn-default' uib-tooltip='Cancel' tooltip-append-to-body='true' ng-click='restoreRow("+ cl +")'><i class='fa fa-times'></i></button>";
+
+                        table.jqGrid('setRowData', ids[i], {
+                            act : be + se + ca
+                        });
+                    }
+                },
+                editurl : "dummy.html",
+                caption : "SmartAdmin jQgrid Skin",
+                multiselect : true,
+                autowidth : true
+
+            });
+            table.jqGrid('navGrid', '#' + pagerId, {
+                edit : false,
+                add : false,
+                del : true
+            });
+            table.jqGrid('inlineNav', '#' + pagerId);
+
+
+            element.find(".ui-jqgrid").removeClass("ui-widget ui-widget-content");
+            element.find(".ui-jqgrid-view").children().removeClass("ui-widget-header ui-state-default");
+            element.find(".ui-jqgrid-labels, .ui-search-toolbar").children().removeClass("ui-state-default ui-th-column ui-th-ltr");
+            element.find(".ui-jqgrid-pager").removeClass("ui-state-default");
+            element.find(".ui-jqgrid").removeClass("ui-widget-content");
+
+            // add classes
+            element.find(".ui-jqgrid-htable").addClass("table table-bordered table-hover");
+            element.find(".ui-jqgrid-btable").addClass("table table-bordered table-striped");
+
+            element.find(".ui-pg-div").removeClass().addClass("btn btn-sm btn-primary");
+            element.find(".ui-icon.ui-icon-plus").removeClass().addClass("fa fa-plus");
+            element.find(".ui-icon.ui-icon-pencil").removeClass().addClass("fa fa-pencil");
+            element.find(".ui-icon.ui-icon-trash").removeClass().addClass("fa fa-trash-o");
+            element.find(".ui-icon.ui-icon-search").removeClass().addClass("fa fa-search");
+            element.find(".ui-icon.ui-icon-refresh").removeClass().addClass("fa fa-refresh");
+            element.find(".ui-icon.ui-icon-disk").removeClass().addClass("fa fa-save").parent(".btn-primary").removeClass("btn-primary").addClass("btn-success");
+            element.find(".ui-icon.ui-icon-cancel").removeClass().addClass("fa fa-times").parent(".btn-primary").removeClass("btn-primary").addClass("btn-danger");
+
+            element.find(".ui-icon.ui-icon-seek-prev").wrap("<div class='btn btn-sm btn-default'></div>");
+            element.find(".ui-icon.ui-icon-seek-prev").removeClass().addClass("fa fa-backward");
+
+            element.find(".ui-icon.ui-icon-seek-first").wrap("<div class='btn btn-sm btn-default'></div>");
+            element.find(".ui-icon.ui-icon-seek-first").removeClass().addClass("fa fa-fast-backward");
+
+            element.find(".ui-icon.ui-icon-seek-next").wrap("<div class='btn btn-sm btn-default'></div>");
+            element.find(".ui-icon.ui-icon-seek-next").removeClass().addClass("fa fa-forward");
+
+            element.find(".ui-icon.ui-icon-seek-end").wrap("<div class='btn btn-sm btn-default'></div>");
+            element.find(".ui-icon.ui-icon-seek-end").removeClass().addClass("fa fa-fast-forward");
+
+            $(window).on('resize.jqGrid', function() {
+               table.jqGrid('setGridWidth', $("#content").width());
+            });
+
+
+            $compile(element.contents())(scope);
         }
     }
 });
@@ -26606,43 +26619,6 @@ angular.module('SmartAdmin.Layout').directive('stateBreadcrumbs', function ($roo
         }
     }
 });
-
-"use strict";
-
-angular.module('SmartAdmin.UI').directive('smartPopoverHtml', function () {
-    return {
-        restrict: "A",
-        link: function(scope, element, attributes){
-            var options = {};
-            options.content = attributes.smartPopoverHtml;
-            options.placement = attributes.popoverPlacement || 'top';
-            options.html = true;
-            options.trigger =  attributes.popoverTrigger || 'click';
-            options.title =  attributes.popoverTitle || attributes.title;
-            element.popover(options)
-
-        }
-
-    };
-});
-
-
-"use strict";
-
-angular.module('SmartAdmin.UI').directive('smartTooltipHtml', function () {
-        return {
-            restrict: 'A',
-            link: function(scope, element, attributes){
-                element.tooltip({
-                    placement: attributes.tooltipPlacement || 'top',
-                    html: true,
-                    title: attributes.smartTooltipHtml
-                })
-            }
-        };
-    }
-);
-
 'use strict';
 
 angular.module('SmartAdmin.Layout').factory('lazyScript', function($q, $http){
@@ -26788,195 +26764,480 @@ angular.module('SmartAdmin.Layout').factory('SmartCss', function ($rootScope, $t
 
 
 
-'use strict';
 
-angular.module('SmartAdmin.Forms').directive('smartJcrop', function ($q) {
+"use strict";
+
+angular.module('SmartAdmin.UI').directive('smartPopoverHtml', function () {
     return {
-        restrict: 'A',
-        scope: {
-            coords: '=',
-            options: '=',
-            selection: '='
-        },
-        link: function (scope, element, attributes) {
-            var jcropApi, imageWidth, imageHeight, imageLoaded = $q.defer();
+        restrict: "A",
+        link: function(scope, element, attributes){
+            var options = {};
+            options.content = attributes.smartPopoverHtml;
+            options.placement = attributes.popoverPlacement || 'top';
+            options.html = true;
+            options.trigger =  attributes.popoverTrigger || 'click';
+            options.title =  attributes.popoverTitle || attributes.title;
+            element.popover(options)
 
-            var listeners = {
-                onSelectHandlers: [],
-                onChangeHandlers: [],
-                onSelect: function (c) {
-                    angular.forEach(listeners.onSelectHandlers, function (handler) {
-                        handler.call(jcropApi, c)
-                    })
-                },
-                onChange: function (c) {
-                    angular.forEach(listeners.onChangeHandlers, function (handler) {
-                        handler.call(jcropApi, c)
-                    })
-                }
-            };
+        }
 
-            if (attributes.coords) {
-                var coordsUpdate = function (c) {
-                    scope.$apply(function () {
-                        scope.coords = c;
-                    });
-                };
-                listeners.onSelectHandlers.push(coordsUpdate);
-                listeners.onChangeHandlers.push(coordsUpdate);
+    };
+});
+
+
+"use strict";
+
+angular.module('SmartAdmin.UI').directive('smartTooltipHtml', function () {
+        return {
+            restrict: 'A',
+            link: function(scope, element, attributes){
+                element.tooltip({
+                    placement: attributes.tooltipPlacement || 'top',
+                    html: true,
+                    title: attributes.smartTooltipHtml
+                })
             }
+        };
+    }
+);
 
-            var $previewPane = $(attributes.smartJcropPreview),
-                $previewContainer = $previewPane.find('.preview-container'),
-                $previewImg = $previewPane.find('img');
-
-            if ($previewPane.length && $previewImg.length) {
-                var previewUpdate = function (coords) {
-                    if (parseInt(coords.w) > 0) {
-                        var rx = $previewContainer.width() / coords.w;
-                        var ry = $previewContainer.height() / coords.h;
-
-                        $previewImg.css({
-                            width: Math.round(rx * imageWidth) + 'px',
-                            height: Math.round(ry * imageHeight) + 'px',
-                            marginLeft: '-' + Math.round(rx * coords.x) + 'px',
-                            marginTop: '-' + Math.round(ry * coords.y) + 'px'
-                        });
-                    }
-                };
-                listeners.onSelectHandlers.push(previewUpdate);
-                listeners.onChangeHandlers.push(previewUpdate);
-            }
+"use strict";
 
 
-            var options = {
-                onSelect: listeners.onSelect,
-                onChange: listeners.onChange
-            };
+angular.module('SmartAdmin.Forms').directive('bootstrapAttributeForm', function(){
 
-            if ($previewContainer.length) {
-                options.aspectRatio = $previewContainer.width() / $previewContainer.height()
-            }
-
-            if (attributes.selection) {
-                scope.$watch('selection', function (newVal, oldVal) {
-                    if (newVal != oldVal) {
-                        var rectangle = newVal == 'release' ? [imageWidth / 2, imageHeight / 2, imageWidth / 2, imageHeight / 2] : newVal;
-
-                        var callback = newVal == 'release' ? function () {
-                            jcropApi.release();
-                        } : angular.noop;
-
-                        imageLoaded.promise.then(function () {
-                            if (scope.options && scope.options.animate) {
-                                jcropApi.animateTo(rectangle, callback);
-                            } else {
-                                jcropApi.setSelect(rectangle);
-                            }
-                        });
-                    }
-                });
-            }
-
-            if (attributes.options) {
-
-                var optionNames = [
-                    'bgOpacity', 'bgColor', 'bgFade', 'shade', 'outerImage',
-                    'allowSelect', 'allowMove', 'allowResize',
-                    'aspectRatio'
-                ];
-
-                angular.forEach(optionNames, function (name) {
-                    if (scope.options[name])
-                        options[name] = scope.options[name]
-
-                    scope.$watch('options.' + name, function (newVal, oldVal) {
-                        if (newVal != oldVal) {
-                            imageLoaded.promise.then(function () {
-                                var update = {};
-                                update[name] = newVal;
-                                jcropApi.setOptions(update);
-                            });
-                        }
-                    });
-
-                });
-
-
-                scope.$watch('options.disabled', function (newVal, oldVal) {
-                    if (newVal != oldVal) {
-                        if (newVal) {
-                            jcropApi.disable();
-                        } else {
-                            jcropApi.enable();
-                        }
-                    }
-                });
-
-                scope.$watch('options.destroyed', function (newVal, oldVal) {
-                    if (newVal != oldVal) {
-                        if (newVal) {
-                            jcropApi.destroy();
-                        } else {
-                            _init();
-                        }
-                    }
-                });
-
-                scope.$watch('options.src', function (newVal, oldVal) {
-                    imageLoaded = $q.defer();
-                    if (newVal != oldVal) {
-                        jcropApi.setImage(scope.options.src, function () {
-                            imageLoaded.resolve();
-                        });
-                    }
-                });
-
-                var updateSize = function(){
-                    jcropApi.setOptions({
-                        minSize: [scope.options.minSizeWidth, scope.options.minSizeHeight],
-                        maxSize: [scope.options.maxSizeWidth, scope.options.maxSizeHeight]
-                    });
-                };
-
-                scope.$watch('options.minSizeWidth', function (newVal, oldVal) {
-                    if (newVal != oldVal) updateSize();
-                });
-                scope.$watch('options.minSizeHeight', function (newVal, oldVal) {
-                    if (newVal != oldVal) updateSize();
-                });
-                scope.$watch('options.maxSizeWidth', function (newVal, oldVal) {
-                    if (newVal != oldVal) updateSize();
-                });
-                scope.$watch('options.maxSizeHeight', function (newVal, oldVal) {
-                    if (newVal != oldVal) updateSize();
-                });
-            }
-
-            var _init = function () {
-                element.Jcrop(options, function () {
-                    jcropApi = this;
-                    // Use the API to get the real image size
-                    var bounds = this.getBounds();
-                    imageWidth = bounds[0];
-                    imageHeight = bounds[1];
-
-                    if (attributes.selection && angular.isArray(scope.selection)) {
-                        if (scope.options && scope.options.animate) {
-                            jcropApi.animateTo(scope.selection);
-                        } else {
-                            jcropApi.setSelect(scope.selection);
-                        }
-                    }
-                    imageLoaded.resolve();
-                });
-            };
-
-            _init()
+    return {
+        restrict: 'E',
+        replace: true,
+        templateUrl: 'app/_common/forms/directives/bootstrap-validation/bootstrap-attribute-form.tpl.html',
+        link: function(scope, form){
+            form.bootstrapValidator();
 
 
         }
+
     }
+});
+"use strict";
+
+
+angular.module('SmartAdmin.Forms').directive('bootstrapButtonGroupForm', function(){
+
+    return {
+        restrict: 'E',
+        replace: true,
+        templateUrl: 'app/_common/forms/directives/bootstrap-validation/bootstrap-button-group-form.tpl.html',
+        link: function(scope, form){
+            form.bootstrapValidator({
+                excluded : ':disabled',
+                feedbackIcons : {
+                    valid : 'glyphicon glyphicon-ok',
+                    invalid : 'glyphicon glyphicon-remove',
+                    validating : 'glyphicon glyphicon-refresh'
+                },
+                fields : {
+                    gender : {
+                        validators : {
+                            notEmpty : {
+                                message : 'The gender is required'
+                            }
+                        }
+                    },
+                    'languages[]' : {
+                        validators : {
+                            choice : {
+                                min : 1,
+                                max : 2,
+                                message : 'Please choose 1 - 2 languages you can speak'
+                            }
+                        }
+                    }
+                }
+            });
+
+
+        }
+
+    }
+});
+"use strict";
+
+
+angular.module('SmartAdmin.Forms').directive('bootstrapContactForm', function(){
+
+    return {
+        restrict: 'E',
+        replace: true,
+        templateUrl: 'app/_common/forms/directives/bootstrap-validation/bootstrap-contact-form.tpl.html',
+        link: function(scope, form){
+            form.bootstrapValidator({
+                container : '#messages',
+                feedbackIcons : {
+                    valid : 'glyphicon glyphicon-ok',
+                    invalid : 'glyphicon glyphicon-remove',
+                    validating : 'glyphicon glyphicon-refresh'
+                },
+                fields : {
+                    fullName : {
+                        validators : {
+                            notEmpty : {
+                                message : 'The full name is required and cannot be empty'
+                            }
+                        }
+                    },
+                    email : {
+                        validators : {
+                            notEmpty : {
+                                message : 'The email address is required and cannot be empty'
+                            },
+                            emailAddress : {
+                                message : 'The email address is not valid'
+                            }
+                        }
+                    },
+                    title : {
+                        validators : {
+                            notEmpty : {
+                                message : 'The title is required and cannot be empty'
+                            },
+                            stringLength : {
+                                max : 100,
+                                message : 'The title must be less than 100 characters long'
+                            }
+                        }
+                    },
+                    content : {
+                        validators : {
+                            notEmpty : {
+                                message : 'The content is required and cannot be empty'
+                            },
+                            stringLength : {
+                                max : 500,
+                                message : 'The content must be less than 500 characters long'
+                            }
+                        }
+                    }
+                }
+            });
+
+        }
+
+    }
+
+});
+"use strict";
+
+
+angular.module('SmartAdmin.Forms').directive('bootstrapMovieForm', function(){
+
+    return {
+        restrict: 'E',
+        replace: true,
+        templateUrl: 'app/_common/forms/directives/bootstrap-validation/bootstrap-movie-form.tpl.html',
+        link: function(scope, form){
+            form.bootstrapValidator({
+                feedbackIcons : {
+                    valid : 'glyphicon glyphicon-ok',
+                    invalid : 'glyphicon glyphicon-remove',
+                    validating : 'glyphicon glyphicon-refresh'
+                },
+                fields : {
+                    title : {
+                        group : '.col-md-8',
+                        validators : {
+                            notEmpty : {
+                                message : 'The title is required'
+                            },
+                            stringLength : {
+                                max : 200,
+                                message : 'The title must be less than 200 characters long'
+                            }
+                        }
+                    },
+                    genre : {
+                        group : '.col-md-4',
+                        validators : {
+                            notEmpty : {
+                                message : 'The genre is required'
+                            }
+                        }
+                    },
+                    director : {
+                        group : '.col-md-4',
+                        validators : {
+                            notEmpty : {
+                                message : 'The director name is required'
+                            },
+                            stringLength : {
+                                max : 80,
+                                message : 'The director name must be less than 80 characters long'
+                            }
+                        }
+                    },
+                    writer : {
+                        group : '.col-md-4',
+                        validators : {
+                            notEmpty : {
+                                message : 'The writer name is required'
+                            },
+                            stringLength : {
+                                max : 80,
+                                message : 'The writer name must be less than 80 characters long'
+                            }
+                        }
+                    },
+                    producer : {
+                        group : '.col-md-4',
+                        validators : {
+                            notEmpty : {
+                                message : 'The producer name is required'
+                            },
+                            stringLength : {
+                                max : 80,
+                                message : 'The producer name must be less than 80 characters long'
+                            }
+                        }
+                    },
+                    website : {
+                        group : '.col-md-6',
+                        validators : {
+                            notEmpty : {
+                                message : 'The website address is required'
+                            },
+                            uri : {
+                                message : 'The website address is not valid'
+                            }
+                        }
+                    },
+                    trailer : {
+                        group : '.col-md-6',
+                        validators : {
+                            notEmpty : {
+                                message : 'The trailer link is required'
+                            },
+                            uri : {
+                                message : 'The trailer link is not valid'
+                            }
+                        }
+                    },
+                    review : {
+                        // The group will be set as default (.form-group)
+                        validators : {
+                            stringLength : {
+                                max : 500,
+                                message : 'The review must be less than 500 characters long'
+                            }
+                        }
+                    },
+                    rating : {
+                        // The group will be set as default (.form-group)
+                        validators : {
+                            notEmpty : {
+                                message : 'The rating is required'
+                            }
+                        }
+                    }
+                }
+            });
+
+        }
+
+    }
+
+});
+"use strict";
+
+
+angular.module('SmartAdmin.Forms').directive('bootstrapProductForm', function(){
+
+    return {
+        restrict: 'E',
+        replace: true,
+        templateUrl: 'app/_common/forms/directives/bootstrap-validation/bootstrap-product-form.tpl.html',
+        link: function(scope, form){
+            form.bootstrapValidator({
+                feedbackIcons : {
+                    valid : 'glyphicon glyphicon-ok',
+                    invalid : 'glyphicon glyphicon-remove',
+                    validating : 'glyphicon glyphicon-refresh'
+                },
+                fields : {
+                    price : {
+                        validators : {
+                            notEmpty : {
+                                message : 'The price is required'
+                            },
+                            numeric : {
+                                message : 'The price must be a number'
+                            }
+                        }
+                    },
+                    amount : {
+                        validators : {
+                            notEmpty : {
+                                message : 'The amount is required'
+                            },
+                            numeric : {
+                                message : 'The amount must be a number'
+                            }
+                        }
+                    },
+                    color : {
+                        validators : {
+                            notEmpty : {
+                                message : 'The color is required'
+                            }
+                        }
+                    },
+                    size : {
+                        validators : {
+                            notEmpty : {
+                                message : 'The size is required'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+    }
+});
+"use strict";
+
+
+angular.module('SmartAdmin.Forms').directive('bootstrapProfileForm', function(){
+
+    return {
+        restrict: 'E',
+        replace: true,
+        templateUrl: 'app/_common/forms/directives/bootstrap-validation/bootstrap-profile-form.tpl.html',
+        link: function(scope, form){
+           form.bootstrapValidator({
+                feedbackIcons : {
+                    valid : 'glyphicon glyphicon-ok',
+                    invalid : 'glyphicon glyphicon-remove',
+                    validating : 'glyphicon glyphicon-refresh'
+                },
+                fields : {
+                    email : {
+                        validators : {
+                            notEmpty : {
+                                message : 'The email address is required'
+                            },
+                            emailAddress : {
+                                message : 'The email address is not valid'
+                            }
+                        }
+                    },
+                    password : {
+                        validators : {
+                            notEmpty : {
+                                message : 'The password is required'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+    }
+
+});
+"use strict";
+
+
+angular.module('SmartAdmin.Forms').directive('bootstrapTogglingForm', function(){
+
+    return {
+        restrict: 'E',
+        replace: true,
+        templateUrl: 'app/_common/forms/directives/bootstrap-validation/bootstrap-toggling-form.tpl.html',
+        link: function(scope, form){
+            form.bootstrapValidator({
+                feedbackIcons : {
+                    valid : 'glyphicon glyphicon-ok',
+                    invalid : 'glyphicon glyphicon-remove',
+                    validating : 'glyphicon glyphicon-refresh'
+                },
+                fields : {
+                    firstName : {
+                        validators : {
+                            notEmpty : {
+                                message : 'The first name is required'
+                            }
+                        }
+                    },
+                    lastName : {
+                        validators : {
+                            notEmpty : {
+                                message : 'The last name is required'
+                            }
+                        }
+                    },
+                    company : {
+                        validators : {
+                            notEmpty : {
+                                message : 'The company name is required'
+                            }
+                        }
+                    },
+                    // These fields will be validated when being visible
+                    job : {
+                        validators : {
+                            notEmpty : {
+                                message : 'The job title is required'
+                            }
+                        }
+                    },
+                    department : {
+                        validators : {
+                            notEmpty : {
+                                message : 'The department name is required'
+                            }
+                        }
+                    },
+                    mobilePhone : {
+                        validators : {
+                            notEmpty : {
+                                message : 'The mobile phone number is required'
+                            },
+                            digits : {
+                                message : 'The mobile phone number is not valid'
+                            }
+                        }
+                    },
+                    // These fields will be validated when being visible
+                    homePhone : {
+                        validators : {
+                            digits : {
+                                message : 'The home phone number is not valid'
+                            }
+                        }
+                    },
+                    officePhone : {
+                        validators : {
+                            digits : {
+                                message : 'The office phone number is not valid'
+                            }
+                        }
+                    }
+                }
+            }).find('button[data-toggle]').on('click', function() {
+                var $target = $($(this).attr('data-toggle'));
+                // Show or hide the additional fields
+                // They will or will not be validated based on their visibilities
+                $target.toggle();
+                if (!$target.is(':visible')) {
+                    // Enable the submit buttons in case additional fields are not valid
+                    form.data('bootstrapValidator').disableSubmitButtons(false);
+                }
+            });
+        }
+
+    }
+
+
+
 });
 'use strict';
 
@@ -27480,462 +27741,196 @@ angular.module('SmartAdmin.Forms').directive('smartReviewForm', function (formsC
         }
     }
 });
-"use strict";
-
-
-angular.module('SmartAdmin.Forms').directive('bootstrapAttributeForm', function(){
-
-    return {
-        restrict: 'E',
-        replace: true,
-        templateUrl: 'app/_common/forms/directives/bootstrap-validation/bootstrap-attribute-form.tpl.html',
-        link: function(scope, form){
-            form.bootstrapValidator();
-
-
-        }
-
-    }
-});
-"use strict";
-
-
-angular.module('SmartAdmin.Forms').directive('bootstrapButtonGroupForm', function(){
-
-    return {
-        restrict: 'E',
-        replace: true,
-        templateUrl: 'app/_common/forms/directives/bootstrap-validation/bootstrap-button-group-form.tpl.html',
-        link: function(scope, form){
-            form.bootstrapValidator({
-                excluded : ':disabled',
-                feedbackIcons : {
-                    valid : 'glyphicon glyphicon-ok',
-                    invalid : 'glyphicon glyphicon-remove',
-                    validating : 'glyphicon glyphicon-refresh'
-                },
-                fields : {
-                    gender : {
-                        validators : {
-                            notEmpty : {
-                                message : 'The gender is required'
-                            }
-                        }
-                    },
-                    'languages[]' : {
-                        validators : {
-                            choice : {
-                                min : 1,
-                                max : 2,
-                                message : 'Please choose 1 - 2 languages you can speak'
-                            }
-                        }
-                    }
-                }
-            });
-
-
-        }
-
-    }
-});
-"use strict";
-
-
-angular.module('SmartAdmin.Forms').directive('bootstrapContactForm', function(){
-
-    return {
-        restrict: 'E',
-        replace: true,
-        templateUrl: 'app/_common/forms/directives/bootstrap-validation/bootstrap-contact-form.tpl.html',
-        link: function(scope, form){
-            form.bootstrapValidator({
-                container : '#messages',
-                feedbackIcons : {
-                    valid : 'glyphicon glyphicon-ok',
-                    invalid : 'glyphicon glyphicon-remove',
-                    validating : 'glyphicon glyphicon-refresh'
-                },
-                fields : {
-                    fullName : {
-                        validators : {
-                            notEmpty : {
-                                message : 'The full name is required and cannot be empty'
-                            }
-                        }
-                    },
-                    email : {
-                        validators : {
-                            notEmpty : {
-                                message : 'The email address is required and cannot be empty'
-                            },
-                            emailAddress : {
-                                message : 'The email address is not valid'
-                            }
-                        }
-                    },
-                    title : {
-                        validators : {
-                            notEmpty : {
-                                message : 'The title is required and cannot be empty'
-                            },
-                            stringLength : {
-                                max : 100,
-                                message : 'The title must be less than 100 characters long'
-                            }
-                        }
-                    },
-                    content : {
-                        validators : {
-                            notEmpty : {
-                                message : 'The content is required and cannot be empty'
-                            },
-                            stringLength : {
-                                max : 500,
-                                message : 'The content must be less than 500 characters long'
-                            }
-                        }
-                    }
-                }
-            });
-
-        }
-
-    }
-
-});
-"use strict";
-
-
-angular.module('SmartAdmin.Forms').directive('bootstrapMovieForm', function(){
-
-    return {
-        restrict: 'E',
-        replace: true,
-        templateUrl: 'app/_common/forms/directives/bootstrap-validation/bootstrap-movie-form.tpl.html',
-        link: function(scope, form){
-            form.bootstrapValidator({
-                feedbackIcons : {
-                    valid : 'glyphicon glyphicon-ok',
-                    invalid : 'glyphicon glyphicon-remove',
-                    validating : 'glyphicon glyphicon-refresh'
-                },
-                fields : {
-                    title : {
-                        group : '.col-md-8',
-                        validators : {
-                            notEmpty : {
-                                message : 'The title is required'
-                            },
-                            stringLength : {
-                                max : 200,
-                                message : 'The title must be less than 200 characters long'
-                            }
-                        }
-                    },
-                    genre : {
-                        group : '.col-md-4',
-                        validators : {
-                            notEmpty : {
-                                message : 'The genre is required'
-                            }
-                        }
-                    },
-                    director : {
-                        group : '.col-md-4',
-                        validators : {
-                            notEmpty : {
-                                message : 'The director name is required'
-                            },
-                            stringLength : {
-                                max : 80,
-                                message : 'The director name must be less than 80 characters long'
-                            }
-                        }
-                    },
-                    writer : {
-                        group : '.col-md-4',
-                        validators : {
-                            notEmpty : {
-                                message : 'The writer name is required'
-                            },
-                            stringLength : {
-                                max : 80,
-                                message : 'The writer name must be less than 80 characters long'
-                            }
-                        }
-                    },
-                    producer : {
-                        group : '.col-md-4',
-                        validators : {
-                            notEmpty : {
-                                message : 'The producer name is required'
-                            },
-                            stringLength : {
-                                max : 80,
-                                message : 'The producer name must be less than 80 characters long'
-                            }
-                        }
-                    },
-                    website : {
-                        group : '.col-md-6',
-                        validators : {
-                            notEmpty : {
-                                message : 'The website address is required'
-                            },
-                            uri : {
-                                message : 'The website address is not valid'
-                            }
-                        }
-                    },
-                    trailer : {
-                        group : '.col-md-6',
-                        validators : {
-                            notEmpty : {
-                                message : 'The trailer link is required'
-                            },
-                            uri : {
-                                message : 'The trailer link is not valid'
-                            }
-                        }
-                    },
-                    review : {
-                        // The group will be set as default (.form-group)
-                        validators : {
-                            stringLength : {
-                                max : 500,
-                                message : 'The review must be less than 500 characters long'
-                            }
-                        }
-                    },
-                    rating : {
-                        // The group will be set as default (.form-group)
-                        validators : {
-                            notEmpty : {
-                                message : 'The rating is required'
-                            }
-                        }
-                    }
-                }
-            });
-
-        }
-
-    }
-
-});
-"use strict";
-
-
-angular.module('SmartAdmin.Forms').directive('bootstrapProductForm', function(){
-
-    return {
-        restrict: 'E',
-        replace: true,
-        templateUrl: 'app/_common/forms/directives/bootstrap-validation/bootstrap-product-form.tpl.html',
-        link: function(scope, form){
-            form.bootstrapValidator({
-                feedbackIcons : {
-                    valid : 'glyphicon glyphicon-ok',
-                    invalid : 'glyphicon glyphicon-remove',
-                    validating : 'glyphicon glyphicon-refresh'
-                },
-                fields : {
-                    price : {
-                        validators : {
-                            notEmpty : {
-                                message : 'The price is required'
-                            },
-                            numeric : {
-                                message : 'The price must be a number'
-                            }
-                        }
-                    },
-                    amount : {
-                        validators : {
-                            notEmpty : {
-                                message : 'The amount is required'
-                            },
-                            numeric : {
-                                message : 'The amount must be a number'
-                            }
-                        }
-                    },
-                    color : {
-                        validators : {
-                            notEmpty : {
-                                message : 'The color is required'
-                            }
-                        }
-                    },
-                    size : {
-                        validators : {
-                            notEmpty : {
-                                message : 'The size is required'
-                            }
-                        }
-                    }
-                }
-            });
-        }
-
-    }
-});
-"use strict";
-
-
-angular.module('SmartAdmin.Forms').directive('bootstrapProfileForm', function(){
-
-    return {
-        restrict: 'E',
-        replace: true,
-        templateUrl: 'app/_common/forms/directives/bootstrap-validation/bootstrap-profile-form.tpl.html',
-        link: function(scope, form){
-           form.bootstrapValidator({
-                feedbackIcons : {
-                    valid : 'glyphicon glyphicon-ok',
-                    invalid : 'glyphicon glyphicon-remove',
-                    validating : 'glyphicon glyphicon-refresh'
-                },
-                fields : {
-                    email : {
-                        validators : {
-                            notEmpty : {
-                                message : 'The email address is required'
-                            },
-                            emailAddress : {
-                                message : 'The email address is not valid'
-                            }
-                        }
-                    },
-                    password : {
-                        validators : {
-                            notEmpty : {
-                                message : 'The password is required'
-                            }
-                        }
-                    }
-                }
-            });
-        }
-
-    }
-
-});
-"use strict";
-
-
-angular.module('SmartAdmin.Forms').directive('bootstrapTogglingForm', function(){
-
-    return {
-        restrict: 'E',
-        replace: true,
-        templateUrl: 'app/_common/forms/directives/bootstrap-validation/bootstrap-toggling-form.tpl.html',
-        link: function(scope, form){
-            form.bootstrapValidator({
-                feedbackIcons : {
-                    valid : 'glyphicon glyphicon-ok',
-                    invalid : 'glyphicon glyphicon-remove',
-                    validating : 'glyphicon glyphicon-refresh'
-                },
-                fields : {
-                    firstName : {
-                        validators : {
-                            notEmpty : {
-                                message : 'The first name is required'
-                            }
-                        }
-                    },
-                    lastName : {
-                        validators : {
-                            notEmpty : {
-                                message : 'The last name is required'
-                            }
-                        }
-                    },
-                    company : {
-                        validators : {
-                            notEmpty : {
-                                message : 'The company name is required'
-                            }
-                        }
-                    },
-                    // These fields will be validated when being visible
-                    job : {
-                        validators : {
-                            notEmpty : {
-                                message : 'The job title is required'
-                            }
-                        }
-                    },
-                    department : {
-                        validators : {
-                            notEmpty : {
-                                message : 'The department name is required'
-                            }
-                        }
-                    },
-                    mobilePhone : {
-                        validators : {
-                            notEmpty : {
-                                message : 'The mobile phone number is required'
-                            },
-                            digits : {
-                                message : 'The mobile phone number is not valid'
-                            }
-                        }
-                    },
-                    // These fields will be validated when being visible
-                    homePhone : {
-                        validators : {
-                            digits : {
-                                message : 'The home phone number is not valid'
-                            }
-                        }
-                    },
-                    officePhone : {
-                        validators : {
-                            digits : {
-                                message : 'The office phone number is not valid'
-                            }
-                        }
-                    }
-                }
-            }).find('button[data-toggle]').on('click', function() {
-                var $target = $($(this).attr('data-toggle'));
-                // Show or hide the additional fields
-                // They will or will not be validated based on their visibilities
-                $target.toggle();
-                if (!$target.is(':visible')) {
-                    // Enable the submit buttons in case additional fields are not valid
-                    form.data('bootstrapValidator').disableSubmitButtons(false);
-                }
-            });
-        }
-
-    }
-
-
-
-});
 'use strict';
 
-angular.module('SmartAdmin.Forms').directive('smartDropzone', function () {
-    return function (scope, element, attrs) {
-        var config, dropzone;
+angular.module('SmartAdmin.Forms').directive('smartJcrop', function ($q) {
+    return {
+        restrict: 'A',
+        scope: {
+            coords: '=',
+            options: '=',
+            selection: '='
+        },
+        link: function (scope, element, attributes) {
+            var jcropApi, imageWidth, imageHeight, imageLoaded = $q.defer();
 
-        config = scope[attrs.smartDropzone];
+            var listeners = {
+                onSelectHandlers: [],
+                onChangeHandlers: [],
+                onSelect: function (c) {
+                    angular.forEach(listeners.onSelectHandlers, function (handler) {
+                        handler.call(jcropApi, c)
+                    })
+                },
+                onChange: function (c) {
+                    angular.forEach(listeners.onChangeHandlers, function (handler) {
+                        handler.call(jcropApi, c)
+                    })
+                }
+            };
 
-        // create a Dropzone for the element with the given options
-        dropzone = new Dropzone(element[0], config.options);
+            if (attributes.coords) {
+                var coordsUpdate = function (c) {
+                    scope.$apply(function () {
+                        scope.coords = c;
+                    });
+                };
+                listeners.onSelectHandlers.push(coordsUpdate);
+                listeners.onChangeHandlers.push(coordsUpdate);
+            }
 
-        // bind the given event handlers
-        angular.forEach(config.eventHandlers, function (handler, event) {
-            dropzone.on(event, handler);
-        });
-    };
+            var $previewPane = $(attributes.smartJcropPreview),
+                $previewContainer = $previewPane.find('.preview-container'),
+                $previewImg = $previewPane.find('img');
+
+            if ($previewPane.length && $previewImg.length) {
+                var previewUpdate = function (coords) {
+                    if (parseInt(coords.w) > 0) {
+                        var rx = $previewContainer.width() / coords.w;
+                        var ry = $previewContainer.height() / coords.h;
+
+                        $previewImg.css({
+                            width: Math.round(rx * imageWidth) + 'px',
+                            height: Math.round(ry * imageHeight) + 'px',
+                            marginLeft: '-' + Math.round(rx * coords.x) + 'px',
+                            marginTop: '-' + Math.round(ry * coords.y) + 'px'
+                        });
+                    }
+                };
+                listeners.onSelectHandlers.push(previewUpdate);
+                listeners.onChangeHandlers.push(previewUpdate);
+            }
+
+
+            var options = {
+                onSelect: listeners.onSelect,
+                onChange: listeners.onChange
+            };
+
+            if ($previewContainer.length) {
+                options.aspectRatio = $previewContainer.width() / $previewContainer.height()
+            }
+
+            if (attributes.selection) {
+                scope.$watch('selection', function (newVal, oldVal) {
+                    if (newVal != oldVal) {
+                        var rectangle = newVal == 'release' ? [imageWidth / 2, imageHeight / 2, imageWidth / 2, imageHeight / 2] : newVal;
+
+                        var callback = newVal == 'release' ? function () {
+                            jcropApi.release();
+                        } : angular.noop;
+
+                        imageLoaded.promise.then(function () {
+                            if (scope.options && scope.options.animate) {
+                                jcropApi.animateTo(rectangle, callback);
+                            } else {
+                                jcropApi.setSelect(rectangle);
+                            }
+                        });
+                    }
+                });
+            }
+
+            if (attributes.options) {
+
+                var optionNames = [
+                    'bgOpacity', 'bgColor', 'bgFade', 'shade', 'outerImage',
+                    'allowSelect', 'allowMove', 'allowResize',
+                    'aspectRatio'
+                ];
+
+                angular.forEach(optionNames, function (name) {
+                    if (scope.options[name])
+                        options[name] = scope.options[name]
+
+                    scope.$watch('options.' + name, function (newVal, oldVal) {
+                        if (newVal != oldVal) {
+                            imageLoaded.promise.then(function () {
+                                var update = {};
+                                update[name] = newVal;
+                                jcropApi.setOptions(update);
+                            });
+                        }
+                    });
+
+                });
+
+
+                scope.$watch('options.disabled', function (newVal, oldVal) {
+                    if (newVal != oldVal) {
+                        if (newVal) {
+                            jcropApi.disable();
+                        } else {
+                            jcropApi.enable();
+                        }
+                    }
+                });
+
+                scope.$watch('options.destroyed', function (newVal, oldVal) {
+                    if (newVal != oldVal) {
+                        if (newVal) {
+                            jcropApi.destroy();
+                        } else {
+                            _init();
+                        }
+                    }
+                });
+
+                scope.$watch('options.src', function (newVal, oldVal) {
+                    imageLoaded = $q.defer();
+                    if (newVal != oldVal) {
+                        jcropApi.setImage(scope.options.src, function () {
+                            imageLoaded.resolve();
+                        });
+                    }
+                });
+
+                var updateSize = function(){
+                    jcropApi.setOptions({
+                        minSize: [scope.options.minSizeWidth, scope.options.minSizeHeight],
+                        maxSize: [scope.options.maxSizeWidth, scope.options.maxSizeHeight]
+                    });
+                };
+
+                scope.$watch('options.minSizeWidth', function (newVal, oldVal) {
+                    if (newVal != oldVal) updateSize();
+                });
+                scope.$watch('options.minSizeHeight', function (newVal, oldVal) {
+                    if (newVal != oldVal) updateSize();
+                });
+                scope.$watch('options.maxSizeWidth', function (newVal, oldVal) {
+                    if (newVal != oldVal) updateSize();
+                });
+                scope.$watch('options.maxSizeHeight', function (newVal, oldVal) {
+                    if (newVal != oldVal) updateSize();
+                });
+            }
+
+            var _init = function () {
+                element.Jcrop(options, function () {
+                    jcropApi = this;
+                    // Use the API to get the real image size
+                    var bounds = this.getBounds();
+                    imageWidth = bounds[0];
+                    imageHeight = bounds[1];
+
+                    if (attributes.selection && angular.isArray(scope.selection)) {
+                        if (scope.options && scope.options.animate) {
+                            jcropApi.animateTo(scope.selection);
+                        } else {
+                            jcropApi.setSelect(scope.selection);
+                        }
+                    }
+                    imageLoaded.resolve();
+                });
+            };
+
+            _init()
+
+
+        }
+    }
 });
-
 'use strict';
 
 angular.module('SmartAdmin.Forms').directive('smartClockpicker', function () {
@@ -28258,6 +28253,24 @@ angular.module('SmartAdmin.Forms').directive('smartXeditable', function($timeout
 
     }
 });
+'use strict';
+
+angular.module('SmartAdmin.Forms').directive('smartDropzone', function () {
+    return function (scope, element, attrs) {
+        var config, dropzone;
+
+        config = scope[attrs.smartDropzone];
+
+        // create a Dropzone for the element with the given options
+        dropzone = new Dropzone(element[0], config.options);
+
+        // bind the given event handlers
+        angular.forEach(config.eventHandlers, function (handler, event) {
+            dropzone.on(event, handler);
+        });
+    };
+});
+
 'use strict';
 
 angular.module('SmartAdmin.Forms').directive('smartValidateForm', function (formsCommon) {
