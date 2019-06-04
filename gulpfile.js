@@ -214,10 +214,11 @@ gulp.task('default', gulp.series(
         vendor,
         js,
         mHtml,
-        gulp.series(
-            js, 
-            moveJsFile
-        ),
+        // gulp.series(
+        //     js, 
+        //     moveJsFile
+        // ),
+        moveJsFile,
         watch
     )
 )
