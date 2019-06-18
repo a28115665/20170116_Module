@@ -1556,9 +1556,9 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                 _finalcost = Math.floor(Math.random() * (maxNum - minNum + 1)) + minNum; 
             }
 
-            // 當完稅價格超過1500 提醒使用者
-            if(_finalcost > 1500){
-                toaster.pop('warning', '警告', '完稅價格超過1500元，請注意', 3000);
+            // 當完稅價格超過2000 提醒使用者
+            if(_finalcost > 2000){
+                toaster.pop('warning', '警告', '完稅價格超過2000元，請注意', 3000);
             }
             
             // 當數量不為空 帶出單價 (會與新單價衝突)
