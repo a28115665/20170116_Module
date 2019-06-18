@@ -1474,14 +1474,21 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
 
     function CalculationFinalCost(rowEntity, colDef, newValue, oldValue){
 
-        rowEntity["IL_G1"] = rowEntity["IL_G1"].toUpperCase();
+        // rowEntity["IL_G1"] = rowEntity["IL_G1"].toUpperCase();
         // 新增規則
-        if(rowEntity["IL_G1"] == "Y"){
-            rowEntity.IL_WEIGHT_NEW = rowEntity.IL_WEIGHT;
-            rowEntity.IL_NEWPCS = rowEntity.IL_PCS;
-            rowEntity.IL_UNIVALENT_NEW = rowEntity.IL_UNIVALENT;
-            rowEntity.IL_NEWSENDNAME = rowEntity.IL_SENDNAME;
-            rowEntity.IL_FINALCOST = null;
+        // if(rowEntity["IL_G1"] == "Y"){
+
+        try {
+            if(newValue.toUpperCase() == "Y"){
+                rowEntity.IL_WEIGHT_NEW = rowEntity.IL_WEIGHT;
+                rowEntity.IL_NEWPCS = rowEntity.IL_PCS;
+                rowEntity.IL_UNIVALENT_NEW = rowEntity.IL_UNIVALENT;
+                rowEntity.IL_NEWSENDNAME = rowEntity.IL_SENDNAME;
+                rowEntity.IL_FINALCOST = null;
+            }
+        }
+        catch (e) {
+            console.log(e);
         }
 
         if(colDef.name == 'IL_GETNAME_NEW'){

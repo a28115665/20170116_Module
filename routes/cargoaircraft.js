@@ -27,7 +27,7 @@ var GetCargoAircraftTime = function (){
     var Do = function(){
 
 		var post_req = http.request(post_options, function (post_res) {
-			// console.log(post_res.statusCode);
+			
 			
 			if(post_res.statusCode == 200){
                 var content = '';
