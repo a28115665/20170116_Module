@@ -7,6 +7,7 @@ var logger = require('../until/log4js.js').logger('restful');
 var winston = require('winston');
 var setting = require('../app.setting.json');
 require('../until/winstonByMssql.js');
+var until = require('../until/until.js');
 
 winston.add(winston.transports.mssql, {
     connectionString: setting.MSSQL,
@@ -15,14 +16,31 @@ winston.add(winston.transports.mssql, {
 winston.remove(winston.transports.Console);
 
 /**
+ * [description] 權限控管
+ */
+router.use('/crud', function (req, res, next) {
+
+    let _id = until.FindID(req.session);
+        
+    if(_id == null){
+        res.status(403).json({
+            "returnData": '權限不足'
+        });
+    }else{
+        next()
+    }
+})
+
+/**
  * Restful 查詢
  */
 router.get('/crud', function(req, res) {
 
-    let _id = FindID(req.session);
+    let _id = until.FindID(req.session);
     
+    // console.log("GET: ", req.query);
     dbCommand.SelectMethod(req.query["querymain"], req.query["queryname"], req.query["params"], function(err, recordset, sql) {
-        
+
         if (err) {
             if(_id != null){
                 winston.log('error', JSON.stringify({
@@ -36,7 +54,7 @@ router.get('/crud', function(req, res) {
 
             // Do something with your error...
             // logger.error('查詢失敗', req.ip, __line+'行', err, sql);
-            res.status(500).send('查詢失敗');
+            res.status(403).send('查詢失敗');
         } else {
             if(_id != null){
                 // 依據檔名寫log
@@ -80,10 +98,10 @@ router.get('/crud', function(req, res) {
  */
 router.post('/crud', function(req, res) {
 
-    let _id = FindID(req.session);
+    let _id = until.FindID(req.session);
 
-    // console.log("POST: ", req.query);
-    dbCommand.InsertMethod(req.query["insertname"], req.query["table"], req.query["params"], function(err, affected, sql) {
+    // console.log("POST: ", req.body);
+    dbCommand.InsertMethod(req.body["insertname"], req.body["table"], req.body["params"], function(err, affected, sql) {
         if (err) {
             if(_id != null){
                 winston.log('error', JSON.stringify({
@@ -97,7 +115,7 @@ router.post('/crud', function(req, res) {
 
             // console.log(err);
             // Do something with your error...
-            res.status(500).send('新增失敗');
+            res.status(403).send('新增失敗');
         } else {
             if(_id != null){
                 winston.log('info', JSON.stringify({
@@ -130,10 +148,10 @@ router.post('/crud', function(req, res) {
  */
 router.put('/crud', function(req, res) {
 
-    let _id = FindID(req.session);
+    let _id = until.FindID(req.session);
 
-    // console.log("PUT: ", req.query);
-    dbCommand.UpdateMethod(req.query["updatename"], req.query["table"], req.query["params"], req.query["condition"], function(err, affected, sql) {
+    // console.log("PUT: ", req.body);
+    dbCommand.UpdateMethod(req.body["updatename"], req.body["table"], req.body["params"], req.body["condition"], function(err, affected, sql) {
         if (err) {
             if(_id != null){
                 winston.log('error', JSON.stringify({
@@ -147,7 +165,7 @@ router.put('/crud', function(req, res) {
 
             // console.log(err);
             // Do something with your error...
-            res.status(500).send('更新失敗');
+            res.status(403).send('更新失敗');
         } else {
             if(_id != null){
                 winston.log('info', JSON.stringify({
@@ -180,7 +198,7 @@ router.put('/crud', function(req, res) {
  */
 router.patch('/crud', function(req, res) {
 
-    let _id = FindID(req.session);
+    let _id = until.FindID(req.session);
 
     // console.log("PATCH: ", req.query);
     dbCommand.UpsertMethod(req.query["upsertname"], req.query["table"], req.query["params"], req.query["condition"], function(err, affected, sql) {
@@ -197,7 +215,7 @@ router.patch('/crud', function(req, res) {
 
             // console.log(err);
             // Do something with your error...
-            res.status(500).send('插入失敗');
+            res.status(403).send('插入失敗');
         } else {
             if(_id != null){
                 winston.log('info', JSON.stringify({
@@ -230,7 +248,7 @@ router.patch('/crud', function(req, res) {
  */
 router.delete('/crud', function(req, res) {
 
-    let _id = FindID(req.session);
+    let _id = until.FindID(req.session);
 
     // console.log("DELETE: ", req.query);
     dbCommand.DeleteMethod(req.query["deletename"], req.query["table"], req.query["params"], function(err, affected, sql) {
@@ -247,7 +265,7 @@ router.delete('/crud', function(req, res) {
 
             // console.log(err);
             // Do something with your error...
-            res.status(500).send('刪除失敗');
+            res.status(403).send('刪除失敗');
         } else {
             if(_id != null){
                 winston.log('info', JSON.stringify({
@@ -282,7 +300,7 @@ router.delete('/crud', function(req, res) {
  */
 router.get('/crudByTask', function(req, res) {
 
-    let _id = FindID(req.session);
+    let _id = until.FindID(req.session);
     
     // console.log(req.query);
 
@@ -342,7 +360,7 @@ router.get('/crudByTask', function(req, res) {
             }
             console.error("任務失敗錯誤訊息:", err);
 
-            res.status(500).send('任務失敗');
+            res.status(403).send('任務失敗');
             // process.exit();
         }else{
 
@@ -366,14 +384,14 @@ router.get('/crudByTask', function(req, res) {
 
 });
 
-function FindID(pSession){
-    let _id = null;
+// function FindID(pSession){
+//     let _id = null;
 
-    if(pSession['key'] != undefined){
-        _id = pSession['key'].U_ID
-    }
+//     if(pSession['key'] != undefined){
+//         _id = pSession['key'].U_ID
+//     }
 
-    return _id;
-}
+//     return _id;
+// }
 
 module.exports = router;

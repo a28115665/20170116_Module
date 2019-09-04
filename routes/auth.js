@@ -5,18 +5,25 @@ var setting = require('../app.setting.json');
 var http = require('http');
 var querystring = require('querystring');
 var fs = require("fs");
+var until = require('../until/until.js');
 
 /**
  * 重新讀取Session
+ * 有資料回傳 session
+ * 沒資料回傳 null
  */
 router.get('/reLoadSession', function(req, res) {
-    if(req.session != undefined){
-        res.json({
-            "returnData" : req.session.key
-        });
-    }else{
-        res.status(500).send('Session未開啟');
-    }
+    // if(until.FindID(req.session) != null){
+    //     res.json({
+    //         "returnData" : req.session.key
+    //     });
+    // }else{
+    //     res.status(403).send('Session未開啟');
+    // }
+
+    res.json({
+        "returnData" : req.session.key
+    });
 });
 
 
@@ -42,7 +49,7 @@ router.get('/reLoadSession', function(req, res) {
 /**
  * 登入
  */
-router.get('/login', function(req, res) {
+router.post('/login', function(req, res) {
     // console.log(req.body);
     // req.session.key = {
     //     username: req.body.email,
@@ -64,8 +71,8 @@ router.get('/login', function(req, res) {
                 querymain : 'login',
                 queryname : 'SelectAllUserInfo',
                 params : {
-                    U_ID : req.query.U_ID,
-                    U_PW : req.query.U_PW
+                    U_ID : req.body.U_ID,
+                    U_PW : req.body.U_PW
                 }
             }),
             JSON.stringify({
@@ -73,7 +80,7 @@ router.get('/login', function(req, res) {
                 querymain : 'login',
                 queryname : 'SelectUserDept',
                 params : {
-                    UD_ID : req.query.U_ID
+                    UD_ID : req.body.U_ID
                 }
             }),
             JSON.stringify({
@@ -81,7 +88,7 @@ router.get('/login', function(req, res) {
                 querymain : 'composeMenu',
                 queryname : 'GetUserRight',
                 params : {
-                    U_ID : req.query.U_ID
+                    U_ID : req.body.U_ID
                 }
             })
         ]);
@@ -139,7 +146,7 @@ router.get('/login', function(req, res) {
 
                             req.session.save(function(err) {
                                 // session saved
-                                if(err) console.log(err);
+                                if(err) throw err; //console.log(err);
                             });
 
                         }
@@ -150,11 +157,11 @@ router.get('/login', function(req, res) {
                         });
 
                     }else{
-                        res.status(500).send('Session未開啟');
+                        res.status(403).send('Session未開啟');
                     }
                 });
             }else{
-                res.status(500).send('登入失敗');
+                res.status(403).send('登入失敗');
             }
         });
 
@@ -162,14 +169,14 @@ router.get('/login', function(req, res) {
 
     } catch(err) {
         console.log(err);
-        res.status(500).send('登入失敗');
+        res.status(403).send('登入失敗');
     }
 });
 
 /**
  * 登出
  */
-router.get('/logout', function(req, res) {
+router.post('/logout', function(req, res) {
 
     req.session.destroy(function(err) {
         // session saved

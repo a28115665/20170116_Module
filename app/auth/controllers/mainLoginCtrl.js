@@ -8,7 +8,7 @@ angular.module('app.auth').controller('MainLoginCtrl', function ($scope, $stateP
             U_ID : $vm.userid,
             U_PW : $vm.password
         }).then(function(res) {
-            console.log(res);
+            // console.log(res);
             if(res["returnData"] && res["returnData"].length > 0){
                 toaster.success("狀態", "登入成功", 3000);
 

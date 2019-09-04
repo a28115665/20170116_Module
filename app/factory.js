@@ -27,8 +27,16 @@ angular.module('app')
             }
         ),
         CRUDBYTASK : $resource('/restful/crudByTask'),
-        LOGIN : $resource('/auth/login'),
-        LOGOUT : $resource('/auth/logout'),
+        LOGIN : $resource('/auth/login', null, 
+            {
+                'insert': { method: 'POST' }
+            }
+        ),
+        LOGOUT : $resource('/auth/logout', null, 
+            {
+                'insert': { method: 'POST' }
+            }
+        ),
         VERSION : $resource('/auth/version'),
         RELOADSESSION : $resource('/auth/reLoadSession'),
         EXPORTEXCELBYVAR : $resource('/toolbox/exportExcelByVar', null, 

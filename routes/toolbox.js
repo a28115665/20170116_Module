@@ -294,12 +294,18 @@ router.post('/uploadFile', function(req, res) {
     try{
         req.pipe(req.busboy);
         req.busboy.on('file', function(fieldname, file, filename) {
+
+            if(!req.query["filePath"]){
+                var _d = new Date();
+                req.query["filePath"] = _d.getFullYear() + '\\' + ("0" + (_d.getMonth()+1)).slice(-2) + '\\' + ("0" + _d.getDate()).slice(-2) + '\\';
+            }
+
             var _filepath =  '\\upload\\file\\' + req.query["filePath"],
                 _dir = path.dirname(module.parent.filename) + _filepath;
 
             mkdirp(_dir, function(err) { 
                 // path exists unless there was an error
-                if(err) return;
+                if(err) throw err;
 
                 var _filename = filename;
                 if(req.query["rFilename"]){

@@ -11,6 +11,18 @@ var RedisStore = require('connect-redis')(session);
 var redis = require('redis');
 
 var redis_cli  = redis.createClient();
+redis_cli.on('error', (err) => {
+    console.log('Redis error: ', err);
+});
+
+const cors = require('cors');
+
+var corsOptions = {
+    origin: '*',
+    // origin要指定特定IP，否則每次跨域的session都會不一樣
+    // origin: ['http://127.0.0.1:3000', 'http://61.216.149.43:3000'],
+    optionsSuccessStatus: 200,
+}
 
 var routes = require('./routes/index');
 var auth = require('./routes/auth');
@@ -54,11 +66,13 @@ Object.defineProperty(global, '__line', {
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 // app.use(logger('dev'));
 app.use(compression());
+app.use(cors(corsOptions))
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(busboy());
 app.use(session({
+    name: setting.RedisStore.name,
     store : new RedisStore({
         host : setting.RedisStore.host,
         port : setting.RedisStore.port,

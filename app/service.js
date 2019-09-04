@@ -97,7 +97,7 @@ angular.module('app')
 	    // console.log(dataSrc);
 	    var deferred = $q.defer();
 
-	    Resource.LOGIN.get(dataSrc,
+	    Resource.LOGIN.insert(dataSrc,
 	    	function (pSResponse){
 				deferred.resolve(pSResponse);
 			},
@@ -111,7 +111,7 @@ angular.module('app')
 	this.Logout = function () {
 	    var deferred = $q.defer();
 	    
-	    Resource.LOGOUT.get({},
+	    Resource.LOGOUT.insert({},
 	    	function (pSResponse){
 				deferred.resolve(pSResponse);
 			},
