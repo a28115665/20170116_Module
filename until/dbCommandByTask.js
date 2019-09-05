@@ -29,6 +29,8 @@ var TransactionBegin = function(args, callback){
 		args["transaction"] = transaction;
 		// 回傳結果
 		args["result"] = [];
+		// 任務條件
+		args["tasks"] = [];
 		// SQL Statement
 		args["statement"] = [];
 		if(err) callback(err, {});
@@ -67,6 +69,7 @@ var SelectRequestWithTransaction = function(task, args, callback) {
 
 	requestSql(request, SQLCommand, task.params, function(err, ret, sql) {
 		args.result.push(ret);
+		args.tasks.push(task);
 		args.statement.push(sql);
 		if(err) callback(err, args);
 		else callback(null, args);
@@ -133,6 +136,7 @@ var InsertRequestWithTransaction = function(task, args, callback) {
 
 	requestSql(request, SQLCommand, task.params, function(err, ret, sql) {
 		args.result.push(ret);
+		args.tasks.push(task);
 		args.statement.push(sql);
 		if(err) callback(err, args);
 		else callback(null, args);
@@ -217,6 +221,7 @@ var UpdateRequestWithTransaction = function(task, args, callback) {
 	
 	requestSql(request, SQLCommand, psParams, function(err, ret, sql) {
 		args.result.push(ret);
+		args.tasks.push(task);
 		args.statement.push(sql);
 		if(err) callback(err, args);
 		else callback(null, args);
@@ -263,6 +268,7 @@ var DeleteRequestWithTransaction = function(task, args, callback) {
 	
 	requestSql(request, SQLCommand, task.params, function(err, ret, sql) {
 		args.result.push(ret);
+		args.tasks.push(task);
 		args.statement.push(sql);
 		if(err) callback(err, args);
 		else callback(null, args);
@@ -340,6 +346,7 @@ var UpsertRequestWithTransaction = function(task, args, callback) {
 	
 	requestSql(request, SQLCommand, psParams, function(err, ret, sql) {
 		args.result.push(ret);
+		args.tasks.push(task);
 		args.statement.push(sql);
 		if(err) callback(err, args);
 		else callback(null, args);
@@ -369,6 +376,7 @@ var CopyRequestWithTransaction = function(task, args, callback) {
 	
 	requestSql(request, SQLCommand, task.params, function(err, ret, sql) {
 		args.result.push(ret);
+		args.tasks.push(task);
 		args.statement.push(sql);
 		if(err) callback(err, args);
 		else callback(null, args);

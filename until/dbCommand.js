@@ -3,6 +3,7 @@ var setting = require('../app.setting.json');
 var tables = require('./table.json');
 var schemaType = require('./schemaType.js');
 var preparedToStatement = require('./preparedToStatement.js');
+var until = require('../until/until.js');
 
 /**
  * [將query_files底下所有的statement集中到queryMethods裡]
@@ -31,7 +32,7 @@ var SelectMethod = function (querymain, queryname, params, callback){
 		    if (Error) return callback(err, null);
 
 			var ps = new sql.PreparedStatement(connection),
-				_params = isJson(params) ? JSON.parse(params) : {},
+				_params = until.isJson(params) ? JSON.parse(params) : {},
 				SQLCommand = "";
 
 			// 依querymain至各檔案下查詢method
@@ -45,7 +46,7 @@ var SelectMethod = function (querymain, queryname, params, callback){
 		    ps.prepare(SQLCommand, function(err) {
 			    // ... error checks
 			    if(err) return callback(err, null, preparedToStatement.PrintSql(SQLCommand, _params));
-			    
+
 			    /*
 			    	recordset -> 回傳值
 					affected -> Returns number of affected rows in case of INSERT, UPDATE or DELETE statement.
@@ -84,7 +85,7 @@ var InsertMethod = function (insertname, table, params, callback){
 		    if (Error) return;
 
 			var ps = new sql.PreparedStatement(connection),
-				_params = isJson(params) ? JSON.parse(params) : params,
+				_params = until.isJson(params) ? JSON.parse(params) : params,
 				SQLCommand = "",
 				Schema = [],
 				Values = [];
@@ -173,7 +174,7 @@ var UpdateMethod = function (updatetname, table, params, condition, callback){
 		    if (Error) return;
 
 			var ps = new sql.PreparedStatement(connection),
-				_params = isJson(params) ? JSON.parse(params) : params,
+				_params = until.isJson(params) ? JSON.parse(params) : params,
 				_condition = JSON.parse(condition),
 				_psParams = extend({}, _params, _condition),
 				SQLCommand = "",
@@ -274,7 +275,7 @@ var UpsertMethod = function (upsertname, table, params, condition, callback){
 		    if (Error) return;
 
 			var ps = new sql.PreparedStatement(connection),
-				_params = isJson(params) ? JSON.parse(params) : params,
+				_params = until.isJson(params) ? JSON.parse(params) : params,
 				_condition = JSON.parse(condition),
 				_psParams = extend({}, _params, _condition),
 				SQLCommand = "",
@@ -371,7 +372,7 @@ var DeleteMethod = function (deletename, table, params, callback){
 		    if (Error) return;
 
 			var ps = new sql.PreparedStatement(connection),
-				_params = isJson(params) ? JSON.parse(params) : params,
+				_params = until.isJson(params) ? JSON.parse(params) : params,
 				SQLCommand = "",
 				Condition = [];
 
@@ -438,20 +439,6 @@ function extend(target) {
         }
     });
     return target;
-}
-
-/**
- * [isJson 檢查string是否為Json] 
- * @param  {[type]}  str [description]
- * @return {Boolean}     [description]
- */
-function isJson(str) {
-    try {
-        JSON.parse(str);
-    } catch (e) {
-        return false;
-    }
-    return true;
 }
 
 module.exports.SelectMethod = SelectMethod;

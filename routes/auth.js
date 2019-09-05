@@ -4,8 +4,9 @@ var dbcommand = require('../until/dbCommand.js');
 var setting = require('../app.setting.json');
 var http = require('http');
 var querystring = require('querystring');
-var fs = require("fs");
 var until = require('../until/until.js');
+var dbLogObject = require('../until/dbLog.js');
+var logger = require('../until/log4js.js').logger('auth');
 
 /**
  * 重新讀取Session
@@ -60,6 +61,9 @@ router.post('/login', function(req, res) {
     //     // session saved
     //     console.log(err);
     // });
+
+    let id = req.body.U_ID,
+        ip = req.ip;
 
     try{        
         // console.log(res.statusCode, req.query);
@@ -151,6 +155,8 @@ router.post('/login', function(req, res) {
 
                         }
 
+                        new dbLogObject(id, null, null, null, null, ip, null).writeLog("登入");
+
                         // res.redirect('/#/dashboard');
                         res.json({
                             "returnData": _content.returnData[0]
@@ -161,6 +167,7 @@ router.post('/login', function(req, res) {
                     }
                 });
             }else{
+                new dbLogObject(id, null, null, null, null, ip, "登入失敗").writeLog("登入");
                 res.status(403).send('登入失敗');
             }
         });
@@ -168,7 +175,7 @@ router.post('/login', function(req, res) {
         post_req.end(); 
 
     } catch(err) {
-        console.log(err);
+        new dbLogObject(id, null, null, null, null, ip, err).writeLog("登入");
         res.status(403).send('登入失敗');
     }
 });
@@ -178,16 +185,28 @@ router.post('/login', function(req, res) {
  */
 router.post('/logout', function(req, res) {
 
-    req.session.destroy(function(err) {
-        // session saved
-        console.log("LogoutError: "+err);
-    });
+    let id = until.FindID(req.session),
+        ip = req.ip;
 
-    res.json({
-        "returnData": "登出成功"
-    });
+    try {
+        new dbLogObject(id, null, null, null, null, ip, null).writeLog("登出");
 
-    // res.redirect('/#/login');
+        req.session.destroy(function(err) {
+
+            if(!err) return;
+
+            // session saved
+            // console.log("LogoutError: "+err);
+            logger.error("Session Logout Error: "+err);
+        });
+
+        res.json({
+            "returnData": "登出成功"
+        });
+    } catch (e) {
+        logger.error(e);
+    }
+
 });
 
 /**
@@ -195,27 +214,16 @@ router.post('/logout', function(req, res) {
  */
 router.get('/version', function(req, res) {
 
-    var version = getConfig('../version.json');
+    try {
+        var version = until.getConfig('../version.json');
 
-    res.json({
-        "returnData": version.version
-    });
+        res.json({
+            "returnData": version.version
+        });
+    } catch (e) {
+        logger.error(e);
+    }
 
 });
 
 module.exports = router;
-
-function readJsonFileSync(filepath, encoding){
-
-    if (typeof (encoding) == 'undefined'){
-        encoding = 'utf8';
-    }
-    var file = fs.readFileSync(filepath, encoding);
-    return JSON.parse(file);
-}
-
-function getConfig(file){
-
-    var filepath = __dirname + '/' + file;
-    return readJsonFileSync(filepath);
-}

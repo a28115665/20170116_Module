@@ -3,17 +3,10 @@ var router = express.Router();
 var dbCommand = require('../until/dbCommand.js');
 var dbCommandByTask = require('../until/dbCommandByTask.js');
 var async = require('async');
-var logger = require('../until/log4js.js').logger('restful');
-var winston = require('winston');
 var setting = require('../app.setting.json');
-require('../until/winstonByMssql.js');
 var until = require('../until/until.js');
-
-winston.add(winston.transports.mssql, {
-    connectionString: setting.MSSQL,
-    table: "SYS_DBLOGS"
-});
-winston.remove(winston.transports.Console);
+var tables = require('../until/table.json');
+var dbLogObject = require('../until/dbLog.js');
 
 /**
  * [description] 權限控管
@@ -23,9 +16,10 @@ router.use('/crud', function (req, res, next) {
     let _id = until.FindID(req.session);
         
     if(_id == null){
-        res.status(403).json({
-            "returnData": '權限不足'
-        });
+        // res.status(403).json({
+        //     "returnData": '尚無權限'
+        // });
+        res.status(403).send('無權限已登出');
     }else{
         next()
     }
@@ -35,42 +29,26 @@ router.use('/crud', function (req, res, next) {
  * Restful 查詢
  */
 router.get('/crud', function(req, res) {
-
-    let _id = until.FindID(req.session);
     
+    let id = until.FindID(req.session),
+        action = "查詢",
+        querymain = req.query["querymain"],
+        queryname = req.query["queryname"],
+        params = req.query["params"],
+        ip = req.ip;
+
     // console.log("GET: ", req.query);
-    dbCommand.SelectMethod(req.query["querymain"], req.query["queryname"], req.query["params"], function(err, recordset, sql) {
+    dbCommand.SelectMethod(querymain, queryname, params, function(err, recordset, sql) {
+
+        let log = new dbLogObject(id, querymain, queryname, params, sql, ip, err)
+        log.writeLog(action);
 
         if (err) {
-            if(_id != null){
-                winston.log('error', JSON.stringify({
-                    User : _id,
-                    Msg : JSON.stringify(err),
-                    Sql : sql,
-                    IP: req.ip
-                }));
-            }
             console.error("查詢失敗錯誤訊息:", err);
 
             // Do something with your error...
-            // logger.error('查詢失敗', req.ip, __line+'行', err, sql);
             res.status(403).send('查詢失敗');
         } else {
-            if(_id != null){
-                // 依據檔名寫log
-                switch(req.query["querymain"]){
-                    case 'job001':
-                    case 'job002':
-                    case 'job003':
-                        winston.log('info', JSON.stringify({
-                            User : _id,
-                            Msg : '',
-                            Sql : sql,
-                            IP: req.ip
-                        }));
-                        break;
-                }
-            }
 
             res.header('Cache-Control', 'no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0')
             .status(200)
@@ -79,18 +57,7 @@ router.get('/crud', function(req, res) {
             });
         }
     })
-    
-    // connection.close();
-    
-    // session檢核
-    // if(req.session.key === undefined){}
-    // if (Object.keys(req.query).length === 0) {
-    //     res.end();
-    // } else {
-    //     res.json({
-    //         "returnData": req.query
-    //     });
-    // }
+
 });
 
 /**
@@ -98,33 +65,27 @@ router.get('/crud', function(req, res) {
  */
 router.post('/crud', function(req, res) {
 
-    let _id = until.FindID(req.session);
+    let id = until.FindID(req.session),
+        action = "新增",
+        insertname = req.query["insertname"],
+        table = req.query["table"],
+        params = req.query["params"],
+        ip = req.ip;
 
     // console.log("POST: ", req.body);
-    dbCommand.InsertMethod(req.body["insertname"], req.body["table"], req.body["params"], function(err, affected, sql) {
+    dbCommand.InsertMethod(insertname, table, params, function(err, affected, sql) {
+
+        // Log紀錄
+        let log = new dbLogObject(id, insertname, tables[table], params, sql, ip, err)
+        log.writeLog(action);
+
         if (err) {
-            if(_id != null){
-                winston.log('error', JSON.stringify({
-                    User : _id,
-                    Msg : JSON.stringify(err),
-                    Sql : sql,
-                    IP: req.ip
-                }));
-            }
             console.error("新增失敗錯誤訊息:", err);
 
             // console.log(err);
             // Do something with your error...
             res.status(403).send('新增失敗');
         } else {
-            if(_id != null){
-                winston.log('info', JSON.stringify({
-                    User : _id,
-                    Msg : '',
-                    Sql : sql,
-                    IP: req.ip
-                }));
-            }
 
             res.json({
                 "returnData": affected
@@ -132,15 +93,6 @@ router.post('/crud', function(req, res) {
         }
     })
     
-    // session檢核
-    // if(req.session.key === undefined){}
-    // if (Object.keys(req.query).length === 0) {
-    //     res.end();
-    // } else {
-    //     res.json({
-    //         "returnData": req.query
-    //     });
-    // }
 });
 
 /**
@@ -148,33 +100,28 @@ router.post('/crud', function(req, res) {
  */
 router.put('/crud', function(req, res) {
 
-    let _id = until.FindID(req.session);
+    let id = until.FindID(req.session),
+        action = "更新",
+        updatename = req.query["updatename"],
+        table = req.query["table"],
+        params = req.query["params"],
+        condition = req.query["condition"],
+        ip = req.ip;
 
     // console.log("PUT: ", req.body);
-    dbCommand.UpdateMethod(req.body["updatename"], req.body["table"], req.body["params"], req.body["condition"], function(err, affected, sql) {
+    dbCommand.UpdateMethod(updatename, table, params, condition, function(err, affected, sql) {
+
+        // Log紀錄
+        let log = new dbLogObject(id, updatename, tables[table], JSON.stringify(params) + ', ' + JSON.stringify(condition), sql, ip, err)
+        log.writeLog(action);
+
         if (err) {
-            if(_id != null){
-                winston.log('error', JSON.stringify({
-                    User : _id,
-                    Msg : JSON.stringify(err),
-                    Sql : sql,
-                    IP: req.ip
-                }));
-            }
             console.error("更新失敗錯誤訊息:", err);
 
             // console.log(err);
             // Do something with your error...
             res.status(403).send('更新失敗');
         } else {
-            if(_id != null){
-                winston.log('info', JSON.stringify({
-                    User : _id,
-                    Msg : '',
-                    Sql : sql,
-                    IP: req.ip
-                }));
-            }
 
             res.json({
                 "returnData": affected
@@ -182,15 +129,6 @@ router.put('/crud', function(req, res) {
         }
     })
     
-    // session檢核
-    // if(req.session.key === undefined){}
-    // if (Object.keys(req.query).length === 0) {
-    //     res.end();
-    // } else {
-    //     res.json({
-    //         "returnData": req.query
-    //     });
-    // }
 });
 
 /**
@@ -198,33 +136,28 @@ router.put('/crud', function(req, res) {
  */
 router.patch('/crud', function(req, res) {
 
-    let _id = until.FindID(req.session);
+    let id = until.FindID(req.session),
+        action = "插入",
+        upsertname = req.query["upsertname"],
+        table = req.query["table"],
+        params = req.query["params"],
+        condition = req.query["condition"],
+        ip = req.ip;
 
     // console.log("PATCH: ", req.query);
     dbCommand.UpsertMethod(req.query["upsertname"], req.query["table"], req.query["params"], req.query["condition"], function(err, affected, sql) {
+        
+        // Log紀錄
+        let log = new dbLogObject(id, upsertname, tables[table], JSON.stringify(params) + ', ' + JSON.stringify(condition), sql, ip, err)
+        log.writeLog(action);
+
         if (err) {
-            if(_id != null){
-                winston.log('error', JSON.stringify({
-                    User : _id,
-                    Msg : JSON.stringify(err),
-                    Sql : sql,
-                    IP: req.ip
-                }));
-            }
             console.error("插入失敗錯誤訊息:", err);
 
             // console.log(err);
             // Do something with your error...
             res.status(403).send('插入失敗');
         } else {
-            if(_id != null){
-                winston.log('info', JSON.stringify({
-                    User : _id,
-                    Msg : '',
-                    Sql : sql,
-                    IP: req.ip
-                }));
-            }
 
             res.json({
                 "returnData": affected
@@ -232,15 +165,6 @@ router.patch('/crud', function(req, res) {
         }
     })
     
-    // session檢核
-    // if(req.session.key === undefined){}
-    // if (Object.keys(req.query).length === 0) {
-    //     res.end();
-    // } else {
-    //     res.json({
-    //         "returnData": req.query
-    //     });
-    // }
 });
 
 /**
@@ -248,33 +172,26 @@ router.patch('/crud', function(req, res) {
  */
 router.delete('/crud', function(req, res) {
 
-    let _id = until.FindID(req.session);
+    let id = until.FindID(req.session),
+        action = "刪除",
+        deletename = req.query["deletename"],
+        table = req.query["table"],
+        params = req.query["params"],
+        ip = req.ip;
 
     // console.log("DELETE: ", req.query);
-    dbCommand.DeleteMethod(req.query["deletename"], req.query["table"], req.query["params"], function(err, affected, sql) {
+    dbCommand.DeleteMethod(deletename, table, params, function(err, affected, sql) {
+
+        // Log紀錄
+        let log = new dbLogObject(id, deletename, tables[table], params, sql, ip, err)
+        log.writeLog(action);
+
         if (err) {
-            if(_id != null){
-                winston.log('error', JSON.stringify({
-                    User : _id,
-                    Msg : JSON.stringify(err),
-                    Sql : sql,
-                    IP: req.ip
-                }));
-            }
             console.error("刪除失敗錯誤訊息:", err);
 
-            // console.log(err);
             // Do something with your error...
             res.status(403).send('刪除失敗');
         } else {
-            if(_id != null){
-                winston.log('info', JSON.stringify({
-                    User : _id,
-                    Msg : '',
-                    Sql : sql,
-                    IP: req.ip
-                }));
-            }
 
             res.json({
                 "returnData": affected
@@ -282,15 +199,6 @@ router.delete('/crud', function(req, res) {
         }
     })
     
-    // session檢核
-    // if(req.session.key === undefined){}
-    // if (Object.keys(req.query).length === 0) {
-    //     res.end();
-    // } else {
-    //     res.json({
-    //         "returnData": req.query
-    //     });
-    // }
 });
 
 
@@ -300,7 +208,8 @@ router.delete('/crud', function(req, res) {
  */
 router.get('/crudByTask', function(req, res) {
 
-    let _id = until.FindID(req.session);
+    let id = until.FindID(req.session),
+        ip = req.ip;
     
     // console.log(req.query);
 
@@ -339,6 +248,33 @@ router.get('/crudByTask', function(req, res) {
     // console.log(tasks);
 
     async.waterfall(tasks, function (err, args) {
+
+        // Log紀錄
+        for(let i in args.tasks){
+            switch(args.tasks[i].crudType){
+                case "Select":
+                    new dbLogObject(id, args.tasks[i].querymain, args.tasks[i].queryname, JSON.stringify(args.tasks[i].params), args.statement[i], ip, err).writeLog("查詢");
+                    break;
+                case "Insert":
+                    new dbLogObject(id, args.tasks[i].insertname, tables[args.tasks[i].table], JSON.stringify(args.tasks[i].params), args.statement[i], ip, err).writeLog("新增");
+                    break;
+                case "Update":
+                    new dbLogObject(id, args.tasks[i].updatename, tables[args.tasks[i].table], JSON.stringify(args.tasks[i].params) + ', ' + JSON.stringify(args.tasks[i].condition), args.statement[i], ip, err).writeLog("更新");
+                    break;
+                case "Delete":
+                    new dbLogObject(id, args.tasks[i].upsertname, tables[args.tasks[i].table], JSON.stringify(args.tasks[i].params), args.statement[i], ip, err).writeLog("刪除");
+                    break;
+                case "Upsert":
+                    new dbLogObject(id, args.tasks[i].deletename, tables[args.tasks[i].table], JSON.stringify(args.tasks[i].params) + ', ' + JSON.stringify(args.tasks[i].condition), args.statement[i], ip, err).writeLog("插入");
+                    break;
+                case "Copy":
+                    new dbLogObject(id, args.tasks[i].querymain, args.tasks[i].queryname, JSON.stringify(args.tasks[i].params), args.statement[i], ip, err).writeLog("複製");
+                    break;
+                default:
+                    break;
+            }
+        }
+
         if (err) {
             // 如果連線失敗就不做Rollback
             if(Object.keys(args).length !== 0){
@@ -347,34 +283,11 @@ router.get('/crudByTask', function(req, res) {
                 });
             }
 
-            if(_id != null){
-                for(var i in args.statement){
-                    winston.log('error', JSON.stringify({
-                        User : _id,
-                        Msg : JSON.stringify(err),
-                        Sql : args.statement[i],
-                        IP: req.ip
-                    }));
-                }
-                // console.log(args.statement);
-            }
             console.error("任務失敗錯誤訊息:", err);
 
             res.status(403).send('任務失敗');
             // process.exit();
         }else{
-
-            if(_id != null){
-                for(var i in args.statement){
-                    winston.log('info', JSON.stringify({
-                        User : _id,
-                        Msg : '',
-                        Sql : args.statement[i],
-                        IP: req.ip
-                    }));
-                }
-                // console.log(args.statement);
-            }
             // console.log("args:", args);
             res.json({
                 "returnData": args.result
@@ -383,15 +296,5 @@ router.get('/crudByTask', function(req, res) {
     });
 
 });
-
-// function FindID(pSession){
-//     let _id = null;
-
-//     if(pSession['key'] != undefined){
-//         _id = pSession['key'].U_ID
-//     }
-
-//     return _id;
-// }
 
 module.exports = router;

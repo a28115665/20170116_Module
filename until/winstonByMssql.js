@@ -2,6 +2,9 @@ const util = require('util');
 const winston = require('winston');
 const sql = require('mssql');
 const moment = require('moment');
+const logger = require('../until/log4js.js').logger('winstonByMssql');
+const until = require('../until/until.js');
+const schemaType = require('./schemaType.js');
 
 /**
  * @constructs MSSQL
@@ -39,38 +42,62 @@ mssql.prototype.name = 'mssql';
  *
  * @level {String} level to log at
  * @msg {String} message to log
- * @meta {object} metadata to attach to the messages
- * @callback {Function} callback to respond to when complete
  * @api public
  */
-mssql.prototype.log = function (pLevel, pData, meta, callback) {
-    var self = this;
-    	data = typeof pData == "string" ? JSON.parse(pData) : {},
-    	regex = new RegExp("'","gi");
+mssql.prototype.log = function (pLevel, pData) {
+    let self = this;
+    try {
+        var connection = new sql.Connection(this.connectionString, function (Error) {  
+            if (Error) {
+                logger.error('sql connection error:', Error);
+                return;
+            }
 
-    return sql.connect(this.connectionString).then(function (connection) {
-        var currentDate = moment().format('YYYY-MM-DD HH:mm:ss.SSS');
-        var query = "INSERT INTO " + self.table + " (SDL_DATETIME, SDL_LEVEL, SDL_USER, SDL_MESSAGE, SDL_SQL, SDL_IP) VALUES " +
-            "('" + currentDate + "', '" + 
-                   (pLevel || '') + "', '" + 
-                   (data.User || '') + "', '" + 
-                   (data.Msg.replace(regex, "''") || '') + "', '" + 
-                   (data.Sql.replace(regex, "''") || '') + "', '" + 
-                   (data.IP || '') + 
-            "')";
+            var ps = new sql.PreparedStatement(connection),
+                _params = until.isJson(pData) ? JSON.parse(pData) : pData,
+                SQLCommand = "",
+                Schema = [],
+                Values = [];
 
-        var request = new sql.Request();
+            _params["SDL_DATETIME"] = moment().format('YYYY-MM-DD HH:mm:ss.SSS');
+            _params["SDL_LEVEL"] = pLevel;
 
-        return request.query(query).then(function (err, recordset) {
-        		// console.log(err, recordset);
-                // connection.close();
-            })
-            .catch(function (error) {
-                // connection.close();
-                // throw error;
+            for(var key in _params){
+                Schema.push(key);
+                Values.push(_params[key]);
+            }
+
+            SQLCommand += "INSERT INTO " + self.table + " ("+Schema.join()+") VALUES (@"+Schema.join(",@")+")";
+
+            schemaType.SchemaType(_params, ps, sql);
+
+            // 執行SQL，並且回傳值
+            ps.prepare(SQLCommand, function(err) {
+                // ... error checks
+                if (err) logger.error('ps prepare error:', err);
+                
+                /*
+                    recordset -> 回傳值
+                    affected -> Returns number of affected rows in case of INSERT, UPDATE or DELETE statement.
+                 */
+                ps.execute(_params, function(err, recordset, affected) {
+                    // console.log(err, recordset, affected);
+                    // ... error checks
+                    if (err) logger.error('ps execute error:', err);
+
+                    ps.unprepare(function(err) {
+                        // ... error checks
+                        if (err) logger.error('db unprepare error:', err);
+
+                        // callback(null, affected, preparedToStatement.PrintSql(SQLCommand, _params));  
+                    });
+                });
             });
-    })
-    .catch(function (error) {
-        // console.error("DB write logs error:", error);
-    })
+
+
+        });
+    }
+    catch(err) {
+        logger.error('other error:', err);
+    }
 };

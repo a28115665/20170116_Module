@@ -34,6 +34,13 @@ const log4js = require('log4js');
 log4js.configure({ 
     appenders: {
         out: { type: 'console' }, 
+        auth: { 
+            type: 'file', //文件输出
+            filename: 'log/auth.log', 
+            maxLogSize: 10*1024*1024, // = 10Mb
+            backups: 10,
+            category: 'auth'
+        }, 
         restful: { 
             type: 'file', //文件输出
             filename: 'log/restful.log', 
@@ -47,12 +54,21 @@ log4js.configure({
             maxLogSize: 10*1024*1024, // = 10Mb
             backups: 10,
             category: 'toolbox'
+        }, 
+        winstonByMssql: { 
+            type: 'file', //文件输出
+            filename: 'log/winstonByMssql.log', 
+            maxLogSize: 10*1024*1024, // = 10Mb
+            backups: 10,
+            category: 'winstonByMssql'
         }
     },
     categories: {
-        default: { appenders: ['out', 'restful', 'toolbox'], level: 'info' },
+        default: { appenders: ['out'], level: 'info' },
+        auth: { appenders: ['auth'], level: 'info'},
         // restful: { appenders: ['restful'], level: 'info'},
-        // toolbox: { appenders: ['toolbox'], level: 'info' }
+        toolbox: { appenders: ['toolbox'], level: 'info' },
+        winstonByMssql: { appenders: ['winstonByMssql'], level: 'error' }
     }
 });
 

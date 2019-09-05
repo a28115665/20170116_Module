@@ -15,17 +15,20 @@ var PrintSql = function (sql, params){
 	for(var key in params){
 		if(params[key] !== undefined){
 			
-			regex = new RegExp("@"+key+",","gi");
+			regex = new RegExp("@"+key,"gi");
 
 			if(params[key] == null){
-				regex = new RegExp("=@"+key+",","gi");
-        		_sql = _sql.replace(regex, " IS NULL,");
+				regex = new RegExp("=@"+key,"gi");
+        		_sql = _sql.replace(regex, " IS NULL");
 			}
 			if(typeof params[key] == "string"){
-        		_sql = _sql.replace(regex, "'" + params[key] + "',");
+        		_sql = _sql.replace(regex, "'" + params[key] + "'");
 			}
 			if(typeof params[key] == "number"){
-        		_sql = _sql.replace(regex, params[key]+",");
+        		_sql = _sql.replace(regex, params[key]);
+			}
+			if(typeof params[key] == "boolean"){
+        		_sql = _sql.replace(regex, params[key] ? 1 : 0);
 			}
 		}
 	}
