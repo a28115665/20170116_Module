@@ -15,7 +15,9 @@ module.exports = function(pQueryname, pParams){
 				_SQLCommand += " AND COD_DEPT = @COD_DEPT";
 			}
 
-			_SQLCommand += " ORDER BY COD_PRINCIPAL ";
+			_SQLCommand += " ORDER BY COD_PRINCIPAL, COD_CODE ";
+			
+			break;
 
 		case "SelectAgentSetting":
 			_SQLCommand += "SELECT AS_PRINCIPAL, \
@@ -30,6 +32,8 @@ module.exports = function(pQueryname, pParams){
 			}
 
 			_SQLCommand += " ORDER BY AS_PRINCIPAL ";
+
+			break;
 
 		case "SelectCompyAgent":
 			_SQLCommand += "SELECT COD.COD_PRINCIPAL, \

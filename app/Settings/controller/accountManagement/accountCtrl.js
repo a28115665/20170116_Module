@@ -283,9 +283,9 @@ angular.module('app.settings').controller('AccountCtrl', function ($scope, $stat
             // 把已被選取的帳號打勾
             $timeout(function() {
                 if($ctrl.mdDataGridApi.selection.selectRow){
-                    // console.log($ctrl.vmData["UserGroup"]);
+                    // console.log($ctrl.vmData["UserDept"][i].SUD_DEPT);
                     for(var i in $ctrl.vmData["UserDept"]){
-                        $ctrl.mdDataGridApi.selection.selectRow($filter('filter')($ctrl.mdData, {SUD_DEPT: $ctrl.vmData["UserDept"][i].SUD_DEPT})[0]);
+                        $ctrl.mdDataGridApi.selection.selectRow($filter('filter')($ctrl.mdData, {SUD_DEPT: $ctrl.vmData["UserDept"][i].SUD_DEPT}, true)[0]);
                     }
                 }
             });

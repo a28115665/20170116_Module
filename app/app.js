@@ -59,6 +59,7 @@ angular.module('app', [
     'app.restful',
     'app.mainwork',
     'app.selfwork',
+    'app.oselfwork',
     'app.concerns',
     'app.settings'
 ])

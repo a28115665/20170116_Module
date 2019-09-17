@@ -99,9 +99,11 @@ angular.module('app')
 })
 .factory('SysCode', SysCodeResolve)
 .factory('Compy', CompyResolve)
+.factory('OCompy', OCompyResolve)
 .factory('UserGrade', UserGradeResolve)
 .factory('UserInfoByGrade', UserInfoByGradeResolve)
 .factory('UserInfoByCompyDistribution', UserInfoByCompyDistributionResolve)
+.factory('UserInfoByOCompyDistribution', UserInfoByOCompyDistributionResolve)
 .factory('UserInfo', UserInfoResolve)
 // 航班貨況
 .factory('OrderStatus', function ($window, toaster) {

@@ -1,13 +1,16 @@
 "use strict";
 
-angular.module('app.selfwork.leaderoption').controller('CompyDistributionCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, $filter, $q, RestfulApi, uiGridConstants, userInfoByGrade, compy, coWeights) {
+angular.module('app.oselfwork.oleaderoption').controller('OCompyDistributionCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, $filter, $q, RestfulApi, uiGridConstants, userInfoByGrade, coWeights) {
     
     var $vm = this;
 
-	angular.extend(this, {
+    angular.extend(this, {
         Init : function(){
             // 檢查是否有部門人員
-            if(userInfoByGrade[0].length > 0){
+            if(userInfoByGrade[0].length == 0){
+                toaster.pop('info', '訊息', '請先設定帳號所屬的部門', 3000);
+                $vm.compyDistributionData = [];
+            }else{
                 $vm.selectAssignDept = userInfoByGrade[0][0].value;
                 LoadCompyDistribution();
             }
@@ -18,23 +21,16 @@ angular.module('app.selfwork.leaderoption').controller('CompyDistributionCtrl', 
         compyDistributionOptions : {
             data:  '$vm.compyDistributionData',
             columnDefs: [
-                // { name: 'CO_CODE'       ,  displayName: '行家', cellFilter: 'compyFilter', filter: 
-                //     {
-                //         term: null,
-                //         type: uiGridConstants.filter.SELECT,
-                //         selectOptions: compy
-                //     }
-                // },
-                { name: 'CO_NAME'   ,  displayName: '行家' },
-                { name: 'CO_WEIGHTS',  displayName: '權重', cellFilter: 'coWeightsFilter', filter: 
+                { name: 'O_CO_NAME'   ,  displayName: '行家' },
+                { name: 'O_CO_WEIGHTS',  displayName: '權重', cellFilter: 'coWeightsFilter', filter: 
                     {
                         term: null,
                         type: uiGridConstants.filter.SELECT,
                         selectOptions: coWeights
                     }
                 },
-                // { name: 'CO_ADDR'      ,  displayName: '公司地址' },
-                // { name: 'COD_PRINCIPAL',  displayName: '負責人' , cellFilter: 'userInfoFilter', filter: 
+                // { name: 'O_CO_ADDR'      ,  displayName: '公司地址' },
+                // { name: 'O_COD_PRINCIPAL',  displayName: '負責人' , cellFilter: 'userInfoFilter', filter: 
                 //     {
                 //         term: null,
                 //         type: uiGridConstants.filter.SELECT,
@@ -85,21 +81,21 @@ angular.module('app.selfwork.leaderoption').controller('CompyDistributionCtrl', 
 
                                 RestfulApi.DeleteMSSQLData({
                                     deletename: 'Delete',
-                                    table: 15,
+                                    table: 35,
                                     params: {
-                                        COD_CODE : row.entity.COD_CODE,
-                                        COD_DEPT : row.entity.COD_DEPT,
-                                        COD_PRINCIPAL : row.entity.COD_PRINCIPAL
+                                        O_COD_CODE : row.entity.O_COD_CODE,
+                                        O_COD_DEPT : row.entity.O_COD_DEPT,
+                                        O_COD_PRINCIPAL : row.entity.O_COD_PRINCIPAL
                                     }
                                 }).then(function (res) {
                                     for(var i in $vm.compyDistributionData){
-                                        if($vm.compyDistributionData[i].CO_CODE == row.entity.COD_CODE){
+                                        if($vm.compyDistributionData[i].O_CO_CODE == row.entity.O_COD_CODE){
                                             $vm.compyDistributionData[i].PRINCIPAL_COUNT -= 1;
 
                                             var foundItem = $filter('filter')($vm.compyDistributionData[i].subGridOptions.data, {
-                                                COD_CODE : row.entity.COD_CODE,
-                                                COD_DEPT : row.entity.COD_DEPT,
-                                                COD_PRINCIPAL : row.entity.COD_PRINCIPAL
+                                                O_COD_CODE : row.entity.O_COD_CODE,
+                                                O_COD_DEPT : row.entity.O_COD_DEPT,
+                                                O_COD_PRINCIPAL : row.entity.O_COD_PRINCIPAL
                                             })[0];
 
                                             var itemIndex = $vm.compyDistributionData[i].subGridOptions.data.indexOf(foundItem);
@@ -135,11 +131,11 @@ angular.module('app.selfwork.leaderoption').controller('CompyDistributionCtrl', 
                 for(var i in _getSelectedRows){
 
                     // 如果沒有此負責人才塞入
-                    if($filter('filter')(_getSelectedRows[i].subGridOptions.data, { COD_PRINCIPAL : $vm.selectAssignPrincipal }).length == 0){
+                    if($filter('filter')(_getSelectedRows[i].subGridOptions.data, { O_COD_PRINCIPAL : $vm.selectAssignPrincipal }).length == 0){
                         _getSelectedRows[i].subGridOptions.data.push({
-                            COD_CODE : _getSelectedRows[i].CO_CODE,
-                            COD_DEPT : $vm.selectAssignDept,
-                            COD_PRINCIPAL : $vm.selectAssignPrincipal
+                            O_COD_CODE : _getSelectedRows[i].O_CO_CODE,
+                            O_COD_DEPT : $vm.selectAssignDept,
+                            O_COD_PRINCIPAL : $vm.selectAssignPrincipal
                         });
 
                         // _getSelectedRows[i].PRINCIPAL_COUNT = _getSelectedRows[i].subGridOptions.data.length;
@@ -188,7 +184,7 @@ angular.module('app.selfwork.leaderoption').controller('CompyDistributionCtrl', 
         //     // Delete此Leader的行家分配
         //     _tasks.push({
         //         crudType: 'Delete',
-        //         table: 15,
+        //         table: 35,
         //         params: {
         //             COD_DEPT : $vm.selectAssignDept,
         //             // COD_CR_USER : $vm.profile.U_ID
@@ -200,9 +196,9 @@ angular.module('app.selfwork.leaderoption').controller('CompyDistributionCtrl', 
         //         if($vm.compyDistributionData[i].COD_PRINCIPAL != null){
         //             _tasks.push({
         //                 crudType: 'Insert',
-        //                 table: 15,
+        //                 table: 35,
         //                 params: {
-        //                     COD_CODE : $vm.compyDistributionData[i].CO_CODE,
+        //                     COD_CODE : $vm.compyDistributionData[i].O_CO_CODE,
         //                     COD_DEPT : $vm.selectAssignDept,
         //                     COD_PRINCIPAL : $vm.compyDistributionData[i].COD_PRINCIPAL,
         //                     COD_CR_USER : $vm.profile.U_ID,
@@ -232,10 +228,10 @@ angular.module('app.selfwork.leaderoption').controller('CompyDistributionCtrl', 
             // Delete此班的行家
             _tasks.push({
                 crudType: 'Delete',
-                table: 15,
+                table: 35,
                 params: {
-                    COD_CODE : entity.CO_CODE,
-                    COD_DEPT : $vm.selectAssignDept
+                    O_COD_CODE : entity.O_CO_CODE,
+                    O_COD_DEPT : $vm.selectAssignDept
                 }
             });
 
@@ -243,13 +239,13 @@ angular.module('app.selfwork.leaderoption').controller('CompyDistributionCtrl', 
             for(var i in entity.subGridOptions.data){
                 _tasks.push({
                     crudType: 'Insert',
-                    table: 15,
+                    table: 35,
                     params: {
-                        COD_CODE : entity.subGridOptions.data[i].COD_CODE,
-                        COD_DEPT : $vm.selectAssignDept,
-                        COD_PRINCIPAL : entity.subGridOptions.data[i].COD_PRINCIPAL,
-                        COD_CR_USER : $vm.profile.U_ID,
-                        COD_CR_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss')
+                        O_COD_CODE : entity.subGridOptions.data[i].O_COD_CODE,
+                        O_COD_DEPT : $vm.selectAssignDept,
+                        O_COD_PRINCIPAL : entity.subGridOptions.data[i].O_COD_PRINCIPAL,
+                        O_COD_CR_USER : $vm.profile.U_ID,
+                        O_COD_CR_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss')
                     }
                 });
             }
@@ -267,7 +263,7 @@ angular.module('app.selfwork.leaderoption').controller('CompyDistributionCtrl', 
 
             // RestfulApi.UpdateMSSQLData({
             //     insertname: 'Insert',
-            //     table: 15,
+            //     table: 35,
             //     params: {
             //         COD_CODE      : entity.COD_CODE,
             //         COD_DEPT      : entity.COD_DEPT,
@@ -287,47 +283,44 @@ angular.module('app.selfwork.leaderoption').controller('CompyDistributionCtrl', 
         }
     });
 
-    /**
-     * [LoadCompyDistribution description] 組合每個行家下所需要的負責人
-     */
     function LoadCompyDistribution(){
 
         RestfulApi.CRUDMSSQLDataByTask([
             {
                 crudType: 'Select',
-                querymain: 'compyDistribution',
-                queryname: 'SelectCompy'
+                querymain: 'ocompyDistribution',
+                queryname: 'SelectOCompy'
             },
             {  
                 crudType: 'Select',
-                querymain: 'compyDistribution',
-                queryname: 'SelectCompyDistribution',
+                querymain: 'ocompyDistribution',
+                queryname: 'SelectOCompyDistribution',
                 params: {
-                    COD_DEPT : $vm.selectAssignDept
+                    O_COD_DEPT : $vm.selectAssignDept
                 }
             }
         ]).then(function (res){
             console.log(res["returnData"]);
 
-            var compy = res["returnData"][0] || [],
+            var _compy = res["returnData"][0] || [],
                 compyDistribution = res["returnData"][1] || [];
 
-            for(var i in compy){
+            for(var i in _compy){
 
                 var _data = [];
 
                 // 塞入各行家所負責的人員
                 for(var j in compyDistribution){
-                    if(compy[i].CO_CODE == compyDistribution[j].COD_CODE){
+                    if(_compy[i].O_CO_CODE == compyDistribution[j].O_COD_CODE){
                         _data.push(compyDistribution[j]);
                     }
                 }
 
                 // 新增每row的subgrid
-                compy[i].subGridOptions = {
+                _compy[i].subGridOptions = {
                     data: _data,
                     columnDefs: [ 
-                        {field: "COD_PRINCIPAL", name: "負責人", cellFilter: 'userInfoFilter', filter: 
+                        {field: "O_COD_PRINCIPAL", name: "負責人", cellFilter: 'userInfoFilter', filter: 
                             {
                                 term: null,
                                 type: uiGridConstants.filter.SELECT,
@@ -340,10 +333,10 @@ angular.module('app.selfwork.leaderoption').controller('CompyDistributionCtrl', 
                     enableSorting: true,
                     enableColumnMenus: false
                 }
-                compy[i]["PRINCIPAL_COUNT"] = _data.length;
+                _compy[i]["PRINCIPAL_COUNT"] = _data.length;
             }
 
-            $vm.compyDistributionData = compy;
+            $vm.compyDistributionData = _compy;
 
         }).finally(function() {
             console.log($vm.compyDistributionGridApi);
@@ -351,19 +344,6 @@ angular.module('app.selfwork.leaderoption').controller('CompyDistributionCtrl', 
             // $vm.compyDistributionGridApi.grid.columns[2].filter.selectOptions = userInfoByGrade[1][$vm.selectAssignDept];
         });
 
-        // RestfulApi.SearchMSSQLData({
-        //     querymain: 'compyDistribution',
-        //     queryname: 'SelectCompyDistribution',
-        //     params: {
-        //         COD_DEPT : $vm.selectAssignDept
-        //     }
-        // }).then(function (res){
-        //     console.log(res["returnData"]);
-        //     $vm.compyDistributionData = res["returnData"];
-        // }).finally(function() {
-        //     // 更新filter selectOptions的值
-        //     $vm.compyDistributionGridApi.grid.columns[2].filter.selectOptions = userInfoByGrade[1][$vm.selectAssignDept];
-        //     // console.log($vm.compyDistributionGridApi.grid.columns[4].filter.selectOptions);
-        // });    
     }
+
 })

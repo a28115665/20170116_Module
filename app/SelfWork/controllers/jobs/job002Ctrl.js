@@ -568,7 +568,7 @@ angular.module('app.selfwork').controller('Job002Ctrl', function ($scope, $state
     // 把已被選取的郵件目標打勾
     $timeout(function() {
         if($ctrl.mdDataGridApi.selection.selectRow){
-            $ctrl.mdDataGridApi.selection.selectRow($filter('filter')($ctrl.mdData, {isChoice: 1})[0]);
+            $ctrl.mdDataGridApi.selection.selectRow($filter('filter')($ctrl.mdData, {isChoice: 1}, true)[0]);
         }
     });
 

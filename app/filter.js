@@ -191,6 +191,39 @@ angular.module('app')
 	return FilterFunction;
 
 })
+.filter('ocompyFilter', function (OCompy) {
+
+	var resData = {};
+
+	LoadData();
+
+	var FilterFunction = function (input, isLoad){
+		if(isLoad){
+			LoadData();
+		}
+
+		if (!input) {
+		    return '';
+		} else {
+		    return angular.isUndefined(resData[input]) ? input : resData[input];
+		}
+
+	};
+	
+	function LoadData(){
+		OCompy.get().then(function (res){
+			for(var i in res){
+				resData[res[i].value] = res[i].label.split(' ')[1];
+			}
+		});
+	}
+
+	// 持續偵測
+	FilterFunction.$stateful = true;
+
+	return FilterFunction;
+
+})
 .filter('coWeightsFilter', function (SysCode) {
 
 	var resData = {};

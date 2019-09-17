@@ -261,7 +261,7 @@ angular.module('app.settings').controller('GroupCtrl', function ($scope, $stateP
                 if($ctrl.mdDataGridApi.selection.selectRow){
                     // console.log($ctrl.vmData["UserGroup"]);
                     for(var i in $ctrl.vmData["UserGroup"]){
-                        $ctrl.mdDataGridApi.selection.selectRow($filter('filter')($ctrl.mdData, {U_ID: $ctrl.vmData["UserGroup"][i].U_ID})[0]);
+                        $ctrl.mdDataGridApi.selection.selectRow($filter('filter')($ctrl.mdData, {U_ID: $ctrl.vmData["UserGroup"][i].U_ID}, true)[0]);
                     }
                 }
             });
