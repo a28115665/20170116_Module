@@ -26,9 +26,6 @@ angular.module('app.selfwork.leaderoption').config(function ($stateProvider){
                     userInfoByGrade : function(UserInfoByGrade, Session){
                         return UserInfoByGrade.get(Session.Get().U_ID, Session.Get().U_GRADE, Session.Get().DEPTS);
                     },
-                    compy : function(Compy){
-                        return Compy.get();
-                    },
                     coWeights: function (SysCode){
                         return SysCode.get('CoWeights');
                     }

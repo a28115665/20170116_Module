@@ -1,6 +1,6 @@
 "use strict";
 
-angular.module('app.selfwork.leaderoption').controller('DailyLeaveCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, $filter, uiGridConstants, RestfulApi, userInfoByGrade, bool, $q) {
+angular.module('app.oselfwork.oleaderoption').controller('ODailyLeaveCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, $filter, uiGridConstants, RestfulApi, userInfoByGrade, bool, $q) {
     
     var $vm = this;
 
@@ -23,7 +23,7 @@ angular.module('app.selfwork.leaderoption').controller('DailyLeaveCtrl', functio
             data:  '$vm.vmData',
             columnDefs: [
                 { name: 'U_NAME'     ,  displayName: '人員姓名' },
-                { name: 'DL_IS_LEAVE',  displayName: '是否請假', cellFilter: 'booleanFilter', filter: 
+                { name: 'O_DL_IS_LEAVE',  displayName: '是否請假', cellFilter: 'booleanFilter', filter: 
                     {
                         term: null,
                         type: uiGridConstants.filter.SELECT,
@@ -76,8 +76,8 @@ angular.module('app.selfwork.leaderoption').controller('DailyLeaveCtrl', functio
         //         crudType: 'Delete',
         //         table: 16,
         //         params: {
-        //             DL_DEPT : $vm.selectAssignDept,
-        //             DL_CR_USER : $vm.profile.U_ID
+        //             O_DL_DEPT : $vm.selectAssignDept,
+        //             O_DL_CR_USER : $vm.profile.U_ID
         //         }
         //     });
 
@@ -89,10 +89,10 @@ angular.module('app.selfwork.leaderoption').controller('DailyLeaveCtrl', functio
         //                 crudType: 'Insert',
         //                 table: 16,
         //                 params: {
-        //                     DL_ID : $vm.vmData[i].U_ID,
-        //                     DL_DEPT : $vm.selectAssignDept,
-        //                     DL_CR_USER : $vm.profile.U_ID,
-        //                     DL_CR_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss')
+        //                     O_DL_ID : $vm.vmData[i].U_ID,
+        //                     O_DL_DEPT : $vm.selectAssignDept,
+        //                     O_DL_CR_USER : $vm.profile.U_ID,
+        //                     O_DL_CR_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss')
         //                 }
         //             });
         //         }
@@ -115,10 +115,10 @@ angular.module('app.selfwork.leaderoption').controller('DailyLeaveCtrl', functio
             // Delete此班所有人的假
             _tasks.push({
                 crudType: 'Delete',
-                table: 16,
+                table: 37,
                 params: {
-                    DL_ID : entity.U_ID,
-                    DL_DEPT : $vm.selectAssignDept
+                    O_DL_ID : entity.U_ID,
+                    O_DL_DEPT : $vm.selectAssignDept
                 }
             });
 
@@ -126,12 +126,12 @@ angular.module('app.selfwork.leaderoption').controller('DailyLeaveCtrl', functio
             if(entity.DL_IS_LEAVE){
                 _tasks.push({
                     crudType: 'Insert',
-                    table: 16,
+                    table: 37,
                     params: {
-                        DL_ID : entity.U_ID,
-                        DL_DEPT : entity.UD_DEPT,
-                        DL_CR_USER : $vm.profile.U_ID,
-                        DL_CR_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss')
+                        O_DL_ID : entity.U_ID,
+                        O_DL_DEPT : entity.UD_DEPT,
+                        O_DL_CR_USER : $vm.profile.U_ID,
+                        O_DL_CR_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss')
                     }
                 });
             }
@@ -154,7 +154,7 @@ angular.module('app.selfwork.leaderoption').controller('DailyLeaveCtrl', functio
 
     function LoadDailyLeave(){
         RestfulApi.SearchMSSQLData({
-            querymain: 'dailyLeave',
+            querymain: 'odailyLeave',
             queryname: 'SelectUserLeavebyGrade',
             params: {
                 U_GRADE : $vm.profile.U_GRADE,
@@ -163,7 +163,7 @@ angular.module('app.selfwork.leaderoption').controller('DailyLeaveCtrl', functio
             }
         }).then(function (res){
             console.log(res["returnData"]);
-            $vm.vmData = res["returnData"];
+            $vm.vmData = res["returnData"] || [];
         });    
     }
 

@@ -76,7 +76,7 @@ module.exports = function(pQueryname, pParams){
 				_SQLCommand += " AND U_GRADE > @U_GRADE";
 			}
 
-			// _SQLCommand += " GROUP BY U.U_ID, U.U_NAME, U.U_GRADE ";
+			_SQLCommand += " ORDER BY UD_DEPT ";
 
 			break;
 	}

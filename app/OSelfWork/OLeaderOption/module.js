@@ -59,4 +59,26 @@ angular.module('app.oselfwork.oleaderoption').config(function ($stateProvider){
         }
     })
 
+    .state('app.oselfwork.oleaderoption.odailyleave', {
+        url: '/oselfwork/oleaderoption/odailyleave',
+        data: {
+            title: 'ODailyLeave'
+        },
+        views: {
+            "content@app" : {
+                templateUrl: 'app/OSelfWork/OLeaderOption/views/odailyleave.html',
+                controller: 'ODailyLeaveCtrl',
+                controllerAs: '$vm',
+                resolve: {
+                    userInfoByGrade : function(UserInfoByGrade, Session){
+                        return UserInfoByGrade.get(Session.Get().U_ID, Session.Get().U_GRADE, Session.Get().DEPTS);
+                    },
+                    bool : function(SysCode){
+                        return SysCode.get('Boolean');
+                    }
+                }
+            }
+        }
+    })
+
 });
