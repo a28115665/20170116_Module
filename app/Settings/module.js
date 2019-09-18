@@ -1,6 +1,10 @@
 "use strict";
 
-angular.module('app.settings', ['ui.router']);
+angular.module('app.settings', [
+        'ui.router',
+        'app.settings.externalmanagement.sub',
+        'app.settings.oexternalmanagement.sub'
+    ]);
 
 angular.module('app.settings').config(function ($stateProvider){
 
@@ -182,48 +186,22 @@ angular.module('app.settings').config(function ($stateProvider){
         }
     })
 
-    .state('app.settings.externalmanagement.exaccount', {
-        url: '/exaccount',
+    .state('app.settings.oexternalmanagement', {
+        url: '/settings/oexternalmanagement',
         data: {
-            title: 'ExAccount'
-        },
-        params: { 
-            data: null
+            title: 'OExternalManagement'
         },
         views: {
             "content@app" : {
-                templateUrl: 'app/Settings/views/externalManagement/exAccount.html',
-                controller: 'ExAccountCtrl',
+                templateUrl: 'app/Settings/views/oexternalManagement.html',
+                controller: 'OExternalManagementCtrl',
                 controllerAs: '$vm',
                 resolve: {
-                    bool: function (SysCode, $q){
+                    bool: function (SysCode){
                         return SysCode.get('Boolean');
                     },
-                    compy: function(Compy){
-                        return Compy.get();
-                    }
-                }
-            }
-        }
-    })
-
-    .state('app.settings.externalmanagement.excompy', {
-        url: '/excompy',
-        data: {
-            title: 'ExCompy'
-        },
-        params: { 
-            data: null
-        },
-        parent: 'app.settings.externalmanagement',
-        views: {
-            "content@app" : {
-                templateUrl: 'app/Settings/views/externalManagement/exCompy.html',
-                controller: 'ExCompyCtrl',
-                controllerAs: '$vm',
-                resolve: {
-                    bool: function (SysCode, $q){
-                        return SysCode.get('Boolean');
+                    ocompy: function(OCompy){
+                        return OCompy.get();
                     },
                     coWeights: function (SysCode){
                         return SysCode.get('CoWeights');

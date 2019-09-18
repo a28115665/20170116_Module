@@ -117,8 +117,11 @@ var InsertMethod = function (insertname, table, params, callback){
 					if(SQLCommand.match(/@CI_PW/gi)){
 						SQLCommand = SQLCommand.replace(/@CI_PW/gi, 'dbo.Encrypt(@CI_PW)');
 					}
+					if(SQLCommand.match(/@O_CI_PW/gi)){
+						SQLCommand = SQLCommand.replace(/@O_CI_PW/gi, 'dbo.Encrypt(@O_CI_PW)');
+					}
 					if(SQLCommand.match(/@MA_PASS/gi)){
-						SQLCommand = SQLCommand.replace(/@CI_PW/gi, 'dbo.Encrypt(@CI_PW)');
+						SQLCommand = SQLCommand.replace(/@MA_PASS/gi, 'dbo.Encrypt(@MA_PASS)');
 					}
 					
 					break;
@@ -202,9 +205,8 @@ var UpdateMethod = function (updatetname, table, params, condition, callback){
 					for(var key in _params){
 						switch(key){
 							case 'U_PW':
-								Schema.push(key + "=dbo.Encrypt(@" + key + ")");
-								break;
 							case 'CI_PW':
+							case 'O_CI_PW':
 								Schema.push(key + "=dbo.Encrypt(@" + key + ")");
 								break;
 							default:
