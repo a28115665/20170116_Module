@@ -252,6 +252,15 @@ var DeleteRequestWithTransaction = function(task, args, callback) {
 			}
 			
 			break;
+		case "DeleteOOrderPrinplWithEditor":
+
+			if(task.params["O_OP_SEQ"] !== undefined && task.params["O_OP_DEPT"] !== undefined){
+				SQLCommand += "DELETE "+tables[task.table]+" FROM "+tables[task.table]+" \
+							   LEFT JOIN O_ORDER_EDITOR ON O_OE_SEQ = O_OP_SEQ AND O_OE_TYPE = O_OP_TYPE AND O_OE_PRINCIPAL = O_OP_PRINCIPAL \
+							   WHERE O_OP_SEQ = @O_OP_SEQ AND O_OP_DEPT = @O_OP_DEPT AND O_OE_EDATETIME IS NULL";
+			}
+			
+			break;
 		default:
 			for(var key in task.params){
 				if(task.params[key] == null){

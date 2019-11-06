@@ -49,34 +49,27 @@ module.exports = function(pQueryname, pParams){
 										CASE WHEN ( \
 											/*表示已有完成者*/ \
 											SELECT COUNT(1) \
-											FROM ORDER_PRINPL \
-											LEFT JOIN ORDER_EDITOR ON OE_SEQ = OP_SEQ AND OE_TYPE = OP_TYPE \
-											WHERE OP_SEQ = OL_SEQ AND OP_DEPT = 'W2' AND OE_FDATETIME IS NOT NULL AND OP_PRINCIPAL = OE_PRINCIPAL \
+											FROM V_ORDER_W2_STATUS3 \
+											WHERE OP_SEQ = OL_SEQ \
 										) > 0 THEN '3' \
 										WHEN ( \
 											/*表示已有完成者，但非作業員*/ \
 											SELECT COUNT(1) \
-											FROM ORDER_PRINPL \
-											LEFT JOIN ORDER_EDITOR ON OE_SEQ = OP_SEQ AND OE_TYPE = OP_TYPE \
-											WHERE OP_SEQ = OL_SEQ AND OP_DEPT = 'W2' AND OE_FDATETIME IS NOT NULL \
+											FROM V_ORDER_W2_STATUS4 \
+											WHERE OP_SEQ = OL_SEQ \
 										) > 0 OR W2_OE.OE_FDATETIME IS NOT NULL THEN '4' \
 										WHEN ( \
 											/*表示未有完成者，但有編輯者*/ \
 											SELECT COUNT(1) \
-											FROM ORDER_PRINPL \
-											LEFT JOIN ORDER_EDITOR ON OE_SEQ = OP_SEQ AND OE_TYPE = OP_TYPE \
-											WHERE OP_SEQ = OL_SEQ AND OP_DEPT = 'W2' AND OE_EDATETIME IS NOT NULL \
+											FROM V_ORDER_W2_STATUS2 \
+											WHERE OP_SEQ = OL_SEQ \
 										) > 0 THEN '2' \
 										WHEN ( \
 											/*表示未有完成者，未有編輯者，但有負責人(已派單)*/ \
 											SELECT COUNT(1) \
-											FROM ORDER_PRINPL \
-											LEFT JOIN ORDER_EDITOR ON OE_SEQ = OP_SEQ AND OE_TYPE = OP_TYPE \
-											WHERE OP_SEQ = OL_SEQ AND OP_DEPT = 'W2' \
+											FROM V_ORDER_W2_STATUS1 \
+											WHERE OP_SEQ = OL_SEQ \
 										) > 0 THEN '1' \
-										WHEN \
-											/*表示已有完成者，但非作業員*/ \
-											W2_OE.OE_PRINCIPAL IS NOT NULL THEN '4' \
 										/*表示尚未派單*/ \
 										ELSE '0' END \
 									) AS 'W2_STATUS', \
@@ -96,11 +89,11 @@ module.exports = function(pQueryname, pParams){
 								OUTTER JOIN COMPY_INFO ON CO_CODE = OL_CO_CODE \
 							) ORDER_LIST \
 							/*報機單*/ \
-							LEFT JOIN ORDER_EDITOR W2_OE ON W2_OE.OE_SEQ = ORDER_LIST.OL_SEQ AND W2_OE.OE_TYPE = 'R' AND (W2_OE.OE_EDATETIME IS NOT NULL OR W2_OE.OE_FDATETIME IS NOT NULL) \
+							LEFT JOIN V_ORDER_EDITOR_BY_R W2_OE ON W2_OE.OE_SEQ = ORDER_LIST.OL_SEQ \
 							/*銷艙單只有完成時間*/ \
-							LEFT JOIN ORDER_EDITOR W3_OE ON W3_OE.OE_SEQ = ORDER_LIST.OL_SEQ AND W3_OE.OE_TYPE = 'W' AND W3_OE.OE_FDATETIME IS NOT NULL \
+							LEFT JOIN V_ORDER_EDITOR_BY_W W3_OE ON W3_OE.OE_SEQ = ORDER_LIST.OL_SEQ \
 							/*派送單*/ \
-							LEFT JOIN ORDER_EDITOR W1_OE ON W1_OE.OE_SEQ = ORDER_LIST.OL_SEQ AND W1_OE.OE_TYPE = 'D' AND (W1_OE.OE_EDATETIME IS NOT NULL OR W1_OE.OE_FDATETIME IS NOT NULL) \
+							LEFT JOIN V_ORDER_EDITOR_BY_D W1_OE ON W1_OE.OE_SEQ = ORDER_LIST.OL_SEQ \
 							WHERE 1=1 ";
 						
 			if(pParams["CRDT_FROM"] !== undefined){

@@ -29,7 +29,7 @@ var auth = require('./routes/auth');
 var restful = require('./routes/restful');
 var toolbox = require('./routes/toolbox');
 var cargoaircraft = require('./routes/cargoaircraft');
-// cargoaircraft.GetCargoAircraftTime();
+cargoaircraft.GetCargoAircraftTime();
 var middleware = require('./routes/middleware');
 
 var setting = require('./app.setting.json');
@@ -57,6 +57,24 @@ Object.defineProperty(global, '__line', {
         return __stack[1].getLineNumber();
     }
 });
+
+var authChecker = function(req, res, next) {
+    // 由前端檢查session
+    let _id = until.FindID(req.session);
+
+    if(_id == null){
+        // res.status(403).json({
+        //     "returnData": '尚無權限'
+        // });
+        res.status(403).send('超時已登出');
+    }else{
+        next()
+    }
+
+}
+
+var protected   = [authChecker],
+    unprotected = [];
 
 // view engine setup
 // app.set('views', path.join(__dirname, 'views'));
@@ -91,11 +109,14 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', routes);
 app.use('/auth', auth);
 app.use('/restful', restful);
+app.get('/restful', protected);
 app.use('/toolbox', toolbox);
-app.get('/favicon.ico', function(req, res) {
-    res.sendStatus(204);
-});
+app.get('/toolbox', protected);
+// app.get('/favicon.ico', function(req, res) {
+//     res.sendStatus(204);
+// });
 app.get('*', function(req, res) { 
+    console.log(req.path);
     // console.log(404);
     res.sendFile('404.html', { root: path.join(__dirname, 'public') }, function (err) {
         if (err) {
@@ -143,10 +164,10 @@ app.use(function(err, req, res, next) {
 // module.exports = app;
 
 // server port 3000
+// node --max-http-header-size=200000 app
 app.listen(setting.NodeJs.port, function() {
     return console.info("Express server listening on port " + (this.address().port) + " in " + process.env.NODE_ENV + " mode");
 }).on('error', function(err){
     console.log('server error handler');
     console.log(err);
 });
-

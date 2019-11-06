@@ -32,7 +32,7 @@ module.exports = function (User, QMain, QName, QCondition, Sql, Ip, Error) {
 
         this.SDL_ACTION = Action;
         if(Error){
-            this.SDL_SQL = Sql ? JSON.stringify(Error) + ', sql:' + Sql : JSON.stringify(Error);
+            this.SDL_SQL = Sql ? Error.stack + ', sql:' + Sql : Error.stack;
             winston.log("error", JSON.stringify(this));
         }else{
             winston.log("info", JSON.stringify(this));

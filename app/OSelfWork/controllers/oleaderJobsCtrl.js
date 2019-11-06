@@ -1,6 +1,6 @@
 "use strict";
 
-angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, uiGridConstants, RestfulApi, compy, opType, userInfoByGrade, $filter, $q, ToolboxApi) {
+angular.module('app.oselfwork').controller('OLeaderJobsCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, uiGridConstants, RestfulApi, ocompy, opType, userInfoByGrade, $filter, $q, ToolboxApi) {
     
     var $vm = this,
         _tasks = [];
@@ -8,8 +8,8 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
 	angular.extend(this, {
         Init : function(){
             $scope.ShowTabs = true;
-            $vm.REAL_IMPORTDT_FROM = $filter('date')(new Date(), 'yyyy-MM-dd') + ' 00:00:00';
-            $vm.REAL_IMPORTDT_TOXX = $filter('date')(new Date(), 'yyyy-MM-dd') + ' 23:59:59';
+            $vm.O_IMPORTDT_FROM = $filter('date')(new Date(), 'yyyy-MM-dd') + ' 00:00:00';
+            $vm.O_IMPORTDT_TOXX = $filter('date')(new Date(), 'yyyy-MM-dd') + ' 23:59:59';
 
             if(userInfoByGrade[0].length == 0){
                 toaster.pop('info', '訊息', '無員工管理', 3000);
@@ -58,7 +58,8 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
                     animation: true,
                     ariaLabelledBy: 'modal-title',
                     ariaDescribedBy: 'modal-body',
-                    templateUrl: 'opWorkMenu.html',
+                    templateUrl: 'oopWorkMenu.html',
+                    // 與航運的controller功能相同
                     controller: 'OpWorkMenuModalInstanceCtrl',
                     controllerAs: '$ctrl',
                     scope: $scope,
@@ -113,71 +114,71 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
                         case '報機單':
                             RestfulApi.DeleteMSSQLData({
                                 deletename: 'Delete',
-                                table: 9,
+                                table: 41,
                                 params: {
-                                    IL_SEQ : selectedItem.OL_SEQ
+                                    O_IL_SEQ : selectedItem.O_OL_SEQ
                                 }
                             }).then(function (res) {
                                 LoadOrderList();
                                 toaster.pop('success', '訊息', '刪除報機單成功', 3000);
                             });
                             break;
-                        case '銷倉單':
+                        // case '銷倉單':
 
-                            var _tasks = [];
+                        //     var _tasks = [];
 
-                            // 刪除銷倉單
-                            _tasks.push({
-                                crudType: 'Delete',
-                                table: 10,
-                                params: {
-                                    FLL_SEQ : selectedItem.OL_SEQ
-                                }
-                            });
+                        //     // 刪除銷倉單
+                        //     _tasks.push({
+                        //         crudType: 'Delete',
+                        //         table: 10,
+                        //         params: {
+                        //             FLL_SEQ : selectedItem.OL_SEQ
+                        //         }
+                        //     });
 
-                            // 刪除銷倉單標記
-                            _tasks.push({
-                                crudType: 'Delete',
-                                table: 28,
-                                params: {
-                                    FLLR_SEQ : selectedItem.OL_SEQ
-                                }
-                            });
+                        //     // 刪除銷倉單標記
+                        //     _tasks.push({
+                        //         crudType: 'Delete',
+                        //         table: 28,
+                        //         params: {
+                        //             FLLR_SEQ : selectedItem.OL_SEQ
+                        //         }
+                        //     });
 
-                            RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res) {
-                                LoadOrderList();
-                                toaster.pop('success', '訊息', '刪除銷倉單成功', 3000);
-                            });
+                        //     RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res) {
+                        //         LoadOrderList();
+                        //         toaster.pop('success', '訊息', '刪除銷倉單成功', 3000);
+                        //     });
                             
-                            break;
-                        case '所有':
+                        //     break;
+                        // case '所有':
 
-                            // 檢查是否補過單
-                            RestfulApi.SearchMSSQLData({
-                                querymain: 'leaderJobs',
-                                queryname: 'SelectOrderSupplement',
-                                params: {
-                                    OLS_SEQ : selectedItem.OL_SEQ
-                                }
-                            }).then(function (res){
-                                // console.log(res["returnData"]);
+                        //     // 檢查是否補過單
+                        //     RestfulApi.SearchMSSQLData({
+                        //         querymain: 'oleaderJobs',
+                        //         queryname: 'SelectOOrderSupplement',
+                        //         params: {
+                        //             OLS_SEQ : selectedItem.OL_SEQ
+                        //         }
+                        //     }).then(function (res){
+                        //         // console.log(res["returnData"]);
 
-                                if(res["returnData"].length == 0){
-                                    RestfulApi.DeleteMSSQLData({
-                                        deletename: 'Delete',
-                                        table: 18,
-                                        params: {
-                                            OL_SEQ : selectedItem.OL_SEQ
-                                        }
-                                    }).then(function (res) {
-                                        LoadOrderList();
-                                        toaster.pop('success', '訊息', '刪除成功', 3000);
-                                    });
-                                }else{
-                                    toaster.pop('warning', '警告', '此單已補過單，不可直接刪除', 3000);
-                                }
-                            }); 
-                            break;
+                        //         if(res["returnData"].length == 0){
+                        //             RestfulApi.DeleteMSSQLData({
+                        //                 deletename: 'Delete',
+                        //                 table: 18,
+                        //                 params: {
+                        //                     OL_SEQ : selectedItem.OL_SEQ
+                        //                 }
+                        //             }).then(function (res) {
+                        //                 LoadOrderList();
+                        //                 toaster.pop('success', '訊息', '刪除成功', 3000);
+                        //             });
+                        //         }else{
+                        //             toaster.pop('warning', '警告', '此單已補過單，不可直接刪除', 3000);
+                        //         }
+                        //     }); 
+                        //     break;
                     }
 
                 }, function() {
@@ -190,8 +191,8 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
                     animation: true,
                     ariaLabelledBy: 'modal-title',
                     ariaDescribedBy: 'modal-body',
-                    template: $templateCache.get('modifyOrderList'),
-                    controller: 'ModifyOrderListModalInstanceCtrl',
+                    template: $templateCache.get('modifyOOrderList'),
+                    controller: 'ModifyOOrderListModalInstanceCtrl',
                     controllerAs: '$ctrl',
                     // size: 'sm',
                     // windowClass: 'center-modal',
@@ -200,8 +201,8 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
                         vmData: function() {
                             return row.entity;
                         },
-                        compy: function() {
-                            return compy;
+                        ocompy: function() {
+                            return ocompy;
                         }
                     }
                 });
@@ -212,18 +213,19 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
 
                     RestfulApi.UpdateMSSQLData({
                         updatename: 'Update',
-                        table: 18,
+                        table: 40,
                         params: {
-                            OL_IMPORTDT : selectedItem.OL_IMPORTDT,
-                            OL_REAL_IMPORTDT : selectedItem.OL_REAL_IMPORTDT,
-                            OL_CO_CODE  : selectedItem.OL_CO_CODE,
-                            OL_FLIGHTNO : selectedItem.OL_FLIGHTNO,
-                            OL_MASTER   : selectedItem.OL_MASTER,
-                            OL_COUNTRY  : selectedItem.OL_COUNTRY,
-                            OL_REASON   : selectedItem.OL_REASON
+                            O_OL_IMPORTDT : selectedItem.O_OL_IMPORTDT,
+                            O_OL_CO_CODE  : selectedItem.O_OL_CO_CODE,
+                            O_OL_VOYSEQ   : selectedItem.O_OL_VOYSEQ,
+                            O_OL_PASSCODE : selectedItem.O_OL_PASSCODE,
+                            O_OL_BOATID   : selectedItem.O_OL_BOATID,
+                            O_OL_MASTER   : selectedItem.O_OL_MASTER,
+                            O_OL_POST     : selectedItem.O_OL_POST,
+                            O_OL_REASON   : selectedItem.O_OL_REASON
                         },
                         condition: {
-                            OL_SEQ : selectedItem.OL_SEQ
+                            O_OL_SEQ : selectedItem.O_OL_SEQ
                         }
                     }).then(function (res) {
                         LoadOrderList();
@@ -236,85 +238,122 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
             // 結單
             closeData : function(row){
 
-                if(row.entity.W2_STATUS == 3 || row.entity.W2_STATUS == 4 || row.entity.W3_STATUS == 3 || row.entity.W3_STATUS == 4){
-                // if(row.entity.W2_STATUS == 3 && row.entity.W3_STATUS == 3 && row.entity.W1_STATUS == 3){
-                    var modalInstance = $uibModal.open({
-                        animation: true,
-                        ariaLabelledBy: 'modal-title',
-                        ariaDescribedBy: 'modal-body',
-                        template: $templateCache.get('isChecked'),
-                        controller: 'IsCheckedModalInstanceCtrl',
-                        controllerAs: '$ctrl',
-                        size: 'sm',
-                        windowClass: 'center-modal',
-                        // appendTo: parentElem,
-                        resolve: {
-                            items: function() {
-                                return row.entity;
-                            },
-                            show: function(){
-                                return {
-                                    title : "是否結單"
+                $vm.CheckTypeToClose(_getSelectedRows[i], function(res){
+                    if(res){
+                        var modalInstance = $uibModal.open({
+                            animation: true,
+                            ariaLabelledBy: 'modal-title',
+                            ariaDescribedBy: 'modal-body',
+                            template: $templateCache.get('isChecked'),
+                            controller: 'IsCheckedModalInstanceCtrl',
+                            controllerAs: '$ctrl',
+                            size: 'sm',
+                            windowClass: 'center-modal',
+                            // appendTo: parentElem,
+                            resolve: {
+                                items: function() {
+                                    return row.entity;
+                                },
+                                show: function(){
+                                    return {
+                                        title : "是否結單"
+                                    }
                                 }
                             }
-                        }
-                    });
-
-                    modalInstance.result.then(function(selectedItem) {
-                        // $ctrl.selected = selectedItem;
-                        console.log(selectedItem);
-
-                        RestfulApi.UpdateMSSQLData({
-                            updatename: 'Update',
-                            table: 18,
-                            params: {
-                                OL_FUSER : $vm.profile.U_ID,
-                                OL_FDATETIME : $filter('date')(new Date(), 'yyyy-MM-dd HH:mm:ss')
-                            },
-                            condition: {
-                                OL_SEQ : selectedItem.OL_SEQ
-                            }
-                        }).then(function (res) {
-                            LoadOrderList();
-                            toaster.pop('success', '訊息', '結單完成', 3000);
                         });
 
-                    }, function() {
-                        // $log.info('Modal dismissed at: ' + new Date());
-                    });
-                }
+                        modalInstance.result.then(function(selectedItem) {
+                            // $ctrl.selected = selectedItem;
+                            console.log(selectedItem);
+
+                            RestfulApi.UpdateMSSQLData({
+                                updatename: 'Update',
+                                table: 40,
+                                params: {
+                                    O_OL_FUSER : $vm.profile.U_ID,
+                                    O_OL_FDATETIME : $filter('date')(new Date(), 'yyyy-MM-dd HH:mm:ss')
+                                },
+                                condition: {
+                                    O_OL_SEQ : selectedItem.O_OL_SEQ
+                                }
+                            }).then(function (res) {
+                                LoadOrderList();
+                                toaster.pop('success', '訊息', '結單完成', 3000);
+                            });
+
+                        }, function() {
+                            // $log.info('Modal dismissed at: ' + new Date());
+                        });
+                    }
+                });
+
+                // if(row.entity.OW2_STATUS == 3 || row.entity.OW2_STATUS == 4 || row.entity.OW3_STATUS == 3 || row.entity.OW3_STATUS == 4){
+                //     var modalInstance = $uibModal.open({
+                //         animation: true,
+                //         ariaLabelledBy: 'modal-title',
+                //         ariaDescribedBy: 'modal-body',
+                //         template: $templateCache.get('isChecked'),
+                //         controller: 'IsCheckedModalInstanceCtrl',
+                //         controllerAs: '$ctrl',
+                //         size: 'sm',
+                //         windowClass: 'center-modal',
+                //         // appendTo: parentElem,
+                //         resolve: {
+                //             items: function() {
+                //                 return row.entity;
+                //             },
+                //             show: function(){
+                //                 return {
+                //                     title : "是否結單"
+                //                 }
+                //             }
+                //         }
+                //     });
+
+                //     modalInstance.result.then(function(selectedItem) {
+                //         // $ctrl.selected = selectedItem;
+                //         console.log(selectedItem);
+
+                //         RestfulApi.UpdateMSSQLData({
+                //             updatename: 'Update',
+                //             table: 40,
+                //             params: {
+                //                 O_OL_FUSER : $vm.profile.U_ID,
+                //                 O_OL_FDATETIME : $filter('date')(new Date(), 'yyyy-MM-dd HH:mm:ss')
+                //             },
+                //             condition: {
+                //                 O_OL_SEQ : selectedItem.O_OL_SEQ
+                //             }
+                //         }).then(function (res) {
+                //             LoadOrderList();
+                //             toaster.pop('success', '訊息', '結單完成', 3000);
+                //         });
+
+                //     }, function() {
+                //         // $log.info('Modal dismissed at: ' + new Date());
+                //     });
+                // }
             }
         },
         orderListOptions : {
             data:  '$vm.vmData',
             columnDefs: [
-                { name: 'OL_SUPPLEMENT_COUNT'    ,  displayName: '補件', width: 50, cellTemplate: $templateCache.get('accessibilityToSuppleMent') },
-                { name: 'OL_IMPORTDT' ,  displayName: '進口日期', cellFilter: 'dateFilter' },
-                { name: 'OL_REAL_IMPORTDT' ,  displayName: '報機日期', cellFilter: 'dateFilter', cellTooltip: function (row, col) 
+                { name: 'O_OL_SUPPLEMENT_COUNT'    ,  displayName: '補件', width: 50, cellTemplate: $templateCache.get('accessibilityToSuppleMent') },
+                { name: 'O_OL_IMPORTDT' ,  displayName: '報機日期', cellFilter: 'dateFilter' },
+                { name: 'O_CO_NAME'     ,  displayName: '行家' },
+                { name: 'O_OL_VOYSEQ'   ,  displayName: '航次' },
+                { name: 'O_OL_PASSCODE' ,  displayName: '海關通關號碼' },
+                { name: 'O_OL_BOATID'   ,  displayName: '船機代碼' },
+                { name: 'O_OL_MASTER'   ,  displayName: '主號' },
+                { name: 'O_OL_COUNT'    ,  displayName: '報機單(件數)', width: 80, enableCellEdit: false },
+                { name: 'O_OL_PULL_COUNT' ,  displayName: '拉貨(件數)', width: 80, enableCellEdit: false },
+                { name: 'O_OL_POST'     ,  displayName: '裝貨港' },
+                { name: 'O_OL_REASON'   ,  displayName: '描述', width: 100, cellTooltip: function (row, col) 
                     {
-                        return '真實報機日期：' + $filter('dateFilter')(row.entity.OL_CR_DATETIME)
+                        return row.entity.O_OL_REASON
                     } 
                 },
-                // { name: 'OL_CO_CODE'  ,  displayName: '行家', cellFilter: 'compyFilter', filter: 
-                //     {
-                //         term: null,
-                //         type: uiGridConstants.filter.SELECT,
-                //         selectOptions: compy
-                //     }
-                // },
-                { name: 'CO_NAME'     ,  displayName: '行家' },
-                { name: 'OL_FLIGHTNO' ,  displayName: '航班' },
-                { name: 'OL_MASTER'   ,  displayName: '主號' },
-                { name: 'OL_COUNT'    ,  displayName: '報機單(袋數)', width: 80, enableCellEdit: false },
-                { name: 'OL_PULL_COUNT',  displayName: '拉貨(袋數)', width: 80, enableCellEdit: false },
-                { name: 'OL_FLL_COUNT',  displayName: '銷倉單(袋數)', width: 80, enableCellEdit: false },
-                { name: 'OL_COUNTRY'  ,  displayName: '起運國別' },
-                { name: 'OL_REASON'              ,  displayName: '描述', width: 100, cellTooltip: function (row, col) 
-                    {
-                        return row.entity.OL_REASON
-                    } 
-                },
-                { name: 'W2_STATUS'   ,  displayName: '報機單狀態', cellTemplate: $templateCache.get('accessibilityToForW2'), filter: 
+                { name: 'OW2_STATUS'   ,  displayName: '報機單狀態', cellTemplate: $templateCache.get('accessibilityToForOW2'), filter: 
                     {
                         term: null,
                         type: uiGridConstants.filter.SELECT,
@@ -328,19 +367,19 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
                     }
                 },
                 // { name: 'W2'          ,  displayName: '報機單負責人', cellFilter: 'userInfoFilter' },
-                { name: 'W3_STATUS'   ,  displayName: '銷倉單狀態', cellTemplate: $templateCache.get('accessibilityToForW3'), filter: 
-                    {
-                        term: null,
-                        type: uiGridConstants.filter.SELECT,
-                        selectOptions: [
-                            {label:'未派單', value: '0'},
-                            {label:'已派單', value: '1'},
-                            {label:'已編輯', value: '2'},
-                            {label:'已完成', value: '3'},
-                            {label:'非作業員'  , value: '4'}
-                        ]
-                    }
-                },
+                // { name: 'W3_STATUS'   ,  displayName: '銷倉單狀態', cellTemplate: $templateCache.get('accessibilityToForW3'), filter: 
+                //     {
+                //         term: null,
+                //         type: uiGridConstants.filter.SELECT,
+                //         selectOptions: [
+                //             {label:'未派單', value: '0'},
+                //             {label:'已派單', value: '1'},
+                //             {label:'已編輯', value: '2'},
+                //             {label:'已完成', value: '3'},
+                //             {label:'非作業員'  , value: '4'}
+                //         ]
+                //     }
+                // },
                 // { name: 'W3'          ,  displayName: '銷倉單負責人', cellFilter: 'userInfoFilter' },
                 // { name: 'W1_STATUS'   ,  displayName: '派送單狀態', cellTemplate: $templateCache.get('accessibilityToForW1'), filter: 
                 //     {
@@ -356,8 +395,8 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
                 //     }
                 // },
                 // { name: 'W1'          ,  displayName: '派送單負責人', cellFilter: 'userInfoFilter' },
-                { name: 'UPLOAD_STATUS' ,  displayName: '上傳狀態', cellTemplate: $templateCache.get('accessibilityToForUpload'), enableFiltering: false },
-                { name: 'Options'     ,  displayName: '功能', enableFiltering: false, width: '12%', cellTemplate: $templateCache.get('accessibilityToDMCForLeader') }
+                { name: 'UPLOAD_STATUS' ,  displayName: '上傳狀態', cellTemplate: $templateCache.get('accessibilityToForOUpload'), enableFiltering: false },
+                { name: 'Options'     ,  displayName: '功能', enableFiltering: false, width: '12%', cellTemplate: $templateCache.get('accessibilityToDMCForOLeader') }
             ],
             enableFiltering: true,
             enableSorting: true,
@@ -375,12 +414,12 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
             }
         },
         AutoPrincipal : function(){
-            if(!angular.isUndefined($vm.parmData['SPA_AUTOPRIN'])){
+            if(!angular.isUndefined($vm.parmData['O_SPA_AUTOPRIN'])){
                 RestfulApi.UpdateMSSQLData({
                     updatename: 'Update',
                     table: 26,
                     params: {
-                        SPA_AUTOPRIN : $vm.parmData['SPA_AUTOPRIN']
+                        O_SPA_AUTOPRIN : $vm.parmData['O_SPA_AUTOPRIN']
                     },
                     condition: {
                         SPA_KEY : 'systemParameter'
@@ -388,7 +427,7 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
                 }).then(function (res) {
                     
                     if(res['returnData'] == 1){
-                        if($vm.parmData['SPA_AUTOPRIN']){
+                        if($vm.parmData['O_SPA_AUTOPRIN']){
                             toaster.pop('info', '訊息', '開啟自動派單', 3000);
                         }else{
                             toaster.pop('info', '訊息', '關閉自動派單', 3000);
@@ -398,6 +437,9 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
                 });
             }
         },
+        /**
+         * [ChangeDept description] 改變部門時，指派單類型與自動分派的人需跟著改變
+         */
         ChangeDept : function(){
             AssignOptype();
             LoadOrderList();
@@ -413,13 +455,13 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
                 for(var i in _getSelectedRows){
 
                     // 沒有相同負責人才塞入
-                    if($filter('filter')(_getSelectedRows[i].subGridOptions.data, { OP_PRINCIPAL : $vm.selectAssignPrincipal }).length == 0){
+                    if($filter('filter')(_getSelectedRows[i].subGridOptions.data, { O_OP_PRINCIPAL : $vm.selectAssignPrincipal }).length == 0){
                         
                         _getSelectedRows[i].subGridOptions.data.push({
-                            OP_SEQ : _getSelectedRows[i].OL_SEQ,
-                            OP_DEPT : $vm.selectAssignDept,
-                            OP_PRINCIPAL : $vm.selectAssignPrincipal,
-                            OP_TYPE : $vm.selectAssignOptype
+                            O_OP_SEQ : _getSelectedRows[i].O_OL_SEQ,
+                            O_OP_DEPT : $vm.selectAssignDept,
+                            O_OP_PRINCIPAL : $vm.selectAssignPrincipal,
+                            O_OP_TYPE : $vm.selectAssignOptype
                         });
 
                         _getDirtyData.push(_getSelectedRows[i]);
@@ -440,6 +482,7 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
             }
         },
         AutoAssign : function(){
+
             if($vm.principalData.length > 0){
                 console.log($vm.principalData);
 
@@ -458,16 +501,16 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
 
                     // 根據設定給予負責人
                     for(var j in $vm.principalData){
-                        if($vm.vmData[i].OL_CO_CODE == $vm.principalData[j].COD_CODE){
+                        if($vm.vmData[i].O_OL_CO_CODE == $vm.principalData[j].O_COD_CODE){
                             // 此data沒有此負責人就塞入資料
-                            if(($vm.principalData[j].WHO_PRINCIPAL != null) &&
-                                $filter('filter')($vm.vmData[i].subGridOptions.data, { OP_PRINCIPAL : $vm.principalData[j].WHO_PRINCIPAL }).length == 0){
+                            if(($vm.principalData[j].O_WHO_PRINCIPAL != null) &&
+                                $filter('filter')($vm.vmData[i].subGridOptions.data, { O_OP_PRINCIPAL : $vm.principalData[j].O_WHO_PRINCIPAL }).length == 0){
                                 // console.log($vm.principalData[j]);
                                 $vm.vmData[i].subGridOptions.data.push({
-                                    OP_SEQ : $vm.vmData[i].OL_SEQ,
-                                    OP_DEPT : $vm.selectAssignDept,
-                                    OP_TYPE : $vm.selectAssignOptype,
-                                    OP_PRINCIPAL : $vm.principalData[j].WHO_PRINCIPAL
+                                    O_OP_SEQ : $vm.vmData[i].O_OL_SEQ,
+                                    O_OP_DEPT : $vm.selectAssignDept,
+                                    O_OP_TYPE : $vm.selectAssignOptype,
+                                    O_OP_PRINCIPAL : $vm.principalData[j].O_WHO_PRINCIPAL
                                 });
                             }
                         }
@@ -488,22 +531,40 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
                     _tasks = [];
 
                 for(var i in _getSelectedRows){
-                    if(_getSelectedRows[i].W2_STATUS == '3' || _getSelectedRows[i].W2_STATUS == '4' || _getSelectedRows[i].W3_STATUS == '3' || _getSelectedRows[i].W3_STATUS == '4'){
-                        console.log(_getSelectedRows[i]);
-                        _tasks.push({
-                            crudType: 'Update',
-                            table: 18,
-                            params: {
-                                OL_FUSER : $vm.profile.U_ID,
-                                OL_FDATETIME : $filter('date')(new Date(), 'yyyy-MM-dd HH:mm:ss')
-                            },
-                            condition: {
-                                OL_SEQ : _getSelectedRows[i].OL_SEQ
-                            }
-                        });
-                    }
+
+                    $vm.CheckTypeToClose(_getSelectedRows[i], function(res){
+                        if(res){
+                           console.log(_getSelectedRows[i]);
+                            _tasks.push({
+                                crudType: 'Update',
+                                table: 40,
+                                params: {
+                                    O_OL_FUSER : $vm.profile.U_ID,
+                                    O_OL_FDATETIME : $filter('date')(new Date(), 'yyyy-MM-dd HH:mm:ss')
+                                },
+                                condition: {
+                                    O_OL_SEQ : _getSelectedRows[i].O_OL_SEQ
+                                }
+                            }); 
+                        }
+                    })
+
+                    // if(_getSelectedRows[i].OW2_STATUS == '3' || _getSelectedRows[i].OW2_STATUS == '4' || _getSelectedRows[i].OW3_STATUS == '3' || _getSelectedRows[i].OW3_STATUS == '4'){
+                    //     console.log(_getSelectedRows[i]);
+                    //     _tasks.push({
+                    //         crudType: 'Update',
+                    //         table: 40,
+                    //         params: {
+                    //             O_OL_FUSER : $vm.profile.U_ID,
+                    //             O_OL_FDATETIME : $filter('date')(new Date(), 'yyyy-MM-dd HH:mm:ss')
+                    //         },
+                    //         condition: {
+                    //             O_OL_SEQ : _getSelectedRows[i].O_OL_SEQ
+                    //         }
+                    //     });
+                    // }
                 }
-                
+
                 $vm.orderListGridApi.selection.clearSelectedRows();
 
                 if(_tasks.length == 0){
@@ -517,7 +578,6 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
                 }, function (err) {
 
                 });
-
             }
         },
         CancelPrincipal : function(){
@@ -553,26 +613,26 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
             // Delete此單的負責人
             _tasks.push({
                 crudType: 'Delete',
-                deletename: 'DeleteOrderPrinplWithEditor',
-                table: 21,
+                deletename: 'DeleteOOrderPrinplWithEditor',
+                table: 42,
                 params: {
-                    OP_SEQ : entity.OL_SEQ,
-                    OP_DEPT : $vm.selectAssignDept
+                    O_OP_SEQ : entity.O_OL_SEQ,
+                    O_OP_DEPT : $vm.selectAssignDept
                 }
             });
 
             // Insert此單的負責人
             for(var i in entity.subGridOptions.data){
                 // 如果編輯狀態不是空值表示沒有被Delete，所以不重複Insert
-                if(entity.subGridOptions.data[i].OE_EDATETIME == null){
+                if(entity.subGridOptions.data[i].O_OE_EDATETIME == null){
                     _tasks.push({
                         crudType: 'Insert',
-                        table: 21,
+                        table: 42,
                         params: {
-                            OP_SEQ : entity.subGridOptions.data[i].OP_SEQ,
-                            OP_DEPT : entity.subGridOptions.data[i].OP_DEPT,
-                            OP_TYPE : entity.subGridOptions.data[i].OP_TYPE,
-                            OP_PRINCIPAL : entity.subGridOptions.data[i].OP_PRINCIPAL
+                            O_OP_SEQ : entity.subGridOptions.data[i].O_OP_SEQ,
+                            O_OP_DEPT : entity.subGridOptions.data[i].O_OP_DEPT,
+                            O_OP_TYPE : entity.subGridOptions.data[i].O_OP_TYPE,
+                            O_OP_PRINCIPAL : entity.subGridOptions.data[i].O_OP_PRINCIPAL
                         }
                     });
                 }
@@ -592,48 +652,8 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
         compyStatisticsOptions : {
             data:  '$vm.compyStatisticsData',
             columnDefs: [
-                { name: 'CO_NAME'      ,  displayName: '行家' },
-                { name: 'W2_BAG_COUNT' ,  displayName: '報機單(袋數)', filters: [
-                    {
-                        condition: uiGridConstants.filter.GREATER_THAN,
-                        placeholder: '最小'
-                    },
-                    {
-                        condition: uiGridConstants.filter.LESS_THAN,
-                        placeholder: '最大'
-                    }
-                ]},
-                { name: 'W2_COUNT'     ,  displayName: '報機單(小號數)', filters: [
-                    {
-                        condition: uiGridConstants.filter.GREATER_THAN,
-                        placeholder: '最小'
-                    },
-                    {
-                        condition: uiGridConstants.filter.LESS_THAN,
-                        placeholder: '最大'
-                    }
-                ]},
-                { name: 'OL_W2_COUNT'   ,  displayName: '報機單(份數)', filters: [
-                    {
-                        condition: uiGridConstants.filter.GREATER_THAN,
-                        placeholder: '最小'
-                    },
-                    {
-                        condition: uiGridConstants.filter.LESS_THAN,
-                        placeholder: '最大'
-                    }
-                ]},
-                { name: 'OL_W3_COUNT'   ,  displayName: '銷倉單(份數)', filters: [
-                    {
-                        condition: uiGridConstants.filter.GREATER_THAN,
-                        placeholder: '最小'
-                    },
-                    {
-                        condition: uiGridConstants.filter.LESS_THAN,
-                        placeholder: '最大'
-                    }
-                ]},
-                // { name: 'W3_COUNT'     ,  displayName: '銷倉單(件數)', filters: [
+                { name: 'O_CO_NAME'      ,  displayName: '行家' },
+                // { name: 'W2_BAG_COUNT' ,  displayName: '報機單(袋數)', filters: [
                 //     {
                 //         condition: uiGridConstants.filter.GREATER_THAN,
                 //         placeholder: '最小'
@@ -643,27 +663,27 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
                 //         placeholder: '最大'
                 //     }
                 // ]},
-                // { name: 'W3_BAG_COUNT' ,  displayName: '銷倉單(袋數)', filters: [
-                //     {
-                //         condition: uiGridConstants.filter.GREATER_THAN,
-                //         placeholder: '最小'
-                //     },
-                //     {
-                //         condition: uiGridConstants.filter.LESS_THAN,
-                //         placeholder: '最大'
-                //     }
-                // ]},
-                // { name: 'W1_COUNT'     ,  displayName: '派送單(件數)', filters: [
-                //     {
-                //         condition: uiGridConstants.filter.GREATER_THAN,
-                //         placeholder: '最小'
-                //     },
-                //     {
-                //         condition: uiGridConstants.filter.LESS_THAN,
-                //         placeholder: '最大'
-                //     }
-                // ]},
-                // { name: 'W1_BAG_COUNT' ,  displayName: '派送單(袋數)', filters: [
+                { name: 'OW2_COUNT'     ,  displayName: '報機單(小號數)', filters: [
+                    {
+                        condition: uiGridConstants.filter.GREATER_THAN,
+                        placeholder: '最小'
+                    },
+                    {
+                        condition: uiGridConstants.filter.LESS_THAN,
+                        placeholder: '最大'
+                    }
+                ]},
+                { name: 'OL_OW2_COUNT'   ,  displayName: '報機單(份數)', filters: [
+                    {
+                        condition: uiGridConstants.filter.GREATER_THAN,
+                        placeholder: '最小'
+                    },
+                    {
+                        condition: uiGridConstants.filter.LESS_THAN,
+                        placeholder: '最大'
+                    }
+                ]},
+                // { name: 'OL_W3_COUNT'   ,  displayName: '銷倉單(份數)', filters: [
                 //     {
                 //         condition: uiGridConstants.filter.GREATER_THAN,
                 //         placeholder: '最小'
@@ -686,7 +706,7 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
         },
         LoadStatistics : function(){
 
-            if($vm.REAL_IMPORTDT_FROM != "" && $vm.REAL_IMPORTDT_TOXX != ""){
+            if($vm.O_IMPORTDT_FROM != "" && $vm.O_IMPORTDT_TOXX != ""){
                 LoadStatistics();
             }else{
                 toaster.pop('info', '訊息', '請輸入報機日期區間', 3000);
@@ -702,17 +722,17 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
 
             switch($vm.defaultTab){
                 case 'hr1':
-                    _templates = 6;
-                    _exportName = $filter('date')(new Date(), 'yyyyMMdd') + ' 派單狀態';
-                    _queryname = "SelectOrderListForExcel";
+                    _templates = 14;
+                    _exportName = $filter('date')(new Date(), 'yyyyMMdd') + ' 派單狀態(海運)';
+                    _queryname = "SelectOOrderListForExcel";
                     break;
                 case 'hr2':
-                    _templates = 7;
-                    _exportName = $filter('date')(new Date(), 'yyyyMMdd') + ' 每日行家統計';
-                    _queryname = "SelectCompyStatistics";
+                    _templates = 15;
+                    _exportName = $filter('date')(new Date(), 'yyyyMMdd') + ' 每日行家統計(海運)';
+                    _queryname = "SelectOCompyStatistics";
                     _params = {
-                        REAL_IMPORTDT_FROM: $vm.REAL_IMPORTDT_FROM,
-                        REAL_IMPORTDT_TOXX: $vm.REAL_IMPORTDT_TOXX
+                        O_IMPORTDT_FROM: $vm.O_IMPORTDT_FROM,
+                        O_IMPORTDT_TOXX: $vm.O_IMPORTDT_TOXX
                     }
                     break;
             }
@@ -721,23 +741,47 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
                 ToolboxApi.ExportExcelBySql({
                     templates : _templates,
                     filename : _exportName,
-                    querymain: "leaderJobs",
+                    querymain: "oleaderJobs",
                     queryname: _queryname,
                     params: _params
                 }).then(function (res) {
                     // console.log(res);
                 });
             }
+        },
+        /**
+         * [OrderListOptionClass description] 功能欄位的刪除鈕
+         * @param {[type]} data [description]
+         */
+        OrderListOptionClass : function(data){
+            return $vm.CheckTypeToClose(data, function(res){
+                return res ? '' : 'disabled' ;
+            })
+        },
+        /**
+         * [CheckTypeToClose description] 當報機單為3或4的狀態下就可以結案
+         * @param {[type]}   data     [description]
+         * @param {Function} callback [description]
+         */
+        CheckTypeToClose : function(data, callback){
+            var _needToClose = false;
+
+            if(data.OW2_STATUS == 3 || data.OW2_STATUS == 4){
+                _needToClose = true;
+            }
+
+            return callback(_needToClose); 
         }
     });
 
     function LoadOrderList(){
 
+        // 撈取OrderList資料
         RestfulApi.SearchMSSQLData({
-            querymain: 'leaderJobs',
-            queryname: 'SelectOrderList'
+            querymain: 'oleaderJobs',
+            queryname: 'SelectOOrderList'
         }).then(function (resA){
-            
+            console.log(resA);
             var _seq = [],
                 _resA = resA["returnData"] || [];
 
@@ -745,15 +789,16 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
                 // _seq = [];
 
                 for(var i in _resA){
-                    _seq.push(_resA[i].OL_SEQ);
+                    _seq.push(_resA[i].O_OL_SEQ);
                 }
 
+                // 撈取每單負責人
                 RestfulApi.SearchMSSQLData({
-                    querymain: 'leaderJobs',
-                    queryname: 'SelectOrderPrinpl',
+                    querymain: 'oleaderJobs',
+                    queryname: 'SelectOOrderPrinpl',
                     params: {
-                        OP_DEPT : $vm.selectAssignDept,
-                        OP_MULTI_SEQ : _seq.toString()
+                        O_OP_DEPT : $vm.selectAssignDept,
+                        O_OP_MULTI_SEQ : _seq.toString()
                     }
                 }).then(function (resB){
                     
@@ -764,8 +809,8 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
                         var _data =[];
 
                         for(var j in _resB){
-                            if(_resA[i].OL_SEQ == _resB[j].OP_SEQ &&
-                                $vm.selectAssignOptype == _resB[j].OP_TYPE){
+                            if(_resA[i].O_OL_SEQ == _resB[j].O_OP_SEQ &&
+                                $vm.selectAssignOptype == _resB[j].O_OP_TYPE){
                                 _data.push(_resB[j]);
                             }
                         }
@@ -773,9 +818,9 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
                         _resA[i].subGridOptions = {
                             data: _data,
                             columnDefs: [ 
-                                {field: "OP_TYPE", name: "類別", cellFilter: 'opTypeFilter' },
-                                {field: "OP_PRINCIPAL", name: "負責人", cellFilter: 'userInfoFilter' },
-                                {field: "OE_EDATETIME_STATUS", name: "編輯者", cellTemplate: $templateCache.get('accessibilityToEdited') }
+                                {field: "O_OP_TYPE", name: "類別", cellFilter: 'opTypeFilter' },
+                                {field: "O_OP_PRINCIPAL", name: "負責人", cellFilter: 'userInfoFilter' },
+                                {field: "O_OE_EDATETIME_STATUS", name: "編輯者", cellTemplate: $templateCache.get('accessibilityToOEdited') }
                             ],
                             enableFiltering: false,
                             enableSorting: true,
@@ -826,7 +871,7 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
         //             columnDefs: [ 
         //                 {field: "OP_TYPE", name: "類別", cellFilter: 'opTypeFilter' },
         //                 {field: "OP_PRINCIPAL", name: "負責人", cellFilter: 'userInfoFilter' },
-        //                 {field: "OE_EDATETIME_STATUS", name: "編輯者", cellTemplate: $templateCache.get('accessibilityToEdited') }
+        //                 {field: "OE_EDATETIME_STATUS", name: "編輯者", cellTemplate: $templateCache.get('accessibilityToOEdited') }
         //             ],
         //             enableFiltering: false,
         //             enableSorting: true,
@@ -869,13 +914,13 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
     function AssignOptype(){
         // 指定何種單類
         switch($vm.selectAssignDept){
-            case "W2":
+            case "OW2":
                 $vm.selectAssignOptype = "R";
                 break;
-            case "W3":
+            case "OW3":
                 $vm.selectAssignOptype = "W";
                 break;
-            case "W1":
+            case "OW1":
                 $vm.selectAssignOptype = "D";
                 break;
             default:
@@ -895,26 +940,29 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
         $vm.orderListGridApi.core.notifyDataChange(uiGridConstants.dataChange.COLUMN);
     }
 
+    /**
+     * [LoadPrincipal description] 當天該負責人(自動分派使用)
+     */
     function LoadPrincipal(){
         RestfulApi.SearchMSSQLData({
-            querymain: 'leaderJobs',
+            querymain: 'oleaderJobs',
             queryname: 'WhoPrincipal',
             params: {
-                AS_DEPT : $vm.selectAssignDept
+                O_AS_DEPT : $vm.selectAssignDept
             }
         }).then(function (res){
             console.log(res["returnData"]);
-            $vm.principalData = res["returnData"];
+            $vm.principalData = res["returnData"] || [];
         });  
     };
 
     function LoadStatistics(){
         RestfulApi.SearchMSSQLData({
-            querymain: 'leaderJobs',
-            queryname: 'SelectCompyStatistics',
+            querymain: 'oleaderJobs',
+            queryname: 'SelectOCompyStatistics',
             params: {
-                REAL_IMPORTDT_FROM: $vm.REAL_IMPORTDT_FROM,
-                REAL_IMPORTDT_TOXX: $vm.REAL_IMPORTDT_TOXX
+                O_IMPORTDT_FROM: $vm.O_IMPORTDT_FROM,
+                O_IMPORTDT_TOXX: $vm.O_IMPORTDT_TOXX
             }
         }).then(function (res){
             console.log(res["returnData"]);
@@ -926,7 +974,7 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
 
     function LoadParm(){
         RestfulApi.SearchMSSQLData({
-            querymain: 'leaderJobs',
+            querymain: 'oleaderJobs',
             queryname: 'SelectParm'
         }).then(function (res){
             console.log(res["returnData"]);

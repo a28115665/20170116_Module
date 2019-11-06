@@ -179,7 +179,7 @@ var UpdateMethod = function (updatetname, table, params, condition, callback){
 			var ps = new sql.PreparedStatement(connection),
 				_params = until.isJson(params) ? JSON.parse(params) : params,
 				_condition = JSON.parse(condition),
-				_psParams = extend({}, _params, _condition),
+				_psParams = until.extend({}, _params, _condition),
 				SQLCommand = "",
 				Schema = [],
 				Condition = [];
@@ -279,7 +279,7 @@ var UpsertMethod = function (upsertname, table, params, condition, callback){
 			var ps = new sql.PreparedStatement(connection),
 				_params = until.isJson(params) ? JSON.parse(params) : params,
 				_condition = JSON.parse(condition),
-				_psParams = extend({}, _params, _condition),
+				_psParams = until.extend({}, _params, _condition),
 				SQLCommand = "",
 				ParamsValues = [],
 				ParamsSchema = [],
@@ -426,21 +426,6 @@ var DeleteMethod = function (deletename, table, params, callback){
 	catch(err) {
 		return callback(err, null);
 	}
-}
-
-/**
- * [extend 合併Object]
- * @param  {[type]} target [需要被合併的Objects]
- * @return {[type]}        [回傳合併後的Object]
- */
-function extend(target) {
-    var sources = [].slice.call(arguments, 1);
-    sources.forEach(function (source) {
-        for (var prop in source) {
-            target[prop] = source[prop];
-        }
-    });
-    return target;
 }
 
 module.exports.SelectMethod = SelectMethod;

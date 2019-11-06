@@ -7,23 +7,25 @@ var setting = require('../app.setting.json');
 var until = require('../until/until.js');
 var tables = require('../until/table.json');
 var dbLogObject = require('../until/dbLog.js');
+var basicAuth = require('basic-auth');
 
-/**
- * [description] 權限控管
- */
-router.use('/crud', function (req, res, next) {
+// /**
+//  * [description] 權限控管
+//  */
+// router.use('/crud', function (req, res, next) {
 
-    let _id = until.FindID(req.session);
-        
-    if(_id == null){
-        // res.status(403).json({
-        //     "returnData": '尚無權限'
-        // });
-        res.status(403).send('無權限已登出');
-    }else{
-        next()
-    }
-})
+//     // 由前端檢查session 或 後端傳送auth解析
+//     let _id = until.FindID(req.session) || basicAuth(req).name;
+
+//     if(_id == null){
+//         // res.status(403).json({
+//         //     "returnData": '尚無權限'
+//         // });
+//         res.status(403).send('超時已登出');
+//     }else{
+//         next()
+//     }
+// })
 
 /**
  * Restful 查詢
@@ -145,7 +147,7 @@ router.patch('/crud', function(req, res) {
         ip = req.ip;
 
     // console.log("PATCH: ", req.query);
-    dbCommand.UpsertMethod(req.query["upsertname"], req.query["table"], req.query["params"], req.query["condition"], function(err, affected, sql) {
+    dbCommand.UpsertMethod(upsertname, table, params, condition, function(err, affected, sql) {
         
         // Log紀錄
         let log = new dbLogObject(id, upsertname, tables[table], JSON.stringify(params) + ', ' + JSON.stringify(condition), sql, ip, err)
@@ -210,8 +212,6 @@ router.get('/crudByTask', function(req, res) {
 
     let id = until.FindID(req.session),
         ip = req.ip;
-    
-    // console.log(req.query);
 
     var tasks = [];
     tasks.push(dbCommandByTask.Connect);

@@ -195,6 +195,13 @@ angular.module('app')
                             <i class="fa fa-circle text-success" title="{{row.entity.W2_PRINCIPAL | userInfoFilter}}" ng-if="row.entity.W2_STATUS == \'3\' && row.entity.OL_COUNT > 0"> </i> \
                             <i class="fa fa-circle txt-color-magenta" title="{{row.entity.W2_PRINCIPAL | userInfoFilter}}" ng-if="row.entity.W2_STATUS == \'4\' && row.entity.OL_COUNT > 0"> </i> \
                         </div>');
+    $templateCache.put('accessibilityToForOW2', '\
+                        <div class="ui-grid-cell-contents text-center">\
+                            <i class="fa fa-circle-o" title="{{row.entity.OW2_PRINCIPAL | userInfoFilter}}" ng-if="row.entity.OW2_STATUS == \'1\' && row.entity.O_OL_COUNT > 0"> </i> \
+                            <i class="fa fa-circle text-warning" title="{{row.entity.OW2_PRINCIPAL | userInfoFilter}}" ng-if="row.entity.OW2_STATUS == \'2\' && row.entity.O_OL_COUNT > 0"> </i> \
+                            <i class="fa fa-circle text-success" title="{{row.entity.OW2_PRINCIPAL | userInfoFilter}}" ng-if="row.entity.OW2_STATUS == \'3\' && row.entity.O_OL_COUNT > 0"> </i> \
+                            <i class="fa fa-circle txt-color-magenta" title="{{row.entity.OW2_PRINCIPAL | userInfoFilter}}" ng-if="row.entity.OW2_STATUS == \'4\' && row.entity.O_OL_COUNT > 0"> </i> \
+                        </div>');
     $templateCache.put('accessibilityToForW3', '\
                         <div class="ui-grid-cell-contents text-center">\
                             <i class="fa fa-circle-o" title="{{row.entity.W3_PRINCIPAL | userInfoFilter}}" ng-if="row.entity.W3_STATUS == \'1\' && row.entity.OL_FLL_COUNT > 0"> </i> \
@@ -216,6 +223,11 @@ angular.module('app')
                             <i class="fa fa-plane text-warning" ng-if="row.entity.OL_FLLSTATUS == 1"> </i> \
                             <i class="fa fa-plane text-success" ng-if="row.entity.OL_FLLSTATUS == 2"> </i> \
                         </div>');
+    $templateCache.put('accessibilityToForOUpload', '\
+                        <div class="my-ui-grid-cell-contents text-center">\
+                            <i class="fa fa-ship text-warning" ng-if="row.entity.O_OL_ILSTATUS == 1"> </i> \
+                            <i class="fa fa-ship text-success" ng-if="row.entity.O_OL_ILSTATUS == 2"> </i> \
+                        </div>');
     $templateCache.put('accessibilityToDMCForLeader', '\
                         <div class="ui-grid-cell-contents text-center">\
                             <!-- <a href="javascript:void(0);" class="btn btn-danger btn-xs" ng-click="grid.appScope.$vm.gridMethod.deleteData(row)"> 刪除</a> -->\
@@ -223,6 +235,12 @@ angular.module('app')
                             <button type="button" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethod.modifyData(row)"> 修改</button>\
                             <!-- <a href="javascript:void(0);" class="btn btn-primary btn-xs" ng-click="grid.appScope.$vm.gridMethod.closeData(row)" ng-class="(row.entity.W1_STATUS == \'3\' && row.entity.W2_STATUS == \'3\' && row.entity.W3_STATUS == \'3\') ? \'\' : \'disabled\'"> 結單</a> -->\
                             <button type="button" class="btn btn-primary btn-xs" ng-click="grid.appScope.$vm.gridMethod.closeData(row)" ng-class="(row.entity.W2_STATUS == \'3\' || row.entity.W2_STATUS == \'4\' || row.entity.W3_STATUS == \'3\' || row.entity.W3_STATUS == \'4\') ? \'\' : \'disabled\'"> 結單</button>\
+                        </div>');
+    $templateCache.put('accessibilityToDMCForOLeader', '\
+                        <div class="ui-grid-cell-contents text-center">\
+                            <button type="button" class="btn btn-danger btn-xs" ng-click="grid.appScope.$vm.gridMethod.gridOperation(row)"> 刪除</button>\
+                            <button type="button" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethod.modifyData(row)"> 修改</button>\
+                            <button type="button" class="btn btn-primary btn-xs" ng-click="grid.appScope.$vm.gridMethod.closeData(row)" ng-class="grid.appScope.$vm.OrderListOptionClass(row.entity)"> 結單</button>\
                         </div>');
     $templateCache.put('accessibilityToMForLeaderSearch', '\
                         <div class="ui-grid-cell-contents text-center">\
@@ -232,6 +250,10 @@ angular.module('app')
     $templateCache.put('accessibilityToEdited', '\
                         <div class="ui-grid-cell-contents text-center">\
                             <i class="fa fa-check text-primary" ng-if="row.entity.OE_EDATETIME != null"> </i> \
+                        </div>');
+    $templateCache.put('accessibilityToOEdited', '\
+                        <div class="ui-grid-cell-contents text-center">\
+                            <i class="fa fa-check text-primary" ng-if="row.entity.O_OE_EDATETIME != null"> </i> \
                         </div>');
     $templateCache.put('accessibilityToHistoryCount', '\
                         <div class="ui-grid-cell-contents text-center">\
@@ -335,6 +357,70 @@ angular.module('app')
                             <button class="btn btn-primary" type="button" ng-click="$ctrl.ok()" ng-disabled="!modifyForm.$valid">{{getWord(\'OK\')}}</button> \
                             <button class="btn btn-default" type="button" ng-click="$ctrl.cancel()">{{getWord(\'Cancel\')}}</button> \
                         </div>');
+
+    $templateCache.put('modifyOOrderList', '\
+                        <div class="modal-header"> \
+                            <h3 class="modal-title" id="modal-title">修改</h3> \
+                        </div> \
+                        <div class="modal-body" id="modal-body"> \
+                            <form class="form-horizontal" name="modifyForm"> \
+                                <fieldset> \
+                                    <div class="form-group"> \
+                                        <label class="col-md-3 control-label">報機日期</label> \
+                                        <div class="col-md-9"> \
+                                            <input class="form-control" name="O_OL_IMPORTDT" type="text" ng-model="$ctrl.mdData.O_OL_IMPORTDT" ui-mask="9999-99-99" ui-mask-placeholder ui-mask-placeholder-char="_" placeholder="請輸入報機日期 (西元 年-月-日)" model-view-value="true"/> \
+                                        </div> \
+                                    </div> \
+                                    <div class="form-group"> \
+                                        <label class="col-md-3 control-label"><code>*</code>行家</label> \
+                                        <div class="col-md-9"> \
+                                            <select class="form-control" name="O_OL_CO_CODE" ng-model="$ctrl.mdData.O_OL_CO_CODE" ng-options="data.value as data.label for data in $ctrl.ocompy" ng-disabled="$ctrl.compy.length == 0" required> \
+                                            </select> \
+                                        </div> \
+                                    </div> \
+                                    <div class="form-group"> \
+                                        <label class="col-md-3 control-label">航次</label> \
+                                        <div class="col-md-9"> \
+                                            <input class="form-control" ng-model="$ctrl.mdData.O_OL_VOYSEQ" placeholder="請輸入航次" type="text" maxlength="15"> \
+                                        </div> \
+                                    </div> \
+                                    <div class="form-group"> \
+                                        <label class="col-md-3 control-label">海關通關號碼</label> \
+                                        <div class="col-md-9"> \
+                                            <input class="form-control" ng-model="$ctrl.mdData.O_OL_PASSCODE" placeholder="請輸入海關通關號碼" type="text" maxlength="15"> \
+                                        </div> \
+                                    </div> \
+                                    <div class="form-group"> \
+                                        <label class="col-md-3 control-label">船機代碼</label> \
+                                        <div class="col-md-9"> \
+                                            <input class="form-control" ng-model="$ctrl.mdData.O_OL_BOATID" placeholder="請輸入船機代碼" type="text" maxlength="15"> \
+                                        </div> \
+                                    </div> \
+                                    <div class="form-group"> \
+                                        <label class="col-md-3 control-label">主號</label> \
+                                        <div class="col-md-9"> \
+                                            <input class="form-control" name="O_OL_MASTER" placeholder="請輸入主號" model-view-value="true" ng-model="$ctrl.mdData.O_OL_MASTER" type="text"> \
+                                        </div> \
+                                    </div> \
+                                    <div class="form-group"> \
+                                        <label class="col-md-3 control-label">裝貨港</label> \
+                                        <div class="col-md-9"> \
+                                            <input class="form-control" name="O_OL_POST" placeholder="請輸入裝貨港" ng-model="$ctrl.mdData.O_OL_POST" type="text"> \
+                                        </div> \
+                                    </div> \
+                                    <div class="form-group"> \
+                                        <label class="col-md-3 control-label">描述</label> \
+                                        <div class="col-md-9"> \
+                                            <textarea class="form-control" rows="3" maxlength="300" ng-model="$ctrl.mdData.O_OL_REASON" placeholder="字數限制 300字"></textarea> \
+                                        </div> \
+                                    </div> \
+                                </fieldset> \
+                            </form> \
+                        </div> \
+                        <div class="modal-footer"> \
+                            <button class="btn btn-primary" type="button" ng-click="$ctrl.ok()" ng-disabled="!modifyForm.$valid">{{getWord(\'OK\')}}</button> \
+                            <button class="btn btn-default" type="button" ng-click="$ctrl.cancel()">{{getWord(\'Cancel\')}}</button> \
+                        </div>');
 })
 .controller('IsDeleteModalInstanceCtrl', function ($uibModalInstance, items) {
     var $ctrl = this;
@@ -410,6 +496,30 @@ angular.module('app')
         }
         $ctrl.mdData.OL_IMPORTDT = $ctrl.mdData.OL_IMPORTDT == "" ? null : $ctrl.mdData.OL_IMPORTDT;
         $ctrl.mdData.OL_REAL_IMPORTDT = $ctrl.mdData.OL_REAL_IMPORTDT == "" ? null : $ctrl.mdData.OL_REAL_IMPORTDT;
+        $uibModalInstance.close($ctrl.mdData);
+    };
+
+    $ctrl.cancel = function() {
+        $uibModalInstance.dismiss('cancel');
+    };
+})
+
+.controller('ModifyOOrderListModalInstanceCtrl', function ($uibModalInstance, vmData, ocompy, RestfulApi) {
+    var $ctrl = this;
+
+    $ctrl.mdData = angular.copy(vmData);
+    $ctrl.ocompy = ocompy;
+
+    $ctrl.ok = function() {
+        // 改為大寫
+        if($ctrl.mdData.O_OL_PASSCODE != null){
+            $ctrl.mdData.O_OL_PASSCODE = $ctrl.mdData.O_OL_PASSCODE.toUpperCase();
+        }
+        if($ctrl.mdData.O_OL_MASTER != null){
+            $ctrl.mdData.O_OL_MASTER = $ctrl.mdData.O_OL_MASTER.toUpperCase();
+        }
+
+        $ctrl.mdData.O_OL_IMPORTDT = $ctrl.mdData.O_OL_IMPORTDT == "" ? null : $ctrl.mdData.O_OL_IMPORTDT;
         $uibModalInstance.close($ctrl.mdData);
     };
 

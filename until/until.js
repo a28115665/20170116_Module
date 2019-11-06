@@ -56,3 +56,17 @@ function readJsonFileSync(filepath, encoding){
     }
 }
 
+/**
+ * [extend 合併Object]
+ * @param  {[type]} target [需要被合併的Objects]
+ * @return {[type]}        [回傳合併後的Object]
+ */
+exports.extend = function(target) {
+    var sources = [].slice.call(arguments, 1);
+    sources.forEach(function (source) {
+        for (var prop in source) {
+            target[prop] = source[prop];
+        }
+    });
+    return target;
+}
