@@ -247,6 +247,11 @@ angular.module('app')
                             <a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethod.modifyData(row)"> 修改</a>\
                             <a href="javascript:void(0);" class="btn btn-danger btn-xs" ng-click="grid.appScope.$vm.gridMethod.releaseData(row)" ng-if="grid.appScope.$vm.profile.U_GRADE < 10" ng-class="{\'disabled\' : row.entity.OL_FDATETIME == null}"> 解案</a>\
                         </div>');
+    $templateCache.put('accessibilityToMForOLeaderSearch', '\
+                        <div class="ui-grid-cell-contents text-center">\
+                            <a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethod.modifyData(row)"> 修改</a>\
+                            <a href="javascript:void(0);" class="btn btn-danger btn-xs" ng-click="grid.appScope.$vm.gridMethod.releaseData(row)" ng-if="grid.appScope.$vm.profile.U_GRADE < 10" ng-class="{\'disabled\' : row.entity.O_OL_FDATETIME == null}"> 解案</a>\
+                        </div>');
     $templateCache.put('accessibilityToEdited', '\
                         <div class="ui-grid-cell-contents text-center">\
                             <i class="fa fa-check text-primary" ng-if="row.entity.OE_EDATETIME != null"> </i> \

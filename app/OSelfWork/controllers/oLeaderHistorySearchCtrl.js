@@ -1,33 +1,33 @@
 "use strict";
 
-angular.module('app.selfwork').controller('LeaderHistorySearchCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, RestfulApi, $filter, compy, userInfo, bool, uiGridConstants, localStorageService, ToolboxApi) {
+angular.module('app.oselfwork').controller('OLeaderHistorySearchCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, RestfulApi, $filter, ocompy, userInfo, bool, uiGridConstants, localStorageService, ToolboxApi) {
     
     var $vm = this;
 
 	angular.extend(this, {
         Init : function(){
-            // console.log(localStorageService.get("LeaderHistorySearch"));
+            // console.log(localStorageService.get("OLeaderHistorySearch"));
             
             // 帶入LocalStorage資料
-            if(localStorageService.get("LeaderHistorySearch") == null){
+            if(localStorageService.get("OLeaderHistorySearch") == null){
                 $vm.vmData = {};
             }else{
-                $vm.vmData = localStorageService.get("LeaderHistorySearch");
+                $vm.vmData = localStorageService.get("OLeaderHistorySearch");
 
                 SearchData();
             }
         },
         profile : Session.Get(),
         boolData : bool,
-        compyData : compy,
+        ocompyData : ocompy,
         gridMethod : {
             modifyData : function(row){
                 var modalInstance = $uibModal.open({
                     animation: true,
                     ariaLabelledBy: 'modal-title',
                     ariaDescribedBy: 'modal-body',
-                    template: $templateCache.get('modifyOrderList'),
-                    controller: 'ModifyOrderListModalInstanceCtrl',
+                    template: $templateCache.get('modifyOOrderList'),
+                    controller: 'ModifyOOrderListModalInstanceCtrl',
                     controllerAs: '$ctrl',
                     // size: 'sm',
                     // windowClass: 'center-modal',
@@ -36,8 +36,8 @@ angular.module('app.selfwork').controller('LeaderHistorySearchCtrl', function ($
                         vmData: function() {
                             return row.entity;
                         },
-                        compy: function() {
-                            return compy;
+                        ocompy: function() {
+                            return ocompy;
                         }
                     }
                 });
@@ -48,18 +48,19 @@ angular.module('app.selfwork').controller('LeaderHistorySearchCtrl', function ($
 
                     RestfulApi.UpdateMSSQLData({
                         updatename: 'Update',
-                        table: 18,
+                        table: 40,
                         params: {
-                            OL_IMPORTDT : selectedItem.OL_IMPORTDT,
-                            OL_REAL_IMPORTDT : selectedItem.OL_REAL_IMPORTDT,
-                            OL_CO_CODE  : selectedItem.OL_CO_CODE,
-                            OL_FLIGHTNO : selectedItem.OL_FLIGHTNO,
-                            OL_MASTER   : selectedItem.OL_MASTER,
-                            OL_COUNTRY  : selectedItem.OL_COUNTRY,
-                            OL_REASON   : selectedItem.OL_REASON
+                            O_OL_IMPORTDT : selectedItem.O_OL_IMPORTDT,
+                            O_OL_CO_CODE  : selectedItem.O_OL_CO_CODE,
+                            O_OL_VOYSEQ   : selectedItem.O_OL_VOYSEQ,
+                            O_OL_PASSCODE : selectedItem.O_OL_PASSCODE,
+                            O_OL_BOATID   : selectedItem.O_OL_BOATID,
+                            O_OL_MASTER   : selectedItem.O_OL_MASTER,
+                            O_OL_POST     : selectedItem.O_OL_POST,
+                            O_OL_REASON   : selectedItem.O_OL_REASON
                         },
                         condition: {
-                            OL_SEQ : selectedItem.OL_SEQ
+                            O_OL_SEQ : selectedItem.O_OL_SEQ
                         }
                     }).then(function (res) {
                         SearchData();
@@ -100,13 +101,13 @@ angular.module('app.selfwork').controller('LeaderHistorySearchCtrl', function ($
 
                     RestfulApi.UpdateMSSQLData({
                         updatename: 'Update',
-                        table: 18,
+                        table: 40,
                         params: {
-                            OL_FDATETIME : null,
-                            OL_FUSER     : null
+                            O_OL_FDATETIME : null,
+                            O_OL_FUSER     : null
                         },
                         condition: {
-                            OL_SEQ : selectedItem.OL_SEQ
+                            O_OL_SEQ : selectedItem.O_OL_SEQ
                         }
                     }).then(function (res) {
 
@@ -122,36 +123,26 @@ angular.module('app.selfwork').controller('LeaderHistorySearchCtrl', function ($
         resultOptions : {
             data:  '$vm.resultData',
             columnDefs: [
-                { name: 'OL_IMPORTDT' ,  displayName: '進口日期', cellFilter: 'dateFilter' },
-                { name: 'OL_REAL_IMPORTDT' ,  displayName: '報機日期', cellFilter: 'dateFilter', cellTooltip: function (row, col) 
+                { name: 'O_OL_IMPORTDT' ,  displayName: '報機日期', cellFilter: 'dateFilter' },
+                { name: 'O_CO_NAME'     ,  displayName: '行家' },
+                { name: 'O_OL_VOYSEQ'   ,  displayName: '航次' },
+                { name: 'O_OL_PASSCODE' ,  displayName: '海關通關號碼' },
+                { name: 'O_OL_BOATID'   ,  displayName: '船機代碼' },
+                { name: 'O_OL_MASTER'   ,  displayName: '主號' },
+                { name: 'O_OL_COUNT'    ,  displayName: '報機單(件數)', width: 80, enableCellEdit: false },
+                { name: 'O_OL_PULL_COUNT' ,  displayName: '拉貨(件數)', width: 80, enableCellEdit: false },
+                { name: 'O_OL_POST'     ,  displayName: '裝貨港' },
+                { name: 'O_OL_REASON'   ,  displayName: '描述', width: 100, cellTooltip: function (row, col) 
                     {
-                        return '真實報機日期：' + $filter('dateFilter')(row.entity.OL_CR_DATETIME)
+                        return row.entity.O_OL_REASON
                     } 
                 },
-                // { name: 'OL_CO_CODE'  ,  displayName: '行家', cellFilter: 'compyFilter', filter: 
-                //     {
-                //         term: null,
-                //         type: uiGridConstants.filter.SELECT,
-                //         selectOptions: compy
-                //     }
-                // },
-                { name: 'CO_NAME'     ,  displayName: '行家' },
-                { name: 'OL_FLIGHTNO' ,  displayName: '航班' },
-                { name: 'OL_MASTER'   ,  displayName: '主號' },
-                { name: 'OL_COUNT'    ,  displayName: '報機單(袋數)', width: 80, enableCellEdit: false },
-                { name: 'OL_PULL_COUNT',  displayName: '拉貨(袋數)', width: 80, enableCellEdit: false },
-                { name: 'OL_COUNTRY'  ,  displayName: '起運國別' },
-                { name: 'OL_REASON'   ,  displayName: '描述', cellTooltip: function (row, col) 
-                    {
-                        return row.entity.OL_REASON
-                    } 
-                },
-                { name: 'W2_STATUS'   ,  displayName: '狀態', width: 80, cellTemplate: $templateCache.get('accessibilityToForW2'), filter: 
+                { name: 'OW2_STATUS'   ,  displayName: '報機單狀態', cellTemplate: $templateCache.get('accessibilityToForOW2'), filter: 
                     {
                         term: null,
                         type: uiGridConstants.filter.SELECT,
                         selectOptions: [
-                            // {label:'未派單', value: '0'},
+                            {label:'未派單', value: '0'},
                             {label:'已派單', value: '1'},
                             {label:'已編輯', value: '2'},
                             {label:'已完成', value: '3'},
@@ -159,14 +150,14 @@ angular.module('app.selfwork').controller('LeaderHistorySearchCtrl', function ($
                         ]
                     }
                 },
-                { name: 'W2_PRINCIPAL',  displayName: '編輯者', cellFilter: 'userInfoFilter', filter: 
+                { name: 'OW2_PRINCIPAL',  displayName: '編輯者', cellFilter: 'userInfoFilter', filter: 
                     {
                         term: null,
                         type: uiGridConstants.filter.SELECT,
                         selectOptions: userInfo
                     }
                 },
-                { name: 'Options'     ,  displayName: '功能', enableFiltering: false, width: '12%', cellTemplate: $templateCache.get('accessibilityToMForLeaderSearch') }
+                { name: 'Options'     ,  displayName: '功能', enableFiltering: false, width: '12%', cellTemplate: $templateCache.get('accessibilityToMForOLeaderSearch') }
             ],
             enableFiltering: true,
             enableSorting: false,
@@ -196,9 +187,9 @@ angular.module('app.selfwork').controller('LeaderHistorySearchCtrl', function ($
             var _exportName = $filter('date')(new Date(), 'yyyyMMdd') + ' ' + $scope.getWord($state.current.data.title) + '結果';
 
             ToolboxApi.ExportExcelBySql({
-                templates : 12,
+                templates : 16,
                 filename : _exportName,
-                querymain: 'leaderHistorySearch',
+                querymain: 'oleaderHistorySearch',
                 queryname: 'SelectSearch',
                 params: $vm._params
             }).then(function (res) {
@@ -212,12 +203,12 @@ angular.module('app.selfwork').controller('LeaderHistorySearchCtrl', function ($
 
         $vm._params = CombineConditions($vm.vmData);
         // 紀錄查詢條件
-        localStorageService.set("LeaderHistorySearch", $vm.vmData);
+        localStorageService.set("OLeaderHistorySearch", $vm.vmData);
         
         console.log($vm._params);
 
         RestfulApi.SearchMSSQLData({
-            querymain: 'leaderHistorySearch',
+            querymain: 'oleaderHistorySearch',
             queryname: 'SelectSearch',
             params: $vm._params
         }).then(function (res){
@@ -270,9 +261,9 @@ angular.module('app.selfwork').controller('LeaderHistorySearchCtrl', function ($
         for(var i in pObject){
             if(pObject[i] != null){
                 if(pObject[i].toString() != ""){
-                    if(i == "REAL_IMPORTDT_FROM" || i == "IMPORTDT_FROM"){
+                    if(i == "O_IMPORTDT_FROM"){
                         _conditions[i] = pObject[i] + ' 00:00:00';
-                    }else if(i == "REAL_IMPORTDT_TOXX" || i == "IMPORTDT_TOXX"){
+                    }else if(i == "O_IMPORTDT_TOXX"){
                         _conditions[i] = pObject[i] + ' 23:59:59';
                     }else{
                         _conditions[i] = pObject[i];
@@ -288,7 +279,7 @@ angular.module('app.selfwork').controller('LeaderHistorySearchCtrl', function ($
      * [ClearSearchCondition description] 清除查詢條件
      */
     function ClearSearchCondition(){
-        localStorageService.remove("LeaderHistorySearch");
+        localStorageService.remove("OLeaderHistorySearch");
         $vm.vmData = {};
     }
 
