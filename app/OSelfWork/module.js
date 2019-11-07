@@ -66,5 +66,50 @@ angular.module('app.oselfwork').config(function ($stateProvider){
         }
     })
 
+    .state('app.oselfwork.oemployeejobs', {
+        url: '/oselfwork/oemployeejobs',
+        data: {
+            title: 'OEmployeeJobs'
+        },
+        views: {
+            "content@app" : {
+                templateUrl: 'app/OSelfWork/views/oemployeeJobs.html',
+                controller: 'OEmployeeJobsCtrl',
+                controllerAs: '$vm',
+                resolve: {
+                    ocompy: function(OCompy){
+                        return OCompy.get();
+                    },
+                    userInfo: function(UserInfo){
+                        return UserInfo.get();
+                    }
+                }
+            }
+        }
+    })
+
+    .state('app.oselfwork.oemployeejobs.ojob001', {
+        url: '/ojob001',
+        data: {
+            title: 'OJob001'
+        },
+        params: { 
+            data: null
+        },
+        parent: 'app.oselfwork.oemployeejobs',
+        views: {
+            "content@app" : {
+                templateUrl: 'app/OSelfWork/views/jobs/ojob001.html',
+                controller: 'OJob001Ctrl',
+                controllerAs: '$vm',
+                resolve: {
+                    bool: function (SysCode){
+                        return SysCode.get('Boolean');
+                    }
+                }
+            }
+        }
+    })
+
 
 });

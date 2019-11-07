@@ -49,7 +49,7 @@ var GetCargoAircraftTime = function (){
 	            	var upsertData = JSON.parse(content),
 	            		_conditions = 0,
 	            		_noFlightDate = 0;
-	            	console.log("航班資訊總筆數:", upsertData.length);
+	            	console.log(moment().format('YYYY-MM-DD HH:mm:ss'), ",航班資訊總筆數:", upsertData.length);
 
 	            	// 有資料再request
 	            	if(upsertData.length > 0){
@@ -109,8 +109,7 @@ var GetCargoAircraftTime = function (){
 					            console.error("航班更新失敗訊息:", err);
 					            // process.exit();
 					        }else{
-		        				console.log("已更新航班資訊筆數:", _conditions);
-				            	console.log("無起飛日期筆數(不更新):", _noFlightDate);
+		        				console.log("航班資訊筆數(更新):", _conditions, ",無起飛日期筆數(不更新):", _noFlightDate);
 					        }
 					    });
 					    

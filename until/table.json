@@ -41,5 +41,6 @@
 	"39" : "O_COMPY_INFO",
 	"40" : "O_ORDER_LIST",
 	"41" : "O_ITEM_LIST",
-	"42" : "O_ORDER_PRINPL"
+	"42" : "O_ORDER_PRINPL",
+	"43" : "O_ORDER_EDITOR"
 }
