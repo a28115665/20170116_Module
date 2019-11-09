@@ -125,6 +125,13 @@ angular.module('app')
                         <button class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethod.specialGoods(row)" ng-if="row.entity.SPG_SPECIALGOODS == 1"> 普特貨</button>\
                         <button class="btn btn-success btn-xs" ng-click="grid.appScope.$vm.gridMethod.specialGoods(row)" ng-if="row.entity.SPG_SPECIALGOODS == 2"> 特特貨</button>\
    		  		    </div>');
+    $templateCache.put('accessibilityToOJob001', '\
+                    <div class="ui-grid-cell-contents">\
+                        <button class="btn btn-primary btn-xs" ng-click="grid.appScope.$vm.gridMethod.pullGoods(row)" ng-class="row.entity.O_PG_PULLGOODS ? \'disabled\' : \'\'"> 拉貨</button>\
+                        <button class="btn btn-default btn-xs" ng-click="grid.appScope.$vm.gridMethod.specialGoods(row)" ng-if="row.entity.O_SPG_SPECIALGOODS == 0"> 特貨</button>\
+                        <button class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethod.specialGoods(row)" ng-if="row.entity.O_SPG_SPECIALGOODS == 1"> 普特貨</button>\
+                        <button class="btn btn-success btn-xs" ng-click="grid.appScope.$vm.gridMethod.specialGoods(row)" ng-if="row.entity.O_SPG_SPECIALGOODS == 2"> 特特貨</button>\
+                    </div>');
 
     $templateCache.put('accessibilityToExportExcelStaus', '\
                         <div class="my-ui-grid-cell-contents">\

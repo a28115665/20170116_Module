@@ -249,7 +249,7 @@ var UpdateMethod = function (updatetname, table, params, condition, callback){
 					ps.unprepare(function(err) {
 					    // ... error checks
 					    if(err) return callback(err, null, preparedToStatement.PrintSql(SQLCommand, _psParams));
-
+					    
 					    callback(null, affected, preparedToStatement.PrintSql(SQLCommand, _psParams)); 
 					});
 				});

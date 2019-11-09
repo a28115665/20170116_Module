@@ -12,7 +12,9 @@ sql.connect(setting.MSSQL).then(function() {
         for(var i in result){
         	DatabaseSchema[result[i]["COLUMN_NAME"]] = {
         		DATA_TYPE : result[i]["DATA_TYPE"], 
-        		CHARACTER_MAXIMUM_LENGTH : result[i]["CHARACTER_MAXIMUM_LENGTH"]
+        		CHARACTER_MAXIMUM_LENGTH : result[i]["CHARACTER_MAXIMUM_LENGTH"],
+        		NUMERIC_PRECISION : result[i]["NUMERIC_PRECISION"],
+				NUMERIC_SCALE : result[i]["NUMERIC_SCALE"]
         	};
         }
     });
@@ -96,6 +98,12 @@ function GiveSchemaType(pType, pSql, pSchema, key){
 				break;
 			case "date":
 				pType = pSql.VarChar(30);
+				break;
+			case "money":
+				pType = pSql.SmallMoney;
+				break;
+			case "real":
+				pType = pSql.Real;
 				break;
 		}
 	}

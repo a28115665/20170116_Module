@@ -51,7 +51,7 @@ router.get('/crud', function(req, res) {
             // Do something with your error...
             res.status(403).send('查詢失敗');
         } else {
-
+            
             res.header('Cache-Control', 'no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0')
             .status(200)
             .json({
