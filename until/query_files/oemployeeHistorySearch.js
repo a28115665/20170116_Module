@@ -6,27 +6,25 @@ module.exports = function(pQueryname, pParams){
 			_SQLCommand += "SELECT TOP 1000 O_OL_SEQ, \
 									O_OL_CO_CODE, \
 									O_OL_MASTER, \
-									O_OL_VOYSEQ,\
-									O_OL_PASSCODE,\
-									O_OL_BOATID,\
-									O_OL_POST,\
 									O_OL_IMPORTDT, \
-									O_OL_REASON, \
-									O_OL_CR_USER, \
+									O_OL_VOYSEQ, \
+									O_OL_PASSCODE, \
+									O_OL_BOATID, \
 									O_OL_CR_DATETIME, \
-									O_OL_FDATETIME, \
-									O_OL_FUSER, \
+									O_OL_REASON, \
+									O_OL_POST, \
+									O_OL_ILSTATUS, \
 									( \
-										(\
+										( \
 											SELECT COUNT(1) \
 											FROM O_ITEM_LIST \
-											WHERE O_IL_SEQ = O_OL_SEQ\
-										) -\
+											WHERE O_IL_SEQ = O_OL_SEQ \
+										) - \
 										( \
 											SELECT COUNT(1) \
 											FROM O_PULL_GOODS \
 											WHERE O_PG_SEQ = O_OL_SEQ \
-										)\
+										) \
 									) AS 'O_OL_COUNT', \
 									( \
 										SELECT COUNT(1) \
@@ -34,14 +32,8 @@ module.exports = function(pQueryname, pParams){
 										WHERE O_PG_SEQ = O_OL_SEQ \
 									) AS 'O_OL_PULL_COUNT', \
 									W2_OE.O_OE_PRINCIPAL AS 'OW2_PRINCIPAL', \
-									( \
-										SELECT U_NAME \
-										FROM USER_INFO \
-										WHERE U_ID = W2_OE.O_OE_PRINCIPAL \
-									) AS 'U_NAME', \
 									W2_OE.O_OE_EDATETIME AS 'OW2_EDATETIME', \
 									W2_OE.O_OE_FDATETIME AS 'OW2_FDATETIME', \
-									\
 									( \
 										CASE WHEN ( \
 											/*表示已有完成者*/ \
@@ -84,22 +76,15 @@ module.exports = function(pQueryname, pParams){
 								/*行家中文名稱*/ \
 								OUTTER JOIN O_COMPY_INFO ON O_CO_CODE = O_OL_CO_CODE \
 							) O_ORDER_LIST \
+							LEFT JOIN O_ITEM_LIST ON O_IL_SEQ = O_OL_SEQ \
 							/*報機單*/ \
-							LEFT JOIN V_O_ORDER_EDITOR_BY_R W2_OE ON W2_OE.O_OE_SEQ = O_ORDER_LIST.O_OL_SEQ\
+							LEFT JOIN V_O_ORDER_EDITOR_BY_R W2_OE ON W2_OE.O_OE_SEQ = O_ORDER_LIST.O_OL_SEQ \
 							/*銷艙單只有完成時間*/ \
-							LEFT JOIN V_O_ORDER_EDITOR_BY_W W3_OE ON W3_OE.O_OE_SEQ = O_ORDER_LIST.O_OL_SEQ\
+							LEFT JOIN V_O_ORDER_EDITOR_BY_W W3_OE ON W3_OE.O_OE_SEQ = O_ORDER_LIST.O_OL_SEQ \
 							/*派送單*/ \
 							LEFT JOIN V_O_ORDER_EDITOR_BY_D W1_OE ON W1_OE.O_OE_SEQ = O_ORDER_LIST.O_OL_SEQ \
 							WHERE 1=1 ";
-						
-			// if(pParams["CRDT_FROM"] !== undefined){
-			// 	_SQLCommand += " AND OL_CR_DATETIME >= '" + pParams["CRDT_FROM"] + "'";
-			// 	delete pParams["CRDT_FROM"];
-			// }
-			// if(pParams["CRDT_TOXX"] !== undefined){
-			// 	_SQLCommand += " AND OL_CR_DATETIME <= '" + pParams["CRDT_TOXX"] + "'";
-			// 	delete pParams["CRDT_TOXX"];
-			// }
+					
 			if(pParams["O_IMPORTDT_FROM"] !== undefined){
 				_SQLCommand += " AND O_OL_IMPORTDT >= '" + pParams["O_IMPORTDT_FROM"] + "'";
 				delete pParams["O_IMPORTDT_FROM"];
@@ -138,19 +123,42 @@ module.exports = function(pQueryname, pParams){
 				delete pParams["O_FINISH"];
 			}
 
+			if(pParams["SMALLNO"] !== undefined){
+				pParams["O_IL_SMALLNO"] = '%'+pParams["SMALLNO"]+'%';
+				_SQLCommand += " AND O_IL_SMALLNO LIKE @O_IL_SMALLNO";
+				delete pParams["SMALLNO"];
+				
+			}
+			if(pParams["GETNAME"] !== undefined){
+				pParams["IL_GETNAME"] = '%'+pParams["GETNAME"]+'%';
+				_SQLCommand += " AND IL_GETNAME LIKE @IL_GETNAME";
+				delete pParams["GETNAME"];
+				
+			}
+			if(pParams["GETADDRESS"] !== undefined){
+				pParams["IL_GETADDRESS"] = '%'+pParams["GETADDRESS"]+'%';
+				_SQLCommand += " AND IL_GETADDRESS LIKE @IL_GETADDRESS";
+				delete pParams["GETADDRESS"];
+				
+			}
+			if(pParams["GETTEL"] !== undefined){
+				pParams["IL_GETTEL"] = pParams["GETTEL"];
+				_SQLCommand += " AND IL_GETTEL = @IL_GETTEL";
+				delete pParams["GETTEL"];
+			}
+
 			_SQLCommand += " GROUP BY O_OL_SEQ, \
 									O_OL_CO_CODE, \
+									O_OL_VOYSEQ, \
+									O_OL_PASSCODE, \
+									O_OL_BOATID, \
+									O_OL_POST, \
 									O_OL_MASTER, \
-									O_OL_VOYSEQ,\
-									O_OL_PASSCODE,\
-									O_OL_BOATID,\
-									O_OL_POST,\
 									O_OL_IMPORTDT, \
 									O_OL_REASON, \
 									O_OL_CR_USER, \
 									O_OL_CR_DATETIME, \
-									O_OL_FDATETIME, \
-									O_OL_FUSER, \
+									O_OL_ILSTATUS, \
 									W2_OE.O_OE_PRINCIPAL, \
 									W2_OE.O_OE_EDATETIME, \
 									W2_OE.O_OE_FDATETIME, \
@@ -163,7 +171,6 @@ module.exports = function(pQueryname, pParams){
 									O_CO_NAME \
 							ORDER BY O_OL_IMPORTDT DESC ";
 			break;
-
 	}
 
 	return _SQLCommand;

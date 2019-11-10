@@ -44,5 +44,6 @@
 	"42" : "O_ORDER_PRINPL",
 	"43" : "O_ORDER_EDITOR",
 	"44" : "O_SPECIAL_GOODS",
-	"45" : "O_PULL_GOODS"
+	"45" : "O_PULL_GOODS",
+	"46" : "O_ORDER_LIST"
 }

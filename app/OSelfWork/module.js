@@ -111,5 +111,53 @@ angular.module('app.oselfwork').config(function ($stateProvider){
         }
     })
 
+    .state('app.oselfwork.oemployeehistorysearch', {
+        url: '/oselfwork/oemployeehistorysearch',
+        data: {
+            title: 'OEmployeeHistorySearch'
+        },
+        views: {
+            "content@app" : {
+                templateUrl: 'app/OSelfWork/views/oemployeeHistorySearch.html',
+                controller: 'OEmployeeHistorySearchCtrl',
+                controllerAs: '$vm',
+                resolve: {
+                    ocompy: function(OCompy){
+                        return OCompy.get();
+                    },
+                    bool: function (SysCode){
+                        return SysCode.get('Boolean');
+                    },
+                    userInfo: function(UserInfo){
+                        return UserInfo.get();
+                    }
+                }
+            }
+        }
+    })
+
+    .state('app.oselfwork.oemployeehistorysearch.resultojob001', {
+        url: '/resultojob001',
+        data: {
+            title: 'OEmployeeHistorySearchResultOJob001'
+        },
+        params: { 
+            data: null
+        },
+        parent: 'app.oselfwork.oemployeehistorysearch',
+        views: {
+            "content@app" : {
+                templateUrl: 'app/OSelfWork/views/jobs/ojob001.html',
+                controller: 'OJob001Ctrl',
+                controllerAs: '$vm',
+                resolve: {
+                    bool: function (SysCode){
+                        return SysCode.get('Boolean');
+                    }
+                }
+            }
+        }
+    })
+
 
 });

@@ -151,34 +151,34 @@ angular.module('app.oselfwork').controller('OLeaderJobsCtrl', function ($scope, 
                         //     });
                             
                         //     break;
-                        // case '所有':
+                        case '所有':
 
-                        //     // 檢查是否補過單
-                        //     RestfulApi.SearchMSSQLData({
-                        //         querymain: 'oleaderJobs',
-                        //         queryname: 'SelectOOrderSupplement',
-                        //         params: {
-                        //             OLS_SEQ : selectedItem.OL_SEQ
-                        //         }
-                        //     }).then(function (res){
-                        //         // console.log(res["returnData"]);
+                            // 檢查是否補過單
+                            RestfulApi.SearchMSSQLData({
+                                querymain: 'oleaderJobs',
+                                queryname: 'SelectOOrderSupplement',
+                                params: {
+                                    O_OLS_SEQ : selectedItem.O_OL_SEQ
+                                }
+                            }).then(function (res){
+                                // console.log(res["returnData"]);
 
-                        //         if(res["returnData"].length == 0){
-                        //             RestfulApi.DeleteMSSQLData({
-                        //                 deletename: 'Delete',
-                        //                 table: 18,
-                        //                 params: {
-                        //                     OL_SEQ : selectedItem.OL_SEQ
-                        //                 }
-                        //             }).then(function (res) {
-                        //                 LoadOrderList();
-                        //                 toaster.pop('success', '訊息', '刪除成功', 3000);
-                        //             });
-                        //         }else{
-                        //             toaster.pop('warning', '警告', '此單已補過單，不可直接刪除', 3000);
-                        //         }
-                        //     }); 
-                        //     break;
+                                if(res["returnData"].length == 0){
+                                    RestfulApi.DeleteMSSQLData({
+                                        deletename: 'Delete',
+                                        table: 46,
+                                        params: {
+                                            O_OL_SEQ : selectedItem.O_OL_SEQ
+                                        }
+                                    }).then(function (res) {
+                                        LoadOrderList();
+                                        toaster.pop('success', '訊息', '刪除成功', 3000);
+                                    });
+                                }else{
+                                    toaster.pop('warning', '警告', '此單已補過單，不可直接刪除', 3000);
+                                }
+                            }); 
+                            break;
                     }
 
                 }, function() {
