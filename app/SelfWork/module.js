@@ -11,7 +11,8 @@ angular.module('app.selfwork').config(function ($stateProvider){
     .state('app.selfwork', {
         abstract: true,
         data: {
-            title: 'SelfWork'
+            title: 'SelfWork',
+            backgroundClass: 'darkseagreen'
         }
     })
 

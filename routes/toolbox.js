@@ -403,6 +403,7 @@ router.post('/uploadFile', function(req, res) {
             });
         });
     } catch(err) {
+        logger.error(err);
         res.status(500).send('上傳失敗');
     }
 
@@ -441,7 +442,7 @@ router.get('/downloadFiles', function(req, res) {
 
         archive.pipe(res);
     } catch(err) {
-        console.log(err);
+        logger.error(err);
         res.status(500).send('下載失敗');
     }
 
@@ -1276,7 +1277,7 @@ router.get('/composeMenu', function(req, res) {
         });
 
     } catch(err){
-        console.error(err);
+        logger.error(err);
         res.status(500).send('Compose Menu error');
     }
 

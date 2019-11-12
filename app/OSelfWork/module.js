@@ -11,7 +11,8 @@ angular.module('app.oselfwork').config(function ($stateProvider){
     .state('app.oselfwork', {
         abstract: true,
         data: {
-            title: 'OSelfWork'
+            title: 'OSelfWork',
+            backgroundClass: 'lightblue'
         }
     })
 
@@ -60,6 +61,57 @@ angular.module('app.oselfwork').config(function ($stateProvider){
                     },
                     userInfo: function(UserInfo){
                         return UserInfo.get();
+                    }
+                }
+            }
+        }
+    })
+
+    .state('app.oselfwork.oassistantjobs', {
+        url: '/oselfwork/oassistantjobs',
+        data: {
+            title: 'OAssistantJobs'
+        },
+        views: {
+            "content@app" : {
+                templateUrl: 'app/OSelfWork/views/oassistantJobs.html',
+                controller: 'OAssistantJobsCtrl',
+                controllerAs: '$vm',
+                resolve: {
+                    ocompy : function(OCompy){
+                        return OCompy.get();
+                    },
+                    bool: function (SysCode){
+                        return SysCode.get('Boolean');
+                    },
+                    opType : function (SysCode){
+                        return SysCode.get('OpType');
+                    },
+                    userInfo: function(UserInfo){
+                        return UserInfo.get();
+                    }
+                }
+            }
+        }
+    })
+
+    .state('app.oselfwork.oassistantjobs.ojob001', {
+        url: '/ojob001',
+        data: {
+            title: 'OJob001'
+        },
+        params: { 
+            data: null
+        },
+        parent: 'app.oselfwork.oassistantjobs',
+        views: {
+            "content@app" : {
+                templateUrl: 'app/OSelfWork/views/jobs/ojob001.html',
+                controller: 'OJob001Ctrl',
+                controllerAs: '$vm',
+                resolve: {
+                    bool: function (SysCode){
+                        return SysCode.get('Boolean');
                     }
                 }
             }

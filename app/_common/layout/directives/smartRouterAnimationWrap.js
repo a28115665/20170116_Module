@@ -1,13 +1,15 @@
 'use strict';
 
-angular.module('SmartAdmin.Layout').directive('smartRouterAnimationWrap', function ($rootScope,$timeout) {
+angular.module('SmartAdmin.Layout').directive('smartRouterAnimationWrap', function ($rootScope, $timeout, $state) {
     return {
         restrict: 'A',
         compile: function (element, attributes) {
             element.removeAttr('smart-router-animation-wrap data-smart-router-animation-wrap wrap-for data-wrap-for');
 
             element.addClass('router-animation-container');
-
+            element.css({
+                background: $state.current.data.backgroundClass
+            });
 
             var $loader = $('<div class="router-animation-loader"><i class="fa fa-gear fa-4x fa-spin"></i></div>')
                 .css({
@@ -22,11 +24,15 @@ angular.module('SmartAdmin.Layout').directive('smartRouterAnimationWrap', functi
 
             var needRunContentViewAnimEnd = false;
             function contentViewAnimStart() {
-                needRunContentViewAnimEnd = true;
-                element.css({
+
+                var css = {
                     height: element.height() + 'px',
                     overflow: 'hidden'
-                }).addClass('active');
+                };
+                checkBackgroundColor(css);
+
+                needRunContentViewAnimEnd = true;
+                element.css(css).addClass('active');
                 $loader.fadeIn();
 
                 $(animateElementSelector).addClass('animated faster fadeOutDown');
@@ -34,11 +40,14 @@ angular.module('SmartAdmin.Layout').directive('smartRouterAnimationWrap', functi
 
             function contentViewAnimEnd() {
                 if(needRunContentViewAnimEnd){
-                    element.css({
+
+                    var css = {
                         height: 'auto',
                         overflow: 'visible'
-                    }).removeClass('active');
-                    
+                    };
+                    checkBackgroundColor(css);
+
+                    element.css(css).removeClass('active');
 
                     $(animateElementSelector).addClass('animated faster fadeInUp');
 
@@ -49,6 +58,14 @@ angular.module('SmartAdmin.Layout').directive('smartRouterAnimationWrap', functi
                     },10);
                 }
                 $loader.fadeOut();
+            }
+
+            function checkBackgroundColor(css){
+                if($state.current.data.backgroundClass) {
+                    css["background"] = $state.current.data.backgroundClass;
+                }else{
+                    css["background"] = '';
+                }
             }
 
 
@@ -62,6 +79,7 @@ angular.module('SmartAdmin.Layout').directive('smartRouterAnimationWrap', functi
             });
 
             var destroyForEnd = $rootScope.$on('$viewContentLoaded', function (event) {
+                console.log(event);
                 contentViewAnimEnd();
             });
 

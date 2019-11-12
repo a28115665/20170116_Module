@@ -16,38 +16,15 @@ var logger = require('../until/log4js.js').logger('auth');
  * 沒資料回傳 null
  */
 router.get('/reLoadSession', function(req, res) {
-    // if(until.FindID(req.session) != null){
-    //     res.json({
-    //         "returnData" : req.session.key
-    //     });
-    // }else{
-    //     res.status(403).send('Session未開啟');
-    // }
-    // console.log(req.session.key.U_NAME);
-    res.json({
-        "returnData" : req.session.key
-    });
+    try{
+        res.json({
+            "returnData" : req.session.key
+        });
+    } catch(e) {
+        logger.error(e);
+        res.status(403).send('讀取Session失敗');
+    }
 });
-
-
-// router.get('/login', function (req, res) {
-//    // res.send('respond with a resource');
-
-//      // console.log(req.body.email);
-//      // console.log(req.body.password);
-
-//      req.session.key = {
-//        username : 'Alan',
-//        password : 'ret12et3'
-//      }
-//      req.session.save(function(err){
-//       // session saved
-//       console.log(err);
-//     });
-
-//      res.redirect('/restful/reLoadSession');
-//     // res.sendfile('./public/404.html');
-// });
 
 /**
  * 登入
@@ -270,8 +247,9 @@ router.post('/login', function(req, res) {
             }
         });
 
-    } catch(err) {
-        new dbLogObject(id, null, null, null, null, ip, err).writeLog("登入");
+    } catch(e) {
+        new dbLogObject(id, null, null, null, null, ip, e).writeLog("登入");
+        logger.error(e);
         res.status(403).send('登入失敗');
     }
 });
@@ -285,7 +263,6 @@ router.post('/logout', function(req, res) {
         ip = req.ip;
 
     try {
-        new dbLogObject(id, null, null, null, null, ip, null).writeLog("登出");
 
         req.session.destroy(function(err) {
 
@@ -296,11 +273,15 @@ router.post('/logout', function(req, res) {
             logger.error("Session Logout Error: "+err);
         });
 
+        new dbLogObject(id, null, null, null, null, ip, null).writeLog("登出");
+
         res.json({
             "returnData": "登出成功"
         });
     } catch (e) {
+        new dbLogObject(id, null, null, null, null, ip, null).writeLog("登出");
         logger.error(e);
+        res.status(403).send('登出失敗');
     }
 
 });
