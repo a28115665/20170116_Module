@@ -607,6 +607,21 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                 });
             }
         },
+        // 整理報關種類為Y
+        SortoutG1ForY: function(){
+
+            var _g1ForY = $filter('filter')($vm.job001Data, {IL_G1: 'Y'});
+
+            if(_g1ForY.length > 0){
+
+                for(var i in _g1ForY){
+                    G1ForY(_g1ForY[i]);
+                }
+
+                $vm.job001GridApi.rowEdit.setRowsDirty(_g1ForY);
+            }
+
+        },
         // 併票
         MergeNo: function(){
             if($vm.job001GridApi.selection.getSelectedRows().length == 0) {
@@ -1474,20 +1489,24 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
 
     function CalculationFinalCost(rowEntity, colDef, newValue, oldValue){
 
-        // rowEntity["IL_G1"] = rowEntity["IL_G1"].toUpperCase();
+        try {
+            rowEntity["IL_G1"] = rowEntity["IL_G1"].toUpperCase();
+        } catch (e) {
+            console.log(e);
+        }
         // 新增規則
         // if(rowEntity["IL_G1"] == "Y"){
 
         try {
             if(newValue.toUpperCase() == "Y"){
-                rowEntity.IL_WEIGHT_NEW = rowEntity.IL_WEIGHT;
-                rowEntity.IL_NEWPCS = rowEntity.IL_PCS;
-                rowEntity.IL_UNIVALENT_NEW = rowEntity.IL_UNIVALENT;
-                rowEntity.IL_NEWSENDNAME = rowEntity.IL_SENDNAME;
-                rowEntity.IL_FINALCOST = null;
+                G1ForY(rowEntity)
+                // rowEntity.IL_WEIGHT_NEW = rowEntity.IL_WEIGHT;
+                // rowEntity.IL_NEWPCS = rowEntity.IL_PCS;
+                // rowEntity.IL_UNIVALENT_NEW = rowEntity.IL_UNIVALENT;
+                // rowEntity.IL_NEWSENDNAME = rowEntity.IL_SENDNAME;
+                // rowEntity.IL_FINALCOST = null;
             }
-        }
-        catch (e) {
+        } catch (e) {
             console.log(e);
         }
 
@@ -1589,6 +1608,18 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
         $vm.job001GridApi.rowEdit.setRowsDirty([rowEntity]);
 
         // console.log('edited row id:' + rowEntity.Index + ' Column:' + colDef.name + ' newValue:' + newValue + ' oldValue:' + oldValue);
+    }
+
+    /**
+     * [G1ForY description] 報關類型為Y的處理方法
+     * @param {[type]} rowEntity [description]
+     */
+    function G1ForY (rowEntity){
+        rowEntity.IL_WEIGHT_NEW = rowEntity.IL_WEIGHT;
+        rowEntity.IL_NEWPCS = rowEntity.IL_PCS;
+        rowEntity.IL_UNIVALENT_NEW = rowEntity.IL_UNIVALENT;
+        rowEntity.IL_NEWSENDNAME = rowEntity.IL_SENDNAME;
+        rowEntity.IL_FINALCOST = null;
     }
 
     /**
