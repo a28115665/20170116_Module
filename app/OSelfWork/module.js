@@ -28,7 +28,6 @@ angular.module('app.oselfwork').config(function ($stateProvider){
                 controllerAs: '$vm',
                 resolve: {
                     userInfoByGrade : function(UserInfoByGrade, Session){
-                        console.log("Session:", Session.Get());
                         return UserInfoByGrade.get(Session.Get().U_ID, Session.Get().U_GRADE, Session.Get().DEPTS);
                     },
                     ocompy : function(OCompy){

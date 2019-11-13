@@ -79,7 +79,6 @@ angular.module('SmartAdmin.Layout').directive('smartRouterAnimationWrap', functi
             });
 
             var destroyForEnd = $rootScope.$on('$viewContentLoaded', function (event) {
-                console.log(event);
                 contentViewAnimEnd();
             });
 

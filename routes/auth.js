@@ -17,6 +17,7 @@ var logger = require('../until/log4js.js').logger('auth');
  */
 router.get('/reLoadSession', function(req, res) {
     try{
+        // console.log(new Date() +': '+ req.session.key.U_ID);
         res.json({
             "returnData" : req.session.key
         });
