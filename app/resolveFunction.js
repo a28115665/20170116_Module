@@ -397,6 +397,44 @@ function UserInfoResolve (RestfulApi, $q){
         }
     };
 };
+function ServiceStopModalResolve ($injector, $templateCache){
+    var open = false,
+        modalInstance;
+
+    return {
+        isOpen : function () {
+            return open;
+        },
+        close : function (result) {
+            modalInstance.close(result);
+        },
+        dismiss : function (reason) {
+            modalInstance.dismiss(reason);
+        },
+        open : function() {
+            var modal = $injector.get('$uibModal'),
+            modalCache = modal.open({
+                template: $templateCache.get('showOffline'),
+                controller: "ShowOffline",
+                controllerAs: '$ctrl',
+                backdrop: 'static'
+            });
+
+            //Set open
+            open = true;
+
+            //Set modalInstance
+            modalInstance = modalCache;
+
+            //Modal is closed/resolved/dismissed
+            modalCache.result.finally(function () {
+                open = false;
+            });
+
+            return modal;
+        }
+    };
+};
 
 /*
     Some Function

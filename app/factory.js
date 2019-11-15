@@ -105,6 +105,8 @@ angular.module('app')
 .factory('UserInfoByCompyDistribution', UserInfoByCompyDistributionResolve)
 .factory('UserInfoByOCompyDistribution', UserInfoByOCompyDistributionResolve)
 .factory('UserInfo', UserInfoResolve)
+// 伺服器連線狀況
+.factory('ServiceStopModal', ServiceStopModalResolve)
 // 航班貨況
 .factory('OrderStatus', function ($window, toaster) {
 

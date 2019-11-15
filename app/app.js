@@ -67,7 +67,7 @@ angular.module('app', [
 
 
     // Intercept http calls.
-    $provide.factory('HttpInterceptor', function ($q, toaster) {
+    $provide.factory('HttpInterceptor', function ($q, toaster, ServiceStopModal) {
         var errorCounter = 0;
 
         function notifyError(rejection) {
@@ -80,7 +80,18 @@ angular.module('app', [
             //     number: ++errorCounter,
             //     timeout: 6000
             // });
-            toaster.error(rejection.status + ' ' + rejection.statusText, rejection.data, 6000);
+
+            // 表示Service未啟動
+            if(rejection.status == -1){
+
+                if(!ServiceStopModal.isOpen()){
+                    ServiceStopModal.open();
+                }
+
+                // canceller.resolve('Cancel Request'); 
+            }else{
+                toaster.error(rejection.status + ' ' + rejection.statusText, rejection.data, 6000);
+            }
         }
 
         return {

@@ -433,6 +433,32 @@ angular.module('app')
                             <button class="btn btn-primary" type="button" ng-click="$ctrl.ok()" ng-disabled="!modifyForm.$valid">{{getWord(\'OK\')}}</button> \
                             <button class="btn btn-default" type="button" ng-click="$ctrl.cancel()">{{getWord(\'Cancel\')}}</button> \
                         </div>');
+
+    /**
+     * [grid description] Show offline
+     * @type {String}
+     */
+    $templateCache.put('showOffline', '\
+                        <div class="modal-body text-center text-danger">\
+                            <strong>伺服器異常，{{$ctrl.progress}}秒後自動重新連線，尚還無法連線時，請聯絡系統管理員。</strong>\
+                        </div>\
+                        <style type="text/css">\
+                            .modal-content {\
+                                background-color: #ffffffde\
+                            }\
+                            .modal-backdrop {\
+                                position: fixed;\
+                                top: 0;\
+                                right: 0;\
+                                bottom: 0;\
+                                left: 0;\
+                                background-color: orange;\
+                                opacity: 0.6;\
+                                width: 100%;\
+                                height: 100%;\
+                                z-index: 1040;\
+                            }\
+                        </style>');
 })
 .controller('IsDeleteModalInstanceCtrl', function ($uibModalInstance, items) {
     var $ctrl = this;
@@ -552,4 +578,37 @@ angular.module('app')
     $ctrl.cancel = function() {
         $uibModalInstance.dismiss('cancel');
     };
-});
+})
+.controller("ShowOffline", ["$scope", "$uibModalInstance", "$interval", "$timeout", "Resource", "toaster",
+    function($scope, $uibModalInstance, $interval, $timeout, Resource, toaster) {
+        var $ctrl = this;
+        $ctrl.progress = 5;
+
+        $interval(function() {
+            // 倒數 
+            if ($ctrl.progress > 0) $ctrl.progress -= 1 
+        }, 1000);
+
+        $scope.$watch(function() {
+            return $ctrl.progress
+        }, function() {
+            // 當秒數小於0時關閉
+            if ($ctrl.progress <= 0) {
+                Resource.VERSION.get({},
+                    function (pSResponse){
+                        $timeout(function() {
+                            toaster.pop('success', "成功", "重新連線成功", 3000);
+                            $uibModalInstance.dismiss('cancel');
+                        }, 1000)
+                    },
+                    function (pFResponse){
+                        $timeout(function() {
+                            $ctrl.progress = 5;
+                        }, 1000)
+                    });
+
+            }
+        })
+
+    }
+]);
