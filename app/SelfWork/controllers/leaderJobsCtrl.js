@@ -288,7 +288,7 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
         orderListOptions : {
             data:  '$vm.vmData',
             columnDefs: [
-                { name: 'OL_SUPPLEMENT_COUNT'    ,  displayName: '補件', width: 50, cellTemplate: $templateCache.get('accessibilityToSuppleMent') },
+                { name: 'OL_SUPPLEMENT_COUNT'    ,  displayName: '補件', width: 65, cellTemplate: $templateCache.get('accessibilityToSuppleMent') },
                 { name: 'OL_IMPORTDT' ,  displayName: '進口日期', cellFilter: 'dateFilter' },
                 { name: 'OL_REAL_IMPORTDT' ,  displayName: '報機日期', cellFilter: 'dateFilter', cellTooltip: function (row, col) 
                     {

@@ -95,7 +95,7 @@ angular.module('app')
             				<a href="javascript:void(0);" class="btn btn-primary btn-xs" ng-click="grid.appScope.$vm.gridMethod.closeData(row)" ng-disabled="row.entity.g"> 完成</a>\
                         </div>');
     $templateCache.put('accessibilityToOperaForJob001', '\
-                    <div class="ui-grid-cell-contents text-center">\
+                    <div class="ui-grid-cell-contents">\
                         <a href="javascript:void(0);" class="btn btn-success btn-xs" ng-click="grid.appScope.$vm.gridMethod.gridOperation(row, \'報機單\')"> 工作選項</a>\
                     </div>');
     $templateCache.put('accessibilityToOperaForJob002', '\
@@ -188,7 +188,7 @@ angular.module('app')
                             <a href="javascript:void(0);" class="btn btn-danger btn-xs" ng-click="grid.appScope.$vm.gridMethod.deleteData(row)"> {{$parent.$root.getWord(\'Delete\')}}</a>\
                         </div>');
     $templateCache.put('accessibilityToM', '\
-                        <div class="ui-grid-cell-contents text-center">\
+                        <div class="ui-grid-cell-contents">\
                             <a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethod.modifyData(row)"> {{$parent.$root.getWord(\'Modify\')}}</a>\
                         </div>');
     $templateCache.put('accessibilityToD', '\
@@ -244,7 +244,7 @@ angular.module('app')
                             <button type="button" class="btn btn-primary btn-xs" ng-click="grid.appScope.$vm.gridMethod.closeData(row)" ng-class="(row.entity.W2_STATUS == \'3\' || row.entity.W2_STATUS == \'4\' || row.entity.W3_STATUS == \'3\' || row.entity.W3_STATUS == \'4\') ? \'\' : \'disabled\'"> 結單</button>\
                         </div>');
     $templateCache.put('accessibilityToDMCForOLeader', '\
-                        <div class="ui-grid-cell-contents text-center">\
+                        <div class="ui-grid-cell-contents">\
                             <button type="button" class="btn btn-danger btn-xs" ng-click="grid.appScope.$vm.gridMethod.gridOperation(row)"> 刪除</button>\
                             <button type="button" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethod.modifyData(row)"> 修改</button>\
                             <button type="button" class="btn btn-primary btn-xs" ng-click="grid.appScope.$vm.gridMethod.closeData(row)" ng-class="grid.appScope.$vm.OrderListOptionClass(row.entity)"> 結單</button>\
@@ -391,33 +391,57 @@ angular.module('app')
                                         </div> \
                                     </div> \
                                     <div class="form-group"> \
-                                        <label class="col-md-3 control-label">航次</label> \
-                                        <div class="col-md-9"> \
-                                            <input class="form-control" ng-model="$ctrl.mdData.O_OL_VOYSEQ" placeholder="請輸入航次" type="text" maxlength="15"> \
-                                        </div> \
-                                    </div> \
-                                    <div class="form-group"> \
-                                        <label class="col-md-3 control-label">海關通關號碼</label> \
-                                        <div class="col-md-9"> \
-                                            <input class="form-control" ng-model="$ctrl.mdData.O_OL_PASSCODE" placeholder="請輸入海關通關號碼" type="text" maxlength="15"> \
-                                        </div> \
-                                    </div> \
-                                    <div class="form-group"> \
-                                        <label class="col-md-3 control-label">船機代碼</label> \
-                                        <div class="col-md-9"> \
-                                            <input class="form-control" ng-model="$ctrl.mdData.O_OL_BOATID" placeholder="請輸入船機代碼" type="text" maxlength="15"> \
-                                        </div> \
-                                    </div> \
-                                    <div class="form-group"> \
                                         <label class="col-md-3 control-label">主號</label> \
                                         <div class="col-md-9"> \
                                             <input class="form-control" name="O_OL_MASTER" placeholder="請輸入主號" model-view-value="true" ng-model="$ctrl.mdData.O_OL_MASTER" type="text"> \
                                         </div> \
                                     </div> \
                                     <div class="form-group"> \
+                                        <label class="col-md-3 control-label">通關號碼</label> \
+                                        <div class="col-md-9"> \
+                                            <input class="form-control" name="O_OL_PASSCODE" ng-model="$ctrl.mdData.O_OL_PASSCODE" placeholder="請輸入海關通關號碼" type="text" maxlength="15"> \
+                                        </div> \
+                                    </div> \
+                                    <div class="form-group"> \
+                                        <label class="col-md-3 control-label">航次</label> \
+                                        <div class="col-md-9"> \
+                                            <input class="form-control" name="O_OL_VOYSEQ" ng-model="$ctrl.mdData.O_OL_VOYSEQ" placeholder="請輸入航次" type="text" maxlength="15"> \
+                                        </div> \
+                                    </div> \
+                                    <div class="form-group"> \
+                                        <label class="col-md-3 control-label">呼號</label> \
+                                        <div class="col-md-9"> \
+                                            <input class="form-control" name="O_OL_MVNO" ng-model="$ctrl.mdData.O_OL_MVNO" placeholder="請輸入呼號" type="text" maxlength="15"> \
+                                        </div> \
+                                    </div> \
+                                    <div class="form-group"> \
+                                        <label class="col-md-3 control-label">船公司代碼</label> \
+                                        <div class="col-md-9"> \
+                                            <input class="form-control" name="O_OL_COMPID" ng-model="$ctrl.mdData.O_OL_COMPID" placeholder="請輸入船公司代碼" type="text" maxlength="15"> \
+                                        </div> \
+                                    </div> \
+                                    <div class="form-group"> \
+                                        <label class="col-md-3 control-label">卸存地點</label> \
+                                        <div class="col-md-9"> \
+                                            <input class="form-control" name="O_OL_ARRLOCATIONID" ng-model="$ctrl.mdData.O_OL_ARRLOCATIONID" placeholder="請輸入卸存地點" type="text" maxlength="15"> \
+                                        </div> \
+                                    </div> \
+                                    <div class="form-group"> \
                                         <label class="col-md-3 control-label">裝貨港</label> \
                                         <div class="col-md-9"> \
                                             <input class="form-control" name="O_OL_POST" placeholder="請輸入裝貨港" ng-model="$ctrl.mdData.O_OL_POST" type="text"> \
+                                        </div> \
+                                    </div> \
+                                    <div class="form-group"> \
+                                        <label class="col-md-3 control-label">暫存地點</label> \
+                                        <div class="col-md-9"> \
+                                            <input class="form-control" name="O_OL_PACKAGELOCATIONID" placeholder="請輸入暫存地點" ng-model="$ctrl.mdData.O_OL_PACKAGELOCATIONID" type="text"> \
+                                        </div> \
+                                    </div> \
+                                    <div class="form-group"> \
+                                        <label class="col-md-3 control-label">船機代碼</label> \
+                                        <div class="col-md-9"> \
+                                            <input class="form-control" ng-model="$ctrl.mdData.O_OL_BOATID" placeholder="請輸入船機代碼" type="text" maxlength="15"> \
                                         </div> \
                                     </div> \
                                     <div class="form-group"> \

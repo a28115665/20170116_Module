@@ -7,12 +7,17 @@ module.exports = function(pQueryname, pParams){
 									O_OL_CO_CODE, \
 									O_OL_MASTER, \
 									O_OL_IMPORTDT, \
-									O_OL_VOYSEQ, \
 									O_OL_PASSCODE, \
+									O_OL_VOYSEQ, \
+									O_OL_MVNO, \
+									O_OL_COMPID, \
+									O_OL_ARRLOCATIONID, \
+									O_OL_POST, \
+									O_OL_PACKAGELOCATIONID, \
 									O_OL_BOATID, \
+									O_OL_CR_USER, \
 									O_OL_CR_DATETIME, \
 									O_OL_REASON, \
-									O_OL_POST, \
 									O_OL_ILSTATUS, \
 									( \
 										( \
@@ -129,35 +134,44 @@ module.exports = function(pQueryname, pParams){
 				delete pParams["SMALLNO"];
 				
 			}
-			if(pParams["GETNAME"] !== undefined){
-				pParams["IL_GETNAME"] = '%'+pParams["GETNAME"]+'%';
-				_SQLCommand += " AND IL_GETNAME LIKE @IL_GETNAME";
-				delete pParams["GETNAME"];
+			if(pParams["GETENAME"] !== undefined){
+				pParams["O_IL_GETENAME"] = '%'+pParams["GETENAME"]+'%';
+				_SQLCommand += " AND O_IL_GETENAME LIKE @O_IL_GETENAME";
+				delete pParams["GETENAME"];
 				
 			}
 			if(pParams["GETADDRESS"] !== undefined){
-				pParams["IL_GETADDRESS"] = '%'+pParams["GETADDRESS"]+'%';
-				_SQLCommand += " AND IL_GETADDRESS LIKE @IL_GETADDRESS";
+				pParams["O_IL_GETADDRESS"] = '%'+pParams["GETADDRESS"]+'%';
+				_SQLCommand += " AND O_IL_GETADDRESS LIKE @O_IL_GETADDRESS";
 				delete pParams["GETADDRESS"];
 				
 			}
-			if(pParams["GETTEL"] !== undefined){
-				pParams["IL_GETTEL"] = pParams["GETTEL"];
-				_SQLCommand += " AND IL_GETTEL = @IL_GETTEL";
-				delete pParams["GETTEL"];
+			if(pParams["GETPHONE"] !== undefined){
+				pParams["O_IL_GETPHONE"] = '%'+pParams["GETPHONE"]+'%';
+				_SQLCommand += " AND O_IL_GETPHONE LIKE @O_IL_GETPHONE";
+				delete pParams["GETPHONE"];
+			}
+			if(pParams["NATURE"] !== undefined){
+				pParams["O_IL_NATURE"] = '%'+pParams["NATURE"]+'%';
+				_SQLCommand += " AND O_IL_NATURE LIKE @O_IL_NATURE";
+				delete pParams["NATURE"];
 			}
 
 			_SQLCommand += " GROUP BY O_OL_SEQ, \
 									O_OL_CO_CODE, \
-									O_OL_VOYSEQ, \
-									O_OL_PASSCODE, \
-									O_OL_BOATID, \
-									O_OL_POST, \
 									O_OL_MASTER, \
 									O_OL_IMPORTDT, \
-									O_OL_REASON, \
+									O_OL_PASSCODE, \
+									O_OL_VOYSEQ, \
+									O_OL_MVNO, \
+									O_OL_COMPID, \
+									O_OL_ARRLOCATIONID, \
+									O_OL_POST, \
+									O_OL_PACKAGELOCATIONID, \
+									O_OL_BOATID, \
 									O_OL_CR_USER, \
 									O_OL_CR_DATETIME, \
+									O_OL_REASON, \
 									O_OL_ILSTATUS, \
 									W2_OE.O_OE_PRINCIPAL, \
 									W2_OE.O_OE_EDATETIME, \

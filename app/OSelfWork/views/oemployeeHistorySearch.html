@@ -93,19 +93,25 @@
 									        <div class="col-md-4">
 									            <input class="form-control" ng-model="$vm.vmData.SMALLNO" placeholder="小號(模糊查詢)" type="text">
 									        </div>
-									        <label class="col-md-2 control-label">收件人/公司</label>
+									        <label class="col-md-2 control-label">收件人姓名</label>
 									        <div class="col-md-4">
-									            <input class="form-control" ng-model="$vm.vmData.GETNAME" placeholder="收件人/公司(模糊查詢)" type="text">
+									            <input class="form-control" ng-model="$vm.vmData.GETENAME" placeholder="收件人姓名(模糊查詢)" type="text">
 									        </div>
 									    </div>
 									    <div class="form-group">
-									        <label class="col-md-2 control-label">收件地址</label>
+									        <label class="col-md-2 control-label">收件人地址</label>
 									        <div class="col-md-4">
-									            <input class="form-control" ng-model="$vm.vmData.GETADDRESS" placeholder="收件地址(模糊查詢)" type="text">
+									            <input class="form-control" ng-model="$vm.vmData.GETADDRESS" placeholder="收件人地址(模糊查詢)" type="text">
 									        </div>
-									        <label class="col-md-2 control-label">收件電話</label>
+									        <label class="col-md-2 control-label">收件人電話</label>
 									        <div class="col-md-4">
-									            <input class="form-control" ng-model="$vm.vmData.GETTEL" placeholder="收件電話" type="text">
+									            <input class="form-control" ng-model="$vm.vmData.GETPHONE" placeholder="收件人電話" type="text">
+									        </div>
+									    </div>
+									    <div class="form-group">
+									        <label class="col-md-2 control-label">原品名</label>
+									        <div class="col-md-4">
+									            <input class="form-control" ng-model="$vm.vmData.NATURE" placeholder="原品名(模糊查詢)" type="text">
 									        </div>
 									    </div>
 								    </div>
@@ -164,7 +170,7 @@
 
 							<div class="table-responsive">
 
-								<div id="grid1" ui-grid="$vm.resultOptions" class="my-ui-grid" ui-grid-pagination ui-grid-resize-columns></div>
+								<div id="grid1" ui-grid="$vm.resultOptions" class="my-ui-grid" ui-grid-pagination ui-grid-resize-columns ui-grid-pinning></div>
 
 							</div>
 

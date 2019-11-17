@@ -73,14 +73,18 @@ angular.module('app.oselfwork').controller('OEmployeeJobsCtrl', function ($scope
                         updatename: 'Update',
                         table: 40,
                         params: {
-                            O_OL_IMPORTDT : selectedItem.O_OL_IMPORTDT,
-                            O_OL_CO_CODE  : selectedItem.O_OL_CO_CODE,
-                            O_OL_VOYSEQ   : selectedItem.O_OL_VOYSEQ,
-                            O_OL_PASSCODE : selectedItem.O_OL_PASSCODE,
-                            O_OL_BOATID   : selectedItem.O_OL_BOATID,
-                            O_OL_MASTER   : selectedItem.O_OL_MASTER,
-                            O_OL_POST     : selectedItem.O_OL_POST,
-                            O_OL_REASON   : selectedItem.O_OL_REASON
+                            O_OL_IMPORTDT          : selectedItem.O_OL_IMPORTDT,
+                            O_OL_CO_CODE           : selectedItem.O_OL_CO_CODE,
+                            O_OL_MASTER            : selectedItem.O_OL_MASTER,
+                            O_OL_PASSCODE          : selectedItem.O_OL_PASSCODE,
+                            O_OL_VOYSEQ            : selectedItem.O_OL_VOYSEQ,
+                            O_OL_MVNO              : selectedItem.O_OL_MVNO,
+                            O_OL_COMPID            : selectedItem.O_OL_COMPID,
+                            O_OL_ARRLOCATIONID     : selectedItem.O_OL_ARRLOCATIONID,
+                            O_OL_POST              : selectedItem.O_OL_POST,
+                            O_OL_PACKAGELOCATIONID : selectedItem.O_OL_PACKAGELOCATIONID,
+                            O_OL_BOATID            : selectedItem.O_OL_BOATID,
+                            O_OL_REASON            : selectedItem.O_OL_REASON
                         },
                         condition: {
                             O_OL_SEQ : selectedItem.O_OL_SEQ
@@ -298,23 +302,22 @@ angular.module('app.oselfwork').controller('OEmployeeJobsCtrl', function ($scope
         orderListOptions : {
             data:  '$vm.selfWorkData',
             columnDefs: [
-                { name: 'O_OL_SUPPLEMENT_COUNT' ,  displayName: '補件', width: 50, cellTemplate: $templateCache.get('accessibilityToSuppleMent') },
-                { name: 'O_OL_IMPORTDT'         ,  displayName: '報機日期', width: 80, cellFilter: 'dateFilter' },
-                { name: 'O_CO_NAME'             ,  displayName: '行家', width: 80 },
-                { name: 'O_CO_NAME'             ,  displayName: '行家' },
-                { name: 'O_OL_VOYSEQ'           ,  displayName: '航次' },
-                { name: 'O_OL_PASSCODE'         ,  displayName: '海關通關號碼' },
-                { name: 'O_OL_BOATID'           ,  displayName: '船機代碼' },
-                { name: 'O_OL_MASTER'           ,  displayName: '主號', width: 110 },
-                { name: 'O_OL_COUNT'            ,  displayName: '報機單(件數)', width: 80, enableCellEdit: false },
-                { name: 'O_OL_PULL_COUNT'       ,  displayName: '拉貨(件數)', width: 80, enableCellEdit: false },
-                { name: 'O_OL_POST'             ,  displayName: '裝貨港' },
-                { name: 'O_OL_REASON'           ,  displayName: '描述', width: 100, cellTooltip: function (row, col) 
-                    {
-                        return row.entity.O_OL_REASON
-                    } 
-                },
-                { name: 'OW2_STATUS'            ,  displayName: '報機單狀態', cellTemplate: $templateCache.get('accessibilityToForOW2'), filter: 
+                { name: 'O_OL_SUPPLEMENT_COUNT'    ,  displayName: '補件', width: 65, pinnedLeft:true, cellTemplate: $templateCache.get('accessibilityToSuppleMent') },
+                { name: 'O_OL_IMPORTDT' ,  displayName: '報機日期', width: 91, pinnedLeft:true, cellFilter: 'dateFilter', cellTooltip: cellTooltip },
+                { name: 'O_CO_NAME'     ,  displayName: '行家', width: 66, pinnedLeft:true, cellTooltip: cellTooltip },
+                { name: 'O_OL_MASTER'   ,  displayName: '主號', width: 133, pinnedLeft:true, cellTooltip: cellTooltip },
+                { name: 'O_OL_PASSCODE'          ,  displayName: '通關號碼', width: 91, cellTooltip: cellTooltip },
+                { name: 'O_OL_VOYSEQ'            ,  displayName: '航次', width: 66, cellTooltip: cellTooltip },
+                { name: 'O_OL_MVNO'              ,  displayName: '呼號', width: 66, cellTooltip: cellTooltip },
+                { name: 'O_OL_COMPID'            ,  displayName: '船公司代碼', width: 103, cellTooltip: cellTooltip },
+                { name: 'O_OL_ARRLOCATIONID'     ,  displayName: '卸存地點', width: 91, cellTooltip: cellTooltip },
+                { name: 'O_OL_POST'              ,  displayName: '裝貨港', width: 78, cellTooltip: cellTooltip },
+                { name: 'O_OL_PACKAGELOCATIONID' ,  displayName: '暫存地點', width: 91, cellTooltip: cellTooltip },
+                { name: 'O_OL_BOATID'            ,  displayName: '船機代碼', width: 91, cellTooltip: cellTooltip },
+                { name: 'O_OL_COUNT'    ,  displayName: '報機單(件數)', width: 80, enableCellEdit: false },
+                { name: 'O_OL_PULL_COUNT' ,  displayName: '拉貨(件數)', width: 80, enableCellEdit: false },
+                { name: 'O_OL_REASON'   ,  displayName: '描述', width: 100, cellTooltip: cellTooltip },
+                { name: 'OW2_STATUS'            ,  displayName: '報機單狀態', width: 103, pinnedRight:true, cellTemplate: $templateCache.get('accessibilityToForOW2'), filter: 
                     {
                         term: null,
                         type: uiGridConstants.filter.SELECT,
@@ -327,17 +330,17 @@ angular.module('app.oselfwork').controller('OEmployeeJobsCtrl', function ($scope
                         ]
                     }
                 },
-                { name: 'OW2_PRINCIPAL'           ,  displayName: '編輯者', width: 80, cellFilter: 'userInfoFilter', filter: 
+                { name: 'OW2_PRINCIPAL'           ,  displayName: '編輯者', width: 80, pinnedRight:true, cellTooltip: cellTooltip, cellFilter: 'userInfoFilter', filter: 
                     {
                         term: null,
                         type: uiGridConstants.filter.SELECT,
                         selectOptions: userInfo
                     }
                 },
-                { name: 'EXPORT'                 ,  displayName: '匯出', width: 85, enableCellEdit: false, enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToExportExcelStaus') },
-                { name: 'ITEM_LIST'              ,  displayName: '報機單', enableFiltering: false, width: 86, cellTemplate: $templateCache.get('accessibilityToOperaForJob001') },
+                { name: 'EXPORT'                 ,  displayName: '匯出', width: 85, pinnedRight:true, enableCellEdit: false, enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToExportExcelStaus') },
+                { name: 'ITEM_LIST'              ,  displayName: '報機單', enableFiltering: false, width: 86, pinnedRight:true, cellTemplate: $templateCache.get('accessibilityToOperaForJob001') },
                 // { name: 'DELIVERY_ITEM_LIST'  ,  displayName: '派送單', enableFiltering: false, width: '8%', cellTemplate: $templateCache.get('accessibilityToOperaForJob003') },
-                { name: 'Options'                ,  displayName: '操作', width: 54, enableCellEdit: false, enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToM') }
+                { name: 'Options'                ,  displayName: '操作', width: 67, pinnedRight:true, enableCellEdit: false, enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToM') }
             ],
             enableFiltering: true,
             enableSorting: true,

@@ -462,3 +462,12 @@ function padRight(str,lenght){
     else
         return padRight(str+"0",lenght);
 }
+/**
+ * [cellTooltip description] Tip Grid中每個Cell的值
+ * @param  {[type]} row [description]
+ * @param  {[type]} col [description]
+ * @return {[type]}     [description]
+ */
+function cellTooltip(row, col) {
+    return row.entity[col.colDef.name]
+};

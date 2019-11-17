@@ -7,13 +7,17 @@ module.exports = function(pQueryname, pParams){
 									O_OL_CO_CODE, \
 									O_OL_MASTER, \
 									O_OL_IMPORTDT, \
-									O_OL_VOYSEQ, \
 									O_OL_PASSCODE, \
+									O_OL_VOYSEQ, \
+									O_OL_MVNO, \
+									O_OL_COMPID, \
+									O_OL_ARRLOCATIONID, \
+									O_OL_POST, \
+									O_OL_PACKAGELOCATIONID, \
 									O_OL_BOATID, \
-									O_OL_CR_USER,\
+									O_OL_CR_USER, \
 									O_OL_CR_DATETIME, \
 									O_OL_REASON, \
-									O_OL_POST, \
 									O_OL_ILSTATUS, \
 									( \
 										(\
