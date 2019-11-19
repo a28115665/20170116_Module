@@ -94,6 +94,7 @@ angular.module('app')
         SENDMAIL : $resource('/toolbox/sendMail'),
         CHANGENATURE : $resource('/toolbox/changeNature'),
         DOTAX : $resource('/toolbox/doTax'),
+        CHANGEONATURE : $resource('/toolbox/changeONature'),
         COMPOSEMENU : $resource('/toolbox/composeMenu')
     };
 })

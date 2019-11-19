@@ -37,48 +37,42 @@ angular.module('app.oselfwork').controller('OJob001Ctrl', function ($scope, $sta
             // 改單
             changeNature : function(row){
                 console.log(row);
-                
-                toaster.pop('warn', '警告', '功能尚未開發', 3000);
 
-                // row.entity.loading = true;
-                // ToolboxApi.ChangeNature({
-                //     ID : $vm.profile.U_ID,
-                //     PW : $vm.profile.U_PW,
-                //     NATURE : row.entity.IL_NATURE,
-                //     NATURE_NEW : row.entity.IL_NATURE_NEW
-                // }).then(function (res) {
-                //     var _returnData = JSON.parse(res["returnData"]),
-                //         needToUpdate = false;
-                //     // console.log(_returnData);
+                row.entity.loading = true;
+                ToolboxApi.ChangeONature({
+                    ID : $vm.profile.U_ID,
+                    PW : $vm.profile.U_PW,
+                    NATURE : row.entity.O_IL_NATURE,
+                    NATURE_NEW : row.entity.O_IL_NATURE_NEW
+                }).then(function (res) {
+                    var _returnData = JSON.parse(res["returnData"]),
+                        needToUpdate = false;
+                    // console.log(_returnData);
 
-                //     if(!angular.isUndefined(_returnData["IL_NATURE_NEW"])){
-                //         row.entity.IL_NATURE_NEW = _returnData["IL_NATURE_NEW"];
-                //         needToUpdate = true;
-                //     }
-                //     if(!angular.isUndefined(_returnData["IL_NEWUNIT"]) && _returnData["IL_NEWUNIT"] != ""){
-                //         row.entity.IL_NEWUNIT = _returnData["IL_NEWUNIT"];
-                //         needToUpdate = true;
-                //     }
-                //     if(!angular.isUndefined(_returnData["IL_NEWPLACE"]) && _returnData["IL_NEWPLACE"] != ""){
-                //         row.entity.IL_NEWPLACE = _returnData["IL_NEWPLACE"];
-                //         needToUpdate = true;
-                //     }
-                //     if(!angular.isUndefined(_returnData["IL_TAX2"]) && _returnData["IL_TAX2"] != ""){
-                //         row.entity.IL_TAX2 = _returnData["IL_TAX2"];
-                //         needToUpdate = true;
-                //     }
-                //     if(!angular.isUndefined(_returnData["IL_TAXRATE"]) && _returnData["IL_TAXRATE"] != ""){
-                //         row.entity.IL_TAXRATE = _returnData["IL_TAXRATE"];
-                //         needToUpdate = true;
-                //     }
+                    if(!angular.isUndefined(_returnData["O_IL_NATURE_NEW"])){
+                        row.entity.O_IL_NATURE_NEW = _returnData["O_IL_NATURE_NEW"];
+                        needToUpdate = true;
+                    }
+                    if(!angular.isUndefined(_returnData["O_IL_NEWPCS"]) && _returnData["O_IL_NEWPCS"] != ""){
+                        row.entity.O_IL_NEWPCS = _returnData["O_IL_NEWPCS"];
+                        needToUpdate = true;
+                    }
+                    if(!angular.isUndefined(_returnData["O_IL_TAX2"]) && _returnData["O_IL_TAX2"] != ""){
+                        row.entity.O_IL_TAX2 = _returnData["O_IL_TAX2"];
+                        needToUpdate = true;
+                    }
+                    if(!angular.isUndefined(_returnData["O_IL_TAXRATE2"]) && _returnData["O_IL_TAXRATE2"] != ""){
+                        row.entity.O_IL_TAXRATE2 = _returnData["O_IL_TAXRATE2"];
+                        needToUpdate = true;
+                    }
 
-                //     if(needToUpdate){
-                //         $vm.job001GridApi.rowEdit.setRowsDirty([row.entity]);
-                //     }
+                    if(needToUpdate){
+                        $vm.job001GridApi.rowEdit.setRowsDirty([row.entity]);
+                    }
 
-                // }).finally(function() {
-                //     row.entity.loading = false;
-                // });
+                }).finally(function() {
+                    row.entity.loading = false;
+                });
             },
             // 刪除
             deleteData : function(){
@@ -306,7 +300,7 @@ angular.module('app.oselfwork').controller('OJob001Ctrl', function ($scope, $sta
                         return row.entity.O_IL_NATURE_NEW
                     } 
                 },
-                { name: 'ChangeNature'          , displayName: '改單', width: 50, enableCellEdit: false, enableSorting:false, cellTemplate: $templateCache.get('accessibilityToChangeNature'), cellClass: 'cell-class-no-style' },
+                { name: 'ChangeNature'          , displayName: '改單', width: 66, enableCellEdit: false, enableSorting:false, cellTemplate: $templateCache.get('accessibilityToChangeNature'), cellClass: 'cell-class-no-style' },
                 { name: 'O_IL_TAX'              , displayName: '稅則', width: 110, enableCellEdit: false },
                 { name: 'O_IL_TAX2'             , displayName: '新稅則', width: 110, headerCellClass: 'text-primary' },
                 { name: 'O_IL_TAXRATE'          , displayName: '稅率', width: 110, enableCellEdit: false },

@@ -30,6 +30,11 @@
 			"host" : "10.1.31.61",
 			"port" : "80",
 			"url" : "/EWSWS/WebServiceChangeNature.asmx/GetNatureTax"
+		},
+		"changeONature" : {
+			"host" : "61.216.149.43",
+			"port" : "80",
+			"url" : "/EOSWS/WebServiceChangeNature.asmx/GetNewNature"
 		}
 	},
 	"MOTC" : {

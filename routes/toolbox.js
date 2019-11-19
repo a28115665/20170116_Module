@@ -71,7 +71,7 @@ router.get('/exportExcelByVar', function(req, res) {
         if (err) {
             console.log(err);
             // Do something with your error...
-            res.status(500).send("匯出失敗");
+            res.status(403).send("匯出失敗");
         } else {
 
             res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
@@ -148,7 +148,7 @@ router.get('/exportExcelBySql', function(req, res) {
     //                     if (err) {
     //                         // Do something with your error...
     //                         logger.error('匯出失敗', req.ip, __line+'行', err);
-    //                         res.status(500).send("匯出失敗");
+    //                         res.status(403).send("匯出失敗");
     //                     } else {
 
     //                         try {
@@ -165,14 +165,14 @@ router.get('/exportExcelBySql', function(req, res) {
     //                             res.end(buffer);
     //                         } catch(err){
     //                             logger.error('匯出失敗', req.ip, __line+'行', err);
-    //                             res.status(500).send("匯出失敗");
+    //                             res.status(403).send("匯出失敗");
     //                         }
     //                     }
     //                 });
     //             } 
     //             catch(err) {
     //                 logger.error('匯出失敗', req.ip, __line+'行', err);
-    //                 res.status(500).send("匯出失敗");
+    //                 res.status(403).send("匯出失敗");
     //             }  
 
     //         });
@@ -183,7 +183,7 @@ router.get('/exportExcelBySql', function(req, res) {
 
     // post_req.on('error', function(err) {
     //     // Handle error
-    //     res.status(500).send('匯出失敗');
+    //     res.status(403).send('匯出失敗');
     // });
 
     // post_req.end(); 
@@ -230,7 +230,7 @@ router.get('/exportExcelBySql', function(req, res) {
                     if (err) {
                         // Do something with your error...
                         logger.error('匯出失敗', req.ip, __line+'行', err);
-                        res.status(500).send("匯出失敗");
+                        res.status(403).send("匯出失敗");
                     } else {
 
                         try {
@@ -247,14 +247,14 @@ router.get('/exportExcelBySql', function(req, res) {
                             res.end(buffer);
                         } catch(err){
                             logger.error('匯出失敗', req.ip, __line+'行', err);
-                            res.status(500).send("匯出失敗");
+                            res.status(403).send("匯出失敗");
                         }
                     }
                 });
             } 
             catch(err) {
                 logger.error('匯出失敗', req.ip, __line+'行', err);
-                res.status(500).send("匯出失敗");
+                res.status(403).send("匯出失敗");
             }  
         }
     })
@@ -322,7 +322,7 @@ router.get('/exportExcelByMultiSql', function(req, res) {
                         if (err) {
                             // Do something with your error...
                             logger.error('匯出失敗', req.ip, __line+'行', err);
-                            res.status(500).send("匯出失敗");
+                            res.status(403).send("匯出失敗");
                         } else {
 
                             try {
@@ -339,14 +339,14 @@ router.get('/exportExcelByMultiSql', function(req, res) {
                                 res.end(buffer);
                             } catch(err){
                                 logger.error('匯出失敗', req.ip, __line+'行', err);
-                                res.status(500).send("匯出失敗");
+                                res.status(403).send("匯出失敗");
                             }
                         }
                     });
                 } 
                 catch(err) {
                     logger.error('匯出失敗', req.ip, __line+'行', err);
-                    res.status(500).send("匯出失敗");
+                    res.status(403).send("匯出失敗");
                 }  
 
             });
@@ -357,7 +357,7 @@ router.get('/exportExcelByMultiSql', function(req, res) {
 
     post_req.on('error', function(err) {
         // Handle error
-        res.status(500).send('匯出失敗');
+        res.status(403).send('匯出失敗');
     });
 
     post_req.end(); 
@@ -404,7 +404,7 @@ router.post('/uploadFile', function(req, res) {
         });
     } catch(err) {
         logger.error(err);
-        res.status(500).send('上傳失敗');
+        res.status(403).send('上傳失敗');
     }
 
 });
@@ -443,7 +443,7 @@ router.get('/downloadFiles', function(req, res) {
         archive.pipe(res);
     } catch(err) {
         logger.error(err);
-        res.status(500).send('下載失敗');
+        res.status(403).send('下載失敗');
     }
 
 });
@@ -557,7 +557,7 @@ router.get('/sendMail', function(req, res) {
     //                 transporter.sendMail(options, function(error, info){
     //                     if(error){
     //                         logger.error('寄信失敗', req.ip, __line+'行', error);
-    //                         res.status(500).send('寄信失敗');
+    //                         res.status(403).send('寄信失敗');
     //                     }else{
 
     //                         res.json({
@@ -567,7 +567,7 @@ router.get('/sendMail', function(req, res) {
     //                     }
     //                 });
     //             }else{
-    //                 res.status(500).send('查無寄件人帳號密碼');
+    //                 res.status(403).send('查無寄件人帳號密碼');
     //             }
 
     //         });
@@ -578,7 +578,7 @@ router.get('/sendMail', function(req, res) {
 
     // post_req.on('error', function(err) {
     //     // Handle error
-    //     res.status(500).send('取得帳號密碼');
+    //     res.status(403).send('取得帳號密碼');
     // });
 
     // post_req.end(); 
@@ -676,7 +676,7 @@ router.get('/sendMail', function(req, res) {
                     transporter.sendMail(options, function(error, info){
                         if(error){
                             logger.error('寄信失敗', req.ip, __line+'行', error);
-                            res.status(500).send('寄信失敗');
+                            res.status(403).send('寄信失敗');
                         }else{
 
                             res.json({
@@ -686,12 +686,12 @@ router.get('/sendMail', function(req, res) {
                         }
                     });
                 }else{
-                    res.status(500).send('查無寄件人帳號密碼');
+                    res.status(403).send('查無寄件人帳號密碼');
                 }
             } 
             catch(err) {
                 logger.error('寄信失敗', req.ip, __line+'行', err);
-                res.status(500).send("寄信失敗");
+                res.status(403).send("寄信失敗");
             }  
         }
     })
@@ -762,14 +762,14 @@ router.get('/changeNature', function(req, res) {
         post_req.on('error', function(err) {
             console.error(err);
             // Handle error
-            res.status(500).send('改單失敗');
+            res.status(403).send('改單失敗');
         });
 
         post_req.end(); 
 
     } catch(err) {
         console.error(err);
-        res.status(500).send('改單失敗');
+        res.status(403).send('改單失敗');
     }
 
 });
@@ -846,14 +846,91 @@ router.get('/doTax', function(req, res) {
         post_req.on('error', function(err) {
             console.error(err);
             // Handle error
-            res.status(500).send('稅則失敗');
+            res.status(403).send('稅則失敗');
         });
 
         post_req.end(); 
 
     } catch(err) {
         console.error(err);
-        res.status(500).send('稅則失敗');
+        res.status(403).send('稅則失敗');
+    }
+
+});
+
+/**
+ * ChangeONature 改單(海運)
+ */
+router.get('/changeONature', function(req, res) {
+
+    try{        
+        // console.log(res.statusCode, req.query);
+
+        // Build the post string from an object
+        var post_data = querystring.stringify({
+            'strJson' : JSON.stringify([
+                {
+                    "UserId": req.query.ID,
+                    "UserPW": req.query.PW,
+                    "O_Nature": req.query.NATURE,
+                    "O_Nature_NEW": req.query.NATURE_NEW == undefined ? "" : req.query.NATURE_NEW
+                }
+            ])
+        });
+
+        // An object of options to indicate where to post to
+        var post_options = {
+            host: setting.WebService.changeONature.host,
+            port: setting.WebService.changeONature.port,
+            path: setting.WebService.changeONature.url,
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'Content-Length': Buffer.byteLength(post_data)
+            }
+        };
+
+        // Set up the request
+        var post_req = http.request(post_options, function (post_res) {
+
+            // console.log("statusCode: ", post_res.statusCode);
+            //console.log("headers: ", post_res.headers);
+            if(post_res.statusCode == 200){
+                var content = '';
+
+                post_res.setEncoding('utf8');
+
+                post_res.on('data', function(chunk) {
+                    content += chunk;
+                });
+
+                post_res.on('end', function() {
+                    // console.log(content);
+
+                    res.json({
+                        "returnData": content
+                    });
+                });
+            }else{
+                res.status(post_res.statusCode).send('改單失敗');
+            }
+        });
+
+        // console.log(post_data);
+        // post the data
+        post_req.write(post_data);
+
+        post_req.on('error', function(err) {
+            console.error(err);
+            // Handle error
+            res.status(403).send('改單失敗');
+        });
+
+        post_req.end(); 
+
+    } catch(err) {
+        console.error(err);
+        res.status(403).send('改單失敗');
     }
 
 });
@@ -1278,7 +1355,7 @@ router.get('/composeMenu', function(req, res) {
 
     } catch(err){
         logger.error(err);
-        res.status(500).send('Compose Menu error');
+        res.status(403).send('Compose Menu error');
     }
 
 });
