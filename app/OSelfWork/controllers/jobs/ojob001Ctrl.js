@@ -29,6 +29,9 @@ angular.module('app.oselfwork').controller('OJob001Ctrl', function ($scope, $sta
                 LoadItemList();
             }
         },
+        loading : {
+            calculateCrossWieghtBalance : false
+        },
         profile : Session.Get(),
         gridMethod : {
             // 改單
@@ -132,7 +135,7 @@ angular.module('app.oselfwork').controller('OJob001Ctrl', function ($scope, $sta
                                 toaster.pop('success', '訊息', '刪除資料成功', 3000);
                             }
                         }, function (err) {
-                            toaster.pop('danger', '錯誤', '刪除資料失敗', 3000);
+                            toaster.pop('error', '錯誤', '刪除資料失敗', 3000);
                         }).finally(function(){
                             $vm.job001GridApi.selection.clearSelectedRows();
                             // ClearSelectedColumn();
@@ -402,6 +405,109 @@ angular.module('app.oselfwork').controller('OJob001Ctrl', function ($scope, $sta
                 });
             }
         },
+        // 計算
+        CalculateCrossWieghtBalance: function(){
+
+            var _totalCrossWeight = 0,
+                _totalNewCrossWeight = 0;
+            for(var i in $vm.job001Data){
+                if($vm.job001Data[i]["O_IL_CROSSWEIGHT"]){
+                    _totalCrossWeight += $vm.job001Data[i]["O_IL_CROSSWEIGHT"];
+                }
+                if($vm.job001Data[i]["O_IL_NEWCROSSWEIGHT"]){
+                    _totalNewCrossWeight += $vm.job001Data[i]["O_IL_NEWCROSSWEIGHT"];
+                }
+            }
+
+            $vm.vmData["totalCrossWeight"] = _totalCrossWeight.toFixed(2);
+            $vm.vmData["totalNewCrossWeight"] = _totalNewCrossWeight.toFixed(2);
+
+            var modalInstance = $uibModal.open({
+                animation: true,
+                ariaLabelledBy: 'modal-title',
+                ariaDescribedBy: 'modal-body',
+                templateUrl: 'calculateCrossWieghtBalanceModalContent.html',
+                controller: 'CalculateCrossWieghtBalanceModalInstanceCtrl',
+                controllerAs: '$ctrl',
+                // size: 'lg',
+                resolve: {
+                    vmData: function() {
+                        return $vm.vmData;
+                    }
+                }
+            });
+
+            modalInstance.result.then(function(selectedItem) {
+
+                console.log(selectedItem);
+
+                // 如果輸入的值小於等於0
+                if(selectedItem.O_OL_FLIGHT_TOTALWEIGHT <= 0){
+                    toaster.pop('warning', '警告', '請輸入大於等於0的數值。', 3000);
+                    return;
+                }
+
+                var _maxRatio = 1.5,
+                    _minRatio = 0.5,
+                    _ratio = (selectedItem.O_OL_FLIGHT_TOTALWEIGHT / selectedItem.totalCrossWeight).toFixed(2);
+                if(_ratio < _minRatio || _maxRatio < _ratio){
+                    toaster.pop('warning', '警告', '請勿輸入對於報機單總重量(毛重)差距過小或過大的數值。', 3000);
+                    return;
+                }
+
+                $vm.loading.calculateCrossWieghtBalance = true;
+                
+                var _task = [];
+
+                _task.push({
+                    crudType: 'Update',
+                    table: 40,
+                    params: {
+                        O_OL_FLIGHT_TOTALWEIGHT : selectedItem.O_OL_FLIGHT_TOTALWEIGHT,
+                        O_OL_UP_USER            : $vm.profile.U_ID,
+                        O_OL_UP_DATETIME        : $filter('date')(new Date, 'yyyy-MM-dd HH:mm:ss')
+                    },
+                    condition: {
+                        O_OL_SEQ : $vm.vmData.O_OL_SEQ
+                    }
+                });
+
+                _task.push({
+                    crudType: 'Select',
+                    querymain: 'ojob001',
+                    queryname: 'CalculateCrossWieghtBalance',
+                    params: {
+                        O_IL_SEQ: $vm.vmData.O_OL_SEQ
+                    }
+                });
+
+                RestfulApi.CRUDMSSQLDataByTask(_task).then(function (res){
+
+                    var _data = res["returnData"] || [];
+
+                    if(_data.length > 0){
+
+                        if(_data[1][0].ReturnValue == 1){
+                            toaster.pop('success', '訊息', '平衡毛重完成。', 3000);
+                            $vm.vmData.O_OL_FLIGHT_TOTALWEIGHT = selectedItem.O_OL_FLIGHT_TOTALWEIGHT;
+                        }else if(_data[1][0].ReturnValue == 0){
+                            toaster.pop('info', '訊息', '毛重已平衡。', 3000);
+                        }else{
+                            toaster.pop('error', '失敗', '平衡毛重有誤，請聯絡系統管理員。', 3000);
+                        }
+
+                        LoadItemList();
+                    }
+
+                }).finally(function() {
+                    $vm.loading.calculateCrossWieghtBalance = false;
+                });
+
+            }, function() {
+                // $log.info('Modal dismissed at: ' + new Date());
+            });
+
+        },
         // 特貨註記
         MultiSpecialGoods: function(){
             if($vm.job001GridApi.selection.getSelectedRows().length == 0) {
@@ -556,11 +662,11 @@ angular.module('app.oselfwork').controller('OJob001Ctrl', function ($scope, $sta
 
         },
         ExportExcel: function(){
+            
+            console.log($vm.vmData);
 
             toaster.pop('warning', '警告', '功能尚未完成', 3000);
             return;
-
-            console.log($vm.vmData);
 
             var modalInstance = $uibModal.open({
                 animation: true,
@@ -751,7 +857,7 @@ angular.module('app.oselfwork').controller('OJob001Ctrl', function ($scope, $sta
                 // console.log(res);
                 deferred.resolve();
             }, function (err) {
-                toaster.pop('danger', '錯誤', '更新失敗', 3000);
+                toaster.pop('error', '錯誤', '更新失敗', 3000);
                 deferred.reject();
             });
             
@@ -957,6 +1063,18 @@ angular.module('app.oselfwork').controller('OJob001Ctrl', function ($scope, $sta
     $ctrl.Init = function(){
         $ctrl.specialGoodsData = specialGoods;
     }
+
+    $ctrl.ok = function() {
+        $uibModalInstance.close($ctrl.mdData);
+    };
+
+    $ctrl.cancel = function() {
+        $uibModalInstance.dismiss('cancel');
+    };
+})
+.controller('CalculateCrossWieghtBalanceModalInstanceCtrl', function ($uibModalInstance, vmData) {
+    var $ctrl = this;
+    $ctrl.mdData = angular.copy(vmData);
 
     $ctrl.ok = function() {
         $uibModalInstance.close($ctrl.mdData);

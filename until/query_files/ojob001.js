@@ -190,6 +190,14 @@ module.exports = function(pQueryname, pParams){
 			_SQLCommand += " ORDER BY IL_BAGNO ";
 		
 			break;
+
+		case "CalculateCrossWieghtBalance":
+			_SQLCommand += "DECLARE	@return_value decimal \
+							EXEC	@return_value = [dbo].[CrossWeightBalance] \
+									@Seq = @O_IL_SEQ \
+							SELECT	'ReturnValue' = @return_value ";
+		
+			break;
 	}
 
 	return _SQLCommand;
