@@ -284,7 +284,7 @@ angular.module('app.oselfwork').controller('OJob001Ctrl', function ($scope, $sta
                 { name: 'Index'                 , displayName: '序列', width: 50, pinnedLeft:true, enableFiltering: false, enableCellEdit: false },
                 { name: 'O_IL_REMARK'           , displayName: '備註', width: 100, headerCellClass: 'text-primary' },
                 { name: 'O_IL_G1'               , displayName: '報關種類', width: 80, headerCellClass: 'text-primary' },
-                { name: 'O_IL_MERGENO'          , displayName: '併票號', width: 80, headerCellClass: 'text-primary' },
+                // { name: 'O_IL_MERGENO'          , displayName: '併票號', width: 80, headerCellClass: 'text-primary' },
                 { name: 'O_IL_SMALLNO'          , displayName: '小號', width: 110, enableCellEdit: false },
                 { name: 'O_IL_POSTNO'           , displayName: '艙單號碼', width: 110, enableCellEdit: false },
                 { name: 'O_IL_CUSTID'           , displayName: '快遞業者統一編號', width: 110, enableCellEdit: false },
@@ -665,9 +665,6 @@ angular.module('app.oselfwork').controller('OJob001Ctrl', function ($scope, $sta
             
             console.log($vm.vmData);
 
-            toaster.pop('warning', '警告', '功能尚未完成', 3000);
-            return;
-
             var modalInstance = $uibModal.open({
                 animation: true,
                 ariaLabelledBy: 'modal-title',
@@ -687,39 +684,44 @@ angular.module('app.oselfwork').controller('OJob001Ctrl', function ($scope, $sta
 
                 var _templates = angular.copy(selectedItem),
                     _exportName = $filter('date')($vm.vmData.O_OL_IMPORTDT, 'yyyyMMdd', 'GMT') + ' ' + 
-                                  $filter('compyFilter')($vm.vmData.OL_CO_CODE) + ' ' + 
+                                  $filter('ocompyFilter')($vm.vmData.O_OL_CO_CODE) + ' ' + 
                                   $vm.vmData.O_OL_COUNT + '件 ' +
                                   $vm.vmData.O_OL_PULL_COUNT + '件',
                     _queryname = null,
                     _params = {
                         O_OL_MASTER : $vm.vmData.O_OL_MASTER,
-                        O_OL_IMPORTDT : $filter('date')($vm.vmData.O_OL_IMPORTDT, 'yyyy-MM-dd', 'GMT'),
-                        OL_FLIGHTNO : $vm.vmData.OL_FLIGHTNO,
-                        OL_COUNTRY : $vm.vmData.OL_COUNTRY,                
+                        O_OL_PASSCODE : $vm.vmData.O_OL_PASSCODE,
+                        O_OL_VOYSEQ : $vm.vmData.O_OL_VOYSEQ,
+                        O_OL_MVNO : $vm.vmData.O_OL_MVNO,
+                        O_OL_COMPID : $vm.vmData.O_OL_COMPID,
+                        O_OL_ARRLOCATIONID : $vm.vmData.O_OL_ARRLOCATIONID,
+                        O_OL_POST : $vm.vmData.O_OL_POST,
+                        O_OL_PACKAGELOCATIONID : $vm.vmData.O_OL_PACKAGELOCATIONID,
+                        O_OL_BOATID : $vm.vmData.O_OL_BOATID,
                         O_IL_SEQ : $vm.vmData.O_OL_SEQ
                     };
 
                 switch(selectedItem){
                     // 關貿格式(G1)
                     case "0G1":
-                        _templates = "0";
-                        _queryname = "SelectItemListForEx0";
-                        _params["IL_G1"] = "'G1'";
+                        _templates = "18";
+                        _queryname = "SelectOItemListForEx0";
+                        _params["O_IL_G1"] = "'G1'";
                         break;
                     // 關貿格式(X2)
                     case "0X2":
-                        _templates = "13";
-                        _queryname = "SelectItemListForEx12";
-                        _params["IL_G1"] = "'','X2','Y'";
-                        // 不包含併X3(也就是mergeno是null)
-                        _params["IL_MERGENO"] = null;
-                        _params["OL_CO_NAME"] = $filter('compyFilter')($vm.vmData.OL_CO_CODE);
+                        _templates = "18";
+                        _queryname = "SelectOItemListForEx12";
+                        _params["O_IL_G1"] = "'','X2','Y'";
+                        // // 不包含併X3(也就是mergeno是null)
+                        // _params["IL_MERGENO"] = null;
+                        // _params["OL_CO_NAME"] = $filter('ocompyFilter')($vm.vmData.OL_CO_CODE);
                         break;
                     // 關貿格式(X3)
                     case "0X3":
-                        _templates = "0";
-                        _queryname = "SelectItemListForEx0";
-                        _params["IL_G1"] = "'X3'";
+                        _templates = "18";
+                        _queryname = "SelectOItemListForEx0";
+                        _params["O_IL_G1"] = "'X3'";
                         break;
                 }
 
@@ -740,7 +742,7 @@ angular.module('app.oselfwork').controller('OJob001Ctrl', function ($scope, $sta
                     ToolboxApi.ExportExcelBySql({
                         templates : _templates,
                         filename : _exportName,
-                        querymain: 'job001',
+                        querymain: 'ojob001',
                         queryname: _queryname,
                         params: _params
                     }).then(function (res) {
@@ -750,12 +752,12 @@ angular.module('app.oselfwork').controller('OJob001Ctrl', function ($scope, $sta
 
                         RestfulApi.InsertMSSQLData({
                             insertname: 'Insert',
-                            table: 33,
+                            table: 47,
                             params: {
-                                ILE_SEQ : $vm.vmData.OL_SEQ,
-                                ILE_TYPE : selectedItem,
-                                ILE_CR_DATETIME : $filter('date')(new Date(), 'yyyy-MM-dd HH:mm:ss'),
-                                ILE_CR_USER : $vm.profile.U_ID
+                                O_ILE_SEQ : $vm.vmData.O_OL_SEQ,
+                                O_ILE_TYPE : selectedItem,
+                                O_ILE_CR_DATETIME : $filter('date')(new Date(), 'yyyy-MM-dd HH:mm:ss'),
+                                O_ILE_CR_USER : $vm.profile.U_ID
                             }
                         }).then(function (res) {
                             

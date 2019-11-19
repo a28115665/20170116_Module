@@ -22,120 +22,93 @@ module.exports = function(pQueryname, pParams){
 		
 			break;
 
-		case "SelectItemListForEx0":
-			_SQLCommand += "SELECT BLFO_TRACK, \
-									CASE WHEN PG_SEQ IS NULL THEN 0 ELSE 1 END AS 'PG_PULLGOODS', \
-									CASE WHEN SPG_SEQ IS NULL OR SPG_TYPE IS NULL THEN NULL ELSE \
-										CASE WHEN SPG_TYPE = 1 THEN '普特貨'\
+		case "SelectOItemListForEx0":
+			_SQLCommand += "SELECT CASE WHEN O_PG_SEQ IS NULL THEN 0 ELSE 1 END AS 'O_PG_PULLGOODS', \
+									CASE WHEN O_SPG_SEQ IS NULL OR O_SPG_TYPE IS NULL THEN NULL ELSE \
+										CASE WHEN O_SPG_TYPE = 1 THEN '普特貨'\
 										ELSE '特特貨' END \
 									END AS 'SPG_SPECIALGOODS', \
-									PG_MOVED, \
-									ITEM_LIST.*, \
-									REPLACE(( \
-										CASE WHEN LEFT(IL_GETTEL, 3) = '886' THEN '0' + SUBSTRING(IL_GETTEL, 4, LEN(IL_GETTEL)) \
-										WHEN LEN(IL_GETTEL) = 9 THEN '0' + IL_GETTEL \
-										ELSE IL_GETTEL END \
-									), '-', '') AS IL_GETTEL_EX, \
-									CASE WHEN ROW_NUMBER() OVER(PARTITION BY IL_BAGNO ORDER BY IL_BAGNO) = 1 \
-									THEN IL_BAGNO ELSE NULL END AS 'IL_BAGNOEX_NOREPEAT' \
-							FROM ITEM_LIST \
-							LEFT JOIN BLACK_LIST_FROM_OP ON \
-							IL_SEQ = BLFO_SEQ AND \
-							IL_NEWBAGNO = BLFO_NEWBAGNO AND \
-							IL_NEWSMALLNO = BLFO_NEWSMALLNO AND \
-							IL_ORDERINDEX = BLFO_ORDERINDEX \
-							LEFT JOIN PULL_GOODS ON \
-							IL_SEQ = PG_SEQ AND \
-							IL_BAGNO = PG_BAGNO \
-							LEFT JOIN SPECIAL_GOODS ON \
-							IL_SEQ = SPG_SEQ AND \
-							IL_NEWBAGNO = SPG_NEWBAGNO AND \
-							IL_NEWSMALLNO = SPG_NEWSMALLNO AND \
-							IL_ORDERINDEX = SPG_ORDERINDEX \
+									O_PG_MOVED, \
+									O_ITEM_LIST.*, \
+									CASE WHEN ROW_NUMBER() OVER(PARTITION BY O_IL_SMALLNO ORDER BY O_IL_SMALLNO) = 1 \
+									THEN O_IL_SMALLNO ELSE NULL END AS 'O_IL_SMALLNOEX_NOREPEAT' \
+							FROM O_ITEM_LIST \
+							LEFT JOIN O_PULL_GOODS ON \
+							O_IL_SEQ = O_PG_SEQ AND \
+							O_IL_SMALLNO = O_PG_SMALLNO AND\
+							O_IL_NEWSMALLNO = O_PG_NEWSMALLNO \
+							LEFT JOIN O_SPECIAL_GOODS ON \
+							O_IL_SEQ = O_SPG_SEQ AND \
+							O_IL_SMALLNO = O_SPG_SMALLNO AND \
+							O_IL_NEWSMALLNO = O_SPG_NEWSMALLNO \
 							WHERE 1=1 \
 							/*拉貨不匯出*/ \
-							AND PG_SEQ IS NULL ";
+							AND O_PG_SEQ IS NULL ";
 			
-			if(pParams["IL_G1"] !== undefined){
-				_SQLCommand += " AND IL_G1 IN ("+pParams["IL_G1"]+")";
-				delete pParams["IL_G1"];
+			if(pParams["O_IL_G1"] !== undefined){
+				_SQLCommand += " AND O_IL_G1 IN ("+pParams["O_IL_G1"]+")";
+				delete pParams["O_IL_G1"];
 			}
 			
-			if(pParams["IL_MERGENO"] !== undefined && pParams["IL_MERGENO"] == null){
-				_SQLCommand += " AND IL_MERGENO IS NULL";
-			}
+			// if(pParams["IL_MERGENO"] !== undefined && pParams["IL_MERGENO"] == null){
+			// 	_SQLCommand += " AND IL_MERGENO IS NULL";
+			// }
 
-			if(pParams["IL_SEQ"] !== undefined){
-				_SQLCommand += " AND IL_SEQ = @IL_SEQ";
+			if(pParams["O_IL_SEQ"] !== undefined){
+				_SQLCommand += " AND O_IL_SEQ = @O_IL_SEQ";
 			}
 							
 			if(pParams["NewSmallNo"] !== undefined){
-				_SQLCommand += " AND IL_NEWSMALLNO IN ("+pParams["NewSmallNo"]+") ";
+				_SQLCommand += " AND O_IL_NEWSMALLNO IN ("+pParams["NewSmallNo"]+") ";
 				delete pParams["NewSmallNo"];
 			}
 
-			_SQLCommand += " ORDER BY IL_BAGNO ";
+			// _SQLCommand += " ORDER BY O_IL_SMALLNO ";
 		
 			break;
 
-		case "SelectItemListForEx12":
-			_SQLCommand += "SELECT BLFO_TRACK,  \
-									CASE WHEN PG_SEQ IS NULL THEN 0 ELSE 1 END AS 'PG_PULLGOODS', \
-									CASE WHEN SPG_SEQ IS NULL OR SPG_TYPE IS NULL THEN NULL ELSE \
-										CASE WHEN SPG_TYPE = 1 THEN '普特貨'\
+		case "SelectOItemListForEx12":
+			_SQLCommand += "SELECT CASE WHEN O_PG_SEQ IS NULL THEN 0 ELSE 1 END AS 'O_PG_PULLGOODS', \
+									CASE WHEN O_SPG_SEQ IS NULL OR O_SPG_TYPE IS NULL THEN NULL ELSE \
+										CASE WHEN O_SPG_TYPE = 1 THEN '普特貨'\
 										ELSE '特特貨' END \
 									END AS 'SPG_SPECIALGOODS', \
-									PG_MOVED, \
-									CASE WHEN ITEM_LIST.IL_G1 = 'Y' THEN '' ELSE ITEM_LIST.IL_G1 END AS 'IL_G1_X2', \
-									CASE WHEN ITEM_LIST.IL_G1 = 'Y' THEN 'Y' ELSE '' END AS 'IL_G1_ONLY_Y', \
-									CASE WHEN ITEM_LIST.IL_G1 = 'Y' THEN '" + pParams["OL_CO_NAME"] + "' ELSE IL_NEWSENDNAME END AS 'IL_NEWSENDNAME_X2', \
-									CASE WHEN ITEM_LIST.IL_G1 = 'Y' THEN IL_GETNO ELSE IL_EXNO END AS 'IL_GETNO_X2', \
-									CASE WHEN ITEM_LIST.IL_WEIGHT_NEW < 0.1 THEN '0.1' ELSE ITEM_LIST.IL_WEIGHT_NEW END AS 'IL_WEIGHT_NEW_X2',\
-									ITEM_LIST.*, \
-									REPLACE(( \
-										CASE WHEN LEFT(IL_GETTEL, 3) = '886' THEN '0' + SUBSTRING(IL_GETTEL, 4, LEN(IL_GETTEL)) \
-										WHEN LEN(IL_GETTEL) = 9 THEN '0' + IL_GETTEL \
-										ELSE IL_GETTEL END \
-									), '-', '') AS IL_GETTEL_EX, \
-									CASE WHEN ROW_NUMBER() OVER(PARTITION BY IL_BAGNO ORDER BY IL_BAGNO) = 1 \
-									THEN IL_BAGNO ELSE NULL END AS 'IL_BAGNOEX_NOREPEAT' \
-							FROM ITEM_LIST \
-							LEFT JOIN BLACK_LIST_FROM_OP ON \
-							IL_SEQ = BLFO_SEQ AND \
-							IL_NEWBAGNO = BLFO_NEWBAGNO AND \
-							IL_NEWSMALLNO = BLFO_NEWSMALLNO AND \
-							IL_ORDERINDEX = BLFO_ORDERINDEX \
-							LEFT JOIN PULL_GOODS ON \
-							IL_SEQ = PG_SEQ AND \
-							IL_BAGNO = PG_BAGNO \
-							LEFT JOIN SPECIAL_GOODS ON \
-							IL_SEQ = SPG_SEQ AND \
-							IL_NEWBAGNO = SPG_NEWBAGNO AND \
-							IL_NEWSMALLNO = SPG_NEWSMALLNO AND \
-							IL_ORDERINDEX = SPG_ORDERINDEX \
+									O_PG_MOVED, \
+									O_ITEM_LIST.*, \
+									CASE WHEN ROW_NUMBER() OVER(PARTITION BY O_IL_SMALLNO ORDER BY O_IL_SMALLNO) = 1 \
+									THEN O_IL_SMALLNO ELSE NULL END AS 'O_IL_SMALLNOEX_NOREPEAT' \
+							FROM O_ITEM_LIST \
+							LEFT JOIN O_PULL_GOODS ON \
+							O_IL_SEQ = O_PG_SEQ AND \
+							O_IL_SMALLNO = O_PG_SMALLNO AND\
+							O_IL_NEWSMALLNO = O_PG_NEWSMALLNO \
+							LEFT JOIN O_SPECIAL_GOODS ON \
+							O_IL_SEQ = O_SPG_SEQ AND \
+							O_IL_SMALLNO = O_SPG_SMALLNO AND \
+							O_IL_NEWSMALLNO = O_SPG_NEWSMALLNO \
 							WHERE 1=1 \
 							/*拉貨不匯出*/ \
-							AND PG_SEQ IS NULL ";
+							AND O_PG_SEQ IS NULL ";
 			
-			if(pParams["IL_G1"] !== undefined){
-				_SQLCommand += " AND IL_G1 IN ("+pParams["IL_G1"]+")";
-				delete pParams["IL_G1"];
+			if(pParams["O_IL_G1"] !== undefined){
+				_SQLCommand += " AND O_IL_G1 IN ("+pParams["O_IL_G1"]+")";
+				delete pParams["O_IL_G1"];
 			}
 			
-			if(pParams["IL_MERGENO"] !== undefined && pParams["IL_MERGENO"] == null){
-				_SQLCommand += " AND IL_MERGENO IS NULL";
-			}
+			// if(pParams["IL_MERGENO"] !== undefined && pParams["IL_MERGENO"] == null){
+			// 	_SQLCommand += " AND IL_MERGENO IS NULL";
+			// }
 
-			if(pParams["IL_SEQ"] !== undefined){
-				_SQLCommand += " AND IL_SEQ = @IL_SEQ";
+			if(pParams["O_IL_SEQ"] !== undefined){
+				_SQLCommand += " AND O_IL_SEQ = @O_IL_SEQ";
 			}
 							
 			if(pParams["NewSmallNo"] !== undefined){
-				_SQLCommand += " AND IL_NEWSMALLNO IN ("+pParams["NewSmallNo"]+") ";
+				_SQLCommand += " AND O_IL_NEWSMALLNO IN ("+pParams["NewSmallNo"]+") ";
 				delete pParams["NewSmallNo"];
 			}
 
-			_SQLCommand += " ORDER BY IL_BAGNO ";
+			// _SQLCommand += " ORDER BY IL_BAGNO ";
 
 			break;
 
