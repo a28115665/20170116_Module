@@ -581,7 +581,7 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
             RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res){
                 promise.resolve();
             }, function (err) {
-                toaster.pop('danger', '錯誤', '更新失敗', 3000);
+                toaster.pop('error', '錯誤', '更新失敗', 3000);
                 promise.reject();
             }).finally(function(){
                 if($vm.orderListGridApi.rowEdit.getDirtyRows().length == 0){

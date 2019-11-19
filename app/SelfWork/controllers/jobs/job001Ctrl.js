@@ -142,7 +142,7 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                                 toaster.pop('success', '訊息', '加入黑名單成功', 3000);
                             }
                         }, function (err) {
-                            toaster.pop('danger', '錯誤', '加入黑名單失敗', 3000);
+                            toaster.pop('error', '錯誤', '加入黑名單失敗', 3000);
                         }).finally(function(){
                             $vm.job001GridApi.selection.clearSelectedRows();
                             ClearSelectedColumn();
@@ -249,7 +249,7 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                                 toaster.pop('success', '訊息', '刪除資料成功', 3000);
                             }
                         }, function (err) {
-                            toaster.pop('danger', '錯誤', '刪除資料失敗', 3000);
+                            toaster.pop('error', '錯誤', '刪除資料失敗', 3000);
                         }).finally(function(){
                             $vm.job001GridApi.selection.clearSelectedRows();
                             // ClearSelectedColumn();
@@ -1464,7 +1464,7 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                 // console.log(res);
                 deferred.resolve();
             }, function (err) {
-                toaster.pop('danger', '錯誤', '更新失敗', 3000);
+                toaster.pop('error', '錯誤', '更新失敗', 3000);
                 deferred.reject();
             });
             

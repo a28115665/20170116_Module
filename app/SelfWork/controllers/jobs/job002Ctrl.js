@@ -110,7 +110,7 @@ angular.module('app.selfwork').controller('Job002Ctrl', function ($scope, $state
                             toaster.pop('success', '訊息', '更新成功', 3000);
                         }
                     }, function (err) {
-                        toaster.pop('danger', '錯誤', '更新失敗', 3000);
+                        toaster.pop('error', '錯誤', '更新失敗', 3000);
                     }).finally(function(){
                         $vm.job002GridApi.selection.clearSelectedRows();
                     }); 
@@ -210,7 +210,7 @@ angular.module('app.selfwork').controller('Job002Ctrl', function ($scope, $state
                             toaster.pop('success', '訊息', '刪除成功', 3000);
                         }
                     }, function (err) {
-                        toaster.pop('danger', '錯誤', '刪除失敗', 3000);
+                        toaster.pop('error', '錯誤', '刪除失敗', 3000);
                     }).finally(function(){
                         $vm.job002GridApi.selection.clearSelectedRows();
                     }); 
@@ -333,7 +333,7 @@ angular.module('app.selfwork').controller('Job002Ctrl', function ($scope, $state
                             toaster.pop('success', '訊息', '底部編輯成功', 3000);
                         }
                     }, function (err) {
-                        toaster.pop('danger', '錯誤', '底部編輯失敗', 3000);
+                        toaster.pop('error', '錯誤', '底部編輯失敗', 3000);
                     });
 
                 }, function() {
@@ -429,7 +429,7 @@ angular.module('app.selfwork').controller('Job002Ctrl', function ($scope, $state
                             });
                             
                         }else{
-                            toaster.pop('danger', '錯誤', '寄信失敗', 3000);
+                            toaster.pop('error', '錯誤', '寄信失敗', 3000);
                         }
                     }, function() {
                         // $log.info('Modal dismissed at: ' + new Date());
@@ -467,7 +467,7 @@ angular.module('app.selfwork').controller('Job002Ctrl', function ($scope, $state
             }).then(function (res) {
                 promise.resolve();
             }, function (err) {
-                toaster.pop('danger', '錯誤', '更新失敗', 3000);
+                toaster.pop('error', '錯誤', '更新失敗', 3000);
                 promise.reject();
             });
         }

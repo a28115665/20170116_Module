@@ -257,7 +257,7 @@ angular.module('app.selfwork.leaderoption').controller('CompyDistributionCtrl', 
             RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res){
                 promise.resolve();
             }, function (err) {
-                toaster.pop('danger', '錯誤', '更新失敗', 3000);
+                toaster.pop('error', '錯誤', '更新失敗', 3000);
                 promise.reject();
             }).finally(function(){
                 if($vm.compyDistributionGridApi.rowEdit.getDirtyRows().length == 0){

@@ -460,7 +460,7 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
                         toaster.pop('success', '訊息', '更新成功', 3000);
                         LoadPullGoods();
                     }, function (err) {
-                        toaster.pop('danger', '錯誤', '更新失敗', 3000);
+                        toaster.pop('error', '錯誤', '更新失敗', 3000);
                     });
                 }, function() {
                     // $log.info('Modal dismissed at: ' + new Date());
@@ -549,7 +549,7 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
                         toaster.pop('success', '訊息', '更新成功', 3000);
                         LoadPullGoods();
                     }, function (err) {
-                        toaster.pop('danger', '錯誤', '更新失敗', 3000);
+                        toaster.pop('error', '錯誤', '更新失敗', 3000);
                     });  
 
                 }, function() {
@@ -624,7 +624,7 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
                         toaster.pop('success', '訊息', '取消成功', 3000);
                         LoadPullGoods();
                     }, function (err) {
-                        toaster.pop('danger', '錯誤', '取消失敗', 3000);
+                        toaster.pop('error', '錯誤', '取消失敗', 3000);
                     });  
 
                 }, function() {
@@ -859,7 +859,7 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
                         toaster.pop('success', '訊息', '移機成功', 3000);
                         LoadPullGoods();
                     }, function (err) {
-                        toaster.pop('danger', '錯誤', '移機失敗', 3000);
+                        toaster.pop('error', '錯誤', '移機失敗', 3000);
                     });  
 
                 }, function() {
@@ -981,7 +981,7 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
                         toaster.pop('success', '訊息', '取消移機成功', 3000);
                         LoadPullGoods();
                     }, function (err) {
-                        toaster.pop('danger', '錯誤', '取消移機失敗', 3000);
+                        toaster.pop('error', '錯誤', '取消移機失敗', 3000);
                     });  
 
                 }, function() {

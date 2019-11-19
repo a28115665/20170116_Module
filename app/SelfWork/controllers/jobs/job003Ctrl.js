@@ -112,7 +112,7 @@ angular.module('app.selfwork').controller('Job003Ctrl', function ($scope, $state
             }).then(function (res) {
                 promise.resolve();
             }, function (err) {
-                toaster.pop('danger', '錯誤', '更新失敗', 3000);
+                toaster.pop('error', '錯誤', '更新失敗', 3000);
                 promise.reject();
             });
         }

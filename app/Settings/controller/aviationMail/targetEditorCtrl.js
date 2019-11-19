@@ -151,7 +151,7 @@ angular.module('app.settings').controller('TargetEditorCtrl', function ($scope, 
 
                 // });
             }else{
-                toaster.pop('danger', '失敗', '沒有任何信件', 3000);
+                toaster.pop('error', '失敗', '沒有任何信件', 3000);
             }
         },
         Update : function(){
@@ -250,7 +250,7 @@ angular.module('app.settings').controller('TargetEditorCtrl', function ($scope, 
 
                 // });
             }else{
-                toaster.pop('danger', '失敗', '沒有任何信件', 3000);
+                toaster.pop('error', '失敗', '沒有任何信件', 3000);
             }
         },
         /**
