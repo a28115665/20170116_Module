@@ -171,6 +171,14 @@ module.exports = function(pQueryname, pParams){
 							SELECT	'ReturnValue' = @return_value ";
 		
 			break;
+
+		case "CalculateNetWieghtBalance":
+			_SQLCommand += "DECLARE	@return_value decimal \
+							EXEC	@return_value = [dbo].[NetWeightBalance] \
+									@Seq = @O_IL_SEQ \
+							SELECT	'ReturnValue' = @return_value ";
+		
+			break;
 	}
 
 	return _SQLCommand;

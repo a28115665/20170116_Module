@@ -30,6 +30,7 @@ angular.module('app.oselfwork').controller('OJob001Ctrl', function ($scope, $sta
             }
         },
         loading : {
+            calculateNetWieghtBalance : false,
             calculateCrossWieghtBalance : false
         },
         profile : Session.Get(),
@@ -290,16 +291,8 @@ angular.module('app.oselfwork').controller('OJob001Ctrl', function ($scope, $sta
                 { name: 'O_IL_NEWCTN'           , displayName: '新件數', width: 110, headerCellClass: 'text-primary' },
                 { name: 'O_IL_CTNUNIT'          , displayName: '件數單位', width: 110, enableCellEdit: false },
                 { name: 'O_IL_MARK'             , displayName: '標記', width: 110, enableCellEdit: false },
-                { name: 'O_IL_NATURE'           , displayName: '貨物名稱', width: 110, enableCellEdit: false, cellTooltip: function (row, col) 
-                    {
-                        return row.entity.O_IL_NATURE
-                    } 
-                },
-                { name: 'O_IL_NATURE_NEW'       , displayName: '新貨物名稱', width: 110, headerCellClass: 'text-primary', cellTooltip: function (row, col) 
-                    {
-                        return row.entity.O_IL_NATURE_NEW
-                    } 
-                },
+                { name: 'O_IL_NATURE'           , displayName: '貨物名稱', width: 110, enableCellEdit: false, cellTooltip: cellTooltip},
+                { name: 'O_IL_NATURE_NEW'       , displayName: '新貨物名稱', width: 110, headerCellClass: 'text-primary', cellTooltip: cellTooltip},
                 { name: 'ChangeNature'          , displayName: '改單', width: 66, enableCellEdit: false, enableSorting:false, cellTemplate: $templateCache.get('accessibilityToChangeNature'), cellClass: 'cell-class-no-style' },
                 { name: 'O_IL_TAX'              , displayName: '稅則', width: 110, enableCellEdit: false },
                 { name: 'O_IL_TAX2'             , displayName: '新稅則', width: 110, headerCellClass: 'text-primary' },
@@ -386,7 +379,7 @@ angular.module('app.oselfwork').controller('OJob001Ctrl', function ($scope, $sta
                 gridApi.rowEdit.on.saveRow($scope, $vm.Update);
 
                 // 海運尚未詳談此部分
-                // gridApi.edit.on.afterCellEdit($scope, CalculationFinalCost);
+                gridApi.edit.on.afterCellEdit($scope, CalculationFinalCost);
 
                 gridApi.selection.on.rowSelectionChanged($scope, function(rowEntity, colDef, newValue, oldValue){
                     rowEntity.entity["isSelected"] = rowEntity.isSelected;
@@ -399,17 +392,133 @@ angular.module('app.oselfwork').controller('OJob001Ctrl', function ($scope, $sta
                 });
             }
         },
-        // 計算
+        // 計算淨重
+        CalculateNetWieghtBalance: function(){
+
+            var _totalNetWeight = 0,
+                _totalNewNetWeight = 0;
+            for(var i in $vm.job001Data){
+                // 規則如Procedure NetWeightBalance
+                if(['G1', 'X3', '移倉'].indexOf($vm.job001Data[i]["O_IL_G1"]) == -1 &&
+                    $vm.job001Data[i]["O_IL_NETWEIGHT"] > 1 &&
+                    $vm.job001Data[i]["O_PG_PULLGOODS"] != 1){
+                    if($vm.job001Data[i]["O_IL_NETWEIGHT"]){
+                        _totalNetWeight += $vm.job001Data[i]["O_IL_NETWEIGHT"];
+                    }
+                    if($vm.job001Data[i]["O_IL_NETWEIGHT_NEW"]){
+                        _totalNewNetWeight += $vm.job001Data[i]["O_IL_NETWEIGHT_NEW"];
+                    }
+                }
+            }
+
+            $vm.vmData["totalNetWeight"] = _totalNetWeight.toFixed(2);
+            $vm.vmData["totalNewNetWeight"] = _totalNewNetWeight.toFixed(2);
+
+            var modalInstance = $uibModal.open({
+                animation: true,
+                ariaLabelledBy: 'modal-title',
+                ariaDescribedBy: 'modal-body',
+                templateUrl: 'calculateNetWieghtBalanceModalContent.html',
+                // controller如毛重
+                controller: 'CalculateCrossWieghtBalanceModalInstanceCtrl',
+                controllerAs: '$ctrl',
+                // size: 'lg',
+                resolve: {
+                    vmData: function() {
+                        return $vm.vmData;
+                    }
+                }
+            });
+
+            modalInstance.result.then(function(selectedItem) {
+
+                console.log(selectedItem);
+
+                // 如果輸入的值小於等於0
+                if(selectedItem.O_OL_FLIGHT_TOTALNETWEIGHT <= 0){
+                    toaster.pop('warning', '警告', '請輸入大於等於0的數值。', 3000);
+                    return;
+                }
+
+                var _maxRatio = 1.5,
+                    _minRatio = 0.5,
+                    _ratio = (selectedItem.O_OL_FLIGHT_TOTALNETWEIGHT / selectedItem.totalNetWeight).toFixed(2);
+                if(_ratio < _minRatio || _maxRatio < _ratio){
+                    toaster.pop('warning', '警告', '請勿輸入對於報機單總重量(淨重)差距過小或過大的數值。', 3000);
+                    return;
+                }
+
+                $vm.loading.calculateNetWieghtBalance = true;
+                
+                var _task = [];
+
+                _task.push({
+                    crudType: 'Update',
+                    table: 40,
+                    params: {
+                        O_OL_FLIGHT_TOTALNETWEIGHT : selectedItem.O_OL_FLIGHT_TOTALNETWEIGHT,
+                        O_OL_UP_USER            : $vm.profile.U_ID,
+                        O_OL_UP_DATETIME        : $filter('date')(new Date, 'yyyy-MM-dd HH:mm:ss')
+                    },
+                    condition: {
+                        O_OL_SEQ : $vm.vmData.O_OL_SEQ
+                    }
+                });
+
+                _task.push({
+                    crudType: 'Select',
+                    querymain: 'ojob001',
+                    queryname: 'CalculateNetWieghtBalance',
+                    params: {
+                        O_IL_SEQ: $vm.vmData.O_OL_SEQ
+                    }
+                });
+
+                RestfulApi.CRUDMSSQLDataByTask(_task).then(function (res){
+
+                    console.log(res);
+
+                    var _data = res["returnData"] || [];
+
+                    if(_data.length > 0){
+
+                        if(_data[1][0].ReturnValue == 1){
+                            toaster.pop('success', '訊息', '平衡淨重完成。', 3000);
+                            $vm.vmData.O_OL_FLIGHT_TOTALNETWEIGHT = selectedItem.O_OL_FLIGHT_TOTALNETWEIGHT;
+                        }else if(_data[1][0].ReturnValue == 0){
+                            toaster.pop('info', '訊息', '淨重已平衡。', 3000);
+                        }else{
+                            toaster.pop('error', '失敗', '平衡淨重有誤，請聯絡系統管理員。', 3000);
+                        }
+
+                        LoadItemList();
+                    }
+
+                }).finally(function() {
+                    $vm.loading.calculateNetWieghtBalance = false;
+                });
+
+            }, function() {
+                // $log.info('Modal dismissed at: ' + new Date());
+            });
+
+        },
+        // 計算毛重
         CalculateCrossWieghtBalance: function(){
 
             var _totalCrossWeight = 0,
                 _totalNewCrossWeight = 0;
             for(var i in $vm.job001Data){
-                if($vm.job001Data[i]["O_IL_CROSSWEIGHT"]){
-                    _totalCrossWeight += $vm.job001Data[i]["O_IL_CROSSWEIGHT"];
-                }
-                if($vm.job001Data[i]["O_IL_NEWCROSSWEIGHT"]){
-                    _totalNewCrossWeight += $vm.job001Data[i]["O_IL_NEWCROSSWEIGHT"];
+                // 規則如Procedure CrossWeightBalance
+                if(['G1', 'X3', '移倉'].indexOf($vm.job001Data[i]["O_IL_G1"]) == -1 &&
+                    $vm.job001Data[i]["O_IL_CROSSWEIGHT"] > 1 &&
+                    $vm.job001Data[i]["O_PG_PULLGOODS"] != 1){
+                    if($vm.job001Data[i]["O_IL_CROSSWEIGHT"]){
+                        _totalCrossWeight += $vm.job001Data[i]["O_IL_CROSSWEIGHT"];
+                    }
+                    if($vm.job001Data[i]["O_IL_NEWCROSSWEIGHT"]){
+                        _totalNewCrossWeight += $vm.job001Data[i]["O_IL_NEWCROSSWEIGHT"];
+                    }
                 }
             }
 
@@ -436,14 +545,14 @@ angular.module('app.oselfwork').controller('OJob001Ctrl', function ($scope, $sta
                 console.log(selectedItem);
 
                 // 如果輸入的值小於等於0
-                if(selectedItem.O_OL_FLIGHT_TOTALWEIGHT <= 0){
+                if(selectedItem.O_OL_FLIGHT_TOTALCROSSWEIGHT <= 0){
                     toaster.pop('warning', '警告', '請輸入大於等於0的數值。', 3000);
                     return;
                 }
 
                 var _maxRatio = 1.5,
                     _minRatio = 0.5,
-                    _ratio = (selectedItem.O_OL_FLIGHT_TOTALWEIGHT / selectedItem.totalCrossWeight).toFixed(2);
+                    _ratio = (selectedItem.O_OL_FLIGHT_TOTALCROSSWEIGHT / selectedItem.totalCrossWeight).toFixed(2);
                 if(_ratio < _minRatio || _maxRatio < _ratio){
                     toaster.pop('warning', '警告', '請勿輸入對於報機單總重量(毛重)差距過小或過大的數值。', 3000);
                     return;
@@ -457,7 +566,7 @@ angular.module('app.oselfwork').controller('OJob001Ctrl', function ($scope, $sta
                     crudType: 'Update',
                     table: 40,
                     params: {
-                        O_OL_FLIGHT_TOTALWEIGHT : selectedItem.O_OL_FLIGHT_TOTALWEIGHT,
+                        O_OL_FLIGHT_TOTALCROSSWEIGHT : selectedItem.O_OL_FLIGHT_TOTALCROSSWEIGHT,
                         O_OL_UP_USER            : $vm.profile.U_ID,
                         O_OL_UP_DATETIME        : $filter('date')(new Date, 'yyyy-MM-dd HH:mm:ss')
                     },
@@ -477,13 +586,15 @@ angular.module('app.oselfwork').controller('OJob001Ctrl', function ($scope, $sta
 
                 RestfulApi.CRUDMSSQLDataByTask(_task).then(function (res){
 
+                    console.log(res);
+
                     var _data = res["returnData"] || [];
 
                     if(_data.length > 0){
 
                         if(_data[1][0].ReturnValue == 1){
                             toaster.pop('success', '訊息', '平衡毛重完成。', 3000);
-                            $vm.vmData.O_OL_FLIGHT_TOTALWEIGHT = selectedItem.O_OL_FLIGHT_TOTALWEIGHT;
+                            $vm.vmData.O_OL_FLIGHT_TOTALCROSSWEIGHT = selectedItem.O_OL_FLIGHT_TOTALCROSSWEIGHT;
                         }else if(_data[1][0].ReturnValue == 0){
                             toaster.pop('info', '訊息', '毛重已平衡。', 3000);
                         }else{
@@ -746,7 +857,7 @@ angular.module('app.oselfwork').controller('OJob001Ctrl', function ($scope, $sta
 
                         RestfulApi.InsertMSSQLData({
                             insertname: 'Insert',
-                            table: 47,
+                            table: 46,
                             params: {
                                 O_ILE_SEQ : $vm.vmData.O_OL_SEQ,
                                 O_ILE_TYPE : selectedItem,
@@ -878,121 +989,127 @@ angular.module('app.oselfwork').controller('OJob001Ctrl', function ($scope, $sta
 
     function CalculationFinalCost(rowEntity, colDef, newValue, oldValue){
 
-        // rowEntity["IL_G1"] = rowEntity["IL_G1"].toUpperCase();
-        // 新增規則
-        // if(rowEntity["IL_G1"] == "Y"){
-
-        try {
-            if(newValue.toUpperCase() == "Y"){
-                rowEntity.IL_WEIGHT_NEW = rowEntity.IL_WEIGHT;
-                rowEntity.IL_NEWPCS = rowEntity.IL_PCS;
-                rowEntity.IL_UNIVALENT_NEW = rowEntity.IL_UNIVALENT;
-                rowEntity.IL_NEWSENDNAME = rowEntity.IL_SENDNAME;
-                rowEntity.IL_FINALCOST = null;
+        // 一律為大寫
+        if(colDef.name == 'O_IL_G1') {
+            try {
+                rowEntity["O_IL_G1"] = newValue.toUpperCase();
             }
-        }
-        catch (e) {
-            console.log(e);
-        }
-
-        if(colDef.name == 'IL_GETNAME_NEW'){
-            var _temp = encodeURI(rowEntity.IL_GETNAME_NEW),
-                regex = /%09/gi;
-
-            _temp = _temp.replace(regex, "%20");
-            rowEntity.IL_GETNAME_NEW = decodeURI(_temp);
-        }
-
-        // 新單價 = 新重量 * 100 / 新數量
-        if(colDef.name == 'IL_WEIGHT_NEW' || colDef.name == 'IL_NEWPCS'){
-            var _weight = parseFloat(rowEntity.IL_WEIGHT_NEW).toFixed(2),
-                _pcs = parseInt(rowEntity.IL_NEWPCS);
-
-            // 如果都不是空值 才開始計算
-            if(!isNaN(_weight) && !isNaN(_pcs)){
-                // 如果數量不為0
-                if(parseInt(_pcs) != 0){
-                    rowEntity.IL_UNIVALENT_NEW = (_weight * 100) / _pcs;
-                }else{
-                    rowEntity.IL_UNIVALENT_NEW = 0;
-                }
+            catch (e) {
+                console.log(e);
             }
         }
 
-        // 計算稅
-        var _univalent = parseInt(rowEntity.IL_UNIVALENT_NEW),
-            _pcs = parseInt(rowEntity.IL_NEWPCS),
-            _finalcost = parseInt(rowEntity.IL_FINALCOST),
-            start = 0;
+        // try {
+            // if(newValue.toUpperCase() == "Y"){
+            //     rowEntity.IL_WEIGHT_NEW = rowEntity.IL_WEIGHT;
+            //     rowEntity.IL_NEWPCS = rowEntity.IL_PCS;
+            //     rowEntity.IL_UNIVALENT_NEW = rowEntity.IL_UNIVALENT;
+            //     rowEntity.IL_NEWSENDNAME = rowEntity.IL_SENDNAME;
+            //     rowEntity.IL_FINALCOST = null;
+            // }
+        // }
+        // catch (e) {
+        //     console.log(e);
+        // }
 
-        if(!isNaN(_univalent)){
-            start += 1;
-        }
-        if(!isNaN(_pcs)){
-            start += 1;
-        }
-        if(!isNaN(_finalcost)){
-            start += 1;
-        }
+        // if(colDef.name == 'IL_GETNAME_NEW'){
+        //     var _temp = encodeURI(rowEntity.IL_GETNAME_NEW),
+        //         regex = /%09/gi;
 
-        // 表示可以開始計算
-        if(start >= 2){
-            // 新單價
-            if(colDef.name == 'IL_UNIVALENT_NEW'){
-                //如果數量有值
-                if(!isNaN(_pcs)){
-                    _finalcost = _pcs * _univalent;
-                }
-            }
+        //     _temp = _temp.replace(regex, "%20");
+        //     rowEntity.IL_GETNAME_NEW = decodeURI(_temp);
+        // }
 
-            // 新數量
-            if(colDef.name == 'IL_NEWPCS'){
-                if(!isNaN(_univalent)){
-                    _finalcost = _pcs * _univalent;
-                }
-            }
+        // // 新單價 = 新重量 * 100 / 新數量
+        // if(colDef.name == 'IL_WEIGHT_NEW' || colDef.name == 'IL_NEWPCS'){
+        //     var _weight = parseFloat(rowEntity.IL_WEIGHT_NEW).toFixed(2),
+        //         _pcs = parseInt(rowEntity.IL_NEWPCS);
 
-            // 當完稅價格小於100
-            if(_finalcost < 100 && _finalcost != 0){
-                // 給個新值 100~125
-                var maxNum = 125;  
-                var minNum = 100;  
-                _finalcost = Math.floor(Math.random() * (maxNum - minNum + 1)) + minNum; 
-            }
+        //     // 如果都不是空值 才開始計算
+        //     if(!isNaN(_weight) && !isNaN(_pcs)){
+        //         // 如果數量不為0
+        //         if(parseInt(_pcs) != 0){
+        //             rowEntity.IL_UNIVALENT_NEW = (_weight * 100) / _pcs;
+        //         }else{
+        //             rowEntity.IL_UNIVALENT_NEW = 0;
+        //         }
+        //     }
+        // }
 
-            // 當完稅價格超過2000 提醒使用者
-            if(_finalcost > 2000){
-                toaster.pop('warning', '警告', '完稅價格超過2000元，請注意', 3000);
-            }
+        // // 計算稅
+        // var _univalent = parseInt(rowEntity.IL_UNIVALENT_NEW),
+        //     _pcs = parseInt(rowEntity.IL_NEWPCS),
+        //     _finalcost = parseInt(rowEntity.IL_FINALCOST),
+        //     start = 0;
+
+        // if(!isNaN(_univalent)){
+        //     start += 1;
+        // }
+        // if(!isNaN(_pcs)){
+        //     start += 1;
+        // }
+        // if(!isNaN(_finalcost)){
+        //     start += 1;
+        // }
+
+        // // 表示可以開始計算
+        // if(start >= 2){
+        //     // 新單價
+        //     if(colDef.name == 'IL_UNIVALENT_NEW'){
+        //         //如果數量有值
+        //         if(!isNaN(_pcs)){
+        //             _finalcost = _pcs * _univalent;
+        //         }
+        //     }
+
+        //     // 新數量
+        //     if(colDef.name == 'IL_NEWPCS'){
+        //         if(!isNaN(_univalent)){
+        //             _finalcost = _pcs * _univalent;
+        //         }
+        //     }
+
+        //     // 當完稅價格小於100
+        //     if(_finalcost < 100 && _finalcost != 0){
+        //         // 給個新值 100~125
+        //         var maxNum = 125;  
+        //         var minNum = 100;  
+        //         _finalcost = Math.floor(Math.random() * (maxNum - minNum + 1)) + minNum; 
+        //     }
+
+        //     // 當完稅價格超過2000 提醒使用者
+        //     if(_finalcost > 2000){
+        //         toaster.pop('warning', '警告', '完稅價格超過2000元，請注意', 3000);
+        //     }
             
-            // 當數量不為空 帶出單價 (會與新單價衝突)
-            if(colDef.name == 'IL_FINALCOST' || colDef.name == 'IL_NEWPCS' || colDef.name == 'IL_UNIVALENT_NEW'){
-                if(!isNaN(_pcs)){
-                    if(parseInt(_pcs) != 0){
-                        _univalent = Math.round(_finalcost / _pcs);
-                    }else{
-                        _univalent = 0;
-                    }
-                }
-            }
+        //     // 當數量不為空 帶出單價 (會與新單價衝突)
+        //     if(colDef.name == 'IL_FINALCOST' || colDef.name == 'IL_NEWPCS' || colDef.name == 'IL_UNIVALENT_NEW'){
+        //         if(!isNaN(_pcs)){
+        //             if(parseInt(_pcs) != 0){
+        //                 _univalent = Math.round(_finalcost / _pcs);
+        //             }else{
+        //                 _univalent = 0;
+        //             }
+        //         }
+        //     }
 
-            // 完稅價格
-            if(colDef.name == 'IL_FINALCOST' || colDef.name == 'IL_WEIGHT_NEW'){
-                // 避免帳不平 再次計算完稅價格
-                if(!isNaN(_pcs) && !isNaN(_univalent)){
-                    _finalcost = _pcs * _univalent;
-                }
-            }
+        //     // 完稅價格
+        //     if(colDef.name == 'IL_FINALCOST' || colDef.name == 'IL_WEIGHT_NEW'){
+        //         // 避免帳不平 再次計算完稅價格
+        //         if(!isNaN(_pcs) && !isNaN(_univalent)){
+        //             _finalcost = _pcs * _univalent;
+        //         }
+        //     }
 
-            // console.log("_univalent:", _univalent," _pcs:" , _pcs," _finalcost:" , _finalcost);
-            rowEntity.IL_UNIVALENT_NEW = isNaN(_univalent) ? null : _univalent;
-            rowEntity.IL_NEWPCS = isNaN(_pcs) ? null : _pcs;
-            rowEntity.IL_FINALCOST = isNaN(_finalcost) ? null : _finalcost;
-        }
+        //     // console.log("_univalent:", _univalent," _pcs:" , _pcs," _finalcost:" , _finalcost);
+        //     rowEntity.IL_UNIVALENT_NEW = isNaN(_univalent) ? null : _univalent;
+        //     rowEntity.IL_NEWPCS = isNaN(_pcs) ? null : _pcs;
+        //     rowEntity.IL_FINALCOST = isNaN(_finalcost) ? null : _finalcost;
+        // }
 
         $vm.job001GridApi.rowEdit.setRowsDirty([rowEntity]);
 
-        // console.log('edited row id:' + rowEntity.Index + ' Column:' + colDef.name + ' newValue:' + newValue + ' oldValue:' + oldValue);
+        // // console.log('edited row id:' + rowEntity.Index + ' Column:' + colDef.name + ' newValue:' + newValue + ' oldValue:' + oldValue);
     }
 
     /**

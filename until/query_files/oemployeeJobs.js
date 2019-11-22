@@ -19,7 +19,8 @@ module.exports = function(pQueryname, pParams){
 									O_OL_CR_DATETIME, \
 									O_OL_REASON, \
 									O_OL_ILSTATUS, \
-									O_OL_FLIGHT_TOTALWEIGHT, \
+									O_OL_FLIGHT_TOTALCROSSWEIGHT, \
+									O_OL_FLIGHT_TOTALNETWEIGHT, \
 									( \
 										(\
 											SELECT COUNT(1) \

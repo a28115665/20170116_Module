@@ -152,6 +152,18 @@
 							                <fieldset>
 							                    <div class="form-group">
 										            <button class="btn btn-warning"
+										            		ng-click="$vm.CalculateNetWieghtBalance()"
+										            		ng-disabled="$vm.loading.calculateNetWieghtBalance">
+									            		<span ng-if="$vm.loading.calculateNetWieghtBalance">
+									            			<i class="fa fa-refresh fa-spin"></i>
+										            	</span>
+									            		<span ng-if="!$vm.loading.calculateNetWieghtBalance">
+										                	平衡淨重
+										            	</span>
+										            </button>
+							                    </div>
+							                    <div class="form-group">
+										            <button class="btn btn-warning"
 										            		ng-click="$vm.CalculateCrossWieghtBalance()"
 										            		ng-disabled="$vm.loading.calculateCrossWieghtBalance">
 									            		<span ng-if="$vm.loading.calculateCrossWieghtBalance">
@@ -296,6 +308,44 @@
 	</div>
 </script>
 
+<script type="text/ng-template" id="calculateNetWieghtBalanceModalContent.html">
+    <div class="modal-header">
+	    <h3 class="modal-title" id="modal-title">平衡淨重</h3>
+	</div>
+	<div class="modal-body" id="modal-body">
+	    <form class="form-horizontal" name="modifyForm">
+			<fieldset>
+                <div class="form-group">
+                    <label class="col-md-4 control-label">報機單總重量(淨重)</label>
+                    <div class="col-md-8">
+                        <input class="form-control" name="totalNetWeight" ng-model="$ctrl.mdData.totalNetWeight" type="text" disabled="disabled">
+                        <p class="text-danger" ng-if="$ctrl.mdData.totalNetWeight == 0">報機單總重量(淨重) 需要大於 0</p>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-md-4 control-label">報機單總重量(新淨重)</label>
+                    <div class="col-md-8">
+                        <input class="form-control" name="totalNewNetWeight" ng-model="$ctrl.mdData.totalNewNetWeight" type="text" disabled="disabled">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-md-4 control-label"><code>*</code>銷艙單淨重總重量</label>
+                    <div class="col-md-8">
+                        <input class="form-control" name="O_OL_FLIGHT_TOTALNETWEIGHT" placeholder="請輸入銷艙單總重量" ng-model="$ctrl.mdData.O_OL_FLIGHT_TOTALNETWEIGHT" type="text" required>
+                        <p class="note">報機單總重量(新淨重) 將會等於輸入的 銷艙單淨重總重量</p>
+                        <p class="text-danger" ng-if="$ctrl.mdData.totalNetWeight == 0">目前倍率：0</p>
+                        <p class="text-danger" ng-if="$ctrl.mdData.totalNetWeight > 0">目前倍率：{{($ctrl.mdData.O_OL_FLIGHT_TOTALNETWEIGHT / $ctrl.mdData.totalNetWeight).toFixed(2)}} (請介於0.5~1.5之間)</p>
+                    </div>
+                </div>
+			</fieldset>
+	    </form>
+	</div>
+	<div class="modal-footer">
+	    <button class="btn btn-primary" type="button" ng-click="$ctrl.ok()" ng-disabled="!modifyForm.$valid || $ctrl.mdData.totalCrossWeight==0">{{getWord('OK')}}</button>
+	    <button class="btn btn-default" type="button" ng-click="$ctrl.cancel()">{{getWord('Cancel')}}</button>
+	</div>
+</script>
+
 <script type="text/ng-template" id="calculateCrossWieghtBalanceModalContent.html">
     <div class="modal-header">
 	    <h3 class="modal-title" id="modal-title">平衡毛重</h3>
@@ -307,6 +357,7 @@
                     <label class="col-md-4 control-label">報機單總重量(毛重)</label>
                     <div class="col-md-8">
                         <input class="form-control" name="totalCrossWeight" ng-model="$ctrl.mdData.totalCrossWeight" type="text" disabled="disabled">
+                        <p class="text-danger" ng-if="$ctrl.mdData.totalCrossWeight == 0">報機單總重量(毛重) 需要大於 0</p>
                     </div>
                 </div>
                 <div class="form-group">
@@ -316,18 +367,19 @@
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="col-md-4 control-label"><code>*</code>銷艙單總重量</label>
+                    <label class="col-md-4 control-label"><code>*</code>銷艙單毛重總重量</label>
                     <div class="col-md-8">
-                        <input class="form-control" name="O_OL_FLIGHT_TOTALWEIGHT" placeholder="請輸入銷艙單總重量" ng-model="$ctrl.mdData.O_OL_FLIGHT_TOTALWEIGHT" type="text" required>
-                        <p class="note">報機單總重量(新毛重) 將會等於輸入的 銷艙單總重量</p>
-                        <p class="text-danger">目前倍率：{{($ctrl.mdData.O_OL_FLIGHT_TOTALWEIGHT / $ctrl.mdData.totalCrossWeight).toFixed(2)}} (請介於0.5~1.5之間)</p>
+                        <input class="form-control" name="O_OL_FLIGHT_TOTALCROSSWEIGHT" placeholder="請輸入銷艙單總重量" ng-model="$ctrl.mdData.O_OL_FLIGHT_TOTALCROSSWEIGHT" type="text" required>
+                        <p class="note">報機單總重量(新毛重) 將會等於輸入的 銷艙單毛重總重量</p>
+                        <p class="text-danger" ng-if="$ctrl.mdData.totalCrossWeight == 0">目前倍率：0</p>
+                        <p class="text-danger" ng-if="$ctrl.mdData.totalCrossWeight > 0">目前倍率：{{($ctrl.mdData.O_OL_FLIGHT_TOTALCROSSWEIGHT / $ctrl.mdData.totalCrossWeight).toFixed(2)}} (請介於0.5~1.5之間)</p>
                     </div>
                 </div>
 			</fieldset>
 	    </form>
 	</div>
 	<div class="modal-footer">
-	    <button class="btn btn-primary" type="button" ng-click="$ctrl.ok()" ng-disabled="!modifyForm.$valid">{{getWord('OK')}}</button>
+	    <button class="btn btn-primary" type="button" ng-click="$ctrl.ok()" ng-disabled="!modifyForm.$valid || $ctrl.mdData.totalCrossWeight==0">{{getWord('OK')}}</button>
 	    <button class="btn btn-default" type="button" ng-click="$ctrl.cancel()">{{getWord('Cancel')}}</button>
 	</div>
 </script>
