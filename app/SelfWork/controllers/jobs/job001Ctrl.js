@@ -1488,14 +1488,16 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
     };
 
     function CalculationFinalCost(rowEntity, colDef, newValue, oldValue){
-
-        try {
-            rowEntity["IL_G1"] = rowEntity["IL_G1"].toUpperCase();
-        } catch (e) {
-            console.log(e);
+        
+        // 一律為大寫
+        if(colDef.name == 'O_IL_G1') {
+            try {
+                rowEntity["O_IL_G1"] = newValue.toUpperCase();
+            }
+            catch (e) {
+                console.log(e);
+            }
         }
-        // 新增規則
-        // if(rowEntity["IL_G1"] == "Y"){
 
         try {
             if(newValue.toUpperCase() == "Y"){
