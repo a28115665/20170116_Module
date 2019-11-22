@@ -166,7 +166,7 @@ angular.module('app.oselfwork').controller('OLeaderJobsCtrl', function ($scope, 
                                 if(res["returnData"].length == 0){
                                     RestfulApi.DeleteMSSQLData({
                                         deletename: 'Delete',
-                                        table: 46,
+                                        table: 40,
                                         params: {
                                             O_OL_SEQ : selectedItem.O_OL_SEQ
                                         }
