@@ -65,7 +65,7 @@ angular.module('app')
                         </div>');
 
     $templateCache.put('accessibilityToVForPullGoods', '\
-                        <div class="ui-grid-cell-contents text-center">\
+                        <div class="ui-grid-cell-contents">\
                             <a href="javascript:void(0);" class="btn btn-info btn-xs" ng-click="grid.appScope.$vm.gridMethodForPullGoods.viewData(row)"> 原因</a>\
                             <a href="javascript:void(0);" class="btn btn-primary btn-xs" ng-click="grid.appScope.$vm.gridMethodForPullGoods.detailData(row)"> 明細</a>\
                       </div>');
@@ -579,6 +579,21 @@ angular.module('app')
         }
         if($ctrl.mdData.O_OL_MASTER != null){
             $ctrl.mdData.O_OL_MASTER = $ctrl.mdData.O_OL_MASTER.toUpperCase();
+        }
+        if($ctrl.mdData.O_OL_MVNO != null){
+            $ctrl.mdData.O_OL_MVNO = $ctrl.mdData.O_OL_MVNO.toUpperCase();
+        }
+        if($ctrl.mdData.O_OL_COMPID != null){
+            $ctrl.mdData.O_OL_COMPID = $ctrl.mdData.O_OL_COMPID.toUpperCase();
+        }
+        if($ctrl.mdData.O_OL_ARRLOCATIONID != null){
+            $ctrl.mdData.O_OL_ARRLOCATIONID = $ctrl.mdData.O_OL_ARRLOCATIONID.toUpperCase();
+        }
+        if($ctrl.mdData.O_OL_POST != null){
+            $ctrl.mdData.O_OL_POST = $ctrl.mdData.O_OL_POST.toUpperCase();
+        }
+        if($ctrl.mdData.O_OL_PACKAGELOCATIONID != null){
+            $ctrl.mdData.O_OL_PACKAGELOCATIONID = $ctrl.mdData.O_OL_PACKAGELOCATIONID.toUpperCase();
         }
 
         $ctrl.mdData.O_OL_IMPORTDT = $ctrl.mdData.O_OL_IMPORTDT == "" ? null : $ctrl.mdData.O_OL_IMPORTDT;
