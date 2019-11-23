@@ -348,17 +348,17 @@ angular.module('app.oselfwork').controller('OJob001Ctrl', function ($scope, $sta
                 { name: 'O_IL_SENDADDRESS'      , displayName: '出口人英文地址', width: 110, enableCellEdit: false },
                 { name: 'O_IL_NEWSENDADDRESS'   , displayName: '新出口人英文地址', width: 110, headerCellClass: 'text-primary' },
                 { name: 'O_IL_GETID'            , displayName: '進口人身分識別碼', width: 110, enableCellEdit: false },
-                { name: 'O_IL_GETNO'            , displayName: '進口人統一編號', width: 110, enableCellEdit: false },
-                { name: 'O_IL_GETENAME'         , displayName: '進口人英文名稱', width: 110, enableCellEdit: false },
-                { name: 'O_IL_GETPHONE'         , displayName: '進口人電話', width: 110, enableCellEdit: false },
-                { name: 'O_IL_GETADDRESS'       , displayName: '進口人英文地址', width: 110, enableCellEdit: false },
+                { name: 'O_IL_GETNO'            , displayName: '進口人統一編號', width: 110, headerCellClass: 'text-primary' },
+                { name: 'O_IL_GETENAME'         , displayName: '進口人英文名稱', width: 110, headerCellClass: 'text-primary' },
+                { name: 'O_IL_GETPHONE'         , displayName: '進口人電話', width: 110, headerCellClass: 'text-primary' },
+                { name: 'O_IL_GETADDRESS'       , displayName: '進口人英文地址', width: 110, headerCellClass: 'text-primary' },
                 { name: 'O_IL_DWKIND'           , displayName: '貨櫃種類', width: 110, enableCellEdit: false },
                 { name: 'O_IL_DWNUMBER'         , displayName: '貨櫃號碼', width: 110, enableCellEdit: false },
                 { name: 'O_IL_DWTYPE'           , displayName: '貨櫃裝運方式', width: 110, enableCellEdit: false },
                 { name: 'O_IL_SEALNUMBER'       , displayName: '封條號碼', width: 110, enableCellEdit: false },
                 { name: 'O_IL_DECLAREMEMO1'     , displayName: '其他申報事項1', width: 110, enableCellEdit: false },
-                { name: 'O_IL_DECLAREMEMO2'     , displayName: '其他申報事項2', width: 110, enableCellEdit: false },
-                { name: 'O_IL_TAXPAYMENTMEMO'   , displayName: '主動申報繳納稅款註記', width: 110, enableCellEdit: false },
+                { name: 'O_IL_DECLAREMEMO2'     , displayName: '其他申報事項2', width: 110, headerCellClass: 'text-primary' },
+                { name: 'O_IL_TAXPAYMENTMEMO'   , displayName: '主動申報繳納稅款註記', width: 110, headerCellClass: 'text-primary' },
                 { name: 'Options'       , displayName: '操作', width: 120, enableCellEdit: false, enableSorting:false, enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToOJob001'), pinnedRight:true, cellClass: 'cell-class-no-style' }
             ],
             rowTemplate: '<div> \
@@ -827,6 +827,11 @@ angular.module('app.oselfwork').controller('OJob001Ctrl', function ($scope, $sta
                         _templates = "18";
                         _queryname = "SelectOItemListForEx0";
                         _params["O_IL_G1"] = "'X3'";
+                        break;
+                    // 關貿格式(ALL)
+                    case "ALL":
+                        _templates = "18";
+                        _queryname = "SelectOItemListForEx0";
                         break;
                 }
 
