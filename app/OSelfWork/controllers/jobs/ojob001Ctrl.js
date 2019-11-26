@@ -62,10 +62,10 @@ angular.module('app.oselfwork').controller('OJob001Ctrl', function ($scope, $sta
                         row.entity.O_IL_TAX2 = _returnData["O_IL_TAX2"];
                         needToUpdate = true;
                     }
-                    if(!angular.isUndefined(_returnData["O_IL_TAXRATE2"]) && _returnData["O_IL_TAXRATE2"] != ""){
-                        row.entity.O_IL_TAXRATE2 = _returnData["O_IL_TAXRATE2"];
-                        needToUpdate = true;
-                    }
+                    // if(!angular.isUndefined(_returnData["O_IL_TAXRATE2"]) && _returnData["O_IL_TAXRATE2"] != ""){
+                    //     row.entity.O_IL_TAXRATE2 = _returnData["O_IL_TAXRATE2"];
+                    //     needToUpdate = true;
+                    // }
 
                     if(needToUpdate){
                         $vm.job001GridApi.rowEdit.setRowsDirty([row.entity]);
@@ -291,13 +291,14 @@ angular.module('app.oselfwork').controller('OJob001Ctrl', function ($scope, $sta
                 { name: 'O_IL_NEWCTN'           , displayName: '新件數', width: 110, headerCellClass: 'text-primary' },
                 { name: 'O_IL_CTNUNIT'          , displayName: '件數單位', width: 110, enableCellEdit: false },
                 { name: 'O_IL_MARK'             , displayName: '標記', width: 110, enableCellEdit: false },
+                { name: 'O_IL_SMALLNO_ID'       , displayName: '貨物編號', width: 110, headerCellClass: 'text-primary' },
                 { name: 'O_IL_NATURE'           , displayName: '貨物名稱', width: 110, enableCellEdit: false, cellTooltip: cellTooltip},
                 { name: 'O_IL_NATURE_NEW'       , displayName: '新貨物名稱', width: 110, headerCellClass: 'text-primary', cellTooltip: cellTooltip},
                 { name: 'ChangeNature'          , displayName: '改單', width: 66, enableCellEdit: false, enableSorting:false, cellTemplate: $templateCache.get('accessibilityToChangeNature'), cellClass: 'cell-class-no-style' },
                 { name: 'O_IL_TAX'              , displayName: '稅則', width: 110, enableCellEdit: false },
                 { name: 'O_IL_TAX2'             , displayName: '新稅則', width: 110, headerCellClass: 'text-primary' },
-                { name: 'O_IL_TAXRATE'          , displayName: '稅率', width: 110, enableCellEdit: false },
-                { name: 'O_IL_TAXRATE2'         , displayName: '新稅率', width: 110, headerCellClass: 'text-primary' },
+                // { name: 'O_IL_TAXRATE'          , displayName: '稅率', width: 110, enableCellEdit: false },
+                // { name: 'O_IL_TAXRATE2'         , displayName: '新稅率', width: 110, headerCellClass: 'text-primary' },
                 { name: 'O_IL_BRAND'            , displayName: '商標', width: 110, enableCellEdit: false },
                 { name: 'O_IL_FORMAT'           , displayName: '成分及規格', width: 110, enableCellEdit: false },
                 { name: 'O_IL_NETWEIGHT'        , displayName: '淨重', width: 110, enableCellEdit: false },
@@ -328,7 +329,7 @@ angular.module('app.oselfwork').controller('OJob001Ctrl', function ($scope, $sta
                 ]},
                 { name: 'O_IL_INVOICECOST'      , displayName: '發票總金額', width: 110, enableCellEdit: false },
                 { name: 'O_IL_INVOICECOST2'     , displayName: '新發票總金額', width: 110, headerCellClass: 'text-primary' },
-                { name: 'O_IL_FINALCOST'        , displayName: '完稅價格', width: 110, headerCellClass: 'text-primary', filters: [
+                { name: 'O_IL_FINALCOST'        , displayName: '完稅價格', width: 110, enableCellEdit: false, filters: [
                     {
                         condition: uiGridConstants.filter.GREATER_THAN,
                         placeholder: '最小'
@@ -766,6 +767,79 @@ angular.module('app.oselfwork').controller('OJob001Ctrl', function ($scope, $sta
             });
 
         },
+        /**
+         * [RepeatGet description] 檢查重複進口人
+         */
+        RepeatGet : function(){
+
+            RestfulApi.SearchMSSQLData({
+                querymain: 'ojob001',
+                queryname: 'RepeatGet',
+                params: {
+                    O_IL_SEQ: $vm.vmData.O_OL_SEQ
+                }
+            }).then(function (res){
+                console.log(res["returnData"]);
+
+                var _data = res["returnData"] || [];
+
+                if(_data.length > 0){
+                    var modalInstance = $uibModal.open({
+                        animation: true,
+                        ariaLabelledBy: 'modal-title',
+                        ariaDescribedBy: 'modal-body',
+                        templateUrl: 'repeatGetModalContent.html',
+                        controller: 'RepeatGetModalInstanceCtrl',
+                        controllerAs: '$ctrl',
+                        backdrop: 'static',
+                        size: 'lg',
+                        // appendTo: parentElem,
+                        resolve: {
+                            repeatGet: function() {
+                                return _data;
+                            }
+                        }
+                    });
+
+                    modalInstance.result.then(function(selectedItem) {
+                        console.log(selectedItem);
+
+                        if(selectedItem.length > 0){
+
+                            var _getDirtyData = [];
+                            for(var i in selectedItem){
+
+                                var _beUpdate = $filter('filter')($vm.job001Data, { 
+                                    O_IL_SEQ : selectedItem[i].entity.O_IL_SEQ,
+                                    O_IL_NEWSMALLNO : selectedItem[i].entity.O_IL_NEWSMALLNO,
+                                    O_IL_SMALLNO : selectedItem[i].entity.O_IL_SMALLNO
+                                });
+
+                                if(_beUpdate.length > 0){
+                                    var _index = _beUpdate[0].Index - 1;
+
+                                    // 更新收件者相同的值
+                                    for(var j in $vm.job001GridApi.grid.columns){
+                                        var _colDef = $vm.job001GridApi.grid.columns[j].colDef;
+                                        if(_colDef.enableCellEdit){
+                                            $vm.job001Data[_index][_colDef.name] = selectedItem[i].entity[_colDef.name];
+                                        }
+                                    }
+
+                                    _getDirtyData.push($vm.job001Data[_index]);
+                                }
+                            }
+                            $vm.job001GridApi.rowEdit.setRowsDirty(_getDirtyData);
+                        }
+
+                    }, function() {
+                        // $log.info('Modal dismissed at: ' + new Date());
+                    });
+                }else{
+                    toaster.pop('info', '訊息', '無重複進口人', 3000);
+                }
+            }); 
+        },
         ExportExcel: function(){
             
             console.log($vm.vmData);
@@ -930,7 +1004,7 @@ angular.module('app.oselfwork').controller('OJob001Ctrl', function ($scope, $sta
         Update : function(entity){
             // console.log($vm.job001GridApi.rowEdit);
             // console.log($vm.job001GridApi.rowEdit.getDirtyRows($vm.job001GridApi.grid));
-            // console.log(entity, angular.isNumber(parseFloat(entity.IL_WEIGHT_NEW)), parseFloat(entity.IL_WEIGHT_NEW));
+            // console.log(entity);
 
             // create a fake promise - normally you'd use the promise returned by $http or $resource
             var deferred = $q.defer();
@@ -947,7 +1021,7 @@ angular.module('app.oselfwork').controller('OJob001Ctrl', function ($scope, $sta
                     O_IL_NEWCTN         : isNaN(parseInt(entity.O_IL_NEWCTN)) ? null : entity.O_IL_NEWCTN,
                     O_IL_NATURE_NEW     : entity.O_IL_NATURE_NEW,
                     O_IL_TAX2           : entity.O_IL_TAX2,
-                    O_IL_TAXRATE2       : entity.O_IL_TAXRATE2,
+                    // O_IL_TAXRATE2       : entity.O_IL_TAXRATE2,
                     O_IL_NETWEIGHT_NEW  : isNaN(parseFloat(entity.O_IL_NETWEIGHT_NEW)) ? null : entity.O_IL_NETWEIGHT_NEW,
                     O_IL_NEWCOUNT       : isNaN(parseInt(entity.O_IL_NEWCOUNT)) ? null : entity.O_IL_NEWCOUNT,
                     O_IL_NEWPRICEUNIT   : isNaN(parseFloat(entity.O_IL_NEWPRICEUNIT)) ? null : entity.O_IL_NEWPRICEUNIT,
@@ -993,6 +1067,40 @@ angular.module('app.oselfwork').controller('OJob001Ctrl', function ($scope, $sta
     };
 
     function CalculationFinalCost(rowEntity, colDef, newValue, oldValue){
+
+        // 編輯為 進口人統編
+        if(colDef.name == 'O_IL_GETNO'){
+            // 當有輸入值時
+            if(newValue != ''){
+                var _getnoOverSix = $filter('filter')($vm.job001Data, { O_IL_GETNO: newValue, O_PG_PULLGOODS: 0, O_IL_G1: '' }, true);
+                
+                // 進口人統編 在該單 >=6次
+                if(_getnoOverSix.length >= 6){
+                    for(var i in _getnoOverSix){
+                        _getnoOverSix[i]['O_IL_G1'] = 'Y';
+                    }
+                    $vm.job001GridApi.rowEdit.setRowsDirty(_getnoOverSix);
+                    return;
+                }
+
+                // 清除如果先編輯後才拉貨的統編
+                var _getnoOverSix = $filter('filter')($vm.job001Data, { O_IL_GETNO: newValue, O_IL_G1: 'Y' }, true);
+                for(var i in _getnoOverSix){
+                    _getnoOverSix[i]['O_IL_G1'] = '';
+                }
+
+                $vm.job001GridApi.rowEdit.setRowsDirty(_getnoOverSix);
+                return;
+            }else{
+                // 當沒輸入值時 清空原本的Y
+                var _getnoOverSix = $filter('filter')($vm.job001Data, { O_IL_GETNO: oldValue, O_PG_PULLGOODS: 0, O_IL_G1: 'Y' }, true);
+
+                _getnoOverSix.push(rowEntity);
+                for(var i in _getnoOverSix){
+                    _getnoOverSix[i]['O_IL_G1'] = '';
+                }
+            }
+        }
 
         // 一律為大寫
         if(colDef.name == 'O_IL_G1') {
@@ -1041,76 +1149,76 @@ angular.module('app.oselfwork').controller('OJob001Ctrl', function ($scope, $sta
         //     }
         // }
 
-        // // 計算稅
-        // var _univalent = parseInt(rowEntity.IL_UNIVALENT_NEW),
-        //     _pcs = parseInt(rowEntity.IL_NEWPCS),
-        //     _finalcost = parseInt(rowEntity.IL_FINALCOST),
-        //     start = 0;
+        // 計算發票總金額
+        var _count = parseInt(rowEntity.O_IL_NEWCOUNT),
+            _priceUnit = parseInt(rowEntity.O_IL_NEWPRICEUNIT),
+            _invoiceCost = parseInt(rowEntity.O_IL_INVOICECOST2),
+            start = 0;
 
-        // if(!isNaN(_univalent)){
-        //     start += 1;
-        // }
-        // if(!isNaN(_pcs)){
-        //     start += 1;
-        // }
-        // if(!isNaN(_finalcost)){
-        //     start += 1;
-        // }
+        if(!isNaN(_count)){
+            start += 1;
+        }
+        if(!isNaN(_priceUnit)){
+            start += 1;
+        }
+        if(!isNaN(_invoiceCost)){
+            start += 1;
+        }
 
-        // // 表示可以開始計算
-        // if(start >= 2){
-        //     // 新單價
-        //     if(colDef.name == 'IL_UNIVALENT_NEW'){
-        //         //如果數量有值
-        //         if(!isNaN(_pcs)){
-        //             _finalcost = _pcs * _univalent;
-        //         }
-        //     }
+        // 表示可以開始計算
+        if(start >= 2){
+            // 新單價
+            if(colDef.name == 'O_IL_NEWPRICEUNIT'){
+                //如果數量有值
+                if(!isNaN(_count)){
+                    _invoiceCost = _count * _priceUnit;
+                }
+            }
 
-        //     // 新數量
-        //     if(colDef.name == 'IL_NEWPCS'){
-        //         if(!isNaN(_univalent)){
-        //             _finalcost = _pcs * _univalent;
-        //         }
-        //     }
+            // 新數量
+            if(colDef.name == 'O_IL_NEWCOUNT'){
+                if(!isNaN(_priceUnit)){
+                    _invoiceCost = _count * _priceUnit;
+                }
+            }
 
-        //     // 當完稅價格小於100
-        //     if(_finalcost < 100 && _finalcost != 0){
-        //         // 給個新值 100~125
-        //         var maxNum = 125;  
-        //         var minNum = 100;  
-        //         _finalcost = Math.floor(Math.random() * (maxNum - minNum + 1)) + minNum; 
-        //     }
+            // // 當完稅價格小於100
+            // if(_finalcost < 100 && _finalcost != 0){
+            //     // 給個新值 100~125
+            //     var maxNum = 125;  
+            //     var minNum = 100;  
+            //     _finalcost = Math.floor(Math.random() * (maxNum - minNum + 1)) + minNum; 
+            // }
 
-        //     // 當完稅價格超過2000 提醒使用者
-        //     if(_finalcost > 2000){
-        //         toaster.pop('warning', '警告', '完稅價格超過2000元，請注意', 3000);
-        //     }
+            // // 當完稅價格超過2000 提醒使用者
+            // if(_finalcost > 2000){
+            //     toaster.pop('warning', '警告', '完稅價格超過2000元，請注意', 3000);
+            // }
             
-        //     // 當數量不為空 帶出單價 (會與新單價衝突)
-        //     if(colDef.name == 'IL_FINALCOST' || colDef.name == 'IL_NEWPCS' || colDef.name == 'IL_UNIVALENT_NEW'){
-        //         if(!isNaN(_pcs)){
-        //             if(parseInt(_pcs) != 0){
-        //                 _univalent = Math.round(_finalcost / _pcs);
-        //             }else{
-        //                 _univalent = 0;
-        //             }
-        //         }
-        //     }
+            // 當數量不為空 帶出單價 (會與新單價衝突)
+            if(colDef.name == 'O_IL_NEWCOUNT' || colDef.name == 'O_IL_NEWPRICEUNIT' || colDef.name == 'O_IL_INVOICECOST2'){
+                if(!isNaN(_count)){
+                    if(parseInt(_count) != 0){
+                        _priceUnit = Math.round(_invoiceCost / _count);
+                    }else{
+                        _priceUnit = 0;
+                    }
+                }
+            }
 
-        //     // 完稅價格
-        //     if(colDef.name == 'IL_FINALCOST' || colDef.name == 'IL_WEIGHT_NEW'){
-        //         // 避免帳不平 再次計算完稅價格
-        //         if(!isNaN(_pcs) && !isNaN(_univalent)){
-        //             _finalcost = _pcs * _univalent;
-        //         }
-        //     }
+            // 發票總金額
+            if(colDef.name == 'O_IL_INVOICECOST2'){
+                // 避免帳不平 再次計算完稅價格
+                if(!isNaN(_count) && !isNaN(_priceUnit)){
+                    _invoiceCost = _count * _priceUnit;
+                }
+            }
 
-        //     // console.log("_univalent:", _univalent," _pcs:" , _pcs," _finalcost:" , _finalcost);
-        //     rowEntity.IL_UNIVALENT_NEW = isNaN(_univalent) ? null : _univalent;
-        //     rowEntity.IL_NEWPCS = isNaN(_pcs) ? null : _pcs;
-        //     rowEntity.IL_FINALCOST = isNaN(_finalcost) ? null : _finalcost;
-        // }
+            // console.log("_invoiceCost:", _invoiceCost," _count:" , _count," _priceUnit:" , _priceUnit);
+            rowEntity.O_IL_INVOICECOST2 = isNaN(_invoiceCost) ? null : _invoiceCost;
+            rowEntity.O_IL_NEWCOUNT = isNaN(_count) ? null : _count;
+            rowEntity.O_IL_NEWPRICEUNIT = isNaN(_priceUnit) ? null : _priceUnit;
+        }
 
         $vm.job001GridApi.rowEdit.setRowsDirty([rowEntity]);
 
@@ -1196,6 +1304,85 @@ angular.module('app.oselfwork').controller('OJob001Ctrl', function ($scope, $sta
 
     $ctrl.ok = function() {
         $uibModalInstance.close($ctrl.mdData);
+    };
+
+    $ctrl.cancel = function() {
+        $uibModalInstance.dismiss('cancel');
+    };
+})
+.controller('RepeatGetModalInstanceCtrl', function ($uibModalInstance, $q, $scope, repeatGet) {
+    var $ctrl = this;
+    $ctrl.mdData = repeatGet;
+
+    $ctrl.repeatGetOption = {
+        data: '$ctrl.mdData',
+        columnDefs: [
+            { name: 'O_IL_SENDENAME'        , displayName: '出口人英文名稱', width: 110, enableCellEdit: false },
+            { name: 'O_IL_NEWSENDENAME'     , displayName: '新出口人英文名稱', width: 110, headerCellClass: 'text-primary' },
+            { name: 'O_IL_GETNO'            , displayName: '進口人統一編號', width: 110, headerCellClass: 'text-primary' },
+            { name: 'O_IL_G1'               , displayName: '報關種類', width: 80, headerCellClass: 'text-primary' },
+            { name: 'O_IL_SMALLNO'          , displayName: '小號', width: 110, enableCellEdit: false },
+            { name: 'O_IL_POSTNO'           , displayName: '艙單號碼', width: 110, enableCellEdit: false },
+            { name: 'O_IL_CUSTID'           , displayName: '快遞業者統一編號', width: 110, enableCellEdit: false },
+            { name: 'O_IL_PRICECONDITON'    , displayName: '單價條件', width: 110, enableCellEdit: false },
+            { name: 'O_IL_CURRENCY'         , displayName: '單價幣別代碼', width: 110, enableCellEdit: false },
+            { name: 'O_IL_CROSSWEIGHT'      , displayName: '毛重', width: 110, enableCellEdit: false },
+            { name: 'O_IL_NEWCROSSWEIGHT'   , displayName: '新毛重', width: 110, headerCellClass: 'text-primary' },
+            { name: 'O_IL_CTN'              , displayName: '件數', width: 110, enableCellEdit: false },
+            { name: 'O_IL_NEWCTN'           , displayName: '新件數', width: 110, headerCellClass: 'text-primary' },
+            { name: 'O_IL_CTNUNIT'          , displayName: '件數單位', width: 110, enableCellEdit: false },
+            { name: 'O_IL_MARK'             , displayName: '標記', width: 110, enableCellEdit: false },
+            { name: 'O_IL_SMALLNO_ID'       , displayName: '貨物編號', width: 110, headerCellClass: 'text-primary' },
+            { name: 'O_IL_NATURE'           , displayName: '貨物名稱', width: 110, enableCellEdit: false, cellTooltip: cellTooltip},
+            { name: 'O_IL_NATURE_NEW'       , displayName: '新貨物名稱', width: 110, headerCellClass: 'text-primary', cellTooltip: cellTooltip},
+            { name: 'O_IL_TAX'              , displayName: '稅則', width: 110, enableCellEdit: false },
+            { name: 'O_IL_TAX2'             , displayName: '新稅則', width: 110, headerCellClass: 'text-primary' },
+            { name: 'O_IL_BRAND'            , displayName: '商標', width: 110, enableCellEdit: false },
+            { name: 'O_IL_FORMAT'           , displayName: '成分及規格', width: 110, enableCellEdit: false },
+            { name: 'O_IL_NETWEIGHT'        , displayName: '淨重', width: 110, enableCellEdit: false },
+            { name: 'O_IL_NETWEIGHT_NEW'    , displayName: '新淨重', width: 110, headerCellClass: 'text-primary' },
+            { name: 'O_IL_COUNT'            , displayName: '數量', width: 110, enableCellEdit: false },
+            { name: 'O_IL_NEWCOUNT'         , displayName: '新數量', width: 110, headerCellClass: 'text-primary' },
+            { name: 'O_IL_PRICEUNIT'        , displayName: '單價', width: 110, enableCellEdit: false },
+            { name: 'O_IL_NEWPRICEUNIT'     , displayName: '新單價', width: 110, headerCellClass: 'text-primary' },
+            { name: 'O_IL_PCS'              , displayName: '數量單位', width: 110, enableCellEdit: false},
+            { name: 'O_IL_NEWPCS'           , displayName: '新數量單位', width: 110, headerCellClass: 'text-primary'},
+            { name: 'O_IL_INVOICECOST'      , displayName: '發票總金額', width: 110, enableCellEdit: false },
+            { name: 'O_IL_INVOICECOST2'     , displayName: '新發票總金額', width: 110, headerCellClass: 'text-primary' },
+            { name: 'O_IL_FINALCOST'        , displayName: '完稅價格', width: 110, enableCellEdit: false},
+            { name: 'O_IL_VOLUME'           , displayName: '體積', width: 110, enableCellEdit: false },
+            { name: 'O_IL_VOLUMEUNIT'       , displayName: '體積單位', width: 110, enableCellEdit: false },
+            { name: 'O_IL_COUNTRY'          , displayName: '生產國別', width: 110, enableCellEdit: false },
+            { name: 'O_IL_COUNTRYID'        , displayName: '出口人國家代碼', width: 110, enableCellEdit: false },
+            { name: 'O_IL_NEWCOUNTRYID'     , displayName: '新出口人國家代碼', width: 110, headerCellClass: 'text-primary' },
+            { name: 'O_IL_SENDADDRESS'      , displayName: '出口人英文地址', width: 110, enableCellEdit: false },
+            { name: 'O_IL_NEWSENDADDRESS'   , displayName: '新出口人英文地址', width: 110, headerCellClass: 'text-primary' },
+            { name: 'O_IL_GETID'            , displayName: '進口人身分識別碼', width: 110, enableCellEdit: false },
+            { name: 'O_IL_GETENAME'         , displayName: '進口人英文名稱', width: 110, headerCellClass: 'text-primary' },
+            { name: 'O_IL_GETPHONE'         , displayName: '進口人電話', width: 110, headerCellClass: 'text-primary' },
+            { name: 'O_IL_GETADDRESS'       , displayName: '進口人英文地址', width: 110, headerCellClass: 'text-primary' },
+            { name: 'O_IL_DWKIND'           , displayName: '貨櫃種類', width: 110, enableCellEdit: false },
+            { name: 'O_IL_DWNUMBER'         , displayName: '貨櫃號碼', width: 110, enableCellEdit: false },
+            { name: 'O_IL_DWTYPE'           , displayName: '貨櫃裝運方式', width: 110, enableCellEdit: false },
+            { name: 'O_IL_SEALNUMBER'       , displayName: '封條號碼', width: 110, enableCellEdit: false },
+            { name: 'O_IL_DECLAREMEMO1'     , displayName: '其他申報事項1', width: 110, enableCellEdit: false },
+            { name: 'O_IL_DECLAREMEMO2'     , displayName: '其他申報事項2', width: 110, headerCellClass: 'text-primary' },
+            { name: 'O_IL_TAXPAYMENTMEMO'   , displayName: '主動申報繳納稅款註記', width: 110, headerCellClass: 'text-primary' }
+        ],
+        enableFiltering: false,
+        enableSorting: true,
+        enableColumnMenus: false,
+        // enableVerticalScrollbar: false,
+        paginationPageSizes: [50, 100, 150, 200, 250, 300],
+        paginationPageSize: 100,
+        rowEditWaitInterval: -1,
+        onRegisterApi: function(gridApi){
+            $ctrl.repeatGetGridApi = gridApi;
+        }
+    }
+
+    $ctrl.ok = function() {
+        $uibModalInstance.close($ctrl.repeatGetGridApi.rowEdit.getDirtyRows());
     };
 
     $ctrl.cancel = function() {
