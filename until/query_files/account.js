@@ -37,6 +37,11 @@ module.exports = function(pQueryname, pParams){
 
 			_SQLCommand += " ORDER BY SUD_DLVL ASC, SUD_DEPT ASC ";
 			break;
+		case "SelectDefaultPassword":
+			_SQLCommand += "EXEC OpenKeys; \
+							SELECT dbo.Decrypt(SPA_DEFAULT_PASSWORD) AS 'SPA_DEFAULT_PASSWORD' \
+							FROM SYS_PARM ";
+			break;
 	}
 
 	return _SQLCommand;
