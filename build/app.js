@@ -1427,6 +1427,17 @@ angular.module('app.layout', ['ui.router'])
                 // 預防網頁不斷重新整理且其他resolve執行速度快於stateChangeStart的session抓取
                 reLoadSession : function(AuthApi){
                     return AuthApi.ReLoadSession();
+                },
+                // 系統參數
+                sysParm : function($rootScope, RestfulApi){
+                    return RestfulApi.SearchMSSQLData({
+                        querymain: 'account',
+                        queryname: 'SelectSysParm'
+                    }).then(function(res){
+                        // console.log(res);
+                        $rootScope.sysParm = res["returnData"][0];
+                        return res["returnData"][0];
+                    });
                 }
             }
         })
@@ -4017,6 +4028,7 @@ angular.module('app')
         SENDMAIL : $resource('/toolbox/sendMail'),
         CHANGENATURE : $resource('/toolbox/changeNature'),
         DOTAX : $resource('/toolbox/doTax'),
+        CHANGEONATURE : $resource('/toolbox/changeONature'),
         COMPOSEMENU : $resource('/toolbox/composeMenu')
     };
 })
@@ -5260,6 +5272,21 @@ angular.module('app')
 	    return deferred.promise
 	},
 
+	this.ChangeONature = function (dataSrc) {
+	    // console.log(dataSrc);
+	    var deferred = $q.defer();
+
+	    Resource.CHANGEONATURE.get(dataSrc,
+	    	function (pSResponse){
+				deferred.resolve(pSResponse);
+			},
+	    	function (pFResponse){
+	    		deferred.reject(pFResponse.data);
+	    	});
+
+	    return deferred.promise
+	},
+
 	this.ComposeMenu = function (dataSrc) {
 	    // console.log(dataSrc);
 	    var deferred = $q.defer();
@@ -5342,7 +5369,7 @@ angular.module('app')
                         </div>');
 
     $templateCache.put('accessibilityToVForPullGoods', '\
-                        <div class="ui-grid-cell-contents text-center">\
+                        <div class="ui-grid-cell-contents">\
                             <a href="javascript:void(0);" class="btn btn-info btn-xs" ng-click="grid.appScope.$vm.gridMethodForPullGoods.viewData(row)"> 原因</a>\
                             <a href="javascript:void(0);" class="btn btn-primary btn-xs" ng-click="grid.appScope.$vm.gridMethodForPullGoods.detailData(row)"> 明細</a>\
                       </div>');
@@ -5856,6 +5883,21 @@ angular.module('app')
         }
         if($ctrl.mdData.O_OL_MASTER != null){
             $ctrl.mdData.O_OL_MASTER = $ctrl.mdData.O_OL_MASTER.toUpperCase();
+        }
+        if($ctrl.mdData.O_OL_MVNO != null){
+            $ctrl.mdData.O_OL_MVNO = $ctrl.mdData.O_OL_MVNO.toUpperCase();
+        }
+        if($ctrl.mdData.O_OL_COMPID != null){
+            $ctrl.mdData.O_OL_COMPID = $ctrl.mdData.O_OL_COMPID.toUpperCase();
+        }
+        if($ctrl.mdData.O_OL_ARRLOCATIONID != null){
+            $ctrl.mdData.O_OL_ARRLOCATIONID = $ctrl.mdData.O_OL_ARRLOCATIONID.toUpperCase();
+        }
+        if($ctrl.mdData.O_OL_POST != null){
+            $ctrl.mdData.O_OL_POST = $ctrl.mdData.O_OL_POST.toUpperCase();
+        }
+        if($ctrl.mdData.O_OL_PACKAGELOCATIONID != null){
+            $ctrl.mdData.O_OL_PACKAGELOCATIONID = $ctrl.mdData.O_OL_PACKAGELOCATIONID.toUpperCase();
         }
 
         $ctrl.mdData.O_OL_IMPORTDT = $ctrl.mdData.O_OL_IMPORTDT == "" ? null : $ctrl.mdData.O_OL_IMPORTDT;
@@ -6523,6 +6565,7 @@ angular.module('app.appViews').controller('ProjectsDemoCtrl', function ($scope, 
 "use strict";
 
 angular.module('app.auth').controller('MainLoginCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster) {
+
     // console.log(Session.Get());
     $scope.Login = function($vm){
         // console.log($vm);
@@ -6557,9 +6600,8 @@ angular.module('app.auth').directive('loginInfo', function(User, Session){
             // User.initialized.then(function(){
             //     scope.user = User
             // });
-            
 			scope.user = angular.copy(Session.Get());
-			scope.user["picture"] = 'styles/img/avatars/eastwind.png';
+			scope.user["picture"] = scope.sysParm.SPA_AVATARS;
         }
     }
 })
@@ -7502,8 +7544,8 @@ $templateCache.put("app/app/calendar/views/calendar.tpl.html","<!-- MAIN CONTENT
 $templateCache.put("app/app/dashboard/projects/recent-projects.tpl.html","<div class=\"project-context hidden-xs dropdown\" dropdown>\r\n\r\n    <span class=\"label\">{{getWord(\'Projects\')}}:</span>\r\n    <span class=\"project-selector dropdown-toggle\" data-toggle=\"dropdown\">{{getWord(\'Recent projects\')}} <i ng-if=\"projects.length\"\r\n            class=\"fa fa-angle-down\"></i></span>\r\n\r\n    <ul class=\"dropdown-menu\" ng-if=\"projects.length\">\r\n        <li ng-repeat=\"project in projects\">\r\n            <a href=\"{{project.href}}\">{{project.title}}</a>\r\n        </li>\r\n        <li class=\"divider\"></li>\r\n        <li>\r\n            <a ng-click=\"clearProjects()\"><i class=\"fa fa-power-off\"></i> Clear</a>\r\n        </li>\r\n    </ul>\r\n\r\n</div>");
 $templateCache.put("app/app/dashboard/todo/todo-widget.tpl.html","<div id=\"todo-widget\" jarvis-widget data-widget-editbutton=\"false\" data-widget-color=\"blue\"\r\n     ng-controller=\"TodoCtrl\">\r\n    <header>\r\n        <span class=\"widget-icon\"> <i class=\"fa fa-check txt-color-white\"></i> </span>\r\n\r\n        <h2> ToDo\'s </h2>\r\n\r\n        <div class=\"widget-toolbar\">\r\n            <!-- add: non-hidden - to disable auto hide -->\r\n            <button class=\"btn btn-xs btn-default\" ng-class=\"{active: newTodo}\" ng-click=\"toggleAdd()\"><i ng-class=\"{ \'fa fa-plus\': !newTodo, \'fa fa-times\': newTodo}\"></i> Add</button>\r\n\r\n        </div>\r\n    </header>\r\n    <!-- widget div-->\r\n    <div>\r\n        <div class=\"widget-body no-padding smart-form\">\r\n            <!-- content goes here -->\r\n            <div ng-show=\"newTodo\">\r\n                <h5 class=\"todo-group-title\"><i class=\"fa fa-plus-circle\"></i> New Todo</h5>\r\n\r\n                <form name=\"newTodoForm\" class=\"smart-form\">\r\n                    <fieldset>\r\n                        <section>\r\n                            <label class=\"input\">\r\n                                <input type=\"text\" required class=\"input-lg\" ng-model=\"newTodo.title\"\r\n                                       placeholder=\"What needs to be done?\">\r\n                            </label>\r\n                        </section>\r\n                        <section>\r\n                            <div class=\"col-xs-6\">\r\n                                <label class=\"select\">\r\n                                    <select class=\"input-sm\" ng-model=\"newTodo.state\"\r\n                                            ng-options=\"state as state for state in states\"></select> <i></i> </label>\r\n                            </div>\r\n                        </section>\r\n                    </fieldset>\r\n                    <footer>\r\n                        <button ng-disabled=\"newTodoForm.$invalid\" type=\"button\" class=\"btn btn-primary\"\r\n                                ng-click=\"createTodo()\">\r\n                            Add\r\n                        </button>\r\n                        <button type=\"button\" class=\"btn btn-default\" ng-click=\"toggleAdd()\">\r\n                            Cancel\r\n                        </button>\r\n                    </footer>\r\n                </form>\r\n            </div>\r\n\r\n            <todo-list state=\"Critical\"  title=\"Critical Tasks\" icon=\"warning\" todos=\"todos\"></todo-list>\r\n\r\n            <todo-list state=\"Important\" title=\"Important Tasks\" icon=\"exclamation\" todos=\"todos\"></todo-list>\r\n\r\n            <todo-list state=\"Completed\" title=\"Completed Tasks\" icon=\"check\" todos=\"todos\"></todo-list>\r\n\r\n            <!-- end content -->\r\n        </div>\r\n\r\n    </div>\r\n    <!-- end widget div -->\r\n</div>");
 $templateCache.put("app/app/layout/language/language-selector.tpl.html","<ul class=\"header-dropdown-list hidden-xs ng-cloak\" ng-controller=\"LanguagesCtrl\">\r\n    <li class=\"dropdown\" dropdown>\r\n        <a class=\"dropdown-toggle\" data-toggle=\"dropdown\" href> <img src=\"styles/img/blank.gif\" class=\"flag flag-{{currentLanguage.key}}\" alt=\"{{currentLanguage.alt}}\"> <span> {{currentLanguage.title}} </span>\r\n            <i class=\"fa fa-angle-down\"></i> </a>\r\n        <ul class=\"dropdown-menu pull-right\">\r\n            <li ng-class=\"{active: language==currentLanguage}\" ng-repeat=\"language in languages\">\r\n                <a ng-click=\"selectLanguage(language)\"><img src=\"styles/img/blank.gif\" class=\"flag flag-{{language.key}}\" alt=\"{{language.alt}}\"> {{language.title}}</a>\r\n            </li>\r\n        </ul>\r\n    </li>\r\n</ul>\r\n");
-$templateCache.put("app/app/layout/partials/footer.tpl.html","<div class=\"page-footer\">\r\n    <div class=\"row\">\r\n        <div class=\"col-xs-12 col-sm-6\">\r\n            <span class=\"txt-color-white\">東風物流貨運承攬有限公司 © 2017</span>\r\n        </div>\r\n\r\n        <div class=\"col-xs-6 col-sm-6 text-right hidden-xs\">\r\n            <!-- <div class=\"txt-color-white inline-block\">\r\n                <i class=\"txt-color-blueLight hidden-mobile\">Last account activity <i class=\"fa fa-clock-o\"></i>\r\n                    <strong>52 mins ago &nbsp;</strong> </i>\r\n\r\n                <div class=\"btn-group dropup\">\r\n                    <button class=\"btn btn-xs dropdown-toggle bg-color-blue txt-color-white\" data-toggle=\"dropdown\">\r\n                        <i class=\"fa fa-link\"></i> <span class=\"caret\"></span>\r\n                    </button>\r\n                    <ul class=\"dropdown-menu pull-right text-left\">\r\n                        <li>\r\n                            <div class=\"padding-5\">\r\n                                <p class=\"txt-color-darken font-sm no-margin\">Download Progress</p>\r\n\r\n                                <div class=\"progress progress-micro no-margin\">\r\n                                    <div class=\"progress-bar progress-bar-success\" style=\"width: 50%;\"></div>\r\n                                </div>\r\n                            </div>\r\n                        </li>\r\n                        <li class=\"divider\"></li>\r\n                        <li>\r\n                            <div class=\"padding-5\">\r\n                                <p class=\"txt-color-darken font-sm no-margin\">Server Load</p>\r\n\r\n                                <div class=\"progress progress-micro no-margin\">\r\n                                    <div class=\"progress-bar progress-bar-success\" style=\"width: 20%;\"></div>\r\n                                </div>\r\n                            </div>\r\n                        </li>\r\n                        <li class=\"divider\"></li>\r\n                        <li>\r\n                            <div class=\"padding-5\">\r\n                                <p class=\"txt-color-darken font-sm no-margin\">Memory Load <span class=\"text-danger\">*critical*</span>\r\n                                </p>\r\n\r\n                                <div class=\"progress progress-micro no-margin\">\r\n                                    <div class=\"progress-bar progress-bar-danger\" style=\"width: 70%;\"></div>\r\n                                </div>\r\n                            </div>\r\n                        </li>\r\n                        <li class=\"divider\"></li>\r\n                        <li>\r\n                            <div class=\"padding-5\">\r\n                                <button class=\"btn btn-block btn-default\">refresh</button>\r\n                            </div>\r\n                        </li>\r\n                    </ul>\r\n                </div>\r\n            </div> -->\r\n        </div>\r\n    </div>\r\n</div>");
-$templateCache.put("app/app/layout/partials/header.tpl.html","<header id=\"header\">\r\n    <div id=\"logo-group\">\r\n        <!-- PLACE YOUR LOGO HERE -->\r\n        <span id=\"logo\"> <img src=\"styles/img/ews/title_logo.png\" alt=\"東風管理系統\"> </span>\r\n        <!-- END LOGO PLACEHOLDER -->\r\n        <!-- Note: The activity badge color changes when clicked and resets the number to 0\r\n    Suggestion: You may want to set a flag when this happens to tick off all checked messages / notifications -->\r\n        <!-- <span id=\"activity\" class=\"activity-dropdown\" activities-dropdown-toggle> \r\n            <i class=\"fa fa-user\"></i> \r\n            <b class=\"badge bg-color-red\">21</b> \r\n        </span> -->\r\n        <div smart-include=\"app/dashboard/activities/activities.html\"></div>\r\n    </div>\r\n    <!-- <recent-projects></recent-projects> -->\r\n    <!-- pulled right: nav area -->\r\n    <div class=\"pull-right\">\r\n        <!-- collapse menu button -->\r\n        <div id=\"hide-menu\" class=\"btn-header pull-right\">\r\n            <span> <a toggle-menu title=\"Collapse Menu\"><i\r\n                class=\"fa fa-reorder\"></i></a> </span>\r\n        </div>\r\n        <!-- end collapse menu -->\r\n        <!-- #MOBILE -->\r\n        <!-- Top menu profile link : this shows only when top menu is active -->\r\n        <ul id=\"mobile-profile-img\" class=\"header-dropdown-list hidden-xs padding-5\">\r\n            <li class=\"\">\r\n                <a href=\"#\" class=\"dropdown-toggle no-margin userdropdown\" data-toggle=\"dropdown\">\r\n                    <img src=\"styles/img/avatars/eastwind.png\" alt=\"John Doe\" class=\"online\" />\r\n                </a>\r\n                <ul class=\"dropdown-menu pull-right\">\r\n                    <li>\r\n                        <a href-void class=\"padding-10 padding-top-0 padding-bottom-0\"><i\r\n                            class=\"fa fa-cog\"></i> Setting</a>\r\n                    </li>\r\n                    <li class=\"divider\"></li>\r\n                    <li>\r\n                        <a ui-sref=\"app.appViews.profileDemo\" class=\"padding-10 padding-top-0 padding-bottom-0\"> <i class=\"fa fa-user\"></i>\r\n                            <u>P</u>rofile</a>\r\n                    </li>\r\n                    <li class=\"divider\"></li>\r\n                    <li>\r\n                        <a href-void class=\"padding-10 padding-top-0 padding-bottom-0\" data-action=\"toggleShortcut\"><i class=\"fa fa-arrow-down\"></i> <u>S</u>hortcut</a>\r\n                    </li>\r\n                    <li class=\"divider\"></li>\r\n                    <li>\r\n                        <a href-void class=\"padding-10 padding-top-0 padding-bottom-0\" data-action=\"launchFullscreen\"><i class=\"fa fa-arrows-alt\"></i> Full <u>S</u>creen</a>\r\n                    </li>\r\n                    <li class=\"divider\"></li>\r\n                    <li>\r\n                        <a href=\"#/login\" class=\"padding-10 padding-top-5 padding-bottom-5\" data-action=\"userLogout\"><i\r\n                            class=\"fa fa-sign-out fa-lg\"></i> <strong><u>L</u>ogout</strong></a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n        </ul>\r\n        <!-- logout button -->\r\n        <div id=\"logout\" class=\"btn-header transparent pull-right\">\r\n            <span> \r\n                <a ui-sref=\"login\" \r\n                   title=\"Sign Out\" \r\n                   data-action=\"userLogout\"\r\n                   data-logout-msg=\"You can improve your security further after logging out by closing this opened browser\">\r\n                   <i class=\"fa fa-sign-out\"></i>\r\n                </a> \r\n            </span>\r\n        </div>\r\n        <!-- end logout button -->\r\n        <!-- search mobile button (this is hidden till mobile view port) -->\r\n        <div id=\"search-mobile\" class=\"btn-header transparent pull-right\" data-search-mobile>\r\n            <span> <a href=\"#\" title=\"Search\"><i class=\"fa fa-search\"></i></a> </span>\r\n        </div>\r\n        <!-- end search mobile button -->\r\n        <!-- input: search field -->\r\n        <!-- <form action=\"#/search\" class=\"header-search pull-right\">\r\n            <input id=\"search-fld\" type=\"text\" name=\"param\" placeholder=\"Find reports and more\" data-autocomplete=\'[\r\n                    \"ActionScript\",\r\n                    \"AppleScript\",\r\n                    \"Asp\",\r\n                    \"BASIC\",\r\n                    \"C\",\r\n                    \"C++\",\r\n                    \"Clojure\",\r\n                    \"COBOL\",\r\n                    \"ColdFusion\",\r\n                    \"Erlang\",\r\n                    \"Fortran\",\r\n                    \"Groovy\",\r\n                    \"Haskell\",\r\n                    \"Java\",\r\n                    \"JavaScript\",\r\n                    \"Lisp\",\r\n                    \"Perl\",\r\n                    \"PHP\",\r\n                    \"Python\",\r\n                    \"Ruby\",\r\n                    \"Scala\",\r\n                    \"Scheme\"]\'>\r\n            <button type=\"submit\">\r\n                <i class=\"fa fa-search\"></i>\r\n            </button>\r\n            <a href=\"$\" id=\"cancel-search-js\" title=\"Cancel Search\"><i class=\"fa fa-times\"></i></a>\r\n        </form> -->\r\n        <!-- end input: search field -->\r\n        <!-- fullscreen button -->\r\n        <div id=\"fullscreen\" class=\"btn-header transparent pull-right\">\r\n            <span> <a full-screen title=\"Full Screen\"><i\r\n                class=\"fa fa-arrows-alt\"></i></a> </span>\r\n        </div>\r\n        <!-- end fullscreen button -->\r\n        <!-- #Voice Command: Start Speech -->\r\n        <!-- <div id=\"speech-btn\" class=\"btn-header transparent pull-right hidden-sm hidden-xs\">\r\n            <div>\r\n                <a title=\"Voice Command\" id=\"voice-command-btn\" speech-recognition><i class=\"fa fa-microphone\"></i></a>\r\n                <div class=\"popover bottom\">\r\n                    <div class=\"arrow\"></div>\r\n                    <div class=\"popover-content\">\r\n                        <h4 class=\"vc-title\">Voice command activated <br>\r\n                        <small>Please speak clearly into the mic</small>\r\n                    </h4>\r\n                        <h4 class=\"vc-title-error text-center\">\r\n                        <i class=\"fa fa-microphone-slash\"></i> Voice command failed\r\n                        <br>\r\n                        <small class=\"txt-color-red\">Must <strong>\"Allow\"</strong> Microphone</small>\r\n                        <br>\r\n                        <small class=\"txt-color-red\">Must have <strong>Internet Connection</strong></small>\r\n                    </h4>\r\n                        <a href-void class=\"btn btn-success\" id=\"speech-help-btn\">See Commands</a>\r\n                        <a href-void class=\"btn bg-color-purple txt-color-white\" onclick=\"$(\'#speech-btn .popover\').fadeOut(50);\">Close Popup</a>\r\n                    </div>\r\n                </div>\r\n            </div>\r\n        </div> -->\r\n        <!-- end voice command -->\r\n        \r\n        <!-- multiple lang dropdown : find all flags in the flags page -->\r\n        <language-selector></language-selector>\r\n        <!-- end multiple lang -->\r\n    </div>\r\n    <!-- end pulled right: nav area -->\r\n</header>\r\n");
+$templateCache.put("app/app/layout/partials/footer.tpl.html","<div class=\"page-footer\">\r\n    <div class=\"row\">\r\n        <div class=\"col-xs-12 col-sm-6\">\r\n            <!-- <span class=\"txt-color-white\">東風物流貨運承攬有限公司 © 2017</span> -->\r\n            <span class=\"txt-color-white\" ng-bind=\"sysParm.SPA_FOOTER\"></span>\r\n        </div>\r\n\r\n        <div class=\"col-xs-6 col-sm-6 text-right hidden-xs\">\r\n            <!-- <div class=\"txt-color-white inline-block\">\r\n                <i class=\"txt-color-blueLight hidden-mobile\">Last account activity <i class=\"fa fa-clock-o\"></i>\r\n                    <strong>52 mins ago &nbsp;</strong> </i>\r\n\r\n                <div class=\"btn-group dropup\">\r\n                    <button class=\"btn btn-xs dropdown-toggle bg-color-blue txt-color-white\" data-toggle=\"dropdown\">\r\n                        <i class=\"fa fa-link\"></i> <span class=\"caret\"></span>\r\n                    </button>\r\n                    <ul class=\"dropdown-menu pull-right text-left\">\r\n                        <li>\r\n                            <div class=\"padding-5\">\r\n                                <p class=\"txt-color-darken font-sm no-margin\">Download Progress</p>\r\n\r\n                                <div class=\"progress progress-micro no-margin\">\r\n                                    <div class=\"progress-bar progress-bar-success\" style=\"width: 50%;\"></div>\r\n                                </div>\r\n                            </div>\r\n                        </li>\r\n                        <li class=\"divider\"></li>\r\n                        <li>\r\n                            <div class=\"padding-5\">\r\n                                <p class=\"txt-color-darken font-sm no-margin\">Server Load</p>\r\n\r\n                                <div class=\"progress progress-micro no-margin\">\r\n                                    <div class=\"progress-bar progress-bar-success\" style=\"width: 20%;\"></div>\r\n                                </div>\r\n                            </div>\r\n                        </li>\r\n                        <li class=\"divider\"></li>\r\n                        <li>\r\n                            <div class=\"padding-5\">\r\n                                <p class=\"txt-color-darken font-sm no-margin\">Memory Load <span class=\"text-danger\">*critical*</span>\r\n                                </p>\r\n\r\n                                <div class=\"progress progress-micro no-margin\">\r\n                                    <div class=\"progress-bar progress-bar-danger\" style=\"width: 70%;\"></div>\r\n                                </div>\r\n                            </div>\r\n                        </li>\r\n                        <li class=\"divider\"></li>\r\n                        <li>\r\n                            <div class=\"padding-5\">\r\n                                <button class=\"btn btn-block btn-default\">refresh</button>\r\n                            </div>\r\n                        </li>\r\n                    </ul>\r\n                </div>\r\n            </div> -->\r\n        </div>\r\n    </div>\r\n</div>");
+$templateCache.put("app/app/layout/partials/header.tpl.html","<header id=\"header\">\r\n    <div id=\"logo-group\">\r\n        <!-- PLACE YOUR LOGO HERE -->\r\n        <!-- <span id=\"logo\"> <img src=\"styles/img/ews/title_logo.png\" alt=\"東風管理系統\"> </span> -->\r\n        <span id=\"logo\"> <img src=\"{{sysParm.SPA_HEADER_PNG}}\" alt=\"{{sysParm.SPA_HEADER}}\"> </span>\r\n        <!-- END LOGO PLACEHOLDER -->\r\n        <!-- Note: The activity badge color changes when clicked and resets the number to 0\r\n    Suggestion: You may want to set a flag when this happens to tick off all checked messages / notifications -->\r\n        <!-- <span id=\"activity\" class=\"activity-dropdown\" activities-dropdown-toggle> \r\n            <i class=\"fa fa-user\"></i> \r\n            <b class=\"badge bg-color-red\">21</b> \r\n        </span> -->\r\n        <div smart-include=\"app/dashboard/activities/activities.html\"></div>\r\n    </div>\r\n    <!-- <recent-projects></recent-projects> -->\r\n    <!-- pulled right: nav area -->\r\n    <div class=\"pull-right\">\r\n        <!-- collapse menu button -->\r\n        <div id=\"hide-menu\" class=\"btn-header pull-right\">\r\n            <span> <a toggle-menu title=\"Collapse Menu\"><i\r\n                class=\"fa fa-reorder\"></i></a> </span>\r\n        </div>\r\n        <!-- end collapse menu -->\r\n        <!-- #MOBILE -->\r\n        <!-- Top menu profile link : this shows only when top menu is active -->\r\n        <ul id=\"mobile-profile-img\" class=\"header-dropdown-list hidden-xs padding-5\">\r\n            <li class=\"\">\r\n                <a href=\"#\" class=\"dropdown-toggle no-margin userdropdown\" data-toggle=\"dropdown\">\r\n                    <img src=\"styles/img/avatars/eastwind.png\" alt=\"John Doe\" class=\"online\" />\r\n                </a>\r\n                <ul class=\"dropdown-menu pull-right\">\r\n                    <li>\r\n                        <a href-void class=\"padding-10 padding-top-0 padding-bottom-0\"><i\r\n                            class=\"fa fa-cog\"></i> Setting</a>\r\n                    </li>\r\n                    <li class=\"divider\"></li>\r\n                    <li>\r\n                        <a ui-sref=\"app.appViews.profileDemo\" class=\"padding-10 padding-top-0 padding-bottom-0\"> <i class=\"fa fa-user\"></i>\r\n                            <u>P</u>rofile</a>\r\n                    </li>\r\n                    <li class=\"divider\"></li>\r\n                    <li>\r\n                        <a href-void class=\"padding-10 padding-top-0 padding-bottom-0\" data-action=\"toggleShortcut\"><i class=\"fa fa-arrow-down\"></i> <u>S</u>hortcut</a>\r\n                    </li>\r\n                    <li class=\"divider\"></li>\r\n                    <li>\r\n                        <a href-void class=\"padding-10 padding-top-0 padding-bottom-0\" data-action=\"launchFullscreen\"><i class=\"fa fa-arrows-alt\"></i> Full <u>S</u>creen</a>\r\n                    </li>\r\n                    <li class=\"divider\"></li>\r\n                    <li>\r\n                        <a href=\"#/login\" class=\"padding-10 padding-top-5 padding-bottom-5\" data-action=\"userLogout\"><i\r\n                            class=\"fa fa-sign-out fa-lg\"></i> <strong><u>L</u>ogout</strong></a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n        </ul>\r\n        <!-- logout button -->\r\n        <div id=\"logout\" class=\"btn-header transparent pull-right\">\r\n            <span> \r\n                <a ui-sref=\"login\" \r\n                   title=\"Sign Out\" \r\n                   data-action=\"userLogout\"\r\n                   data-logout-msg=\"You can improve your security further after logging out by closing this opened browser\">\r\n                   <i class=\"fa fa-sign-out\"></i>\r\n                </a> \r\n            </span>\r\n        </div>\r\n        <!-- end logout button -->\r\n        <!-- search mobile button (this is hidden till mobile view port) -->\r\n        <div id=\"search-mobile\" class=\"btn-header transparent pull-right\" data-search-mobile>\r\n            <span> <a href=\"#\" title=\"Search\"><i class=\"fa fa-search\"></i></a> </span>\r\n        </div>\r\n        <!-- end search mobile button -->\r\n        <!-- input: search field -->\r\n        <!-- <form action=\"#/search\" class=\"header-search pull-right\">\r\n            <input id=\"search-fld\" type=\"text\" name=\"param\" placeholder=\"Find reports and more\" data-autocomplete=\'[\r\n                    \"ActionScript\",\r\n                    \"AppleScript\",\r\n                    \"Asp\",\r\n                    \"BASIC\",\r\n                    \"C\",\r\n                    \"C++\",\r\n                    \"Clojure\",\r\n                    \"COBOL\",\r\n                    \"ColdFusion\",\r\n                    \"Erlang\",\r\n                    \"Fortran\",\r\n                    \"Groovy\",\r\n                    \"Haskell\",\r\n                    \"Java\",\r\n                    \"JavaScript\",\r\n                    \"Lisp\",\r\n                    \"Perl\",\r\n                    \"PHP\",\r\n                    \"Python\",\r\n                    \"Ruby\",\r\n                    \"Scala\",\r\n                    \"Scheme\"]\'>\r\n            <button type=\"submit\">\r\n                <i class=\"fa fa-search\"></i>\r\n            </button>\r\n            <a href=\"$\" id=\"cancel-search-js\" title=\"Cancel Search\"><i class=\"fa fa-times\"></i></a>\r\n        </form> -->\r\n        <!-- end input: search field -->\r\n        <!-- fullscreen button -->\r\n        <div id=\"fullscreen\" class=\"btn-header transparent pull-right\">\r\n            <span> <a full-screen title=\"Full Screen\"><i\r\n                class=\"fa fa-arrows-alt\"></i></a> </span>\r\n        </div>\r\n        <!-- end fullscreen button -->\r\n        <!-- #Voice Command: Start Speech -->\r\n        <!-- <div id=\"speech-btn\" class=\"btn-header transparent pull-right hidden-sm hidden-xs\">\r\n            <div>\r\n                <a title=\"Voice Command\" id=\"voice-command-btn\" speech-recognition><i class=\"fa fa-microphone\"></i></a>\r\n                <div class=\"popover bottom\">\r\n                    <div class=\"arrow\"></div>\r\n                    <div class=\"popover-content\">\r\n                        <h4 class=\"vc-title\">Voice command activated <br>\r\n                        <small>Please speak clearly into the mic</small>\r\n                    </h4>\r\n                        <h4 class=\"vc-title-error text-center\">\r\n                        <i class=\"fa fa-microphone-slash\"></i> Voice command failed\r\n                        <br>\r\n                        <small class=\"txt-color-red\">Must <strong>\"Allow\"</strong> Microphone</small>\r\n                        <br>\r\n                        <small class=\"txt-color-red\">Must have <strong>Internet Connection</strong></small>\r\n                    </h4>\r\n                        <a href-void class=\"btn btn-success\" id=\"speech-help-btn\">See Commands</a>\r\n                        <a href-void class=\"btn bg-color-purple txt-color-white\" onclick=\"$(\'#speech-btn .popover\').fadeOut(50);\">Close Popup</a>\r\n                    </div>\r\n                </div>\r\n            </div>\r\n        </div> -->\r\n        <!-- end voice command -->\r\n        \r\n        <!-- multiple lang dropdown : find all flags in the flags page -->\r\n        <language-selector></language-selector>\r\n        <!-- end multiple lang -->\r\n    </div>\r\n    <!-- end pulled right: nav area -->\r\n</header>\r\n");
 $templateCache.put("app/app/layout/partials/navigation.tpl.html","<aside id=\"left-panel\">\r\n\r\n    <!-- User info -->\r\n    <div login-info></div>\r\n    <!-- end user info -->\r\n\r\n    <nav data-smart-menu-items=\"/api/menu-items.json\">\r\n    <!-- <nav> -->\r\n        <!-- NOTE: Notice the gaps after each icon usage <i></i>..\r\n        Please note that these links work a bit different than\r\n        traditional href=\"\" links. See documentation for details.\r\n        -->\r\n\r\n        <!-- <ul data-smart-menu>\r\n            <li data-menu-collapse>\r\n                <a href=\"#\" title=\"Dashboard\"><i class=\"fa fa-lg fa-fw fa-home\"></i> <span\r\n                        class=\"menu-item-parent\">{{getWord(\'Dashboard\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.dashboard\">{{getWord(\'Analytics Dashboard\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.dashboard-social\">{{getWord(\'Social Wall\')}}</a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\" title=\"Restful\">\r\n                    <i class=\"fa fa-lg fa-fw fa-home\"></i> \r\n                    <span class=\"menu-item-parent\">{{getWord(\'Restful\')}}</span>\r\n                </a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.restful.alantest\">{{getWord(\'AlanTest\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.restful.gridtest\">{{getWord(\'GridTest\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.restful.exceltest\">{{getWord(\'ExcelTest\')}}</a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-ui-sref-active=\"active\">\r\n                <a data-ui-sref=\"app.mainwork\" title=\"MainWork\">\r\n                    <i class=\"fa fa-lg fa-fw fa-newspaper-o\"></i> \r\n                    <span class=\"menu-item-parent\">{{getWord(\'MainWork\')}}</span>\r\n                </a>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\" title=\"SelfWork\">\r\n                    <i class=\"fa fa-lg fa-fw fa-truck\"></i> \r\n                    <span class=\"menu-item-parent\">{{getWord(\'SelfWork\')}}</span>\r\n                </a>\r\n                <ul>\r\n                    <li data-menu-collapse>\r\n                        <a href=\"#\"><i class=\"fa fa-fw fa-folder-open\"></i> {{getWord(\'LeaderOption\')}} </a>\r\n                        <ul>\r\n                            <li data-ui-sref-active=\"active\">\r\n                                <a data-ui-sref=\"app.selfwork.leaderoption.compydistribution\"><i class=\"fa fa-building-o\"></i> {{getWord(\'CompyDistribution\')}}</a>\r\n                            </li>\r\n                            <li data-ui-sref-active=\"active\">\r\n                                <a data-ui-sref=\"app.selfwork.leaderoption.agentsetting\"><i class=\"fa fa-braille\"></i> {{getWord(\'AgentSetting\')}}</a>\r\n                            </li>\r\n                            <li data-ui-sref-active=\"active\">\r\n                                <a data-ui-sref=\"app.selfwork.leaderoption.dailyleave\"><i class=\"fa fa-child\"></i> {{getWord(\'DailyLeave\')}}</a>\r\n                            </li>\r\n                        </ul>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.selfwork.customoversix\"><i class=\"fa fa-cube\"></i> {{getWord(\'CustomOverSix\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.selfwork.leaderjobs\"><i class=\"fa fa-cubes\"></i> {{getWord(\'LeaderJobs\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.selfwork.leaderhistorysearch\"><i class=\"fa fa-history\"></i> {{getWord(\'LeaderHistorySearch\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.selfwork.assistantjobs\"><i class=\"fa fa-cube\"></i> {{getWord(\'AssistantJobs\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.selfwork.assistanthistorysearch\"><i class=\"fa fa-history\"></i> {{getWord(\'AssistantHistorySearch\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.selfwork.employeejobs\"><i class=\"fa fa-cube\"></i> {{getWord(\'EmployeeJobs\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.selfwork.employeehistorysearch\"><i class=\"fa fa-history\"></i> {{getWord(\'EmployeeHistorySearch\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.selfwork.deliveryjobs\"><i class=\"fa fa-cube\"></i> {{getWord(\'DeliveryJobs\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.selfwork.deliveryhistorysearch\"><i class=\"fa fa-history\"></i> {{getWord(\'DeliveryHistorySearch\')}}</a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\" title=\"Concerns\"><i class=\"fa fa-lg fa-fw fa-address-book-o\"></i> <span\r\n                        class=\"menu-item-parent\">{{getWord(\'Concerns\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.concerns.ban\"><i class=\"fa fa-ban\"></i> {{getWord(\'Ban\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.concerns.dailyalert\"><i class=\"fa fa-bell-o\"></i> {{getWord(\'DailyAlert\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.concerns.banhistorysearch\"><i class=\"fa fa-history\"></i> {{getWord(\'HistorySearch\')}}</a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\" title=\"Settings\"><i class=\"fa fa-lg fa-fw fa-cog\"></i> <span\r\n                        class=\"menu-item-parent\">{{getWord(\'Settings\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.settings.profile\"><i class=\"fa fa-user\"></i> {{getWord(\'Profile\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.settings.accountmanagement\"><i class=\"fa fa-sitemap\"></i> {{getWord(\'AccountManagement\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.settings.billboardeditor\"><i class=\"fa fa-newspaper-o\"></i> {{getWord(\'BillboardEditor\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.settings.externalmanagement\"><i class=\"fa fa-external-link\"></i> {{getWord(\'ExternalManagement\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.settings.aviationmail\"><i class=\"fa fa-envelope-o\"></i> {{getWord(\'AviationMail\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.settings.excompybagno\"><i class=\"fa fa-shopping-bag\"></i> {{getWord(\'ExcompyBagno\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.settings.bagnocount\"><i class=\"fa fa-hourglass-half\"></i> {{getWord(\'BagnoCount\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.settings.syslogs\"><i class=\"fa fa-database\"></i> {{getWord(\'SysLogs\')}}</a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse class=\"top-menu-invisible\">\r\n                <a href=\"#\"><i class=\"fa fa-lg fa-fw fa-cube txt-color-blue\"></i> <span class=\"menu-item-parent\">{{getWord(\'SmartAdmin Intel\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.smartAdmin.appLayouts\"><i class=\"fa fa-gear\"></i>\r\n                            {{getWord(\'App Layouts\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.smartAdmin.prebuiltSkins\"><i class=\"fa fa-picture-o\"></i>\r\n                            {{getWord(\'Prebuilt Skins\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.smartAdmin.appLayout\"><i class=\"fa fa-cube\"></i> {{getWord(\'App Settings\')}}</a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-ui-sref-active=\"active\">\r\n                <a data-ui-sref=\"app.inbox.folder\" title=\"Outlook\">\r\n                    <i class=\"fa fa-lg fa-fw fa-inbox\"></i> <span class=\"menu-item-parent\">{{getWord(\'Outlook\')}}</span><span\r\n                        unread-messages-count class=\"badge pull-right inbox-badge\"></span></a>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\"><i class=\"fa fa-lg fa-fw fa-bar-chart-o\"></i> <span class=\"menu-item-parent\">{{getWord(\'Graphs\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.graphs.flot\">{{getWord(\'Flot Chart\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.graphs.morris\">{{getWord(\'Morris Charts\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.graphs.sparkline\">{{getWord(\'Sparkline\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.graphs.easyPieCharts\">{{getWord(\'Easy Pie Charts\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.graphs.dygraphs\">{{getWord(\'Dygraphs\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.graphs.chartjs\">Chart.js</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.graphs.highchartTables\">Highchart Tables <span\r\n                                class=\"badge pull-right inbox-badge bg-color-yellow\">new</span></a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\"><i class=\"fa fa-lg fa-fw fa-table\"></i> <span\r\n                        class=\"menu-item-parent\">{{getWord(\'Tables\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.tables.normal\">{{getWord(\'Normal Tables\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.tables.datatables\">{{getWord(\'Data Tables\')}} <span\r\n                                class=\"badge inbox-badge bg-color-greenLight\">v1.10</span></a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.tables.jqgrid\">{{getWord(\'Jquery Grid\')}}</a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\"><i class=\"fa fa-lg fa-fw fa-pencil-square-o\"></i> <span class=\"menu-item-parent\">{{getWord(\'Forms\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.form.elements\">{{getWord(\'Smart Form Elements\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.form.layouts\">{{getWord(\'Smart Form Layouts\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.form.validation\">{{getWord(\'Smart Form Validation\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.form.bootstrapForms\">{{getWord(\'Bootstrap Form Elements\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.form.bootstrapValidation\">{{getWord(\'Bootstrap Form Validation\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.form.plugins\">{{getWord(\'Form Plugins\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.form.wizards\">{{getWord(\'Wizards\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.form.editors\">{{getWord(\'Bootstrap Editors\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.form.dropzone\">{{getWord(\'Dropzone\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.form.imageEditor\">{{getWord(\'Image Cropping\')}} <span\r\n                                class=\"badge pull-right inbox-badge bg-color-yellow\">new</span></a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\"><i class=\"fa fa-lg fa-fw fa-desktop\"></i> <span class=\"menu-item-parent\">{{getWord(\'UI Elements\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.ui.general\">{{getWord(\'General Elements\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.ui.buttons\">{{getWord(\'Buttons\')}}</a>\r\n                    </li>\r\n                    <li data-menu-collapse>\r\n                        <a href=\"#\">{{getWord(\'Icons\')}}</a>\r\n                        <ul>\r\n                            <li data-ui-sref-active=\"active\">\r\n                                <a data-ui-sref=\"app.ui.iconsFa\"><i class=\"fa fa-plane\"></i> {{getWord(\'Font Awesome\')}}</a>\r\n                            </li>\r\n                            <li data-ui-sref-active=\"active\">\r\n                                <a data-ui-sref=\"app.ui.iconsGlyph\"><i class=\"glyphicon glyphicon-plane\"></i>\r\n                                    {{getWord(\'Glyph Icons\')}}</a>\r\n                            </li>\r\n                            <li data-ui-sref-active=\"active\">\r\n                                <a data-ui-sref=\"app.ui.iconsFlags\"><i class=\"fa fa-flag\"></i> {{getWord(\'Flags\')}}</a>\r\n                            </li>\r\n                        </ul>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.ui.grid\">{{getWord(\'Grid\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.ui.treeView\">{{getWord(\'Tree View\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.ui.nestableLists\">{{getWord(\'Nestable Lists\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.ui.jqueryUi\">{{getWord(\'JQuery UI\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.ui.typography\">{{getWord(\'Typography\')}}</a>\r\n                    </li>\r\n                    <li data-menu-collapse>\r\n                        <a href=\"#\">{{getWord(\'Six Level Menu\')}}</a>\r\n                        <ul>\r\n                            <li data-menu-collapse>\r\n                                <a href=\"#\"><i class=\"fa fa-fw fa-folder-open\"></i> {{getWord(\'Item #2\')}}</a>\r\n                                <ul>\r\n                                    <li data-menu-collapse>\r\n                                        <a href=\"#\"><i class=\"fa fa-fw fa-folder-open\"></i> {{getWord(\'Sub #2.1\')}} </a>\r\n                                        <ul>\r\n                                            <li>\r\n                                                <a href=\"#\"><i class=\"fa fa-fw fa-file-text\"></i> {{getWord(\'Item\r\n                                                    #2.1.1\')}}</a>\r\n                                            </li>\r\n                                            <li data-menu-collapse>\r\n                                                <a href=\"#\"><i class=\"fa fa-fw fa-plus\"></i>{{getWord(\'Expand\')}}</a>\r\n                                                <ul>\r\n                                                    <li>\r\n                                                        <a href=\"#\"><i class=\"fa fa-fw fa-file-text\"></i>\r\n                                                            {{getWord(\'File\')}}</a>\r\n                                                    </li>\r\n                                                    <li>\r\n                                                        <a href=\"#\"><i class=\"fa fa-fw fa-trash-o\"></i>\r\n                                                            {{getWord(\'Delete\')}}</a></li>\r\n                                                </ul>\r\n                                            </li>\r\n                                        </ul>\r\n                                    </li>\r\n                                </ul>\r\n                            </li>\r\n                            <li data-menu-collapse>\r\n                                <a href=\"#\"><i class=\"fa fa-fw fa-folder-open\"></i> {{getWord(\'Item #3\')}}</a>\r\n\r\n                                <ul>\r\n                                    <li data-menu-collapse>\r\n                                        <a href=\"#\"><i class=\"fa fa-fw fa-folder-open\"></i> {{getWord(\'3ed Level\')}}\r\n                                        </a>\r\n                                        <ul>\r\n                                            <li>\r\n                                                <a href=\"#\"><i class=\"fa fa-fw fa-file-text\"></i>\r\n                                                    {{getWord(\'File\')}}</a>\r\n                                            </li>\r\n                                            <li>\r\n                                                <a href=\"#\"><i class=\"fa fa-fw fa-file-text\"></i>\r\n                                                    {{getWord(\'File\')}}</a>\r\n                                            </li>\r\n                                        </ul>\r\n                                    </li>\r\n                                </ul>\r\n\r\n                            </li>\r\n                        </ul>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n\r\n            <li data-ui-sref-active=\"active\">\r\n                <a data-ui-sref=\"app.widgets\" title=\"Widgets\"><i class=\"fa fa-lg fa-fw fa-list-alt\"></i> <span class=\"menu-item-parent\">{{getWord(\'Widgets\')}}</span></a>\r\n            </li>\r\n\r\n\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\">\r\n                    <i class=\"fa fa-lg fa-fw fa-cloud\"><em>3</em></i> <span class=\"menu-item-parent\">{{getWord(\'Cool Features\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.calendar\" title=\"Calendar\"><i\r\n                                class=\"fa fa-lg fa-fw fa-calendar\"></i> <span\r\n                                class=\"menu-item-parent\">{{getWord(\'Calendar\')}}</span></a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.maps\"><i class=\"fa fa-lg fa-fw fa-map-marker\"></i> <span class=\"menu-item-parent\">{{getWord(\'GMap Skins\')}}</span><span\r\n                                class=\"badge bg-color-greenLight pull-right inbox-badge\">9</span></a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\">\r\n                    <i class=\"fa fa-lg fa-fw fa-puzzle-piece\"></i> <span class=\"menu-item-parent\">{{getWord(\'App Views\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.appViews.projects\"><i class=\"fa fa-file-text-o\"></i>\r\n                            {{getWord(\'Projects\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.appViews.blogDemo\"><i class=\"fa fa-paragraph\"></i> {{getWord(\'Blog\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.appViews.galleryDemo\"><i class=\"fa fa-picture-o\"></i>\r\n                            {{getWord(\'Gallery\')}}</a>\r\n                    </li>\r\n\r\n                    <li data-menu-collapse>\r\n                        <a href=\"#\"><i class=\"fa fa-comments\"></i> {{getWord(\'Forum Layout\')}}</a>\r\n                        <ul>\r\n                            <li data-ui-sref-active=\"active\">\r\n                                <a data-ui-sref=\"app.appViews.forumDemo\"><i class=\"fa fa-picture-o\"></i>\r\n                                    {{getWord(\'General View\')}}</a>\r\n                            </li>\r\n                            <li data-ui-sref-active=\"active\">\r\n                                <a data-ui-sref=\"app.appViews.forumTopicDemo\"><i class=\"fa fa-picture-o\"></i>\r\n                                    {{getWord(\'Topic View\')}}</a>\r\n                            </li>\r\n                            <li data-ui-sref-active=\"active\">\r\n                                <a data-ui-sref=\"app.appViews.forumPostDemo\"><i class=\"fa fa-picture-o\"></i>\r\n                                    {{getWord(\'Post View\')}}</a>\r\n                            </li>\r\n                        </ul>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.appViews.profileDemo\"><i class=\"fa fa-group\"></i>\r\n                            {{getWord(\'Profile\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.appViews.timelineDemo\"><i class=\"fa fa-clock-o\"></i>\r\n                            {{getWord(\'Timeline\')}}</a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\">\r\n                    <i class=\"fa fa-lg fa-fw fa-shopping-cart\"></i> <span class=\"menu-item-parent\">{{getWord(\'E-Commerce\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.eCommerce.orders\" title=\"Orders\"> {{getWord(\'Orders\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.eCommerce.products\" title=\"Products View\"> {{getWord(\'Products View\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.eCommerce.detail\" title=\"Products Detail\"> {{getWord(\'Products Detail\')}}</a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\"><i class=\"fa fa-lg fa-fw fa-windows\"></i> <span class=\"menu-item-parent\">{{getWord(\'Miscellaneous\')}}</span></a>\r\n                <ul>\r\n                    <li>\r\n                        <a href=\"http://bootstraphunter.com/smartadmin-landing/\" target=\"_blank\">{{getWord(\'Landing\r\n                            Page\')}} <i class=\"fa fa-external-link\"></i></a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.misc.pricingTable\">{{getWord(\'Pricing Tables\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.misc.invoice\">{{getWord(\'Invoice\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"login\">{{getWord(\'Login\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"register\">{{getWord(\'Register\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"lock\">{{getWord(\'Locked Screen\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.misc.error404\">{{getWord(\'Error 404\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.misc.error500\">{{getWord(\'Error 500\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.misc.blank\">{{getWord(\'Blank Page\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.misc.emailTemplate\">{{getWord(\'Email Template\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.misc.search\">{{getWord(\'Search Page\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.misc.ckeditor\">{{getWord(\'CK Editor\')}}</a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse class=\"chat-users top-menu-invisible\">\r\n                <a href=\"#\"><i class=\"fa fa-lg fa-fw fa-comment-o\"><em class=\"bg-color-pink flash animated\">!</em></i>\r\n                    <span class=\"menu-item-parent\">{{getWord(\'Smart Chat API\')}} <sup>{{getWord(\'beta\')}}</sup></span></a>\r\n                <div aside-chat-widget></div>\r\n            </li>\r\n        </ul> -->\r\n\r\n        <!-- NOTE: This allows you to pull menu items from server -->\r\n        <!-- <ul data-smart-menu-items=\"/api/menu-items.json\"></ul> -->\r\n    </nav>\r\n\r\n  <span class=\"minifyme\" data-action=\"minifyMenu\" minify-menu>\r\n    <i class=\"fa fa-arrow-circle-left hit\"></i>\r\n  </span>\r\n\r\n</aside>");
 $templateCache.put("app/app/layout/partials/sub-header.tpl.html","<div class=\"col-xs-12 col-sm-5 col-md-5 col-lg-8\" data-sparkline-container>\r\n    <ul id=\"sparks\" class=\"\">\r\n        <li class=\"sparks-info\">\r\n            <h5> My Income <span class=\"txt-color-blue\">$47,171</span></h5>\r\n            <div class=\"sparkline txt-color-blue hidden-mobile hidden-md hidden-sm\">\r\n                1300, 1877, 2500, 2577, 2000, 2100, 3000, 2700, 3631, 2471, 2700, 3631, 2471\r\n            </div>\r\n        </li>\r\n        <li class=\"sparks-info\">\r\n            <h5> Site Traffic <span class=\"txt-color-purple\"><i class=\"fa fa-arrow-circle-up\"></i>&nbsp;45%</span></h5>\r\n            <div class=\"sparkline txt-color-purple hidden-mobile hidden-md hidden-sm\">\r\n                110,150,300,130,400,240,220,310,220,300, 270, 210\r\n            </div>\r\n        </li>\r\n        <li class=\"sparks-info\">\r\n            <h5> Site Orders <span class=\"txt-color-greenDark\"><i class=\"fa fa-shopping-cart\"></i>&nbsp;2447</span></h5>\r\n            <div class=\"sparkline txt-color-greenDark hidden-mobile hidden-md hidden-sm\">\r\n                110,150,300,130,400,240,220,310,220,300, 270, 210\r\n            </div>\r\n        </li>\r\n    </ul>\r\n</div>\r\n			");
 $templateCache.put("app/app/layout/partials/voice-commands.tpl.html","<!-- TRIGGER BUTTON:\r\n<a href=\"/my-ajax-page.html\" data-toggle=\"modal\" data-target=\"#remoteModal\" class=\"btn btn-default\">Open Modal</a>  -->\r\n\r\n<!-- MODAL PLACE HOLDER\r\n<div class=\"modal fade\" id=\"remoteModal\" tabindex=\"-1\" role=\"dialog\" aria-labelledby=\"remoteModalLabel\" aria-hidden=\"true\">\r\n<div class=\"modal-dialog\">\r\n<div class=\"modal-content\"></div>\r\n</div>\r\n</div>   -->\r\n<!--////////////////////////////////////-->\r\n\r\n<!--<div class=\"modal-header\">\r\n<button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-hidden=\"true\">\r\n&times;\r\n</button>\r\n<h4 class=\"modal-title\" id=\"myModalLabel\">Command List</h4>\r\n</div>-->\r\n<div class=\"modal-body\">\r\n\r\n	<h1><i class=\"fa fa-microphone text-muted\"></i>&nbsp;&nbsp; SmartAdmin Voice Command</h1>\r\n	<hr class=\"simple\">\r\n	<h5>Instruction</h5>\r\n\r\n	Click <span class=\"text-success\">\"Allow\"</span> to access your microphone and activate Voice Command.\r\n	You will notice a <span class=\"text-primary\"><strong>BLUE</strong> Flash</span> on the microphone icon indicating activation.\r\n	The icon will appear <span class=\"text-danger\"><strong>RED</strong></span> <span class=\"label label-danger\"><i class=\"fa fa-microphone fa-lg\"></i></span> if you <span class=\"text-danger\">\"Deny\"</span> access or don\'t have any microphone installed.\r\n	<br>\r\n	<br>\r\n	As a security precaution, your browser will disconnect the microphone every 60 to 120 seconds (sooner if not being used). In which case Voice Command will prompt you again to <span class=\"text-success\">\"Allow\"</span> or <span class=\"text-danger\">\"Deny\"</span> access to your microphone.\r\n	<br>\r\n	<br>\r\n	If you host your page over <strong>http<span class=\"text-success\">s</span></strong> (secure socket layer) protocol you can wave this security measure and have an unintrupted Voice Command.\r\n	<br>\r\n	<br>\r\n	<h5>Commands</h5>\r\n	<ul>\r\n		<li>\r\n			<strong>\'show\' </strong> then say the <strong>*page*</strong> you want to go to. For example <strong>\"show inbox\"</strong> or <strong>\"show calendar\"</strong>\r\n		</li>\r\n		<li>\r\n			<strong>\'mute\' </strong> - mutes all sound effects for the theme.\r\n		</li>\r\n		<li>\r\n			<strong>\'sound on\'</strong> - unmutes all sound effects for the theme.\r\n		</li>\r\n		<li>\r\n			<span class=\"text-danger\"><strong>\'stop\'</strong></span> - deactivates voice command.\r\n		</li>\r\n		<li>\r\n			<span class=\"text-primary\"><strong>\'help\'</strong></span> - brings up the command list\r\n		</li>\r\n		<li>\r\n			<span class=\"text-danger\"><strong>\'got it\'</strong></span> - closes help modal\r\n		</li>\r\n		<li>\r\n			<strong>\'hide navigation\'</strong> - toggle navigation collapse\r\n		</li>\r\n		<li>\r\n			<strong>\'show navigation\'</strong> - toggle navigation to open (can be used again to close)\r\n		</li>\r\n		<li>\r\n			<strong>\'scroll up\'</strong> - scrolls to the top of the page\r\n		</li>\r\n		<li>\r\n			<strong>\'scroll down\'</strong> - scrollts to the bottom of the page\r\n		</li>\r\n		<li>\r\n			<strong>\'go back\' </strong> - goes back in history (history -1 click)\r\n		</li>\r\n		<li>\r\n			<strong>\'logout\'</strong> - logs you out\r\n		</li>\r\n	</ul>\r\n	<br>\r\n	<h5>Adding your own commands</h5>\r\n	Voice Command supports up to 80 languages. Adding your own commands is extreamly easy. All commands are stored inside <strong>app.config.js</strong> file under the <code>var commands = {...}</code>. \r\n\r\n	<hr class=\"simple\">\r\n	<div class=\"text-right\">\r\n		<button type=\"button\" class=\"btn btn-success btn-lg\" data-dismiss=\"modal\">\r\n			Got it!\r\n		</button>\r\n	</div>\r\n\r\n</div>\r\n<!--<div class=\"modal-footer\">\r\n<button type=\"button\" class=\"btn btn-primary\" data-dismiss=\"modal\">Got it!</button>\r\n</div> -->");
@@ -7520,8 +7562,8 @@ $templateCache.put("app/public/app/calendar/views/calendar.tpl.html","<!-- MAIN 
 $templateCache.put("app/public/app/dashboard/projects/recent-projects.tpl.html","<div class=\"project-context hidden-xs dropdown\" dropdown>\r\n\r\n    <span class=\"label\">{{getWord(\'Projects\')}}:</span>\r\n    <span class=\"project-selector dropdown-toggle\" data-toggle=\"dropdown\">{{getWord(\'Recent projects\')}} <i ng-if=\"projects.length\"\r\n            class=\"fa fa-angle-down\"></i></span>\r\n\r\n    <ul class=\"dropdown-menu\" ng-if=\"projects.length\">\r\n        <li ng-repeat=\"project in projects\">\r\n            <a href=\"{{project.href}}\">{{project.title}}</a>\r\n        </li>\r\n        <li class=\"divider\"></li>\r\n        <li>\r\n            <a ng-click=\"clearProjects()\"><i class=\"fa fa-power-off\"></i> Clear</a>\r\n        </li>\r\n    </ul>\r\n\r\n</div>");
 $templateCache.put("app/public/app/dashboard/todo/todo-widget.tpl.html","<div id=\"todo-widget\" jarvis-widget data-widget-editbutton=\"false\" data-widget-color=\"blue\"\r\n     ng-controller=\"TodoCtrl\">\r\n    <header>\r\n        <span class=\"widget-icon\"> <i class=\"fa fa-check txt-color-white\"></i> </span>\r\n\r\n        <h2> ToDo\'s </h2>\r\n\r\n        <div class=\"widget-toolbar\">\r\n            <!-- add: non-hidden - to disable auto hide -->\r\n            <button class=\"btn btn-xs btn-default\" ng-class=\"{active: newTodo}\" ng-click=\"toggleAdd()\"><i ng-class=\"{ \'fa fa-plus\': !newTodo, \'fa fa-times\': newTodo}\"></i> Add</button>\r\n\r\n        </div>\r\n    </header>\r\n    <!-- widget div-->\r\n    <div>\r\n        <div class=\"widget-body no-padding smart-form\">\r\n            <!-- content goes here -->\r\n            <div ng-show=\"newTodo\">\r\n                <h5 class=\"todo-group-title\"><i class=\"fa fa-plus-circle\"></i> New Todo</h5>\r\n\r\n                <form name=\"newTodoForm\" class=\"smart-form\">\r\n                    <fieldset>\r\n                        <section>\r\n                            <label class=\"input\">\r\n                                <input type=\"text\" required class=\"input-lg\" ng-model=\"newTodo.title\"\r\n                                       placeholder=\"What needs to be done?\">\r\n                            </label>\r\n                        </section>\r\n                        <section>\r\n                            <div class=\"col-xs-6\">\r\n                                <label class=\"select\">\r\n                                    <select class=\"input-sm\" ng-model=\"newTodo.state\"\r\n                                            ng-options=\"state as state for state in states\"></select> <i></i> </label>\r\n                            </div>\r\n                        </section>\r\n                    </fieldset>\r\n                    <footer>\r\n                        <button ng-disabled=\"newTodoForm.$invalid\" type=\"button\" class=\"btn btn-primary\"\r\n                                ng-click=\"createTodo()\">\r\n                            Add\r\n                        </button>\r\n                        <button type=\"button\" class=\"btn btn-default\" ng-click=\"toggleAdd()\">\r\n                            Cancel\r\n                        </button>\r\n                    </footer>\r\n                </form>\r\n            </div>\r\n\r\n            <todo-list state=\"Critical\"  title=\"Critical Tasks\" icon=\"warning\" todos=\"todos\"></todo-list>\r\n\r\n            <todo-list state=\"Important\" title=\"Important Tasks\" icon=\"exclamation\" todos=\"todos\"></todo-list>\r\n\r\n            <todo-list state=\"Completed\" title=\"Completed Tasks\" icon=\"check\" todos=\"todos\"></todo-list>\r\n\r\n            <!-- end content -->\r\n        </div>\r\n\r\n    </div>\r\n    <!-- end widget div -->\r\n</div>");
 $templateCache.put("app/public/app/layout/language/language-selector.tpl.html","<ul class=\"header-dropdown-list hidden-xs ng-cloak\" ng-controller=\"LanguagesCtrl\">\r\n    <li class=\"dropdown\" dropdown>\r\n        <a class=\"dropdown-toggle\" data-toggle=\"dropdown\" href> <img src=\"styles/img/blank.gif\" class=\"flag flag-{{currentLanguage.key}}\" alt=\"{{currentLanguage.alt}}\"> <span> {{currentLanguage.title}} </span>\r\n            <i class=\"fa fa-angle-down\"></i> </a>\r\n        <ul class=\"dropdown-menu pull-right\">\r\n            <li ng-class=\"{active: language==currentLanguage}\" ng-repeat=\"language in languages\">\r\n                <a ng-click=\"selectLanguage(language)\"><img src=\"styles/img/blank.gif\" class=\"flag flag-{{language.key}}\" alt=\"{{language.alt}}\"> {{language.title}}</a>\r\n            </li>\r\n        </ul>\r\n    </li>\r\n</ul>\r\n");
-$templateCache.put("app/public/app/layout/partials/footer.tpl.html","<div class=\"page-footer\">\r\n    <div class=\"row\">\r\n        <div class=\"col-xs-12 col-sm-6\">\r\n            <span class=\"txt-color-white\">東風物流貨運承攬有限公司 © 2017</span>\r\n        </div>\r\n\r\n        <div class=\"col-xs-6 col-sm-6 text-right hidden-xs\">\r\n            <!-- <div class=\"txt-color-white inline-block\">\r\n                <i class=\"txt-color-blueLight hidden-mobile\">Last account activity <i class=\"fa fa-clock-o\"></i>\r\n                    <strong>52 mins ago &nbsp;</strong> </i>\r\n\r\n                <div class=\"btn-group dropup\">\r\n                    <button class=\"btn btn-xs dropdown-toggle bg-color-blue txt-color-white\" data-toggle=\"dropdown\">\r\n                        <i class=\"fa fa-link\"></i> <span class=\"caret\"></span>\r\n                    </button>\r\n                    <ul class=\"dropdown-menu pull-right text-left\">\r\n                        <li>\r\n                            <div class=\"padding-5\">\r\n                                <p class=\"txt-color-darken font-sm no-margin\">Download Progress</p>\r\n\r\n                                <div class=\"progress progress-micro no-margin\">\r\n                                    <div class=\"progress-bar progress-bar-success\" style=\"width: 50%;\"></div>\r\n                                </div>\r\n                            </div>\r\n                        </li>\r\n                        <li class=\"divider\"></li>\r\n                        <li>\r\n                            <div class=\"padding-5\">\r\n                                <p class=\"txt-color-darken font-sm no-margin\">Server Load</p>\r\n\r\n                                <div class=\"progress progress-micro no-margin\">\r\n                                    <div class=\"progress-bar progress-bar-success\" style=\"width: 20%;\"></div>\r\n                                </div>\r\n                            </div>\r\n                        </li>\r\n                        <li class=\"divider\"></li>\r\n                        <li>\r\n                            <div class=\"padding-5\">\r\n                                <p class=\"txt-color-darken font-sm no-margin\">Memory Load <span class=\"text-danger\">*critical*</span>\r\n                                </p>\r\n\r\n                                <div class=\"progress progress-micro no-margin\">\r\n                                    <div class=\"progress-bar progress-bar-danger\" style=\"width: 70%;\"></div>\r\n                                </div>\r\n                            </div>\r\n                        </li>\r\n                        <li class=\"divider\"></li>\r\n                        <li>\r\n                            <div class=\"padding-5\">\r\n                                <button class=\"btn btn-block btn-default\">refresh</button>\r\n                            </div>\r\n                        </li>\r\n                    </ul>\r\n                </div>\r\n            </div> -->\r\n        </div>\r\n    </div>\r\n</div>");
-$templateCache.put("app/public/app/layout/partials/header.tpl.html","<header id=\"header\">\r\n    <div id=\"logo-group\">\r\n        <!-- PLACE YOUR LOGO HERE -->\r\n        <span id=\"logo\"> <img src=\"styles/img/ews/title_logo.png\" alt=\"東風管理系統\"> </span>\r\n        <!-- END LOGO PLACEHOLDER -->\r\n        <!-- Note: The activity badge color changes when clicked and resets the number to 0\r\n    Suggestion: You may want to set a flag when this happens to tick off all checked messages / notifications -->\r\n        <!-- <span id=\"activity\" class=\"activity-dropdown\" activities-dropdown-toggle> \r\n            <i class=\"fa fa-user\"></i> \r\n            <b class=\"badge bg-color-red\">21</b> \r\n        </span> -->\r\n        <div smart-include=\"app/dashboard/activities/activities.html\"></div>\r\n    </div>\r\n    <!-- <recent-projects></recent-projects> -->\r\n    <!-- pulled right: nav area -->\r\n    <div class=\"pull-right\">\r\n        <!-- collapse menu button -->\r\n        <div id=\"hide-menu\" class=\"btn-header pull-right\">\r\n            <span> <a toggle-menu title=\"Collapse Menu\"><i\r\n                class=\"fa fa-reorder\"></i></a> </span>\r\n        </div>\r\n        <!-- end collapse menu -->\r\n        <!-- #MOBILE -->\r\n        <!-- Top menu profile link : this shows only when top menu is active -->\r\n        <ul id=\"mobile-profile-img\" class=\"header-dropdown-list hidden-xs padding-5\">\r\n            <li class=\"\">\r\n                <a href=\"#\" class=\"dropdown-toggle no-margin userdropdown\" data-toggle=\"dropdown\">\r\n                    <img src=\"styles/img/avatars/eastwind.png\" alt=\"John Doe\" class=\"online\" />\r\n                </a>\r\n                <ul class=\"dropdown-menu pull-right\">\r\n                    <li>\r\n                        <a href-void class=\"padding-10 padding-top-0 padding-bottom-0\"><i\r\n                            class=\"fa fa-cog\"></i> Setting</a>\r\n                    </li>\r\n                    <li class=\"divider\"></li>\r\n                    <li>\r\n                        <a ui-sref=\"app.appViews.profileDemo\" class=\"padding-10 padding-top-0 padding-bottom-0\"> <i class=\"fa fa-user\"></i>\r\n                            <u>P</u>rofile</a>\r\n                    </li>\r\n                    <li class=\"divider\"></li>\r\n                    <li>\r\n                        <a href-void class=\"padding-10 padding-top-0 padding-bottom-0\" data-action=\"toggleShortcut\"><i class=\"fa fa-arrow-down\"></i> <u>S</u>hortcut</a>\r\n                    </li>\r\n                    <li class=\"divider\"></li>\r\n                    <li>\r\n                        <a href-void class=\"padding-10 padding-top-0 padding-bottom-0\" data-action=\"launchFullscreen\"><i class=\"fa fa-arrows-alt\"></i> Full <u>S</u>creen</a>\r\n                    </li>\r\n                    <li class=\"divider\"></li>\r\n                    <li>\r\n                        <a href=\"#/login\" class=\"padding-10 padding-top-5 padding-bottom-5\" data-action=\"userLogout\"><i\r\n                            class=\"fa fa-sign-out fa-lg\"></i> <strong><u>L</u>ogout</strong></a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n        </ul>\r\n        <!-- logout button -->\r\n        <div id=\"logout\" class=\"btn-header transparent pull-right\">\r\n            <span> \r\n                <a ui-sref=\"login\" \r\n                   title=\"Sign Out\" \r\n                   data-action=\"userLogout\"\r\n                   data-logout-msg=\"You can improve your security further after logging out by closing this opened browser\">\r\n                   <i class=\"fa fa-sign-out\"></i>\r\n                </a> \r\n            </span>\r\n        </div>\r\n        <!-- end logout button -->\r\n        <!-- search mobile button (this is hidden till mobile view port) -->\r\n        <div id=\"search-mobile\" class=\"btn-header transparent pull-right\" data-search-mobile>\r\n            <span> <a href=\"#\" title=\"Search\"><i class=\"fa fa-search\"></i></a> </span>\r\n        </div>\r\n        <!-- end search mobile button -->\r\n        <!-- input: search field -->\r\n        <!-- <form action=\"#/search\" class=\"header-search pull-right\">\r\n            <input id=\"search-fld\" type=\"text\" name=\"param\" placeholder=\"Find reports and more\" data-autocomplete=\'[\r\n                    \"ActionScript\",\r\n                    \"AppleScript\",\r\n                    \"Asp\",\r\n                    \"BASIC\",\r\n                    \"C\",\r\n                    \"C++\",\r\n                    \"Clojure\",\r\n                    \"COBOL\",\r\n                    \"ColdFusion\",\r\n                    \"Erlang\",\r\n                    \"Fortran\",\r\n                    \"Groovy\",\r\n                    \"Haskell\",\r\n                    \"Java\",\r\n                    \"JavaScript\",\r\n                    \"Lisp\",\r\n                    \"Perl\",\r\n                    \"PHP\",\r\n                    \"Python\",\r\n                    \"Ruby\",\r\n                    \"Scala\",\r\n                    \"Scheme\"]\'>\r\n            <button type=\"submit\">\r\n                <i class=\"fa fa-search\"></i>\r\n            </button>\r\n            <a href=\"$\" id=\"cancel-search-js\" title=\"Cancel Search\"><i class=\"fa fa-times\"></i></a>\r\n        </form> -->\r\n        <!-- end input: search field -->\r\n        <!-- fullscreen button -->\r\n        <div id=\"fullscreen\" class=\"btn-header transparent pull-right\">\r\n            <span> <a full-screen title=\"Full Screen\"><i\r\n                class=\"fa fa-arrows-alt\"></i></a> </span>\r\n        </div>\r\n        <!-- end fullscreen button -->\r\n        <!-- #Voice Command: Start Speech -->\r\n        <!-- <div id=\"speech-btn\" class=\"btn-header transparent pull-right hidden-sm hidden-xs\">\r\n            <div>\r\n                <a title=\"Voice Command\" id=\"voice-command-btn\" speech-recognition><i class=\"fa fa-microphone\"></i></a>\r\n                <div class=\"popover bottom\">\r\n                    <div class=\"arrow\"></div>\r\n                    <div class=\"popover-content\">\r\n                        <h4 class=\"vc-title\">Voice command activated <br>\r\n                        <small>Please speak clearly into the mic</small>\r\n                    </h4>\r\n                        <h4 class=\"vc-title-error text-center\">\r\n                        <i class=\"fa fa-microphone-slash\"></i> Voice command failed\r\n                        <br>\r\n                        <small class=\"txt-color-red\">Must <strong>\"Allow\"</strong> Microphone</small>\r\n                        <br>\r\n                        <small class=\"txt-color-red\">Must have <strong>Internet Connection</strong></small>\r\n                    </h4>\r\n                        <a href-void class=\"btn btn-success\" id=\"speech-help-btn\">See Commands</a>\r\n                        <a href-void class=\"btn bg-color-purple txt-color-white\" onclick=\"$(\'#speech-btn .popover\').fadeOut(50);\">Close Popup</a>\r\n                    </div>\r\n                </div>\r\n            </div>\r\n        </div> -->\r\n        <!-- end voice command -->\r\n        \r\n        <!-- multiple lang dropdown : find all flags in the flags page -->\r\n        <language-selector></language-selector>\r\n        <!-- end multiple lang -->\r\n    </div>\r\n    <!-- end pulled right: nav area -->\r\n</header>\r\n");
+$templateCache.put("app/public/app/layout/partials/footer.tpl.html","<div class=\"page-footer\">\r\n    <div class=\"row\">\r\n        <div class=\"col-xs-12 col-sm-6\">\r\n            <!-- <span class=\"txt-color-white\">東風物流貨運承攬有限公司 © 2017</span> -->\r\n            <span class=\"txt-color-white\" ng-bind=\"sysParm.SPA_FOOTER\"></span>\r\n        </div>\r\n\r\n        <div class=\"col-xs-6 col-sm-6 text-right hidden-xs\">\r\n            <!-- <div class=\"txt-color-white inline-block\">\r\n                <i class=\"txt-color-blueLight hidden-mobile\">Last account activity <i class=\"fa fa-clock-o\"></i>\r\n                    <strong>52 mins ago &nbsp;</strong> </i>\r\n\r\n                <div class=\"btn-group dropup\">\r\n                    <button class=\"btn btn-xs dropdown-toggle bg-color-blue txt-color-white\" data-toggle=\"dropdown\">\r\n                        <i class=\"fa fa-link\"></i> <span class=\"caret\"></span>\r\n                    </button>\r\n                    <ul class=\"dropdown-menu pull-right text-left\">\r\n                        <li>\r\n                            <div class=\"padding-5\">\r\n                                <p class=\"txt-color-darken font-sm no-margin\">Download Progress</p>\r\n\r\n                                <div class=\"progress progress-micro no-margin\">\r\n                                    <div class=\"progress-bar progress-bar-success\" style=\"width: 50%;\"></div>\r\n                                </div>\r\n                            </div>\r\n                        </li>\r\n                        <li class=\"divider\"></li>\r\n                        <li>\r\n                            <div class=\"padding-5\">\r\n                                <p class=\"txt-color-darken font-sm no-margin\">Server Load</p>\r\n\r\n                                <div class=\"progress progress-micro no-margin\">\r\n                                    <div class=\"progress-bar progress-bar-success\" style=\"width: 20%;\"></div>\r\n                                </div>\r\n                            </div>\r\n                        </li>\r\n                        <li class=\"divider\"></li>\r\n                        <li>\r\n                            <div class=\"padding-5\">\r\n                                <p class=\"txt-color-darken font-sm no-margin\">Memory Load <span class=\"text-danger\">*critical*</span>\r\n                                </p>\r\n\r\n                                <div class=\"progress progress-micro no-margin\">\r\n                                    <div class=\"progress-bar progress-bar-danger\" style=\"width: 70%;\"></div>\r\n                                </div>\r\n                            </div>\r\n                        </li>\r\n                        <li class=\"divider\"></li>\r\n                        <li>\r\n                            <div class=\"padding-5\">\r\n                                <button class=\"btn btn-block btn-default\">refresh</button>\r\n                            </div>\r\n                        </li>\r\n                    </ul>\r\n                </div>\r\n            </div> -->\r\n        </div>\r\n    </div>\r\n</div>");
+$templateCache.put("app/public/app/layout/partials/header.tpl.html","<header id=\"header\">\r\n    <div id=\"logo-group\">\r\n        <!-- PLACE YOUR LOGO HERE -->\r\n        <!-- <span id=\"logo\"> <img src=\"styles/img/ews/title_logo.png\" alt=\"東風管理系統\"> </span> -->\r\n        <span id=\"logo\"> <img src=\"{{sysParm.SPA_HEADER_PNG}}\" alt=\"{{sysParm.SPA_HEADER}}\"> </span>\r\n        <!-- END LOGO PLACEHOLDER -->\r\n        <!-- Note: The activity badge color changes when clicked and resets the number to 0\r\n    Suggestion: You may want to set a flag when this happens to tick off all checked messages / notifications -->\r\n        <!-- <span id=\"activity\" class=\"activity-dropdown\" activities-dropdown-toggle> \r\n            <i class=\"fa fa-user\"></i> \r\n            <b class=\"badge bg-color-red\">21</b> \r\n        </span> -->\r\n        <div smart-include=\"app/dashboard/activities/activities.html\"></div>\r\n    </div>\r\n    <!-- <recent-projects></recent-projects> -->\r\n    <!-- pulled right: nav area -->\r\n    <div class=\"pull-right\">\r\n        <!-- collapse menu button -->\r\n        <div id=\"hide-menu\" class=\"btn-header pull-right\">\r\n            <span> <a toggle-menu title=\"Collapse Menu\"><i\r\n                class=\"fa fa-reorder\"></i></a> </span>\r\n        </div>\r\n        <!-- end collapse menu -->\r\n        <!-- #MOBILE -->\r\n        <!-- Top menu profile link : this shows only when top menu is active -->\r\n        <ul id=\"mobile-profile-img\" class=\"header-dropdown-list hidden-xs padding-5\">\r\n            <li class=\"\">\r\n                <a href=\"#\" class=\"dropdown-toggle no-margin userdropdown\" data-toggle=\"dropdown\">\r\n                    <img src=\"styles/img/avatars/eastwind.png\" alt=\"John Doe\" class=\"online\" />\r\n                </a>\r\n                <ul class=\"dropdown-menu pull-right\">\r\n                    <li>\r\n                        <a href-void class=\"padding-10 padding-top-0 padding-bottom-0\"><i\r\n                            class=\"fa fa-cog\"></i> Setting</a>\r\n                    </li>\r\n                    <li class=\"divider\"></li>\r\n                    <li>\r\n                        <a ui-sref=\"app.appViews.profileDemo\" class=\"padding-10 padding-top-0 padding-bottom-0\"> <i class=\"fa fa-user\"></i>\r\n                            <u>P</u>rofile</a>\r\n                    </li>\r\n                    <li class=\"divider\"></li>\r\n                    <li>\r\n                        <a href-void class=\"padding-10 padding-top-0 padding-bottom-0\" data-action=\"toggleShortcut\"><i class=\"fa fa-arrow-down\"></i> <u>S</u>hortcut</a>\r\n                    </li>\r\n                    <li class=\"divider\"></li>\r\n                    <li>\r\n                        <a href-void class=\"padding-10 padding-top-0 padding-bottom-0\" data-action=\"launchFullscreen\"><i class=\"fa fa-arrows-alt\"></i> Full <u>S</u>creen</a>\r\n                    </li>\r\n                    <li class=\"divider\"></li>\r\n                    <li>\r\n                        <a href=\"#/login\" class=\"padding-10 padding-top-5 padding-bottom-5\" data-action=\"userLogout\"><i\r\n                            class=\"fa fa-sign-out fa-lg\"></i> <strong><u>L</u>ogout</strong></a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n        </ul>\r\n        <!-- logout button -->\r\n        <div id=\"logout\" class=\"btn-header transparent pull-right\">\r\n            <span> \r\n                <a ui-sref=\"login\" \r\n                   title=\"Sign Out\" \r\n                   data-action=\"userLogout\"\r\n                   data-logout-msg=\"You can improve your security further after logging out by closing this opened browser\">\r\n                   <i class=\"fa fa-sign-out\"></i>\r\n                </a> \r\n            </span>\r\n        </div>\r\n        <!-- end logout button -->\r\n        <!-- search mobile button (this is hidden till mobile view port) -->\r\n        <div id=\"search-mobile\" class=\"btn-header transparent pull-right\" data-search-mobile>\r\n            <span> <a href=\"#\" title=\"Search\"><i class=\"fa fa-search\"></i></a> </span>\r\n        </div>\r\n        <!-- end search mobile button -->\r\n        <!-- input: search field -->\r\n        <!-- <form action=\"#/search\" class=\"header-search pull-right\">\r\n            <input id=\"search-fld\" type=\"text\" name=\"param\" placeholder=\"Find reports and more\" data-autocomplete=\'[\r\n                    \"ActionScript\",\r\n                    \"AppleScript\",\r\n                    \"Asp\",\r\n                    \"BASIC\",\r\n                    \"C\",\r\n                    \"C++\",\r\n                    \"Clojure\",\r\n                    \"COBOL\",\r\n                    \"ColdFusion\",\r\n                    \"Erlang\",\r\n                    \"Fortran\",\r\n                    \"Groovy\",\r\n                    \"Haskell\",\r\n                    \"Java\",\r\n                    \"JavaScript\",\r\n                    \"Lisp\",\r\n                    \"Perl\",\r\n                    \"PHP\",\r\n                    \"Python\",\r\n                    \"Ruby\",\r\n                    \"Scala\",\r\n                    \"Scheme\"]\'>\r\n            <button type=\"submit\">\r\n                <i class=\"fa fa-search\"></i>\r\n            </button>\r\n            <a href=\"$\" id=\"cancel-search-js\" title=\"Cancel Search\"><i class=\"fa fa-times\"></i></a>\r\n        </form> -->\r\n        <!-- end input: search field -->\r\n        <!-- fullscreen button -->\r\n        <div id=\"fullscreen\" class=\"btn-header transparent pull-right\">\r\n            <span> <a full-screen title=\"Full Screen\"><i\r\n                class=\"fa fa-arrows-alt\"></i></a> </span>\r\n        </div>\r\n        <!-- end fullscreen button -->\r\n        <!-- #Voice Command: Start Speech -->\r\n        <!-- <div id=\"speech-btn\" class=\"btn-header transparent pull-right hidden-sm hidden-xs\">\r\n            <div>\r\n                <a title=\"Voice Command\" id=\"voice-command-btn\" speech-recognition><i class=\"fa fa-microphone\"></i></a>\r\n                <div class=\"popover bottom\">\r\n                    <div class=\"arrow\"></div>\r\n                    <div class=\"popover-content\">\r\n                        <h4 class=\"vc-title\">Voice command activated <br>\r\n                        <small>Please speak clearly into the mic</small>\r\n                    </h4>\r\n                        <h4 class=\"vc-title-error text-center\">\r\n                        <i class=\"fa fa-microphone-slash\"></i> Voice command failed\r\n                        <br>\r\n                        <small class=\"txt-color-red\">Must <strong>\"Allow\"</strong> Microphone</small>\r\n                        <br>\r\n                        <small class=\"txt-color-red\">Must have <strong>Internet Connection</strong></small>\r\n                    </h4>\r\n                        <a href-void class=\"btn btn-success\" id=\"speech-help-btn\">See Commands</a>\r\n                        <a href-void class=\"btn bg-color-purple txt-color-white\" onclick=\"$(\'#speech-btn .popover\').fadeOut(50);\">Close Popup</a>\r\n                    </div>\r\n                </div>\r\n            </div>\r\n        </div> -->\r\n        <!-- end voice command -->\r\n        \r\n        <!-- multiple lang dropdown : find all flags in the flags page -->\r\n        <language-selector></language-selector>\r\n        <!-- end multiple lang -->\r\n    </div>\r\n    <!-- end pulled right: nav area -->\r\n</header>\r\n");
 $templateCache.put("app/public/app/layout/partials/navigation.tpl.html","<aside id=\"left-panel\">\r\n\r\n    <!-- User info -->\r\n    <div login-info></div>\r\n    <!-- end user info -->\r\n\r\n    <nav data-smart-menu-items=\"/api/menu-items.json\">\r\n    <!-- <nav> -->\r\n        <!-- NOTE: Notice the gaps after each icon usage <i></i>..\r\n        Please note that these links work a bit different than\r\n        traditional href=\"\" links. See documentation for details.\r\n        -->\r\n\r\n        <!-- <ul data-smart-menu>\r\n            <li data-menu-collapse>\r\n                <a href=\"#\" title=\"Dashboard\"><i class=\"fa fa-lg fa-fw fa-home\"></i> <span\r\n                        class=\"menu-item-parent\">{{getWord(\'Dashboard\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.dashboard\">{{getWord(\'Analytics Dashboard\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.dashboard-social\">{{getWord(\'Social Wall\')}}</a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\" title=\"Restful\">\r\n                    <i class=\"fa fa-lg fa-fw fa-home\"></i> \r\n                    <span class=\"menu-item-parent\">{{getWord(\'Restful\')}}</span>\r\n                </a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.restful.alantest\">{{getWord(\'AlanTest\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.restful.gridtest\">{{getWord(\'GridTest\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.restful.exceltest\">{{getWord(\'ExcelTest\')}}</a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-ui-sref-active=\"active\">\r\n                <a data-ui-sref=\"app.mainwork\" title=\"MainWork\">\r\n                    <i class=\"fa fa-lg fa-fw fa-newspaper-o\"></i> \r\n                    <span class=\"menu-item-parent\">{{getWord(\'MainWork\')}}</span>\r\n                </a>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\" title=\"SelfWork\">\r\n                    <i class=\"fa fa-lg fa-fw fa-truck\"></i> \r\n                    <span class=\"menu-item-parent\">{{getWord(\'SelfWork\')}}</span>\r\n                </a>\r\n                <ul>\r\n                    <li data-menu-collapse>\r\n                        <a href=\"#\"><i class=\"fa fa-fw fa-folder-open\"></i> {{getWord(\'LeaderOption\')}} </a>\r\n                        <ul>\r\n                            <li data-ui-sref-active=\"active\">\r\n                                <a data-ui-sref=\"app.selfwork.leaderoption.compydistribution\"><i class=\"fa fa-building-o\"></i> {{getWord(\'CompyDistribution\')}}</a>\r\n                            </li>\r\n                            <li data-ui-sref-active=\"active\">\r\n                                <a data-ui-sref=\"app.selfwork.leaderoption.agentsetting\"><i class=\"fa fa-braille\"></i> {{getWord(\'AgentSetting\')}}</a>\r\n                            </li>\r\n                            <li data-ui-sref-active=\"active\">\r\n                                <a data-ui-sref=\"app.selfwork.leaderoption.dailyleave\"><i class=\"fa fa-child\"></i> {{getWord(\'DailyLeave\')}}</a>\r\n                            </li>\r\n                        </ul>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.selfwork.customoversix\"><i class=\"fa fa-cube\"></i> {{getWord(\'CustomOverSix\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.selfwork.leaderjobs\"><i class=\"fa fa-cubes\"></i> {{getWord(\'LeaderJobs\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.selfwork.leaderhistorysearch\"><i class=\"fa fa-history\"></i> {{getWord(\'LeaderHistorySearch\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.selfwork.assistantjobs\"><i class=\"fa fa-cube\"></i> {{getWord(\'AssistantJobs\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.selfwork.assistanthistorysearch\"><i class=\"fa fa-history\"></i> {{getWord(\'AssistantHistorySearch\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.selfwork.employeejobs\"><i class=\"fa fa-cube\"></i> {{getWord(\'EmployeeJobs\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.selfwork.employeehistorysearch\"><i class=\"fa fa-history\"></i> {{getWord(\'EmployeeHistorySearch\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.selfwork.deliveryjobs\"><i class=\"fa fa-cube\"></i> {{getWord(\'DeliveryJobs\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.selfwork.deliveryhistorysearch\"><i class=\"fa fa-history\"></i> {{getWord(\'DeliveryHistorySearch\')}}</a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\" title=\"Concerns\"><i class=\"fa fa-lg fa-fw fa-address-book-o\"></i> <span\r\n                        class=\"menu-item-parent\">{{getWord(\'Concerns\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.concerns.ban\"><i class=\"fa fa-ban\"></i> {{getWord(\'Ban\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.concerns.dailyalert\"><i class=\"fa fa-bell-o\"></i> {{getWord(\'DailyAlert\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.concerns.banhistorysearch\"><i class=\"fa fa-history\"></i> {{getWord(\'HistorySearch\')}}</a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\" title=\"Settings\"><i class=\"fa fa-lg fa-fw fa-cog\"></i> <span\r\n                        class=\"menu-item-parent\">{{getWord(\'Settings\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.settings.profile\"><i class=\"fa fa-user\"></i> {{getWord(\'Profile\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.settings.accountmanagement\"><i class=\"fa fa-sitemap\"></i> {{getWord(\'AccountManagement\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.settings.billboardeditor\"><i class=\"fa fa-newspaper-o\"></i> {{getWord(\'BillboardEditor\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.settings.externalmanagement\"><i class=\"fa fa-external-link\"></i> {{getWord(\'ExternalManagement\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.settings.aviationmail\"><i class=\"fa fa-envelope-o\"></i> {{getWord(\'AviationMail\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.settings.excompybagno\"><i class=\"fa fa-shopping-bag\"></i> {{getWord(\'ExcompyBagno\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.settings.bagnocount\"><i class=\"fa fa-hourglass-half\"></i> {{getWord(\'BagnoCount\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.settings.syslogs\"><i class=\"fa fa-database\"></i> {{getWord(\'SysLogs\')}}</a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse class=\"top-menu-invisible\">\r\n                <a href=\"#\"><i class=\"fa fa-lg fa-fw fa-cube txt-color-blue\"></i> <span class=\"menu-item-parent\">{{getWord(\'SmartAdmin Intel\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.smartAdmin.appLayouts\"><i class=\"fa fa-gear\"></i>\r\n                            {{getWord(\'App Layouts\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.smartAdmin.prebuiltSkins\"><i class=\"fa fa-picture-o\"></i>\r\n                            {{getWord(\'Prebuilt Skins\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.smartAdmin.appLayout\"><i class=\"fa fa-cube\"></i> {{getWord(\'App Settings\')}}</a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-ui-sref-active=\"active\">\r\n                <a data-ui-sref=\"app.inbox.folder\" title=\"Outlook\">\r\n                    <i class=\"fa fa-lg fa-fw fa-inbox\"></i> <span class=\"menu-item-parent\">{{getWord(\'Outlook\')}}</span><span\r\n                        unread-messages-count class=\"badge pull-right inbox-badge\"></span></a>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\"><i class=\"fa fa-lg fa-fw fa-bar-chart-o\"></i> <span class=\"menu-item-parent\">{{getWord(\'Graphs\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.graphs.flot\">{{getWord(\'Flot Chart\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.graphs.morris\">{{getWord(\'Morris Charts\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.graphs.sparkline\">{{getWord(\'Sparkline\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.graphs.easyPieCharts\">{{getWord(\'Easy Pie Charts\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.graphs.dygraphs\">{{getWord(\'Dygraphs\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.graphs.chartjs\">Chart.js</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.graphs.highchartTables\">Highchart Tables <span\r\n                                class=\"badge pull-right inbox-badge bg-color-yellow\">new</span></a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\"><i class=\"fa fa-lg fa-fw fa-table\"></i> <span\r\n                        class=\"menu-item-parent\">{{getWord(\'Tables\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.tables.normal\">{{getWord(\'Normal Tables\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.tables.datatables\">{{getWord(\'Data Tables\')}} <span\r\n                                class=\"badge inbox-badge bg-color-greenLight\">v1.10</span></a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.tables.jqgrid\">{{getWord(\'Jquery Grid\')}}</a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\"><i class=\"fa fa-lg fa-fw fa-pencil-square-o\"></i> <span class=\"menu-item-parent\">{{getWord(\'Forms\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.form.elements\">{{getWord(\'Smart Form Elements\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.form.layouts\">{{getWord(\'Smart Form Layouts\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.form.validation\">{{getWord(\'Smart Form Validation\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.form.bootstrapForms\">{{getWord(\'Bootstrap Form Elements\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.form.bootstrapValidation\">{{getWord(\'Bootstrap Form Validation\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.form.plugins\">{{getWord(\'Form Plugins\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.form.wizards\">{{getWord(\'Wizards\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.form.editors\">{{getWord(\'Bootstrap Editors\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.form.dropzone\">{{getWord(\'Dropzone\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.form.imageEditor\">{{getWord(\'Image Cropping\')}} <span\r\n                                class=\"badge pull-right inbox-badge bg-color-yellow\">new</span></a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\"><i class=\"fa fa-lg fa-fw fa-desktop\"></i> <span class=\"menu-item-parent\">{{getWord(\'UI Elements\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.ui.general\">{{getWord(\'General Elements\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.ui.buttons\">{{getWord(\'Buttons\')}}</a>\r\n                    </li>\r\n                    <li data-menu-collapse>\r\n                        <a href=\"#\">{{getWord(\'Icons\')}}</a>\r\n                        <ul>\r\n                            <li data-ui-sref-active=\"active\">\r\n                                <a data-ui-sref=\"app.ui.iconsFa\"><i class=\"fa fa-plane\"></i> {{getWord(\'Font Awesome\')}}</a>\r\n                            </li>\r\n                            <li data-ui-sref-active=\"active\">\r\n                                <a data-ui-sref=\"app.ui.iconsGlyph\"><i class=\"glyphicon glyphicon-plane\"></i>\r\n                                    {{getWord(\'Glyph Icons\')}}</a>\r\n                            </li>\r\n                            <li data-ui-sref-active=\"active\">\r\n                                <a data-ui-sref=\"app.ui.iconsFlags\"><i class=\"fa fa-flag\"></i> {{getWord(\'Flags\')}}</a>\r\n                            </li>\r\n                        </ul>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.ui.grid\">{{getWord(\'Grid\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.ui.treeView\">{{getWord(\'Tree View\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.ui.nestableLists\">{{getWord(\'Nestable Lists\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.ui.jqueryUi\">{{getWord(\'JQuery UI\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.ui.typography\">{{getWord(\'Typography\')}}</a>\r\n                    </li>\r\n                    <li data-menu-collapse>\r\n                        <a href=\"#\">{{getWord(\'Six Level Menu\')}}</a>\r\n                        <ul>\r\n                            <li data-menu-collapse>\r\n                                <a href=\"#\"><i class=\"fa fa-fw fa-folder-open\"></i> {{getWord(\'Item #2\')}}</a>\r\n                                <ul>\r\n                                    <li data-menu-collapse>\r\n                                        <a href=\"#\"><i class=\"fa fa-fw fa-folder-open\"></i> {{getWord(\'Sub #2.1\')}} </a>\r\n                                        <ul>\r\n                                            <li>\r\n                                                <a href=\"#\"><i class=\"fa fa-fw fa-file-text\"></i> {{getWord(\'Item\r\n                                                    #2.1.1\')}}</a>\r\n                                            </li>\r\n                                            <li data-menu-collapse>\r\n                                                <a href=\"#\"><i class=\"fa fa-fw fa-plus\"></i>{{getWord(\'Expand\')}}</a>\r\n                                                <ul>\r\n                                                    <li>\r\n                                                        <a href=\"#\"><i class=\"fa fa-fw fa-file-text\"></i>\r\n                                                            {{getWord(\'File\')}}</a>\r\n                                                    </li>\r\n                                                    <li>\r\n                                                        <a href=\"#\"><i class=\"fa fa-fw fa-trash-o\"></i>\r\n                                                            {{getWord(\'Delete\')}}</a></li>\r\n                                                </ul>\r\n                                            </li>\r\n                                        </ul>\r\n                                    </li>\r\n                                </ul>\r\n                            </li>\r\n                            <li data-menu-collapse>\r\n                                <a href=\"#\"><i class=\"fa fa-fw fa-folder-open\"></i> {{getWord(\'Item #3\')}}</a>\r\n\r\n                                <ul>\r\n                                    <li data-menu-collapse>\r\n                                        <a href=\"#\"><i class=\"fa fa-fw fa-folder-open\"></i> {{getWord(\'3ed Level\')}}\r\n                                        </a>\r\n                                        <ul>\r\n                                            <li>\r\n                                                <a href=\"#\"><i class=\"fa fa-fw fa-file-text\"></i>\r\n                                                    {{getWord(\'File\')}}</a>\r\n                                            </li>\r\n                                            <li>\r\n                                                <a href=\"#\"><i class=\"fa fa-fw fa-file-text\"></i>\r\n                                                    {{getWord(\'File\')}}</a>\r\n                                            </li>\r\n                                        </ul>\r\n                                    </li>\r\n                                </ul>\r\n\r\n                            </li>\r\n                        </ul>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n\r\n            <li data-ui-sref-active=\"active\">\r\n                <a data-ui-sref=\"app.widgets\" title=\"Widgets\"><i class=\"fa fa-lg fa-fw fa-list-alt\"></i> <span class=\"menu-item-parent\">{{getWord(\'Widgets\')}}</span></a>\r\n            </li>\r\n\r\n\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\">\r\n                    <i class=\"fa fa-lg fa-fw fa-cloud\"><em>3</em></i> <span class=\"menu-item-parent\">{{getWord(\'Cool Features\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.calendar\" title=\"Calendar\"><i\r\n                                class=\"fa fa-lg fa-fw fa-calendar\"></i> <span\r\n                                class=\"menu-item-parent\">{{getWord(\'Calendar\')}}</span></a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.maps\"><i class=\"fa fa-lg fa-fw fa-map-marker\"></i> <span class=\"menu-item-parent\">{{getWord(\'GMap Skins\')}}</span><span\r\n                                class=\"badge bg-color-greenLight pull-right inbox-badge\">9</span></a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\">\r\n                    <i class=\"fa fa-lg fa-fw fa-puzzle-piece\"></i> <span class=\"menu-item-parent\">{{getWord(\'App Views\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.appViews.projects\"><i class=\"fa fa-file-text-o\"></i>\r\n                            {{getWord(\'Projects\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.appViews.blogDemo\"><i class=\"fa fa-paragraph\"></i> {{getWord(\'Blog\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.appViews.galleryDemo\"><i class=\"fa fa-picture-o\"></i>\r\n                            {{getWord(\'Gallery\')}}</a>\r\n                    </li>\r\n\r\n                    <li data-menu-collapse>\r\n                        <a href=\"#\"><i class=\"fa fa-comments\"></i> {{getWord(\'Forum Layout\')}}</a>\r\n                        <ul>\r\n                            <li data-ui-sref-active=\"active\">\r\n                                <a data-ui-sref=\"app.appViews.forumDemo\"><i class=\"fa fa-picture-o\"></i>\r\n                                    {{getWord(\'General View\')}}</a>\r\n                            </li>\r\n                            <li data-ui-sref-active=\"active\">\r\n                                <a data-ui-sref=\"app.appViews.forumTopicDemo\"><i class=\"fa fa-picture-o\"></i>\r\n                                    {{getWord(\'Topic View\')}}</a>\r\n                            </li>\r\n                            <li data-ui-sref-active=\"active\">\r\n                                <a data-ui-sref=\"app.appViews.forumPostDemo\"><i class=\"fa fa-picture-o\"></i>\r\n                                    {{getWord(\'Post View\')}}</a>\r\n                            </li>\r\n                        </ul>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.appViews.profileDemo\"><i class=\"fa fa-group\"></i>\r\n                            {{getWord(\'Profile\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.appViews.timelineDemo\"><i class=\"fa fa-clock-o\"></i>\r\n                            {{getWord(\'Timeline\')}}</a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\">\r\n                    <i class=\"fa fa-lg fa-fw fa-shopping-cart\"></i> <span class=\"menu-item-parent\">{{getWord(\'E-Commerce\')}}</span></a>\r\n                <ul>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.eCommerce.orders\" title=\"Orders\"> {{getWord(\'Orders\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.eCommerce.products\" title=\"Products View\"> {{getWord(\'Products View\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.eCommerce.detail\" title=\"Products Detail\"> {{getWord(\'Products Detail\')}}</a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse>\r\n                <a href=\"#\"><i class=\"fa fa-lg fa-fw fa-windows\"></i> <span class=\"menu-item-parent\">{{getWord(\'Miscellaneous\')}}</span></a>\r\n                <ul>\r\n                    <li>\r\n                        <a href=\"http://bootstraphunter.com/smartadmin-landing/\" target=\"_blank\">{{getWord(\'Landing\r\n                            Page\')}} <i class=\"fa fa-external-link\"></i></a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.misc.pricingTable\">{{getWord(\'Pricing Tables\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.misc.invoice\">{{getWord(\'Invoice\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"login\">{{getWord(\'Login\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"register\">{{getWord(\'Register\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"lock\">{{getWord(\'Locked Screen\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.misc.error404\">{{getWord(\'Error 404\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.misc.error500\">{{getWord(\'Error 500\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.misc.blank\">{{getWord(\'Blank Page\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.misc.emailTemplate\">{{getWord(\'Email Template\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.misc.search\">{{getWord(\'Search Page\')}}</a>\r\n                    </li>\r\n                    <li data-ui-sref-active=\"active\">\r\n                        <a data-ui-sref=\"app.misc.ckeditor\">{{getWord(\'CK Editor\')}}</a>\r\n                    </li>\r\n                </ul>\r\n            </li>\r\n\r\n            <li data-menu-collapse class=\"chat-users top-menu-invisible\">\r\n                <a href=\"#\"><i class=\"fa fa-lg fa-fw fa-comment-o\"><em class=\"bg-color-pink flash animated\">!</em></i>\r\n                    <span class=\"menu-item-parent\">{{getWord(\'Smart Chat API\')}} <sup>{{getWord(\'beta\')}}</sup></span></a>\r\n                <div aside-chat-widget></div>\r\n            </li>\r\n        </ul> -->\r\n\r\n        <!-- NOTE: This allows you to pull menu items from server -->\r\n        <!-- <ul data-smart-menu-items=\"/api/menu-items.json\"></ul> -->\r\n    </nav>\r\n\r\n  <span class=\"minifyme\" data-action=\"minifyMenu\" minify-menu>\r\n    <i class=\"fa fa-arrow-circle-left hit\"></i>\r\n  </span>\r\n\r\n</aside>");
 $templateCache.put("app/public/app/layout/partials/sub-header.tpl.html","<div class=\"col-xs-12 col-sm-5 col-md-5 col-lg-8\" data-sparkline-container>\r\n    <ul id=\"sparks\" class=\"\">\r\n        <li class=\"sparks-info\">\r\n            <h5> My Income <span class=\"txt-color-blue\">$47,171</span></h5>\r\n            <div class=\"sparkline txt-color-blue hidden-mobile hidden-md hidden-sm\">\r\n                1300, 1877, 2500, 2577, 2000, 2100, 3000, 2700, 3631, 2471, 2700, 3631, 2471\r\n            </div>\r\n        </li>\r\n        <li class=\"sparks-info\">\r\n            <h5> Site Traffic <span class=\"txt-color-purple\"><i class=\"fa fa-arrow-circle-up\"></i>&nbsp;45%</span></h5>\r\n            <div class=\"sparkline txt-color-purple hidden-mobile hidden-md hidden-sm\">\r\n                110,150,300,130,400,240,220,310,220,300, 270, 210\r\n            </div>\r\n        </li>\r\n        <li class=\"sparks-info\">\r\n            <h5> Site Orders <span class=\"txt-color-greenDark\"><i class=\"fa fa-shopping-cart\"></i>&nbsp;2447</span></h5>\r\n            <div class=\"sparkline txt-color-greenDark hidden-mobile hidden-md hidden-sm\">\r\n                110,150,300,130,400,240,220,310,220,300, 270, 210\r\n            </div>\r\n        </li>\r\n    </ul>\r\n</div>\r\n			");
 $templateCache.put("app/public/app/layout/partials/voice-commands.tpl.html","<!-- TRIGGER BUTTON:\r\n<a href=\"/my-ajax-page.html\" data-toggle=\"modal\" data-target=\"#remoteModal\" class=\"btn btn-default\">Open Modal</a>  -->\r\n\r\n<!-- MODAL PLACE HOLDER\r\n<div class=\"modal fade\" id=\"remoteModal\" tabindex=\"-1\" role=\"dialog\" aria-labelledby=\"remoteModalLabel\" aria-hidden=\"true\">\r\n<div class=\"modal-dialog\">\r\n<div class=\"modal-content\"></div>\r\n</div>\r\n</div>   -->\r\n<!--////////////////////////////////////-->\r\n\r\n<!--<div class=\"modal-header\">\r\n<button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-hidden=\"true\">\r\n&times;\r\n</button>\r\n<h4 class=\"modal-title\" id=\"myModalLabel\">Command List</h4>\r\n</div>-->\r\n<div class=\"modal-body\">\r\n\r\n	<h1><i class=\"fa fa-microphone text-muted\"></i>&nbsp;&nbsp; SmartAdmin Voice Command</h1>\r\n	<hr class=\"simple\">\r\n	<h5>Instruction</h5>\r\n\r\n	Click <span class=\"text-success\">\"Allow\"</span> to access your microphone and activate Voice Command.\r\n	You will notice a <span class=\"text-primary\"><strong>BLUE</strong> Flash</span> on the microphone icon indicating activation.\r\n	The icon will appear <span class=\"text-danger\"><strong>RED</strong></span> <span class=\"label label-danger\"><i class=\"fa fa-microphone fa-lg\"></i></span> if you <span class=\"text-danger\">\"Deny\"</span> access or don\'t have any microphone installed.\r\n	<br>\r\n	<br>\r\n	As a security precaution, your browser will disconnect the microphone every 60 to 120 seconds (sooner if not being used). In which case Voice Command will prompt you again to <span class=\"text-success\">\"Allow\"</span> or <span class=\"text-danger\">\"Deny\"</span> access to your microphone.\r\n	<br>\r\n	<br>\r\n	If you host your page over <strong>http<span class=\"text-success\">s</span></strong> (secure socket layer) protocol you can wave this security measure and have an unintrupted Voice Command.\r\n	<br>\r\n	<br>\r\n	<h5>Commands</h5>\r\n	<ul>\r\n		<li>\r\n			<strong>\'show\' </strong> then say the <strong>*page*</strong> you want to go to. For example <strong>\"show inbox\"</strong> or <strong>\"show calendar\"</strong>\r\n		</li>\r\n		<li>\r\n			<strong>\'mute\' </strong> - mutes all sound effects for the theme.\r\n		</li>\r\n		<li>\r\n			<strong>\'sound on\'</strong> - unmutes all sound effects for the theme.\r\n		</li>\r\n		<li>\r\n			<span class=\"text-danger\"><strong>\'stop\'</strong></span> - deactivates voice command.\r\n		</li>\r\n		<li>\r\n			<span class=\"text-primary\"><strong>\'help\'</strong></span> - brings up the command list\r\n		</li>\r\n		<li>\r\n			<span class=\"text-danger\"><strong>\'got it\'</strong></span> - closes help modal\r\n		</li>\r\n		<li>\r\n			<strong>\'hide navigation\'</strong> - toggle navigation collapse\r\n		</li>\r\n		<li>\r\n			<strong>\'show navigation\'</strong> - toggle navigation to open (can be used again to close)\r\n		</li>\r\n		<li>\r\n			<strong>\'scroll up\'</strong> - scrolls to the top of the page\r\n		</li>\r\n		<li>\r\n			<strong>\'scroll down\'</strong> - scrollts to the bottom of the page\r\n		</li>\r\n		<li>\r\n			<strong>\'go back\' </strong> - goes back in history (history -1 click)\r\n		</li>\r\n		<li>\r\n			<strong>\'logout\'</strong> - logs you out\r\n		</li>\r\n	</ul>\r\n	<br>\r\n	<h5>Adding your own commands</h5>\r\n	Voice Command supports up to 80 languages. Adding your own commands is extreamly easy. All commands are stored inside <strong>app.config.js</strong> file under the <code>var commands = {...}</code>. \r\n\r\n	<hr class=\"simple\">\r\n	<div class=\"text-right\">\r\n		<button type=\"button\" class=\"btn btn-success btn-lg\" data-dismiss=\"modal\">\r\n			Got it!\r\n		</button>\r\n	</div>\r\n\r\n</div>\r\n<!--<div class=\"modal-footer\">\r\n<button type=\"button\" class=\"btn btn-primary\" data-dismiss=\"modal\">Got it!</button>\r\n</div> -->");
@@ -9033,6 +9075,40 @@ angular.module('app.graphs').controller('FlotCtrl', function ($scope) {
 });
 "use strict";
 
+angular.module('app.inbox').directive('messageLabels', function (InboxConfig) {
+    return {
+        replace: true,
+        restrict: 'AE',
+        link: function (scope, element) {
+
+            if (scope.message.labels && scope.message.labels.length) {
+                InboxConfig.success(function (config) {
+                    var html = _.map(scope.message.labels, function (label) {
+                        return '<span class="label bg-color-'+config.labels[label].color +'">' + config.labels[label].name + '</span>';
+                    }).join('');
+                    element.replaceWith(html);
+                });
+
+            } else {
+                element.replaceWith('');
+            }
+        }
+    }
+});
+"use strict";
+
+angular.module('app.inbox').directive('unreadMessagesCount', function(InboxConfig){
+    return {
+        restrict: 'A',
+        link: function(scope, element){
+            InboxConfig.success(function(config){
+                element.html(_.find(config.folders, {key: 'inbox'}).unread);
+            })
+        }
+    }
+});
+"use strict";
+
 angular.module('app.inbox').factory('InboxConfig', function($http, APP_CONFIG){
     return $http.get(APP_CONFIG.apiRootUrl + '/inbox.json');
 })
@@ -9065,40 +9141,6 @@ angular.module('app.inbox').factory('InboxMessage', function($resource, APP_CONF
 
     return InboxMessage;
 
-});
-"use strict";
-
-angular.module('app.inbox').directive('messageLabels', function (InboxConfig) {
-    return {
-        replace: true,
-        restrict: 'AE',
-        link: function (scope, element) {
-
-            if (scope.message.labels && scope.message.labels.length) {
-                InboxConfig.success(function (config) {
-                    var html = _.map(scope.message.labels, function (label) {
-                        return '<span class="label bg-color-'+config.labels[label].color +'">' + config.labels[label].name + '</span>';
-                    }).join('');
-                    element.replaceWith(html);
-                });
-
-            } else {
-                element.replaceWith('');
-            }
-        }
-    }
-});
-"use strict";
-
-angular.module('app.inbox').directive('unreadMessagesCount', function(InboxConfig){
-    return {
-        restrict: 'A',
-        link: function(scope, element){
-            InboxConfig.success(function(config){
-                element.html(_.find(config.folders, {key: 'inbox'}).unread);
-            })
-        }
-    }
 });
 "use strict";
 
@@ -9641,7 +9683,7 @@ angular.module('app.oselfwork').controller('OAssistantJobsCtrl', function ($scop
                     animation: true,
                     ariaLabelledBy: 'modal-title',
                     ariaDescribedBy: 'modal-body',
-                    templateUrl: 'opWorkMenu.html',
+                    templateUrl: 'oopWorkMenu.html',
                     controller: 'OpWorkMenuModalInstanceCtrl',
                     controllerAs: '$ctrl',
                     scope: $scope,
@@ -9694,14 +9736,18 @@ angular.module('app.oselfwork').controller('OAssistantJobsCtrl', function ($scop
                         updatename: 'Update',
                         table: 40,
                         params: {
-                            O_OL_IMPORTDT : selectedItem.O_OL_IMPORTDT,
-                            O_OL_CO_CODE  : selectedItem.O_OL_CO_CODE,
-                            O_OL_VOYSEQ   : selectedItem.O_OL_VOYSEQ,
-                            O_OL_PASSCODE : selectedItem.O_OL_PASSCODE,
-                            O_OL_BOATID   : selectedItem.O_OL_BOATID,
-                            O_OL_MASTER   : selectedItem.O_OL_MASTER,
-                            O_OL_POST     : selectedItem.O_OL_POST,
-                            O_OL_REASON   : selectedItem.O_OL_REASON
+                            O_OL_IMPORTDT          : selectedItem.O_OL_IMPORTDT,
+                            O_OL_CO_CODE           : selectedItem.O_OL_CO_CODE,
+                            O_OL_MASTER            : selectedItem.O_OL_MASTER,
+                            O_OL_PASSCODE          : selectedItem.O_OL_PASSCODE,
+                            O_OL_VOYSEQ            : selectedItem.O_OL_VOYSEQ,
+                            O_OL_MVNO              : selectedItem.O_OL_MVNO,
+                            O_OL_COMPID            : selectedItem.O_OL_COMPID,
+                            O_OL_ARRLOCATIONID     : selectedItem.O_OL_ARRLOCATIONID,
+                            O_OL_POST              : selectedItem.O_OL_POST,
+                            O_OL_PACKAGELOCATIONID : selectedItem.O_OL_PACKAGELOCATIONID,
+                            O_OL_BOATID            : selectedItem.O_OL_BOATID,
+                            O_OL_REASON            : selectedItem.O_OL_REASON
                         },
                         condition: {
                             O_OL_SEQ : selectedItem.O_OL_SEQ
@@ -9746,22 +9792,20 @@ angular.module('app.oselfwork').controller('OAssistantJobsCtrl', function ($scop
         masterToBeFilledOptions : {
             data:  '$vm.masterToBeFilledData',
             columnDefs: [
-                { name: 'Index'                  ,  displayName: '序列', width: 50, enableFiltering: false },
-                { name: 'O_OL_IMPORTDT'          ,  displayName: '報機日期', width: 80, cellFilter: 'dateFilter' },
-                { name: 'O_CO_NAME'              ,  displayName: '行家', width: 160 },
-                { name: 'O_OL_VOYSEQ'            ,  displayName: '航次' },
-                { name: 'O_OL_PASSCODE'          ,  displayName: '海關通關號碼' },
-                { name: 'O_OL_BOATID'            ,  displayName: '船機代碼' },
-                { name: 'O_OL_MASTER'            ,  displayName: '主號' },
-                { name: 'O_OL_COUNT'             ,  displayName: '報機單(件數)', width: 80, enableCellEdit: false },
-                { name: 'O_OL_PULL_COUNT'        ,  displayName: '拉貨(件數)', width: 80, enableCellEdit: false },
-                { name: 'O_OL_POST'              ,  displayName: '裝貨港' },
-                { name: 'O_OL_REASON'            ,  displayName: '描述', width: 100, cellTooltip: function (row, col) 
-                    {
-                        return row.entity.O_OL_REASON
-                    } 
-                },
-                { name: 'ITEM_LIST'              ,  displayName: '報機單', width: 87, enableFiltering: false, enableSorting: false, cellTemplate: $templateCache.get('accessibilityToOperaForJob001') },
+                { name: 'Index'                  ,  displayName: '序列', width: 66, enableFiltering: false },
+                { name: 'O_OL_IMPORTDT'          ,  displayName: '報機日期', width: 91, cellFilter: 'dateFilter', cellTooltip: cellTooltip },
+                { name: 'O_CO_NAME'              ,  displayName: '行家', width: 66, cellTooltip: cellTooltip },
+                { name: 'O_OL_MASTER'            ,  displayName: '主號', width: 133, cellTooltip: cellTooltip },
+                { name: 'O_OL_PASSCODE'          ,  displayName: '通關號碼', width: 91, cellTooltip: cellTooltip },
+                { name: 'O_OL_VOYSEQ'            ,  displayName: '航次', width: 66, cellTooltip: cellTooltip },
+                { name: 'O_OL_MVNO'              ,  displayName: '呼號', width: 66, cellTooltip: cellTooltip },
+                { name: 'O_OL_COMPID'            ,  displayName: '船公司代碼', width: 103, cellTooltip: cellTooltip },
+                { name: 'O_OL_ARRLOCATIONID'     ,  displayName: '卸存地點', width: 91, cellTooltip: cellTooltip },
+                { name: 'O_OL_POST'              ,  displayName: '裝貨港', width: 78, cellTooltip: cellTooltip },
+                { name: 'O_OL_PACKAGELOCATIONID' ,  displayName: '暫存地點', width: 91, cellTooltip: cellTooltip },
+                { name: 'O_OL_BOATID'            ,  displayName: '船機代碼', width: 91, cellTooltip: cellTooltip },
+                { name: 'O_OL_REASON'            ,  displayName: '描述', cellTooltip: cellTooltip },
+                { name: 'ITEM_LIST'              ,  displayName: '報機單', width: 79, enableFiltering: false, enableSorting: false, cellTemplate: $templateCache.get('accessibilityToOperaForJob001') },
                 { name: 'Options'                ,  displayName: '操作', width: 68, enableCellEdit: false, enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToM') }
             ],
             enableFiltering: true,
@@ -9781,8 +9825,8 @@ angular.module('app.oselfwork').controller('OAssistantJobsCtrl', function ($scop
                     animation: true,
                     ariaLabelledBy: 'modal-title',
                     ariaDescribedBy: 'modal-body',
-                    templateUrl: 'viewReasonModalContent.html',
-                    controller: 'ViewReasonModalInstanceCtrl',
+                    templateUrl: 'viewOReasonModalContent.html',
+                    controller: 'ViewOReasonModalInstanceCtrl',
                     controllerAs: '$ctrl',
                     // size: 'lg',
                     resolve: {
@@ -9797,21 +9841,22 @@ angular.module('app.oselfwork').controller('OAssistantJobsCtrl', function ($scop
 
                     RestfulApi.UpdateMSSQLData({
                         updatename: 'Update',
-                        table: 19,
+                        table: 47,
                         params: {
-                            PG_REASON      : selectedItem.PG_REASON,
-                            PG_UP_USER     : $vm.profile.U_ID,
-                            PG_UP_DATETIME : $filter('date')(new Date(), 'yyyy-MM-dd HH:mm:ss')
+                            O_PG_REASON      : selectedItem.O_PG_REASON,
+                            O_PG_UP_USER     : $vm.profile.U_ID,
+                            O_PG_UP_DATETIME : $filter('date')(new Date(), 'yyyy-MM-dd HH:mm:ss')
                         },
                         condition: {
-                            PG_SEQ         : selectedItem.PG_SEQ,
-                            PG_BAGNO       : selectedItem.PG_BAGNO
+                            O_PG_SEQ         : selectedItem.O_PG_SEQ,
+                            O_PG_NEWSMALLNO  : selectedItem.O_PG_NEWSMALLNO,
+                            O_PG_SMALLNO     : selectedItem.O_PG_SMALLNO
                         }
                     }).then(function (res) {
                         toaster.pop('success', '訊息', '更新成功', 3000);
                         LoadPullGoods();
                     }, function (err) {
-                        toaster.pop('danger', '錯誤', '更新失敗', 3000);
+                        toaster.pop('error', '錯誤', '更新失敗', 3000);
                     });
                 }, function() {
                     // $log.info('Modal dismissed at: ' + new Date());
@@ -9823,8 +9868,8 @@ angular.module('app.oselfwork').controller('OAssistantJobsCtrl', function ($scop
                     animation: true,
                     ariaLabelledBy: 'modal-title',
                     ariaDescribedBy: 'modal-body',
-                    templateUrl: 'viewDetailModalContent.html',
-                    controller: 'ViewDetailModalInstanceCtrl',
+                    templateUrl: 'viewODetailModalContent.html',
+                    controller: 'ViewODetailModalInstanceCtrl',
                     controllerAs: '$ctrl',
                     size: 'lg',
                     resolve: {
@@ -9851,7 +9896,7 @@ angular.module('app.oselfwork').controller('OAssistantJobsCtrl', function ($scop
                 var _emptyMoved = false;
                 for(var i in _data){
                     // 檢查移船是否為否
-                    if(_data[i].PG_MOVED){
+                    if(_data[i].O_PG_MOVED){
                         _emptyMoved = true;
                         break;
                     }
@@ -9866,8 +9911,8 @@ angular.module('app.oselfwork').controller('OAssistantJobsCtrl', function ($scop
                     animation: true,
                     ariaLabelledBy: 'modal-title',
                     ariaDescribedBy: 'modal-body',
-                    templateUrl: 'modifyPullGoodsModalContent.html',
-                    controller: 'ModifyPullGoodsModalInstanceCtrl',
+                    templateUrl: 'modifyOPullGoodsModalContent.html',
+                    controller: 'ModifyOPullGoodsModalInstanceCtrl',
                     controllerAs: '$ctrl'
                     // size: 'lg',
                 });
@@ -9881,17 +9926,24 @@ angular.module('app.oselfwork').controller('OAssistantJobsCtrl', function ($scop
                     for(var i in _data){
                         _tasks.push({
                             crudType: 'Update',
-                            table: 19,
+                            table: 45,
                             params: {
-                                // PG_MOVED : true,
-                                PG_MASTER : selectedItem.PG_MASTER,
-                                PG_FLIGHTNO : selectedItem.PG_FLIGHTNO,
-                                PG_UP_USER : $vm.profile.U_ID,
-                                PG_UP_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss')
+                                O_PG_MASTER            : selectedItem.O_PG_MASTER,
+                                O_PG_PASSCODE          : selectedItem.O_PG_PASSCODE,
+                                O_PG_VOYSEQ            : selectedItem.O_PG_VOYSEQ,
+                                O_PG_MVNO              : selectedItem.O_PG_MVNO,
+                                O_PG_COMPID            : selectedItem.O_PG_COMPID,
+                                O_PG_ARRLOCATIONID     : selectedItem.O_PG_ARRLOCATIONID,
+                                O_PG_POST              : selectedItem.O_PG_POST,
+                                O_PG_PACKAGELOCATIONID : selectedItem.O_PG_PACKAGELOCATIONID,
+                                O_PG_BOATID            : selectedItem.O_PG_BOATID,
+                                O_PG_UP_USER           : $vm.profile.U_ID,
+                                O_PG_UP_DATETIME       : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss')
                             },
                             condition: {
-                                PG_SEQ : _data[i].PG_SEQ,
-                                PG_BAGNO : _data[i].PG_BAGNO
+                                O_PG_SEQ        : _data[i].PG_SEQ,
+                                O_PG_NEWSMALLNO : _data[i].O_PG_NEWSMALLNO,
+                                O_PG_SMALLNO    : _data[i].O_PG_SMALLNO
                             }
                         });
                     }
@@ -9900,7 +9952,7 @@ angular.module('app.oselfwork').controller('OAssistantJobsCtrl', function ($scop
                         toaster.pop('success', '訊息', '更新成功', 3000);
                         LoadPullGoods();
                     }, function (err) {
-                        toaster.pop('danger', '錯誤', '更新失敗', 3000);
+                        toaster.pop('error', '錯誤', '更新失敗', 3000);
                     });  
 
                 }, function() {
@@ -9921,7 +9973,7 @@ angular.module('app.oselfwork').controller('OAssistantJobsCtrl', function ($scop
                 var _emptyMoved = false;
                 for(var i in _data){
                     // 檢查移船是否為否
-                    if(_data[i].PG_MOVED){
+                    if(_data[i].O_PG_MOVED){
                         _emptyMoved = true;
                         break;
                     }
@@ -9963,10 +10015,11 @@ angular.module('app.oselfwork').controller('OAssistantJobsCtrl', function ($scop
                     for(var i in _data){
                         _tasks.push({
                             crudType: 'Delete',
-                            table: 19,
+                            table: 47,
                             params: {
-                                PG_SEQ : _data[i].PG_SEQ,
-                                PG_BAGNO : _data[i].PG_BAGNO
+                                O_PG_SEQ : _data[i].O_PG_SEQ,
+                                O_PG_NEWSMALLNO : _data[i].O_PG_NEWSMALLNO,
+                                O_PG_SMALLNO : _data[i].O_PG_SMALLNO
                             }
                         });
                     }
@@ -9975,7 +10028,7 @@ angular.module('app.oselfwork').controller('OAssistantJobsCtrl', function ($scop
                         toaster.pop('success', '訊息', '取消成功', 3000);
                         LoadPullGoods();
                     }, function (err) {
-                        toaster.pop('danger', '錯誤', '取消失敗', 3000);
+                        toaster.pop('error', '錯誤', '取消失敗', 3000);
                     });  
 
                 }, function() {
@@ -9997,95 +10050,131 @@ angular.module('app.oselfwork').controller('OAssistantJobsCtrl', function ($scop
                     return;
                 }
 
-                var _emptyFlightNo = false,
-                    _emptyMaster = false,
-                    _emptyMoved = false,
-                    _duplicatFlightNo = false,
-                    _duplicatMaster = false,
-                    _duplicatFlightNoValue = "",
-                    _duplicatMasterValue = "",
-                    _sourceMaster = [],
-                    _seqAndBagno = [],
-                    _seq = [],
-                    _bagno = [];
+                var _duplicatValue = {},
+                    _itemListPK = [],
+                    _smallNo = [];
                 for(var i in _data){
 
-                    // 檢查航班(改)是否為空
-                    if(_data[i].PG_FLIGHTNO == null || _data[i].PG_FLIGHTNO == ""){
-                        _emptyFlightNo = true;
-                        break;
-                    }
                     // 檢查主號(改)是否為空
-                    if(_data[i].PG_MASTER == null || _data[i].PG_MASTER == ""){
-                        _emptyMaster = true;
-                        break;
+                    if(_data[i].O_PG_MASTER == null || _data[i].O_PG_MASTER == ""){
+                        toaster.pop('warning', '警告', '尚有資料 主號(改) 為空', 3000);
+                        return;
+                    }
+                    // 檢查通關號碼(改)是否為空
+                    if(_data[i].O_PG_PASSCODE == null || _data[i].O_PG_PASSCODE == ""){
+                        toaster.pop('warning', '警告', '尚有資料 通關號碼(改) 為空', 3000);
+                        return;
+                    }
+                    // 檢查航次(改)是否為空
+                    if(_data[i].O_PG_VOYSEQ == null || _data[i].O_PG_VOYSEQ == ""){
+                        toaster.pop('warning', '警告', '尚有資料 航次(改) 為空', 3000);
+                        return;
+                    }
+                    // 檢查呼號(改)是否為空
+                    if(_data[i].O_PG_MVNO == null || _data[i].O_PG_MVNO == ""){
+                        toaster.pop('warning', '警告', '尚有資料 呼號(改) 為空', 3000);
+                        return;
+                    }
+                    // 檢查船公司代碼(改)是否為空
+                    if(_data[i].O_PG_COMPID == null || _data[i].O_PG_COMPID == ""){
+                        toaster.pop('warning', '警告', '尚有資料 船公司代碼(改) 為空', 3000);
+                        return;
+                    }
+                    // 檢查卸存地點(改)是否為空
+                    if(_data[i].O_PG_ARRLOCATIONID == null || _data[i].O_PG_ARRLOCATIONID == ""){
+                        toaster.pop('warning', '警告', '尚有資料 卸存地點(改) 為空', 3000);
+                        return;
+                    }
+                    // 檢查裝貨港(改)是否為空
+                    if(_data[i].O_PG_POST == null || _data[i].O_PG_POST == ""){
+                        toaster.pop('warning', '警告', '尚有資料 裝貨港(改) 為空', 3000);
+                        return;
+                    }
+                    // 檢查暫存地點(改)是否為空
+                    if(_data[i].O_PG_PACKAGELOCATIONID == null || _data[i].O_PG_PACKAGELOCATIONID == ""){
+                        toaster.pop('warning', '警告', '尚有資料 暫存地點(改) 為空', 3000);
+                        return;
+                    }
+                    // 檢查船機代碼(改)是否為空
+                    if(_data[i].O_PG_BOATID == null || _data[i].O_PG_BOATID == ""){
+                        toaster.pop('warning', '警告', '尚有資料 船機代碼(改) 為空', 3000);
+                        return;
                     }
 
                     // 第一筆資料keep
                     if(i == 0){
-                        _duplicatFlightNoValue = _data[i].PG_FLIGHTNO;
-                        _duplicatMasterValue = _data[i].PG_MASTER;
+                        _duplicatValue = angular.copy(_data[i]);
                     }
                     // 第二筆資料開始檢查
                     else{
-                        // 檢查航班(改)是否重複
-                        if(_data[i].PG_FLIGHTNO != _duplicatFlightNoValue){
-                            _duplicatFlightNo = true;
-                            break;
-                        }
                         // 檢查主號(改)是否重複
-                        if(_data[i].PG_MASTER != _duplicatMasterValue){
-                            _duplicatMaster = true;
-                            break;
+                        if(_data[i].O_PG_MASTER != _duplicatValue.O_PG_MASTER){
+                            toaster.pop('warning', '警告', '主號(改) 資料不一致', 3000);
+                            return;
+                        }
+                        // 檢查通關號碼(改)是否重複
+                        if(_data[i].O_PG_PASSCODE != _duplicatValue.O_PG_PASSCODE){
+                            toaster.pop('warning', '警告', '通關號碼(改) 資料不一致', 3000);
+                            return;
+                        }
+                        // 檢查航次(改)是否重複
+                        if(_data[i].O_PG_VOYSEQ != _duplicatValue.O_PG_VOYSEQ){
+                            toaster.pop('warning', '警告', '航次(改) 資料不一致', 3000);
+                            return;
+                        }
+                        // 檢查呼號(改)是否重複
+                        if(_data[i].O_PG_MVNO != _duplicatValue.O_PG_MVNO){
+                            toaster.pop('warning', '警告', '呼號(改) 資料不一致', 3000);
+                            return;
+                        }
+                        // 檢查船公司代碼(改)是否重複
+                        if(_data[i].O_PG_COMPID != _duplicatValue.O_PG_COMPID){
+                            toaster.pop('warning', '警告', '船公司代碼(改) 資料不一致', 3000);
+                            return;
+                        }
+                        // 檢查卸存地點(改)是否重複
+                        if(_data[i].O_PG_ARRLOCATIONID != _duplicatValue.O_PG_ARRLOCATIONID){
+                            toaster.pop('warning', '警告', '卸存地點(改) 資料不一致', 3000);
+                            return;
+                        }
+                        // 檢查裝貨港(改)是否重複
+                        if(_data[i].O_PG_POST != _duplicatValue.O_PG_POST){
+                            toaster.pop('warning', '警告', '裝貨港(改) 資料不一致', 3000);
+                            return;
+                        }
+                        // 檢查暫存地點(改)是否重複
+                        if(_data[i].O_PG_PACKAGELOCATIONID != _duplicatValue.O_PG_PACKAGELOCATIONID){
+                            toaster.pop('warning', '警告', '暫存地點(改) 資料不一致', 3000);
+                            return;
+                        }
+                        // 檢查船機代碼(改)是否重複
+                        if(_data[i].O_PG_BOATID != _duplicatValue.O_PG_BOATID){
+                            toaster.pop('warning', '警告', '船機代碼(改) 資料不一致', 3000);
+                            return;
                         }
                     }
 
                     // 檢查移船是否為否
-                    if(_data[i].PG_MOVED){
-                        _emptyMoved = true;
-                        break;
+                    if(_data[i].O_PG_MOVED){
+                        toaster.pop('warning', '警告', '有資料已被移船', 3000);
+                        return;
                     }
 
-                    _seqAndBagno.push({
-                        SEQ : _data[i].PG_SEQ,
-                        BAGNO : _data[i].PG_BAGNO
+                    if(_data[i].OW2_PRINCIPAL == null){
+                        toaster.pop('warning', '警告', '有資料尚未被作業員編輯', 3000);
+                        return;
+                    }
+
+                    _itemListPK.push({
+                        SEQ : _data[i].O_PG_SEQ,
+                        NEWSMALLNO : _data[i].O_PG_NEWSMALLNO,
+                        SMALLNO : _data[i].O_PG_SMALLNO
                     });
 
-                    // _seq.push(_data[i].PG_SEQ);
-
-                    _bagno.push(_data[i].PG_BAGNO);
+                    _smallNo.push(_data[i].O_PG_SMALLNO);
                 }
 
-                if(_emptyFlightNo){
-                    toaster.pop('warning', '警告', '尚有資料 航班(改) 為空', 3000);
-                    return;
-                }
-
-                if(_emptyMaster){
-                    toaster.pop('warning', '警告', '尚有資料 主號(改) 為空', 3000);
-                    return;
-                }
-
-                if(_duplicatFlightNo){
-                    toaster.pop('warning', '警告', '航班(改) 資料不一致', 3000);
-                    return;
-                }
-
-                if(_duplicatMaster){
-                    toaster.pop('warning', '警告', '主號(改) 資料不一致', 3000);
-                    return;
-                }
-
-                if(_emptyMoved){
-                    toaster.pop('warning', '警告', '有資料已被移船', 3000);
-                    return;
-                }
-
-                if(_data[0].W2_PRINCIPAL == null){
-                    toaster.pop('warning', '警告', '有資料尚未被中班作業員編輯', 3000);
-                    return;
-                }
-
+                // 取得報機單類型的值
                 var _oeType = null;
                 for(var i in opType){
                     if(opType[i].label == '報機單'){
@@ -10105,16 +10194,21 @@ angular.module('app.oselfwork').controller('OAssistantJobsCtrl', function ($scop
                     // appendTo: parentElem,
                     resolve: {
                         items: function() {
-                            var _text = "拉貨("+_bagno.join(", ")+")";
+                            var _text = "拉貨("+_smallNo.join(", ")+")";
                             return {
-                                OL_CO_CODE : _data[0].OL_CO_CODE,
-                                OL_MASTER : _duplicatMasterValue,
-                                OL_FLIGHTNO : _duplicatFlightNoValue,
-                                // OL_IMPORTDT : $filter('date')(new Date, 'yyyy-MM-dd'),
-                                OL_IMPORTDT : _data[0].OL_CR_DATETIME,
-                                OL_COUNTRY : _data[0].OL_COUNTRY,
-                                OL_REASON : _text.length > 300 ? "拉貨" : _text,
-                                OE_PRINCIPAL : _data[0].W2_PRINCIPAL
+                                O_OL_IMPORTDT          : _data[0].O_OL_IMPORTDT, 
+                                O_OL_CO_CODE           : _data[0].O_OL_CO_CODE, 
+                                O_OL_MASTER            : _duplicatValue.O_PG_MASTER, 
+                                O_OL_PASSCODE          : _duplicatValue.O_PG_PASSCODE, 
+                                O_OL_VOYSEQ            : _duplicatValue.O_PG_VOYSEQ, 
+                                O_OL_MVNO              : _duplicatValue.O_PG_MVNO, 
+                                O_OL_COMPID            : _duplicatValue.O_PG_COMPID, 
+                                O_OL_ARRLOCATIONID     : _duplicatValue.O_PG_ARRLOCATIONID, 
+                                O_OL_POST              : _duplicatValue.O_PG_POST, 
+                                O_OL_PACKAGELOCATIONID : _duplicatValue.O_PG_PACKAGELOCATIONID, 
+                                O_OL_BOATID            : _duplicatValue.O_PG_BOATID, 
+                                O_OL_REASON            : _text.length > 300 ? "拉貨" : _text, 
+                                O_OE_PRINCIPAL           : _data[0].OW2_PRINCIPAL
                             };
                         },
                         ocompy: function() {
@@ -10128,22 +10222,28 @@ angular.module('app.oselfwork').controller('OAssistantJobsCtrl', function ($scop
 
                     var _d = new Date,
                         _tasks = [],
-                        _newSeq = $vm.profile.U_ID+selectedItem.OL_CO_CODE+$filter('date')(_d, 'yyyyMMddHHmmss');
+                        _newSeq = $vm.profile.U_ID+selectedItem.O_OL_CO_CODE+$filter('date')(_d, 'yyyyMMddHHmmss');
 
                     // 新增ORDER_LIST
                     _tasks.push({
                         crudType: 'Insert',
-                        table: 18,
+                        table: 40,
                         params: {
-                            OL_SEQ : _newSeq,
-                            OL_CO_CODE : selectedItem.OL_CO_CODE,
-                            OL_MASTER : selectedItem.OL_MASTER,
-                            OL_FLIGHTNO : selectedItem.OL_FLIGHTNO,
-                            OL_IMPORTDT : selectedItem.OL_IMPORTDT,
-                            OL_COUNTRY : selectedItem.OL_COUNTRY,
-                            OL_CR_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss'),
-                            OL_CR_USER : $vm.profile.U_ID,
-                            OL_REASON : selectedItem.OL_REASON
+                            O_OL_SEQ                : _newSeq,
+                            O_OL_CO_CODE            : selectedItem.O_OL_CO_CODE,
+                            O_OL_MASTER             : selectedItem.O_OL_MASTER,
+                            O_OL_PASSCODE           : selectedItem.O_OL_PASSCODE,
+                            O_OL_VOYSEQ             : selectedItem.O_OL_VOYSEQ,
+                            O_OL_MVNO               : selectedItem.O_OL_MVNO,
+                            O_OL_COMPID             : selectedItem.O_OL_COMPID,
+                            O_OL_ARRLOCATIONID      : selectedItem.O_OL_ARRLOCATIONID,
+                            O_OL_POST               : selectedItem.O_OL_POST,
+                            O_OL_PACKAGELOCATIONID  : selectedItem.O_OL_PACKAGELOCATIONID,
+                            O_OL_BOATID             : selectedItem.O_OL_BOATID,
+                            O_OL_IMPORTDT           : selectedItem.O_OL_IMPORTDT,
+                            O_OL_CR_DATETIME        : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss'),
+                            O_OL_CR_USER            : $vm.profile.U_ID,
+                            O_OL_REASON             : selectedItem.O_OL_REASON
                         }
                     })
 
@@ -10151,13 +10251,13 @@ angular.module('app.oselfwork').controller('OAssistantJobsCtrl', function ($scop
                         // 新增EDITOR
                         _tasks.push({
                             crudType: 'Insert',
-                            table: 22,
+                            table: 43,
                             params: {
-                                OE_SEQ : _newSeq,
-                                OE_TYPE : _oeType,
-                                OE_PRINCIPAL : selectedItem.OE_PRINCIPAL,
-                                OE_EDATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss'),
-                                OE_FDATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss')
+                                O_OE_SEQ : _newSeq,
+                                O_OE_TYPE : _oeType,
+                                O_OE_PRINCIPAL : selectedItem.O_OE_PRINCIPAL,
+                                O_OE_EDATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss'),
+                                O_OE_FDATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss')
                             }
                         })
                     }
@@ -10165,48 +10265,51 @@ angular.module('app.oselfwork').controller('OAssistantJobsCtrl', function ($scop
                     // 複製ITEM_LIST
                     _tasks.push({
                         crudType: 'Copy',
-                        querymain: 'assistantJobs',
-                        queryname: 'CopyItemList',
-                        table: 9,
+                        querymain: 'oassistantJobs',
+                        queryname: 'CopyOItemList',
+                        table: 41,
                         params: {
-                            IL_SEQ : _newSeq,
-                            SeqAndBagno : _seqAndBagno
+                            O_IL_SEQ : _newSeq,
+                            ItemListPK : _itemListPK
                         }
                     })
 
                     // 複製SPECIAL_GOODS
                     _tasks.push({
                         crudType: 'Copy',
-                        querymain: 'assistantJobs',
-                        queryname: 'CopySpecialGoods',
-                        table: 20,
+                        querymain: 'oassistantJobs',
+                        queryname: 'CopyOSpecialGoods',
+                        table: 44,
                         params: {
-                            SPG_SEQ : _newSeq,
-                            SeqAndBagno : _seqAndBagno
+                            O_SPG_SEQ : _newSeq,
+                            ItemListPK : _itemListPK
                         }
                     })
 
                     // 更新PULL_GOODS
-                    _tasks.push({
-                        crudType: 'Update',
-                        table: 19,
-                        params: {
-                            PG_MOVED : true,
-                            PG_MOVED_SEQ : _newSeq,
-                            PG_MOVE_USER : $vm.profile.U_ID,
-                            PG_MOVE_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss')
-                        },
-                        condition: {
-                            PG_MASTER : selectedItem.OL_MASTER,
-                            PG_FLIGHTNO : selectedItem.OL_FLIGHTNO
-                        }
-                    })
+                    for(var i in _itemListPK){
+                        _tasks.push({
+                            crudType: 'Update',
+                            table: 45,
+                            params: {
+                                O_PG_MOVED : true,
+                                O_PG_MOVED_SEQ : _newSeq,
+                                O_PG_MOVE_USER : $vm.profile.U_ID,
+                                O_PG_MOVE_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss')
+                            },
+                            condition: {
+                                O_PG_SEQ : _itemListPK[i].SEQ,
+                                O_PG_NEWSMALLNO : _itemListPK[i].NEWSMALLNO,
+                                O_PG_SMALLNO : _itemListPK[i].SMALLNO
+                            }
+                        })
+                    }
 
                     RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res){
                         toaster.pop('success', '訊息', '移船成功', 3000);
                         LoadPullGoods();
                     }, function (err) {
-                        toaster.pop('danger', '錯誤', '移船失敗', 3000);
+                        toaster.pop('error', '錯誤', '移船失敗', 3000);
                     });  
 
                 }, function() {
@@ -10221,24 +10324,19 @@ angular.module('app.oselfwork').controller('OAssistantJobsCtrl', function ($scop
              * 更新PULL_GOODS
              */
             cancelMovedData : function(){
+                
                 var _data = $vm.pullGoodsGridApi.selection.getSelectedRows();
                 if(_data.length == 0) {
                     toaster.pop('info', '訊息', '尚未勾選資料。', 3000);
                     return;
                 }
 
-                var _emptyMoved = false;
                 for(var i in _data){
                     // 檢查移船是否為否
-                    if(!_data[i].PG_MOVED){
-                        _emptyMoved = true;
-                        break;
+                    if(!_data[i].O_PG_MOVED){
+                        toaster.pop('warning', '警告', '有資料未被移船', 3000);
+                        return;
                     }
-                }
-
-                if(_emptyMoved){
-                    toaster.pop('warning', '警告', '有資料未被移船', 3000);
-                    return;
                 }
 
                 var _oeType = null;
@@ -10279,47 +10377,55 @@ angular.module('app.oselfwork').controller('OAssistantJobsCtrl', function ($scop
                     for(var i in _data){
                         _tasks.push({
                             crudType: 'Delete',
-                            table: 18,
+                            table: 40,
                             params: {
-                                OL_SEQ : _data[i].PG_MOVED_SEQ
+                                O_OL_SEQ : _data[i].O_PG_MOVED_SEQ
                             }
                         });
 
                         _tasks.push({
                             crudType: 'Delete',
-                            table: 20,
+                            table: 44,
                             params: {
-                                SPG_SEQ : _data[i].PG_MOVED_SEQ
+                                O_SPG_SEQ : _data[i].O_PG_MOVED_SEQ
                             }
                         });
 
                         // 刪除EDITOR
                         _tasks.push({
                             crudType: 'Delete',
-                            table: 22,
+                            table: 43,
                             params: {
-                                OE_SEQ : _data[i].PG_MOVED_SEQ,
-                                OE_TYPE : _oeType,
-                                OE_PRINCIPAL : _data[i].W2_PRINCIPAL
+                                O_OE_SEQ : _data[i].O_PG_MOVED_SEQ,
+                                O_OE_TYPE : _oeType,
+                                O_OE_PRINCIPAL : _data[i].OW2_PRINCIPAL
                             }
                         })
 
                         _tasks.push({
                             crudType: 'Update',
-                            table: 19,
+                            table: 45,
                             params: {
-                                PG_MASTER : null,
-                                PG_FLIGHTNO : null,
-                                PG_MOVED : false,
-                                PG_MOVED_SEQ : null,
-                                PG_UP_USER : $vm.profile.U_ID,
-                                PG_UP_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss'),
-                                PG_MOVE_USER : null,
-                                PG_MOVE_DATETIME : null
+                                O_PG_MASTER            : null,
+                                O_PG_PASSCODE          : null,
+                                O_PG_VOYSEQ            : null,
+                                O_PG_MVNO              : null,
+                                O_PG_COMPID            : null,
+                                O_PG_ARRLOCATIONID     : null,
+                                O_PG_POST              : null,
+                                O_PG_PACKAGELOCATIONID : null,
+                                O_PG_BOATID            : null,
+                                O_PG_MOVED             : false,
+                                O_PG_MOVED_SEQ         : null,
+                                O_PG_UP_USER           : $vm.profile.U_ID,
+                                O_PG_UP_DATETIME       : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss'),
+                                O_PG_MOVE_USER         : null,
+                                O_PG_MOVE_DATETIME     : null
                             },
                             condition: {
-                                PG_SEQ : _data[i].PG_SEQ,
-                                PG_BAGNO : _data[i].PG_BAGNO
+                                O_PG_SEQ : _data[i].O_PG_SEQ,
+                                O_PG_NEWSMALLNO : _data[i].O_PG_NEWSMALLNO,
+                                O_PG_SMALLNO : _data[i].O_PG_SMALLNO
                             }
                         });
                     }
@@ -10328,7 +10434,7 @@ angular.module('app.oselfwork').controller('OAssistantJobsCtrl', function ($scop
                         toaster.pop('success', '訊息', '取消移船成功', 3000);
                         LoadPullGoods();
                     }, function (err) {
-                        toaster.pop('danger', '錯誤', '取消移船失敗', 3000);
+                        toaster.pop('error', '錯誤', '取消移船失敗', 3000);
                     });  
 
                 }, function() {
@@ -10337,6 +10443,7 @@ angular.module('app.oselfwork').controller('OAssistantJobsCtrl', function ($scop
             },
             // 匯出Excel
             exportExcel : function(){
+                
                 var _data = $vm.pullGoodsGridApi.selection.getSelectedRows(),
                     _exportName = $filter('date')(new Date(), 'yyyyMMdd') + ' 拉貨明細',
                     _params = {};
@@ -10344,24 +10451,27 @@ angular.module('app.oselfwork').controller('OAssistantJobsCtrl', function ($scop
                 // 選擇筆數匯出
                 if(_data.length > 0){
                     var _Seq = [],
-                        _Bagno = [];
+                        _NewSmallNo = [],
+                        _SmallNo = [];
 
                     for(var i in _data){
-                        _Seq.push(_data[i].PG_SEQ);
-                        _Bagno.push(_data[i].PG_BAGNO);
+                        _Seq.push(_data[i].O_PG_SEQ);
+                        _NewSmallNo.push(_data[i].O_PG_NEWSMALLNO);
+                        _SmallNo.push(_data[i].O_PG_SMALLNO);
                     }
 
                     _params = {
                         Seq: "'"+_Seq.join("','")+"'",
-                        Bagno: "'"+_Bagno.join("','")+"'"
+                        NewSmallNo: "'"+_NewSmallNo.join("','")+"'",
+                        SmallNo: "'"+_SmallNo.join("','")+"'"
                     };
                 }
 
                 ToolboxApi.ExportExcelBySql({
-                    templates : 9,
+                    templates : 19,
                     filename : _exportName,
-                    querymain: 'assistantJobs',
-                    queryname: 'SelectPullGoods',
+                    querymain: 'oassistantJobs',
+                    queryname: 'SelectOPullGoods',
                     params: _params
                 }).then(function (res) {
                     // console.log(res);
@@ -10371,51 +10481,43 @@ angular.module('app.oselfwork').controller('OAssistantJobsCtrl', function ($scop
         pullGoodsOptions : {
             data:  '$vm.pullGoodsData',
             columnDefs: [
-                { name: 'isSelected'    , displayName: '選擇', width: 50, pinnedLeft:true, enableCellEdit: false, cellFilter: 'booleanFilter', filter: 
+                { name: 'isSelected'    , displayName: '選擇', width: 66, pinnedLeft:true, pinnedLeft:true, enableCellEdit: false, cellFilter: 'booleanFilter', filter: 
                     {
                         term: null,
                         type: uiGridConstants.filter.SELECT,
                         selectOptions: bool
                     }
                 },
-                { name: 'OL_IMPORTDT'   , displayName: '進口日期', cellFilter: 'dateFilter' },
-                // { name: 'OL_CO_CODE'    , displayName: '行家', cellFilter: 'compyFilter', cellFilter: 'compyFilter', filter: 
-                //     {
-                //         term: null,
-                //         type: uiGridConstants.filter.SELECT,
-                //         selectOptions: compy
-                //     }
-                // },
-                { name: 'CO_NAME'       , displayName: '行家' },
-                { name: 'OL_FLIGHTNO'   , displayName: '航班' },
-                { name: 'OL_MASTER'     , displayName: '主號' },
-                { name: 'OL_COUNTRY'    , displayName: '起運國別' },
-                { name: 'PG_BAGNO'      , displayName: '袋號' },
-                { name: 'PG_MOVED'      , displayName: '移船', cellFilter: 'booleanFilter', filter: 
+                { name: 'O_OL_IMPORTDT' ,  displayName: '報機日期', width: 91, pinnedLeft:true, pinnedLeft:true, cellFilter: 'dateFilter', cellTooltip: cellTooltip },
+                { name: 'O_CO_NAME'     ,  displayName: '行家', width: 66, pinnedLeft:true, pinnedLeft:true, cellTooltip: cellTooltip },
+                { name: 'O_OL_MASTER'   ,  displayName: '主號', width: 133, pinnedLeft:true, pinnedLeft:true, cellTooltip: cellTooltip },
+                // { name: 'O_OL_PASSCODE'          ,  displayName: '通關號碼', width: 91, cellTooltip: cellTooltip },
+                { name: 'O_OL_VOYSEQ'            ,  displayName: '航次', width: 66, cellTooltip: cellTooltip },
+                // { name: 'O_OL_MVNO'              ,  displayName: '呼號', width: 66, cellTooltip: cellTooltip },
+                // { name: 'O_OL_COMPID'            ,  displayName: '船公司代碼', width: 103, cellTooltip: cellTooltip },
+                // { name: 'O_OL_ARRLOCATIONID'     ,  displayName: '卸存地點', width: 91, cellTooltip: cellTooltip },
+                // { name: 'O_OL_POST'              ,  displayName: '裝貨港', width: 78, cellTooltip: cellTooltip },
+                // { name: 'O_OL_PACKAGELOCATIONID' ,  displayName: '暫存地點', width: 91, cellTooltip: cellTooltip },
+                // { name: 'O_OL_BOATID'            ,  displayName: '船機代碼', width: 91, cellTooltip: cellTooltip },
+                { name: 'O_PG_SMALLNO'      , displayName: '小號', width: 103, cellTooltip: cellTooltip },
+                { name: 'O_PG_MOVED'        , displayName: '移船', width: 66, cellFilter: 'booleanFilter', filter: 
                     {
                         term: null,
                         type: uiGridConstants.filter.SELECT,
                         selectOptions: bool
                     }
                 },
-                // { name: 'PG_MOVE_USER'  , displayName: '移船人員', cellFilter: 'userInfoFilter', cellTooltip: function (row, col) 
-                //     {
-                //         return '移船時間:' + $filter('datetimeFilter')(row.entity.PG_MOVE_DATETIME)
-                //     }, 
-                //     filter: {
-                //         term: null,
-                //         type: uiGridConstants.filter.SELECT,
-                //         selectOptions: userInfo
-                //     } 
-                // },
-                { name: 'PG_FLIGHTNO'   , displayName: '航班(改)' },
-                { name: 'PG_MASTER'     , displayName: '主號(改)' },
-                { name: 'PG_REASON'     , displayName: '拉貨原因', cellTooltip: function (row, col) 
-                    {
-                        return row.entity.PG_REASON
-                    } 
-                },
-                { name: 'W2_STATUS'   ,  displayName: '報機單狀態', cellTemplate: $templateCache.get('accessibilityToForW2'), filter: 
+                { name: 'O_PG_MASTER'            ,  displayName: '主號(改)', width: 87 },
+                { name: 'O_PG_PASSCODE'          ,  displayName: '通關號碼(改)', width: 113, cellTooltip: cellTooltip },
+                { name: 'O_PG_VOYSEQ'            ,  displayName: '航次(改)', width: 88, cellTooltip: cellTooltip },
+                { name: 'O_PG_MVNO'              ,  displayName: '呼號(改)', width: 88, cellTooltip: cellTooltip },
+                { name: 'O_PG_COMPID'            ,  displayName: '船公司代碼(改)', width: 125, cellTooltip: cellTooltip },
+                { name: 'O_PG_ARRLOCATIONID'     ,  displayName: '卸存地點(改)', width: 113, cellTooltip: cellTooltip },
+                { name: 'O_PG_POST'              ,  displayName: '裝貨港(改)', width: 100, cellTooltip: cellTooltip },
+                { name: 'O_PG_PACKAGELOCATIONID' ,  displayName: '暫存地點(改)', width: 113, cellTooltip: cellTooltip },
+                { name: 'O_PG_BOATID'            ,  displayName: '船機代碼(改)', width: 113, cellTooltip: cellTooltip },
+                { name: 'O_PG_REASON'     , displayName: '拉貨原因', width: 91, cellTooltip: cellTooltip },
+                { name: 'OW2_STATUS'   ,  displayName: '報機單狀態', width: 103, pinnedRight:true, cellTemplate: $templateCache.get('accessibilityToForOW2'), filter: 
                     {
                         term: null,
                         type: uiGridConstants.filter.SELECT,
@@ -10428,8 +10530,8 @@ angular.module('app.oselfwork').controller('OAssistantJobsCtrl', function ($scop
                         ]
                     }
                 },
-                { name: 'ITEM_LIST'     , displayName: '報機單', enableFiltering: false, enableSorting: false, width: '8%', cellTemplate: $templateCache.get('accessibilityToOperaForJob001') },
-                { name: 'Options'       , displayName: '操作', width: '8%', enableFiltering: false, enableSorting: false, cellTemplate: $templateCache.get('accessibilityToVForPullGoods') }
+                { name: 'ITEM_LIST'     , displayName: '報機單', enableFiltering: false, enableSorting: false, width: 78, pinnedRight:true, cellTemplate: $templateCache.get('accessibilityToOperaForJob001') },
+                { name: 'Options'       , displayName: '操作', width: 101, pinnedRight:true, enableFiltering: false, enableSorting: false, cellTemplate: $templateCache.get('accessibilityToVForPullGoods') }
             ],
             enableFiltering: true,
             enableSorting: true,
@@ -10476,7 +10578,7 @@ angular.module('app.oselfwork').controller('OAssistantJobsCtrl', function ($scop
     function LoadPullGoods(){
         RestfulApi.SearchMSSQLData({
             querymain: 'oassistantJobs',
-            queryname: 'SelectPullGoods'
+            queryname: 'SelectOPullGoods'
         }).then(function (res){
             // console.log(res["returnData"]);
             $vm.pullGoodsData = res["returnData"] || [];
@@ -10493,15 +10595,12 @@ angular.module('app.oselfwork').controller('OAssistantJobsCtrl', function ($scop
     }
 
 })
-.controller('ModifyPullGoodsModalInstanceCtrl', function ($uibModalInstance) {
+.controller('ModifyOPullGoodsModalInstanceCtrl', function ($uibModalInstance) {
     var $ctrl = this;
     // $ctrl.mdData = angular.copy(items);
     $ctrl.mdData = {};
 
     $ctrl.ok = function() {
-        $ctrl.mdData.FLIGHTNO_START = $ctrl.mdData.FLIGHTNO_START.toUpperCase();
-        $ctrl.mdData.PG_FLIGHTNO = $ctrl.mdData.FLIGHTNO_START + ' ' + $ctrl.mdData.FLIGHTNO_END;
-
         $uibModalInstance.close($ctrl.mdData);
     };
 
@@ -10509,7 +10608,7 @@ angular.module('app.oselfwork').controller('OAssistantJobsCtrl', function ($scop
         $uibModalInstance.dismiss('cancel');
     };
 })
-.controller('ViewReasonModalInstanceCtrl', function ($uibModalInstance, items) {
+.controller('ViewOReasonModalInstanceCtrl', function ($uibModalInstance, items) {
     var $ctrl = this;
     $ctrl.mdData = angular.copy(items);
 
@@ -10521,16 +10620,17 @@ angular.module('app.oselfwork').controller('OAssistantJobsCtrl', function ($scop
         $uibModalInstance.dismiss('cancel');
     };
 })
-.controller('ViewDetailModalInstanceCtrl', function ($uibModalInstance, RestfulApi, items) {
+.controller('ViewODetailModalInstanceCtrl', function ($uibModalInstance, RestfulApi, items) {
     var $ctrl = this;
 
     $ctrl.Init = function(){
         RestfulApi.SearchMSSQLData({
-            querymain: 'assistantJobs',
-            queryname: 'SelectBagNoDetail',
+            querymain: 'oassistantJobs',
+            queryname: 'SelectSmallNoDetail',
             params: {
-                IL_SEQ: items.PG_SEQ,
-                IL_BAGNO: items.PG_BAGNO
+                O_IL_SEQ: items.O_PG_SEQ,
+                O_IL_NEWSMALLNO: items.O_PG_NEWSMALLNO,
+                O_IL_SMALLNO: items.O_PG_SMALLNO
             }
         }).then(function (res){
             for(var i=0;i<res["returnData"].length;i++){
@@ -10543,39 +10643,58 @@ angular.module('app.oselfwork').controller('OAssistantJobsCtrl', function ($scop
     $ctrl.mdDataOption = {
         data: '$ctrl.mdData',
         columnDefs: [
-            { name: 'Index'           , displayName: '序列', width: 50},
-            { name: 'IL_G1'           , displayName: '報關種類', width: 80 },
-            { name: 'IL_MERGENO'      , displayName: '併票號', width: 80 },
-            { name: 'IL_BAGNO'        , displayName: '袋號', width: 80 },
-            { name: 'IL_SMALLNO'      , displayName: '小號', width: 110 },
-            { name: 'IL_NATURE'       , displayName: '品名', width: 120 },
-            { name: 'IL_NATURE_NEW'   , displayName: '新品名', width: 120 },
-            { name: 'IL_CTN'          , displayName: '件數', width: 50 },
-            { name: 'IL_PLACE'        , displayName: '產地', width: 50 },
-            { name: 'IL_NEWPLACE'     , displayName: '新產地', width: 70 },
-            { name: 'IL_WEIGHT'       , displayName: '重量', width: 70 },
-            { name: 'IL_WEIGHT_NEW'   , displayName: '新重量', width: 70 },
-            { name: 'IL_PCS'          , displayName: '數量', width: 70 },
-            { name: 'IL_NEWPCS'       , displayName: '新數量', width: 70 },
-            { name: 'IL_UNIVALENT'    , displayName: '單價', width: 70 },
-            { name: 'IL_UNIVALENT_NEW', displayName: '新單價', width: 70 },
-            { name: 'IL_FINALCOST'    , displayName: '完稅價格', width: 80 },
-            { name: 'IL_UNIT'         , displayName: '單位', width: 70 },
-            { name: 'IL_NEWUNIT'      , displayName: '新單位', width: 70 },
-            { name: 'IL_GETNO'        , displayName: '收件者統編', width: 100 },
-            { name: 'IL_EXNO'         , displayName: '匯出統編', width: 80 },
-            { name: 'IL_SENDNAME'     , displayName: '寄件人', width: 80 },
-            { name: 'IL_NEWSENDNAME'  , displayName: '新寄件人', width: 80 },
-            { name: 'IL_TAX'          , displayName: '稅費歸屬', width: 80 },
-            { name: 'IL_GETNAME'      , displayName: '收件人公司', width: 100 },
-            { name: 'IL_GETNAME_NEW'  , displayName: '新收件人公司', width: 100 },
-            { name: 'IL_GETADDRESS'   , displayName: '收件地址', width: 300 },
-            { name: 'IL_GETADDRESS_NEW', displayName: '新收件地址', width: 300 },
-            { name: 'IL_GETTEL'       , displayName: '收件電話', width: 100 },
-            { name: 'IL_EXTEL'        , displayName: '匯出電話', width: 100 },
-            { name: 'IL_TRCOM'        , displayName: '派送公司', width: 100 },
-            { name: 'IL_REMARK'       , displayName: '備註', width: 100 },
-            { name: 'IL_TAX2'         , displayName: '稅則', width: 100 }
+            { name: 'Index'                 , displayName: '序列', width: 66},
+            { name: 'O_IL_G1'               , displayName: '報關種類', width: 80 },
+            { name: 'O_IL_SMALLNO'          , displayName: '小號', width: 110 },
+            { name: 'O_IL_POSTNO'           , displayName: '艙單號碼', width: 110 },
+            { name: 'O_IL_CUSTID'           , displayName: '快遞業者統一編號', width: 110 },
+            { name: 'O_IL_PRICECONDITON'    , displayName: '單價條件', width: 110 },
+            { name: 'O_IL_CURRENCY'         , displayName: '單價幣別代碼', width: 110 },
+            { name: 'O_IL_CROSSWEIGHT'      , displayName: '毛重', width: 110 },
+            { name: 'O_IL_NEWCROSSWEIGHT'   , displayName: '新毛重', width: 110 },
+            { name: 'O_IL_CTN'              , displayName: '件數', width: 110 },
+            { name: 'O_IL_NEWCTN'           , displayName: '新件數', width: 110 },
+            { name: 'O_IL_CTNUNIT'          , displayName: '件數單位', width: 110 },
+            { name: 'O_IL_MARK'             , displayName: '標記', width: 110 },
+            { name: 'O_IL_NATURE'           , displayName: '貨物名稱', width: 110, cellTooltip: cellTooltip},
+            { name: 'O_IL_NATURE_NEW'       , displayName: '新貨物名稱', width: 110, cellTooltip: cellTooltip},
+            { name: 'O_IL_TAX2'             , displayName: '新稅則', width: 110 },
+            { name: 'O_IL_TAXRATE'          , displayName: '稅率', width: 110 },
+            { name: 'O_IL_TAXRATE2'         , displayName: '新稅率', width: 110 },
+            { name: 'O_IL_BRAND'            , displayName: '商標', width: 110 },
+            { name: 'O_IL_FORMAT'           , displayName: '成分及規格', width: 110 },
+            { name: 'O_IL_NETWEIGHT'        , displayName: '淨重', width: 110 },
+            { name: 'O_IL_NETWEIGHT_NEW'    , displayName: '新淨重', width: 110 },
+            { name: 'O_IL_COUNT'            , displayName: '數量', width: 110 },
+            { name: 'O_IL_NEWCOUNT'         , displayName: '新數量', width: 110 },
+            { name: 'O_IL_PRICEUNIT'        , displayName: '單價', width: 110 },
+            { name: 'O_IL_NEWPRICEUNIT'     , displayName: '新單價', width: 110 },
+            { name: 'O_IL_PCS'              , displayName: '數量單位', width: 110},
+            { name: 'O_IL_NEWPCS'           , displayName: '新數量單位', width: 110},
+            { name: 'O_IL_INVOICECOST'      , displayName: '發票總金額', width: 110 },
+            { name: 'O_IL_INVOICECOST2'     , displayName: '新發票總金額', width: 110 },
+            { name: 'O_IL_FINALCOST'        , displayName: '完稅價格', width: 110},
+            { name: 'O_IL_VOLUME'           , displayName: '體積', width: 110 },
+            { name: 'O_IL_VOLUMEUNIT'       , displayName: '體積單位', width: 110 },
+            { name: 'O_IL_COUNTRY'          , displayName: '生產國別', width: 110 },
+            { name: 'O_IL_SENDENAME'        , displayName: '出口人英文名稱', width: 110 },
+            { name: 'O_IL_NEWSENDENAME'     , displayName: '新出口人英文名稱', width: 110 },
+            { name: 'O_IL_COUNTRYID'        , displayName: '出口人國家代碼', width: 110 },
+            { name: 'O_IL_NEWCOUNTRYID'     , displayName: '新出口人國家代碼', width: 110 },
+            { name: 'O_IL_SENDADDRESS'      , displayName: '出口人英文地址', width: 110 },
+            { name: 'O_IL_NEWSENDADDRESS'   , displayName: '新出口人英文地址', width: 110 },
+            { name: 'O_IL_GETID'            , displayName: '進口人身分識別碼', width: 110 },
+            { name: 'O_IL_GETNO'            , displayName: '進口人統一編號', width: 110 },
+            { name: 'O_IL_GETENAME'         , displayName: '進口人英文名稱', width: 110 },
+            { name: 'O_IL_GETPHONE'         , displayName: '進口人電話', width: 110 },
+            { name: 'O_IL_GETADDRESS'       , displayName: '進口人英文地址', width: 110 },
+            { name: 'O_IL_DWKIND'           , displayName: '貨櫃種類', width: 110 },
+            { name: 'O_IL_DWNUMBER'         , displayName: '貨櫃號碼', width: 110 },
+            { name: 'O_IL_DWTYPE'           , displayName: '貨櫃裝運方式', width: 110 },
+            { name: 'O_IL_SEALNUMBER'       , displayName: '封條號碼', width: 110 },
+            { name: 'O_IL_DECLAREMEMO1'     , displayName: '其他申報事項1', width: 110 },
+            { name: 'O_IL_DECLAREMEMO2'     , displayName: '其他申報事項2', width: 110 },
+            { name: 'O_IL_TAXPAYMENTMEMO'   , displayName: '主動申報繳納稅款註記', width: 110 }
         ],
         enableFiltering: false,
         enableSorting: true,
@@ -10601,27 +10720,33 @@ angular.module('app.oselfwork').controller('OAssistantJobsCtrl', function ($scop
     var $ctrl = this;
 
     $ctrl.Init = function(){
-        var _flightNo = items.OL_FLIGHTNO != null ? items.OL_FLIGHTNO.split(' ') : [];
-
-        if(_flightNo.length == 2){
-            items.FLIGHTNO_START = _flightNo[0];
-            items.FLIGHTNO_END = _flightNo[1];
-        }
-
         $ctrl.mdData = angular.copy(items);
-        $ctrl.compy = compy;
+        $ctrl.ocompy = ocompy;
     }
 
     $ctrl.ok = function() {
 
-        if($ctrl.mdData.FLIGHTNO_START && $ctrl.mdData.FLIGHTNO_END){
-            $ctrl.mdData.FLIGHTNO_START = $ctrl.mdData.FLIGHTNO_START.toUpperCase();
-            $ctrl.mdData.OL_FLIGHTNO = $ctrl.mdData.FLIGHTNO_START + ' ' + $ctrl.mdData.FLIGHTNO_END;
+        // 改為大寫
+        if($ctrl.mdData.O_OL_PASSCODE != null){
+            $ctrl.mdData.O_OL_PASSCODE = $ctrl.mdData.O_OL_PASSCODE.toUpperCase();
         }
-
-
-        if($ctrl.mdData.OL_COUNTRY){
-            $ctrl.mdData.OL_COUNTRY = $ctrl.mdData.OL_COUNTRY.toUpperCase();
+        if($ctrl.mdData.O_OL_MASTER != null){
+            $ctrl.mdData.O_OL_MASTER = $ctrl.mdData.O_OL_MASTER.toUpperCase();
+        }
+        if($ctrl.mdData.O_OL_MVNO != null){
+            $ctrl.mdData.O_OL_MVNO = $ctrl.mdData.O_OL_MVNO.toUpperCase();
+        }
+        if($ctrl.mdData.O_OL_COMPID != null){
+            $ctrl.mdData.O_OL_COMPID = $ctrl.mdData.O_OL_COMPID.toUpperCase();
+        }
+        if($ctrl.mdData.O_OL_ARRLOCATIONID != null){
+            $ctrl.mdData.O_OL_ARRLOCATIONID = $ctrl.mdData.O_OL_ARRLOCATIONID.toUpperCase();
+        }
+        if($ctrl.mdData.O_OL_POST != null){
+            $ctrl.mdData.O_OL_POST = $ctrl.mdData.O_OL_POST.toUpperCase();
+        }
+        if($ctrl.mdData.O_OL_PACKAGELOCATIONID != null){
+            $ctrl.mdData.O_OL_PACKAGELOCATIONID = $ctrl.mdData.O_OL_PACKAGELOCATIONID.toUpperCase();
         }
 
         $uibModalInstance.close($ctrl.mdData);
@@ -10942,14 +11067,18 @@ angular.module('app.oselfwork').controller('OEmployeeJobsCtrl', function ($scope
                         updatename: 'Update',
                         table: 40,
                         params: {
-                            O_OL_IMPORTDT : selectedItem.O_OL_IMPORTDT,
-                            O_OL_CO_CODE  : selectedItem.O_OL_CO_CODE,
-                            O_OL_VOYSEQ   : selectedItem.O_OL_VOYSEQ,
-                            O_OL_PASSCODE : selectedItem.O_OL_PASSCODE,
-                            O_OL_BOATID   : selectedItem.O_OL_BOATID,
-                            O_OL_MASTER   : selectedItem.O_OL_MASTER,
-                            O_OL_POST     : selectedItem.O_OL_POST,
-                            O_OL_REASON   : selectedItem.O_OL_REASON
+                            O_OL_IMPORTDT          : selectedItem.O_OL_IMPORTDT,
+                            O_OL_CO_CODE           : selectedItem.O_OL_CO_CODE,
+                            O_OL_MASTER            : selectedItem.O_OL_MASTER,
+                            O_OL_PASSCODE          : selectedItem.O_OL_PASSCODE,
+                            O_OL_VOYSEQ            : selectedItem.O_OL_VOYSEQ,
+                            O_OL_MVNO              : selectedItem.O_OL_MVNO,
+                            O_OL_COMPID            : selectedItem.O_OL_COMPID,
+                            O_OL_ARRLOCATIONID     : selectedItem.O_OL_ARRLOCATIONID,
+                            O_OL_POST              : selectedItem.O_OL_POST,
+                            O_OL_PACKAGELOCATIONID : selectedItem.O_OL_PACKAGELOCATIONID,
+                            O_OL_BOATID            : selectedItem.O_OL_BOATID,
+                            O_OL_REASON            : selectedItem.O_OL_REASON
                         },
                         condition: {
                             O_OL_SEQ : selectedItem.O_OL_SEQ
@@ -11592,7 +11721,7 @@ angular.module('app.oselfwork').controller('OLeaderHistorySearchCtrl', function 
 });
 "use strict";
 
-angular.module('app.oselfwork').controller('OLeaderJobsCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, uiGridConstants, RestfulApi, ocompy, opType, userInfoByGrade, $filter, $q, ToolboxApi) {
+angular.module('app.oselfwork').controller('OLeaderJobsCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, uiGridConstants, RestfulApi, ocompy, opType, userInfoByGrade, $filter, $q, ToolboxApi, sysParm) {
     
     var $vm = this,
         _tasks = [];
@@ -11758,7 +11887,7 @@ angular.module('app.oselfwork').controller('OLeaderJobsCtrl', function ($scope, 
                                 if(res["returnData"].length == 0){
                                     RestfulApi.DeleteMSSQLData({
                                         deletename: 'Delete',
-                                        table: 46,
+                                        table: 40,
                                         params: {
                                             O_OL_SEQ : selectedItem.O_OL_SEQ
                                         }
@@ -12237,7 +12366,7 @@ angular.module('app.oselfwork').controller('OLeaderJobsCtrl', function ($scope, 
             RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res){
                 promise.resolve();
             }, function (err) {
-                toaster.pop('danger', '錯誤', '更新失敗', 3000);
+                toaster.pop('error', '錯誤', '更新失敗', 3000);
                 promise.reject();
             }).finally(function(){
                 if($vm.orderListGridApi.rowEdit.getDirtyRows().length == 0){
@@ -12569,15 +12698,17 @@ angular.module('app.oselfwork').controller('OLeaderJobsCtrl', function ($scope, 
     };
 
     function LoadParm(){
-        RestfulApi.SearchMSSQLData({
-            querymain: 'oleaderJobs',
-            queryname: 'SelectParm'
-        }).then(function (res){
-            console.log(res["returnData"]);
-            if(res["returnData"].length > 0){
-                $vm.parmData = res["returnData"][0];
-            }
-        });  
+        // RestfulApi.SearchMSSQLData({
+        //     querymain: 'oleaderJobs',
+        //     queryname: 'SelectParm'
+        // }).then(function (res){
+        //     console.log(res["returnData"]);
+        //     if(res["returnData"].length > 0){
+        //         $vm.parmData = res["returnData"][0];
+        //     }
+        // });  
+
+        $vm.parmData = sysParm;
     };
 
 })
@@ -13332,7 +13463,7 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
                         toaster.pop('success', '訊息', '更新成功', 3000);
                         LoadPullGoods();
                     }, function (err) {
-                        toaster.pop('danger', '錯誤', '更新失敗', 3000);
+                        toaster.pop('error', '錯誤', '更新失敗', 3000);
                     });
                 }, function() {
                     // $log.info('Modal dismissed at: ' + new Date());
@@ -13421,7 +13552,7 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
                         toaster.pop('success', '訊息', '更新成功', 3000);
                         LoadPullGoods();
                     }, function (err) {
-                        toaster.pop('danger', '錯誤', '更新失敗', 3000);
+                        toaster.pop('error', '錯誤', '更新失敗', 3000);
                     });  
 
                 }, function() {
@@ -13496,7 +13627,7 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
                         toaster.pop('success', '訊息', '取消成功', 3000);
                         LoadPullGoods();
                     }, function (err) {
-                        toaster.pop('danger', '錯誤', '取消失敗', 3000);
+                        toaster.pop('error', '錯誤', '取消失敗', 3000);
                     });  
 
                 }, function() {
@@ -13646,7 +13777,7 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
 
                 modalInstance.result.then(function(selectedItem) {
                     console.log(selectedItem);
-
+                    
                     var _d = new Date,
                         _tasks = [],
                         _newSeq = $vm.profile.U_ID+selectedItem.OL_CO_CODE+$filter('date')(_d, 'yyyyMMddHHmmss');
@@ -13708,26 +13839,30 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
                     })
 
                     // 更新PULL_GOODS
-                    _tasks.push({
-                        crudType: 'Update',
-                        table: 19,
-                        params: {
-                            PG_MOVED : true,
-                            PG_MOVED_SEQ : _newSeq,
-                            PG_MOVE_USER : $vm.profile.U_ID,
-                            PG_MOVE_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss')
-                        },
-                        condition: {
-                            PG_MASTER : selectedItem.OL_MASTER,
-                            PG_FLIGHTNO : selectedItem.OL_FLIGHTNO
-                        }
-                    })
+                    for(var i in _seqAndBagno){
+                        _tasks.push({
+                            crudType: 'Update',
+                            table: 19,
+                            params: {
+                                PG_MOVED : true,
+                                PG_MOVED_SEQ : _newSeq,
+                                PG_MOVE_USER : $vm.profile.U_ID,
+                                PG_MOVE_DATETIME : $filter('date')(_d, 'yyyy-MM-dd HH:mm:ss')
+                            },
+                            condition: {
+                                // PG_MASTER : selectedItem.OL_MASTER,
+                                // PG_FLIGHTNO : selectedItem.OL_FLIGHTNO
+                                PG_SEQ : _seqAndBagno[i].SEQ,
+                                PG_BAGNO : _seqAndBagno[i].BAGNO
+                            }
+                        })
+                    }
 
                     RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res){
                         toaster.pop('success', '訊息', '移機成功', 3000);
                         LoadPullGoods();
                     }, function (err) {
-                        toaster.pop('danger', '錯誤', '移機失敗', 3000);
+                        toaster.pop('error', '錯誤', '移機失敗', 3000);
                     });  
 
                 }, function() {
@@ -13849,7 +13984,7 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
                         toaster.pop('success', '訊息', '取消移機成功', 3000);
                         LoadPullGoods();
                     }, function (err) {
-                        toaster.pop('danger', '錯誤', '取消移機失敗', 3000);
+                        toaster.pop('error', '錯誤', '取消移機失敗', 3000);
                     });  
 
                 }, function() {
@@ -16176,7 +16311,7 @@ angular.module('app.selfwork').controller('LeaderHistorySearchCtrl', function ($
 });
 "use strict";
 
-angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, uiGridConstants, RestfulApi, compy, opType, userInfoByGrade, $filter, $q, ToolboxApi) {
+angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, uiGridConstants, RestfulApi, compy, opType, userInfoByGrade, $filter, $q, ToolboxApi, sysParm) {
     
     var $vm = this,
         _tasks = [];
@@ -16757,7 +16892,7 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
             RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res){
                 promise.resolve();
             }, function (err) {
-                toaster.pop('danger', '錯誤', '更新失敗', 3000);
+                toaster.pop('error', '錯誤', '更新失敗', 3000);
                 promise.reject();
             }).finally(function(){
                 if($vm.orderListGridApi.rowEdit.getDirtyRows().length == 0){
@@ -17101,15 +17236,17 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
     };
 
     function LoadParm(){
-        RestfulApi.SearchMSSQLData({
-            querymain: 'leaderJobs',
-            queryname: 'SelectParm'
-        }).then(function (res){
-            console.log(res["returnData"]);
-            if(res["returnData"].length > 0){
-                $vm.parmData = res["returnData"][0];
-            }
-        });  
+        // RestfulApi.SearchMSSQLData({
+        //     querymain: 'leaderJobs',
+        //     queryname: 'SelectParm'
+        // }).then(function (res){
+        //     console.log(res["returnData"]);
+        //     if(res["returnData"].length > 0){
+        //         $vm.parmData = res["returnData"][0];
+        //     }
+        // });  
+
+        $vm.parmData = sysParm;
     };
 
 })
@@ -23907,53 +24044,51 @@ angular.module('app.oselfwork').controller('OJob001Ctrl', function ($scope, $sta
                 LoadItemList();
             }
         },
+        loading : {
+            calculateNetWieghtBalance : false,
+            calculateCrossWieghtBalance : false
+        },
         profile : Session.Get(),
         gridMethod : {
             // 改單
             changeNature : function(row){
                 console.log(row);
-                
-                toaster.pop('warn', '警告', '功能尚未開發', 3000);
 
-                // row.entity.loading = true;
-                // ToolboxApi.ChangeNature({
-                //     ID : $vm.profile.U_ID,
-                //     PW : $vm.profile.U_PW,
-                //     NATURE : row.entity.IL_NATURE,
-                //     NATURE_NEW : row.entity.IL_NATURE_NEW
-                // }).then(function (res) {
-                //     var _returnData = JSON.parse(res["returnData"]),
-                //         needToUpdate = false;
-                //     // console.log(_returnData);
+                row.entity.loading = true;
+                ToolboxApi.ChangeONature({
+                    ID : $vm.profile.U_ID,
+                    PW : $vm.profile.U_PW,
+                    NATURE : row.entity.O_IL_NATURE,
+                    NATURE_NEW : row.entity.O_IL_NATURE_NEW
+                }).then(function (res) {
+                    var _returnData = JSON.parse(res["returnData"]),
+                        needToUpdate = false;
+                    // console.log(_returnData);
 
-                //     if(!angular.isUndefined(_returnData["IL_NATURE_NEW"])){
-                //         row.entity.IL_NATURE_NEW = _returnData["IL_NATURE_NEW"];
-                //         needToUpdate = true;
-                //     }
-                //     if(!angular.isUndefined(_returnData["IL_NEWUNIT"]) && _returnData["IL_NEWUNIT"] != ""){
-                //         row.entity.IL_NEWUNIT = _returnData["IL_NEWUNIT"];
-                //         needToUpdate = true;
-                //     }
-                //     if(!angular.isUndefined(_returnData["IL_NEWPLACE"]) && _returnData["IL_NEWPLACE"] != ""){
-                //         row.entity.IL_NEWPLACE = _returnData["IL_NEWPLACE"];
-                //         needToUpdate = true;
-                //     }
-                //     if(!angular.isUndefined(_returnData["IL_TAX2"]) && _returnData["IL_TAX2"] != ""){
-                //         row.entity.IL_TAX2 = _returnData["IL_TAX2"];
-                //         needToUpdate = true;
-                //     }
-                //     if(!angular.isUndefined(_returnData["IL_TAXRATE"]) && _returnData["IL_TAXRATE"] != ""){
-                //         row.entity.IL_TAXRATE = _returnData["IL_TAXRATE"];
-                //         needToUpdate = true;
-                //     }
+                    if(!angular.isUndefined(_returnData["O_IL_NATURE_NEW"])){
+                        row.entity.O_IL_NATURE_NEW = _returnData["O_IL_NATURE_NEW"];
+                        needToUpdate = true;
+                    }
+                    if(!angular.isUndefined(_returnData["O_IL_NEWPCS"]) && _returnData["O_IL_NEWPCS"] != ""){
+                        row.entity.O_IL_NEWPCS = _returnData["O_IL_NEWPCS"];
+                        needToUpdate = true;
+                    }
+                    if(!angular.isUndefined(_returnData["O_IL_TAX2"]) && _returnData["O_IL_TAX2"] != ""){
+                        row.entity.O_IL_TAX2 = _returnData["O_IL_TAX2"];
+                        needToUpdate = true;
+                    }
+                    // if(!angular.isUndefined(_returnData["O_IL_TAXRATE2"]) && _returnData["O_IL_TAXRATE2"] != ""){
+                    //     row.entity.O_IL_TAXRATE2 = _returnData["O_IL_TAXRATE2"];
+                    //     needToUpdate = true;
+                    // }
 
-                //     if(needToUpdate){
-                //         $vm.job001GridApi.rowEdit.setRowsDirty([row.entity]);
-                //     }
+                    if(needToUpdate){
+                        $vm.job001GridApi.rowEdit.setRowsDirty([row.entity]);
+                    }
 
-                // }).finally(function() {
-                //     row.entity.loading = false;
-                // });
+                }).finally(function() {
+                    row.entity.loading = false;
+                });
             },
             // 刪除
             deleteData : function(){
@@ -24010,7 +24145,7 @@ angular.module('app.oselfwork').controller('OJob001Ctrl', function ($scope, $sta
                                 toaster.pop('success', '訊息', '刪除資料成功', 3000);
                             }
                         }, function (err) {
-                            toaster.pop('danger', '錯誤', '刪除資料失敗', 3000);
+                            toaster.pop('error', '錯誤', '刪除資料失敗', 3000);
                         }).finally(function(){
                             $vm.job001GridApi.selection.clearSelectedRows();
                             // ClearSelectedColumn();
@@ -24159,7 +24294,7 @@ angular.module('app.oselfwork').controller('OJob001Ctrl', function ($scope, $sta
                 { name: 'Index'                 , displayName: '序列', width: 50, pinnedLeft:true, enableFiltering: false, enableCellEdit: false },
                 { name: 'O_IL_REMARK'           , displayName: '備註', width: 100, headerCellClass: 'text-primary' },
                 { name: 'O_IL_G1'               , displayName: '報關種類', width: 80, headerCellClass: 'text-primary' },
-                { name: 'O_IL_MERGENO'          , displayName: '併票號', width: 80, headerCellClass: 'text-primary' },
+                // { name: 'O_IL_MERGENO'          , displayName: '併票號', width: 80, headerCellClass: 'text-primary' },
                 { name: 'O_IL_SMALLNO'          , displayName: '小號', width: 110, enableCellEdit: false },
                 { name: 'O_IL_POSTNO'           , displayName: '艙單號碼', width: 110, enableCellEdit: false },
                 { name: 'O_IL_CUSTID'           , displayName: '快遞業者統一編號', width: 110, enableCellEdit: false },
@@ -24171,21 +24306,14 @@ angular.module('app.oselfwork').controller('OJob001Ctrl', function ($scope, $sta
                 { name: 'O_IL_NEWCTN'           , displayName: '新件數', width: 110, headerCellClass: 'text-primary' },
                 { name: 'O_IL_CTNUNIT'          , displayName: '件數單位', width: 110, enableCellEdit: false },
                 { name: 'O_IL_MARK'             , displayName: '標記', width: 110, enableCellEdit: false },
-                { name: 'O_IL_NATURE'           , displayName: '貨物名稱', width: 110, enableCellEdit: false, cellTooltip: function (row, col) 
-                    {
-                        return row.entity.O_IL_NATURE
-                    } 
-                },
-                { name: 'O_IL_NATURE_NEW'       , displayName: '新貨物名稱', width: 110, headerCellClass: 'text-primary', cellTooltip: function (row, col) 
-                    {
-                        return row.entity.O_IL_NATURE_NEW
-                    } 
-                },
-                { name: 'ChangeNature'          , displayName: '改單', width: 50, enableCellEdit: false, enableSorting:false, cellTemplate: $templateCache.get('accessibilityToChangeNature'), cellClass: 'cell-class-no-style' },
+                { name: 'O_IL_SMALLNO_ID'       , displayName: '貨物編號', width: 110, headerCellClass: 'text-primary' },
+                { name: 'O_IL_NATURE'           , displayName: '貨物名稱', width: 110, enableCellEdit: false, cellTooltip: cellTooltip},
+                { name: 'O_IL_NATURE_NEW'       , displayName: '新貨物名稱', width: 110, headerCellClass: 'text-primary', cellTooltip: cellTooltip},
+                { name: 'ChangeNature'          , displayName: '改單', width: 66, enableCellEdit: false, enableSorting:false, cellTemplate: $templateCache.get('accessibilityToChangeNature'), cellClass: 'cell-class-no-style' },
                 { name: 'O_IL_TAX'              , displayName: '稅則', width: 110, enableCellEdit: false },
                 { name: 'O_IL_TAX2'             , displayName: '新稅則', width: 110, headerCellClass: 'text-primary' },
-                { name: 'O_IL_TAXRATE'          , displayName: '稅率', width: 110, enableCellEdit: false },
-                { name: 'O_IL_TAXRATE2'         , displayName: '新稅率', width: 110, headerCellClass: 'text-primary' },
+                // { name: 'O_IL_TAXRATE'          , displayName: '稅率', width: 110, enableCellEdit: false },
+                // { name: 'O_IL_TAXRATE2'         , displayName: '新稅率', width: 110, headerCellClass: 'text-primary' },
                 { name: 'O_IL_BRAND'            , displayName: '商標', width: 110, enableCellEdit: false },
                 { name: 'O_IL_FORMAT'           , displayName: '成分及規格', width: 110, enableCellEdit: false },
                 { name: 'O_IL_NETWEIGHT'        , displayName: '淨重', width: 110, enableCellEdit: false },
@@ -24216,7 +24344,7 @@ angular.module('app.oselfwork').controller('OJob001Ctrl', function ($scope, $sta
                 ]},
                 { name: 'O_IL_INVOICECOST'      , displayName: '發票總金額', width: 110, enableCellEdit: false },
                 { name: 'O_IL_INVOICECOST2'     , displayName: '新發票總金額', width: 110, headerCellClass: 'text-primary' },
-                { name: 'O_IL_FINALCOST'        , displayName: '完稅價格', width: 110, headerCellClass: 'text-primary', filters: [
+                { name: 'O_IL_FINALCOST'        , displayName: '完稅價格', width: 110, enableCellEdit: false, filters: [
                     {
                         condition: uiGridConstants.filter.GREATER_THAN,
                         placeholder: '最小'
@@ -24236,17 +24364,17 @@ angular.module('app.oselfwork').controller('OJob001Ctrl', function ($scope, $sta
                 { name: 'O_IL_SENDADDRESS'      , displayName: '出口人英文地址', width: 110, enableCellEdit: false },
                 { name: 'O_IL_NEWSENDADDRESS'   , displayName: '新出口人英文地址', width: 110, headerCellClass: 'text-primary' },
                 { name: 'O_IL_GETID'            , displayName: '進口人身分識別碼', width: 110, enableCellEdit: false },
-                { name: 'O_IL_GETNO'            , displayName: '進口人統一編號', width: 110, enableCellEdit: false },
-                { name: 'O_IL_GETENAME'         , displayName: '進口人英文名稱', width: 110, enableCellEdit: false },
-                { name: 'O_IL_GETPHONE'         , displayName: '進口人電話', width: 110, enableCellEdit: false },
-                { name: 'O_IL_GETADDRESS'       , displayName: '進口人英文地址', width: 110, enableCellEdit: false },
+                { name: 'O_IL_GETNO'            , displayName: '進口人統一編號', width: 110, headerCellClass: 'text-primary' },
+                { name: 'O_IL_GETENAME'         , displayName: '進口人英文名稱', width: 110, headerCellClass: 'text-primary' },
+                { name: 'O_IL_GETPHONE'         , displayName: '進口人電話', width: 110, headerCellClass: 'text-primary' },
+                { name: 'O_IL_GETADDRESS'       , displayName: '進口人英文地址', width: 110, headerCellClass: 'text-primary' },
                 { name: 'O_IL_DWKIND'           , displayName: '貨櫃種類', width: 110, enableCellEdit: false },
                 { name: 'O_IL_DWNUMBER'         , displayName: '貨櫃號碼', width: 110, enableCellEdit: false },
                 { name: 'O_IL_DWTYPE'           , displayName: '貨櫃裝運方式', width: 110, enableCellEdit: false },
                 { name: 'O_IL_SEALNUMBER'       , displayName: '封條號碼', width: 110, enableCellEdit: false },
                 { name: 'O_IL_DECLAREMEMO1'     , displayName: '其他申報事項1', width: 110, enableCellEdit: false },
-                { name: 'O_IL_DECLAREMEMO2'     , displayName: '其他申報事項2', width: 110, enableCellEdit: false },
-                { name: 'O_IL_TAXPAYMENTMEMO'   , displayName: '主動申報繳納稅款註記', width: 110, enableCellEdit: false },
+                { name: 'O_IL_DECLAREMEMO2'     , displayName: '其他申報事項2', width: 110, headerCellClass: 'text-primary' },
+                { name: 'O_IL_TAXPAYMENTMEMO'   , displayName: '主動申報繳納稅款註記', width: 110, headerCellClass: 'text-primary' },
                 { name: 'Options'       , displayName: '操作', width: 120, enableCellEdit: false, enableSorting:false, enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToOJob001'), pinnedRight:true, cellClass: 'cell-class-no-style' }
             ],
             rowTemplate: '<div> \
@@ -24267,7 +24395,7 @@ angular.module('app.oselfwork').controller('OJob001Ctrl', function ($scope, $sta
                 gridApi.rowEdit.on.saveRow($scope, $vm.Update);
 
                 // 海運尚未詳談此部分
-                // gridApi.edit.on.afterCellEdit($scope, CalculationFinalCost);
+                gridApi.edit.on.afterCellEdit($scope, CalculationFinalCost);
 
                 gridApi.selection.on.rowSelectionChanged($scope, function(rowEntity, colDef, newValue, oldValue){
                     rowEntity.entity["isSelected"] = rowEntity.isSelected;
@@ -24279,6 +24407,227 @@ angular.module('app.oselfwork').controller('OJob001Ctrl', function ($scope, $sta
                     }
                 });
             }
+        },
+        // 計算淨重
+        CalculateNetWieghtBalance: function(){
+
+            var _totalNetWeight = 0,
+                _totalNewNetWeight = 0;
+            for(var i in $vm.job001Data){
+                // 規則如Procedure NetWeightBalance
+                if(['G1', 'X3', '移倉'].indexOf($vm.job001Data[i]["O_IL_G1"]) == -1 &&
+                    $vm.job001Data[i]["O_IL_NETWEIGHT"] > 1 &&
+                    $vm.job001Data[i]["O_PG_PULLGOODS"] != 1){
+                    if($vm.job001Data[i]["O_IL_NETWEIGHT"]){
+                        _totalNetWeight += $vm.job001Data[i]["O_IL_NETWEIGHT"];
+                    }
+                    if($vm.job001Data[i]["O_IL_NETWEIGHT_NEW"]){
+                        _totalNewNetWeight += $vm.job001Data[i]["O_IL_NETWEIGHT_NEW"];
+                    }
+                }
+            }
+
+            $vm.vmData["totalNetWeight"] = _totalNetWeight.toFixed(2);
+            $vm.vmData["totalNewNetWeight"] = _totalNewNetWeight.toFixed(2);
+
+            var modalInstance = $uibModal.open({
+                animation: true,
+                ariaLabelledBy: 'modal-title',
+                ariaDescribedBy: 'modal-body',
+                templateUrl: 'calculateNetWieghtBalanceModalContent.html',
+                // controller如毛重
+                controller: 'CalculateCrossWieghtBalanceModalInstanceCtrl',
+                controllerAs: '$ctrl',
+                // size: 'lg',
+                resolve: {
+                    vmData: function() {
+                        return $vm.vmData;
+                    }
+                }
+            });
+
+            modalInstance.result.then(function(selectedItem) {
+
+                console.log(selectedItem);
+
+                // 如果輸入的值小於等於0
+                if(selectedItem.O_OL_FLIGHT_TOTALNETWEIGHT <= 0){
+                    toaster.pop('warning', '警告', '請輸入大於等於0的數值。', 3000);
+                    return;
+                }
+
+                var _maxRatio = 1.5,
+                    _minRatio = 0.5,
+                    _ratio = (selectedItem.O_OL_FLIGHT_TOTALNETWEIGHT / selectedItem.totalNetWeight).toFixed(2);
+                if(_ratio < _minRatio || _maxRatio < _ratio){
+                    toaster.pop('warning', '警告', '請勿輸入對於報機單總重量(淨重)差距過小或過大的數值。', 3000);
+                    return;
+                }
+
+                $vm.loading.calculateNetWieghtBalance = true;
+                
+                var _task = [];
+
+                _task.push({
+                    crudType: 'Update',
+                    table: 40,
+                    params: {
+                        O_OL_FLIGHT_TOTALNETWEIGHT : selectedItem.O_OL_FLIGHT_TOTALNETWEIGHT,
+                        O_OL_UP_USER            : $vm.profile.U_ID,
+                        O_OL_UP_DATETIME        : $filter('date')(new Date, 'yyyy-MM-dd HH:mm:ss')
+                    },
+                    condition: {
+                        O_OL_SEQ : $vm.vmData.O_OL_SEQ
+                    }
+                });
+
+                _task.push({
+                    crudType: 'Select',
+                    querymain: 'ojob001',
+                    queryname: 'CalculateNetWieghtBalance',
+                    params: {
+                        O_IL_SEQ: $vm.vmData.O_OL_SEQ
+                    }
+                });
+
+                RestfulApi.CRUDMSSQLDataByTask(_task).then(function (res){
+
+                    console.log(res);
+
+                    var _data = res["returnData"] || [];
+
+                    if(_data.length > 0){
+
+                        if(_data[1][0].ReturnValue == 1){
+                            toaster.pop('success', '訊息', '平衡淨重完成。', 3000);
+                            $vm.vmData.O_OL_FLIGHT_TOTALNETWEIGHT = selectedItem.O_OL_FLIGHT_TOTALNETWEIGHT;
+                        }else if(_data[1][0].ReturnValue == 0){
+                            toaster.pop('info', '訊息', '淨重已平衡。', 3000);
+                        }else{
+                            toaster.pop('error', '失敗', '平衡淨重有誤，請聯絡系統管理員。', 3000);
+                        }
+
+                        LoadItemList();
+                    }
+
+                }).finally(function() {
+                    $vm.loading.calculateNetWieghtBalance = false;
+                });
+
+            }, function() {
+                // $log.info('Modal dismissed at: ' + new Date());
+            });
+
+        },
+        // 計算毛重
+        CalculateCrossWieghtBalance: function(){
+
+            var _totalCrossWeight = 0,
+                _totalNewCrossWeight = 0;
+            for(var i in $vm.job001Data){
+                // 規則如Procedure CrossWeightBalance
+                if(['G1', 'X3', '移倉'].indexOf($vm.job001Data[i]["O_IL_G1"]) == -1 &&
+                    $vm.job001Data[i]["O_IL_CROSSWEIGHT"] > 1 &&
+                    $vm.job001Data[i]["O_PG_PULLGOODS"] != 1){
+                    if($vm.job001Data[i]["O_IL_CROSSWEIGHT"]){
+                        _totalCrossWeight += $vm.job001Data[i]["O_IL_CROSSWEIGHT"];
+                    }
+                    if($vm.job001Data[i]["O_IL_NEWCROSSWEIGHT"]){
+                        _totalNewCrossWeight += $vm.job001Data[i]["O_IL_NEWCROSSWEIGHT"];
+                    }
+                }
+            }
+
+            $vm.vmData["totalCrossWeight"] = _totalCrossWeight.toFixed(2);
+            $vm.vmData["totalNewCrossWeight"] = _totalNewCrossWeight.toFixed(2);
+
+            var modalInstance = $uibModal.open({
+                animation: true,
+                ariaLabelledBy: 'modal-title',
+                ariaDescribedBy: 'modal-body',
+                templateUrl: 'calculateCrossWieghtBalanceModalContent.html',
+                controller: 'CalculateCrossWieghtBalanceModalInstanceCtrl',
+                controllerAs: '$ctrl',
+                // size: 'lg',
+                resolve: {
+                    vmData: function() {
+                        return $vm.vmData;
+                    }
+                }
+            });
+
+            modalInstance.result.then(function(selectedItem) {
+
+                console.log(selectedItem);
+
+                // 如果輸入的值小於等於0
+                if(selectedItem.O_OL_FLIGHT_TOTALCROSSWEIGHT <= 0){
+                    toaster.pop('warning', '警告', '請輸入大於等於0的數值。', 3000);
+                    return;
+                }
+
+                var _maxRatio = 1.5,
+                    _minRatio = 0.5,
+                    _ratio = (selectedItem.O_OL_FLIGHT_TOTALCROSSWEIGHT / selectedItem.totalCrossWeight).toFixed(2);
+                if(_ratio < _minRatio || _maxRatio < _ratio){
+                    toaster.pop('warning', '警告', '請勿輸入對於報機單總重量(毛重)差距過小或過大的數值。', 3000);
+                    return;
+                }
+
+                $vm.loading.calculateCrossWieghtBalance = true;
+                
+                var _task = [];
+
+                _task.push({
+                    crudType: 'Update',
+                    table: 40,
+                    params: {
+                        O_OL_FLIGHT_TOTALCROSSWEIGHT : selectedItem.O_OL_FLIGHT_TOTALCROSSWEIGHT,
+                        O_OL_UP_USER            : $vm.profile.U_ID,
+                        O_OL_UP_DATETIME        : $filter('date')(new Date, 'yyyy-MM-dd HH:mm:ss')
+                    },
+                    condition: {
+                        O_OL_SEQ : $vm.vmData.O_OL_SEQ
+                    }
+                });
+
+                _task.push({
+                    crudType: 'Select',
+                    querymain: 'ojob001',
+                    queryname: 'CalculateCrossWieghtBalance',
+                    params: {
+                        O_IL_SEQ: $vm.vmData.O_OL_SEQ
+                    }
+                });
+
+                RestfulApi.CRUDMSSQLDataByTask(_task).then(function (res){
+
+                    console.log(res);
+
+                    var _data = res["returnData"] || [];
+
+                    if(_data.length > 0){
+
+                        if(_data[1][0].ReturnValue == 1){
+                            toaster.pop('success', '訊息', '平衡毛重完成。', 3000);
+                            $vm.vmData.O_OL_FLIGHT_TOTALCROSSWEIGHT = selectedItem.O_OL_FLIGHT_TOTALCROSSWEIGHT;
+                        }else if(_data[1][0].ReturnValue == 0){
+                            toaster.pop('info', '訊息', '毛重已平衡。', 3000);
+                        }else{
+                            toaster.pop('error', '失敗', '平衡毛重有誤，請聯絡系統管理員。', 3000);
+                        }
+
+                        LoadItemList();
+                    }
+
+                }).finally(function() {
+                    $vm.loading.calculateCrossWieghtBalance = false;
+                });
+
+            }, function() {
+                // $log.info('Modal dismissed at: ' + new Date());
+            });
+
         },
         // 特貨註記
         MultiSpecialGoods: function(){
@@ -24433,11 +24782,81 @@ angular.module('app.oselfwork').controller('OJob001Ctrl', function ($scope, $sta
             });
 
         },
+        /**
+         * [RepeatGet description] 檢查重複進口人
+         */
+        RepeatGet : function(){
+
+            RestfulApi.SearchMSSQLData({
+                querymain: 'ojob001',
+                queryname: 'RepeatGet',
+                params: {
+                    O_IL_SEQ: $vm.vmData.O_OL_SEQ
+                }
+            }).then(function (res){
+                console.log(res["returnData"]);
+
+                var _data = res["returnData"] || [];
+
+                if(_data.length > 0){
+                    var modalInstance = $uibModal.open({
+                        animation: true,
+                        ariaLabelledBy: 'modal-title',
+                        ariaDescribedBy: 'modal-body',
+                        templateUrl: 'repeatGetModalContent.html',
+                        controller: 'RepeatGetModalInstanceCtrl',
+                        controllerAs: '$ctrl',
+                        backdrop: 'static',
+                        size: 'lg',
+                        // appendTo: parentElem,
+                        resolve: {
+                            repeatGet: function() {
+                                return _data;
+                            }
+                        }
+                    });
+
+                    modalInstance.result.then(function(selectedItem) {
+                        console.log(selectedItem);
+
+                        if(selectedItem.length > 0){
+
+                            var _getDirtyData = [];
+                            for(var i in selectedItem){
+
+                                var _beUpdate = $filter('filter')($vm.job001Data, { 
+                                    O_IL_SEQ : selectedItem[i].entity.O_IL_SEQ,
+                                    O_IL_NEWSMALLNO : selectedItem[i].entity.O_IL_NEWSMALLNO,
+                                    O_IL_SMALLNO : selectedItem[i].entity.O_IL_SMALLNO
+                                });
+
+                                if(_beUpdate.length > 0){
+                                    var _index = _beUpdate[0].Index - 1;
+
+                                    // 更新收件者相同的值
+                                    for(var j in $vm.job001GridApi.grid.columns){
+                                        var _colDef = $vm.job001GridApi.grid.columns[j].colDef;
+                                        if(_colDef.enableCellEdit){
+                                            $vm.job001Data[_index][_colDef.name] = selectedItem[i].entity[_colDef.name];
+                                        }
+                                    }
+
+                                    _getDirtyData.push($vm.job001Data[_index]);
+                                }
+                            }
+                            $vm.job001GridApi.rowEdit.setRowsDirty(_getDirtyData);
+                        }
+
+                    }, function() {
+                        // $log.info('Modal dismissed at: ' + new Date());
+                    });
+                }else{
+                    toaster.pop('info', '訊息', '無重複進口人', 3000);
+                }
+            }); 
+        },
         ExportExcel: function(){
-
-            toaster.pop('warning', '警告', '功能尚未完成', 3000);
-            return;
-
+            
             console.log($vm.vmData);
 
             var modalInstance = $uibModal.open({
@@ -24459,39 +24878,49 @@ angular.module('app.oselfwork').controller('OJob001Ctrl', function ($scope, $sta
 
                 var _templates = angular.copy(selectedItem),
                     _exportName = $filter('date')($vm.vmData.O_OL_IMPORTDT, 'yyyyMMdd', 'GMT') + ' ' + 
-                                  $filter('compyFilter')($vm.vmData.OL_CO_CODE) + ' ' + 
+                                  $filter('ocompyFilter')($vm.vmData.O_OL_CO_CODE) + ' ' + 
                                   $vm.vmData.O_OL_COUNT + '件 ' +
                                   $vm.vmData.O_OL_PULL_COUNT + '件',
                     _queryname = null,
                     _params = {
                         O_OL_MASTER : $vm.vmData.O_OL_MASTER,
-                        O_OL_IMPORTDT : $filter('date')($vm.vmData.O_OL_IMPORTDT, 'yyyy-MM-dd', 'GMT'),
-                        OL_FLIGHTNO : $vm.vmData.OL_FLIGHTNO,
-                        OL_COUNTRY : $vm.vmData.OL_COUNTRY,                
+                        O_OL_PASSCODE : $vm.vmData.O_OL_PASSCODE,
+                        O_OL_VOYSEQ : $vm.vmData.O_OL_VOYSEQ,
+                        O_OL_MVNO : $vm.vmData.O_OL_MVNO,
+                        O_OL_COMPID : $vm.vmData.O_OL_COMPID,
+                        O_OL_ARRLOCATIONID : $vm.vmData.O_OL_ARRLOCATIONID,
+                        O_OL_POST : $vm.vmData.O_OL_POST,
+                        O_OL_PACKAGELOCATIONID : $vm.vmData.O_OL_PACKAGELOCATIONID,
+                        O_OL_BOATID : $vm.vmData.O_OL_BOATID,
                         O_IL_SEQ : $vm.vmData.O_OL_SEQ
                     };
 
                 switch(selectedItem){
                     // 關貿格式(G1)
                     case "0G1":
-                        _templates = "0";
-                        _queryname = "SelectItemListForEx0";
-                        _params["IL_G1"] = "'G1'";
+                        _templates = "18";
+                        _queryname = "SelectOItemListForEx0";
+                        _params["O_IL_G1"] = "'G1'";
                         break;
                     // 關貿格式(X2)
                     case "0X2":
-                        _templates = "13";
-                        _queryname = "SelectItemListForEx12";
-                        _params["IL_G1"] = "'','X2','Y'";
-                        // 不包含併X3(也就是mergeno是null)
-                        _params["IL_MERGENO"] = null;
-                        _params["OL_CO_NAME"] = $filter('compyFilter')($vm.vmData.OL_CO_CODE);
+                        _templates = "18";
+                        _queryname = "SelectOItemListForEx12";
+                        _params["O_IL_G1"] = "'','X2','Y'";
+                        // // 不包含併X3(也就是mergeno是null)
+                        // _params["IL_MERGENO"] = null;
+                        // _params["OL_CO_NAME"] = $filter('ocompyFilter')($vm.vmData.OL_CO_CODE);
                         break;
                     // 關貿格式(X3)
                     case "0X3":
-                        _templates = "0";
-                        _queryname = "SelectItemListForEx0";
-                        _params["IL_G1"] = "'X3'";
+                        _templates = "18";
+                        _queryname = "SelectOItemListForEx0";
+                        _params["O_IL_G1"] = "'X3'";
+                        break;
+                    // 關貿格式(ALL)
+                    case "ALL":
+                        _templates = "18";
+                        _queryname = "SelectOItemListForEx0";
                         break;
                 }
 
@@ -24512,7 +24941,7 @@ angular.module('app.oselfwork').controller('OJob001Ctrl', function ($scope, $sta
                     ToolboxApi.ExportExcelBySql({
                         templates : _templates,
                         filename : _exportName,
-                        querymain: 'job001',
+                        querymain: 'ojob001',
                         queryname: _queryname,
                         params: _params
                     }).then(function (res) {
@@ -24522,12 +24951,12 @@ angular.module('app.oselfwork').controller('OJob001Ctrl', function ($scope, $sta
 
                         RestfulApi.InsertMSSQLData({
                             insertname: 'Insert',
-                            table: 33,
+                            table: 46,
                             params: {
-                                ILE_SEQ : $vm.vmData.OL_SEQ,
-                                ILE_TYPE : selectedItem,
-                                ILE_CR_DATETIME : $filter('date')(new Date(), 'yyyy-MM-dd HH:mm:ss'),
-                                ILE_CR_USER : $vm.profile.U_ID
+                                O_ILE_SEQ : $vm.vmData.O_OL_SEQ,
+                                O_ILE_TYPE : selectedItem,
+                                O_ILE_CR_DATETIME : $filter('date')(new Date(), 'yyyy-MM-dd HH:mm:ss'),
+                                O_ILE_CR_USER : $vm.profile.U_ID
                             }
                         }).then(function (res) {
                             
@@ -24590,7 +25019,7 @@ angular.module('app.oselfwork').controller('OJob001Ctrl', function ($scope, $sta
         Update : function(entity){
             // console.log($vm.job001GridApi.rowEdit);
             // console.log($vm.job001GridApi.rowEdit.getDirtyRows($vm.job001GridApi.grid));
-            // console.log(entity, angular.isNumber(parseFloat(entity.IL_WEIGHT_NEW)), parseFloat(entity.IL_WEIGHT_NEW));
+            // console.log(entity);
 
             // create a fake promise - normally you'd use the promise returned by $http or $resource
             var deferred = $q.defer();
@@ -24607,7 +25036,7 @@ angular.module('app.oselfwork').controller('OJob001Ctrl', function ($scope, $sta
                     O_IL_NEWCTN         : isNaN(parseInt(entity.O_IL_NEWCTN)) ? null : entity.O_IL_NEWCTN,
                     O_IL_NATURE_NEW     : entity.O_IL_NATURE_NEW,
                     O_IL_TAX2           : entity.O_IL_TAX2,
-                    O_IL_TAXRATE2       : entity.O_IL_TAXRATE2,
+                    // O_IL_TAXRATE2       : entity.O_IL_TAXRATE2,
                     O_IL_NETWEIGHT_NEW  : isNaN(parseFloat(entity.O_IL_NETWEIGHT_NEW)) ? null : entity.O_IL_NETWEIGHT_NEW,
                     O_IL_NEWCOUNT       : isNaN(parseInt(entity.O_IL_NEWCOUNT)) ? null : entity.O_IL_NEWCOUNT,
                     O_IL_NEWPRICEUNIT   : isNaN(parseFloat(entity.O_IL_NEWPRICEUNIT)) ? null : entity.O_IL_NEWPRICEUNIT,
@@ -24629,7 +25058,7 @@ angular.module('app.oselfwork').controller('OJob001Ctrl', function ($scope, $sta
                 // console.log(res);
                 deferred.resolve();
             }, function (err) {
-                toaster.pop('danger', '錯誤', '更新失敗', 3000);
+                toaster.pop('error', '錯誤', '更新失敗', 3000);
                 deferred.reject();
             });
             
@@ -24654,121 +25083,161 @@ angular.module('app.oselfwork').controller('OJob001Ctrl', function ($scope, $sta
 
     function CalculationFinalCost(rowEntity, colDef, newValue, oldValue){
 
-        // rowEntity["IL_G1"] = rowEntity["IL_G1"].toUpperCase();
-        // 新增規則
-        // if(rowEntity["IL_G1"] == "Y"){
+        // 編輯為 進口人統編
+        if(colDef.name == 'O_IL_GETNO'){
+            // 當有輸入值時
+            if(newValue != ''){
+                var _getnoOverSix = $filter('filter')($vm.job001Data, { O_IL_GETNO: newValue, O_PG_PULLGOODS: 0, O_IL_G1: '' }, true);
+                
+                // 進口人統編 在該單 >=6次
+                if(_getnoOverSix.length >= 6){
+                    for(var i in _getnoOverSix){
+                        _getnoOverSix[i]['O_IL_G1'] = 'Y';
+                    }
+                    $vm.job001GridApi.rowEdit.setRowsDirty(_getnoOverSix);
+                    return;
+                }
 
-        try {
-            if(newValue.toUpperCase() == "Y"){
-                rowEntity.IL_WEIGHT_NEW = rowEntity.IL_WEIGHT;
-                rowEntity.IL_NEWPCS = rowEntity.IL_PCS;
-                rowEntity.IL_UNIVALENT_NEW = rowEntity.IL_UNIVALENT;
-                rowEntity.IL_NEWSENDNAME = rowEntity.IL_SENDNAME;
-                rowEntity.IL_FINALCOST = null;
-            }
-        }
-        catch (e) {
-            console.log(e);
-        }
+                // 清除如果先編輯後才拉貨的統編
+                var _getnoOverSix = $filter('filter')($vm.job001Data, { O_IL_GETNO: newValue, O_IL_G1: 'Y' }, true);
+                for(var i in _getnoOverSix){
+                    _getnoOverSix[i]['O_IL_G1'] = '';
+                }
 
-        if(colDef.name == 'IL_GETNAME_NEW'){
-            var _temp = encodeURI(rowEntity.IL_GETNAME_NEW),
-                regex = /%09/gi;
+                $vm.job001GridApi.rowEdit.setRowsDirty(_getnoOverSix);
+                return;
+            }else{
+                // 當沒輸入值時 清空原本的Y
+                var _getnoOverSix = $filter('filter')($vm.job001Data, { O_IL_GETNO: oldValue, O_PG_PULLGOODS: 0, O_IL_G1: 'Y' }, true);
 
-            _temp = _temp.replace(regex, "%20");
-            rowEntity.IL_GETNAME_NEW = decodeURI(_temp);
-        }
-
-        // 新單價 = 新重量 * 100 / 新數量
-        if(colDef.name == 'IL_WEIGHT_NEW' || colDef.name == 'IL_NEWPCS'){
-            var _weight = parseFloat(rowEntity.IL_WEIGHT_NEW).toFixed(2),
-                _pcs = parseInt(rowEntity.IL_NEWPCS);
-
-            // 如果都不是空值 才開始計算
-            if(!isNaN(_weight) && !isNaN(_pcs)){
-                // 如果數量不為0
-                if(parseInt(_pcs) != 0){
-                    rowEntity.IL_UNIVALENT_NEW = (_weight * 100) / _pcs;
-                }else{
-                    rowEntity.IL_UNIVALENT_NEW = 0;
+                _getnoOverSix.push(rowEntity);
+                for(var i in _getnoOverSix){
+                    _getnoOverSix[i]['O_IL_G1'] = '';
                 }
             }
         }
 
-        // 計算稅
-        var _univalent = parseInt(rowEntity.IL_UNIVALENT_NEW),
-            _pcs = parseInt(rowEntity.IL_NEWPCS),
-            _finalcost = parseInt(rowEntity.IL_FINALCOST),
+        // 一律為大寫
+        if(colDef.name == 'O_IL_G1') {
+            try {
+                rowEntity["O_IL_G1"] = newValue.toUpperCase();
+            }
+            catch (e) {
+                console.log(e);
+            }
+        }
+
+        // try {
+            // if(newValue.toUpperCase() == "Y"){
+            //     rowEntity.IL_WEIGHT_NEW = rowEntity.IL_WEIGHT;
+            //     rowEntity.IL_NEWPCS = rowEntity.IL_PCS;
+            //     rowEntity.IL_UNIVALENT_NEW = rowEntity.IL_UNIVALENT;
+            //     rowEntity.IL_NEWSENDNAME = rowEntity.IL_SENDNAME;
+            //     rowEntity.IL_FINALCOST = null;
+            // }
+        // }
+        // catch (e) {
+        //     console.log(e);
+        // }
+
+        // if(colDef.name == 'IL_GETNAME_NEW'){
+        //     var _temp = encodeURI(rowEntity.IL_GETNAME_NEW),
+        //         regex = /%09/gi;
+
+        //     _temp = _temp.replace(regex, "%20");
+        //     rowEntity.IL_GETNAME_NEW = decodeURI(_temp);
+        // }
+
+        // // 新單價 = 新重量 * 100 / 新數量
+        // if(colDef.name == 'IL_WEIGHT_NEW' || colDef.name == 'IL_NEWPCS'){
+        //     var _weight = parseFloat(rowEntity.IL_WEIGHT_NEW).toFixed(2),
+        //         _pcs = parseInt(rowEntity.IL_NEWPCS);
+
+        //     // 如果都不是空值 才開始計算
+        //     if(!isNaN(_weight) && !isNaN(_pcs)){
+        //         // 如果數量不為0
+        //         if(parseInt(_pcs) != 0){
+        //             rowEntity.IL_UNIVALENT_NEW = (_weight * 100) / _pcs;
+        //         }else{
+        //             rowEntity.IL_UNIVALENT_NEW = 0;
+        //         }
+        //     }
+        // }
+
+        // 計算發票總金額
+        var _count = parseInt(rowEntity.O_IL_NEWCOUNT),
+            _priceUnit = parseInt(rowEntity.O_IL_NEWPRICEUNIT),
+            _invoiceCost = parseInt(rowEntity.O_IL_INVOICECOST2),
             start = 0;
 
-        if(!isNaN(_univalent)){
+        if(!isNaN(_count)){
             start += 1;
         }
-        if(!isNaN(_pcs)){
+        if(!isNaN(_priceUnit)){
             start += 1;
         }
-        if(!isNaN(_finalcost)){
+        if(!isNaN(_invoiceCost)){
             start += 1;
         }
 
         // 表示可以開始計算
         if(start >= 2){
             // 新單價
-            if(colDef.name == 'IL_UNIVALENT_NEW'){
+            if(colDef.name == 'O_IL_NEWPRICEUNIT'){
                 //如果數量有值
-                if(!isNaN(_pcs)){
-                    _finalcost = _pcs * _univalent;
+                if(!isNaN(_count)){
+                    _invoiceCost = _count * _priceUnit;
                 }
             }
 
             // 新數量
-            if(colDef.name == 'IL_NEWPCS'){
-                if(!isNaN(_univalent)){
-                    _finalcost = _pcs * _univalent;
+            if(colDef.name == 'O_IL_NEWCOUNT'){
+                if(!isNaN(_priceUnit)){
+                    _invoiceCost = _count * _priceUnit;
                 }
             }
 
-            // 當完稅價格小於100
-            if(_finalcost < 100 && _finalcost != 0){
-                // 給個新值 100~125
-                var maxNum = 125;  
-                var minNum = 100;  
-                _finalcost = Math.floor(Math.random() * (maxNum - minNum + 1)) + minNum; 
-            }
+            // // 當完稅價格小於100
+            // if(_finalcost < 100 && _finalcost != 0){
+            //     // 給個新值 100~125
+            //     var maxNum = 125;  
+            //     var minNum = 100;  
+            //     _finalcost = Math.floor(Math.random() * (maxNum - minNum + 1)) + minNum; 
+            // }
 
-            // 當完稅價格超過2000 提醒使用者
-            if(_finalcost > 2000){
-                toaster.pop('warning', '警告', '完稅價格超過2000元，請注意', 3000);
-            }
+            // // 當完稅價格超過2000 提醒使用者
+            // if(_finalcost > 2000){
+            //     toaster.pop('warning', '警告', '完稅價格超過2000元，請注意', 3000);
+            // }
             
             // 當數量不為空 帶出單價 (會與新單價衝突)
-            if(colDef.name == 'IL_FINALCOST' || colDef.name == 'IL_NEWPCS' || colDef.name == 'IL_UNIVALENT_NEW'){
-                if(!isNaN(_pcs)){
-                    if(parseInt(_pcs) != 0){
-                        _univalent = Math.round(_finalcost / _pcs);
+            if(colDef.name == 'O_IL_NEWCOUNT' || colDef.name == 'O_IL_NEWPRICEUNIT' || colDef.name == 'O_IL_INVOICECOST2'){
+                if(!isNaN(_count)){
+                    if(parseInt(_count) != 0){
+                        _priceUnit = Math.round(_invoiceCost / _count);
                     }else{
-                        _univalent = 0;
+                        _priceUnit = 0;
                     }
                 }
             }
 
-            // 完稅價格
-            if(colDef.name == 'IL_FINALCOST' || colDef.name == 'IL_WEIGHT_NEW'){
+            // 發票總金額
+            if(colDef.name == 'O_IL_INVOICECOST2'){
                 // 避免帳不平 再次計算完稅價格
-                if(!isNaN(_pcs) && !isNaN(_univalent)){
-                    _finalcost = _pcs * _univalent;
+                if(!isNaN(_count) && !isNaN(_priceUnit)){
+                    _invoiceCost = _count * _priceUnit;
                 }
             }
 
-            // console.log("_univalent:", _univalent," _pcs:" , _pcs," _finalcost:" , _finalcost);
-            rowEntity.IL_UNIVALENT_NEW = isNaN(_univalent) ? null : _univalent;
-            rowEntity.IL_NEWPCS = isNaN(_pcs) ? null : _pcs;
-            rowEntity.IL_FINALCOST = isNaN(_finalcost) ? null : _finalcost;
+            // console.log("_invoiceCost:", _invoiceCost," _count:" , _count," _priceUnit:" , _priceUnit);
+            rowEntity.O_IL_INVOICECOST2 = isNaN(_invoiceCost) ? null : _invoiceCost;
+            rowEntity.O_IL_NEWCOUNT = isNaN(_count) ? null : _count;
+            rowEntity.O_IL_NEWPRICEUNIT = isNaN(_priceUnit) ? null : _priceUnit;
         }
 
         $vm.job001GridApi.rowEdit.setRowsDirty([rowEntity]);
 
-        // console.log('edited row id:' + rowEntity.Index + ' Column:' + colDef.name + ' newValue:' + newValue + ' oldValue:' + oldValue);
+        // // console.log('edited row id:' + rowEntity.Index + ' Column:' + colDef.name + ' newValue:' + newValue + ' oldValue:' + oldValue);
     }
 
     /**
@@ -24838,6 +25307,97 @@ angular.module('app.oselfwork').controller('OJob001Ctrl', function ($scope, $sta
 
     $ctrl.ok = function() {
         $uibModalInstance.close($ctrl.mdData);
+    };
+
+    $ctrl.cancel = function() {
+        $uibModalInstance.dismiss('cancel');
+    };
+})
+.controller('CalculateCrossWieghtBalanceModalInstanceCtrl', function ($uibModalInstance, vmData) {
+    var $ctrl = this;
+    $ctrl.mdData = angular.copy(vmData);
+
+    $ctrl.ok = function() {
+        $uibModalInstance.close($ctrl.mdData);
+    };
+
+    $ctrl.cancel = function() {
+        $uibModalInstance.dismiss('cancel');
+    };
+})
+.controller('RepeatGetModalInstanceCtrl', function ($uibModalInstance, $q, $scope, repeatGet) {
+    var $ctrl = this;
+    $ctrl.mdData = repeatGet;
+
+    $ctrl.repeatGetOption = {
+        data: '$ctrl.mdData',
+        columnDefs: [
+            { name: 'O_IL_SENDENAME'        , displayName: '出口人英文名稱', width: 110, enableCellEdit: false },
+            { name: 'O_IL_NEWSENDENAME'     , displayName: '新出口人英文名稱', width: 110, headerCellClass: 'text-primary' },
+            { name: 'O_IL_GETNO'            , displayName: '進口人統一編號', width: 110, headerCellClass: 'text-primary' },
+            { name: 'O_IL_G1'               , displayName: '報關種類', width: 80, headerCellClass: 'text-primary' },
+            { name: 'O_IL_SMALLNO'          , displayName: '小號', width: 110, enableCellEdit: false },
+            { name: 'O_IL_POSTNO'           , displayName: '艙單號碼', width: 110, enableCellEdit: false },
+            { name: 'O_IL_CUSTID'           , displayName: '快遞業者統一編號', width: 110, enableCellEdit: false },
+            { name: 'O_IL_PRICECONDITON'    , displayName: '單價條件', width: 110, enableCellEdit: false },
+            { name: 'O_IL_CURRENCY'         , displayName: '單價幣別代碼', width: 110, enableCellEdit: false },
+            { name: 'O_IL_CROSSWEIGHT'      , displayName: '毛重', width: 110, enableCellEdit: false },
+            { name: 'O_IL_NEWCROSSWEIGHT'   , displayName: '新毛重', width: 110, headerCellClass: 'text-primary' },
+            { name: 'O_IL_CTN'              , displayName: '件數', width: 110, enableCellEdit: false },
+            { name: 'O_IL_NEWCTN'           , displayName: '新件數', width: 110, headerCellClass: 'text-primary' },
+            { name: 'O_IL_CTNUNIT'          , displayName: '件數單位', width: 110, enableCellEdit: false },
+            { name: 'O_IL_MARK'             , displayName: '標記', width: 110, enableCellEdit: false },
+            { name: 'O_IL_SMALLNO_ID'       , displayName: '貨物編號', width: 110, headerCellClass: 'text-primary' },
+            { name: 'O_IL_NATURE'           , displayName: '貨物名稱', width: 110, enableCellEdit: false, cellTooltip: cellTooltip},
+            { name: 'O_IL_NATURE_NEW'       , displayName: '新貨物名稱', width: 110, headerCellClass: 'text-primary', cellTooltip: cellTooltip},
+            { name: 'O_IL_TAX'              , displayName: '稅則', width: 110, enableCellEdit: false },
+            { name: 'O_IL_TAX2'             , displayName: '新稅則', width: 110, headerCellClass: 'text-primary' },
+            { name: 'O_IL_BRAND'            , displayName: '商標', width: 110, enableCellEdit: false },
+            { name: 'O_IL_FORMAT'           , displayName: '成分及規格', width: 110, enableCellEdit: false },
+            { name: 'O_IL_NETWEIGHT'        , displayName: '淨重', width: 110, enableCellEdit: false },
+            { name: 'O_IL_NETWEIGHT_NEW'    , displayName: '新淨重', width: 110, headerCellClass: 'text-primary' },
+            { name: 'O_IL_COUNT'            , displayName: '數量', width: 110, enableCellEdit: false },
+            { name: 'O_IL_NEWCOUNT'         , displayName: '新數量', width: 110, headerCellClass: 'text-primary' },
+            { name: 'O_IL_PRICEUNIT'        , displayName: '單價', width: 110, enableCellEdit: false },
+            { name: 'O_IL_NEWPRICEUNIT'     , displayName: '新單價', width: 110, headerCellClass: 'text-primary' },
+            { name: 'O_IL_PCS'              , displayName: '數量單位', width: 110, enableCellEdit: false},
+            { name: 'O_IL_NEWPCS'           , displayName: '新數量單位', width: 110, headerCellClass: 'text-primary'},
+            { name: 'O_IL_INVOICECOST'      , displayName: '發票總金額', width: 110, enableCellEdit: false },
+            { name: 'O_IL_INVOICECOST2'     , displayName: '新發票總金額', width: 110, headerCellClass: 'text-primary' },
+            { name: 'O_IL_FINALCOST'        , displayName: '完稅價格', width: 110, enableCellEdit: false},
+            { name: 'O_IL_VOLUME'           , displayName: '體積', width: 110, enableCellEdit: false },
+            { name: 'O_IL_VOLUMEUNIT'       , displayName: '體積單位', width: 110, enableCellEdit: false },
+            { name: 'O_IL_COUNTRY'          , displayName: '生產國別', width: 110, enableCellEdit: false },
+            { name: 'O_IL_COUNTRYID'        , displayName: '出口人國家代碼', width: 110, enableCellEdit: false },
+            { name: 'O_IL_NEWCOUNTRYID'     , displayName: '新出口人國家代碼', width: 110, headerCellClass: 'text-primary' },
+            { name: 'O_IL_SENDADDRESS'      , displayName: '出口人英文地址', width: 110, enableCellEdit: false },
+            { name: 'O_IL_NEWSENDADDRESS'   , displayName: '新出口人英文地址', width: 110, headerCellClass: 'text-primary' },
+            { name: 'O_IL_GETID'            , displayName: '進口人身分識別碼', width: 110, enableCellEdit: false },
+            { name: 'O_IL_GETENAME'         , displayName: '進口人英文名稱', width: 110, headerCellClass: 'text-primary' },
+            { name: 'O_IL_GETPHONE'         , displayName: '進口人電話', width: 110, headerCellClass: 'text-primary' },
+            { name: 'O_IL_GETADDRESS'       , displayName: '進口人英文地址', width: 110, headerCellClass: 'text-primary' },
+            { name: 'O_IL_DWKIND'           , displayName: '貨櫃種類', width: 110, enableCellEdit: false },
+            { name: 'O_IL_DWNUMBER'         , displayName: '貨櫃號碼', width: 110, enableCellEdit: false },
+            { name: 'O_IL_DWTYPE'           , displayName: '貨櫃裝運方式', width: 110, enableCellEdit: false },
+            { name: 'O_IL_SEALNUMBER'       , displayName: '封條號碼', width: 110, enableCellEdit: false },
+            { name: 'O_IL_DECLAREMEMO1'     , displayName: '其他申報事項1', width: 110, enableCellEdit: false },
+            { name: 'O_IL_DECLAREMEMO2'     , displayName: '其他申報事項2', width: 110, headerCellClass: 'text-primary' },
+            { name: 'O_IL_TAXPAYMENTMEMO'   , displayName: '主動申報繳納稅款註記', width: 110, headerCellClass: 'text-primary' }
+        ],
+        enableFiltering: false,
+        enableSorting: true,
+        enableColumnMenus: false,
+        // enableVerticalScrollbar: false,
+        paginationPageSizes: [50, 100, 150, 200, 250, 300],
+        paginationPageSize: 100,
+        rowEditWaitInterval: -1,
+        onRegisterApi: function(gridApi){
+            $ctrl.repeatGetGridApi = gridApi;
+        }
+    }
+
+    $ctrl.ok = function() {
+        $uibModalInstance.close($ctrl.repeatGetGridApi.rowEdit.getDirtyRows());
     };
 
     $ctrl.cancel = function() {
@@ -25145,7 +25705,7 @@ angular.module('app.oselfwork.oleaderoption').controller('OAgentSettingCtrl', fu
             RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res){
                 promise.resolve();
             }, function (err) {
-                toaster.pop('danger', '錯誤', '更新失敗', 3000);
+                toaster.pop('error', '錯誤', '更新失敗', 3000);
                 promise.reject();
             }).finally(function(){
                 if($vm.agentSettingGridApi.rowEdit.getDirtyRows().length == 0){
@@ -25496,7 +26056,7 @@ angular.module('app.oselfwork.oleaderoption').controller('OCompyDistributionCtrl
             RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res){
                 promise.resolve();
             }, function (err) {
-                toaster.pop('danger', '錯誤', '更新失敗', 3000);
+                toaster.pop('error', '錯誤', '更新失敗', 3000);
                 promise.reject();
             }).finally(function(){
                 if($vm.compyDistributionGridApi.rowEdit.getDirtyRows().length == 0){
@@ -25731,7 +26291,7 @@ angular.module('app.oselfwork.oleaderoption').controller('ODailyLeaveCtrl', func
             RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res){
                 promise.resolve();
             }, function (err) {
-                toaster.pop('danger', '錯誤', '更新失敗', 3000);
+                toaster.pop('error', '錯誤', '更新失敗', 3000);
                 promise.reject();
             }).finally(function(){
                 if($vm.dailyLeaveGridApi.rowEdit.getDirtyRows().length == 0){
@@ -25904,7 +26464,7 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                                 toaster.pop('success', '訊息', '加入黑名單成功', 3000);
                             }
                         }, function (err) {
-                            toaster.pop('danger', '錯誤', '加入黑名單失敗', 3000);
+                            toaster.pop('error', '錯誤', '加入黑名單失敗', 3000);
                         }).finally(function(){
                             $vm.job001GridApi.selection.clearSelectedRows();
                             ClearSelectedColumn();
@@ -26011,7 +26571,7 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                                 toaster.pop('success', '訊息', '刪除資料成功', 3000);
                             }
                         }, function (err) {
-                            toaster.pop('danger', '錯誤', '刪除資料失敗', 3000);
+                            toaster.pop('error', '錯誤', '刪除資料失敗', 3000);
                         }).finally(function(){
                             $vm.job001GridApi.selection.clearSelectedRows();
                             // ClearSelectedColumn();
@@ -27226,7 +27786,7 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                 // console.log(res);
                 deferred.resolve();
             }, function (err) {
-                toaster.pop('danger', '錯誤', '更新失敗', 3000);
+                toaster.pop('error', '錯誤', '更新失敗', 3000);
                 deferred.reject();
             });
             
@@ -27250,14 +27810,16 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
     };
 
     function CalculationFinalCost(rowEntity, colDef, newValue, oldValue){
-
-        try {
-            rowEntity["IL_G1"] = rowEntity["IL_G1"].toUpperCase();
-        } catch (e) {
-            console.log(e);
+        
+        // 一律為大寫
+        if(colDef.name == 'O_IL_G1') {
+            try {
+                rowEntity["O_IL_G1"] = newValue.toUpperCase();
+            }
+            catch (e) {
+                console.log(e);
+            }
         }
-        // 新增規則
-        // if(rowEntity["IL_G1"] == "Y"){
 
         try {
             if(newValue.toUpperCase() == "Y"){
@@ -27956,7 +28518,7 @@ angular.module('app.selfwork').controller('Job002Ctrl', function ($scope, $state
                             toaster.pop('success', '訊息', '更新成功', 3000);
                         }
                     }, function (err) {
-                        toaster.pop('danger', '錯誤', '更新失敗', 3000);
+                        toaster.pop('error', '錯誤', '更新失敗', 3000);
                     }).finally(function(){
                         $vm.job002GridApi.selection.clearSelectedRows();
                     }); 
@@ -28056,7 +28618,7 @@ angular.module('app.selfwork').controller('Job002Ctrl', function ($scope, $state
                             toaster.pop('success', '訊息', '刪除成功', 3000);
                         }
                     }, function (err) {
-                        toaster.pop('danger', '錯誤', '刪除失敗', 3000);
+                        toaster.pop('error', '錯誤', '刪除失敗', 3000);
                     }).finally(function(){
                         $vm.job002GridApi.selection.clearSelectedRows();
                     }); 
@@ -28179,7 +28741,7 @@ angular.module('app.selfwork').controller('Job002Ctrl', function ($scope, $state
                             toaster.pop('success', '訊息', '底部編輯成功', 3000);
                         }
                     }, function (err) {
-                        toaster.pop('danger', '錯誤', '底部編輯失敗', 3000);
+                        toaster.pop('error', '錯誤', '底部編輯失敗', 3000);
                     });
 
                 }, function() {
@@ -28275,7 +28837,7 @@ angular.module('app.selfwork').controller('Job002Ctrl', function ($scope, $state
                             });
                             
                         }else{
-                            toaster.pop('danger', '錯誤', '寄信失敗', 3000);
+                            toaster.pop('error', '錯誤', '寄信失敗', 3000);
                         }
                     }, function() {
                         // $log.info('Modal dismissed at: ' + new Date());
@@ -28313,7 +28875,7 @@ angular.module('app.selfwork').controller('Job002Ctrl', function ($scope, $state
             }).then(function (res) {
                 promise.resolve();
             }, function (err) {
-                toaster.pop('danger', '錯誤', '更新失敗', 3000);
+                toaster.pop('error', '錯誤', '更新失敗', 3000);
                 promise.reject();
             });
         }
@@ -28767,7 +29329,7 @@ angular.module('app.selfwork').controller('Job003Ctrl', function ($scope, $state
             }).then(function (res) {
                 promise.resolve();
             }, function (err) {
-                toaster.pop('danger', '錯誤', '更新失敗', 3000);
+                toaster.pop('error', '錯誤', '更新失敗', 3000);
                 promise.reject();
             });
         }
@@ -29097,7 +29659,7 @@ angular.module('app.selfwork.leaderoption').controller('AgentSettingCtrl', funct
             RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res){
                 promise.resolve();
             }, function (err) {
-                toaster.pop('danger', '錯誤', '更新失敗', 3000);
+                toaster.pop('error', '錯誤', '更新失敗', 3000);
                 promise.reject();
             }).finally(function(){
                 if($vm.agentSettingGridApi.rowEdit.getDirtyRows().length == 0){
@@ -29449,7 +30011,7 @@ angular.module('app.selfwork.leaderoption').controller('CompyDistributionCtrl', 
             RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res){
                 promise.resolve();
             }, function (err) {
-                toaster.pop('danger', '錯誤', '更新失敗', 3000);
+                toaster.pop('error', '錯誤', '更新失敗', 3000);
                 promise.reject();
             }).finally(function(){
                 if($vm.compyDistributionGridApi.rowEdit.getDirtyRows().length == 0){
@@ -29700,7 +30262,7 @@ angular.module('app.selfwork.leaderoption').controller('DailyLeaveCtrl', functio
             RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res){
                 promise.resolve();
             }, function (err) {
-                toaster.pop('danger', '錯誤', '更新失敗', 3000);
+                toaster.pop('error', '錯誤', '更新失敗', 3000);
                 promise.reject();
             }).finally(function(){
                 if($vm.dailyLeaveGridApi.rowEdit.getDirtyRows().length == 0){
@@ -29731,7 +30293,7 @@ angular.module('app.selfwork.leaderoption').controller('DailyLeaveCtrl', functio
 })
 "use strict";
 
-angular.module('app.settings').controller('AccountCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, RestfulApi, $filter, bool, role, userGrade, $templateCache) {
+angular.module('app.settings').controller('AccountCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, RestfulApi, $filter, bool, role, userGrade, $templateCache, sysParm) {
 
     var $vm = this,
         _tasks = [];
@@ -29760,38 +30322,48 @@ angular.module('app.settings').controller('AccountCtrl', function ($scope, $stat
         gradeData : userGrade,
         ForgetPW : function(){
 
-            var _defaultPass = "Eastwind@168";
-
-            var modalInstance = $uibModal.open({
-                animation: true,
-                ariaLabelledBy: 'modal-title',
-                ariaDescribedBy: 'modal-body',
-                template: $templateCache.get('isChecked'),
-                controller: 'IsCheckedModalInstanceCtrl',
-                controllerAs: '$ctrl',
-                size: 'sm',
-                windowClass: 'center-modal',
-                // appendTo: parentElem,
-                resolve: {
-                    items: function() {
-                        return _defaultPass;
-                    },
-                    show: function(){
-                        return {
-                            title : "即將設定為預設密碼" + _defaultPass
-                        };
-                    }
-                }
-            });
-
-            modalInstance.result.then(function(selectedItem) {
-                // console.log(selectedItem);
+            // var _defaultPass = "Eastwind@168";
+            console.log(sysParm);
                 
-                $vm.vmData.U_PW = selectedItem;
+            var _defaultPass = sysParm.SPA_DEFAULT_PASSWORD;
 
-            }, function() {
-                // $log.info('Modal dismissed at: ' + new Date());
-            });
+            if(_defaultPass){
+
+                var modalInstance = $uibModal.open({
+                    animation: true,
+                    ariaLabelledBy: 'modal-title',
+                    ariaDescribedBy: 'modal-body',
+                    template: $templateCache.get('isChecked'),
+                    controller: 'IsCheckedModalInstanceCtrl',
+                    controllerAs: '$ctrl',
+                    size: 'sm',
+                    windowClass: 'center-modal',
+                    // appendTo: parentElem,
+                    resolve: {
+                        items: function() {
+                            return _defaultPass;
+                        },
+                        show: function(){
+                            return {
+                                title : "即將設定為預設密碼" + _defaultPass
+                            };
+                        }
+                    }
+                });
+
+                modalInstance.result.then(function(selectedItem) {
+                    // console.log(selectedItem);
+                    
+                    $vm.vmData.U_PW = selectedItem;
+
+                }, function() {
+                    // $log.info('Modal dismissed at: ' + new Date());
+                });
+
+            }else{
+                toaster.danger("錯誤", "查無預設密碼，請聯絡系統管理員。");
+                return;
+            }
 
         	// var modalInstance = $uibModal.open({
          //        animation: true,
@@ -30509,7 +31081,7 @@ angular.module('app.settings').controller('TargetEditorCtrl', function ($scope, 
 
                 // });
             }else{
-                toaster.pop('danger', '失敗', '沒有任何信件', 3000);
+                toaster.pop('error', '失敗', '沒有任何信件', 3000);
             }
         },
         Update : function(){
@@ -30608,7 +31180,7 @@ angular.module('app.settings').controller('TargetEditorCtrl', function ($scope, 
 
                 // });
             }else{
-                toaster.pop('danger', '失敗', '沒有任何信件', 3000);
+                toaster.pop('error', '失敗', '沒有任何信件', 3000);
             }
         },
         /**
@@ -30850,7 +31422,7 @@ angular.module('app.settings').controller('TargetEditorCtrl', function ($scope, 
 })
 "use strict";
 
-angular.module('app.settings').controller('ExAccountCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, $filter, SysCode, RestfulApi, bool, compy) {
+angular.module('app.settings').controller('ExAccountCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, $filter, SysCode, RestfulApi, bool, compy, sysParm) {
 
 	var $vm = this;
     // console.log(Account.get());
@@ -30874,38 +31446,45 @@ angular.module('app.settings').controller('ExAccountCtrl', function ($scope, $st
         compyData : compy,
         ForgetPW : function(){
 
-            var _defaultPass = "Eastwind@168";
-
-            var modalInstance = $uibModal.open({
-                animation: true,
-                ariaLabelledBy: 'modal-title',
-                ariaDescribedBy: 'modal-body',
-                template: $templateCache.get('isChecked'),
-                controller: 'IsCheckedModalInstanceCtrl',
-                controllerAs: '$ctrl',
-                size: 'sm',
-                windowClass: 'center-modal',
-                // appendTo: parentElem,
-                resolve: {
-                    items: function() {
-                        return _defaultPass;
-                    },
-                    show: function(){
-                        return {
-                            title : "即將設定為預設密碼" + _defaultPass
-                        };
-                    }
-                }
-            });
-
-            modalInstance.result.then(function(selectedItem) {
-                // console.log(selectedItem);
+            // var _defaultPass = "Eastwind@168";
                 
-                $vm.vmData.CI_PW = selectedItem;
+            var _defaultPass = sysParm.SPA_DEFAULT_PASSWORD;
 
-            }, function() {
-                // $log.info('Modal dismissed at: ' + new Date());
-            });
+            if(_defaultPass){
+                var modalInstance = $uibModal.open({
+                    animation: true,
+                    ariaLabelledBy: 'modal-title',
+                    ariaDescribedBy: 'modal-body',
+                    template: $templateCache.get('isChecked'),
+                    controller: 'IsCheckedModalInstanceCtrl',
+                    controllerAs: '$ctrl',
+                    size: 'sm',
+                    windowClass: 'center-modal',
+                    // appendTo: parentElem,
+                    resolve: {
+                        items: function() {
+                            return _defaultPass;
+                        },
+                        show: function(){
+                            return {
+                                title : "即將設定為預設密碼" + _defaultPass
+                            };
+                        }
+                    }
+                });
+
+                modalInstance.result.then(function(selectedItem) {
+                    // console.log(selectedItem);
+                    
+                    $vm.vmData.CI_PW = selectedItem;
+
+                }, function() {
+                    // $log.info('Modal dismissed at: ' + new Date());
+                });
+            }else{
+                toaster.danger("錯誤", "查無預設密碼，請聯絡系統管理員。");
+                return;
+            }
         },
         Return : function(){
         	ReturnToExternalManagementPage();
@@ -31029,7 +31608,7 @@ angular.module('app.settings').controller('ExCompyCtrl', function ($scope, $stat
 });
 "use strict";
 
-angular.module('app.settings').controller('OExAccountCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, $filter, SysCode, RestfulApi, bool, ocompy) {
+angular.module('app.settings').controller('OExAccountCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, $filter, SysCode, RestfulApi, bool, ocompy, sysParm) {
 
 	var $vm = this;
     // console.log(Account.get());
@@ -31053,38 +31632,47 @@ angular.module('app.settings').controller('OExAccountCtrl', function ($scope, $s
         compyData : ocompy,
         ForgetPW : function(){
 
-            var _defaultPass = "Eastwind@168";
-
-            var modalInstance = $uibModal.open({
-                animation: true,
-                ariaLabelledBy: 'modal-title',
-                ariaDescribedBy: 'modal-body',
-                template: $templateCache.get('isChecked'),
-                controller: 'IsCheckedModalInstanceCtrl',
-                controllerAs: '$ctrl',
-                size: 'sm',
-                windowClass: 'center-modal',
-                // appendTo: parentElem,
-                resolve: {
-                    items: function() {
-                        return _defaultPass;
-                    },
-                    show: function(){
-                        return {
-                            title : "即將設定為預設密碼" + _defaultPass
-                        };
-                    }
-                }
-            });
-
-            modalInstance.result.then(function(selectedItem) {
-                // console.log(selectedItem);
+            // var _defaultPass = "Eastwind@168";
                 
-                $vm.vmData.O_CI_PW = selectedItem;
+            var _defaultPass = sysParm.SPA_DEFAULT_PASSWORD;
 
-            }, function() {
-                // $log.info('Modal dismissed at: ' + new Date());
-            });
+            if(_defaultPass){
+
+                var modalInstance = $uibModal.open({
+                    animation: true,
+                    ariaLabelledBy: 'modal-title',
+                    ariaDescribedBy: 'modal-body',
+                    template: $templateCache.get('isChecked'),
+                    controller: 'IsCheckedModalInstanceCtrl',
+                    controllerAs: '$ctrl',
+                    size: 'sm',
+                    windowClass: 'center-modal',
+                    // appendTo: parentElem,
+                    resolve: {
+                        items: function() {
+                            return _defaultPass;
+                        },
+                        show: function(){
+                            return {
+                                title : "即將設定為預設密碼" + _defaultPass
+                            };
+                        }
+                    }
+                });
+
+                modalInstance.result.then(function(selectedItem) {
+                    // console.log(selectedItem);
+                    
+                    $vm.vmData.O_CI_PW = selectedItem;
+
+                }, function() {
+                    // $log.info('Modal dismissed at: ' + new Date());
+                });
+                
+            }else{
+                toaster.danger("錯誤", "查無預設密碼，請聯絡系統管理員。");
+                return;
+            }
         },
         Return : function(){
         	ReturnToExternalManagementPage();
