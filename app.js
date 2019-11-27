@@ -61,7 +61,7 @@ Object.defineProperty(global, '__line', {
 var authChecker = function(req, res, next) {
     // 由前端檢查session
     let _id = until.FindID(req.session);
-
+    
     if(_id == null){
         // res.status(403).json({
         //     "returnData": '尚無權限'

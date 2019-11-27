@@ -1,6 +1,6 @@
 "use strict";
 
-angular.module('app.settings').controller('OExAccountCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, $filter, SysCode, RestfulApi, bool, ocompy) {
+angular.module('app.settings').controller('OExAccountCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, $filter, SysCode, RestfulApi, bool, ocompy, sysParm) {
 
 	var $vm = this;
     // console.log(Account.get());
@@ -25,51 +25,46 @@ angular.module('app.settings').controller('OExAccountCtrl', function ($scope, $s
         ForgetPW : function(){
 
             // var _defaultPass = "Eastwind@168";
-            RestfulApi.SearchMSSQLData({
-                querymain: 'account',
-                queryname: 'SelectDefaultPassword'
-            }).then(function (res){
                 
-                var _defaultPass = res["returnData"][0].SPA_DEFAULT_PASSWORD;
+            var _defaultPass = sysParm.SPA_DEFAULT_PASSWORD;
 
-                if(_defaultPass){
+            if(_defaultPass){
 
-                    var modalInstance = $uibModal.open({
-                        animation: true,
-                        ariaLabelledBy: 'modal-title',
-                        ariaDescribedBy: 'modal-body',
-                        template: $templateCache.get('isChecked'),
-                        controller: 'IsCheckedModalInstanceCtrl',
-                        controllerAs: '$ctrl',
-                        size: 'sm',
-                        windowClass: 'center-modal',
-                        // appendTo: parentElem,
-                        resolve: {
-                            items: function() {
-                                return _defaultPass;
-                            },
-                            show: function(){
-                                return {
-                                    title : "即將設定為預設密碼" + _defaultPass
-                                };
-                            }
+                var modalInstance = $uibModal.open({
+                    animation: true,
+                    ariaLabelledBy: 'modal-title',
+                    ariaDescribedBy: 'modal-body',
+                    template: $templateCache.get('isChecked'),
+                    controller: 'IsCheckedModalInstanceCtrl',
+                    controllerAs: '$ctrl',
+                    size: 'sm',
+                    windowClass: 'center-modal',
+                    // appendTo: parentElem,
+                    resolve: {
+                        items: function() {
+                            return _defaultPass;
+                        },
+                        show: function(){
+                            return {
+                                title : "即將設定為預設密碼" + _defaultPass
+                            };
                         }
-                    });
+                    }
+                });
 
-                    modalInstance.result.then(function(selectedItem) {
-                        // console.log(selectedItem);
-                        
-                        $vm.vmData.O_CI_PW = selectedItem;
-
-                    }, function() {
-                        // $log.info('Modal dismissed at: ' + new Date());
-                    });
+                modalInstance.result.then(function(selectedItem) {
+                    // console.log(selectedItem);
                     
-                }else{
-                    toaster.danger("錯誤", "查無預設密碼，請聯絡系統管理員。");
-                    return;
-                }
-            })
+                    $vm.vmData.O_CI_PW = selectedItem;
+
+                }, function() {
+                    // $log.info('Modal dismissed at: ' + new Date());
+                });
+                
+            }else{
+                toaster.danger("錯誤", "查無預設密碼，請聯絡系統管理員。");
+                return;
+            }
         },
         Return : function(){
         	ReturnToExternalManagementPage();

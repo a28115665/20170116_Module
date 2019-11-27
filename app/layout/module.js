@@ -21,6 +21,17 @@ angular.module('app.layout', ['ui.router'])
                 // 預防網頁不斷重新整理且其他resolve執行速度快於stateChangeStart的session抓取
                 reLoadSession : function(AuthApi){
                     return AuthApi.ReLoadSession();
+                },
+                // 系統參數
+                sysParm : function($rootScope, RestfulApi){
+                    return RestfulApi.SearchMSSQLData({
+                        querymain: 'account',
+                        queryname: 'SelectSysParm'
+                    }).then(function(res){
+                        // console.log(res);
+                        $rootScope.sysParm = res["returnData"][0];
+                        return res["returnData"][0];
+                    });
                 }
             }
         })

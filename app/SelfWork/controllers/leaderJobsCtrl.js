@@ -1,6 +1,6 @@
 "use strict";
 
-angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, uiGridConstants, RestfulApi, compy, opType, userInfoByGrade, $filter, $q, ToolboxApi) {
+angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, uiGridConstants, RestfulApi, compy, opType, userInfoByGrade, $filter, $q, ToolboxApi, sysParm) {
     
     var $vm = this,
         _tasks = [];
@@ -925,15 +925,17 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
     };
 
     function LoadParm(){
-        RestfulApi.SearchMSSQLData({
-            querymain: 'leaderJobs',
-            queryname: 'SelectParm'
-        }).then(function (res){
-            console.log(res["returnData"]);
-            if(res["returnData"].length > 0){
-                $vm.parmData = res["returnData"][0];
-            }
-        });  
+        // RestfulApi.SearchMSSQLData({
+        //     querymain: 'leaderJobs',
+        //     queryname: 'SelectParm'
+        // }).then(function (res){
+        //     console.log(res["returnData"]);
+        //     if(res["returnData"].length > 0){
+        //         $vm.parmData = res["returnData"][0];
+        //     }
+        // });  
+
+        $vm.parmData = sysParm;
     };
 
 })

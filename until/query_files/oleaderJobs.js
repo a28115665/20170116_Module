@@ -373,10 +373,10 @@ module.exports = function(pQueryname, pParams){
 						ORDER BY O_OL_CR_DATETIME DESC";
 			break;
 
-		case "SelectParm":
-			_SQLCommand = "SELECT O_SPA_AUTOPRIN \
-						   FROM SYS_PARM";
-			break;
+		// case "SelectParm":
+		// 	_SQLCommand = "SELECT O_SPA_AUTOPRIN \
+		// 				   FROM SYS_PARM";
+		// 	break;
 
 		case "SelectOOrderSupplement":
 			_SQLCommand += "SELECT * \
