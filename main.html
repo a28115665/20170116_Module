@@ -4,7 +4,7 @@
 	
 		<meta charset="utf-8">
 		<!-- <title> SmartAdmin (AngularJS)</title> -->
-		<title ng-bind="sysParm.SPA_HEADER"> </title>
+		<title>{{sysParm.SPA_HEADER}}</title>
 		<meta name="description" content="">
 		<meta name="author" content="">
 
@@ -123,7 +123,7 @@
 	<body data-smart-device-detect
 		data-smart-fast-click
 		data-smart-layout
-		data-smart-page-title="sysParm.SPA_HEADER">
+		data-smart-page-title="{{sysParm.SPA_HEADER}}">
 
 		<toaster-container toaster-options="{'time-out': 3000, 'close-button':true, 'position-class': 'toast-bottom-right'}"></toaster-container>
 

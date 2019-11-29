@@ -23,7 +23,8 @@ angular.module('app')
                             // setTimeout(logout, 1000);
                             AuthApi.Logout().then(function (res){
                                 // console.log(res);
-                                $state.transitionTo("login");
+                                // $state.transitionTo("login");
+                                $state.reload();
                             });
                         }
                     });
