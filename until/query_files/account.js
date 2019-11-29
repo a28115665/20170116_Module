@@ -45,7 +45,13 @@ module.exports = function(pQueryname, pParams){
 								SPA_HEADER, \
 								SPA_HEADER_PNG, \
 								SPA_AVATARS, \
-								SPA_FOOTER \
+								SPA_FOOTER, \
+								SPA_LOGIN_LOGO, \
+								SPA_LOGIN_LOGO1_TXT, \
+								SPA_LOGIN_LOGO2_TXT, \
+								SPA_LOGIN_LOGO_BG, \
+								SPA_LOGIN_BOTTOM1, \
+								SPA_LOGIN_BOTTOM2 \
 							FROM SYS_PARM ";
 			break;
 	}

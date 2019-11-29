@@ -13,15 +13,15 @@
 /*
     Login Style
  */
-.txt-east-style {
+.txt-logo1-style {
     color: #006137!important;
     font-weight:bold;
 }
-.txt-wind-style {
+.txt-logo2-style {
     color: #b5b5b5!important;
     font-weight:bold;
 }
-.txt-express-style {
+.txt-logo3-style {
     color: #e37e12!important;
     font-weight:bold;
     position: relative;
@@ -31,7 +31,7 @@
 .login-form {
     box-shadow: 4px 4px 12px 4px rgba(20%,20%,40%,0.5);
 }
-.bg-color-ews-green {
+.login-form-bg-color {
     background-color: #abcc04!important;
 }
 

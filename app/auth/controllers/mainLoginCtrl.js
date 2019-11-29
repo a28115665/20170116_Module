@@ -1,6 +1,18 @@
 "use strict";
 
-angular.module('app.auth').controller('MainLoginCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster) {
+angular.module('app.auth').controller('MainLoginCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, RestfulApi) {
+
+    var $vm = this;
+
+    $vm.Init = function(){
+        RestfulApi.SearchMSSQLData({
+            querymain: 'account',
+            queryname: 'SelectSysParm'
+        }).then(function(res){
+            // console.log('sysParm:', res);
+            $scope.sysParm = res["returnData"][0];
+        });
+    }
 
     // console.log(Session.Get());
     $scope.Login = function($vm){

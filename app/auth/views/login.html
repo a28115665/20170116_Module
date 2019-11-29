@@ -1,27 +1,28 @@
 <header id="header"  class="animated fadeInDown" >
 
     <div id="logo-group">
-        <span id="logo"> <img src="styles/img/ews/title_logo.png" alt="東風管理系統"> </span>
+        <!-- <span id="logo"> <img src="styles/img/ews/title_logo.png" alt="東風管理系統"> </span> -->
+        <span id="logo"> <img src="{{sysParm.SPA_HEADER_PNG}}" alt="{{sysParm.SPA_HEADER}}"> </span>
     </div>
 
     <!-- <span id="extr-page-header-space"> <span class="hidden-mobile hiddex-xs">Need an account?</span> <a
            ui-sref="register" class="btn btn-danger">Create account</a> </span> -->
 
 </header>
-<div id="main" role="main"  class="animated fadeInDown" >
+<div id="main" role="main"  class="animated fadeInDown" ng-init="$vm.Init()">
 
     <div id="content" class="container">
         <div class="row">
             <div class="col-xs-12 col-sm-12 col-md-7 col-lg-8 hidden-xs hidden-sm">
                 <h1 class="login-header-big">
-                    <img src="styles/img/ews/ewms-logo.png">
-                    <span class="txt-east-style">EΛST</span>
-                    <span class="txt-wind-style">WIND</span>
+                    <img src="{{sysParm.SPA_LOGIN_LOGO}}">
+                    <span class="txt-logo1-style">{{sysParm.SPA_LOGIN_LOGO1_TXT}}</span>
+                    <span class="txt-logo2-style">{{sysParm.SPA_LOGIN_LOGO2_TXT}}</span>
                 </h1>
 
-                <div class="hero shine-style" style="background-image: url('styles/img/ews/pic01.png'); background-position: 0 0">
+                <div class="hero shine-style" style="background-image: url('{{sysParm.SPA_LOGIN_LOGO_BG}}'); background-position: 0 0">
                     <div class="pull-left login-desc-box-l">
-                        <h4 class="txt-express-style">
+                        <h4 class="txt-logo3-style">
                             EXPRESS
                         </h4>
 
@@ -34,10 +35,10 @@
                 </div>
                 <div class="row">
                     <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-                        <h5 class="about-heading">東風物流貨運承攬有限公司</h5>
+                        <h5 class="about-heading">{{sysParm.SPA_LOGIN_BOTTOM1}}</h5>
 
                         <p>
-                            Copyright © 2017 DONG-FENG EXPRESS CO.,LTD. All rights reserved
+                            {{sysParm.SPA_LOGIN_BOTTOM2}}
                         </p>
                     </div>
                     <!-- <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
@@ -65,7 +66,7 @@
                           name="loginform"
                           class="smart-form client-form login-form"  data-smart-validate-form
                           ng-submit="loginform.$valid && Login($vm)">
-                        <header class="bg-color-ews-green txt-color-white">
+                        <header class="login-form-bg-color txt-color-white">
                             登入
                         </header>
                         <fieldset>

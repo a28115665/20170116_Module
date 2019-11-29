@@ -141,7 +141,14 @@ module.exports = function(pQueryname, pParams){
 								FROM ( \
 									SELECT * \
 									FROM O_ITEM_LIST \
+									LEFT JOIN O_PULL_GOODS ON \
+									O_IL_SEQ = O_PG_SEQ AND \
+									O_IL_SMALLNO = O_PG_SMALLNO AND \
+									O_IL_NEWSMALLNO = O_PG_NEWSMALLNO \
 									WHERE O_IL_SEQ = @O_IL_SEQ \
+									/*拉貨不算*/ \
+									AND O_PG_SEQ IS NULL \
+									AND O_IL_G1 NOT IN ('G1', 'X3', '移倉') \
 								) O_ITEM_LIST \
 								GROUP BY O_IL_NEWSENDENAME, O_IL_GETNO \
 								HAVING COUNT(1) > 1 \

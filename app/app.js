@@ -162,16 +162,19 @@ angular.module('app', [
 
         console.log(toState, toParams, fromState, fromParams);
 
-        AuthApi.ReLoadSession().then(function(res){
-            // 表示逾時
-            if(angular.isUndefined(res["returnData"])){
+        if(toState.name != "login"){
+            AuthApi.ReLoadSession().then(function(res){
+                // console.log(res);
+                // 表示逾時
+                if(angular.isUndefined(res["returnData"])){
+                    $state.transitionTo("login");
+                    // event.preventDefault(); 
+                }
+            }, function(err){
+                // 失敗
                 $state.transitionTo("login");
-                // event.preventDefault(); 
-            }
-        }, function(err){
-            // 失敗
-            $state.transitionTo("login");
-        });
+            });
+        }
 
     });
 

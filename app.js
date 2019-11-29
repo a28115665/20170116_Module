@@ -61,7 +61,7 @@ Object.defineProperty(global, '__line', {
 var authChecker = function(req, res, next) {
     // 由前端檢查session
     let _id = until.FindID(req.session);
-    
+
     if(_id == null){
         // res.status(403).json({
         //     "returnData": '尚無權限'
@@ -112,17 +112,17 @@ app.use('/restful', restful);
 app.get('/restful', protected);
 app.use('/toolbox', toolbox);
 app.get('/toolbox', protected);
-// app.get('/favicon.ico', function(req, res) {
-//     res.sendStatus(204);
-// });
+app.get('/favicon.ico', function(req, res) {
+    res.sendStatus(204);
+});
 app.get('*', function(req, res) { 
-    console.log(req.path);
+    // console.log(req.path);
     // console.log(404);
     res.sendFile('404.html', { root: path.join(__dirname, 'public') }, function (err) {
         if (err) {
             console.log(err);
         } else {
-            console.log('Send:', '404.html');
+            // console.log('進入非法路徑'+req.path+', 給予404畫面');
         }
     });
     // res.sendfile('../public/404.html');
@@ -130,7 +130,6 @@ app.get('*', function(req, res) {
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
-    console.log(1)
     var err = new Error('Not Found');
     err.status = 404;
     next(err);
@@ -153,7 +152,6 @@ if (app.get('env') === 'development') {
 // production error handler
 // no stacktraces leaked to user
 app.use(function(err, req, res, next) {
-    console.log(2)
     res.status(err.status || 500);
     // res.render('error', {
     //     message: err.message,

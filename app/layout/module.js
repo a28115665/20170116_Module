@@ -28,7 +28,7 @@ angular.module('app.layout', ['ui.router'])
                         querymain: 'account',
                         queryname: 'SelectSysParm'
                     }).then(function(res){
-                        // console.log(res);
+                        // console.log('sysParm:', res);
                         $rootScope.sysParm = res["returnData"][0];
                         return res["returnData"][0];
                     });
