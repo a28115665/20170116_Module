@@ -29,6 +29,8 @@ var TransactionBegin = function(args, callback){
 		args["transaction"] = transaction;
 		// 回傳結果
 		args["result"] = [];
+		// 任務條件
+		args["tasks"] = [];
 		// SQL Statement
 		args["statement"] = [];
 		if(err) callback(err, {});
@@ -67,6 +69,7 @@ var SelectRequestWithTransaction = function(task, args, callback) {
 
 	requestSql(request, SQLCommand, task.params, function(err, ret, sql) {
 		args.result.push(ret);
+		args.tasks.push(task);
 		args.statement.push(sql);
 		if(err) callback(err, args);
 		else callback(null, args);
@@ -113,8 +116,11 @@ var InsertRequestWithTransaction = function(task, args, callback) {
 			if(SQLCommand.match(/@CI_PW/gi)){
 				SQLCommand = SQLCommand.replace(/@CI_PW/gi, 'dbo.Encrypt(@CI_PW)');
 			}
+			if(SQLCommand.match(/@O_CI_PW/gi)){
+				SQLCommand = SQLCommand.replace(/@O_CI_PW/gi, 'dbo.Encrypt(@O_CI_PW)');
+			}
 			if(SQLCommand.match(/@MA_PASS/gi)){
-				SQLCommand = SQLCommand.replace(/@CI_PW/gi, 'dbo.Encrypt(@CI_PW)');
+				SQLCommand = SQLCommand.replace(/@MA_PASS/gi, 'dbo.Encrypt(@MA_PASS)');
 			}
 			
 			break;
@@ -133,6 +139,7 @@ var InsertRequestWithTransaction = function(task, args, callback) {
 
 	requestSql(request, SQLCommand, task.params, function(err, ret, sql) {
 		args.result.push(ret);
+		args.tasks.push(task);
 		args.statement.push(sql);
 		if(err) callback(err, args);
 		else callback(null, args);
@@ -174,9 +181,8 @@ var UpdateRequestWithTransaction = function(task, args, callback) {
 			for(var key in task.params){
 				switch(key){
 					case 'U_PW':
-						Schema.push(key + "=dbo.Encrypt(@" + key + ")");
-						break;
 					case 'CI_PW':
+					case 'O_CI_PW':
 						Schema.push(key + "=dbo.Encrypt(@" + key + ")");
 						break;
 					default:
@@ -217,6 +223,7 @@ var UpdateRequestWithTransaction = function(task, args, callback) {
 	
 	requestSql(request, SQLCommand, psParams, function(err, ret, sql) {
 		args.result.push(ret);
+		args.tasks.push(task);
 		args.statement.push(sql);
 		if(err) callback(err, args);
 		else callback(null, args);
@@ -245,6 +252,15 @@ var DeleteRequestWithTransaction = function(task, args, callback) {
 			}
 			
 			break;
+		case "DeleteOOrderPrinplWithEditor":
+
+			if(task.params["O_OP_SEQ"] !== undefined && task.params["O_OP_DEPT"] !== undefined){
+				SQLCommand += "DELETE "+tables[task.table]+" FROM "+tables[task.table]+" \
+							   LEFT JOIN O_ORDER_EDITOR ON O_OE_SEQ = O_OP_SEQ AND O_OE_TYPE = O_OP_TYPE AND O_OE_PRINCIPAL = O_OP_PRINCIPAL \
+							   WHERE O_OP_SEQ = @O_OP_SEQ AND O_OP_DEPT = @O_OP_DEPT AND O_OE_EDATETIME IS NULL";
+			}
+			
+			break;
 		default:
 			for(var key in task.params){
 				if(task.params[key] == null){
@@ -263,6 +279,7 @@ var DeleteRequestWithTransaction = function(task, args, callback) {
 	
 	requestSql(request, SQLCommand, task.params, function(err, ret, sql) {
 		args.result.push(ret);
+		args.tasks.push(task);
 		args.statement.push(sql);
 		if(err) callback(err, args);
 		else callback(null, args);
@@ -340,6 +357,7 @@ var UpsertRequestWithTransaction = function(task, args, callback) {
 	
 	requestSql(request, SQLCommand, psParams, function(err, ret, sql) {
 		args.result.push(ret);
+		args.tasks.push(task);
 		args.statement.push(sql);
 		if(err) callback(err, args);
 		else callback(null, args);
@@ -369,6 +387,7 @@ var CopyRequestWithTransaction = function(task, args, callback) {
 	
 	requestSql(request, SQLCommand, task.params, function(err, ret, sql) {
 		args.result.push(ret);
+		args.tasks.push(task);
 		args.statement.push(sql);
 		if(err) callback(err, args);
 		else callback(null, args);

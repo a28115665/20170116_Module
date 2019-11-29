@@ -27,8 +27,16 @@ angular.module('app')
             }
         ),
         CRUDBYTASK : $resource('/restful/crudByTask'),
-        LOGIN : $resource('/auth/login'),
-        LOGOUT : $resource('/auth/logout'),
+        LOGIN : $resource('/auth/login', null, 
+            {
+                'insert': { method: 'POST' }
+            }
+        ),
+        LOGOUT : $resource('/auth/logout', null, 
+            {
+                'insert': { method: 'POST' }
+            }
+        ),
         VERSION : $resource('/auth/version'),
         RELOADSESSION : $resource('/auth/reLoadSession'),
         EXPORTEXCELBYVAR : $resource('/toolbox/exportExcelByVar', null, 
@@ -86,15 +94,20 @@ angular.module('app')
         SENDMAIL : $resource('/toolbox/sendMail'),
         CHANGENATURE : $resource('/toolbox/changeNature'),
         DOTAX : $resource('/toolbox/doTax'),
+        CHANGEONATURE : $resource('/toolbox/changeONature'),
         COMPOSEMENU : $resource('/toolbox/composeMenu')
     };
 })
 .factory('SysCode', SysCodeResolve)
 .factory('Compy', CompyResolve)
+.factory('OCompy', OCompyResolve)
 .factory('UserGrade', UserGradeResolve)
 .factory('UserInfoByGrade', UserInfoByGradeResolve)
 .factory('UserInfoByCompyDistribution', UserInfoByCompyDistributionResolve)
+.factory('UserInfoByOCompyDistribution', UserInfoByOCompyDistributionResolve)
 .factory('UserInfo', UserInfoResolve)
+// 伺服器連線狀況
+.factory('ServiceStopModal', ServiceStopModalResolve)
 // 航班貨況
 .factory('OrderStatus', function ($window, toaster) {
 

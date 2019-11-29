@@ -1,6 +1,6 @@
 "use strict";
 
-angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, uiGridConstants, RestfulApi, compy, opType, userInfoByGrade, $filter, $q, ToolboxApi) {
+angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, uiGridConstants, RestfulApi, compy, opType, userInfoByGrade, $filter, $q, ToolboxApi, sysParm) {
     
     var $vm = this,
         _tasks = [];
@@ -288,7 +288,7 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
         orderListOptions : {
             data:  '$vm.vmData',
             columnDefs: [
-                { name: 'OL_SUPPLEMENT_COUNT'    ,  displayName: '補件', width: 50, cellTemplate: $templateCache.get('accessibilityToSuppleMent') },
+                { name: 'OL_SUPPLEMENT_COUNT'    ,  displayName: '補件', width: 65, cellTemplate: $templateCache.get('accessibilityToSuppleMent') },
                 { name: 'OL_IMPORTDT' ,  displayName: '進口日期', cellFilter: 'dateFilter' },
                 { name: 'OL_REAL_IMPORTDT' ,  displayName: '報機日期', cellFilter: 'dateFilter', cellTooltip: function (row, col) 
                     {
@@ -383,7 +383,7 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
                         SPA_AUTOPRIN : $vm.parmData['SPA_AUTOPRIN']
                     },
                     condition: {
-                        SPA_KEY : 'eastwind168'
+                        SPA_KEY : 'systemParameter'
                     }
                 }).then(function (res) {
                     
@@ -402,6 +402,7 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
             AssignOptype();
             LoadOrderList();
             LoadPrincipal();
+            SetHeaderClass();
         },
         CustomizeAssign : function(){
             if($vm.orderListGridApi.selection.getSelectedRows().length > 0){
@@ -502,6 +503,13 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
                         });
                     }
                 }
+                
+                $vm.orderListGridApi.selection.clearSelectedRows();
+
+                if(_tasks.length == 0){
+                    toaster.pop('info', '訊息', '沒有需要結單的項目', 3000);
+                    return;
+                }
 
                 RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res) {
                     LoadOrderList();
@@ -510,7 +518,6 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
 
                 });
 
-                $vm.orderListGridApi.selection.clearSelectedRows();
             }
         },
         CancelPrincipal : function(){
@@ -574,7 +581,7 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
             RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res){
                 promise.resolve();
             }, function (err) {
-                toaster.pop('danger', '錯誤', '更新失敗', 3000);
+                toaster.pop('error', '錯誤', '更新失敗', 3000);
                 promise.reject();
             }).finally(function(){
                 if($vm.orderListGridApi.rowEdit.getDirtyRows().length == 0){
@@ -871,6 +878,9 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
             case "W1":
                 $vm.selectAssignOptype = "D";
                 break;
+            default:
+                $vm.selectAssignOptype = null;
+                break;
         }
     };
 
@@ -915,15 +925,17 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
     };
 
     function LoadParm(){
-        RestfulApi.SearchMSSQLData({
-            querymain: 'leaderJobs',
-            queryname: 'SelectParm'
-        }).then(function (res){
-            console.log(res["returnData"]);
-            if(res["returnData"].length > 0){
-                $vm.parmData = res["returnData"][0];
-            }
-        });  
+        // RestfulApi.SearchMSSQLData({
+        //     querymain: 'leaderJobs',
+        //     queryname: 'SelectParm'
+        // }).then(function (res){
+        //     console.log(res["returnData"]);
+        //     if(res["returnData"].length > 0){
+        //         $vm.parmData = res["returnData"][0];
+        //     }
+        // });  
+
+        $vm.parmData = sysParm;
     };
 
 })

@@ -1,6 +1,6 @@
 "use strict";
 
-angular.module('app.settings').controller('AccountCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, RestfulApi, $filter, bool, role, userGrade, $templateCache) {
+angular.module('app.settings').controller('AccountCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, RestfulApi, $filter, bool, role, userGrade, $templateCache, sysParm) {
 
     var $vm = this,
         _tasks = [];
@@ -29,38 +29,48 @@ angular.module('app.settings').controller('AccountCtrl', function ($scope, $stat
         gradeData : userGrade,
         ForgetPW : function(){
 
-            var _defaultPass = "Eastwind@168";
-
-            var modalInstance = $uibModal.open({
-                animation: true,
-                ariaLabelledBy: 'modal-title',
-                ariaDescribedBy: 'modal-body',
-                template: $templateCache.get('isChecked'),
-                controller: 'IsCheckedModalInstanceCtrl',
-                controllerAs: '$ctrl',
-                size: 'sm',
-                windowClass: 'center-modal',
-                // appendTo: parentElem,
-                resolve: {
-                    items: function() {
-                        return _defaultPass;
-                    },
-                    show: function(){
-                        return {
-                            title : "即將設定為預設密碼" + _defaultPass
-                        };
-                    }
-                }
-            });
-
-            modalInstance.result.then(function(selectedItem) {
-                // console.log(selectedItem);
+            // var _defaultPass = "Eastwind@168";
+            console.log(sysParm);
                 
-                $vm.vmData.U_PW = selectedItem;
+            var _defaultPass = sysParm.SPA_DEFAULT_PASSWORD;
 
-            }, function() {
-                // $log.info('Modal dismissed at: ' + new Date());
-            });
+            if(_defaultPass){
+
+                var modalInstance = $uibModal.open({
+                    animation: true,
+                    ariaLabelledBy: 'modal-title',
+                    ariaDescribedBy: 'modal-body',
+                    template: $templateCache.get('isChecked'),
+                    controller: 'IsCheckedModalInstanceCtrl',
+                    controllerAs: '$ctrl',
+                    size: 'sm',
+                    windowClass: 'center-modal',
+                    // appendTo: parentElem,
+                    resolve: {
+                        items: function() {
+                            return _defaultPass;
+                        },
+                        show: function(){
+                            return {
+                                title : "即將設定為預設密碼" + _defaultPass
+                            };
+                        }
+                    }
+                });
+
+                modalInstance.result.then(function(selectedItem) {
+                    // console.log(selectedItem);
+                    
+                    $vm.vmData.U_PW = selectedItem;
+
+                }, function() {
+                    // $log.info('Modal dismissed at: ' + new Date());
+                });
+
+            }else{
+                toaster.danger("錯誤", "查無預設密碼，請聯絡系統管理員。");
+                return;
+            }
 
         	// var modalInstance = $uibModal.open({
          //        animation: true,
@@ -283,9 +293,9 @@ angular.module('app.settings').controller('AccountCtrl', function ($scope, $stat
             // 把已被選取的帳號打勾
             $timeout(function() {
                 if($ctrl.mdDataGridApi.selection.selectRow){
-                    // console.log($ctrl.vmData["UserGroup"]);
+                    // console.log($ctrl.vmData["UserDept"][i].SUD_DEPT);
                     for(var i in $ctrl.vmData["UserDept"]){
-                        $ctrl.mdDataGridApi.selection.selectRow($filter('filter')($ctrl.mdData, {SUD_DEPT: $ctrl.vmData["UserDept"][i].SUD_DEPT})[0]);
+                        $ctrl.mdDataGridApi.selection.selectRow($filter('filter')($ctrl.mdData, {SUD_DEPT: $ctrl.vmData["UserDept"][i].SUD_DEPT}, true)[0]);
                     }
                 }
             });

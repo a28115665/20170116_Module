@@ -65,7 +65,7 @@ angular.module('app')
                         </div>');
 
     $templateCache.put('accessibilityToVForPullGoods', '\
-                        <div class="ui-grid-cell-contents text-center">\
+                        <div class="ui-grid-cell-contents">\
                             <a href="javascript:void(0);" class="btn btn-info btn-xs" ng-click="grid.appScope.$vm.gridMethodForPullGoods.viewData(row)"> 原因</a>\
                             <a href="javascript:void(0);" class="btn btn-primary btn-xs" ng-click="grid.appScope.$vm.gridMethodForPullGoods.detailData(row)"> 明細</a>\
                       </div>');
@@ -95,7 +95,7 @@ angular.module('app')
             				<a href="javascript:void(0);" class="btn btn-primary btn-xs" ng-click="grid.appScope.$vm.gridMethod.closeData(row)" ng-disabled="row.entity.g"> 完成</a>\
                         </div>');
     $templateCache.put('accessibilityToOperaForJob001', '\
-                    <div class="ui-grid-cell-contents text-center">\
+                    <div class="ui-grid-cell-contents">\
                         <a href="javascript:void(0);" class="btn btn-success btn-xs" ng-click="grid.appScope.$vm.gridMethod.gridOperation(row, \'報機單\')"> 工作選項</a>\
                     </div>');
     $templateCache.put('accessibilityToOperaForJob002', '\
@@ -125,6 +125,13 @@ angular.module('app')
                         <button class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethod.specialGoods(row)" ng-if="row.entity.SPG_SPECIALGOODS == 1"> 普特貨</button>\
                         <button class="btn btn-success btn-xs" ng-click="grid.appScope.$vm.gridMethod.specialGoods(row)" ng-if="row.entity.SPG_SPECIALGOODS == 2"> 特特貨</button>\
    		  		    </div>');
+    $templateCache.put('accessibilityToOJob001', '\
+                    <div class="ui-grid-cell-contents">\
+                        <button class="btn btn-primary btn-xs" ng-click="grid.appScope.$vm.gridMethod.pullGoods(row)" ng-class="row.entity.O_PG_PULLGOODS ? \'disabled\' : \'\'"> 拉貨</button>\
+                        <button class="btn btn-default btn-xs" ng-click="grid.appScope.$vm.gridMethod.specialGoods(row)" ng-if="row.entity.O_SPG_SPECIALGOODS == 0"> 特貨</button>\
+                        <button class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethod.specialGoods(row)" ng-if="row.entity.O_SPG_SPECIALGOODS == 1"> 普特貨</button>\
+                        <button class="btn btn-success btn-xs" ng-click="grid.appScope.$vm.gridMethod.specialGoods(row)" ng-if="row.entity.O_SPG_SPECIALGOODS == 2"> 特特貨</button>\
+                    </div>');
 
     $templateCache.put('accessibilityToExportExcelStaus', '\
                         <div class="my-ui-grid-cell-contents">\
@@ -181,7 +188,7 @@ angular.module('app')
                             <a href="javascript:void(0);" class="btn btn-danger btn-xs" ng-click="grid.appScope.$vm.gridMethod.deleteData(row)"> {{$parent.$root.getWord(\'Delete\')}}</a>\
                         </div>');
     $templateCache.put('accessibilityToM', '\
-                        <div class="ui-grid-cell-contents text-center">\
+                        <div class="ui-grid-cell-contents">\
                             <a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethod.modifyData(row)"> {{$parent.$root.getWord(\'Modify\')}}</a>\
                         </div>');
     $templateCache.put('accessibilityToD', '\
@@ -194,6 +201,13 @@ angular.module('app')
                             <i class="fa fa-circle text-warning" title="{{row.entity.W2_PRINCIPAL | userInfoFilter}}" ng-if="row.entity.W2_STATUS == \'2\' && row.entity.OL_COUNT > 0"> </i> \
                             <i class="fa fa-circle text-success" title="{{row.entity.W2_PRINCIPAL | userInfoFilter}}" ng-if="row.entity.W2_STATUS == \'3\' && row.entity.OL_COUNT > 0"> </i> \
                             <i class="fa fa-circle txt-color-magenta" title="{{row.entity.W2_PRINCIPAL | userInfoFilter}}" ng-if="row.entity.W2_STATUS == \'4\' && row.entity.OL_COUNT > 0"> </i> \
+                        </div>');
+    $templateCache.put('accessibilityToForOW2', '\
+                        <div class="ui-grid-cell-contents text-center">\
+                            <i class="fa fa-circle-o" title="{{row.entity.OW2_PRINCIPAL | userInfoFilter}}" ng-if="row.entity.OW2_STATUS == \'1\' && row.entity.O_OL_COUNT > 0"> </i> \
+                            <i class="fa fa-circle text-warning" title="{{row.entity.OW2_PRINCIPAL | userInfoFilter}}" ng-if="row.entity.OW2_STATUS == \'2\' && row.entity.O_OL_COUNT > 0"> </i> \
+                            <i class="fa fa-circle text-success" title="{{row.entity.OW2_PRINCIPAL | userInfoFilter}}" ng-if="row.entity.OW2_STATUS == \'3\' && row.entity.O_OL_COUNT > 0"> </i> \
+                            <i class="fa fa-circle txt-color-magenta" title="{{row.entity.OW2_PRINCIPAL | userInfoFilter}}" ng-if="row.entity.OW2_STATUS == \'4\' && row.entity.O_OL_COUNT > 0"> </i> \
                         </div>');
     $templateCache.put('accessibilityToForW3', '\
                         <div class="ui-grid-cell-contents text-center">\
@@ -216,6 +230,11 @@ angular.module('app')
                             <i class="fa fa-plane text-warning" ng-if="row.entity.OL_FLLSTATUS == 1"> </i> \
                             <i class="fa fa-plane text-success" ng-if="row.entity.OL_FLLSTATUS == 2"> </i> \
                         </div>');
+    $templateCache.put('accessibilityToForOUpload', '\
+                        <div class="my-ui-grid-cell-contents text-center">\
+                            <i class="fa fa-ship text-warning" ng-if="row.entity.O_OL_ILSTATUS == 1"> </i> \
+                            <i class="fa fa-ship text-success" ng-if="row.entity.O_OL_ILSTATUS == 2"> </i> \
+                        </div>');
     $templateCache.put('accessibilityToDMCForLeader', '\
                         <div class="ui-grid-cell-contents text-center">\
                             <!-- <a href="javascript:void(0);" class="btn btn-danger btn-xs" ng-click="grid.appScope.$vm.gridMethod.deleteData(row)"> 刪除</a> -->\
@@ -224,14 +243,29 @@ angular.module('app')
                             <!-- <a href="javascript:void(0);" class="btn btn-primary btn-xs" ng-click="grid.appScope.$vm.gridMethod.closeData(row)" ng-class="(row.entity.W1_STATUS == \'3\' && row.entity.W2_STATUS == \'3\' && row.entity.W3_STATUS == \'3\') ? \'\' : \'disabled\'"> 結單</a> -->\
                             <button type="button" class="btn btn-primary btn-xs" ng-click="grid.appScope.$vm.gridMethod.closeData(row)" ng-class="(row.entity.W2_STATUS == \'3\' || row.entity.W2_STATUS == \'4\' || row.entity.W3_STATUS == \'3\' || row.entity.W3_STATUS == \'4\') ? \'\' : \'disabled\'"> 結單</button>\
                         </div>');
+    $templateCache.put('accessibilityToDMCForOLeader', '\
+                        <div class="ui-grid-cell-contents">\
+                            <button type="button" class="btn btn-danger btn-xs" ng-click="grid.appScope.$vm.gridMethod.gridOperation(row)"> 刪除</button>\
+                            <button type="button" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethod.modifyData(row)"> 修改</button>\
+                            <button type="button" class="btn btn-primary btn-xs" ng-click="grid.appScope.$vm.gridMethod.closeData(row)" ng-class="grid.appScope.$vm.OrderListOptionClass(row.entity)"> 結單</button>\
+                        </div>');
     $templateCache.put('accessibilityToMForLeaderSearch', '\
                         <div class="ui-grid-cell-contents text-center">\
                             <a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethod.modifyData(row)"> 修改</a>\
                             <a href="javascript:void(0);" class="btn btn-danger btn-xs" ng-click="grid.appScope.$vm.gridMethod.releaseData(row)" ng-if="grid.appScope.$vm.profile.U_GRADE < 10" ng-class="{\'disabled\' : row.entity.OL_FDATETIME == null}"> 解案</a>\
                         </div>');
+    $templateCache.put('accessibilityToMForOLeaderSearch', '\
+                        <div class="ui-grid-cell-contents text-center">\
+                            <a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethod.modifyData(row)"> 修改</a>\
+                            <a href="javascript:void(0);" class="btn btn-danger btn-xs" ng-click="grid.appScope.$vm.gridMethod.releaseData(row)" ng-if="grid.appScope.$vm.profile.U_GRADE < 10" ng-class="{\'disabled\' : row.entity.O_OL_FDATETIME == null}"> 解案</a>\
+                        </div>');
     $templateCache.put('accessibilityToEdited', '\
                         <div class="ui-grid-cell-contents text-center">\
                             <i class="fa fa-check text-primary" ng-if="row.entity.OE_EDATETIME != null"> </i> \
+                        </div>');
+    $templateCache.put('accessibilityToOEdited', '\
+                        <div class="ui-grid-cell-contents text-center">\
+                            <i class="fa fa-check text-primary" ng-if="row.entity.O_OE_EDATETIME != null"> </i> \
                         </div>');
     $templateCache.put('accessibilityToHistoryCount', '\
                         <div class="ui-grid-cell-contents text-center">\
@@ -335,6 +369,120 @@ angular.module('app')
                             <button class="btn btn-primary" type="button" ng-click="$ctrl.ok()" ng-disabled="!modifyForm.$valid">{{getWord(\'OK\')}}</button> \
                             <button class="btn btn-default" type="button" ng-click="$ctrl.cancel()">{{getWord(\'Cancel\')}}</button> \
                         </div>');
+
+    $templateCache.put('modifyOOrderList', '\
+                        <div class="modal-header"> \
+                            <h3 class="modal-title" id="modal-title">修改</h3> \
+                        </div> \
+                        <div class="modal-body" id="modal-body"> \
+                            <form class="form-horizontal" name="modifyForm"> \
+                                <fieldset> \
+                                    <div class="form-group"> \
+                                        <label class="col-md-3 control-label">報機日期</label> \
+                                        <div class="col-md-9"> \
+                                            <input class="form-control" name="O_OL_IMPORTDT" type="text" ng-model="$ctrl.mdData.O_OL_IMPORTDT" ui-mask="9999-99-99" ui-mask-placeholder ui-mask-placeholder-char="_" placeholder="請輸入報機日期 (西元 年-月-日)" model-view-value="true"/> \
+                                        </div> \
+                                    </div> \
+                                    <div class="form-group"> \
+                                        <label class="col-md-3 control-label"><code>*</code>行家</label> \
+                                        <div class="col-md-9"> \
+                                            <select class="form-control" name="O_OL_CO_CODE" ng-model="$ctrl.mdData.O_OL_CO_CODE" ng-options="data.value as data.label for data in $ctrl.ocompy" ng-disabled="$ctrl.compy.length == 0" required> \
+                                            </select> \
+                                        </div> \
+                                    </div> \
+                                    <div class="form-group"> \
+                                        <label class="col-md-3 control-label">主號</label> \
+                                        <div class="col-md-9"> \
+                                            <input class="form-control" name="O_OL_MASTER" placeholder="請輸入主號" model-view-value="true" ng-model="$ctrl.mdData.O_OL_MASTER" type="text"> \
+                                        </div> \
+                                    </div> \
+                                    <div class="form-group"> \
+                                        <label class="col-md-3 control-label">通關號碼</label> \
+                                        <div class="col-md-9"> \
+                                            <input class="form-control" name="O_OL_PASSCODE" ng-model="$ctrl.mdData.O_OL_PASSCODE" placeholder="請輸入海關通關號碼" type="text" maxlength="15"> \
+                                        </div> \
+                                    </div> \
+                                    <div class="form-group"> \
+                                        <label class="col-md-3 control-label">航次</label> \
+                                        <div class="col-md-9"> \
+                                            <input class="form-control" name="O_OL_VOYSEQ" ng-model="$ctrl.mdData.O_OL_VOYSEQ" placeholder="請輸入航次" type="text" maxlength="15"> \
+                                        </div> \
+                                    </div> \
+                                    <div class="form-group"> \
+                                        <label class="col-md-3 control-label">呼號</label> \
+                                        <div class="col-md-9"> \
+                                            <input class="form-control" name="O_OL_MVNO" ng-model="$ctrl.mdData.O_OL_MVNO" placeholder="請輸入呼號" type="text" maxlength="15"> \
+                                        </div> \
+                                    </div> \
+                                    <div class="form-group"> \
+                                        <label class="col-md-3 control-label">船公司代碼</label> \
+                                        <div class="col-md-9"> \
+                                            <input class="form-control" name="O_OL_COMPID" ng-model="$ctrl.mdData.O_OL_COMPID" placeholder="請輸入船公司代碼" type="text" maxlength="15"> \
+                                        </div> \
+                                    </div> \
+                                    <div class="form-group"> \
+                                        <label class="col-md-3 control-label">卸存地點</label> \
+                                        <div class="col-md-9"> \
+                                            <input class="form-control" name="O_OL_ARRLOCATIONID" ng-model="$ctrl.mdData.O_OL_ARRLOCATIONID" placeholder="請輸入卸存地點" type="text" maxlength="15"> \
+                                        </div> \
+                                    </div> \
+                                    <div class="form-group"> \
+                                        <label class="col-md-3 control-label">裝貨港</label> \
+                                        <div class="col-md-9"> \
+                                            <input class="form-control" name="O_OL_POST" placeholder="請輸入裝貨港" ng-model="$ctrl.mdData.O_OL_POST" type="text"> \
+                                        </div> \
+                                    </div> \
+                                    <div class="form-group"> \
+                                        <label class="col-md-3 control-label">暫存地點</label> \
+                                        <div class="col-md-9"> \
+                                            <input class="form-control" name="O_OL_PACKAGELOCATIONID" placeholder="請輸入暫存地點" ng-model="$ctrl.mdData.O_OL_PACKAGELOCATIONID" type="text"> \
+                                        </div> \
+                                    </div> \
+                                    <div class="form-group"> \
+                                        <label class="col-md-3 control-label">船機代碼</label> \
+                                        <div class="col-md-9"> \
+                                            <input class="form-control" ng-model="$ctrl.mdData.O_OL_BOATID" placeholder="請輸入船機代碼" type="text" maxlength="15"> \
+                                        </div> \
+                                    </div> \
+                                    <div class="form-group"> \
+                                        <label class="col-md-3 control-label">描述</label> \
+                                        <div class="col-md-9"> \
+                                            <textarea class="form-control" rows="3" maxlength="300" ng-model="$ctrl.mdData.O_OL_REASON" placeholder="字數限制 300字"></textarea> \
+                                        </div> \
+                                    </div> \
+                                </fieldset> \
+                            </form> \
+                        </div> \
+                        <div class="modal-footer"> \
+                            <button class="btn btn-primary" type="button" ng-click="$ctrl.ok()" ng-disabled="!modifyForm.$valid">{{getWord(\'OK\')}}</button> \
+                            <button class="btn btn-default" type="button" ng-click="$ctrl.cancel()">{{getWord(\'Cancel\')}}</button> \
+                        </div>');
+
+    /**
+     * [grid description] Show offline
+     * @type {String}
+     */
+    $templateCache.put('showOffline', '\
+                        <div class="modal-body text-center text-danger">\
+                            <strong>伺服器異常，{{$ctrl.progress}}秒後自動重新連線，尚還無法連線時，請聯絡系統管理員。</strong>\
+                        </div>\
+                        <style type="text/css">\
+                            .modal-content {\
+                                background-color: #ffffffde\
+                            }\
+                            .modal-backdrop {\
+                                position: fixed;\
+                                top: 0;\
+                                right: 0;\
+                                bottom: 0;\
+                                left: 0;\
+                                background-color: orange;\
+                                opacity: 0.6;\
+                                width: 100%;\
+                                height: 100%;\
+                                z-index: 1040;\
+                            }\
+                        </style>');
 })
 .controller('IsDeleteModalInstanceCtrl', function ($uibModalInstance, items) {
     var $ctrl = this;
@@ -417,6 +565,45 @@ angular.module('app')
         $uibModalInstance.dismiss('cancel');
     };
 })
+
+.controller('ModifyOOrderListModalInstanceCtrl', function ($uibModalInstance, vmData, ocompy, RestfulApi) {
+    var $ctrl = this;
+
+    $ctrl.mdData = angular.copy(vmData);
+    $ctrl.ocompy = ocompy;
+
+    $ctrl.ok = function() {
+        // 改為大寫
+        if($ctrl.mdData.O_OL_PASSCODE != null){
+            $ctrl.mdData.O_OL_PASSCODE = $ctrl.mdData.O_OL_PASSCODE.toUpperCase();
+        }
+        if($ctrl.mdData.O_OL_MASTER != null){
+            $ctrl.mdData.O_OL_MASTER = $ctrl.mdData.O_OL_MASTER.toUpperCase();
+        }
+        if($ctrl.mdData.O_OL_MVNO != null){
+            $ctrl.mdData.O_OL_MVNO = $ctrl.mdData.O_OL_MVNO.toUpperCase();
+        }
+        if($ctrl.mdData.O_OL_COMPID != null){
+            $ctrl.mdData.O_OL_COMPID = $ctrl.mdData.O_OL_COMPID.toUpperCase();
+        }
+        if($ctrl.mdData.O_OL_ARRLOCATIONID != null){
+            $ctrl.mdData.O_OL_ARRLOCATIONID = $ctrl.mdData.O_OL_ARRLOCATIONID.toUpperCase();
+        }
+        if($ctrl.mdData.O_OL_POST != null){
+            $ctrl.mdData.O_OL_POST = $ctrl.mdData.O_OL_POST.toUpperCase();
+        }
+        if($ctrl.mdData.O_OL_PACKAGELOCATIONID != null){
+            $ctrl.mdData.O_OL_PACKAGELOCATIONID = $ctrl.mdData.O_OL_PACKAGELOCATIONID.toUpperCase();
+        }
+
+        $ctrl.mdData.O_OL_IMPORTDT = $ctrl.mdData.O_OL_IMPORTDT == "" ? null : $ctrl.mdData.O_OL_IMPORTDT;
+        $uibModalInstance.close($ctrl.mdData);
+    };
+
+    $ctrl.cancel = function() {
+        $uibModalInstance.dismiss('cancel');
+    };
+})
 .controller('OpWorkMenuModalInstanceCtrl', function ($scope, $uibModalInstance, items) {
     var $ctrl = this;
     $ctrl.appScope = $scope.$parent.$vm;
@@ -430,4 +617,37 @@ angular.module('app')
     $ctrl.cancel = function() {
         $uibModalInstance.dismiss('cancel');
     };
-});
+})
+.controller("ShowOffline", ["$scope", "$uibModalInstance", "$interval", "$timeout", "Resource", "toaster",
+    function($scope, $uibModalInstance, $interval, $timeout, Resource, toaster) {
+        var $ctrl = this;
+        $ctrl.progress = 5;
+
+        $interval(function() {
+            // 倒數 
+            if ($ctrl.progress > 0) $ctrl.progress -= 1 
+        }, 1000);
+
+        $scope.$watch(function() {
+            return $ctrl.progress
+        }, function() {
+            // 當秒數小於0時關閉
+            if ($ctrl.progress <= 0) {
+                Resource.VERSION.get({},
+                    function (pSResponse){
+                        $timeout(function() {
+                            toaster.pop('success', "成功", "重新連線成功", 3000);
+                            $uibModalInstance.dismiss('cancel');
+                        }, 1000)
+                    },
+                    function (pFResponse){
+                        $timeout(function() {
+                            $ctrl.progress = 5;
+                        }, 1000)
+                    });
+
+            }
+        })
+
+    }
+]);

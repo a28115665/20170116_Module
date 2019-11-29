@@ -2,7 +2,6 @@ module.exports = {
     SessionCheck: function(req, res, next) {
     	console.log(req.session.key === undefined);
     	if(req.session.key === undefined) {
-    		console.log(456);
 			// res.status(500).location('/login');//.send('逾時登出');
 			// res.redirect(302, '/#/login');
 

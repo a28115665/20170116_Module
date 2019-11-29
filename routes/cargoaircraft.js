@@ -2,6 +2,8 @@ var setting = require('../app.setting.json');
 var http = require('http');
 var moment = require('moment');
 const querystring = require('querystring');
+const dbCommandByTask = require('../until/dbCommandByTask.js');
+const async = require('async');
 
 /**
  * GetCargoAircraftTime 背景不斷取得貨機起降時間
@@ -45,20 +47,24 @@ var GetCargoAircraftTime = function (){
 
 	            post_res.on('end', function(){
 	            	var upsertData = JSON.parse(content),
-	            		_conditions = [],
+	            		_conditions = 0,
 	            		_noFlightDate = 0;
-	            	console.log("航班資訊總筆數:", upsertData.length);
+	            	console.log(moment().format('YYYY-MM-DD HH:mm:ss'), ",航班資訊總筆數:", upsertData.length);
 
 	            	// 有資料再request
 	            	if(upsertData.length > 0){
+						        
+				        var tasks = [];
+				        tasks.push(dbCommandByTask.Connect);
+				        tasks.push(dbCommandByTask.TransactionBegin);
 		            	for(var i in upsertData){
 		            		// console.log("ScheduleArrivalTime=>",moment(upsertData[i].ScheduleArrivalTime).format('YYYY-MM-DD HH:mm:ss'));
 		            		// console.log("ActualArrivalTime=>",moment(upsertData[i].ActualArrivalTime).format('YYYY-MM-DD HH:mm:ss'));
 		            		// console.log("UpdateTime=>",moment(upsertData[i].UpdateTime).format('YYYY-MM-DD HH:mm:ss'));
-
+		            		
 		            		// 某些資料會沒有起飛日期
 		            		if(upsertData[i].FlightDate){
-			            		_conditions.push(JSON.stringify({
+						        tasks.push(async.apply(dbCommandByTask.UpsertRequestWithTransaction, {
 					                crudType : 'Upsert',
 									table : 23,
 					                params : {
@@ -83,104 +89,30 @@ var GetCargoAircraftTime = function (){
 										FA_AIR_LINEID : upsertData[i].AirlineID
 									}
 			            		}));
+			            		_conditions++;
 		            		}else{
 		            			_noFlightDate++;
 		            		}
-
-							// 每100筆就request
-							if(_conditions.length % 100 == 0 && _conditions.length > 0){
-	            				console.log("已更新航班資訊筆數:", _conditions.length);
-				            	// 塞入DB
-			        			var _post_upsertData100 = querystring.stringify(_conditions);
-
-			        			var _post_upsertData_options100 = {
-						            host: '127.0.0.1',
-						            port: setting.NodeJs.port,
-						            path: '/restful/crudByTask?' + _post_upsertData100,
-						            method: 'GET'
-						        };
-
-						        var _post_req = http.request(_post_upsertData_options100, function (_post_res){
-						        	var _content = '';
-
-									_post_res.setEncoding('utf8');
-
-						            _post_res.on('data', function (chunk){
-						                _content += chunk;
-						            });
-
-							        _post_res.on('error', function(err) {
-							            // Handle error
-							            console.log('更新航班資訊失敗，原因:', err);
-							        });
-
-						            _post_res.on('end', function(){
-						            	// console.log(JSON.parse(content));
-									})
-						        });
-
-								_post_req.on('error', function(e) {
-									// console.log(`${e}`);
-								});
-								_post_req.on('timeout', function(e) {
-									console.log(`timeout:${e}`);
-								    _post_req.abort();
-								});
-								_post_req.on('uncaughtException', function(e) {
-									console.log(`uncaughtException:${e}`);
-								    _post_req.abort();
-								});
-
-						        _post_req.end();
-						        
-								_conditions = [];
-							}
 		            	}
-        				console.log("已更新航班資訊筆數:", _conditions.length);
-		            	console.log("無起飛日期筆數(不更新):", _noFlightDate);
+	            		tasks.push(dbCommandByTask.TransactionCommit);
 
-		            	// 剩餘筆數
-	        			var _post_upsertData = querystring.stringify(_conditions);
+					    async.waterfall(tasks, function (err, args) {
 
-	        			var _post_upsertData_options = {
-				            host: '127.0.0.1',
-				            port: setting.NodeJs.port,
-				            path: '/restful/crudByTask?' + _post_upsertData,
-				            method: 'GET',
-				        };
+					        if (err) {
+					            // 如果連線失敗就不做Rollback
+					            if(Object.keys(args).length !== 0){
+					                dbCommandByTask.TransactionRollback(args, function (err, result){
+					                    
+					                });
+					            }
 
-				        var _post_req = http.request(_post_upsertData_options, function (_post_res){
-				        	var _content = '';
-
-							_post_res.setEncoding('utf8');
-
-				            _post_res.on('data', function (chunk){
-				                _content += chunk;
-				            });
-
-					        _post_res.on('error', function(err) {
-					            // Handle error
-					            console.log('更新航班資訊失敗，原因:', err);
-					        });
-
-				            _post_res.on('end', function(){
-				            	// console.log(JSON.parse(content));
-							})
-				        });
-
-						_post_req.on('error', function(e) {
-							// console.log(`${e}`);
-						});
-						_post_req.on('timeout', function(e) {
-							console.log(`timeout:${e}`);
-						    _post_req.abort();
-						});
-						_post_req.on('uncaughtException', function(e) {
-							console.log(`uncaughtException:${e}`);
-						    _post_req.abort();
-						});
-
-				        _post_req.end();
+					            console.error("航班更新失敗訊息:", err);
+					            // process.exit();
+					        }else{
+		        				console.log("航班資訊筆數(更新):", _conditions, ",無起飛日期筆數(不更新):", _noFlightDate);
+					        }
+					    });
+					    
 	            	}
 	            })
 	        }

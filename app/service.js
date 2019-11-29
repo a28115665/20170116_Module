@@ -97,7 +97,7 @@ angular.module('app')
 	    // console.log(dataSrc);
 	    var deferred = $q.defer();
 
-	    Resource.LOGIN.get(dataSrc,
+	    Resource.LOGIN.insert(dataSrc,
 	    	function (pSResponse){
 				deferred.resolve(pSResponse);
 			},
@@ -111,7 +111,7 @@ angular.module('app')
 	this.Logout = function () {
 	    var deferred = $q.defer();
 	    
-	    Resource.LOGOUT.get({},
+	    Resource.LOGOUT.insert({},
 	    	function (pSResponse){
 				deferred.resolve(pSResponse);
 			},
@@ -309,6 +309,21 @@ angular.module('app')
 	    var deferred = $q.defer();
 
 	    Resource.DOTAX.get(dataSrc,
+	    	function (pSResponse){
+				deferred.resolve(pSResponse);
+			},
+	    	function (pFResponse){
+	    		deferred.reject(pFResponse.data);
+	    	});
+
+	    return deferred.promise
+	},
+
+	this.ChangeONature = function (dataSrc) {
+	    // console.log(dataSrc);
+	    var deferred = $q.defer();
+
+	    Resource.CHANGEONATURE.get(dataSrc,
 	    	function (pSResponse){
 				deferred.resolve(pSResponse);
 			},

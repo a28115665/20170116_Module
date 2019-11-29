@@ -9,9 +9,8 @@ angular.module('app.auth').directive('loginInfo', function(User, Session){
             // User.initialized.then(function(){
             //     scope.user = User
             // });
-            
 			scope.user = angular.copy(Session.Get());
-			scope.user["picture"] = 'styles/img/avatars/eastwind.png';
+			scope.user["picture"] = scope.sysParm.SPA_AVATARS;
         }
     }
 })

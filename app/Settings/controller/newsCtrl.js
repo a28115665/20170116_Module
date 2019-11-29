@@ -465,7 +465,7 @@ angular.module('app.settings').controller('NewsCtrl', function ($scope, $statePa
             $timeout(function() {
                 if($ctrl.mdDataGridApi.selection.selectRow){
                     for(var i in vmData.PostGoal){
-                        $ctrl.mdDataGridApi.selection.selectRow($filter('filter')($ctrl.mdData, {CODE: vmData.PostGoal[i].CODE})[0]);
+                        $ctrl.mdDataGridApi.selection.selectRow($filter('filter')($ctrl.mdData, {CODE: vmData.PostGoal[i].CODE}, true)[0]);
                     }
                 }
             });

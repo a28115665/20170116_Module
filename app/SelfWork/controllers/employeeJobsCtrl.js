@@ -316,7 +316,7 @@ angular.module('app.selfwork').controller('EmployeeJobsCtrl', function ($scope, 
         orderListOptions : {
             data:  '$vm.selfWorkData',
             columnDefs: [
-                { name: 'OL_SUPPLEMENT_COUNT'    ,  displayName: '補件', width: 50, cellTemplate: $templateCache.get('accessibilityToSuppleMent') },
+                { name: 'OL_SUPPLEMENT_COUNT'    ,  displayName: '補件', width: 65, cellTemplate: $templateCache.get('accessibilityToSuppleMent') },
                 { name: 'OL_IMPORTDT'            ,  displayName: '進口日期', width: 80, cellFilter: 'dateFilter' },
                 // { name: 'OL_CO_CODE'             ,  displayName: '行家', width: 80, cellFilter: 'compyFilter', filter: 
                 //     {
@@ -352,7 +352,7 @@ angular.module('app.selfwork').controller('EmployeeJobsCtrl', function ($scope, 
                         ]
                     }
                 },
-                { name: 'W2_PRINCIPAL'           ,  displayName: '負責人', width: 80, cellFilter: 'userInfoFilter', filter: 
+                { name: 'W2_PRINCIPAL'           ,  displayName: '編輯者', width: 80, cellFilter: 'userInfoFilter', filter: 
                     {
                         term: null,
                         type: uiGridConstants.filter.SELECT,
@@ -438,12 +438,6 @@ angular.module('app.selfwork').controller('EmployeeJobsCtrl', function ($scope, 
         $ctrl.item = item;
         $ctrl.mdData = vmData;
     }
-
-    ILE_CR_DATETIME:"2018-03-13T18:49:46.000Z"
-    ILE_CR_USER:"allentsui9453"
-    ILE_ID:14015
-    ILE_SEQ:"Co0005Co000520180311181324"
-    ILE_TYPE:"11"
 
     $ctrl.mdDataOptions = {
         data:  '$ctrl.mdData',

@@ -3,6 +3,7 @@ var setting = require('../app.setting.json');
 var tables = require('./table.json');
 var schemaType = require('./schemaType.js');
 var preparedToStatement = require('./preparedToStatement.js');
+var until = require('../until/until.js');
 
 /**
  * [將query_files底下所有的statement集中到queryMethods裡]
@@ -31,7 +32,7 @@ var SelectMethod = function (querymain, queryname, params, callback){
 		    if (Error) return callback(err, null);
 
 			var ps = new sql.PreparedStatement(connection),
-				_params = typeof params == "string" ? JSON.parse(params) : {},
+				_params = until.isJson(params) ? JSON.parse(params) : {},
 				SQLCommand = "";
 
 			// 依querymain至各檔案下查詢method
@@ -45,7 +46,7 @@ var SelectMethod = function (querymain, queryname, params, callback){
 		    ps.prepare(SQLCommand, function(err) {
 			    // ... error checks
 			    if(err) return callback(err, null, preparedToStatement.PrintSql(SQLCommand, _params));
-			    
+
 			    /*
 			    	recordset -> 回傳值
 					affected -> Returns number of affected rows in case of INSERT, UPDATE or DELETE statement.
@@ -84,7 +85,7 @@ var InsertMethod = function (insertname, table, params, callback){
 		    if (Error) return;
 
 			var ps = new sql.PreparedStatement(connection),
-				_params = typeof params == "string" ? JSON.parse(params) : params,
+				_params = until.isJson(params) ? JSON.parse(params) : params,
 				SQLCommand = "",
 				Schema = [],
 				Values = [];
@@ -116,8 +117,11 @@ var InsertMethod = function (insertname, table, params, callback){
 					if(SQLCommand.match(/@CI_PW/gi)){
 						SQLCommand = SQLCommand.replace(/@CI_PW/gi, 'dbo.Encrypt(@CI_PW)');
 					}
+					if(SQLCommand.match(/@O_CI_PW/gi)){
+						SQLCommand = SQLCommand.replace(/@O_CI_PW/gi, 'dbo.Encrypt(@O_CI_PW)');
+					}
 					if(SQLCommand.match(/@MA_PASS/gi)){
-						SQLCommand = SQLCommand.replace(/@CI_PW/gi, 'dbo.Encrypt(@CI_PW)');
+						SQLCommand = SQLCommand.replace(/@MA_PASS/gi, 'dbo.Encrypt(@MA_PASS)');
 					}
 					
 					break;
@@ -173,9 +177,9 @@ var UpdateMethod = function (updatetname, table, params, condition, callback){
 		    if (Error) return;
 
 			var ps = new sql.PreparedStatement(connection),
-				_params = typeof params == "string" ? JSON.parse(params) : params,
+				_params = until.isJson(params) ? JSON.parse(params) : params,
 				_condition = JSON.parse(condition),
-				_psParams = extend({}, _params, _condition),
+				_psParams = until.extend({}, _params, _condition),
 				SQLCommand = "",
 				Schema = [],
 				Condition = [];
@@ -201,9 +205,8 @@ var UpdateMethod = function (updatetname, table, params, condition, callback){
 					for(var key in _params){
 						switch(key){
 							case 'U_PW':
-								Schema.push(key + "=dbo.Encrypt(@" + key + ")");
-								break;
 							case 'CI_PW':
+							case 'O_CI_PW':
 								Schema.push(key + "=dbo.Encrypt(@" + key + ")");
 								break;
 							default:
@@ -246,7 +249,7 @@ var UpdateMethod = function (updatetname, table, params, condition, callback){
 					ps.unprepare(function(err) {
 					    // ... error checks
 					    if(err) return callback(err, null, preparedToStatement.PrintSql(SQLCommand, _psParams));
-
+					    
 					    callback(null, affected, preparedToStatement.PrintSql(SQLCommand, _psParams)); 
 					});
 				});
@@ -274,9 +277,9 @@ var UpsertMethod = function (upsertname, table, params, condition, callback){
 		    if (Error) return;
 
 			var ps = new sql.PreparedStatement(connection),
-				_params = typeof params == "string" ? JSON.parse(params) : params,
+				_params = until.isJson(params) ? JSON.parse(params) : params,
 				_condition = JSON.parse(condition),
-				_psParams = extend({}, _params, _condition),
+				_psParams = until.extend({}, _params, _condition),
 				SQLCommand = "",
 				ParamsValues = [],
 				ParamsSchema = [],
@@ -371,7 +374,7 @@ var DeleteMethod = function (deletename, table, params, callback){
 		    if (Error) return;
 
 			var ps = new sql.PreparedStatement(connection),
-				_params = typeof params == "string" ? JSON.parse(params) : params,
+				_params = until.isJson(params) ? JSON.parse(params) : params,
 				SQLCommand = "",
 				Condition = [];
 
@@ -423,21 +426,6 @@ var DeleteMethod = function (deletename, table, params, callback){
 	catch(err) {
 		return callback(err, null);
 	}
-}
-
-/**
- * [extend 合併Object]
- * @param  {[type]} target [需要被合併的Objects]
- * @return {[type]}        [回傳合併後的Object]
- */
-function extend(target) {
-    var sources = [].slice.call(arguments, 1);
-    sources.forEach(function (source) {
-        for (var prop in source) {
-            target[prop] = source[prop];
-        }
-    });
-    return target;
 }
 
 module.exports.SelectMethod = SelectMethod;

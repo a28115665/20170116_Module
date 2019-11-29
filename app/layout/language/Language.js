@@ -5,7 +5,7 @@ angular.module('app').factory('Language', function($http, APP_CONFIG){
 	function getLanguage(key, callback) {
 
 		$http.get(APP_CONFIG.apiRootUrl + '/langs/' + key + '.json').success(function(data){
-
+			
 			callback(data);
 			
 		}).error(function(){

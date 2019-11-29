@@ -142,7 +142,7 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                                 toaster.pop('success', '訊息', '加入黑名單成功', 3000);
                             }
                         }, function (err) {
-                            toaster.pop('danger', '錯誤', '加入黑名單失敗', 3000);
+                            toaster.pop('error', '錯誤', '加入黑名單失敗', 3000);
                         }).finally(function(){
                             $vm.job001GridApi.selection.clearSelectedRows();
                             ClearSelectedColumn();
@@ -249,7 +249,7 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                                 toaster.pop('success', '訊息', '刪除資料成功', 3000);
                             }
                         }, function (err) {
-                            toaster.pop('danger', '錯誤', '刪除資料失敗', 3000);
+                            toaster.pop('error', '錯誤', '刪除資料失敗', 3000);
                         }).finally(function(){
                             $vm.job001GridApi.selection.clearSelectedRows();
                             // ClearSelectedColumn();
@@ -606,6 +606,21 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                     }
                 });
             }
+        },
+        // 整理報關種類為Y
+        SortoutG1ForY: function(){
+
+            var _g1ForY = $filter('filter')($vm.job001Data, {IL_G1: 'Y'});
+
+            if(_g1ForY.length > 0){
+
+                for(var i in _g1ForY){
+                    G1ForY(_g1ForY[i]);
+                }
+
+                $vm.job001GridApi.rowEdit.setRowsDirty(_g1ForY);
+            }
+
         },
         // 併票
         MergeNo: function(){
@@ -1449,7 +1464,7 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                 // console.log(res);
                 deferred.resolve();
             }, function (err) {
-                toaster.pop('danger', '錯誤', '更新失敗', 3000);
+                toaster.pop('error', '錯誤', '更新失敗', 3000);
                 deferred.reject();
             });
             
@@ -1473,21 +1488,27 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
     };
 
     function CalculationFinalCost(rowEntity, colDef, newValue, oldValue){
-
-        // rowEntity["IL_G1"] = rowEntity["IL_G1"].toUpperCase();
-        // 新增規則
-        // if(rowEntity["IL_G1"] == "Y"){
+        
+        // 一律為大寫
+        if(colDef.name == 'O_IL_G1') {
+            try {
+                rowEntity["O_IL_G1"] = newValue.toUpperCase();
+            }
+            catch (e) {
+                console.log(e);
+            }
+        }
 
         try {
             if(newValue.toUpperCase() == "Y"){
-                rowEntity.IL_WEIGHT_NEW = rowEntity.IL_WEIGHT;
-                rowEntity.IL_NEWPCS = rowEntity.IL_PCS;
-                rowEntity.IL_UNIVALENT_NEW = rowEntity.IL_UNIVALENT;
-                rowEntity.IL_NEWSENDNAME = rowEntity.IL_SENDNAME;
-                rowEntity.IL_FINALCOST = null;
+                G1ForY(rowEntity)
+                // rowEntity.IL_WEIGHT_NEW = rowEntity.IL_WEIGHT;
+                // rowEntity.IL_NEWPCS = rowEntity.IL_PCS;
+                // rowEntity.IL_UNIVALENT_NEW = rowEntity.IL_UNIVALENT;
+                // rowEntity.IL_NEWSENDNAME = rowEntity.IL_SENDNAME;
+                // rowEntity.IL_FINALCOST = null;
             }
-        }
-        catch (e) {
+        } catch (e) {
             console.log(e);
         }
 
@@ -1589,6 +1610,18 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
         $vm.job001GridApi.rowEdit.setRowsDirty([rowEntity]);
 
         // console.log('edited row id:' + rowEntity.Index + ' Column:' + colDef.name + ' newValue:' + newValue + ' oldValue:' + oldValue);
+    }
+
+    /**
+     * [G1ForY description] 報關類型為Y的處理方法
+     * @param {[type]} rowEntity [description]
+     */
+    function G1ForY (rowEntity){
+        rowEntity.IL_WEIGHT_NEW = rowEntity.IL_WEIGHT;
+        rowEntity.IL_NEWPCS = rowEntity.IL_PCS;
+        rowEntity.IL_UNIVALENT_NEW = rowEntity.IL_UNIVALENT;
+        rowEntity.IL_NEWSENDNAME = rowEntity.IL_SENDNAME;
+        rowEntity.IL_FINALCOST = null;
     }
 
     /**

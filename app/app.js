@@ -59,6 +59,7 @@ angular.module('app', [
     'app.restful',
     'app.mainwork',
     'app.selfwork',
+    'app.oselfwork',
     'app.concerns',
     'app.settings'
 ])
@@ -66,7 +67,7 @@ angular.module('app', [
 
 
     // Intercept http calls.
-    $provide.factory('HttpInterceptor', function ($q, toaster) {
+    $provide.factory('HttpInterceptor', function ($q, toaster, ServiceStopModal) {
         var errorCounter = 0;
 
         function notifyError(rejection) {
@@ -79,7 +80,18 @@ angular.module('app', [
             //     number: ++errorCounter,
             //     timeout: 6000
             // });
-            toaster.error(rejection.status + ' ' + rejection.statusText, rejection.data, 6000);
+
+            // 表示Service未啟動
+            if(rejection.status == -1){
+
+                if(!ServiceStopModal.isOpen()){
+                    ServiceStopModal.open();
+                }
+
+                // canceller.resolve('Cancel Request'); 
+            }else{
+                toaster.error(rejection.status + ' ' + rejection.statusText, rejection.data, 6000);
+            }
         }
 
         return {
@@ -150,56 +162,27 @@ angular.module('app', [
 
         console.log(toState, toParams, fromState, fromParams);
 
-        AuthApi.ReLoadSession().then(function(res){
-            // 表示逾時
-            if(angular.isUndefined(res["returnData"])){
+        if(toState.name != "login"){
+            AuthApi.ReLoadSession().then(function(res){
+                // console.log(res);
+                // 表示逾時
+                if(angular.isUndefined(res["returnData"])){
+                    $state.transitionTo("login");
+                    // event.preventDefault(); 
+                }
+            }, function(err){
+                // 失敗
                 $state.transitionTo("login");
-            }
-        }, function(err){
-            // 失敗
-            $state.transitionTo("login");
-        });
+            });
+        }
 
-        // $http.get('auth/reLoadSession')
-        // .success(function(data, status, headers, config) {
-        //     // console.log(data, status, headers, config);
-        //     if(status == 200 && data != ""){
-        //         console.log('Set');
-        //         Session.Set(data);
-        //         switch(toState.name){
-        //             // block some key url.
-        //             case "app.selfwork.jobs.editorjob":
-        //                 // if(!angular.isObject(toParams['data'])){
-        //                 //     $state.transitionTo("app.selfwork.jobs");
-        //                 // }
-        //                 break;
-        //         }
-        //     }else{
-        //         console.log('Destroy');
-        //         Session.Destroy();
-        //         switch(toState.name){
-        //             case "login":
-        //             case "register":
-        //             case "forgotPassword":
-        //                 $state.transitionTo(toState.name);
-        //                 break;
-        //             default:
-        //                 $state.transitionTo("login");
-        //         }
-        //     }
-        //     event.preventDefault(); 
-        // })
-        // .error(function(data, status, headers, config) {
-        //     $state.transitionTo("login");
-        //     event.preventDefault(); 
-        // });
     });
 
     $rootScope.$on('$stateChangeSuccess', function (event, toState, roParams, fromState, fromParams) {
         // 檢視此頁是否有權限進入
         // 無權限就導到default頁面
         // console.log(Session.Get().GRIGHT[toState.name], toState.name);
-        if(!angular.isUndefined(Session.Get())){
+        if(!angular.isUndefined(Session.Get()) && Session.Get()["GRIGHT"] !== undefined){
             if(!Session.Get().GRIGHT[toState.name]){
                 // event.preventDefault();
                 $state.transitionTo("app.default");

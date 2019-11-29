@@ -88,7 +88,7 @@ angular.module('app.selfwork').controller('LeaderHistorySearchCtrl', function ($
                         },
                         show: function(){
                             return {
-                                title : "是否解案"
+                                title : "是否解單"
                             }
                         }
                     }
@@ -110,7 +110,7 @@ angular.module('app.selfwork').controller('LeaderHistorySearchCtrl', function ($
                         }
                     }).then(function (res) {
 
-                        toaster.pop('success', '訊息', '解案成功。', 3000);
+                        toaster.pop('success', '訊息', '解單成功。', 3000);
                         SearchData();
                     });
 
@@ -159,7 +159,7 @@ angular.module('app.selfwork').controller('LeaderHistorySearchCtrl', function ($
                         ]
                     }
                 },
-                { name: 'W2_PRINCIPAL',  displayName: '負責人', cellFilter: 'userInfoFilter', filter: 
+                { name: 'W2_PRINCIPAL',  displayName: '編輯者', cellFilter: 'userInfoFilter', filter: 
                     {
                         term: null,
                         type: uiGridConstants.filter.SELECT,

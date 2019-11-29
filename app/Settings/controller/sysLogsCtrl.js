@@ -13,13 +13,25 @@ angular.module('app.settings').controller('SysLogsCtrl', function ($scope, $stat
         sysLogsOptions : {
             data: '$vm.sysLogsData',
             columnDefs: [
-                { name: 'Index'        , displayName: '序列', width: 50, enableFiltering: false },
+                { name: 'Index'        , displayName: '序列', width: 62, enableFiltering: false },
                 { name: 'SDL_DATETIME' , displayName: '時間', width: 150, cellFilter: 'datetimeFilter' },
                 { name: 'SDL_LEVEL'    , displayName: '等級', width: 70, cellTemplate: $templateCache.get('accessibilityToSysLevel') },
-                { name: 'SDL_MESSAGE'  , displayName: '訊息', cellTooltip: function (row, col) 
+                { name: 'SDL_ACTION'   , displayName: '執行動作', width: 92, cellTooltip: function (row, col) 
                     {
-                        return row.entity.SDL_MESSAGE
-                    } 
+                        return row.entity.SDL_ACTION
+                    }, 
+                    filter: {
+                        term: null,
+                        type: uiGridConstants.filter.SELECT,
+                        selectOptions: [
+                            { label:'查詢', value: '查詢'},
+                            { label:'新增', value: '新增'},
+                            { label:'更新', value: '更新'},
+                            { label:'刪除', value: '刪除'},
+                            { label:'插入', value: '插入'},
+                            { label:'複製', value: '複製'},
+                        ]
+                    }
                 },
                 { name: 'SDL_SQL'      , displayName: 'SQL', cellTooltip: function (row, col) 
                     {

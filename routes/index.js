@@ -6,6 +6,7 @@ var middleware = require('./middleware');
 
 /* GET home page. */
 router.get('/', function (req, res){
+	
 	res.sendFile('main.html', { root: path.join(__dirname, '../public') }, function (err) {
         if (err) {
             console.log(err);

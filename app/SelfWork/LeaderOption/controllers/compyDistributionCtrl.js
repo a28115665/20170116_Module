@@ -1,13 +1,16 @@
 "use strict";
 
-angular.module('app.selfwork.leaderoption').controller('CompyDistributionCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, $filter, $q, RestfulApi, uiGridConstants, userInfoByGrade, compy, coWeights) {
+angular.module('app.selfwork.leaderoption').controller('CompyDistributionCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, $filter, $q, RestfulApi, uiGridConstants, userInfoByGrade, coWeights) {
     
     var $vm = this;
 
 	angular.extend(this, {
         Init : function(){
-            $vm.selectAssignDept = userInfoByGrade[0][0].value;
-            LoadCompyDistribution();
+            // 檢查是否有部門人員
+            if(userInfoByGrade[0].length > 0){
+                $vm.selectAssignDept = userInfoByGrade[0][0].value;
+                LoadCompyDistribution();
+            }
         },
         profile : Session.Get(),
         assignGradeData : userInfoByGrade[0],
@@ -254,7 +257,7 @@ angular.module('app.selfwork.leaderoption').controller('CompyDistributionCtrl', 
             RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res){
                 promise.resolve();
             }, function (err) {
-                toaster.pop('danger', '錯誤', '更新失敗', 3000);
+                toaster.pop('error', '錯誤', '更新失敗', 3000);
                 promise.reject();
             }).finally(function(){
                 if($vm.compyDistributionGridApi.rowEdit.getDirtyRows().length == 0){
@@ -284,6 +287,9 @@ angular.module('app.selfwork.leaderoption').controller('CompyDistributionCtrl', 
         }
     });
 
+    /**
+     * [LoadCompyDistribution description] 組合每個行家下所需要的負責人
+     */
     function LoadCompyDistribution(){
 
         RestfulApi.CRUDMSSQLDataByTask([
@@ -303,17 +309,22 @@ angular.module('app.selfwork.leaderoption').controller('CompyDistributionCtrl', 
         ]).then(function (res){
             console.log(res["returnData"]);
 
-            for(var i in res["returnData"][0]){
+            var compy = res["returnData"][0] || [],
+                compyDistribution = res["returnData"][1] || [];
 
-                var _data =[];
+            for(var i in compy){
 
-                for(var j in res["returnData"][1]){
-                    if(res["returnData"][0][i].CO_CODE == res["returnData"][1][j].COD_CODE){
-                        _data.push(res["returnData"][1][j]);
+                var _data = [];
+
+                // 塞入各行家所負責的人員
+                for(var j in compyDistribution){
+                    if(compy[i].CO_CODE == compyDistribution[j].COD_CODE){
+                        _data.push(compyDistribution[j]);
                     }
                 }
 
-                res["returnData"][0][i].subGridOptions = {
+                // 新增每row的subgrid
+                compy[i].subGridOptions = {
                     data: _data,
                     columnDefs: [ 
                         {field: "COD_PRINCIPAL", name: "負責人", cellFilter: 'userInfoFilter', filter: 
@@ -323,16 +334,16 @@ angular.module('app.selfwork.leaderoption').controller('CompyDistributionCtrl', 
                                 selectOptions: userInfoByGrade[1][$vm.selectAssignDept]
                             }
                         },
-                        { name: 'Options'     , displayName: '操作', width: '5%', enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToD') }
+                        { name: 'Options'     , displayName: '操作', width: 70, enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToD') }
                     ],
                     enableFiltering: true,
                     enableSorting: true,
                     enableColumnMenus: false
                 }
-                res["returnData"][0][i]["PRINCIPAL_COUNT"] = _data.length;
+                compy[i]["PRINCIPAL_COUNT"] = _data.length;
             }
 
-            $vm.compyDistributionData = res["returnData"][0];
+            $vm.compyDistributionData = compy;
 
         }).finally(function() {
             console.log($vm.compyDistributionGridApi);

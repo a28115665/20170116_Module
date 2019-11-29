@@ -218,18 +218,18 @@ angular.module('app')
         }
     };
 })
-/**  
- * Convert Number to String.  
+/**
+ * String to Number
  */
-.directive('convertToNumber', function() {
+.directive('stringToNumber', function() {
     return {
         require: 'ngModel',
         link: function(scope, element, attrs, ngModel) {
-            ngModel.$parsers.push(function(val) {
-                return val != null ? parseInt(val, 10) : null;
+            ngModel.$parsers.push(function(value) {
+                return '' + value;
             });
-            ngModel.$formatters.push(function(val) {
-                return val != null ? '' + val : null;
+            ngModel.$formatters.push(function(value) {
+                return parseFloat(value, 10);
             });
         }
     };
