@@ -162,7 +162,7 @@ angular.module('app.oselfwork').controller('OEmployeeJobsCtrl', function ($scope
                         querymain: 'oemployeeJobs',
                         queryname: 'SelectOOrderEditor',
                         params: {
-                            O_OE_SEQ : row.entity.OL_SEQ,
+                            O_OE_SEQ : row.entity.O_OL_SEQ,
                             O_OE_TYPE : 'R'
                         }
                     }).then(function (res){
