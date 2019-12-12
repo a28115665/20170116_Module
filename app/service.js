@@ -348,4 +348,43 @@ angular.module('app')
 
 	    return deferred.promise
 	}
+})
+.service('SocketApi', function ($rootScope, APP_CONFIG, $location){
+
+    var socket = null;
+
+    function listenerExists(eventName) {
+        return socket.hasOwnProperty("$events") && socket.$events.hasOwnProperty(eventName);
+    }
+
+	this.Connect = function () {
+        socket = io.connect($location.host() + ':' + APP_CONFIG.socketPort);
+    },
+    this.Connected = function () {
+        return socket != null;
+    },
+    this.On = function (eventName, callback) {
+        if (!listenerExists(eventName)) {
+            socket.on(eventName, function () {
+                var args = arguments;
+                $rootScope.$apply(function () {
+                    callback.apply(socket, args);
+                });
+            });
+        }
+    },
+    this.Emit = function (eventName, data, callback) {
+        socket.emit(eventName, data, function () {
+            var args = arguments;
+            $rootScope.$apply(function () {
+                if (callback) {
+                    callback.apply(socket, args);
+                }
+            });
+        })
+    },
+    this.Disconnect = function(){
+        socket.disconnect();
+    }
+
 });

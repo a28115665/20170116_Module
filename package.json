@@ -6,7 +6,8 @@
   "private": true,
   "scripts": {
     "dev": "gulp dev",
-    "prod": "gulp prod"
+    "prod": "gulp prod",
+    "start": "node --max-http-header-size=200000 app"
   },
   "author": "Sunny",
   "license": "MyOrange Inc.",
@@ -44,6 +45,7 @@
     "mssql": "^3.3.0",
     "natives": "^1.1.6",
     "nodemailer": "^4.0.1",
+    "socket.io": "^2.3.0",
     "winston": "^2.3.1",
     "xlsx-template": "0.0.7"
   }

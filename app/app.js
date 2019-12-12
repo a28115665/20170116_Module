@@ -33,6 +33,7 @@ angular.module('app', [
     'ngTagsInput',
     'summernote',
     'LocalStorageModule',
+    'btford.socket-io',
 
     // Smartadmin Angular Common Module
     'SmartAdmin',
@@ -151,7 +152,7 @@ angular.module('app', [
     localStorageServiceProvider.setStorageType('localStorage');
 })
 
-.run(function ($rootScope, $state, $stateParams, Session, $http, AuthApi, localStorageService) {
+.run(function ($rootScope, $state, $stateParams, Session, $http, AuthApi, localStorageService, SocketApi, toaster) {
     // $rootScope.$state = $state;
     // $rootScope.$stateParams = $stateParams;
     // editableOptions.theme = 'bs3';
@@ -169,6 +170,13 @@ angular.module('app', [
                 if(angular.isUndefined(res["returnData"])){
                     $state.transitionTo("login");
                     // event.preventDefault(); 
+                }else{
+                    if(!SocketApi.Connected()){
+                        SocketApi.Connect();
+                    }
+                    SocketApi.On('whoLogin', function(data){
+                        toaster.info("訊息", data, 3000);
+                    })
                 }
             }, function(err){
                 // 失敗

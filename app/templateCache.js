@@ -271,6 +271,11 @@ angular.module('app')
                         <div class="ui-grid-cell-contents text-center">\
                             <a href-void="" class="btn btn-danger btn-xs" href="#" ng-class="row.entity.IL_COUNT > 0 ? \'\' : \'disabled\'" ng-click="grid.appScope.$vm.gridMethod.showHistoryCount(row)">{{row.entity.IL_COUNT}}</a> \
                         </div>');
+    $templateCache.put('accountManagementOnlineStatue', '\
+                        <div class="ui-grid-cell-contents text-center">\
+                            <i class="fa fa-circle text-danger" ng-if="!row.entity.onlineStatue"> </i> \
+                            <i class="fa fa-circle text-success" ng-if="row.entity.onlineStatue"> </i> \
+                        </div>');
 
     $templateCache.put('accessibilityToSysLevel', '\
                         <div class="ui-grid-cell-contents text-center" ng-switch="row.entity.SDL_LEVEL">\

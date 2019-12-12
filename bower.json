@@ -66,6 +66,7 @@
     "ng-tags-input": "^3.2.0",
     "font-awesome": "^4.7.0",
     "angular-summernote": "0.7.1",
-    "angular-local-storage": "^0.6.0"
+    "angular-local-storage": "^0.6.0",
+    "angular-socket-io": "^0.7.0"
   }
 }
