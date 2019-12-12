@@ -106,8 +106,29 @@
 				    <header>
 				        <h2>編輯 </h2>
 				        <div class="widget-toolbar smart-form" role="menu">
-				            <a href-void="" class="btn btn-warning" href="#" ng-click="$vm.RepeatGet()">檢查重複進口人</a>
+				            <div class="btn-group dropdown" uib-dropdown keyboard-nav is-open="checkLogic">
+						        <button id="simple-btn-keyboard-nav" type="button" class="btn btn-warning dropdown-toggle btn-xs" uib-dropdown-toggle>
+						            邏輯檢查 <span class="caret"></span>
+						        </button>
+						        <ul class="dropdown-menu dropdown-menu-right" uib-dropdown-menu role="menu" aria-labelledby="simple-btn-keyboard-nav">
+						            <li role="menuitem">
+				                        <a href-void="" href="#" ng-click="$vm.RepeatGet();checkLogic=false">檢查重複進口人</a>
+						            </li>
+				                    <li>
+				                        <a href-void="" href="#" ng-click="$vm.PeopleNotTheSameGetNo();checkLogic=false">檢查重複統編不同人</a>
+				                    </li>
+				                    <li>
+				                        <a href-void="" href="#" ng-click="$vm.GetNoIsTrue();checkLogic=false">檢查統編正確性</a>
+				                    </li>
+				                    <li>
+				                        <a href-void="" href="#" ng-click="$vm.PhoneWithSameNameButDifferentCode();checkLogic=false">檢查相同姓名電話但統編不同</a>
+				                    </li>
+						        </ul>
+						    </div>
 				        </div>
+				        <!-- <div class="widget-toolbar smart-form" role="menu">
+				            <a href-void="" class="btn btn-warning" href="#" ng-click="$vm.RepeatGet()">檢查重複進口人</a>
+				        </div> -->
 				        <div class="widget-toolbar smart-form" role="menu">
 				            <a href-void="" class="btn btn-success" href="#" ng-click="$vm.ExportExcel()">匯出關貿</a>
 				        </div>
@@ -390,6 +411,54 @@
 	</div>
 	<div class="modal-body no-padding" id="modal-body">
         <div id="grid1" ui-grid="$ctrl.repeatGetOption" class="my-ui-grid" ui-grid-pagination ui-grid-resize-columns ui-grid-edit ui-grid-row-edit ui-grid-auto-resize></div>
+	</div>
+	<div class="modal-footer">
+	    <button class="btn btn-primary" type="button" ng-click="$ctrl.ok()">{{getWord('OK')}}</button>
+	    <button class="btn btn-default" type="button" ng-click="$ctrl.cancel()">{{getWord('Cancel')}}</button>
+	</div>
+</script>
+
+<script type="text/ng-template" id="peopleNotTheSameGetNoModalContent.html">
+    <div class="modal-header">
+	    <h3 class="modal-title" id="modal-title">重複統編不同人</h3>
+	</div>
+	<div class="modal-body no-padding" id="modal-body">
+
+	    <div class="padding-10">下方顯示<strong>「進口人統一編號」</strong>與<strong>「進口人英文名稱」</strong>有異常的資料</div>
+
+        <div id="grid1" ui-grid="$ctrl.peopleNotTheSameGetNoOption" class="my-ui-grid" ui-grid-pagination ui-grid-resize-columns ui-grid-edit ui-grid-row-edit ui-grid-auto-resize></div>
+	</div>
+	<div class="modal-footer">
+	    <button class="btn btn-primary" type="button" ng-click="$ctrl.ok()">{{getWord('OK')}}</button>
+	    <button class="btn btn-default" type="button" ng-click="$ctrl.cancel()">{{getWord('Cancel')}}</button>
+	</div>
+</script>
+
+<script type="text/ng-template" id="getNoIsTrueModalContent.html">
+    <div class="modal-header">
+	    <h3 class="modal-title" id="modal-title">統編正確性</h3>
+	</div>
+	<div class="modal-body no-padding" id="modal-body">
+
+	    <div class="padding-10">下方顯示<strong>「進口人統一編號」</strong>有異常的資料</div>
+
+        <div id="grid1" ui-grid="$ctrl.getNoIsTrueOption" class="my-ui-grid" ui-grid-pagination ui-grid-resize-columns ui-grid-edit ui-grid-row-edit ui-grid-auto-resize></div>
+	</div>
+	<div class="modal-footer">
+	    <button class="btn btn-primary" type="button" ng-click="$ctrl.ok()">{{getWord('OK')}}</button>
+	    <button class="btn btn-default" type="button" ng-click="$ctrl.cancel()">{{getWord('Cancel')}}</button>
+	</div>
+</script>
+
+<script type="text/ng-template" id="phoneWithSameNameButDifferentCodeModalContent.html">
+    <div class="modal-header">
+	    <h3 class="modal-title" id="modal-title">相同姓名電話但統編不同</h3>
+	</div>
+	<div class="modal-body no-padding" id="modal-body">
+
+	    <div class="padding-10">下方顯示<strong>「進口人英文名稱」</strong>與<strong>「進口人電話」</strong>相同，但<strong>「進口人統一編號」</strong>有異常的資料</div>
+
+        <div id="grid1" ui-grid="$ctrl.phoneWithSameNameButDifferentCodeOption" class="my-ui-grid" ui-grid-pagination ui-grid-resize-columns ui-grid-edit ui-grid-row-edit ui-grid-auto-resize></div>
 	</div>
 	<div class="modal-footer">
 	    <button class="btn btn-primary" type="button" ng-click="$ctrl.ok()">{{getWord('OK')}}</button>

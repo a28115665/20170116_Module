@@ -836,7 +836,231 @@ angular.module('app.oselfwork').controller('OJob001Ctrl', function ($scope, $sta
                         // $log.info('Modal dismissed at: ' + new Date());
                     });
                 }else{
-                    toaster.pop('info', '訊息', '無重複進口人', 3000);
+                    toaster.pop('info', '訊息', '無符合條件', 3000);
+                }
+            }); 
+        },
+        /**
+         * [PeopleNotTheSameGetNo description] 檢查重複統編不同人
+         */
+        PeopleNotTheSameGetNo : function(){
+            RestfulApi.SearchMSSQLData({
+                querymain: 'ojob001',
+                queryname: 'PeopleNotTheSameGetNo',
+                params: {
+                    O_IL_SEQ: $vm.vmData.O_OL_SEQ
+                }
+            }).then(function (res){
+                console.log(res["returnData"]);
+
+                var _data = res["returnData"] || [];
+
+                if(_data.length > 0){
+                    var modalInstance = $uibModal.open({
+                        animation: true,
+                        ariaLabelledBy: 'modal-title',
+                        ariaDescribedBy: 'modal-body',
+                        templateUrl: 'peopleNotTheSameGetNoModalContent.html',
+                        controller: 'PeopleNotTheSameGetNoModalInstanceCtrl',
+                        controllerAs: '$ctrl',
+                        backdrop: 'static',
+                        size: 'lg',
+                        // appendTo: parentElem,
+                        resolve: {
+                            data: function() {
+                                return _data;
+                            }
+                        }
+                    });
+
+                    modalInstance.result.then(function(selectedItem) {
+                        console.log(selectedItem);
+
+                        if(selectedItem.length > 0){
+
+                            var _getDirtyData = [];
+                            for(var i in selectedItem){
+
+                                var _beUpdate = $filter('filter')($vm.job001Data, { 
+                                    O_IL_SEQ : selectedItem[i].entity.O_IL_SEQ,
+                                    O_IL_NEWSMALLNO : selectedItem[i].entity.O_IL_NEWSMALLNO,
+                                    O_IL_SMALLNO : selectedItem[i].entity.O_IL_SMALLNO
+                                });
+
+                                if(_beUpdate.length > 0){
+                                    var _index = _beUpdate[0].Index - 1;
+
+                                    // 更新收件者相同的值
+                                    for(var j in $vm.job001GridApi.grid.columns){
+                                        var _colDef = $vm.job001GridApi.grid.columns[j].colDef;
+                                        if(_colDef.enableCellEdit){
+                                            $vm.job001Data[_index][_colDef.name] = selectedItem[i].entity[_colDef.name];
+                                        }
+                                    }
+
+                                    _getDirtyData.push($vm.job001Data[_index]);
+                                }
+                            }
+                            $vm.job001GridApi.rowEdit.setRowsDirty(_getDirtyData);
+                        }
+
+                    }, function() {
+                        // $log.info('Modal dismissed at: ' + new Date());
+                    });
+                }else{
+                    toaster.pop('info', '訊息', '無符合條件', 3000);
+                }
+            }); 
+        },
+        /**
+         * [GetNoIsTrue description] 檢查統編正確性
+         */
+        GetNoIsTrue : function(){
+
+            var _needToFix = [];
+
+            for(var i in $vm.job001Data){
+                // 如果不為空值
+                if($vm.job001Data[i].O_IL_GETNO){
+                    // 不合格(第一碼為英文+數字9碼,共10碼=國人身分證)
+                    if(!CheckID($vm.job001Data[i].O_IL_GETNO)){
+                        // 不合格(第一和第二碼為英文+8碼,共10碼=臨時證號)
+                        if(!TemporaryID($vm.job001Data[i].O_IL_GETNO)){
+                            // 不合格(8碼全部數字=公司統編)
+                            if(!CompanyID($vm.job001Data[i].O_IL_GETNO)){
+                                _needToFix.push($vm.job001Data[i]);
+                            }
+                        }
+                    }
+                }
+            }
+
+            if(_needToFix.length > 0){
+                var modalInstance = $uibModal.open({
+                    animation: true,
+                    ariaLabelledBy: 'modal-title',
+                    ariaDescribedBy: 'modal-body',
+                    templateUrl: 'getNoIsTrueModalContent.html',
+                    controller: 'GetNoIsTrueModalInstanceCtrl',
+                    controllerAs: '$ctrl',
+                    backdrop: 'static',
+                    size: 'lg',
+                    // appendTo: parentElem,
+                    resolve: {
+                        data: function() {
+                            return _needToFix;
+                        }
+                    }
+                });
+
+                modalInstance.result.then(function(selectedItem) {
+                    console.log(selectedItem);
+
+                    if(selectedItem.length > 0){
+
+                        var _getDirtyData = [];
+                        for(var i in selectedItem){
+
+                            var _beUpdate = $filter('filter')($vm.job001Data, { 
+                                O_IL_SEQ : selectedItem[i].entity.O_IL_SEQ,
+                                O_IL_NEWSMALLNO : selectedItem[i].entity.O_IL_NEWSMALLNO,
+                                O_IL_SMALLNO : selectedItem[i].entity.O_IL_SMALLNO
+                            });
+
+                            if(_beUpdate.length > 0){
+                                var _index = _beUpdate[0].Index - 1;
+
+                                // 更新收件者相同的值
+                                for(var j in $vm.job001GridApi.grid.columns){
+                                    var _colDef = $vm.job001GridApi.grid.columns[j].colDef;
+                                    if(_colDef.enableCellEdit){
+                                        $vm.job001Data[_index][_colDef.name] = selectedItem[i].entity[_colDef.name];
+                                    }
+                                }
+
+                                _getDirtyData.push($vm.job001Data[_index]);
+                            }
+                        }
+                        $vm.job001GridApi.rowEdit.setRowsDirty(_getDirtyData);
+                    }
+
+                }, function() {
+                    // $log.info('Modal dismissed at: ' + new Date());
+                });
+            }else{
+                toaster.pop('info', '訊息', '無符合條件', 3000);
+            }
+        },
+        /**
+         * [PhoneWithSameNameButDifferentCode description] 檢查相同姓名電話但統編不同
+         */
+        PhoneWithSameNameButDifferentCode : function(){
+
+            RestfulApi.SearchMSSQLData({
+                querymain: 'ojob001',
+                queryname: 'PhoneWithSameNameButDifferentCode',
+                params: {
+                    O_IL_SEQ: $vm.vmData.O_OL_SEQ
+                }
+            }).then(function (res){
+                console.log(res["returnData"]);
+
+                var _data = res["returnData"] || [];
+
+                if(_data.length > 0){
+                    var modalInstance = $uibModal.open({
+                        animation: true,
+                        ariaLabelledBy: 'modal-title',
+                        ariaDescribedBy: 'modal-body',
+                        templateUrl: 'phoneWithSameNameButDifferentCodeModalContent.html',
+                        controller: 'PhoneWithSameNameButDifferentCodeModalInstanceCtrl',
+                        controllerAs: '$ctrl',
+                        backdrop: 'static',
+                        size: 'lg',
+                        // appendTo: parentElem,
+                        resolve: {
+                            data: function() {
+                                return _data;
+                            }
+                        }
+                    });
+
+                    modalInstance.result.then(function(selectedItem) {
+                        console.log(selectedItem);
+
+                        if(selectedItem.length > 0){
+
+                            var _getDirtyData = [];
+                            for(var i in selectedItem){
+
+                                var _beUpdate = $filter('filter')($vm.job001Data, { 
+                                    O_IL_SEQ : selectedItem[i].entity.O_IL_SEQ,
+                                    O_IL_NEWSMALLNO : selectedItem[i].entity.O_IL_NEWSMALLNO,
+                                    O_IL_SMALLNO : selectedItem[i].entity.O_IL_SMALLNO
+                                });
+
+                                if(_beUpdate.length > 0){
+                                    var _index = _beUpdate[0].Index - 1;
+
+                                    // 更新收件者相同的值
+                                    for(var j in $vm.job001GridApi.grid.columns){
+                                        var _colDef = $vm.job001GridApi.grid.columns[j].colDef;
+                                        if(_colDef.enableCellEdit){
+                                            $vm.job001Data[_index][_colDef.name] = selectedItem[i].entity[_colDef.name];
+                                        }
+                                    }
+
+                                    _getDirtyData.push($vm.job001Data[_index]);
+                                }
+                            }
+                            $vm.job001GridApi.rowEdit.setRowsDirty(_getDirtyData);
+                        }
+
+                    }, function() {
+                        // $log.info('Modal dismissed at: ' + new Date());
+                    });
+                }else{
+                    toaster.pop('info', '訊息', '無符合條件', 3000);
                 }
             }); 
         },
@@ -1103,9 +1327,10 @@ angular.module('app.oselfwork').controller('OJob001Ctrl', function ($scope, $sta
         }
 
         // 一律為大寫
-        if(colDef.name == 'O_IL_G1') {
+        if(colDef.name == 'O_IL_G1' || colDef.name == 'O_IL_GETNO') {
             try {
                 rowEntity["O_IL_G1"] = newValue.toUpperCase();
+                rowEntity["O_IL_GETNO"] = newValue.toUpperCase();
             }
             catch (e) {
                 console.log(e);
@@ -1223,6 +1448,73 @@ angular.module('app.oselfwork').controller('OJob001Ctrl', function ($scope, $sta
         $vm.job001GridApi.rowEdit.setRowsDirty([rowEntity]);
 
         // // console.log('edited row id:' + rowEntity.Index + ' Column:' + colDef.name + ' newValue:' + newValue + ' oldValue:' + oldValue);
+    }
+
+    /**
+     * [CheckID description] 檢查身分證是否合乎規範
+     * @param {[type]} id [description]
+     */
+    function CheckID(id) {
+        var tab = "ABCDEFGHJKLMNPQRSTUVXYWZIO"                     
+        var A1 = [1,1,1,1,1,1,1,1,1,1,2,2,2,2,2,2,2,2,2,2,3,3,3,3,3,3 ];
+        var A2 = [0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5 ];
+        var Mx = [9,8,7,6,5,4,3,2,1,1];
+
+        if ( id.length != 10 ) return false;
+        var i = tab.indexOf( id.charAt(0) );
+        if ( i == -1 ) return false;
+        var sum = A1[i] + A2[i]*9;
+
+        for ( i=1; i<10; i++ ) {
+            var v = parseInt( id.charAt(i) );
+            if ( isNaN(v) ) return false;
+            sum = sum + v * Mx[i];
+        }
+        if ( sum % 10 != 0 ) return false;
+        return true;
+    }
+
+    /**
+     * [TemporaryID description] 檢查臨時證號是否合乎規範
+     * @param {[type]} id [description]
+     */
+    function TemporaryID(id) {
+        var tab = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+
+        // 是否10碼
+        if ( id.length != 10 ) return false;
+        // 第1碼是否為英文
+        var i1 = tab.indexOf( id.charAt(0) );
+        if ( i1 == -1 ) return false;
+        // 第2碼是否為英文
+        var i2 = tab.indexOf( id.charAt(1) );
+        if ( i2 == -1 ) return false;
+
+        // 3~10碼是否為數字
+        for ( var i=2; i<10; i++ ) {
+            var v = parseInt( id.charAt(i) );
+            if ( isNaN(v) ) return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * [TemporaryID description] 檢查公司統編是否合乎規範
+     * @param {[type]} id [description]
+     */    
+    function CompanyID(id) {
+
+        // 是否8碼
+        if ( id.length != 8 ) return false;
+
+        // 8碼是否為數字
+        for ( var i=0; i<8; i++ ) {
+            var v = parseInt( id.charAt(i) );
+            if ( isNaN(v) ) return false;
+        }
+
+        return true;
     }
 
     /**
@@ -1383,6 +1675,243 @@ angular.module('app.oselfwork').controller('OJob001Ctrl', function ($scope, $sta
 
     $ctrl.ok = function() {
         $uibModalInstance.close($ctrl.repeatGetGridApi.rowEdit.getDirtyRows());
+    };
+
+    $ctrl.cancel = function() {
+        $uibModalInstance.dismiss('cancel');
+    };
+})
+.controller('PeopleNotTheSameGetNoModalInstanceCtrl', function ($uibModalInstance, $q, $scope, data) {
+    var $ctrl = this;
+    $ctrl.mdData = data;
+
+    $ctrl.peopleNotTheSameGetNoOption = {
+        data: '$ctrl.mdData',
+        columnDefs: [
+            { name: 'O_IL_GETNO'            , displayName: '進口人統一編號', width: 110, headerCellClass: 'text-primary' },
+            { name: 'O_IL_GETENAME'         , displayName: '進口人英文名稱', width: 110, headerCellClass: 'text-primary' },
+            { name: 'O_IL_G1'               , displayName: '報關種類', width: 80, headerCellClass: 'text-primary' },
+            { name: 'O_IL_SMALLNO'          , displayName: '小號', width: 110, enableCellEdit: false },
+            { name: 'O_IL_POSTNO'           , displayName: '艙單號碼', width: 110, enableCellEdit: false },
+            { name: 'O_IL_CUSTID'           , displayName: '快遞業者統一編號', width: 110, enableCellEdit: false },
+            { name: 'O_IL_PRICECONDITON'    , displayName: '單價條件', width: 110, enableCellEdit: false },
+            { name: 'O_IL_CURRENCY'         , displayName: '單價幣別代碼', width: 110, enableCellEdit: false },
+            { name: 'O_IL_CROSSWEIGHT'      , displayName: '毛重', width: 110, enableCellEdit: false },
+            { name: 'O_IL_NEWCROSSWEIGHT'   , displayName: '新毛重', width: 110, headerCellClass: 'text-primary' },
+            { name: 'O_IL_CTN'              , displayName: '件數', width: 110, enableCellEdit: false },
+            { name: 'O_IL_NEWCTN'           , displayName: '新件數', width: 110, headerCellClass: 'text-primary' },
+            { name: 'O_IL_CTNUNIT'          , displayName: '件數單位', width: 110, enableCellEdit: false },
+            { name: 'O_IL_MARK'             , displayName: '標記', width: 110, enableCellEdit: false },
+            { name: 'O_IL_SMALLNO_ID'       , displayName: '貨物編號', width: 110, headerCellClass: 'text-primary' },
+            { name: 'O_IL_NATURE'           , displayName: '貨物名稱', width: 110, enableCellEdit: false, cellTooltip: cellTooltip},
+            { name: 'O_IL_NATURE_NEW'       , displayName: '新貨物名稱', width: 110, headerCellClass: 'text-primary', cellTooltip: cellTooltip},
+            { name: 'O_IL_TAX'              , displayName: '稅則', width: 110, enableCellEdit: false },
+            { name: 'O_IL_TAX2'             , displayName: '新稅則', width: 110, headerCellClass: 'text-primary' },
+            { name: 'O_IL_BRAND'            , displayName: '商標', width: 110, enableCellEdit: false },
+            { name: 'O_IL_FORMAT'           , displayName: '成分及規格', width: 110, enableCellEdit: false },
+            { name: 'O_IL_NETWEIGHT'        , displayName: '淨重', width: 110, enableCellEdit: false },
+            { name: 'O_IL_NETWEIGHT_NEW'    , displayName: '新淨重', width: 110, headerCellClass: 'text-primary' },
+            { name: 'O_IL_COUNT'            , displayName: '數量', width: 110, enableCellEdit: false },
+            { name: 'O_IL_NEWCOUNT'         , displayName: '新數量', width: 110, headerCellClass: 'text-primary' },
+            { name: 'O_IL_PRICEUNIT'        , displayName: '單價', width: 110, enableCellEdit: false },
+            { name: 'O_IL_NEWPRICEUNIT'     , displayName: '新單價', width: 110, headerCellClass: 'text-primary' },
+            { name: 'O_IL_PCS'              , displayName: '數量單位', width: 110, enableCellEdit: false},
+            { name: 'O_IL_NEWPCS'           , displayName: '新數量單位', width: 110, headerCellClass: 'text-primary'},
+            { name: 'O_IL_INVOICECOST'      , displayName: '發票總金額', width: 110, enableCellEdit: false },
+            { name: 'O_IL_INVOICECOST2'     , displayName: '新發票總金額', width: 110, headerCellClass: 'text-primary' },
+            { name: 'O_IL_FINALCOST'        , displayName: '完稅價格', width: 110, enableCellEdit: false},
+            { name: 'O_IL_VOLUME'           , displayName: '體積', width: 110, enableCellEdit: false },
+            { name: 'O_IL_VOLUMEUNIT'       , displayName: '體積單位', width: 110, enableCellEdit: false },
+            { name: 'O_IL_COUNTRY'          , displayName: '生產國別', width: 110, enableCellEdit: false },
+            { name: 'O_IL_SENDENAME'        , displayName: '出口人英文名稱', width: 110, enableCellEdit: false },
+            { name: 'O_IL_NEWSENDENAME'     , displayName: '新出口人英文名稱', width: 110, headerCellClass: 'text-primary' },
+            { name: 'O_IL_COUNTRYID'        , displayName: '出口人國家代碼', width: 110, enableCellEdit: false },
+            { name: 'O_IL_NEWCOUNTRYID'     , displayName: '新出口人國家代碼', width: 110, headerCellClass: 'text-primary' },
+            { name: 'O_IL_SENDADDRESS'      , displayName: '出口人英文地址', width: 110, enableCellEdit: false },
+            { name: 'O_IL_NEWSENDADDRESS'   , displayName: '新出口人英文地址', width: 110, headerCellClass: 'text-primary' },
+            { name: 'O_IL_GETID'            , displayName: '進口人身分識別碼', width: 110, enableCellEdit: false },
+            { name: 'O_IL_GETPHONE'         , displayName: '進口人電話', width: 110, headerCellClass: 'text-primary' },
+            { name: 'O_IL_GETADDRESS'       , displayName: '進口人英文地址', width: 110, headerCellClass: 'text-primary' },
+            { name: 'O_IL_DWKIND'           , displayName: '貨櫃種類', width: 110, enableCellEdit: false },
+            { name: 'O_IL_DWNUMBER'         , displayName: '貨櫃號碼', width: 110, enableCellEdit: false },
+            { name: 'O_IL_DWTYPE'           , displayName: '貨櫃裝運方式', width: 110, enableCellEdit: false },
+            { name: 'O_IL_SEALNUMBER'       , displayName: '封條號碼', width: 110, enableCellEdit: false },
+            { name: 'O_IL_DECLAREMEMO1'     , displayName: '其他申報事項1', width: 110, enableCellEdit: false },
+            { name: 'O_IL_DECLAREMEMO2'     , displayName: '其他申報事項2', width: 110, headerCellClass: 'text-primary' },
+            { name: 'O_IL_TAXPAYMENTMEMO'   , displayName: '主動申報繳納稅款註記', width: 110, headerCellClass: 'text-primary' }
+        ],
+        enableFiltering: false,
+        enableSorting: true,
+        enableColumnMenus: false,
+        // enableVerticalScrollbar: false,
+        paginationPageSizes: [50, 100, 150, 200, 250, 300],
+        paginationPageSize: 100,
+        rowEditWaitInterval: -1,
+        onRegisterApi: function(gridApi){
+            $ctrl.peopleNotTheSameGetNoOption = gridApi;
+        }
+    }
+
+    $ctrl.ok = function() {
+        $uibModalInstance.close($ctrl.peopleNotTheSameGetNoOption.rowEdit.getDirtyRows());
+    };
+
+    $ctrl.cancel = function() {
+        $uibModalInstance.dismiss('cancel');
+    };
+})
+.controller('GetNoIsTrueModalInstanceCtrl', function ($uibModalInstance, $q, $scope, data) {
+    var $ctrl = this;
+    $ctrl.mdData = data;
+
+    $ctrl.getNoIsTrueOption = {
+        data: '$ctrl.mdData',
+        columnDefs: [
+            { name: 'O_IL_GETNO'            , displayName: '進口人統一編號', width: 110, headerCellClass: 'text-primary' },
+            { name: 'O_IL_G1'               , displayName: '報關種類', width: 80, headerCellClass: 'text-primary' },
+            { name: 'O_IL_SMALLNO'          , displayName: '小號', width: 110, enableCellEdit: false },
+            { name: 'O_IL_POSTNO'           , displayName: '艙單號碼', width: 110, enableCellEdit: false },
+            { name: 'O_IL_CUSTID'           , displayName: '快遞業者統一編號', width: 110, enableCellEdit: false },
+            { name: 'O_IL_PRICECONDITON'    , displayName: '單價條件', width: 110, enableCellEdit: false },
+            { name: 'O_IL_CURRENCY'         , displayName: '單價幣別代碼', width: 110, enableCellEdit: false },
+            { name: 'O_IL_CROSSWEIGHT'      , displayName: '毛重', width: 110, enableCellEdit: false },
+            { name: 'O_IL_NEWCROSSWEIGHT'   , displayName: '新毛重', width: 110, headerCellClass: 'text-primary' },
+            { name: 'O_IL_CTN'              , displayName: '件數', width: 110, enableCellEdit: false },
+            { name: 'O_IL_NEWCTN'           , displayName: '新件數', width: 110, headerCellClass: 'text-primary' },
+            { name: 'O_IL_CTNUNIT'          , displayName: '件數單位', width: 110, enableCellEdit: false },
+            { name: 'O_IL_MARK'             , displayName: '標記', width: 110, enableCellEdit: false },
+            { name: 'O_IL_SMALLNO_ID'       , displayName: '貨物編號', width: 110, headerCellClass: 'text-primary' },
+            { name: 'O_IL_NATURE'           , displayName: '貨物名稱', width: 110, enableCellEdit: false, cellTooltip: cellTooltip},
+            { name: 'O_IL_NATURE_NEW'       , displayName: '新貨物名稱', width: 110, headerCellClass: 'text-primary', cellTooltip: cellTooltip},
+            { name: 'O_IL_TAX'              , displayName: '稅則', width: 110, enableCellEdit: false },
+            { name: 'O_IL_TAX2'             , displayName: '新稅則', width: 110, headerCellClass: 'text-primary' },
+            { name: 'O_IL_BRAND'            , displayName: '商標', width: 110, enableCellEdit: false },
+            { name: 'O_IL_FORMAT'           , displayName: '成分及規格', width: 110, enableCellEdit: false },
+            { name: 'O_IL_NETWEIGHT'        , displayName: '淨重', width: 110, enableCellEdit: false },
+            { name: 'O_IL_NETWEIGHT_NEW'    , displayName: '新淨重', width: 110, headerCellClass: 'text-primary' },
+            { name: 'O_IL_COUNT'            , displayName: '數量', width: 110, enableCellEdit: false },
+            { name: 'O_IL_NEWCOUNT'         , displayName: '新數量', width: 110, headerCellClass: 'text-primary' },
+            { name: 'O_IL_PRICEUNIT'        , displayName: '單價', width: 110, enableCellEdit: false },
+            { name: 'O_IL_NEWPRICEUNIT'     , displayName: '新單價', width: 110, headerCellClass: 'text-primary' },
+            { name: 'O_IL_PCS'              , displayName: '數量單位', width: 110, enableCellEdit: false},
+            { name: 'O_IL_NEWPCS'           , displayName: '新數量單位', width: 110, headerCellClass: 'text-primary'},
+            { name: 'O_IL_INVOICECOST'      , displayName: '發票總金額', width: 110, enableCellEdit: false },
+            { name: 'O_IL_INVOICECOST2'     , displayName: '新發票總金額', width: 110, headerCellClass: 'text-primary' },
+            { name: 'O_IL_FINALCOST'        , displayName: '完稅價格', width: 110, enableCellEdit: false},
+            { name: 'O_IL_VOLUME'           , displayName: '體積', width: 110, enableCellEdit: false },
+            { name: 'O_IL_VOLUMEUNIT'       , displayName: '體積單位', width: 110, enableCellEdit: false },
+            { name: 'O_IL_COUNTRY'          , displayName: '生產國別', width: 110, enableCellEdit: false },
+            { name: 'O_IL_SENDENAME'        , displayName: '出口人英文名稱', width: 110, enableCellEdit: false },
+            { name: 'O_IL_NEWSENDENAME'     , displayName: '新出口人英文名稱', width: 110, headerCellClass: 'text-primary' },
+            { name: 'O_IL_COUNTRYID'        , displayName: '出口人國家代碼', width: 110, enableCellEdit: false },
+            { name: 'O_IL_NEWCOUNTRYID'     , displayName: '新出口人國家代碼', width: 110, headerCellClass: 'text-primary' },
+            { name: 'O_IL_SENDADDRESS'      , displayName: '出口人英文地址', width: 110, enableCellEdit: false },
+            { name: 'O_IL_NEWSENDADDRESS'   , displayName: '新出口人英文地址', width: 110, headerCellClass: 'text-primary' },
+            { name: 'O_IL_GETID'            , displayName: '進口人身分識別碼', width: 110, enableCellEdit: false },
+            { name: 'O_IL_GETENAME'         , displayName: '進口人英文名稱', width: 110, headerCellClass: 'text-primary' },
+            { name: 'O_IL_GETPHONE'         , displayName: '進口人電話', width: 110, headerCellClass: 'text-primary' },
+            { name: 'O_IL_GETADDRESS'       , displayName: '進口人英文地址', width: 110, headerCellClass: 'text-primary' },
+            { name: 'O_IL_DWKIND'           , displayName: '貨櫃種類', width: 110, enableCellEdit: false },
+            { name: 'O_IL_DWNUMBER'         , displayName: '貨櫃號碼', width: 110, enableCellEdit: false },
+            { name: 'O_IL_DWTYPE'           , displayName: '貨櫃裝運方式', width: 110, enableCellEdit: false },
+            { name: 'O_IL_SEALNUMBER'       , displayName: '封條號碼', width: 110, enableCellEdit: false },
+            { name: 'O_IL_DECLAREMEMO1'     , displayName: '其他申報事項1', width: 110, enableCellEdit: false },
+            { name: 'O_IL_DECLAREMEMO2'     , displayName: '其他申報事項2', width: 110, headerCellClass: 'text-primary' },
+            { name: 'O_IL_TAXPAYMENTMEMO'   , displayName: '主動申報繳納稅款註記', width: 110, headerCellClass: 'text-primary' }
+        ],
+        enableFiltering: false,
+        enableSorting: true,
+        enableColumnMenus: false,
+        // enableVerticalScrollbar: false,
+        paginationPageSizes: [50, 100, 150, 200, 250, 300],
+        paginationPageSize: 100,
+        rowEditWaitInterval: -1,
+        onRegisterApi: function(gridApi){
+            $ctrl.getNoIsTrueOption = gridApi;
+        }
+    }
+
+    $ctrl.ok = function() {
+        $uibModalInstance.close($ctrl.getNoIsTrueOption.rowEdit.getDirtyRows());
+    };
+
+    $ctrl.cancel = function() {
+        $uibModalInstance.dismiss('cancel');
+    };
+})
+.controller('PhoneWithSameNameButDifferentCodeModalInstanceCtrl', function ($uibModalInstance, $q, $scope, data) {
+    var $ctrl = this;
+    $ctrl.mdData = data;
+
+    $ctrl.phoneWithSameNameButDifferentCodeOption = {
+        data: '$ctrl.mdData',
+        columnDefs: [
+            { name: 'O_IL_GETENAME'         , displayName: '進口人英文名稱', width: 110, headerCellClass: 'text-primary' },
+            { name: 'O_IL_GETPHONE'         , displayName: '進口人電話', width: 110, headerCellClass: 'text-primary' },
+            { name: 'O_IL_GETNO'            , displayName: '進口人統一編號', width: 110, headerCellClass: 'text-primary' },
+            { name: 'O_IL_G1'               , displayName: '報關種類', width: 80, headerCellClass: 'text-primary' },
+            { name: 'O_IL_SMALLNO'          , displayName: '小號', width: 110, enableCellEdit: false },
+            { name: 'O_IL_POSTNO'           , displayName: '艙單號碼', width: 110, enableCellEdit: false },
+            { name: 'O_IL_CUSTID'           , displayName: '快遞業者統一編號', width: 110, enableCellEdit: false },
+            { name: 'O_IL_PRICECONDITON'    , displayName: '單價條件', width: 110, enableCellEdit: false },
+            { name: 'O_IL_CURRENCY'         , displayName: '單價幣別代碼', width: 110, enableCellEdit: false },
+            { name: 'O_IL_CROSSWEIGHT'      , displayName: '毛重', width: 110, enableCellEdit: false },
+            { name: 'O_IL_NEWCROSSWEIGHT'   , displayName: '新毛重', width: 110, headerCellClass: 'text-primary' },
+            { name: 'O_IL_CTN'              , displayName: '件數', width: 110, enableCellEdit: false },
+            { name: 'O_IL_NEWCTN'           , displayName: '新件數', width: 110, headerCellClass: 'text-primary' },
+            { name: 'O_IL_CTNUNIT'          , displayName: '件數單位', width: 110, enableCellEdit: false },
+            { name: 'O_IL_MARK'             , displayName: '標記', width: 110, enableCellEdit: false },
+            { name: 'O_IL_SMALLNO_ID'       , displayName: '貨物編號', width: 110, headerCellClass: 'text-primary' },
+            { name: 'O_IL_NATURE'           , displayName: '貨物名稱', width: 110, enableCellEdit: false, cellTooltip: cellTooltip},
+            { name: 'O_IL_NATURE_NEW'       , displayName: '新貨物名稱', width: 110, headerCellClass: 'text-primary', cellTooltip: cellTooltip},
+            { name: 'O_IL_TAX'              , displayName: '稅則', width: 110, enableCellEdit: false },
+            { name: 'O_IL_TAX2'             , displayName: '新稅則', width: 110, headerCellClass: 'text-primary' },
+            { name: 'O_IL_BRAND'            , displayName: '商標', width: 110, enableCellEdit: false },
+            { name: 'O_IL_FORMAT'           , displayName: '成分及規格', width: 110, enableCellEdit: false },
+            { name: 'O_IL_NETWEIGHT'        , displayName: '淨重', width: 110, enableCellEdit: false },
+            { name: 'O_IL_NETWEIGHT_NEW'    , displayName: '新淨重', width: 110, headerCellClass: 'text-primary' },
+            { name: 'O_IL_COUNT'            , displayName: '數量', width: 110, enableCellEdit: false },
+            { name: 'O_IL_NEWCOUNT'         , displayName: '新數量', width: 110, headerCellClass: 'text-primary' },
+            { name: 'O_IL_PRICEUNIT'        , displayName: '單價', width: 110, enableCellEdit: false },
+            { name: 'O_IL_NEWPRICEUNIT'     , displayName: '新單價', width: 110, headerCellClass: 'text-primary' },
+            { name: 'O_IL_PCS'              , displayName: '數量單位', width: 110, enableCellEdit: false},
+            { name: 'O_IL_NEWPCS'           , displayName: '新數量單位', width: 110, headerCellClass: 'text-primary'},
+            { name: 'O_IL_INVOICECOST'      , displayName: '發票總金額', width: 110, enableCellEdit: false },
+            { name: 'O_IL_INVOICECOST2'     , displayName: '新發票總金額', width: 110, headerCellClass: 'text-primary' },
+            { name: 'O_IL_FINALCOST'        , displayName: '完稅價格', width: 110, enableCellEdit: false},
+            { name: 'O_IL_VOLUME'           , displayName: '體積', width: 110, enableCellEdit: false },
+            { name: 'O_IL_VOLUMEUNIT'       , displayName: '體積單位', width: 110, enableCellEdit: false },
+            { name: 'O_IL_COUNTRY'          , displayName: '生產國別', width: 110, enableCellEdit: false },
+            { name: 'O_IL_SENDENAME'        , displayName: '出口人英文名稱', width: 110, enableCellEdit: false },
+            { name: 'O_IL_NEWSENDENAME'     , displayName: '新出口人英文名稱', width: 110, headerCellClass: 'text-primary' },
+            { name: 'O_IL_COUNTRYID'        , displayName: '出口人國家代碼', width: 110, enableCellEdit: false },
+            { name: 'O_IL_NEWCOUNTRYID'     , displayName: '新出口人國家代碼', width: 110, headerCellClass: 'text-primary' },
+            { name: 'O_IL_SENDADDRESS'      , displayName: '出口人英文地址', width: 110, enableCellEdit: false },
+            { name: 'O_IL_NEWSENDADDRESS'   , displayName: '新出口人英文地址', width: 110, headerCellClass: 'text-primary' },
+            { name: 'O_IL_GETID'            , displayName: '進口人身分識別碼', width: 110, enableCellEdit: false },
+            { name: 'O_IL_GETADDRESS'       , displayName: '進口人英文地址', width: 110, headerCellClass: 'text-primary' },
+            { name: 'O_IL_DWKIND'           , displayName: '貨櫃種類', width: 110, enableCellEdit: false },
+            { name: 'O_IL_DWNUMBER'         , displayName: '貨櫃號碼', width: 110, enableCellEdit: false },
+            { name: 'O_IL_DWTYPE'           , displayName: '貨櫃裝運方式', width: 110, enableCellEdit: false },
+            { name: 'O_IL_SEALNUMBER'       , displayName: '封條號碼', width: 110, enableCellEdit: false },
+            { name: 'O_IL_DECLAREMEMO1'     , displayName: '其他申報事項1', width: 110, enableCellEdit: false },
+            { name: 'O_IL_DECLAREMEMO2'     , displayName: '其他申報事項2', width: 110, headerCellClass: 'text-primary' },
+            { name: 'O_IL_TAXPAYMENTMEMO'   , displayName: '主動申報繳納稅款註記', width: 110, headerCellClass: 'text-primary' }
+        ],
+        enableFiltering: false,
+        enableSorting: true,
+        enableColumnMenus: false,
+        // enableVerticalScrollbar: false,
+        paginationPageSizes: [50, 100, 150, 200, 250, 300],
+        paginationPageSize: 100,
+        rowEditWaitInterval: -1,
+        onRegisterApi: function(gridApi){
+            $ctrl.phoneWithSameNameButDifferentCodeOption = gridApi;
+        }
+    }
+
+    $ctrl.ok = function() {
+        $uibModalInstance.close($ctrl.phoneWithSameNameButDifferentCodeOption.rowEdit.getDirtyRows());
     };
 
     $ctrl.cancel = function() {

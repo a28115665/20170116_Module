@@ -195,6 +195,76 @@ module.exports = function(pQueryname, pParams){
 							AND O_IL_G1 NOT IN ('G1', 'X3', '移倉')";
 		
 			break;
+
+		case "PeopleNotTheSameGetNo":
+			_SQLCommand += "SELECT * \
+							FROM O_ITEM_LIST \
+							WHERE O_IL_SEQ = @O_IL_SEQ \
+							AND O_IL_GETNO IN ( \
+								SELECT A.O_IL_GETNO \
+								FROM ( \
+									SELECT O_IL_GETNO, O_IL_GETENAME, COUNT(1) AS Count \
+									FROM O_ITEM_LIST \
+									WHERE O_IL_GETNO IS NOT NULL  \
+									AND O_IL_GETNO != '' \
+									AND O_IL_SEQ = @O_IL_SEQ \
+									GROUP BY O_IL_GETNO, O_IL_GETENAME \
+								) A, \
+								( \
+									SELECT O_IL_GETNO, COUNT(1) AS Count \
+									FROM O_ITEM_LIST \
+									WHERE O_IL_GETNO IS NOT NULL \
+									AND O_IL_GETNO != '' \
+									AND O_IL_SEQ = @O_IL_SEQ \
+									GROUP BY O_IL_GETNO \
+								) B \
+								WHERE A.Count != B.Count \
+								AND A.O_IL_GETNO = B.O_IL_GETNO \
+								GROUP BY A.O_IL_GETNO \
+							) ";
+		
+			break;
+
+		case "PhoneWithSameNameButDifferentCode":
+			_SQLCommand += "SELECT O_ITEM_LIST.* \
+							FROM ( \
+								SELECT * \
+								FROM O_ITEM_LIST \
+								WHERE O_IL_SEQ = @O_IL_SEQ \
+							) O_ITEM_LIST \
+							INNER JOIN ( \
+								SELECT A.O_IL_GETENAME, A.O_IL_GETPHONE \
+								FROM ( \
+									SELECT O_IL_GETNO, O_IL_GETENAME, O_IL_GETPHONE, COUNT(1) AS Count \
+									FROM O_ITEM_LIST \
+									WHERE O_IL_GETENAME IS NOT NULL \
+									AND O_IL_GETENAME != '' \
+									AND O_IL_GETPHONE IS NOT NULL \
+									AND O_IL_GETPHONE != '' \
+									AND O_IL_GETNO IS NOT NULL \
+									AND O_IL_GETNO != '' \
+									AND O_IL_SEQ = @O_IL_SEQ \
+									GROUP BY O_IL_GETNO, O_IL_GETENAME, O_IL_GETPHONE \
+								) A, \
+								( \
+									SELECT O_IL_GETENAME, O_IL_GETPHONE, COUNT(1) AS Count \
+									FROM O_ITEM_LIST \
+									WHERE O_IL_GETENAME IS NOT NULL \
+									AND O_IL_GETENAME != '' \
+									AND O_IL_GETPHONE IS NOT NULL \
+									AND O_IL_GETPHONE != '' \
+									AND O_IL_GETNO IS NOT NULL \
+									AND O_IL_GETNO != '' \
+									AND O_IL_SEQ = @O_IL_SEQ \
+									GROUP BY O_IL_GETENAME, O_IL_GETPHONE \
+								) B \
+								WHERE A.Count != B.Count \
+								AND A.O_IL_GETENAME = B.O_IL_GETENAME \
+								AND A.O_IL_GETPHONE = B.O_IL_GETPHONE \
+								GROUP BY A.O_IL_GETENAME, A.O_IL_GETPHONE \
+							) O_ITEM_LIST2 ON O_ITEM_LIST.O_IL_GETENAME = O_ITEM_LIST2.O_IL_GETENAME \
+							AND O_ITEM_LIST.O_IL_GETPHONE = O_ITEM_LIST2.O_IL_GETPHONE";
+			break;
 	}
 
 	return _SQLCommand;
