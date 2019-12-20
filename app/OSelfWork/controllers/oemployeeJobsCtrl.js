@@ -337,7 +337,7 @@ angular.module('app.oselfwork').controller('OEmployeeJobsCtrl', function ($scope
                         selectOptions: userInfo
                     }
                 },
-                { name: 'EXPORT'                 ,  displayName: '匯出', width: 85, pinnedRight:true, enableCellEdit: false, enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToExportExcelStaus') },
+                { name: 'EXPORT'                 ,  displayName: '匯出', width: 85, pinnedRight:true, enableCellEdit: false, enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToExportOExcelStaus') },
                 { name: 'ITEM_LIST'              ,  displayName: '報機單', enableFiltering: false, width: 86, pinnedRight:true, cellTemplate: $templateCache.get('accessibilityToOperaForJob001') },
                 // { name: 'DELIVERY_ITEM_LIST'  ,  displayName: '派送單', enableFiltering: false, width: '8%', cellTemplate: $templateCache.get('accessibilityToOperaForJob003') },
                 { name: 'Options'                ,  displayName: '操作', width: 67, pinnedRight:true, enableCellEdit: false, enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToM') }

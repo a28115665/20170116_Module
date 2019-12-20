@@ -356,10 +356,10 @@ angular.module('app.oselfwork').controller('OJob001Ctrl', function ($scope, $sta
                 { name: 'O_IL_DWKIND'           , displayName: '貨櫃種類', width: 110, enableCellEdit: false },
                 { name: 'O_IL_DWNUMBER'         , displayName: '貨櫃號碼', width: 110, enableCellEdit: false },
                 { name: 'O_IL_DWTYPE'           , displayName: '貨櫃裝運方式', width: 110, enableCellEdit: false },
-                { name: 'O_IL_SEALNUMBER'       , displayName: '封條號碼', width: 110, enableCellEdit: false },
-                { name: 'O_IL_DECLAREMEMO1'     , displayName: '其他申報事項1', width: 110, enableCellEdit: false },
+                // { name: 'O_IL_SEALNUMBER'       , displayName: '封條號碼', width: 110, enableCellEdit: false },
+                // { name: 'O_IL_DECLAREMEMO1'     , displayName: '其他申報事項1', width: 110, enableCellEdit: false },
                 { name: 'O_IL_DECLAREMEMO2'     , displayName: '其他申報事項2', width: 110, headerCellClass: 'text-primary' },
-                { name: 'O_IL_TAXPAYMENTMEMO'   , displayName: '主動申報繳納稅款註記', width: 110, headerCellClass: 'text-primary' },
+                { name: 'O_IL_TAXPAYMENTMEMO'   , displayName: '主動申報繳納稅款註記', width: 110, headerCellClass: 'text-primary', pinnedRight:true },
                 { name: 'Options'       , displayName: '操作', width: 120, enableCellEdit: false, enableSorting:false, enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToOJob001'), pinnedRight:true, cellClass: 'cell-class-no-style' }
             ],
             rowTemplate: '<div> \
@@ -1063,6 +1063,46 @@ angular.module('app.oselfwork').controller('OJob001Ctrl', function ($scope, $sta
                     toaster.pop('info', '訊息', '無符合條件', 3000);
                 }
             }); 
+        },
+        ExportFlightItem: function(){
+            ToolboxApi.ExportExcelBySql({
+                templates : 20,
+                filename : $filter('date')($vm.vmData.O_OL_IMPORTDT, 'yyyyMMdd', 'GMT') + ' ' + 
+                          $filter('ocompyFilter')($vm.vmData.O_OL_CO_CODE) + ' ' + 
+                          $vm.vmData.O_OL_COUNT + '件 ' +
+                          $vm.vmData.O_OL_PULL_COUNT + '件',
+                querymain: 'ojob001',
+                queryname: 'SelectOItemListForFlight',
+                params: {
+                    O_OL_MASTER : $vm.vmData.O_OL_MASTER,
+                    O_OL_PASSCODE : $vm.vmData.O_OL_PASSCODE,
+                    O_OL_VOYSEQ : $vm.vmData.O_OL_VOYSEQ,
+                    O_OL_MVNO : $vm.vmData.O_OL_MVNO,
+                    O_OL_COMPID : $vm.vmData.O_OL_COMPID,
+                    O_OL_ARRLOCATIONID : $vm.vmData.O_OL_ARRLOCATIONID,
+                    O_OL_POST : $vm.vmData.O_OL_POST,
+                    O_OL_PACKAGELOCATIONID : $vm.vmData.O_OL_PACKAGELOCATIONID,
+                    O_OL_BOATID : $vm.vmData.O_OL_BOATID,
+                    O_IL_SEQ : $vm.vmData.O_OL_SEQ
+                }
+            }).then(function (res) {
+                // console.log(res);
+            
+                $vm.vmData.FLIGHT_EXPORT += 1;
+
+                RestfulApi.InsertMSSQLData({
+                    insertname: 'Insert',
+                    table: 46,
+                    params: {
+                        O_ILE_SEQ : $vm.vmData.O_OL_SEQ,
+                        O_ILE_TYPE : 20,
+                        O_ILE_CR_DATETIME : $filter('date')(new Date(), 'yyyy-MM-dd HH:mm:ss'),
+                        O_ILE_CR_USER : $vm.profile.U_ID
+                    }
+                }).then(function (res) {
+                    
+                });
+            });
         },
         ExportExcel: function(){
             

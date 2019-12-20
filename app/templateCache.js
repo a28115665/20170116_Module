@@ -142,6 +142,15 @@ angular.module('app')
                             <i class="fa fa-question" title="關貿未匯" ng-if="row.entity.TRADE_EXPORT == 0"> </i> \
                         </div>');
 
+    $templateCache.put('accessibilityToExportOExcelStaus', '\
+                        <div class="my-ui-grid-cell-contents">\
+                            <a href="javascript:void(0);" class="btn btn-info btn-xs" ng-click="grid.appScope.$vm.gridMethod.exportDetail(row)"> 紀錄</a>\
+                            <i class="fa fa-check text-success" title="銷艙單已匯" ng-if="row.entity.FLIGHT_EXPORT >= 1"> </i> \
+                            <i class="fa fa-question" title="銷艙單未匯" ng-if="row.entity.FLIGHT_EXPORT == 0"> </i> \
+                            <i class="fa fa-check text-success" title="關貿已匯" ng-if="row.entity.TRADE_EXPORT >= 1"> </i> \
+                            <i class="fa fa-question" title="關貿未匯" ng-if="row.entity.TRADE_EXPORT == 0"> </i> \
+                        </div>');
+
     $templateCache.put('accessibilityToOverSixName', '\
                     <div class="ui-grid-cell-contents text-center">\
                         <span class="label bg-color-red" ng-if="row.entity.GETNAME_COUNT == -1">自訂</span>\

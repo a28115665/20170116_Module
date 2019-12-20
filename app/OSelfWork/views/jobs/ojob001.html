@@ -126,11 +126,11 @@
 						        </ul>
 						    </div>
 				        </div>
-				        <!-- <div class="widget-toolbar smart-form" role="menu">
-				            <a href-void="" class="btn btn-warning" href="#" ng-click="$vm.RepeatGet()">檢查重複進口人</a>
-				        </div> -->
 				        <div class="widget-toolbar smart-form" role="menu">
 				            <a href-void="" class="btn btn-success" href="#" ng-click="$vm.ExportExcel()">匯出關貿</a>
+				        </div>
+				        <div class="widget-toolbar smart-form" role="menu">
+				            <a href-void="" class="btn btn-success" href="#" ng-click="$vm.ExportFlightItem()">匯出銷艙單</a>
 				        </div>
 				    </header>
 				    <!-- widget div-->
@@ -157,6 +157,11 @@
 							        	<form class="form-inline" role="form">
 							                <fieldset>
 							                    <div class="form-group">
+											        <label class="control-label">銷艙單已匯：</label>
+											        <span>
+														<i ng-class="$vm.vmData.FLIGHT_EXPORT >= 1 ? 'fa fa-check text-success' : 'fa fa-remove text-danger'"></i>
+											        </span>
+											        <label class="control-label">｜</label>
 											        <label class="control-label">關貿已匯：</label>
 											        <span>
 														<i ng-class="$vm.vmData.TRADE_EXPORT >= 1 ? 'fa fa-check text-success' : 'fa fa-remove text-danger'"></i>
@@ -168,7 +173,7 @@
 							        <div class="col-xs-12 col-sm-12 col-md-8 col-lg-8 text-right">
 							        	<form class="form-inline" role="form">
 							                <fieldset>
-							                    <div class="form-group">
+							                    <!-- <div class="form-group">
 										            <button class="btn btn-warning"
 										            		ng-click="$vm.CalculateNetWieghtBalance()"
 										            		ng-disabled="$vm.loading.calculateNetWieghtBalance">
@@ -179,7 +184,7 @@
 										                	平衡淨重
 										            	</span>
 										            </button>
-							                    </div>
+							                    </div> -->
 							                    <div class="form-group">
 										            <button class="btn btn-warning"
 										            		ng-click="$vm.CalculateCrossWieghtBalance()"
@@ -393,7 +398,7 @@
                         <input class="form-control" name="O_OL_FLIGHT_TOTALCROSSWEIGHT" placeholder="請輸入銷艙單總重量" ng-model="$ctrl.mdData.O_OL_FLIGHT_TOTALCROSSWEIGHT" type="text" required>
                         <p class="note">報機單總重量(新毛重) 將會等於輸入的 銷艙單毛重總重量</p>
                         <p class="text-danger" ng-if="$ctrl.mdData.totalCrossWeight == 0">目前倍率：0</p>
-                        <p class="text-danger" ng-if="$ctrl.mdData.totalCrossWeight > 0">目前倍率：{{($ctrl.mdData.O_OL_FLIGHT_TOTALCROSSWEIGHT / $ctrl.mdData.totalCrossWeight).toFixed(2)}} (請介於0.5~1.5之間)</p>
+                        <p class="text-danger" ng-if="$ctrl.mdData.totalCrossWeight > 0">目前倍率：{{($ctrl.mdData.O_OL_FLIGHT_TOTALCROSSWEIGHT / $ctrl.mdData.totalCrossWeight).toFixed(2)}} (請介於0.5~1.5之間)，會以此倍率計算新淨重</p>
                     </div>
                 </div>
 			</fieldset>

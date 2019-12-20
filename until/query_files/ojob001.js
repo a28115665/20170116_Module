@@ -22,6 +22,37 @@ module.exports = function(pQueryname, pParams){
 		
 			break;
 
+		case "SelectOItemListForFlight":
+			_SQLCommand += "SELECT * \
+							FROM ( \
+								SELECT CASE WHEN O_PG_SEQ IS NULL THEN 0 ELSE 1 END AS 'O_PG_PULLGOODS', \
+										CASE WHEN O_SPG_SEQ IS NULL OR O_SPG_TYPE IS NULL THEN NULL ELSE \
+											CASE WHEN O_SPG_TYPE = 1 THEN '普特貨' \
+											ELSE '特特貨' END \
+										END AS 'SPG_SPECIALGOODS', \
+										O_PG_MOVED, \
+										O_ITEM_LIST.*, \
+										CASE WHEN ROW_NUMBER() OVER(PARTITION BY O_IL_SMALLNO ORDER BY O_IL_SMALLNO) = 1 \
+										THEN O_IL_SMALLNO ELSE NULL END AS 'O_IL_SMALLNOEX_NOREPEAT', \
+										O_PG_SEQ \
+								FROM O_ITEM_LIST \
+								LEFT JOIN O_PULL_GOODS ON \
+								O_IL_SEQ = O_PG_SEQ AND \
+								O_IL_SMALLNO = O_PG_SMALLNO AND \
+								O_IL_NEWSMALLNO = O_PG_NEWSMALLNO \
+								LEFT JOIN O_SPECIAL_GOODS ON \
+								O_IL_SEQ = O_SPG_SEQ AND \
+								O_IL_SMALLNO = O_SPG_SMALLNO AND \
+								O_IL_NEWSMALLNO = O_SPG_NEWSMALLNO \
+							) O_ITEM_LIST\
+							WHERE 1=1 \
+							/*拉貨不匯出*/ \
+							AND O_PG_SEQ IS NULL \
+							/*銷艙單只匯出小號標頭第一筆*/ \
+							AND O_IL_SMALLNOEX_NOREPEAT IS NOT NULL \
+							AND O_IL_SEQ = @O_IL_SEQ";
+			break;
+
 		case "SelectOItemListForEx0":
 			_SQLCommand += "SELECT CASE WHEN O_PG_SEQ IS NULL THEN 0 ELSE 1 END AS 'O_PG_PULLGOODS', \
 									CASE WHEN O_SPG_SEQ IS NULL OR O_SPG_TYPE IS NULL THEN NULL ELSE \
