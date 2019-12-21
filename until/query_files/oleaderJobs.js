@@ -20,16 +20,22 @@ module.exports = function(pQueryname, pParams){
 									O_OL_REASON, \
 									O_OL_ILSTATUS, \
 									( \
-										( \
-											SELECT COUNT(1) \
+										SELECT COUNT(1) \
+										FROM ( \
+											SELECT O_ITEM_LIST.*, \
+												CASE WHEN ROW_NUMBER() OVER(PARTITION BY O_IL_SMALLNO ORDER BY O_IL_SMALLNO) = 1 \
+												THEN O_IL_SMALLNO ELSE NULL END AS 'O_IL_SMALLNOEX_NOREPEAT' \
 											FROM O_ITEM_LIST \
-											WHERE O_IL_SEQ = O_OL_SEQ \
-										) - \
-										( \
-											SELECT COUNT(1) \
-											FROM O_PULL_GOODS \
-											WHERE O_PG_SEQ = O_OL_SEQ \
-										) \
+											LEFT JOIN O_PULL_GOODS ON \
+											O_IL_SEQ = O_PG_SEQ AND \
+											O_IL_SMALLNO = O_PG_SMALLNO AND \
+											O_IL_NEWSMALLNO = O_PG_NEWSMALLNO \
+											WHERE 1=1 \
+											/*拉貨不算*/ \
+											AND O_PG_SEQ IS NULL \
+											AND O_IL_SEQ = O_OL_SEQ \
+										) O_ITEM_LIST \
+										WHERE O_IL_SMALLNOEX_NOREPEAT IS NOT NULL \
 									) AS 'O_OL_COUNT', \
 									( \
 										SELECT COUNT(1) \
@@ -209,11 +215,34 @@ module.exports = function(pQueryname, pParams){
 			_SQLCommand += "SELECT O_CO_NAME, \
 								( \
 									SELECT COUNT(1) \
-									FROM O_ITEM_LIST \
-									JOIN O_ORDER_LIST ON O_OL_SEQ = O_IL_SEQ AND O_OL_CO_CODE = O_CO_CODE \
-									/*只抓今天*/ \
-									WHERE '"+pParams["O_IMPORTDT_FROM"]+"' <= O_OL_IMPORTDT AND O_OL_IMPORTDT <= '"+pParams["O_IMPORTDT_TOXX"]+"' \
-								) AS 'OW2_COUNT', \
+									FROM (\
+										SELECT O_ITEM_LIST.*, \
+											CASE WHEN ROW_NUMBER() OVER(PARTITION BY O_IL_SMALLNO ORDER BY O_IL_SMALLNO) = 1 \
+											THEN O_IL_SMALLNO ELSE NULL END AS 'O_IL_SMALLNOEX_NOREPEAT',\
+											O_PG_SEQ,\
+											O_OL_CO_CODE\
+										FROM O_ITEM_LIST \
+										JOIN (\
+											SELECT *\
+											FROM O_ORDER_LIST\
+											WHERE '"+pParams["O_IMPORTDT_FROM"]+"' <= O_OL_IMPORTDT AND O_OL_IMPORTDT <= '"+pParams["O_IMPORTDT_TOXX"]+"' \
+										) O_ORDER_LIST ON O_OL_SEQ = O_IL_SEQ AND O_OL_CO_CODE = O_CO_CODE \
+										LEFT JOIN O_PULL_GOODS ON \
+										O_IL_SEQ = O_PG_SEQ AND \
+										O_IL_SMALLNO = O_PG_SMALLNO AND\
+										O_IL_NEWSMALLNO = O_PG_NEWSMALLNO \
+										LEFT JOIN O_SPECIAL_GOODS ON \
+										O_IL_SEQ = O_SPG_SEQ AND \
+										O_IL_SMALLNO = O_SPG_SMALLNO AND \
+										O_IL_NEWSMALLNO = O_SPG_NEWSMALLNO \
+									) O_ITEM_LIST\
+									WHERE 1=1\
+									AND O_OL_CO_CODE = O_CO_CODE \
+									/*拉貨不匯出*/ \
+									AND O_PG_SEQ IS NULL\
+									/*只計算有小號的筆數*/\
+									AND O_IL_SMALLNOEX_NOREPEAT IS NOT NULL\
+								) AS 'OW2_COUNT',\
 								( \
 									SELECT COUNT(1) \
 									FROM O_ORDER_LIST \
@@ -222,7 +251,6 @@ module.exports = function(pQueryname, pParams){
 										FROM O_ITEM_LIST \
 										GROUP BY O_IL_SEQ \
 									) ITEM_LIST ON O_OL_SEQ = O_IL_SEQ AND O_OL_CO_CODE = O_CO_CODE \
-									/*只抓今天*/ \
 									WHERE '"+pParams["O_IMPORTDT_FROM"]+"' <= O_OL_IMPORTDT AND O_OL_IMPORTDT <= '"+pParams["O_IMPORTDT_TOXX"]+"' \
 								) AS 'OL_OW2_COUNT' \
 							FROM ( \
@@ -337,16 +365,22 @@ module.exports = function(pQueryname, pParams){
 								CONVERT(varchar, O_OL_IMPORTDT, 23 ) AS 'O_OL_IMPORTDT_EX', \
 								O_CO_NAME, \
 								( \
-									(\
-										SELECT COUNT(1) \
+									SELECT COUNT(1) \
+									FROM ( \
+										SELECT O_ITEM_LIST.*, \
+											CASE WHEN ROW_NUMBER() OVER(PARTITION BY O_IL_SMALLNO ORDER BY O_IL_SMALLNO) = 1 \
+											THEN O_IL_SMALLNO ELSE NULL END AS 'O_IL_SMALLNOEX_NOREPEAT' \
 										FROM O_ITEM_LIST \
-										WHERE O_IL_SEQ = O_OL_SEQ\
-									) - \
-									( \
-										SELECT COUNT(1) \
-										FROM O_PULL_GOODS \
-										WHERE O_PG_SEQ = O_OL_SEQ \
-									) \
+										LEFT JOIN O_PULL_GOODS ON \
+										O_IL_SEQ = O_PG_SEQ AND \
+										O_IL_SMALLNO = O_PG_SMALLNO AND \
+										O_IL_NEWSMALLNO = O_PG_NEWSMALLNO \
+										WHERE 1=1 \
+										/*拉貨不算*/ \
+										AND O_PG_SEQ IS NULL \
+										AND O_IL_SEQ = O_OL_SEQ \
+									) O_ITEM_LIST \
+									WHERE O_IL_SMALLNOEX_NOREPEAT IS NOT NULL \
 								) AS 'O_OL_COUNT', \
 								( \
 									SELECT COUNT(1) \
