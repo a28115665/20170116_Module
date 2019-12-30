@@ -186,9 +186,10 @@ angular.module('app', [
     $rootScope.$on('$stateChangeSuccess', function (event, toState, roParams, fromState, fromParams) {
         // 檢視此頁是否有權限進入
         // 無權限就導到default頁面
-        // console.log(Session.Get().GRIGHT[toState.name], toState.name);
+        // console.log((!angular.isUndefined(Session.Get()) && Session.Get()["GRIGHT"] !== undefined), Session.Get()["U_ROLE"] == "Admin");
         if(!angular.isUndefined(Session.Get()) && Session.Get()["GRIGHT"] !== undefined){
-            if(!Session.Get().GRIGHT[toState.name]){
+
+            if(Session.Get()["U_ROLE"] != "Admin" && !Session.Get().GRIGHT[toState.name]){
                 // event.preventDefault();
                 $state.transitionTo("app.default");
             }

@@ -10,7 +10,7 @@ angular.module('SmartAdmin.Layout').directive('bigBreadcrumbs', function ($rootS
             icon: '@'
         },
         link: function (scope, element) {
-
+            
             var first = _.first(scope.items);
             var icon = scope.icon || 'home';
 
