@@ -1493,24 +1493,25 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
         if(colDef.name == 'IL_G1') {
             try {
                 rowEntity["IL_G1"] = newValue.toUpperCase();
+                G1ForY(rowEntity);
             }
             catch (e) {
                 console.log(e);
             }
         }
 
-        try {
-            if(rowEntity["IL_G1"] == "Y"){
-                G1ForY(rowEntity)
-                // rowEntity.IL_WEIGHT_NEW = rowEntity.IL_WEIGHT;
-                // rowEntity.IL_NEWPCS = rowEntity.IL_PCS;
-                // rowEntity.IL_UNIVALENT_NEW = rowEntity.IL_UNIVALENT;
-                // rowEntity.IL_NEWSENDNAME = rowEntity.IL_SENDNAME;
-                // rowEntity.IL_FINALCOST = null;
-            }
-        } catch (e) {
-            console.log(e);
-        }
+        // try {
+        //     if(newValue.toUpperCase() == "Y"){
+        //         G1ForY(rowEntity)
+        //         // rowEntity.IL_WEIGHT_NEW = rowEntity.IL_WEIGHT;
+        //         // rowEntity.IL_NEWPCS = rowEntity.IL_PCS;
+        //         // rowEntity.IL_UNIVALENT_NEW = rowEntity.IL_UNIVALENT;
+        //         // rowEntity.IL_NEWSENDNAME = rowEntity.IL_SENDNAME;
+        //         // rowEntity.IL_FINALCOST = null;
+        //     }
+        // } catch (e) {
+        //     console.log(e);
+        // }
 
         if(colDef.name == 'IL_GETNAME_NEW'){
             var _temp = encodeURI(rowEntity.IL_GETNAME_NEW),
