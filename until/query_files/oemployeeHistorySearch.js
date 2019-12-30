@@ -19,6 +19,15 @@ module.exports = function(pQueryname, pParams){
 									O_OL_CR_DATETIME, \
 									O_OL_REASON, \
 									O_OL_ILSTATUS, \
+									O_OL_ORI_LOGIC1, \
+									O_OL_FIX_LOGIC1, \
+									O_OL_ORI_LOGIC2, \
+									O_OL_FIX_LOGIC2, \
+									O_OL_ORI_LOGIC3, \
+									O_OL_FIX_LOGIC3, \
+									O_OL_ORI_LOGIC4, \
+									O_OL_FIX_LOGIC4, \
+									O_OL_ALREADY_FIXED, \
 									( \
 										SELECT COUNT(1) \
 										FROM ( \
@@ -179,6 +188,15 @@ module.exports = function(pQueryname, pParams){
 									O_OL_CR_DATETIME, \
 									O_OL_REASON, \
 									O_OL_ILSTATUS, \
+									O_OL_ORI_LOGIC1, \
+									O_OL_FIX_LOGIC1, \
+									O_OL_ORI_LOGIC2, \
+									O_OL_FIX_LOGIC2, \
+									O_OL_ORI_LOGIC3, \
+									O_OL_FIX_LOGIC3, \
+									O_OL_ORI_LOGIC4, \
+									O_OL_FIX_LOGIC4, \
+									O_OL_ALREADY_FIXED, \
 									W2_OE.O_OE_PRINCIPAL, \
 									W2_OE.O_OE_EDATETIME, \
 									W2_OE.O_OE_FDATETIME, \

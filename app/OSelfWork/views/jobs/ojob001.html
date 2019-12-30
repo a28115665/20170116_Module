@@ -107,21 +107,27 @@
 				        <h2>編輯 </h2>
 				        <div class="widget-toolbar smart-form" role="menu">
 				            <div class="btn-group dropdown" uib-dropdown keyboard-nav is-open="checkLogic">
-						        <button id="simple-btn-keyboard-nav" type="button" class="btn btn-warning dropdown-toggle btn-xs" uib-dropdown-toggle>
+						        <button id="simple-btn-keyboard-nav" type="button" ng-class="{'btn btn-warning dropdown-toggle btn-xs disabled' : $vm.loading.update == true, 'btn btn-warning dropdown-toggle btn-xs' : $vm.loading.update == false}" uib-dropdown-toggle ng-click="$vm.CaculateWrongJob()">
 						            邏輯檢查 <span class="caret"></span>
 						        </button>
-						        <ul class="dropdown-menu dropdown-menu-right" uib-dropdown-menu role="menu" aria-labelledby="simple-btn-keyboard-nav">
+						        <ul class="dropdown-menu dropdown-menu-right" uib-dropdown-menu role="menu" aria-labelledby="simple-btn-keyboard-nav" ng-if="$vm.loading.caculateWrongJob">
+						        	<div class="text-center"><i class="fa fa-refresh fa-4x fa-spin"></i></div>
+						        </ul>
+						        <ul class="dropdown-menu dropdown-menu-right" uib-dropdown-menu role="menu" aria-labelledby="simple-btn-keyboard-nav" ng-if="!$vm.loading.caculateWrongJob">
 						            <li role="menuitem">
-				                        <a href-void="" href="#" ng-click="$vm.RepeatGet();checkLogic=false">檢查重複進口人</a>
+				                        <a href-void="" href="#" ng-click="$vm.RepeatGet();checkLogic=false"><em class="txt-color-white bg-color-red">{{$vm.repeatGet.length}}</em> 檢查重複進口人</a>
 						            </li>
 				                    <li>
-				                        <a href-void="" href="#" ng-click="$vm.PeopleNotTheSameGetNo();checkLogic=false">檢查重複統編不同人</a>
+				                        <a href-void="" href="#" ng-click="$vm.PeopleNotTheSameGetNo();checkLogic=false"><em class="txt-color-white bg-color-red">{{$vm.peopleNotTheSameGetNo.length}}</em> 檢查重複統編不同人</a>
 				                    </li>
 				                    <li>
-				                        <a href-void="" href="#" ng-click="$vm.GetNoIsTrue();checkLogic=false">檢查統編正確性</a>
+				                        <a href-void="" href="#" ng-click="$vm.GetNoIsTrue();checkLogic=false"><em class="txt-color-white bg-color-red">{{$vm.getNoIsTrue.length}}</em> 檢查統編正確性</a>
 				                    </li>
 				                    <li>
-				                        <a href-void="" href="#" ng-click="$vm.PhoneWithSameNameButDifferentCode();checkLogic=false">檢查相同姓名電話但統編不同</a>
+				                        <a href-void="" href="#" ng-click="$vm.PhoneWithSameNameButDifferentCode();checkLogic=false"><em class="txt-color-white bg-color-red">{{$vm.phoneWithSameNameButDifferentCode.length}}</em> 檢查相同姓名電話但統編不同</a>
+				                    </li>
+				                    <li ng-if="$vm.loading.wrongJobNeedToUpdate">
+				                        <a href-void="" href="#" class="cell-class-pull" ng-click="$vm.UpdateFixLogic();checkLogic=false"><i class="fa fa-exclamation-circle text-danger"></i> 更新邏輯檢查數量</a>
 				                    </li>
 						        </ul>
 						    </div>
@@ -144,7 +150,7 @@
 							        	<form class="form-inline" role="form">
 							                <fieldset>
 							                    <div class="form-group">
-											        <label class="control-label">標籤說明：</label>
+											        <cell-class-pull class="control-label">標籤說明：</label>
 											        <span>
 														<!-- <span class="cell-class-ban"> 黑名單</span> -->
 														<span class="cell-class-pull"> 拉貨</span>
@@ -165,6 +171,12 @@
 											        <label class="control-label">關貿已匯：</label>
 											        <span>
 														<i ng-class="$vm.vmData.TRADE_EXPORT >= 1 ? 'fa fa-check text-success' : 'fa fa-remove text-danger'"></i>
+											        </span>
+											        <label class="control-label">｜</label>
+											        <label class="control-label">邏輯檢查：</label>
+											        <span>
+														<i ng-class="{'fa fa-check text-success' : $vm.vmData.O_OL_ALREADY_FIXED == 1, 'fa fa-exclamation text-danger' : $vm.vmData.O_OL_ALREADY_FIXED == 0, 'fa fa-question text-warning' : $vm.vmData.O_OL_ALREADY_FIXED == null}"></i>
+														<!-- <button class="btn btn-danger btn-xs" ng-if="$vm.loading.wrongJobNeedToUpdate" ng-click="$vm.UpdateFixLogic()">數量需更新</button> -->
 											        </span>
 							                    </div>
 							                </fieldset>
@@ -415,6 +427,9 @@
 	    <h3 class="modal-title" id="modal-title">重複進口人</h3>
 	</div>
 	<div class="modal-body no-padding" id="modal-body">
+
+	    <div class="padding-10">下方顯示<strong>「新出口人英文名稱」</strong>和<strong>「進口統一編號」</strong>超過一次的資料</div>
+
         <div id="grid1" ui-grid="$ctrl.repeatGetOption" class="my-ui-grid" ui-grid-pagination ui-grid-resize-columns ui-grid-edit ui-grid-row-edit ui-grid-auto-resize></div>
 	</div>
 	<div class="modal-footer">

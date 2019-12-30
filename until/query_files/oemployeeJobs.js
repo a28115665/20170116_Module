@@ -21,6 +21,15 @@ module.exports = function(pQueryname, pParams){
 									O_OL_ILSTATUS, \
 									O_OL_FLIGHT_TOTALCROSSWEIGHT, \
 									O_OL_FLIGHT_TOTALNETWEIGHT, \
+									O_OL_ORI_LOGIC1, \
+									O_OL_FIX_LOGIC1, \
+									O_OL_ORI_LOGIC2, \
+									O_OL_FIX_LOGIC2, \
+									O_OL_ORI_LOGIC3, \
+									O_OL_FIX_LOGIC3, \
+									O_OL_ORI_LOGIC4, \
+									O_OL_FIX_LOGIC4, \
+									O_OL_ALREADY_FIXED, \
 									( \
 										SELECT COUNT(1) \
 										FROM ( \
@@ -133,6 +142,10 @@ module.exports = function(pQueryname, pParams){
 									FROM O_ITEM_LIST \
 									WHERE O_IL_SEQ = O_OL_SEQ \
 								) > 0 ";
+
+			if(pParams["O_OL_ALREADY_FIXED"] !== undefined){
+				_SQLCommand += " AND O_OL_ALREADY_FIXED = @O_OL_ALREADY_FIXED ";
+			}
 		
 			break;
 		case "SelectOOrderEditor":

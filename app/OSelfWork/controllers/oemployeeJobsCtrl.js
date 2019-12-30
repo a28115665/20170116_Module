@@ -2,12 +2,20 @@
 
 angular.module('app.oselfwork').controller('OEmployeeJobsCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, $filter, uiGridConstants, RestfulApi, ocompy, userInfo, $q) {
     
-    var $vm = this;
+    var $vm = this,
+        nextPage = $state.current.name;
 
 	angular.extend(this, {
         Init : function(){
             LoadOrderList();
+
+            if($state.current.name.match(/oemployeewrongjobs/g)){
+                nextPage = $state.current.name + '.owjob001';
+            }else{
+                nextPage = $state.current.name + '.ojob001';
+            }
         },
+        titleItems : $state.current.name.split(".").slice(1),
         profile : Session.Get(),
         gridMethod : {
             // 各單的工作選項
@@ -146,7 +154,7 @@ angular.module('app.oselfwork').controller('OEmployeeJobsCtrl', function ($scope
                 console.log(row);
 
                 if($vm.profile.U_GRADE <= 9){
-                    $state.transitionTo("app.oselfwork.oemployeejobs.ojob001", {
+                    $state.transitionTo(nextPage, {
                         data: row.entity
                     });
                 }
@@ -184,14 +192,14 @@ angular.module('app.oselfwork').controller('OEmployeeJobsCtrl', function ($scope
                             }).then(function (res) {
                                 // 讓中班作業區的完成鈕可以亮起
                                 row.entity.OW2_PRINCIPAL = $vm.profile.U_ID;
-                                $state.transitionTo("app.oselfwork.oemployeejobs.ojob001", {
+                                $state.transitionTo(nextPage, {
                                     data: row.entity
                                 });
                             });
                         }
                     });
                 }else{
-                    $state.transitionTo("app.oselfwork.oemployeejobs.ojob001", {
+                    $state.transitionTo(nextPage, {
                         data: row.entity
                     });
                 }
@@ -250,7 +258,7 @@ angular.module('app.oselfwork').controller('OEmployeeJobsCtrl', function ($scope
             fixData : function(row){
                 console.log(row);
                 if(row.entity.OW2_FDATETIME != null){
-                    $state.transitionTo("app.oselfwork.oemployeejobs.ojob001", {
+                    $state.transitionTo(nextPage, {
                         data: row.entity
                     });
                 }
@@ -317,6 +325,10 @@ angular.module('app.oselfwork').controller('OEmployeeJobsCtrl', function ($scope
                 { name: 'O_OL_COUNT'    ,  displayName: '報機單(件數)', width: 80, enableCellEdit: false },
                 { name: 'O_OL_PULL_COUNT' ,  displayName: '拉貨(件數)', width: 80, enableCellEdit: false },
                 { name: 'O_OL_REASON'   ,  displayName: '描述', width: 100, cellTooltip: cellTooltip },
+                { name: 'O_OL_FIX_LOGIC1'   ,  displayName: '重複進口人', width: 100, cellTooltip: cellTooltip },
+                { name: 'O_OL_FIX_LOGIC2'   ,  displayName: '重複統編不同人', width: 100, cellTooltip: cellTooltip },
+                { name: 'O_OL_FIX_LOGIC3'   ,  displayName: '統編正確性', width: 100, cellTooltip: cellTooltip },
+                { name: 'O_OL_FIX_LOGIC4'   ,  displayName: '相同姓名電話但統編不同', width: 100, cellTooltip: cellTooltip },
                 { name: 'OW2_STATUS'            ,  displayName: '報機單狀態', width: 103, pinnedRight:true, cellTemplate: $templateCache.get('accessibilityToForOW2'), filter: 
                     {
                         term: null,
@@ -340,6 +352,7 @@ angular.module('app.oselfwork').controller('OEmployeeJobsCtrl', function ($scope
                 { name: 'EXPORT'                 ,  displayName: '匯出', width: 85, pinnedRight:true, enableCellEdit: false, enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToExportOExcelStaus') },
                 { name: 'ITEM_LIST'              ,  displayName: '報機單', enableFiltering: false, width: 86, pinnedRight:true, cellTemplate: $templateCache.get('accessibilityToOperaForJob001') },
                 // { name: 'DELIVERY_ITEM_LIST'  ,  displayName: '派送單', enableFiltering: false, width: '8%', cellTemplate: $templateCache.get('accessibilityToOperaForJob003') },
+                { name: 'UPLOAD_STATUS'          ,  displayName: '上傳狀態', width: 91, pinnedRight:true, cellTemplate: $templateCache.get('accessibilityToForOUploadOnlyAlreadyFixed'), enableFiltering: false },
                 { name: 'Options'                ,  displayName: '操作', width: 67, pinnedRight:true, enableCellEdit: false, enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToM') }
             ],
             enableFiltering: true,

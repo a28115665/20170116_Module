@@ -1,0 +1,339 @@
+<!-- MAIN CONTENT -->
+<div id="content" ng-init="$vm.Init()">
+
+	<div class="row">
+		<big-breadcrumbs items="$vm.bigBreadcrumbsItems" icon="file-text-o" class="col-xs-12 col-sm-7 col-md-7 col-lg-4"></big-breadcrumbs>
+	</div>
+
+	<!-- widget grid -->
+	<section id="widget-grid" data-widget-grid>
+	    <!-- row -->
+	    <div class="row">
+
+	        <!-- NEW WIDGET START -->
+            <article class="col-xs-12 col-sm-12 col-md-5ths col-lg-5ths">
+
+                <div class="well well-sm bg-color-greenDark txt-color-white text-center">
+                    主號
+                    <code>{{$vm.vmData.O_OL_MASTER}}</code>
+                </div>
+
+            </article>
+
+            <article class="col-xs-12 col-sm-12 col-md-5ths col-lg-5ths">
+
+                <div class="well well-sm bg-color-blue txt-color-white text-center">
+                    航次
+                    <code>{{$vm.vmData.O_OL_VOYSEQ}}</code>
+                </div>
+
+            </article>
+
+            <article class="col-xs-12 col-sm-12 col-md-5ths col-lg-5ths">
+
+                <div class="well well-sm bg-color-teal txt-color-white text-center">
+                    報機日期
+                    <code>{{$vm.vmData.O_OL_IMPORTDT | dateFilter}}</code>
+                </div>
+
+            </article>
+
+            <article class="col-xs-12 col-sm-12 col-md-5ths col-lg-5ths">
+
+                <div class="well well-sm bg-color-magenta txt-color-white text-center">
+                    裝貨港
+                    <code>{{$vm.vmData.O_OL_POST}}</code>
+                </div>
+
+            </article>
+
+            <article class="col-xs-12 col-sm-12 col-md-5ths col-lg-5ths">
+
+                <div class="well well-sm bg-color-blueLight txt-color-white text-center">
+                    行家
+                    <code>{{$vm.vmData.O_OL_CO_CODE | ocompyFilter}}</code>
+                </div>
+
+            </article>
+	        <!-- End WIDGET START -->
+
+
+
+	        <!-- NEW WIDGET START -->
+            <article class="col-xs-12 col-sm-12 col-md-2 col-lg-2">
+
+                <div class="well well-sm bg-color-orange txt-color-white text-center">
+                    報機單(件數)
+                    <code>{{$vm.vmData.O_OL_COUNT}}</code>
+                </div>
+
+            </article>
+
+            <article class="col-xs-12 col-sm-12 col-md-2 col-lg-2">
+
+                <div class="well well-sm bg-color-redLight txt-color-white text-center">
+                    拉貨(件數)
+                    <code>{{$vm.vmData.O_OL_PULL_COUNT}}</code>
+                </div>
+
+            </article>
+
+            <article class="col-xs-12 col-sm-12 col-md-8 col-lg-8">
+
+                <div class="well well-sm bg-color-pinkDark txt-color-white text-center">
+                    描述
+                    <code>{{$vm.vmData.O_OL_REASON}}</code>
+                </div>
+
+            </article>
+	        <!-- End WIDGET START -->
+
+	        <!-- NEW WIDGET START -->
+	        <article class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+	        	<!-- Widget ID (each widget will need unique ID)-->
+				<div id="job001" data-widget-sortable="false" data-widget-colorbutton="false" data-widget-togglebutton="false" data-widget-editbutton="false" data-widget-fullscreenbutton="false" data-widget-deletebutton="false" data-widget-color="blue" data-jarvis-widget>
+				    <!-- widget options:
+				        usage: <div data-jarvis-widget id="wid-id-0" data-widget-editbutton="false">
+				        data-widget-colorbutton="false"
+				        data-widget-editbutton="false"
+				        data-widget-togglebutton="false"
+				        data-widget-deletebutton="false"
+				        data-widget-fullscreenbutton="false"
+				        data-widget-custombutton="false"
+				        data-widget-collapsed="true"
+				        data-widget-sortable="false"
+				    -->
+				    <header>
+				        <h2>
+				        	編輯 
+				        	<code ng-if="!$vm.IsComplete()">
+								所有問題已更正完畢，請點擊下方完成
+					        </code>
+				        </h2>
+				        <!-- <div class="widget-toolbar smart-form" role="menu">
+				            <div class="btn-group dropdown" uib-dropdown keyboard-nav is-open="checkLogic">
+						        <button id="simple-btn-keyboard-nav" type="button" class="btn btn-warning dropdown-toggle btn-xs" uib-dropdown-toggle>
+						            邏輯檢查 <span class="caret"></span>
+						        </button>
+						        <ul class="dropdown-menu dropdown-menu-right" uib-dropdown-menu role="menu" aria-labelledby="simple-btn-keyboard-nav">
+						            <li role="menuitem">
+				                        <a href-void="" href="#" ng-click="$vm.RepeatGet();checkLogic=false">檢查重複進口人</a>
+						            </li>
+				                    <li>
+				                        <a href-void="" href="#" ng-click="$vm.PeopleNotTheSameGetNo();checkLogic=false">檢查重複統編不同人</a>
+				                    </li>
+				                    <li>
+				                        <a href-void="" href="#" ng-click="$vm.GetNoIsTrue();checkLogic=false">檢查統編正確性</a>
+				                    </li>
+				                    <li>
+				                        <a href-void="" href="#" ng-click="$vm.PhoneWithSameNameButDifferentCode();checkLogic=false">檢查相同姓名電話但統編不同</a>
+				                    </li>
+						        </ul>
+						    </div>
+				        </div> -->
+				        <div class="widget-toolbar smart-form" role="menu">
+				            <a href-void="" ng-class="$vm.currentButton == 'PhoneWithSameNameButDifferentCode' ? 'btn btn-info': 'btn btn-default'" href="#" ng-click="$vm.PhoneWithSameNameButDifferentCode()" ng-disabled="$vm.loading.update"><i class="fa fa-exclamation text-danger" ng-if="$vm.vmData.O_OL_FIX_LOGIC4 != $vm.phoneWithSameNameButDifferentCode.length"></i><em class="txt-color-white bg-color-red">{{$vm.phoneWithSameNameButDifferentCode.length}}</em> 檢查相同姓名電話但統編不同</a>
+				        </div>
+				        <div class="widget-toolbar smart-form" role="menu">
+				            <a href-void="" ng-class="$vm.currentButton == 'GetNoIsTrue' ? 'btn btn-info': 'btn btn-default'" href="#" ng-click="$vm.GetNoIsTrue()" ng-disabled="$vm.loading.update"><i class="fa fa-exclamation text-danger" ng-if="$vm.vmData.O_OL_FIX_LOGIC3 != $vm.getNoIsTrue.length"></i><em class="txt-color-white bg-color-red">{{$vm.getNoIsTrue.length}}</em> 檢查統編正確性</a>
+				        </div>
+				        <div class="widget-toolbar smart-form" role="menu">
+				            <a href-void="" ng-class="$vm.currentButton == 'PeopleNotTheSameGetNo' ? 'btn btn-info': 'btn btn-default'" href="#" ng-click="$vm.PeopleNotTheSameGetNo()" ng-disabled="$vm.loading.update"><i class="fa fa-exclamation text-danger" ng-if="$vm.vmData.O_OL_FIX_LOGIC2 != $vm.peopleNotTheSameGetNo.length"></i><em class="txt-color-white bg-color-red">{{$vm.peopleNotTheSameGetNo.length}}</em> 檢查重複統編不同人</a>
+				        </div>
+				        <div class="widget-toolbar smart-form" role="menu">
+				            <a href-void="" ng-class="$vm.currentButton == 'RepeatGet' ? 'btn btn-info': 'btn btn-default'" href="#" ng-click="$vm.RepeatGet()" ng-disabled="$vm.loading.update"><i class="fa fa-exclamation text-danger" ng-if="$vm.vmData.O_OL_FIX_LOGIC1 != $vm.repeatGet.length"></i><em class="txt-color-white bg-color-red">{{$vm.repeatGet.length}}</em> 檢查重複進口人</a>
+				        </div>
+				    </header>
+				    <!-- widget div-->
+				    <div>
+				        <!-- widget content -->
+						<div class="widget-body no-padding">
+
+							<div class="widget-body-toolbar">
+							    <div class="row">
+							        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
+							        	<form class="form-inline" role="form">
+							                <fieldset>
+							                    <div class="form-group">
+											        <label class="control-label">標籤說明：</label>
+											        <span>
+														<!-- <span class="cell-class-ban"> 黑名單</span> -->
+														<!-- <span class="cell-class-pull"> 拉貨</span>
+														<span class="cell-class-special"> 特貨</span> -->
+														<span class="text-primary"> 可編輯欄位</span>
+											        </span>
+							                    </div>
+							                </fieldset>
+							            </form>
+							        	<form class="form-inline" role="form">
+							                <fieldset>
+							                    <div class="form-group" ng-if="$vm.currentButton == 'RepeatGet'">
+											        <label class="control-label">尚有<strong class="text-danger">{{$vm.repeatGet.length}}</strong>筆需更正：</label>
+											        <span>
+														下方顯示<strong>「新出口人英文名稱」</strong>和<strong>「進口統一編號」</strong>超過一次的資料
+											        </span>
+											        <!-- <span ng-if="$vm.repeatGet.length == 0">
+														當所有問題更正完畢，請點擊下方完成
+											        </span> -->
+							                    </div>
+							                    <div class="form-group" ng-if="$vm.currentButton == 'PeopleNotTheSameGetNo'">
+											        <label class="control-label">尚有<strong class="text-danger">{{$vm.peopleNotTheSameGetNo.length}}</strong>筆需更正：</label>
+											        <span>
+														下方顯示<strong>「進口人統一編號」</strong>與<strong>「進口人英文名稱」</strong>有異常的資料
+											        </span>
+											        <!-- <span ng-if="$vm.peopleNotTheSameGetNo.length == 0">
+														當所有問題更正完畢，請點擊下方完成
+											        </span> -->
+							                    </div>
+							                    <div class="form-group" ng-if="$vm.currentButton == 'GetNoIsTrue'">
+											        <label class="control-label">尚有<strong class="text-danger">{{$vm.getNoIsTrue.length}}</strong>筆需更正：</label>
+											        <span>
+														下方顯示<strong>「進口人統一編號」</strong>有異常的資料
+											        </span>
+											        <!-- <span ng-if="$vm.getNoIsTrue.length == 0">
+														當所有問題更正完畢，請點擊下方完成
+											        </span> -->
+							                    </div>
+							                    <div class="form-group" ng-if="$vm.currentButton == 'PhoneWithSameNameButDifferentCode'">
+											        <label class="control-label">尚有<strong class="text-danger">{{$vm.phoneWithSameNameButDifferentCode.length}}</strong>筆需更正：</label>
+											        <span>
+														下方顯示<strong>「進口人英文名稱」</strong>與<strong>「進口人電話」</strong>相同，但<strong>「進口人統一編號」</strong>有異常的資料
+											        </span>
+											        <!-- <span ng-if="$vm.phoneWithSameNameButDifferentCode.length == 0">
+														當所有問題更正完畢，請點擊下方完成
+											        </span> -->
+							                    </div>
+							                </fieldset>
+							            </form>
+							        </div>
+							        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 text-right">
+							        	<form class="form-inline" role="form">
+							                <fieldset>
+							                    <div class="form-group">
+										            <button class="btn btn-warning"
+										            		ng-click="$vm.UpdateWrongJob()"
+										            		ng-disabled="$vm.loading.update">
+									            		<span ng-if="$vm.currentButton == 'RepeatGet'">
+									            			<i class="fa fa-exclamation text-danger" ng-if="$vm.vmData.O_OL_FIX_LOGIC1 != $vm.repeatGet.length"></i>
+										                	更新檢查重複進口人數量
+										            	</span>
+									            		<span ng-if="$vm.currentButton == 'PeopleNotTheSameGetNo'">
+									            			<i class="fa fa-exclamation text-danger" ng-if="$vm.vmData.O_OL_FIX_LOGIC2 != $vm.peopleNotTheSameGetNo.length"></i>
+										                	更新檢查重複統編不同人數量
+										            	</span>
+									            		<span ng-if="$vm.currentButton == 'GetNoIsTrue'">
+									            			<i class="fa fa-exclamation text-danger" ng-if="$vm.vmData.O_OL_FIX_LOGIC3 != $vm.getNoIsTrue.length"></i>
+									            			更新檢查統編正確性數量
+										            	</span>
+									            		<span ng-if="$vm.currentButton == 'PhoneWithSameNameButDifferentCode'">
+									            			<i class="fa fa-exclamation text-danger" ng-if="$vm.vmData.O_OL_FIX_LOGIC4 != $vm.phoneWithSameNameButDifferentCode.length"></i>
+										                	更新檢查相同姓名電話但統編不同數量
+										            	</span>
+										            </button>
+							                    </div>
+							                </fieldset>
+							            </form>
+							        </div>
+							    </div>
+							</div>
+
+							<!-- <div class="table-responsive"> -->
+
+							<div id="grid1" ui-grid="$vm.repeatGetOptions" class="my-ui-grid" ui-grid-pagination ui-grid-resize-columns ui-grid-pinning ui-grid-edit ui-grid-row-edit ui-grid-auto-resize ng-if="$vm.currentButton == 'RepeatGet'"></div>
+
+							<div id="grid1" ui-grid="$vm.peopleNotTheSameGetNoOptions" class="my-ui-grid" ui-grid-pagination ui-grid-resize-columns ui-grid-pinning ui-grid-edit ui-grid-row-edit ui-grid-auto-resize ng-if="$vm.currentButton == 'PeopleNotTheSameGetNo'"></div>
+
+							<div id="grid1" ui-grid="$vm.getNoIsTrueOptions" class="my-ui-grid" ui-grid-pagination ui-grid-resize-columns ui-grid-pinning ui-grid-edit ui-grid-row-edit ui-grid-auto-resize ng-if="$vm.currentButton == 'GetNoIsTrue'"></div>
+
+							<div id="grid1" ui-grid="$vm.phoneWithSameNameButDifferentCodeOptions" class="my-ui-grid" ui-grid-pagination ui-grid-resize-columns ui-grid-pinning ui-grid-edit ui-grid-row-edit ui-grid-auto-resize ng-if="$vm.currentButton == 'PhoneWithSameNameButDifferentCode'"></div>
+
+							<!-- </div> -->
+
+							<!-- widget footer -->
+							<div class="widget-footer">
+								<!-- <a href-void class="btn bg-color-purple txt-color-white btn-circle" href="#" data-tooltip-placement="left" data-uib-tooltip="異動筆數">
+									{{$vm.job001GridApi.rowEdit.getDirtyRows($vm.job001GridApi.grid).length}}
+								</a> -->								
+								<button class="btn btn-default" type="button" ng-click="$vm.Return()">
+									返回
+								</button>		
+								<button class="btn btn-primary" type="button" ng-click="$vm.Complete()" ng-disabled="$vm.IsComplete()">
+									完成
+								</button>	
+							</div>
+							<!-- end widget footer -->
+
+						</div>
+						<!-- end widget content -->
+				    </div>
+				    <!-- end widget div -->
+				</div>
+				<!-- end widget -->
+	        </article>
+	        <!-- End WIDGET START -->
+
+	    </div>
+	</section>
+
+</div>
+
+<script type="text/ng-template" id="repeatGetModalContent.html">
+    <div class="modal-header">
+	    <h3 class="modal-title" id="modal-title">重複進口人</h3>
+	</div>
+	<div class="modal-body no-padding" id="modal-body">
+        <div id="grid1" ui-grid="$ctrl.repeatGetOption" class="my-ui-grid" ui-grid-pagination ui-grid-resize-columns ui-grid-edit ui-grid-row-edit ui-grid-auto-resize></div>
+	</div>
+	<div class="modal-footer">
+	    <button class="btn btn-primary" type="button" ng-click="$ctrl.ok()">{{getWord('OK')}}</button>
+	    <button class="btn btn-default" type="button" ng-click="$ctrl.cancel()">{{getWord('Cancel')}}</button>
+	</div>
+</script>
+
+<script type="text/ng-template" id="peopleNotTheSameGetNoModalContent.html">
+    <div class="modal-header">
+	    <h3 class="modal-title" id="modal-title">重複統編不同人</h3>
+	</div>
+	<div class="modal-body no-padding" id="modal-body">
+
+	    <div class="padding-10">下方顯示<strong>「進口人統一編號」</strong>與<strong>「進口人英文名稱」</strong>有異常的資料</div>
+
+        <div id="grid1" ui-grid="$ctrl.peopleNotTheSameGetNoOption" class="my-ui-grid" ui-grid-pagination ui-grid-resize-columns ui-grid-edit ui-grid-row-edit ui-grid-auto-resize></div>
+	</div>
+	<div class="modal-footer">
+	    <button class="btn btn-primary" type="button" ng-click="$ctrl.ok()">{{getWord('OK')}}</button>
+	    <button class="btn btn-default" type="button" ng-click="$ctrl.cancel()">{{getWord('Cancel')}}</button>
+	</div>
+</script>
+
+<script type="text/ng-template" id="getNoIsTrueModalContent.html">
+    <div class="modal-header">
+	    <h3 class="modal-title" id="modal-title">統編正確性</h3>
+	</div>
+	<div class="modal-body no-padding" id="modal-body">
+
+	    <div class="padding-10">下方顯示<strong>「進口人統一編號」</strong>有異常的資料</div>
+
+        <div id="grid1" ui-grid="$ctrl.getNoIsTrueOption" class="my-ui-grid" ui-grid-pagination ui-grid-resize-columns ui-grid-edit ui-grid-row-edit ui-grid-auto-resize></div>
+	</div>
+	<div class="modal-footer">
+	    <button class="btn btn-primary" type="button" ng-click="$ctrl.ok()">{{getWord('OK')}}</button>
+	    <button class="btn btn-default" type="button" ng-click="$ctrl.cancel()">{{getWord('Cancel')}}</button>
+	</div>
+</script>
+
+<script type="text/ng-template" id="phoneWithSameNameButDifferentCodeModalContent.html">
+    <div class="modal-header">
+	    <h3 class="modal-title" id="modal-title">相同姓名電話但統編不同</h3>
+	</div>
+	<div class="modal-body no-padding" id="modal-body">
+
+	    <div class="padding-10">下方顯示<strong>「進口人英文名稱」</strong>與<strong>「進口人電話」</strong>相同，但<strong>「進口人統一編號」</strong>有異常的資料</div>
+
+        <div id="grid1" ui-grid="$ctrl.phoneWithSameNameButDifferentCodeOption" class="my-ui-grid" ui-grid-pagination ui-grid-resize-columns ui-grid-edit ui-grid-row-edit ui-grid-auto-resize></div>
+	</div>
+	<div class="modal-footer">
+	    <button class="btn btn-primary" type="button" ng-click="$ctrl.ok()">{{getWord('OK')}}</button>
+	    <button class="btn btn-default" type="button" ng-click="$ctrl.cancel()">{{getWord('Cancel')}}</button>
+	</div>
+</script>

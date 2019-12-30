@@ -30,9 +30,16 @@ angular.module('app.oselfwork').controller('OJob001Ctrl', function ($scope, $sta
             }
         },
         loading : {
+            wrongJobNeedToUpdate : true,
             calculateNetWieghtBalance : false,
-            calculateCrossWieghtBalance : false
+            calculateCrossWieghtBalance : false,
+            caculateWrongJob : false,
+            update : false
         },
+        repeatGet : [],
+        peopleNotTheSameGetNo : [],
+        getNoIsTrue : [],
+        phoneWithSameNameButDifferentCode : [],
         profile : Session.Get(),
         gridMethod : {
             // 改單
@@ -379,7 +386,10 @@ angular.module('app.oselfwork').controller('OJob001Ctrl', function ($scope, $sta
 
                 gridApi.rowEdit.on.saveRow($scope, $vm.Update);
 
-                // 海運尚未詳談此部分
+                gridApi.edit.on.beginCellEdit($scope, function (rowEntity, colDef, newValue, oldValue){
+                    $vm.loading.update = true;
+                });
+
                 gridApi.edit.on.afterCellEdit($scope, CalculationFinalCost);
 
                 gridApi.selection.on.rowSelectionChanged($scope, function(rowEntity, colDef, newValue, oldValue){
@@ -767,175 +777,238 @@ angular.module('app.oselfwork').controller('OJob001Ctrl', function ($scope, $sta
             });
 
         },
-        /**
-         * [RepeatGet description] 檢查重複進口人
-         */
-        RepeatGet : function(){
+        CaculateWrongJob : function(){
 
-            RestfulApi.SearchMSSQLData({
+            if($vm.loading.update){
+                return;
+            }
+
+            $vm.loading.caculateWrongJob = true;
+
+            var _tasks = [];
+
+            _tasks.push({
+                crudType: 'Select',
                 querymain: 'ojob001',
                 queryname: 'RepeatGet',
                 params: {
                     O_IL_SEQ: $vm.vmData.O_OL_SEQ
                 }
-            }).then(function (res){
-                console.log(res["returnData"]);
+            });
 
-                var _data = res["returnData"] || [];
-
-                if(_data.length > 0){
-                    var modalInstance = $uibModal.open({
-                        animation: true,
-                        ariaLabelledBy: 'modal-title',
-                        ariaDescribedBy: 'modal-body',
-                        templateUrl: 'repeatGetModalContent.html',
-                        controller: 'RepeatGetModalInstanceCtrl',
-                        controllerAs: '$ctrl',
-                        backdrop: 'static',
-                        size: 'lg',
-                        // appendTo: parentElem,
-                        resolve: {
-                            repeatGet: function() {
-                                return _data;
-                            }
-                        }
-                    });
-
-                    modalInstance.result.then(function(selectedItem) {
-                        console.log(selectedItem);
-
-                        if(selectedItem.length > 0){
-
-                            var _getDirtyData = [];
-                            for(var i in selectedItem){
-
-                                var _beUpdate = $filter('filter')($vm.job001Data, { 
-                                    O_IL_SEQ : selectedItem[i].entity.O_IL_SEQ,
-                                    O_IL_NEWSMALLNO : selectedItem[i].entity.O_IL_NEWSMALLNO,
-                                    O_IL_SMALLNO : selectedItem[i].entity.O_IL_SMALLNO
-                                });
-
-                                if(_beUpdate.length > 0){
-                                    var _index = _beUpdate[0].Index - 1;
-
-                                    // 更新收件者相同的值
-                                    for(var j in $vm.job001GridApi.grid.columns){
-                                        var _colDef = $vm.job001GridApi.grid.columns[j].colDef;
-                                        if(_colDef.enableCellEdit){
-                                            $vm.job001Data[_index][_colDef.name] = selectedItem[i].entity[_colDef.name];
-                                        }
-                                    }
-
-                                    _getDirtyData.push($vm.job001Data[_index]);
-                                }
-                            }
-                            $vm.job001GridApi.rowEdit.setRowsDirty(_getDirtyData);
-                        }
-
-                    }, function() {
-                        // $log.info('Modal dismissed at: ' + new Date());
-                    });
-                }else{
-                    toaster.pop('info', '訊息', '無符合條件', 3000);
-                }
-            }); 
-        },
-        /**
-         * [PeopleNotTheSameGetNo description] 檢查重複統編不同人
-         */
-        PeopleNotTheSameGetNo : function(){
-            RestfulApi.SearchMSSQLData({
+            _tasks.push({
+                crudType: 'Select',
                 querymain: 'ojob001',
                 queryname: 'PeopleNotTheSameGetNo',
                 params: {
                     O_IL_SEQ: $vm.vmData.O_OL_SEQ
                 }
-            }).then(function (res){
-                console.log(res["returnData"]);
+            });
 
-                var _data = res["returnData"] || [];
-
-                if(_data.length > 0){
-                    var modalInstance = $uibModal.open({
-                        animation: true,
-                        ariaLabelledBy: 'modal-title',
-                        ariaDescribedBy: 'modal-body',
-                        templateUrl: 'peopleNotTheSameGetNoModalContent.html',
-                        controller: 'PeopleNotTheSameGetNoModalInstanceCtrl',
-                        controllerAs: '$ctrl',
-                        backdrop: 'static',
-                        size: 'lg',
-                        // appendTo: parentElem,
-                        resolve: {
-                            data: function() {
-                                return _data;
-                            }
-                        }
-                    });
-
-                    modalInstance.result.then(function(selectedItem) {
-                        console.log(selectedItem);
-
-                        if(selectedItem.length > 0){
-
-                            var _getDirtyData = [];
-                            for(var i in selectedItem){
-
-                                var _beUpdate = $filter('filter')($vm.job001Data, { 
-                                    O_IL_SEQ : selectedItem[i].entity.O_IL_SEQ,
-                                    O_IL_NEWSMALLNO : selectedItem[i].entity.O_IL_NEWSMALLNO,
-                                    O_IL_SMALLNO : selectedItem[i].entity.O_IL_SMALLNO
-                                });
-
-                                if(_beUpdate.length > 0){
-                                    var _index = _beUpdate[0].Index - 1;
-
-                                    // 更新收件者相同的值
-                                    for(var j in $vm.job001GridApi.grid.columns){
-                                        var _colDef = $vm.job001GridApi.grid.columns[j].colDef;
-                                        if(_colDef.enableCellEdit){
-                                            $vm.job001Data[_index][_colDef.name] = selectedItem[i].entity[_colDef.name];
-                                        }
-                                    }
-
-                                    _getDirtyData.push($vm.job001Data[_index]);
-                                }
-                            }
-                            $vm.job001GridApi.rowEdit.setRowsDirty(_getDirtyData);
-                        }
-
-                    }, function() {
-                        // $log.info('Modal dismissed at: ' + new Date());
-                    });
-                }else{
-                    toaster.pop('info', '訊息', '無符合條件', 3000);
+            _tasks.push({
+                crudType: 'Select',
+                querymain: 'ojob001',
+                queryname: 'GetNoIsValid',
+                params: {
+                    O_IL_SEQ: $vm.vmData.O_OL_SEQ
                 }
-            }); 
+            });
+
+            _tasks.push({
+                crudType: 'Select',
+                querymain: 'ojob001',
+                queryname: 'PhoneWithSameNameButDifferentCode',
+                params: {
+                    O_IL_SEQ: $vm.vmData.O_OL_SEQ
+                }
+            });
+
+            RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res){
+                if(res["returnData"].length > 0){
+                    console.log(res["returnData"]);
+                    $vm.repeatGet = res["returnData"][0];
+                    $vm.peopleNotTheSameGetNo = res["returnData"][1];
+                    $vm.getNoIsTrue = res["returnData"][2];
+                    $vm.phoneWithSameNameButDifferentCode = res["returnData"][3];
+
+                    // 如果原始數量和未更新數量相同，表示尚未需要更新資料
+                    if($vm.vmData.O_OL_FIX_LOGIC1 == $vm.repeatGet.length &&
+                        $vm.vmData.O_OL_FIX_LOGIC2 == $vm.peopleNotTheSameGetNo.length &&
+                        $vm.vmData.O_OL_FIX_LOGIC3 == $vm.getNoIsTrue.length &&
+                        $vm.vmData.O_OL_FIX_LOGIC4 == $vm.phoneWithSameNameButDifferentCode.length){
+                        $vm.loading.wrongJobNeedToUpdate = false;
+                    }
+                }
+            }).finally(function(){
+                $vm.loading.caculateWrongJob = false;
+            });  
+
+        },
+        /**
+         * [UpdateFixLogic description] 更新邏輯檢核數量
+         */
+        UpdateFixLogic : function(){
+
+            var _params = {
+                O_OL_FIX_LOGIC1 : $vm.repeatGet.length,
+                O_OL_FIX_LOGIC2 : $vm.peopleNotTheSameGetNo.length,
+                O_OL_FIX_LOGIC3 : $vm.getNoIsTrue.length,
+                O_OL_FIX_LOGIC4 : $vm.phoneWithSameNameButDifferentCode.length
+            };
+
+            // 都修復完成才需要
+            if($vm.repeatGet.length == 0 && $vm.peopleNotTheSameGetNo.length == 0 && $vm.getNoIsTrue.length == 0 && $vm.phoneWithSameNameButDifferentCode.length == 0){
+                _params["O_OL_ALREADY_FIXED"] = 1;
+                _params["O_OL_FIXED_DATETIME"] = $filter('date')(new Date(), 'yyyy-MM-dd HH:mm:ss');
+                _params["O_OL_FIXED_USER"] = $vm.profile.U_ID;
+                $vm.vmData.O_OL_ALREADY_FIXED = 1;
+            }
+
+            RestfulApi.UpdateMSSQLData({
+                updatename: 'Update',
+                table: 40,
+                params: _params,
+                condition: {
+                    O_OL_SEQ : $vm.vmData.O_OL_SEQ
+                }
+            }).then(function (res) {
+                console.log(res);
+
+                if(res["returnData"] > 0){
+                    toaster.pop('success', '成功', '更新邏輯檢查數量成功', 3000);
+                }else{
+                    toaster.pop('danger', '失敗', '更新邏輯檢查數量失敗', 3000);
+                }
+            });
+        },
+        /**
+         * [RepeatGet description] 檢查重複進口人
+         */
+        RepeatGet : function(){
+
+            if($vm.repeatGet.length > 0){
+                var modalInstance = $uibModal.open({
+                    animation: true,
+                    ariaLabelledBy: 'modal-title',
+                    ariaDescribedBy: 'modal-body',
+                    templateUrl: 'repeatGetModalContent.html',
+                    controller: 'RepeatGetModalInstanceCtrl',
+                    controllerAs: '$ctrl',
+                    backdrop: 'static',
+                    size: 'lg',
+                    // appendTo: parentElem,
+                    resolve: {
+                        data: function() {
+                            return $vm.repeatGet;
+                        }
+                    }
+                });
+
+                modalInstance.result.then(function(selectedItem) {
+                    console.log(selectedItem);
+
+                    if(selectedItem.length > 0){
+
+                        var _getDirtyData = [];
+                        for(var i in selectedItem){
+
+                            var _beUpdate = $filter('filter')($vm.job001Data, { 
+                                O_IL_SEQ : selectedItem[i].entity.O_IL_SEQ,
+                                O_IL_NEWSMALLNO : selectedItem[i].entity.O_IL_NEWSMALLNO,
+                                O_IL_SMALLNO : selectedItem[i].entity.O_IL_SMALLNO
+                            });
+
+                            if(_beUpdate.length > 0){
+                                var _index = _beUpdate[0].Index - 1;
+
+                                // 更新收件者相同的值
+                                for(var j in $vm.job001GridApi.grid.columns){
+                                    var _colDef = $vm.job001GridApi.grid.columns[j].colDef;
+                                    if(_colDef.enableCellEdit){
+                                        $vm.job001Data[_index][_colDef.name] = selectedItem[i].entity[_colDef.name];
+                                    }
+                                }
+
+                                _getDirtyData.push($vm.job001Data[_index]);
+                            }
+                        }
+                        $vm.job001GridApi.rowEdit.setRowsDirty(_getDirtyData);
+                    }
+
+                }, function() {
+                    // $log.info('Modal dismissed at: ' + new Date());
+                });
+            }else{
+                toaster.pop('info', '訊息', '無符合條件', 3000);
+            }
+        },
+        /**
+         * [PeopleNotTheSameGetNo description] 檢查重複統編不同人
+         */
+        PeopleNotTheSameGetNo : function(){
+
+            if($vm.peopleNotTheSameGetNo.length > 0){
+                var modalInstance = $uibModal.open({
+                    animation: true,
+                    ariaLabelledBy: 'modal-title',
+                    ariaDescribedBy: 'modal-body',
+                    templateUrl: 'peopleNotTheSameGetNoModalContent.html',
+                    controller: 'PeopleNotTheSameGetNoModalInstanceCtrl',
+                    controllerAs: '$ctrl',
+                    backdrop: 'static',
+                    size: 'lg',
+                    // appendTo: parentElem,
+                    resolve: {
+                        data: function() {
+                            return $vm.peopleNotTheSameGetNo;
+                        }
+                    }
+                });
+
+                modalInstance.result.then(function(selectedItem) {
+                    console.log(selectedItem);
+
+                    if(selectedItem.length > 0){
+
+                        var _getDirtyData = [];
+                        for(var i in selectedItem){
+
+                            var _beUpdate = $filter('filter')($vm.job001Data, { 
+                                O_IL_SEQ : selectedItem[i].entity.O_IL_SEQ,
+                                O_IL_NEWSMALLNO : selectedItem[i].entity.O_IL_NEWSMALLNO,
+                                O_IL_SMALLNO : selectedItem[i].entity.O_IL_SMALLNO
+                            });
+
+                            if(_beUpdate.length > 0){
+                                var _index = _beUpdate[0].Index - 1;
+
+                                // 更新收件者相同的值
+                                for(var j in $vm.job001GridApi.grid.columns){
+                                    var _colDef = $vm.job001GridApi.grid.columns[j].colDef;
+                                    if(_colDef.enableCellEdit){
+                                        $vm.job001Data[_index][_colDef.name] = selectedItem[i].entity[_colDef.name];
+                                    }
+                                }
+
+                                _getDirtyData.push($vm.job001Data[_index]);
+                            }
+                        }
+                        $vm.job001GridApi.rowEdit.setRowsDirty(_getDirtyData);
+                    }
+
+                }, function() {
+                    // $log.info('Modal dismissed at: ' + new Date());
+                });
+            }else{
+                toaster.pop('info', '訊息', '無符合條件', 3000);
+            }
         },
         /**
          * [GetNoIsTrue description] 檢查統編正確性
          */
         GetNoIsTrue : function(){
 
-            var _needToFix = [];
-
-            for(var i in $vm.job001Data){
-                // 如果不為空值
-                if($vm.job001Data[i].O_IL_GETNO){
-                    // 不合格(第一碼為英文+數字9碼,共10碼=國人身分證)
-                    if(!CheckID($vm.job001Data[i].O_IL_GETNO)){
-                        // 不合格(第一和第二碼為英文+8碼,共10碼=臨時證號)
-                        if(!TemporaryID($vm.job001Data[i].O_IL_GETNO)){
-                            // 不合格(8碼全部數字=公司統編)
-                            if(!CompanyID($vm.job001Data[i].O_IL_GETNO)){
-                                _needToFix.push($vm.job001Data[i]);
-                            }
-                        }
-                    }
-                }
-            }
-
-            if(_needToFix.length > 0){
+            if($vm.getNoIsTrue.length > 0){
                 var modalInstance = $uibModal.open({
                     animation: true,
                     ariaLabelledBy: 'modal-title',
@@ -948,7 +1021,7 @@ angular.module('app.oselfwork').controller('OJob001Ctrl', function ($scope, $sta
                     // appendTo: parentElem,
                     resolve: {
                         data: function() {
-                            return _needToFix;
+                            return $vm.getNoIsTrue;
                         }
                     }
                 });
@@ -996,73 +1069,61 @@ angular.module('app.oselfwork').controller('OJob001Ctrl', function ($scope, $sta
          */
         PhoneWithSameNameButDifferentCode : function(){
 
-            RestfulApi.SearchMSSQLData({
-                querymain: 'ojob001',
-                queryname: 'PhoneWithSameNameButDifferentCode',
-                params: {
-                    O_IL_SEQ: $vm.vmData.O_OL_SEQ
-                }
-            }).then(function (res){
-                console.log(res["returnData"]);
-
-                var _data = res["returnData"] || [];
-
-                if(_data.length > 0){
-                    var modalInstance = $uibModal.open({
-                        animation: true,
-                        ariaLabelledBy: 'modal-title',
-                        ariaDescribedBy: 'modal-body',
-                        templateUrl: 'phoneWithSameNameButDifferentCodeModalContent.html',
-                        controller: 'PhoneWithSameNameButDifferentCodeModalInstanceCtrl',
-                        controllerAs: '$ctrl',
-                        backdrop: 'static',
-                        size: 'lg',
-                        // appendTo: parentElem,
-                        resolve: {
-                            data: function() {
-                                return _data;
-                            }
+            if($vm.phoneWithSameNameButDifferentCode.length > 0){
+                var modalInstance = $uibModal.open({
+                    animation: true,
+                    ariaLabelledBy: 'modal-title',
+                    ariaDescribedBy: 'modal-body',
+                    templateUrl: 'phoneWithSameNameButDifferentCodeModalContent.html',
+                    controller: 'PhoneWithSameNameButDifferentCodeModalInstanceCtrl',
+                    controllerAs: '$ctrl',
+                    backdrop: 'static',
+                    size: 'lg',
+                    // appendTo: parentElem,
+                    resolve: {
+                        data: function() {
+                            return $vm.phoneWithSameNameButDifferentCode;
                         }
-                    });
+                    }
+                });
 
-                    modalInstance.result.then(function(selectedItem) {
-                        console.log(selectedItem);
+                modalInstance.result.then(function(selectedItem) {
+                    console.log(selectedItem);
 
-                        if(selectedItem.length > 0){
+                    if(selectedItem.length > 0){
 
-                            var _getDirtyData = [];
-                            for(var i in selectedItem){
+                        var _getDirtyData = [];
+                        for(var i in selectedItem){
 
-                                var _beUpdate = $filter('filter')($vm.job001Data, { 
-                                    O_IL_SEQ : selectedItem[i].entity.O_IL_SEQ,
-                                    O_IL_NEWSMALLNO : selectedItem[i].entity.O_IL_NEWSMALLNO,
-                                    O_IL_SMALLNO : selectedItem[i].entity.O_IL_SMALLNO
-                                });
+                            var _beUpdate = $filter('filter')($vm.job001Data, { 
+                                O_IL_SEQ : selectedItem[i].entity.O_IL_SEQ,
+                                O_IL_NEWSMALLNO : selectedItem[i].entity.O_IL_NEWSMALLNO,
+                                O_IL_SMALLNO : selectedItem[i].entity.O_IL_SMALLNO
+                            });
 
-                                if(_beUpdate.length > 0){
-                                    var _index = _beUpdate[0].Index - 1;
+                            if(_beUpdate.length > 0){
+                                var _index = _beUpdate[0].Index - 1;
 
-                                    // 更新收件者相同的值
-                                    for(var j in $vm.job001GridApi.grid.columns){
-                                        var _colDef = $vm.job001GridApi.grid.columns[j].colDef;
-                                        if(_colDef.enableCellEdit){
-                                            $vm.job001Data[_index][_colDef.name] = selectedItem[i].entity[_colDef.name];
-                                        }
+                                // 更新收件者相同的值
+                                for(var j in $vm.job001GridApi.grid.columns){
+                                    var _colDef = $vm.job001GridApi.grid.columns[j].colDef;
+                                    if(_colDef.enableCellEdit){
+                                        $vm.job001Data[_index][_colDef.name] = selectedItem[i].entity[_colDef.name];
                                     }
-
-                                    _getDirtyData.push($vm.job001Data[_index]);
                                 }
-                            }
-                            $vm.job001GridApi.rowEdit.setRowsDirty(_getDirtyData);
-                        }
 
-                    }, function() {
-                        // $log.info('Modal dismissed at: ' + new Date());
-                    });
-                }else{
-                    toaster.pop('info', '訊息', '無符合條件', 3000);
-                }
-            }); 
+                                _getDirtyData.push($vm.job001Data[_index]);
+                            }
+                        }
+                        $vm.job001GridApi.rowEdit.setRowsDirty(_getDirtyData);
+                    }
+
+                }, function() {
+                    // $log.info('Modal dismissed at: ' + new Date());
+                });
+            }else{
+                toaster.pop('info', '訊息', '無符合條件', 3000);
+            }
         },
         ExportFlightItem: function(){
             ToolboxApi.ExportExcelBySql({
@@ -1295,6 +1356,12 @@ angular.module('app.oselfwork').controller('OJob001Ctrl', function ($scope, $sta
                     O_IL_NEWSENDENAME   : entity.O_IL_NEWSENDENAME,
                     O_IL_NEWCOUNTRYID   : entity.O_IL_NEWCOUNTRYID,
                     O_IL_NEWSENDADDRESS : entity.O_IL_NEWSENDADDRESS,
+                    O_IL_GETNO           : entity.O_IL_GETNO,
+                    O_IL_GETENAME        : entity.O_IL_GETENAME,
+                    O_IL_GETPHONE        : entity.O_IL_GETPHONE,
+                    O_IL_GETADDRESS      : entity.O_IL_GETADDRESS,
+                    O_IL_DECLAREMEMO2    : entity.O_IL_DECLAREMEMO2,
+                    O_IL_TAXPAYMENTMEMO  : entity.O_IL_TAXPAYMENTMEMO,
                     O_IL_UP_DATETIME     : $filter('date')(new Date(), 'yyyy-MM-dd HH:mm:ss'),
                     O_IL_UP_USER         : $vm.profile.U_ID
                 },
@@ -1309,6 +1376,8 @@ angular.module('app.oselfwork').controller('OJob001Ctrl', function ($scope, $sta
             }, function (err) {
                 toaster.pop('error', '錯誤', '更新失敗', 3000);
                 deferred.reject();
+            }).finally(function(){
+                $vm.loading.update = false;
             });
             
         }
@@ -1491,73 +1560,6 @@ angular.module('app.oselfwork').controller('OJob001Ctrl', function ($scope, $sta
     }
 
     /**
-     * [CheckID description] 檢查身分證是否合乎規範
-     * @param {[type]} id [description]
-     */
-    function CheckID(id) {
-        var tab = "ABCDEFGHJKLMNPQRSTUVXYWZIO"                     
-        var A1 = [1,1,1,1,1,1,1,1,1,1,2,2,2,2,2,2,2,2,2,2,3,3,3,3,3,3 ];
-        var A2 = [0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5 ];
-        var Mx = [9,8,7,6,5,4,3,2,1,1];
-
-        if ( id.length != 10 ) return false;
-        var i = tab.indexOf( id.charAt(0) );
-        if ( i == -1 ) return false;
-        var sum = A1[i] + A2[i]*9;
-
-        for ( i=1; i<10; i++ ) {
-            var v = parseInt( id.charAt(i) );
-            if ( isNaN(v) ) return false;
-            sum = sum + v * Mx[i];
-        }
-        if ( sum % 10 != 0 ) return false;
-        return true;
-    }
-
-    /**
-     * [TemporaryID description] 檢查臨時證號是否合乎規範
-     * @param {[type]} id [description]
-     */
-    function TemporaryID(id) {
-        var tab = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-
-        // 是否10碼
-        if ( id.length != 10 ) return false;
-        // 第1碼是否為英文
-        var i1 = tab.indexOf( id.charAt(0) );
-        if ( i1 == -1 ) return false;
-        // 第2碼是否為英文
-        var i2 = tab.indexOf( id.charAt(1) );
-        if ( i2 == -1 ) return false;
-
-        // 3~10碼是否為數字
-        for ( var i=2; i<10; i++ ) {
-            var v = parseInt( id.charAt(i) );
-            if ( isNaN(v) ) return false;
-        }
-
-        return true;
-    }
-
-    /**
-     * [TemporaryID description] 檢查公司統編是否合乎規範
-     * @param {[type]} id [description]
-     */    
-    function CompanyID(id) {
-
-        // 是否8碼
-        if ( id.length != 8 ) return false;
-
-        // 8碼是否為數字
-        for ( var i=0; i<8; i++ ) {
-            var v = parseInt( id.charAt(i) );
-            if ( isNaN(v) ) return false;
-        }
-
-        return true;
-    }
-
-    /**
      * [ClearSelectedColumn description] isSelected設為否
      */
     function ClearSelectedColumn(){
@@ -1642,9 +1644,9 @@ angular.module('app.oselfwork').controller('OJob001Ctrl', function ($scope, $sta
         $uibModalInstance.dismiss('cancel');
     };
 })
-.controller('RepeatGetModalInstanceCtrl', function ($uibModalInstance, $q, $scope, repeatGet) {
+.controller('RepeatGetModalInstanceCtrl', function ($uibModalInstance, $q, $scope, data) {
     var $ctrl = this;
-    $ctrl.mdData = repeatGet;
+    $ctrl.mdData = data;
 
     $ctrl.repeatGetOption = {
         data: '$ctrl.mdData',
@@ -1696,8 +1698,8 @@ angular.module('app.oselfwork').controller('OJob001Ctrl', function ($scope, $sta
             { name: 'O_IL_DWKIND'           , displayName: '貨櫃種類', width: 110, enableCellEdit: false },
             { name: 'O_IL_DWNUMBER'         , displayName: '貨櫃號碼', width: 110, enableCellEdit: false },
             { name: 'O_IL_DWTYPE'           , displayName: '貨櫃裝運方式', width: 110, enableCellEdit: false },
-            { name: 'O_IL_SEALNUMBER'       , displayName: '封條號碼', width: 110, enableCellEdit: false },
-            { name: 'O_IL_DECLAREMEMO1'     , displayName: '其他申報事項1', width: 110, enableCellEdit: false },
+            // { name: 'O_IL_SEALNUMBER'       , displayName: '封條號碼', width: 110, enableCellEdit: false },
+            // { name: 'O_IL_DECLAREMEMO1'     , displayName: '其他申報事項1', width: 110, enableCellEdit: false },
             { name: 'O_IL_DECLAREMEMO2'     , displayName: '其他申報事項2', width: 110, headerCellClass: 'text-primary' },
             { name: 'O_IL_TAXPAYMENTMEMO'   , displayName: '主動申報繳納稅款註記', width: 110, headerCellClass: 'text-primary' }
         ],
@@ -1775,8 +1777,8 @@ angular.module('app.oselfwork').controller('OJob001Ctrl', function ($scope, $sta
             { name: 'O_IL_DWKIND'           , displayName: '貨櫃種類', width: 110, enableCellEdit: false },
             { name: 'O_IL_DWNUMBER'         , displayName: '貨櫃號碼', width: 110, enableCellEdit: false },
             { name: 'O_IL_DWTYPE'           , displayName: '貨櫃裝運方式', width: 110, enableCellEdit: false },
-            { name: 'O_IL_SEALNUMBER'       , displayName: '封條號碼', width: 110, enableCellEdit: false },
-            { name: 'O_IL_DECLAREMEMO1'     , displayName: '其他申報事項1', width: 110, enableCellEdit: false },
+            // { name: 'O_IL_SEALNUMBER'       , displayName: '封條號碼', width: 110, enableCellEdit: false },
+            // { name: 'O_IL_DECLAREMEMO1'     , displayName: '其他申報事項1', width: 110, enableCellEdit: false },
             { name: 'O_IL_DECLAREMEMO2'     , displayName: '其他申報事項2', width: 110, headerCellClass: 'text-primary' },
             { name: 'O_IL_TAXPAYMENTMEMO'   , displayName: '主動申報繳納稅款註記', width: 110, headerCellClass: 'text-primary' }
         ],
@@ -1854,8 +1856,8 @@ angular.module('app.oselfwork').controller('OJob001Ctrl', function ($scope, $sta
             { name: 'O_IL_DWKIND'           , displayName: '貨櫃種類', width: 110, enableCellEdit: false },
             { name: 'O_IL_DWNUMBER'         , displayName: '貨櫃號碼', width: 110, enableCellEdit: false },
             { name: 'O_IL_DWTYPE'           , displayName: '貨櫃裝運方式', width: 110, enableCellEdit: false },
-            { name: 'O_IL_SEALNUMBER'       , displayName: '封條號碼', width: 110, enableCellEdit: false },
-            { name: 'O_IL_DECLAREMEMO1'     , displayName: '其他申報事項1', width: 110, enableCellEdit: false },
+            // { name: 'O_IL_SEALNUMBER'       , displayName: '封條號碼', width: 110, enableCellEdit: false },
+            // { name: 'O_IL_DECLAREMEMO1'     , displayName: '其他申報事項1', width: 110, enableCellEdit: false },
             { name: 'O_IL_DECLAREMEMO2'     , displayName: '其他申報事項2', width: 110, headerCellClass: 'text-primary' },
             { name: 'O_IL_TAXPAYMENTMEMO'   , displayName: '主動申報繳納稅款註記', width: 110, headerCellClass: 'text-primary' }
         ],
@@ -1933,8 +1935,8 @@ angular.module('app.oselfwork').controller('OJob001Ctrl', function ($scope, $sta
             { name: 'O_IL_DWKIND'           , displayName: '貨櫃種類', width: 110, enableCellEdit: false },
             { name: 'O_IL_DWNUMBER'         , displayName: '貨櫃號碼', width: 110, enableCellEdit: false },
             { name: 'O_IL_DWTYPE'           , displayName: '貨櫃裝運方式', width: 110, enableCellEdit: false },
-            { name: 'O_IL_SEALNUMBER'       , displayName: '封條號碼', width: 110, enableCellEdit: false },
-            { name: 'O_IL_DECLAREMEMO1'     , displayName: '其他申報事項1', width: 110, enableCellEdit: false },
+            // { name: 'O_IL_SEALNUMBER'       , displayName: '封條號碼', width: 110, enableCellEdit: false },
+            // { name: 'O_IL_DECLAREMEMO1'     , displayName: '其他申報事項1', width: 110, enableCellEdit: false },
             { name: 'O_IL_DECLAREMEMO2'     , displayName: '其他申報事項2', width: 110, headerCellClass: 'text-primary' },
             { name: 'O_IL_TAXPAYMENTMEMO'   , displayName: '主動申報繳納稅款註記', width: 110, headerCellClass: 'text-primary' }
         ],

@@ -86,6 +86,10 @@ angular.module('app.oselfwork').controller('OEmployeeHistorySearchCtrl', functio
                 { name: 'O_OL_COUNT'    ,  displayName: '報機單(件數)', width: 80, enableCellEdit: false },
                 { name: 'O_OL_PULL_COUNT' ,  displayName: '拉貨(件數)', width: 80, enableCellEdit: false },
                 { name: 'O_OL_REASON'   ,  displayName: '描述', width: 100, cellTooltip: cellTooltip },
+                { name: 'O_OL_FIX_LOGIC1'   ,  displayName: '重複進口人', width: 100, cellTooltip: cellTooltip },
+                { name: 'O_OL_FIX_LOGIC2'   ,  displayName: '重複統編不同人', width: 100, cellTooltip: cellTooltip },
+                { name: 'O_OL_FIX_LOGIC3'   ,  displayName: '統編正確性', width: 100, cellTooltip: cellTooltip },
+                { name: 'O_OL_FIX_LOGIC4'   ,  displayName: '相同姓名電話但統編不同', width: 100, cellTooltip: cellTooltip },
                 { name: 'OW2_STATUS'   ,  displayName: '報機單狀態', width: 103, pinnedRight:true, cellTemplate: $templateCache.get('accessibilityToForOW2'), filter: 
                     {
                         term: null,

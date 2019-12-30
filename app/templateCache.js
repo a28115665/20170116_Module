@@ -243,6 +243,15 @@ angular.module('app')
                         <div class="my-ui-grid-cell-contents text-center">\
                             <i class="fa fa-ship text-warning" ng-if="row.entity.O_OL_ILSTATUS == 1"> </i> \
                             <i class="fa fa-ship text-success" ng-if="row.entity.O_OL_ILSTATUS == 2"> </i> \
+                            <i class="fa fa-question text-warning" ng-if="row.entity.O_OL_ALREADY_FIXED == null"> </i> \
+                            <i class="fa fa-exclamation text-danger" ng-if="row.entity.O_OL_ALREADY_FIXED == 0"> </i> \
+                            <i class="fa fa-check text-success" ng-if="row.entity.O_OL_ALREADY_FIXED == 1"> </i> \
+                        </div>');
+    $templateCache.put('accessibilityToForOUploadOnlyAlreadyFixed', '\
+                        <div class="my-ui-grid-cell-contents text-center">\
+                            <i class="fa fa-question text-warning" ng-if="row.entity.O_OL_ALREADY_FIXED == null"> </i> \
+                            <i class="fa fa-exclamation text-danger" ng-if="row.entity.O_OL_ALREADY_FIXED == 0"> </i> \
+                            <i class="fa fa-check text-success" ng-if="row.entity.O_OL_ALREADY_FIXED == 1"> </i> \
                         </div>');
     $templateCache.put('accessibilityToDMCForLeader', '\
                         <div class="ui-grid-cell-contents text-center">\

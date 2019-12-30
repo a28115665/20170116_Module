@@ -112,16 +112,52 @@ angular.module('app.oselfwork').controller('OLeaderJobsCtrl', function ($scope, 
 
                     switch(type){
                         case '報機單':
-                            RestfulApi.DeleteMSSQLData({
-                                deletename: 'Delete',
+                            var _tasks = [];
+
+                            // 刪除O_ITEM_LIST的資料
+                            _tasks.push({
+                                crudType: 'Delete',
                                 table: 41,
                                 params: {
                                     O_IL_SEQ : selectedItem.O_OL_SEQ
                                 }
-                            }).then(function (res) {
-                                LoadOrderList();
-                                toaster.pop('success', '訊息', '刪除報機單成功', 3000);
                             });
+
+                            // 更新O_ORDER_LIST的O_OL_ILSTATUS為0
+                            _tasks.push({
+                                crudType: 'Update',
+                                table: 40,
+                                params: {
+                                    O_OL_ILSTATUS : 0,
+                                    O_OL_ORI_LOGIC1 : null,
+                                    O_OL_FIX_LOGIC1 : null,
+                                    O_OL_ORI_LOGIC2 : null,
+                                    O_OL_FIX_LOGIC2 : null,
+                                    O_OL_ORI_LOGIC3 : null,
+                                    O_OL_FIX_LOGIC3 : null,
+                                    O_OL_ORI_LOGIC4 : null,
+                                    O_OL_FIX_LOGIC4 : null,
+                                    O_OL_ALREADY_FIXED : null,
+                                    O_OL_FIXED_DATETIME : null,
+                                    O_OL_FIXED_USER : null,
+                                    O_OL_UP_USER : $vm.profile.U_ID,
+                                    O_OL_UP_DATETIME : $filter('date')(new Date(), 'yyyy-MM-dd HH:mm:ss')
+                                },
+                                condition: {
+                                    O_OL_SEQ : selectedItem.O_OL_SEQ
+                                }
+                            });
+
+                            RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res){
+                                if(res["returnData"].length > 0){
+                                    toaster.pop('success', '訊息', '刪除報機單成功', 3000);
+                                }
+                            }, function (err) {
+                                toaster.pop('error', '錯誤', '刪除報機單成功', 3000);
+                            }).finally(function(){
+                                LoadOrderList();
+                            });  
+
                             break;
                         // case '銷倉單':
 
@@ -357,6 +393,10 @@ angular.module('app.oselfwork').controller('OLeaderJobsCtrl', function ($scope, 
                 { name: 'O_OL_COUNT'    ,  displayName: '報機單(件數)', width: 80, enableCellEdit: false },
                 { name: 'O_OL_PULL_COUNT' ,  displayName: '拉貨(件數)', width: 80, enableCellEdit: false },
                 { name: 'O_OL_REASON'   ,  displayName: '描述', width: 100, cellTooltip: cellTooltip },
+                { name: 'O_OL_FIX_LOGIC1'   ,  displayName: '重複進口人', width: 100, cellTooltip: cellTooltip },
+                { name: 'O_OL_FIX_LOGIC2'   ,  displayName: '重複統編不同人', width: 100, cellTooltip: cellTooltip },
+                { name: 'O_OL_FIX_LOGIC3'   ,  displayName: '統編正確性', width: 100, cellTooltip: cellTooltip },
+                { name: 'O_OL_FIX_LOGIC4'   ,  displayName: '相同姓名電話但統編不同', width: 100, cellTooltip: cellTooltip },
                 { name: 'OW2_STATUS'   ,  displayName: '報機單狀態', width: 103, pinnedRight:true, cellTemplate: $templateCache.get('accessibilityToForOW2'), filter: 
                     {
                         term: null,
