@@ -29,7 +29,7 @@ module.exports = function(pQueryname, pParams){
 									O_OL_FIX_LOGIC4, \
 									O_OL_ALREADY_FIXED, \
 									( \
-										SELECT COUNT(1) \
+										SELECT SUM(O_IL_NEWCTN) \
 										FROM ( \
 											SELECT O_ITEM_LIST.*, \
 												CASE WHEN ROW_NUMBER() OVER(PARTITION BY O_IL_SMALLNO ORDER BY O_IL_SMALLNO) = 1 \
@@ -222,8 +222,8 @@ module.exports = function(pQueryname, pParams){
 
 		case "SelectOCompyStatistics":
 			_SQLCommand += "SELECT O_CO_NAME, \
-								( \
-									SELECT COUNT(1) \
+								COALESCE( ( \
+									SELECT SUM(O_IL_NEWCTN) \
 									FROM (\
 										SELECT O_ITEM_LIST.*, \
 											CASE WHEN ROW_NUMBER() OVER(PARTITION BY O_IL_SMALLNO ORDER BY O_IL_SMALLNO) = 1 \
@@ -251,7 +251,7 @@ module.exports = function(pQueryname, pParams){
 									AND O_PG_SEQ IS NULL\
 									/*只計算有小號的筆數*/\
 									AND O_IL_SMALLNOEX_NOREPEAT IS NOT NULL\
-								) AS 'OW2_COUNT',\
+								), 0) AS 'OW2_COUNT',\
 								( \
 									SELECT COUNT(1) \
 									FROM O_ORDER_LIST \
@@ -374,7 +374,7 @@ module.exports = function(pQueryname, pParams){
 								CONVERT(varchar, O_OL_IMPORTDT, 23 ) AS 'O_OL_IMPORTDT_EX', \
 								O_CO_NAME, \
 								( \
-									SELECT COUNT(1) \
+									SELECT SUM(O_IL_NEWCTN) \
 									FROM ( \
 										SELECT O_ITEM_LIST.*, \
 											CASE WHEN ROW_NUMBER() OVER(PARTITION BY O_IL_SMALLNO ORDER BY O_IL_SMALLNO) = 1 \

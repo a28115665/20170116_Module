@@ -30,7 +30,7 @@ module.exports = function(pQueryname, pParams){
 									O_OL_FIX_LOGIC4, \
 									O_OL_ALREADY_FIXED, \
 									( \
-										SELECT COUNT(1) \
+										SELECT SUM(O_IL_NEWCTN) \
 										FROM ( \
 											SELECT O_ITEM_LIST.*, \
 												CASE WHEN ROW_NUMBER() OVER(PARTITION BY O_IL_SMALLNO ORDER BY O_IL_SMALLNO) = 1 \
