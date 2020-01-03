@@ -15,9 +15,10 @@ angular.module('app.layout', ['ui.router'])
                     controller: function ($rootScope, $stateParams, $state, i18nService, SocketApi, toaster) {
                         i18nService.setCurrentLang('zh-tw');
 
-                        SocketApi.On('whoLogin', function(data){
-                            toaster.info("訊息", data, 3000);
-                        })
+                        // 關閉登入提醒
+                        // SocketApi.On('whoLogin', function(data){
+                        //     toaster.info("訊息", data, 3000);
+                        // })
                     }
                 }
             },
