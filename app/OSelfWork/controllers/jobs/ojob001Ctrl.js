@@ -1401,6 +1401,16 @@ angular.module('app.oselfwork').controller('OJob001Ctrl', function ($scope, $sta
 
     function CalculationFinalCost(rowEntity, colDef, newValue, oldValue){
 
+        // 一律為大寫
+        if(colDef.name == 'O_IL_G1' || colDef.name == 'O_IL_GETNO') {
+            try {
+                rowEntity[colDef.name] = newValue.toUpperCase();
+            }
+            catch (e) {
+                console.log(e);
+            }
+        }
+
         // 編輯為 進口人統編
         if(colDef.name == 'O_IL_GETNO'){
             // 當有輸入值時
@@ -1432,17 +1442,6 @@ angular.module('app.oselfwork').controller('OJob001Ctrl', function ($scope, $sta
                 for(var i in _getnoOverSix){
                     _getnoOverSix[i]['O_IL_G1'] = '';
                 }
-            }
-        }
-
-        // 一律為大寫
-        if(colDef.name == 'O_IL_G1' || colDef.name == 'O_IL_GETNO') {
-            try {
-                rowEntity["O_IL_G1"] = newValue.toUpperCase();
-                rowEntity["O_IL_GETNO"] = newValue.toUpperCase();
-            }
-            catch (e) {
-                console.log(e);
             }
         }
 
