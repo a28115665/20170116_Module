@@ -30,6 +30,9 @@ angular.module('app.oselfwork').config(function ($stateProvider){
                     userInfoByGrade : function(UserInfoByGrade, Session){
                         return UserInfoByGrade.get(Session.Get().U_ID, Session.Get().U_GRADE, Session.Get().DEPTS);
                     },
+                    userInfoByOCompyDistribution : function (UserInfoByOCompyDistribution, Session){
+                        return UserInfoByOCompyDistribution.get(Session.Get().U_ID);
+                    },
                     ocompy : function(OCompy){
                         return OCompy.get();
                     },

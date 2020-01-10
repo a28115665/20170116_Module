@@ -1,6 +1,6 @@
 "use strict";
 
-angular.module('app.oselfwork').controller('OLeaderJobsCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, uiGridConstants, RestfulApi, ocompy, opType, userInfoByGrade, $filter, $q, ToolboxApi, sysParm) {
+angular.module('app.oselfwork').controller('OLeaderJobsCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, uiGridConstants, RestfulApi, ocompy, opType, userInfoByGrade, userInfoByOCompyDistribution, $filter, $q, ToolboxApi, sysParm) {
     
     var $vm = this,
         _tasks = [];
@@ -33,7 +33,12 @@ angular.module('app.oselfwork').controller('OLeaderJobsCtrl', function ($scope, 
                         $vm.vmData = [];
                         $vm.compyStatisticsData = [];
                     }else{
-                        $vm.selectAssignDept = userInfoByGrade[0][0].value;
+                        // $vm.selectAssignDept = userInfoByGrade[0][0].value;
+                        if(userInfoByOCompyDistribution[0].length == 0){
+                            toaster.pop('info', '訊息', '請先設定行家分配，否則行家無法被分派到各人員手裡', 3000);
+                        }else{
+                            $vm.selectAssignDept = userInfoByOCompyDistribution[0][0].value;
+                        }
 
                         AssignOptype();
                         LoadOrderList();
@@ -46,8 +51,8 @@ angular.module('app.oselfwork').controller('OLeaderJobsCtrl', function ($scope, 
                     break;
             }
         },
-        assignGradeData : userInfoByGrade[0],
-        assignPrincipalData : userInfoByGrade[1],
+        assignGradeData : userInfoByOCompyDistribution[0],
+        assignPrincipalData : userInfoByOCompyDistribution[1],
         opType : opType,
         gridMethod : {
             // 刪除的選項
@@ -988,6 +993,10 @@ angular.module('app.oselfwork').controller('OLeaderJobsCtrl', function ($scope, 
      * [LoadPrincipal description] 當天該負責人(自動分派使用)
      */
     function LoadPrincipal(){
+        if($vm.selectAssignDept == null){
+            return;
+        }
+
         RestfulApi.SearchMSSQLData({
             querymain: 'oleaderJobs',
             queryname: 'WhoPrincipal',
