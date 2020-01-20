@@ -237,12 +237,12 @@ angular.module('app.selfwork').controller('Job002Ctrl', function ($scope, $state
             //     _totalWeight += $vm.job002Data[i].FLL_WEIGHT;
             // }
 
-            ToolboxApi.ExportExcelByMultiSql([
+            ToolboxApi.ExportCsvByMultiSql([
                 {
                     templates      : 21,
                     filename       : _exportName,
                     OL_MASTER      : $vm.vmData.OL_MASTER,
-                    OL_IMPORTDT    : $filter('date')($vm.vmData.OL_IMPORTDT, 'yyyy年MM月dd日', 'GMT'),
+                    OL_IMPORTDT    : $filter('date')($vm.vmData.OL_IMPORTDT, 'yyyyMMdd', 'GMT'),
                     OL_FLIGHTNO    : $vm.vmData.OL_FLIGHTNO,
                     OL_COUNTRY     : $vm.vmData.OL_COUNTRY, 
                     OL_TEL         : $vm.vmData.OL_TEL, 
