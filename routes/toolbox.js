@@ -99,96 +99,6 @@ router.get('/exportExcelBySql', function(req, res) {
         res.status(post_res.statusCode).send('匯出失敗');
     }
 
-    // var post_data = querystring.stringify(req.query);
-    
-    // var post_options = {
-    //     host: '127.0.0.1',
-    //     port: setting.NodeJs.port,
-    //     path: '/restful/crud?' + post_data,
-    //     method: 'GET',
-    //     auth: until.FindID(req.session) + ':' + req.sessionID
-    // };
-
-    // // Set up the request
-    // var post_req = http.request(post_options, function (post_res) {
-
-    //     // console.log("statusCode: ", post_res.statusCode);
-    //     //console.log("headers: ", post_res.headers);
-    //     if(post_res.statusCode == 200){
-    //         var content = '';
-
-    //         post_res.setEncoding('utf8');
-
-    //         post_res.on('data', function(chunk) {
-    //             content += chunk;
-    //         });
-
-    //         post_res.on('end', function() {
-    //             // console.log(content);
-
-    //             try {
-
-    //                 let _params = typeof req.query["params"] == "string" ? JSON.parse(req.query["params"]) : req.query["params"];
-                    
-    //                 // 如果undefined則先宣告物件
-    //                 if(_params == undefined){
-    //                     _params = {};
-    //                 }
-
-    //                 _params["data"] = JSON.parse(content).returnData;
-
-    //                 // console.log(_params);
-
-    //                 tmpXlsObj.GetXls({
-    //                     JsonXls : _params,
-    //                     TmpXlsFilePath : path.join(path.dirname(module.parent.filename), 'templates', templates[req.query["templates"]]), //template xls 路徑(含檔名)
-    //                     // OutputXlsPath : path.join(path.dirname(module.parent.filename), 'templates', 'test2.xlsx'),
-    //                     SheetNumber : 1
-    //                 }, function (err, result){
-
-    //                     if (err) {
-    //                         // Do something with your error...
-    //                         logger.error('匯出失敗', req.ip, __line+'行', err);
-    //                         res.status(403).send("匯出失敗");
-    //                     } else {
-
-    //                         try {
-    //                             res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-    //                             res.setHeader('Content-Length', result.length);
-    //                             res.setHeader('Expires', '0');
-    //                             // res.setHeader('Content-Disposition', 'attachment; filename=test.xls');
-    //                             res.setHeader('Content-Encoding', 'UTF-8');
-    //                             res.status(200);
-
-    //                             var buffer = new Buffer(result, "binary");
-
-    //                             // res.end(toArrayBuffer(buffer));
-    //                             res.end(buffer);
-    //                         } catch(err){
-    //                             logger.error('匯出失敗', req.ip, __line+'行', err);
-    //                             res.status(403).send("匯出失敗");
-    //                         }
-    //                     }
-    //                 });
-    //             } 
-    //             catch(err) {
-    //                 logger.error('匯出失敗', req.ip, __line+'行', err);
-    //                 res.status(403).send("匯出失敗");
-    //             }  
-
-    //         });
-    //     }else{
-    //         res.status(post_res.statusCode).send('匯出失敗');
-    //     }
-    // });
-
-    // post_req.on('error', function(err) {
-    //     // Handle error
-    //     res.status(403).send('匯出失敗');
-    // });
-
-    // post_req.end(); 
-
     let id = until.FindID(req.session),
         action = "查詢",
         querymain = req.query["querymain"],
@@ -415,15 +325,9 @@ router.get('/exportCsvByMultiSql', function(req, res) {
 
                             // 再利用js-xlsx元件轉製成csv檔
                             var workbook = xlsx.read(buffer);
-                            var result = [],
-                                csv;
+                            var csv;
                             workbook.SheetNames.forEach(function(sheetName) {
                                 csv = xlsx.utils.sheet_to_csv(workbook.Sheets[sheetName]);
-                                if(csv.length > 0){
-                                    result.push('SHEET: ' + sheetName);
-                                    result.push('\n');
-                                    result.push(csv);
-                                }
                             });
 
                             res.setHeader('Content-Type', 'text/csv');
@@ -433,9 +337,9 @@ router.get('/exportCsvByMultiSql', function(req, res) {
                             res.setHeader('Content-Encoding', 'UTF-8');
                             res.status(200);
 
-                            var buffer = Buffer.from(csv, 'utf8');
+                            // 避免中文亂碼，需轉換成有BOM的樣式
+                            var buffer = Buffer.from("\ufeff"+csv, 'utf8');
 
-                            // res.end(toArrayBuffer(buffer));
                             res.end(buffer);
                         } catch(err){
                             logger.error('匯出失敗', req.ip, __line+'行', err);

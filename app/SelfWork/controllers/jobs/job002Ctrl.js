@@ -261,7 +261,7 @@ angular.module('app.selfwork').controller('Job002Ctrl', function ($scope, $state
                 {
                     crudType: 'Select',
                     querymain: 'job002',
-                    queryname: 'SelectRemark',
+                    queryname: 'SelectTop1Remark',
                     params: {               
                         FLL_SEQ: $vm.vmData.OL_SEQ
                     }

@@ -26,6 +26,14 @@ module.exports = function(pQueryname, pParams){
 							ORDER BY FLLR_ROWINDEX";
 
 			break;
+		case "SelectTop1Remark":
+			_SQLCommand += "SELECT TOP 1 FLLR_REMARK, \
+								   '' AS SPACE \
+							FROM FLL_REMARK \
+							WHERE FLLR_SEQ = @FLL_SEQ \
+							ORDER BY FLLR_ROWINDEX";
+
+			break;
 	}
 
 	return _SQLCommand;
