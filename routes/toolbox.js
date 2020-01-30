@@ -331,7 +331,7 @@ router.get('/exportCsvByMultiSql', function(req, res) {
                             });
 
                             res.setHeader('Content-Type', 'text/csv');
-                            res.setHeader('Content-Length', csv.length);
+                            // res.setHeader('Content-Length', until.stringBytes(csv));
                             res.setHeader('Expires', '0');
                             res.setHeader("Content-Disposition", "attachment;filename="+_params.filename+".csv");
                             res.setHeader('Content-Encoding', 'UTF-8');
