@@ -1,6 +1,6 @@
 "use strict";
 
-angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, uiGridConstants, RestfulApi, compy, opType, userInfoByGrade, $filter, $q, ToolboxApi, sysParm) {
+angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, uiGridConstants, RestfulApi, compy, opType, userInfoByGrade, userInfoByCompyDistribution, $filter, $q, ToolboxApi, sysParm) {
     
     var $vm = this,
         _tasks = [];
@@ -34,6 +34,11 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
                         $vm.compyStatisticsData = [];
                     }else{
                         $vm.selectAssignDept = userInfoByGrade[0][0].value;
+                        if(userInfoByCompyDistribution[0].length == 0){
+                            toaster.pop('info', '訊息', '請先設定行家分配，否則行家無法被分派到各人員手裡', 3000);
+                        }else{
+                            $vm.selectAssignDept = userInfoByCompyDistribution[0][0].value;
+                        }
 
                         AssignOptype();
                         LoadOrderList();
@@ -46,8 +51,8 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
                     break;
             }
         },
-        assignGradeData : userInfoByGrade[0],
-        assignPrincipalData : userInfoByGrade[1],
+        assignGradeData : userInfoByCompyDistribution[0],
+        assignPrincipalData : userInfoByCompyDistribution[1],
         opType : opType,
         gridMethod : {
             // 刪除的選項
@@ -896,6 +901,10 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
     }
 
     function LoadPrincipal(){
+        if($vm.selectAssignDept == null){
+            return;
+        }
+        
         RestfulApi.SearchMSSQLData({
             querymain: 'leaderJobs',
             queryname: 'WhoPrincipal',

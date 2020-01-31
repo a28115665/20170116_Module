@@ -69,6 +69,12 @@ mssql.prototype.log = function (pLevel, pData) {
 
             SQLCommand += "INSERT INTO " + self.table + " ("+Schema.join()+") VALUES (@"+Schema.join(",@")+")";
 
+            // sql長度太長 無法寫入資料庫
+            if(_params.SDL_QCONDITION != undefined && _params.SDL_QCONDITION.length > 60000){
+                logger.error('sql長度太長 無法寫入資料庫: SDL_QMAIN=>', _params.SDL_QMAIN, ', SDL_QNAME=>', _params.SDL_QNAME);
+                return;
+            }
+
             schemaType.SchemaType(_params, ps, sql);
 
             // 執行SQL，並且回傳值

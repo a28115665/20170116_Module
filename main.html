@@ -4,7 +4,7 @@
 	
 		<meta charset="utf-8">
 		<!-- <title> SmartAdmin (AngularJS)</title> -->
-		<title ng-bind="sysParm.SPA_HEADER"> </title>
+		<title>{{sysParm.SPA_HEADER}}</title>
 		<meta name="description" content="">
 		<meta name="author" content="">
 
@@ -55,7 +55,7 @@
 		<link rel="stylesheet" type="text/css" media="screen" href="styles/css/demo.min.css">
 
 		<!-- #FAVICONS -->
-		<link rel="shortcut icon" href="styles/img/favicon/ewms.png" type="image/x-icon">
+		<link rel="shortcut icon" href="{{sysParm.SPA_FAVICON}}" type="image/x-icon">
 
 		<!-- #GOOGLE FONT -->
 	<!-- 	<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Open+Sans:400italic,700italic,300,400,700"> -->
@@ -123,7 +123,7 @@
 	<body data-smart-device-detect
 		data-smart-fast-click
 		data-smart-layout
-		data-smart-page-title="sysParm.SPA_HEADER">
+		data-smart-page-title="{{sysParm.SPA_HEADER}}">
 
 		<toaster-container toaster-options="{'time-out': 3000, 'close-button':true, 'position-class': 'toast-bottom-right'}"></toaster-container>
 

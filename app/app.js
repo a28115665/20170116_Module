@@ -33,6 +33,7 @@ angular.module('app', [
     'ngTagsInput',
     'summernote',
     'LocalStorageModule',
+    'btford.socket-io',
 
     // Smartadmin Angular Common Module
     'SmartAdmin',
@@ -151,7 +152,7 @@ angular.module('app', [
     localStorageServiceProvider.setStorageType('localStorage');
 })
 
-.run(function ($rootScope, $state, $stateParams, Session, $http, AuthApi, localStorageService) {
+.run(function ($rootScope, $state, $stateParams, Session, $http, AuthApi, localStorageService, SocketApi) {
     // $rootScope.$state = $state;
     // $rootScope.$stateParams = $stateParams;
     // editableOptions.theme = 'bs3';
@@ -169,6 +170,10 @@ angular.module('app', [
                 if(angular.isUndefined(res["returnData"])){
                     $state.transitionTo("login");
                     // event.preventDefault(); 
+                }else{
+                    if(!SocketApi.Connected()){
+                        SocketApi.Connect();
+                    }
                 }
             }, function(err){
                 // 失敗
@@ -181,9 +186,10 @@ angular.module('app', [
     $rootScope.$on('$stateChangeSuccess', function (event, toState, roParams, fromState, fromParams) {
         // 檢視此頁是否有權限進入
         // 無權限就導到default頁面
-        // console.log(Session.Get().GRIGHT[toState.name], toState.name);
+        // console.log((!angular.isUndefined(Session.Get()) && Session.Get()["GRIGHT"] !== undefined), Session.Get()["U_ROLE"] == "Admin");
         if(!angular.isUndefined(Session.Get()) && Session.Get()["GRIGHT"] !== undefined){
-            if(!Session.Get().GRIGHT[toState.name]){
+
+            if(Session.Get()["U_ROLE"] != "Admin" && !Session.Get().GRIGHT[toState.name]){
                 // event.preventDefault();
                 $state.transitionTo("app.default");
             }

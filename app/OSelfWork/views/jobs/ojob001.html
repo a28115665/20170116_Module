@@ -106,10 +106,37 @@
 				    <header>
 				        <h2>編輯 </h2>
 				        <div class="widget-toolbar smart-form" role="menu">
-				            <a href-void="" class="btn btn-warning" href="#" ng-click="$vm.RepeatGet()">檢查重複進口人</a>
+				            <div class="btn-group dropdown" uib-dropdown keyboard-nav is-open="checkLogic">
+						        <button id="simple-btn-keyboard-nav" type="button" ng-class="{'btn btn-warning dropdown-toggle btn-xs disabled' : $vm.loading.update == true, 'btn btn-warning dropdown-toggle btn-xs' : $vm.loading.update == false}" uib-dropdown-toggle ng-click="$vm.CaculateWrongJob()">
+						            邏輯檢查 <span class="caret"></span>
+						        </button>
+						        <ul class="dropdown-menu dropdown-menu-right" uib-dropdown-menu role="menu" aria-labelledby="simple-btn-keyboard-nav" ng-if="$vm.loading.caculateWrongJob">
+						        	<div class="text-center"><i class="fa fa-refresh fa-4x fa-spin"></i></div>
+						        </ul>
+						        <ul class="dropdown-menu dropdown-menu-right" uib-dropdown-menu role="menu" aria-labelledby="simple-btn-keyboard-nav" ng-if="!$vm.loading.caculateWrongJob">
+						            <li role="menuitem">
+				                        <a href-void="" href="#" ng-click="$vm.RepeatGet();checkLogic=false"><em class="txt-color-white bg-color-red">{{$vm.repeatGet.length}}</em> 檢查重複進口人</a>
+						            </li>
+				                    <li>
+				                        <a href-void="" href="#" ng-click="$vm.PeopleNotTheSameGetNo();checkLogic=false"><em class="txt-color-white bg-color-red">{{$vm.peopleNotTheSameGetNo.length}}</em> 檢查重複統編不同人</a>
+				                    </li>
+				                    <li>
+				                        <a href-void="" href="#" ng-click="$vm.GetNoIsTrue();checkLogic=false"><em class="txt-color-white bg-color-red">{{$vm.getNoIsTrue.length}}</em> 檢查統編正確性</a>
+				                    </li>
+				                    <li>
+				                        <a href-void="" href="#" ng-click="$vm.PhoneWithSameNameButDifferentCode();checkLogic=false"><em class="txt-color-white bg-color-red">{{$vm.phoneWithSameNameButDifferentCode.length}}</em> 檢查相同姓名電話但統編不同</a>
+				                    </li>
+				                    <li ng-if="$vm.loading.wrongJobNeedToUpdate">
+				                        <a href-void="" href="#" class="cell-class-pull" ng-click="$vm.UpdateFixLogic();checkLogic=false"><i class="fa fa-exclamation-circle text-danger"></i> 更新邏輯檢查數量</a>
+				                    </li>
+						        </ul>
+						    </div>
 				        </div>
 				        <div class="widget-toolbar smart-form" role="menu">
 				            <a href-void="" class="btn btn-success" href="#" ng-click="$vm.ExportExcel()">匯出關貿</a>
+				        </div>
+				        <div class="widget-toolbar smart-form" role="menu">
+				            <a href-void="" class="btn btn-success" href="#" ng-click="$vm.ExportFlightItem()">匯出銷艙單</a>
 				        </div>
 				    </header>
 				    <!-- widget div-->
@@ -123,7 +150,7 @@
 							        	<form class="form-inline" role="form">
 							                <fieldset>
 							                    <div class="form-group">
-											        <label class="control-label">標籤說明：</label>
+											        <cell-class-pull class="control-label">標籤說明：</label>
 											        <span>
 														<!-- <span class="cell-class-ban"> 黑名單</span> -->
 														<span class="cell-class-pull"> 拉貨</span>
@@ -136,9 +163,20 @@
 							        	<form class="form-inline" role="form">
 							                <fieldset>
 							                    <div class="form-group">
+											        <label class="control-label">銷艙單已匯：</label>
+											        <span>
+														<i ng-class="$vm.vmData.FLIGHT_EXPORT >= 1 ? 'fa fa-check text-success' : 'fa fa-remove text-danger'"></i>
+											        </span>
+											        <label class="control-label">｜</label>
 											        <label class="control-label">關貿已匯：</label>
 											        <span>
 														<i ng-class="$vm.vmData.TRADE_EXPORT >= 1 ? 'fa fa-check text-success' : 'fa fa-remove text-danger'"></i>
+											        </span>
+											        <label class="control-label">｜</label>
+											        <label class="control-label">邏輯檢查：</label>
+											        <span>
+														<i ng-class="{'fa fa-check text-success' : $vm.vmData.O_OL_ALREADY_FIXED == 1, 'fa fa-exclamation text-danger' : $vm.vmData.O_OL_ALREADY_FIXED == 0, 'fa fa-question text-warning' : $vm.vmData.O_OL_ALREADY_FIXED == null}"></i>
+														<!-- <button class="btn btn-danger btn-xs" ng-if="$vm.loading.wrongJobNeedToUpdate" ng-click="$vm.UpdateFixLogic()">數量需更新</button> -->
 											        </span>
 							                    </div>
 							                </fieldset>
@@ -147,7 +185,7 @@
 							        <div class="col-xs-12 col-sm-12 col-md-8 col-lg-8 text-right">
 							        	<form class="form-inline" role="form">
 							                <fieldset>
-							                    <div class="form-group">
+							                    <!-- <div class="form-group">
 										            <button class="btn btn-warning"
 										            		ng-click="$vm.CalculateNetWieghtBalance()"
 										            		ng-disabled="$vm.loading.calculateNetWieghtBalance">
@@ -158,7 +196,7 @@
 										                	平衡淨重
 										            	</span>
 										            </button>
-							                    </div>
+							                    </div> -->
 							                    <div class="form-group">
 										            <button class="btn btn-warning"
 										            		ng-click="$vm.CalculateCrossWieghtBalance()"
@@ -372,7 +410,7 @@
                         <input class="form-control" name="O_OL_FLIGHT_TOTALCROSSWEIGHT" placeholder="請輸入銷艙單總重量" ng-model="$ctrl.mdData.O_OL_FLIGHT_TOTALCROSSWEIGHT" type="text" required>
                         <p class="note">報機單總重量(新毛重) 將會等於輸入的 銷艙單毛重總重量</p>
                         <p class="text-danger" ng-if="$ctrl.mdData.totalCrossWeight == 0">目前倍率：0</p>
-                        <p class="text-danger" ng-if="$ctrl.mdData.totalCrossWeight > 0">目前倍率：{{($ctrl.mdData.O_OL_FLIGHT_TOTALCROSSWEIGHT / $ctrl.mdData.totalCrossWeight).toFixed(2)}} (請介於0.5~1.5之間)</p>
+                        <p class="text-danger" ng-if="$ctrl.mdData.totalCrossWeight > 0">目前倍率：{{($ctrl.mdData.O_OL_FLIGHT_TOTALCROSSWEIGHT / $ctrl.mdData.totalCrossWeight).toFixed(2)}} (請介於0.5~1.5之間)，會以此倍率計算新淨重</p>
                     </div>
                 </div>
 			</fieldset>
@@ -389,7 +427,58 @@
 	    <h3 class="modal-title" id="modal-title">重複進口人</h3>
 	</div>
 	<div class="modal-body no-padding" id="modal-body">
+
+	    <div class="padding-10">下方顯示<strong>「新出口人英文名稱」</strong>和<strong>「進口統一編號」</strong>超過一次的資料</div>
+
         <div id="grid1" ui-grid="$ctrl.repeatGetOption" class="my-ui-grid" ui-grid-pagination ui-grid-resize-columns ui-grid-edit ui-grid-row-edit ui-grid-auto-resize></div>
+	</div>
+	<div class="modal-footer">
+	    <button class="btn btn-primary" type="button" ng-click="$ctrl.ok()">{{getWord('OK')}}</button>
+	    <button class="btn btn-default" type="button" ng-click="$ctrl.cancel()">{{getWord('Cancel')}}</button>
+	</div>
+</script>
+
+<script type="text/ng-template" id="peopleNotTheSameGetNoModalContent.html">
+    <div class="modal-header">
+	    <h3 class="modal-title" id="modal-title">重複統編不同人</h3>
+	</div>
+	<div class="modal-body no-padding" id="modal-body">
+
+	    <div class="padding-10">下方顯示<strong>「進口人統一編號」</strong>與<strong>「進口人英文名稱」</strong>有異常的資料</div>
+
+        <div id="grid1" ui-grid="$ctrl.peopleNotTheSameGetNoOption" class="my-ui-grid" ui-grid-pagination ui-grid-resize-columns ui-grid-edit ui-grid-row-edit ui-grid-auto-resize></div>
+	</div>
+	<div class="modal-footer">
+	    <button class="btn btn-primary" type="button" ng-click="$ctrl.ok()">{{getWord('OK')}}</button>
+	    <button class="btn btn-default" type="button" ng-click="$ctrl.cancel()">{{getWord('Cancel')}}</button>
+	</div>
+</script>
+
+<script type="text/ng-template" id="getNoIsTrueModalContent.html">
+    <div class="modal-header">
+	    <h3 class="modal-title" id="modal-title">統編正確性</h3>
+	</div>
+	<div class="modal-body no-padding" id="modal-body">
+
+	    <div class="padding-10">下方顯示<strong>「進口人統一編號」</strong>有異常的資料</div>
+
+        <div id="grid1" ui-grid="$ctrl.getNoIsTrueOption" class="my-ui-grid" ui-grid-pagination ui-grid-resize-columns ui-grid-edit ui-grid-row-edit ui-grid-auto-resize></div>
+	</div>
+	<div class="modal-footer">
+	    <button class="btn btn-primary" type="button" ng-click="$ctrl.ok()">{{getWord('OK')}}</button>
+	    <button class="btn btn-default" type="button" ng-click="$ctrl.cancel()">{{getWord('Cancel')}}</button>
+	</div>
+</script>
+
+<script type="text/ng-template" id="phoneWithSameNameButDifferentCodeModalContent.html">
+    <div class="modal-header">
+	    <h3 class="modal-title" id="modal-title">相同姓名電話但統編不同</h3>
+	</div>
+	<div class="modal-body no-padding" id="modal-body">
+
+	    <div class="padding-10">下方顯示<strong>「進口人英文名稱」</strong>與<strong>「進口人電話」</strong>相同，但<strong>「進口人統一編號」</strong>有異常的資料</div>
+
+        <div id="grid1" ui-grid="$ctrl.phoneWithSameNameButDifferentCodeOption" class="my-ui-grid" ui-grid-pagination ui-grid-resize-columns ui-grid-edit ui-grid-row-edit ui-grid-auto-resize></div>
 	</div>
 	<div class="modal-footer">
 	    <button class="btn btn-primary" type="button" ng-click="$ctrl.ok()">{{getWord('OK')}}</button>

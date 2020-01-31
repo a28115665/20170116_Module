@@ -1,5 +1,5 @@
 angular.module('app')
-.directive('action', function($rootScope, $filter, $state, AuthApi) {
+.directive('action', function($rootScope, $filter, $state, AuthApi, SocketApi) {
     return {
         restrict: 'A',
         link: function(scope, element, attrs) {
@@ -21,9 +21,13 @@ angular.module('app')
                         if (ButtonPressed == "是") {
                             // $.root_.addClass('animated fadeOutUp');
                             // setTimeout(logout, 1000);
+                            if(SocketApi.Connected()){
+                                SocketApi.Disconnect();
+                            }
                             AuthApi.Logout().then(function (res){
                                 // console.log(res);
-                                $state.transitionTo("login");
+                                // $state.transitionTo("login");
+                                $state.reload();
                             });
                         }
                     });

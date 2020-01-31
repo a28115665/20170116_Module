@@ -42,9 +42,11 @@ module.exports = function(pQueryname, pParams){
 							SELECT SPA_AUTOPRIN, \
 								O_SPA_AUTOPRIN, \
 								dbo.Decrypt(SPA_DEFAULT_PASSWORD) AS 'SPA_DEFAULT_PASSWORD', \
+								SPA_FAVICON, \
 								SPA_HEADER, \
 								SPA_HEADER_PNG, \
 								SPA_AVATARS, \
+								SPA_AVATARS_BIG, \
 								SPA_FOOTER, \
 								SPA_LOGIN_LOGO, \
 								SPA_LOGIN_LOGO1_TXT, \

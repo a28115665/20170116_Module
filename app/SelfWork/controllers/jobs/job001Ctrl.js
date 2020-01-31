@@ -1490,27 +1490,28 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
     function CalculationFinalCost(rowEntity, colDef, newValue, oldValue){
         
         // 一律為大寫
-        if(colDef.name == 'O_IL_G1') {
+        if(colDef.name == 'IL_G1') {
             try {
-                rowEntity["O_IL_G1"] = newValue.toUpperCase();
+                rowEntity["IL_G1"] = newValue.toUpperCase();
+                G1ForY(rowEntity);
             }
             catch (e) {
                 console.log(e);
             }
         }
 
-        try {
-            if(newValue.toUpperCase() == "Y"){
-                G1ForY(rowEntity)
-                // rowEntity.IL_WEIGHT_NEW = rowEntity.IL_WEIGHT;
-                // rowEntity.IL_NEWPCS = rowEntity.IL_PCS;
-                // rowEntity.IL_UNIVALENT_NEW = rowEntity.IL_UNIVALENT;
-                // rowEntity.IL_NEWSENDNAME = rowEntity.IL_SENDNAME;
-                // rowEntity.IL_FINALCOST = null;
-            }
-        } catch (e) {
-            console.log(e);
-        }
+        // try {
+        //     if(newValue.toUpperCase() == "Y"){
+        //         G1ForY(rowEntity)
+        //         // rowEntity.IL_WEIGHT_NEW = rowEntity.IL_WEIGHT;
+        //         // rowEntity.IL_NEWPCS = rowEntity.IL_PCS;
+        //         // rowEntity.IL_UNIVALENT_NEW = rowEntity.IL_UNIVALENT;
+        //         // rowEntity.IL_NEWSENDNAME = rowEntity.IL_SENDNAME;
+        //         // rowEntity.IL_FINALCOST = null;
+        //     }
+        // } catch (e) {
+        //     console.log(e);
+        // }
 
         if(colDef.name == 'IL_GETNAME_NEW'){
             var _temp = encodeURI(rowEntity.IL_GETNAME_NEW),
@@ -1619,9 +1620,9 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
     function G1ForY (rowEntity){
         rowEntity.IL_WEIGHT_NEW = rowEntity.IL_WEIGHT;
         rowEntity.IL_NEWPCS = rowEntity.IL_PCS;
-        rowEntity.IL_UNIVALENT_NEW = rowEntity.IL_UNIVALENT;
+        // rowEntity.IL_UNIVALENT_NEW = rowEntity.IL_UNIVALENT;
         rowEntity.IL_NEWSENDNAME = rowEntity.IL_SENDNAME;
-        rowEntity.IL_FINALCOST = null;
+        rowEntity.IL_FINALCOST = isNaN(rowEntity.IL_NEWPCS * rowEntity.IL_UNIVALENT_NEW) ? null : rowEntity.IL_NEWPCS * rowEntity.IL_UNIVALENT_NEW;
     }
 
     /**

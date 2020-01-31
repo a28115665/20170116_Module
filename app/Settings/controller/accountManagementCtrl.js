@@ -1,9 +1,23 @@
 "use strict";
 
-angular.module('app.settings').controller('AccountManagementCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, $filter, SysCode, RestfulApi, uiGridConstants, bool, role, userGrade) {
+angular.module('app.settings').controller('AccountManagementCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, $filter, SysCode, RestfulApi, uiGridConstants, bool, role, userGrade, SocketApi) {
 
 	var $vm = this;
     // console.log(Account.get());
+
+    SocketApi.On('getAllUsers', function(data){
+        console.log('OnGetAllUsers', data);
+        if($vm.accountData.length > 0){
+            $vm.accountData = $vm.accountData.map(function(value, index, fullArray){
+                if(data.indexOf(value.U_ID) != -1){
+                    value["onlineStatue"] = 1;
+                }else{
+                    value["onlineStatue"] = 0;
+                }
+                return value;
+            });
+        }
+    })
 
 	angular.extend(this, {
         Init : function(){
@@ -12,6 +26,7 @@ angular.module('app.settings').controller('AccountManagementCtrl', function ($sc
             $vm.LoadData();
         },
         profile : Session.Get(),
+        accountData : [],
         defaultTab : 'hr1',
         TabSwitch : function(pTabID){
             return pTabID == $vm.defaultTab ? 'active' : '';
@@ -83,6 +98,7 @@ angular.module('app.settings').controller('AccountManagementCtrl', function ($sc
         accountManagementOptions : {
             data: '$vm.accountData',
             columnDefs: [
+                { name: 'OnlineStatue'  ,  displayName: '在線狀態', enableFiltering: false, cellTemplate: $templateCache.get('accountManagementOnlineStatue') },
                 { name: 'U_STS'    ,  displayName: '離職', cellFilter: 'booleanFilter', filter: 
                     {
                         term: null,
@@ -249,7 +265,28 @@ angular.module('app.settings').controller('AccountManagementCtrl', function ($sc
             queryname: 'SelectAllUserInfoNotWithAdmin'
         }).then(function (res){
             console.log(res["returnData"]);
-            $vm.accountData = res["returnData"];
+
+            var _data = res["returnData"] || [];
+
+            $vm.accountData = _data;
+
+            SocketApi.Emit('getAllUsers', {}, function(err, data){
+                // console.log('getAllUsers:', data);
+
+                if($vm.accountData.length > 0){
+                    $vm.accountData = $vm.accountData.map(function(value, index, fullArray){
+                        if(data.indexOf(value.U_ID) != -1){
+                            value["onlineStatue"] = 1;
+                        }else{
+                            value["onlineStatue"] = 0;
+                        }
+                        return value;
+                    });
+                }
+
+                // console.log('$vm.accountData:', $vm.accountData);
+            })
+
         }).finally(function() {
             HandleWindowResize($vm.accountManagementGridApi);
         });    

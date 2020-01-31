@@ -52,6 +52,9 @@ angular.module('app.selfwork').config(function ($stateProvider){
                     userInfoByGrade : function(UserInfoByGrade, Session){
                         return UserInfoByGrade.get(Session.Get().U_ID, Session.Get().U_GRADE, Session.Get().DEPTS);
                     },
+                    userInfoByCompyDistribution : function (UserInfoByCompyDistribution, Session){
+                        return UserInfoByCompyDistribution.get(Session.Get().U_ID);
+                    },
                     compy : function(Compy){
                         return Compy.get();
                     },

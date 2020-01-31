@@ -30,6 +30,9 @@ angular.module('app.oselfwork').config(function ($stateProvider){
                     userInfoByGrade : function(UserInfoByGrade, Session){
                         return UserInfoByGrade.get(Session.Get().U_ID, Session.Get().U_GRADE, Session.Get().DEPTS);
                     },
+                    userInfoByOCompyDistribution : function (UserInfoByOCompyDistribution, Session){
+                        return UserInfoByOCompyDistribution.get(Session.Get().U_ID);
+                    },
                     ocompy : function(OCompy){
                         return OCompy.get();
                     },
@@ -200,6 +203,51 @@ angular.module('app.oselfwork').config(function ($stateProvider){
             "content@app" : {
                 templateUrl: 'app/OSelfWork/views/jobs/ojob001.html',
                 controller: 'OJob001Ctrl',
+                controllerAs: '$vm',
+                resolve: {
+                    bool: function (SysCode){
+                        return SysCode.get('Boolean');
+                    }
+                }
+            }
+        }
+    })
+
+    .state('app.oselfwork.oemployeewrongjobs', {
+        url: '/oselfwork/oemployeewrongjobs',
+        data: {
+            title: 'OEmployeeWrongJobs'
+        },
+        views: {
+            "content@app" : {
+                templateUrl: 'app/OSelfWork/views/oemployeeWrongJobs.html',
+                controller: 'OEmployeeWrongJobsCtrl',
+                controllerAs: '$vm',
+                resolve: {
+                    ocompy: function(OCompy){
+                        return OCompy.get();
+                    },
+                    userInfo: function(UserInfo){
+                        return UserInfo.get();
+                    }
+                }
+            }
+        }
+    })
+
+    .state('app.oselfwork.oemployeewrongjobs.owjob001', {
+        url: '/owjob001',
+        data: {
+            title: 'OWJob001'
+        },
+        params: { 
+            data: null
+        },
+        parent: 'app.oselfwork.oemployeewrongjobs',
+        views: {
+            "content@app" : {
+                templateUrl: 'app/OSelfWork/views/jobs/owjob001.html',
+                controller: 'OWJob001Ctrl',
                 controllerAs: '$vm',
                 resolve: {
                     bool: function (SysCode){

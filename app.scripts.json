@@ -41,7 +41,9 @@
       "cryptojslib",
       "ng-tags-input",
       "angular-summernote",
-      "angular-local-storage"
+      "angular-local-storage",
+      "socket.io-client",
+      "angular-socket-io"
 
     ],
     "vendor.ui": [
@@ -176,6 +178,8 @@
     "cryptojslib": "bower_components/cryptojslib/rollups/md5.js",
     "ng-tags-input": "bower_components/ng-tags-input/ng-tags-input.min.js",
     "angular-summernote": "bower_components/angular-summernote/dist/angular-summernote.min.js",
-    "angular-local-storage": "bower_components/angular-local-storage/dist/angular-local-storage.min.js"
+    "angular-local-storage": "bower_components/angular-local-storage/dist/angular-local-storage.min.js",
+    "socket.io-client": "node_modules/socket.io-client/dist/socket.io.js",
+    "angular-socket-io": "bower_components/angular-socket-io/socket.js"
   }
 }

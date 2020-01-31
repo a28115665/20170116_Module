@@ -20,17 +20,32 @@ module.exports = function(pQueryname, pParams){
 									O_OL_REASON, \
 									O_OL_FDATETIME, \
 									O_OL_FUSER, \
+									O_OL_ORI_LOGIC1, \
+									O_OL_FIX_LOGIC1, \
+									O_OL_ORI_LOGIC2, \
+									O_OL_FIX_LOGIC2, \
+									O_OL_ORI_LOGIC3, \
+									O_OL_FIX_LOGIC3, \
+									O_OL_ORI_LOGIC4, \
+									O_OL_FIX_LOGIC4, \
+									O_OL_ALREADY_FIXED, \
 									( \
-										(\
-											SELECT COUNT(1) \
+										SELECT SUM(O_IL_NEWCTN) \
+										FROM ( \
+											SELECT O_ITEM_LIST.*, \
+												CASE WHEN ROW_NUMBER() OVER(PARTITION BY O_IL_SMALLNO ORDER BY O_IL_SMALLNO) = 1 \
+												THEN O_IL_SMALLNO ELSE NULL END AS 'O_IL_SMALLNOEX_NOREPEAT' \
 											FROM O_ITEM_LIST \
-											WHERE O_IL_SEQ = O_OL_SEQ\
-										) -\
-										( \
-											SELECT COUNT(1) \
-											FROM O_PULL_GOODS \
-											WHERE O_PG_SEQ = O_OL_SEQ \
-										)\
+											LEFT JOIN O_PULL_GOODS ON \
+											O_IL_SEQ = O_PG_SEQ AND \
+											O_IL_SMALLNO = O_PG_SMALLNO AND \
+											O_IL_NEWSMALLNO = O_PG_NEWSMALLNO \
+											WHERE 1=1 \
+											/*拉貨不算*/ \
+											AND O_PG_SEQ IS NULL \
+											AND O_IL_SEQ = O_OL_SEQ \
+										) O_ITEM_LIST \
+										WHERE O_IL_SMALLNOEX_NOREPEAT IS NOT NULL \
 									) AS 'O_OL_COUNT', \
 									( \
 										SELECT COUNT(1) \
@@ -159,6 +174,15 @@ module.exports = function(pQueryname, pParams){
 									O_OL_REASON, \
 									O_OL_FDATETIME, \
 									O_OL_FUSER, \
+									O_OL_ORI_LOGIC1, \
+									O_OL_FIX_LOGIC1, \
+									O_OL_ORI_LOGIC2, \
+									O_OL_FIX_LOGIC2, \
+									O_OL_ORI_LOGIC3, \
+									O_OL_FIX_LOGIC3, \
+									O_OL_ORI_LOGIC4, \
+									O_OL_FIX_LOGIC4, \
+									O_OL_ALREADY_FIXED, \
 									W2_OE.O_OE_PRINCIPAL, \
 									W2_OE.O_OE_EDATETIME, \
 									W2_OE.O_OE_FDATETIME, \

@@ -273,6 +273,11 @@ appConfig.view_lang = 'tw';
 
 appConfig.apiRootUrl = 'api';
 
+/**
+ * socket port
+ */
+appConfig.socketPort = 8888;
+
 window.appConfig = appConfig;
 
 /*

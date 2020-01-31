@@ -1,7 +1,7 @@
 "use strict";
 
 angular.module('app.mainwork').controller('MainWorkCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, RestfulApi, ToolboxApi) {
-    
+
     $scope.barChartData = _.range(2).map(function (barNum) {
         return {
             data: _.range(12).map(function (i) {
