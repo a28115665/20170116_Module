@@ -1618,11 +1618,17 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
      * @param {[type]} rowEntity [description]
      */
     function G1ForY (rowEntity){
-        rowEntity.IL_WEIGHT_NEW = rowEntity.IL_WEIGHT;
-        rowEntity.IL_NEWPCS = rowEntity.IL_PCS;
-        // rowEntity.IL_UNIVALENT_NEW = rowEntity.IL_UNIVALENT;
-        rowEntity.IL_NEWSENDNAME = rowEntity.IL_SENDNAME;
-        rowEntity.IL_FINALCOST = isNaN(rowEntity.IL_NEWPCS * rowEntity.IL_UNIVALENT_NEW) ? null : rowEntity.IL_NEWPCS * rowEntity.IL_UNIVALENT_NEW;
+        try{
+            if(rowEntity["IL_G1"] == "Y"){
+                rowEntity.IL_WEIGHT_NEW = rowEntity.IL_WEIGHT;
+                rowEntity.IL_NEWPCS = rowEntity.IL_PCS;
+                // rowEntity.IL_UNIVALENT_NEW = rowEntity.IL_UNIVALENT;
+                rowEntity.IL_NEWSENDNAME = rowEntity.IL_SENDNAME;
+                rowEntity.IL_FINALCOST = isNaN(rowEntity.IL_NEWPCS * rowEntity.IL_UNIVALENT_NEW) ? null : rowEntity.IL_NEWPCS * rowEntity.IL_UNIVALENT_NEW;
+            }
+        } catch (e) {
+            console.log(e);
+        }
     }
 
     /**
