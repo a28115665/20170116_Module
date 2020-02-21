@@ -403,7 +403,7 @@ angular.module('app.oselfwork').controller('OJob001Ctrl', function ($scope, $sta
                 });
             }
         },
-        // 計算淨重
+        // 計算淨重(目前不使用)
         CalculateNetWieghtBalance: function(){
 
             var _totalNetWeight = 0,
@@ -452,7 +452,7 @@ angular.module('app.oselfwork').controller('OJob001Ctrl', function ($scope, $sta
                 }
 
                 var _maxRatio = 1.5,
-                    _minRatio = 0.5,
+                    _minRatio = 0.3,
                     _ratio = (selectedItem.O_OL_FLIGHT_TOTALNETWEIGHT / selectedItem.totalNetWeight).toFixed(2);
                 if(_ratio < _minRatio || _maxRatio < _ratio){
                     toaster.pop('warning', '警告', '請勿輸入對於報機單總重量(淨重)差距過小或過大的數值。', 3000);
@@ -562,7 +562,7 @@ angular.module('app.oselfwork').controller('OJob001Ctrl', function ($scope, $sta
                 }
 
                 var _maxRatio = 1.5,
-                    _minRatio = 0.5,
+                    _minRatio = 0.3,
                     _ratio = (selectedItem.O_OL_FLIGHT_TOTALCROSSWEIGHT / selectedItem.totalCrossWeight).toFixed(2);
                 if(_ratio < _minRatio || _maxRatio < _ratio){
                     toaster.pop('warning', '警告', '請勿輸入對於報機單總重量(毛重)差距過小或過大的數值。', 3000);
@@ -1808,7 +1808,6 @@ angular.module('app.oselfwork').controller('OJob001Ctrl', function ($scope, $sta
     $ctrl.getNoIsTrueOption = {
         data: '$ctrl.mdData',
         columnDefs: [
-            { name: 'O_IL_GETNO'            , displayName: '進口人統一編號', width: 110, headerCellClass: 'text-primary' },
             { name: 'O_IL_G1'               , displayName: '報關種類', width: 80, headerCellClass: 'text-primary' },
             { name: 'O_IL_SMALLNO'          , displayName: '小號', width: 110, enableCellEdit: false },
             { name: 'O_IL_POSTNO'           , displayName: '艙單號碼', width: 110, enableCellEdit: false },
@@ -1849,6 +1848,7 @@ angular.module('app.oselfwork').controller('OJob001Ctrl', function ($scope, $sta
             { name: 'O_IL_SENDADDRESS'      , displayName: '出口人英文地址', width: 110, enableCellEdit: false },
             { name: 'O_IL_NEWSENDADDRESS'   , displayName: '新出口人英文地址', width: 110, headerCellClass: 'text-primary' },
             { name: 'O_IL_GETID'            , displayName: '進口人身分識別碼', width: 110, enableCellEdit: false },
+            { name: 'O_IL_GETNO'            , displayName: '進口人統一編號', width: 110, headerCellClass: 'text-primary' },
             { name: 'O_IL_GETENAME'         , displayName: '進口人英文名稱', width: 110, headerCellClass: 'text-primary' },
             { name: 'O_IL_GETPHONE'         , displayName: '進口人電話', width: 110, headerCellClass: 'text-primary' },
             { name: 'O_IL_GETADDRESS'       , displayName: '進口人英文地址', width: 110, headerCellClass: 'text-primary' },
