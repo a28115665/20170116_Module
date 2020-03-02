@@ -104,6 +104,7 @@ angular.module('app.oselfwork').controller('OJob001Ctrl', function ($scope, $sta
                     if(!angular.isUndefined(_returnData["O_CN_TAX"]) && _returnData["O_CN_TAX"] != ""){
                         row.entity.O_IL_TAX2 = _returnData["O_CN_TAX"];
                     }else{
+                        toaster.pop('info', '訊息', '此新貨物名稱查無稅則', 3000);
                         row.entity.O_IL_TAX2 = _returnData["O_CN_TAX"];
                     }
                     needToUpdate = true;
