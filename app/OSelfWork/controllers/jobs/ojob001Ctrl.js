@@ -82,6 +82,40 @@ angular.module('app.oselfwork').controller('OJob001Ctrl', function ($scope, $sta
                     row.entity.loading = false;
                 });
             },
+            // 查稅則
+            changeOTax : function(row){
+                console.log(row);
+
+                if(angular.isUndefined(row.entity.O_IL_NATURE_NEW) || row.entity.O_IL_NATURE_NEW == ""){
+                    toaster.pop('warning', '警告', '新貨物名稱需有值', 3000);
+                    return;
+                }
+
+                row.entity.loading = true;
+                ToolboxApi.ChangeOTax({
+                    ID : $vm.profile.U_ID,
+                    PW : $vm.profile.U_PW,
+                    NATURE_NEW : row.entity.O_IL_NATURE_NEW
+                }).then(function (res) {
+                    // console.log(res);
+                    var _returnData = JSON.parse(res["returnData"]),
+                        needToUpdate = false;
+
+                    if(!angular.isUndefined(_returnData["O_CN_TAX"]) && _returnData["O_CN_TAX"] != ""){
+                        row.entity.O_IL_TAX2 = _returnData["O_CN_TAX"];
+                    }else{
+                        row.entity.O_IL_TAX2 = _returnData["O_CN_TAX"];
+                    }
+                    needToUpdate = true;
+
+                    if(needToUpdate){
+                        $vm.job001GridApi.rowEdit.setRowsDirty([row.entity]);
+                    }
+
+                }).finally(function() {
+                    row.entity.loading = false;
+                });
+            },
             // 刪除
             deleteData : function(){
 
@@ -302,6 +336,7 @@ angular.module('app.oselfwork').controller('OJob001Ctrl', function ($scope, $sta
                 { name: 'O_IL_NATURE'           , displayName: '貨物名稱', width: 110, enableCellEdit: false, cellTooltip: cellTooltip},
                 { name: 'O_IL_NATURE_NEW'       , displayName: '新貨物名稱', width: 110, headerCellClass: 'text-primary', cellTooltip: cellTooltip},
                 { name: 'ChangeNature'          , displayName: '改單', width: 66, enableCellEdit: false, enableSorting:false, cellTemplate: $templateCache.get('accessibilityToChangeNature'), cellClass: 'cell-class-no-style' },
+                { name: 'ChangeOTax'            , displayName: '查稅則', width: 66, enableCellEdit: false, enableSorting:false, cellTemplate: $templateCache.get('accessibilityToChangeOTax'), cellClass: 'cell-class-no-style' },
                 { name: 'O_IL_TAX'              , displayName: '稅則', width: 110, enableCellEdit: false },
                 { name: 'O_IL_TAX2'             , displayName: '新稅則', width: 110, headerCellClass: 'text-primary' },
                 // { name: 'O_IL_TAXRATE'          , displayName: '稅率', width: 110, enableCellEdit: false },

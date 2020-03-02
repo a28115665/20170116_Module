@@ -800,6 +800,82 @@ router.get('/changeONature', function(req, res) {
 
 });
 
+/**
+ * ChangeOTax 查稅則(海運)
+ */
+router.get('/changeOTax', function(req, res) {
+
+    try{        
+        // console.log(res.statusCode, req.query);
+
+        // Build the post string from an object
+        var post_data = querystring.stringify({
+            'strJson' : JSON.stringify([
+                {
+                    "UserId": req.query.ID,
+                    "UserPW": req.query.PW,
+                    "NatureName": req.query.NATURE_NEW
+                }
+            ])
+        });
+
+        // An object of options to indicate where to post to
+        var post_options = {
+            host: setting.WebService.changeOTax.host,
+            port: setting.WebService.changeOTax.port,
+            path: setting.WebService.changeOTax.url,
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'Content-Length': Buffer.byteLength(post_data)
+            }
+        };
+
+        // Set up the request
+        var post_req = http.request(post_options, function (post_res) {
+
+            // console.log("statusCode: ", post_res.statusCode);
+            //console.log("headers: ", post_res.headers);
+            if(post_res.statusCode == 200){
+                var content = '';
+
+                post_res.setEncoding('utf8');
+
+                post_res.on('data', function(chunk) {
+                    content += chunk;
+                });
+
+                post_res.on('end', function() {
+                    // console.log(content);
+
+                    res.json({
+                        "returnData": content
+                    });
+                });
+            }else{
+                res.status(post_res.statusCode).send('查稅則失敗');
+            }
+        });
+
+        // console.log(post_data);
+        // post the data
+        post_req.write(post_data);
+
+        post_req.on('error', function(err) {
+            console.error(err);
+            // Handle error
+            res.status(403).send('查稅則失敗');
+        });
+
+        post_req.end(); 
+
+    } catch(err) {
+        console.error(err);
+        res.status(403).send('查稅則失敗');
+    }
+
+});
+
 /*
  * 組成menu
  * 當有U_ID時會產生該ID的menu，如果沒有就產生所有menu

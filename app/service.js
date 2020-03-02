@@ -366,6 +366,21 @@ angular.module('app')
 	    return deferred.promise
 	},
 
+	this.ChangeOTax = function (dataSrc) {
+	    // console.log(dataSrc);
+	    var deferred = $q.defer();
+
+	    Resource.CHANGEOTAX.get(dataSrc,
+	    	function (pSResponse){
+				deferred.resolve(pSResponse);
+			},
+	    	function (pFResponse){
+	    		deferred.reject(pFResponse.data);
+	    	});
+
+	    return deferred.promise
+	},
+
 	this.ComposeMenu = function (dataSrc) {
 	    // console.log(dataSrc);
 	    var deferred = $q.defer();

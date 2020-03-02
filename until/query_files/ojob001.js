@@ -45,6 +45,7 @@ module.exports = function(pQueryname, pParams){
 								O_IL_SEQ = O_SPG_SEQ AND \
 								O_IL_SMALLNO = O_SPG_SMALLNO AND \
 								O_IL_NEWSMALLNO = O_SPG_NEWSMALLNO \
+								WHERE O_IL_SEQ = @O_IL_SEQ \
 							) O_ITEM_LIST\
 							WHERE 1=1 \
 							/*拉貨不匯出*/ \

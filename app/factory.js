@@ -111,6 +111,7 @@ angular.module('app')
         CHANGENATURE : $resource('/toolbox/changeNature'),
         DOTAX : $resource('/toolbox/doTax'),
         CHANGEONATURE : $resource('/toolbox/changeONature'),
+        CHANGEOTAX : $resource('/toolbox/changeOTax'),
         COMPOSEMENU : $resource('/toolbox/composeMenu')
     };
 })
