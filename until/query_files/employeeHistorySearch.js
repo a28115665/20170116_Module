@@ -154,7 +154,6 @@ module.exports = function(pQueryname, pParams){
 			if(pParams["BAGNO_RANGE3"] !== undefined && pParams["BAGNO_RANGE5_START"] !== undefined && pParams["BAGNO_RANGE5_END"] !== undefined){
 				var _bagnoStart = pParams["BAGNO_RANGE3"] + pParams["BAGNO_RANGE5_START"],
 					_bagnoEnd = pParams["BAGNO_RANGE3"] + pParams["BAGNO_RANGE5_END"];
-				console.log(_bagnoStart, _bagnoEnd);
 				_SQLCommand += " AND IL_BAGNO BETWEEN '" + _bagnoStart + "' AND '" + _bagnoEnd + "'";
 				
 				delete pParams["BAGNO_RANGE3"];
