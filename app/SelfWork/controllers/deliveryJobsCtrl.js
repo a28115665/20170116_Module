@@ -1,6 +1,6 @@
 "use strict";
 
-angular.module('app.selfwork').controller('DeliveryJobsCtrl', function ($scope, $stateParams, $state, RestfulApi, Session, toaster, $uibModal, $templateCache, uiGridConstants, compy, $filter) {
+angular.module('app.selfwork').controller('DeliveryJobsCtrl', function ($scope, $stateParams, $state, RestfulApi, Session, toaster, $uibModal, $templateCache, uiGridConstants, compy, $filter, OrderStatus) {
     
     var $vm = this;
 
@@ -90,6 +90,53 @@ angular.module('app.selfwork').controller('DeliveryJobsCtrl', function ($scope, 
                 }, function() {
                     // $log.info('Modal dismissed at: ' + new Date());
                 });
+            },
+            // 顯示分批明細
+            showApaccsDetail : function(row){
+
+                if(row.entity.AML_DELIVERY == 0) {
+                    toaster.pop('info', '訊息', '查無資料。', 3000);
+                    return;
+                }
+
+                RestfulApi.SearchMSSQLData({
+                    querymain: 'deliveryJobs',
+                    queryname: 'SelectApaccsDetail',
+                    params: {
+                        AML_SEQ : row.entity.OL_SEQ
+                    }
+                }).then(function (res){
+                    console.log(res["returnData"]);
+
+                    var _vmData = res["returnData"] || [];
+
+                    var modalInstance = $uibModal.open({
+                        animation: true,
+                        ariaLabelledBy: 'modal-title',
+                        ariaDescribedBy: 'modal-body',
+                        templateUrl: 'deliveryJobsShowApaccsDetail.html',
+                        controller: 'deliveryJobsShowApaccsDetailCtrl',
+                        controllerAs: '$ctrl',
+                        windowClass: 'my-xl-modal-window',
+                        // size: 'lg',
+                        // windowClass: 'center-modal',
+                        // appendTo: parentElem,
+                        resolve: {
+                            item: function(){
+                                return row.entity;
+                            },
+                            vmData: function() {
+                                return _vmData;
+                            }
+                        }
+                    });
+
+                    modalInstance.result.then(function(selectedItem) {
+
+                    }, function() {
+                        // $log.info('Modal dismissed at: ' + new Date());
+                    });
+                });
             }
         },
         gridMethodForJob003 : {
@@ -135,6 +182,10 @@ angular.module('app.selfwork').controller('DeliveryJobsCtrl', function ($scope, 
                         data: row.entity
                     });
                 }
+            },
+            // 貨物查看
+            viewOrder : function(row){
+                OrderStatus.Get(row)
             },
             // 檢視
             viewData : function(row){
@@ -249,27 +300,25 @@ angular.module('app.selfwork').controller('DeliveryJobsCtrl', function ($scope, 
         deliveryItemOptions : {
             data:  '$vm.deliveryItemData',
             columnDefs: [
-                { name: 'OL_IMPORTDT' ,  displayName: '進口日期', cellFilter: 'dateFilter' },
-                // { name: 'OL_CO_CODE'  ,  displayName: '行家', cellFilter: 'compyFilter', filter: 
-                //     {
-                //         term: null,
-                //         type: uiGridConstants.filter.SELECT,
-                //         selectOptions: compy
-                //     }
-                // },
-                { name: 'CO_NAME'  ,  displayName: '行家' },
-                { name: 'OL_FLIGHTNO' ,  displayName: '航班' },
-                { name: 'OL_MASTER'   ,  displayName: '主號' },
-                { name: 'OL_COUNTRY'  ,  displayName: '起運國別' },
-                { name: 'OL_REASON'   ,  displayName: '描述', width: 100, cellTooltip: function (row, col) 
+                { name: 'OL_IMPORTDT' ,  displayName: '進口日期', width: 91, cellFilter: 'dateFilter' },
+                { name: 'OL_REAL_IMPORTDT' ,  displayName: '報機日期', width: 91, cellFilter: 'dateFilter', cellTooltip: function (row, col) 
                     {
-                        return row.entity.OL_REASON
+                        return '真實報機日期：' + $filter('dateFilter')(row.entity.OL_CR_DATETIME)
                     } 
                 },
+                { name: 'CO_NAME'     ,  displayName: '行家', width: 80 },
+                { name: 'OL_FLIGHTNO' ,  displayName: '航班', width: 80 },
+                { name: 'FA_SCHEDL_ARRIVALTIME'  ,  displayName: '預計抵達時間', cellFilter: 'datetimeFilter' },
+                { name: 'FA_ARRIVAL_REMK'        ,  displayName: '狀態', width: 60, cellTemplate: $templateCache.get('accessibilityToArrivalRemark') },
+                { name: 'OL_MASTER'              ,  displayName: '主號', width: 110, cellTemplate: $templateCache.get('accessibilityToMasterForViewOrder') },
+                { name: 'OL_COUNTRY'  ,  displayName: '起運國別' },
+                { name: 'OL_REASON'   ,  displayName: '描述', width: 100, cellTooltip: cellTooltip },
+                { name: 'AML_DELIVERY'   ,  displayName: '分批數', width: 100, cellTemplate: $templateCache.get('deliveryJobsShowDelivery') },
+                { name: 'AML_TOTAL_NUM'   ,  displayName: '總袋數', width: 100 },
                 // { name: 'ITEM_LIST'          ,  displayName: '報機單', enableFiltering: false, width: '8%', cellTemplate: $templateCache.get('accessibilityToOperaForJob001') },
                 // { name: 'FLIGHT_ITEM_LIST'   ,  displayName: '銷艙單', enableFiltering: false, width: '8%', cellTemplate: $templateCache.get('accessibilityToOperaForJob002') },
                 { name: 'DELIVERY_ITEM_LIST' ,  displayName: '派送單', enableFiltering: false, width: '8%', cellTemplate: $templateCache.get('accessibilityToOperaForJob003') },
-                { name: 'Options'       , displayName: '操作', width: '5%', enableCellEdit: false, enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToM') }
+                { name: 'Options'       , displayName: '操作', width: 65, enableCellEdit: false, enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToM') }
             ],
             enableFiltering: true,
             enableSorting: false,
@@ -298,4 +347,50 @@ angular.module('app.selfwork').controller('DeliveryJobsCtrl', function ($scope, 
         });
     };
 
+})
+.controller('deliveryJobsShowApaccsDetailCtrl', function ($uibModalInstance, item, vmData) {
+    var $ctrl = this;
+
+    $ctrl.MdInit = function(){
+        $ctrl.item = item;
+        $ctrl.mdData = vmData;
+    }
+
+    $ctrl.mdDataOptions = {
+        data:  '$ctrl.mdData',
+        columnDefs: [
+            { name: 'AML_NO'             , displayName: 'NO' },
+            { name: 'AML_TOTAL_NUM'      , displayName: '主提單總件數' },
+            { name: 'AML_DELIVERY_NUM'   , displayName: '分批件數' },
+            { name: 'AML_CUMULATIVE_NUM' , displayName: '累計件數' },
+            { name: 'AML_DELIVERY_MASK'  , displayName: '分批註記' },
+            { name: 'AML_TRAN_CUST'      , displayName: '傳送海關' },
+            { name: 'AML_MF_NOT_MATCH'   , displayName: '主併不符' },
+            { name: 'AML_FMASK'          , displayName: '併裝註記' },
+            { name: 'AML_ITEM_CODE'      , displayName: '貨棧代號' },
+            { name: 'AML_LOAD_PLACE'     , displayName: '裝貨地' },
+            { name: 'AML_DOWN_PLACE'     , displayName: '卸貨地' },
+            { name: 'AML_DESCTINATION'   , displayName: '目的地' },
+            { name: 'AML_5108'           , displayName: '5108' },
+            { name: 'AML_FWB_MASK'       , displayName: 'FWB註記' }
+        ],
+        enableFiltering: true,
+        enableSorting: true,
+        enableColumnMenus: false,
+        multiSelect: false,
+        // enableVerticalScrollbar: false,
+        paginationPageSizes: [10, 25, 50, 100],
+        paginationPageSize: 100,
+        onRegisterApi: function(gridApi){
+            $ctrl.mdDataGridApi = gridApi;
+        }
+    }
+
+    $ctrl.ok = function() {
+        $uibModalInstance.close();
+    };
+
+    $ctrl.cancel = function() {
+        $uibModalInstance.dismiss('cancel');
+    };
 });

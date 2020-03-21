@@ -50,6 +50,10 @@ var restful = require('./routes/restful');
 var toolbox = require('./routes/toolbox');
 var cargoaircraft = require('./routes/cargoaircraft');
 cargoaircraft.GetCargoAircraftTime();
+const apaccs = require('./routes/apaccs');
+new apaccs.Apaccs().Start();
+const ehuftz = require('./routes/ehuftz');
+new ehuftz.Ehuftz().Start();
 var middleware = require('./routes/middleware');
 
 /**

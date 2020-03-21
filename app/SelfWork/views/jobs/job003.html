@@ -76,7 +76,7 @@
 				        <h2>編輯 </h2>
 				        
 				        <div class="widget-toolbar smart-form" role="menu">
-				            <a href-void="" class="btn btn-success" href="#" ng-click="$vm.ExportExcel()">匯出Excel</a>
+				            <!-- <a href-void="" class="btn btn-success" href="#" ng-click="$vm.ExportExcel()">匯出Excel</a> -->
 				        </div>
 				    </header>
 				    <!-- widget div-->
@@ -84,9 +84,60 @@
 				        <!-- widget content -->
 						<div class="widget-body no-padding">
 
+							<div class="widget-body-toolbar">
+							    <div class="row">
+							        <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
+							        	<!-- <form class="form-inline" role="form">
+							                <fieldset>
+							                    <div class="form-group">
+											        <label class="control-label">標籤說明：</label>
+											        <span>
+														<span class="cell-class-ban"> 黑名單</span>
+														<span class="cell-class-pull"> 拉貨</span>
+														<span class="cell-class-special"> 特貨</span>
+														<span class="text-primary"> 可編輯欄位</span>
+											        </span>
+							                    </div>
+							                </fieldset>
+							            </form>
+							        	<form class="form-inline" role="form">
+							                <fieldset>
+							                    <div class="form-group">
+											        <label class="control-label">班機表已匯：</label>
+											        <span>
+														<i ng-class="$vm.vmData.FLIGHT_EXPORT >= 1 ? 'fa fa-check text-success' : 'fa fa-remove text-danger'"></i>
+											        </span>
+											        <label class="control-label">｜</label>
+											        <label class="control-label">關貿已匯：</label>
+											        <span>
+														<i ng-class="$vm.vmData.TRADE_EXPORT >= 1 ? 'fa fa-check text-success' : 'fa fa-remove text-danger'"></i>
+											        </span>
+							                    </div>
+							                </fieldset>
+							            </form> -->
+							        </div>
+							        <div class="col-xs-12 col-sm-12 col-md-8 col-lg-8 text-right">
+							        	<form class="form-inline" role="form">
+							                <fieldset>
+							                    <div class="form-group">
+										            <button class="btn btn-primary"
+										            		ng-click="$vm.SyncClearance()">
+										                貨態同步
+										            </button>
+										            <button class="btn btn-danger"
+										            		ng-click="$vm.ProblemClearance()">
+										                貨態異常
+										            </button>
+							                    </div>
+							                </fieldset>
+							            </form>
+							        </div>
+							    </div>
+							</div>
+
 							<div class="table-responsive">
 
-								<div id="grid1" ui-grid="$vm.job003Options" class="my-ui-grid" ui-grid-pagination ui-grid-resize-columns></div>
+								<div id="grid1" ui-grid="$vm.job003Options" class="my-ui-grid" ui-grid-pagination ui-grid-resize-columns ui-grid-pinning></div>
 
 							</div>
 

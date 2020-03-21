@@ -3,8 +3,7 @@
 angular.module('app.selfwork').controller('Job003Ctrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, RestfulApi, uiGridConstants, $filter, $q, ToolboxApi) {
     // console.log($stateParams, $state);
 
-    var $vm = this,
-        cellClassEditabled = [];
+    var $vm = this;
 
     angular.extend(this, {
         Init : function(){
@@ -24,26 +23,42 @@ angular.module('app.selfwork').controller('Job003Ctrl', function ($scope, $state
                 //     };
                 // }
                 
-                LoadFlightItemList();
+                LoadItemList();
             }
         },
         profile : Session.Get(),
-        defaultChoice : 'Left',
+        gridMethod : {
+            // 各單的修改
+            modifyData : function(row){
+                console.log(row);
+            }
+        },
         job003Options : {
             data: '$vm.job003Data',
             columnDefs: [
-                { name: 'Index'         , displayName: '序列', width: 50, enableCellEdit: false, enableFiltering: false},
-                { name: 'DIL_DRIVER'    , displayName: '司機' },
-                { name: 'DIL_BAGNO'     , displayName: '袋號' },
-                { name: 'DIL_ORDERNO'   , displayName: '提單號' },
-                { name: 'DIL_BARCODE'   , displayName: '條碼號' },
-                { name: 'DIL_CTN'       , displayName: '件數' },
-                { name: 'DIL_WEIGHT'    , displayName: '重量' },
-                { name: 'DIL_GETNAME'   , displayName: '收件人公司' },
-                { name: 'DIL_GETADDRESS', displayName: '收件地址' },
-                { name: 'DIL_GETTEL'    , displayName: '收件人電話' },
-                { name: 'DIL_INCOME'    , displayName: '代收款' },
-                { name: 'DIL_REMARK'    , displayName: '備註' }
+                // { name: 'EML_SORT_KEY'       , displayName: '序號', width: 50 },
+                { name: 'EML_DECL_NO'        , displayName: '報單號碼', width: 125 },
+                { name: 'EML_DECL_TYPE'      , displayName: '報單類別', width: 91 },
+                { name: 'IL_BAGNO_NOREPEAT'  , displayName: '併袋號碼', width: 91 },
+                { name: 'IL_SMALLNO2'        , displayName: '分提單號', width: 110 },
+                { name: 'EML_CLEARANCE_TYPE2' , displayName: '通關方式', width: 91 },
+                { name: 'EML_PIECE'          , displayName: '申報件數', width: 91 },
+                { name: 'EML_GCI_PIECE'      , displayName: '進倉件數', width: 91 },
+                { name: 'EML_GCO_PIECE'      , displayName: '出倉件數', width: 91 },
+                { name: 'EML_WEIGHT'         , displayName: '申報重量', width: 91 },
+                { name: 'EML_GCI_WEIGHT'     , displayName: '進倉重量', width: 91 },
+                { name: 'EML_BAG_WEIGHT'     , displayName: '袋重', width: 65 },
+                { name: 'EML_CLEARANCE_TYPE_STR' , displayName: '真實貨態', width: 91 },
+                { name: 'CC_CUST_CLEARANCE'  , displayName: '行家貨態', width: 91 },
+                { name: 'EML_BAG_FEE'        , displayName: '倉租費用', width: 91 },
+                { name: 'EML_FLIGHT_NO'      , displayName: '航班', width: 65 },
+                { name: 'EML_FLIGHT_DATE'    , displayName: '班機日期', width: 91, cellFilter: 'dateFilter' },
+                { name: 'EML_GCI_DATE1'      , displayName: '進倉時間', width: 91, cellFilter: 'dateFilter' },
+                { name: 'EML_GCO_DATE1'      , displayName: '出倉時間', width: 91, cellFilter: 'dateFilter' },
+                { name: 'EML_RELEASE_TIME'   , displayName: '放行時間', width: 145, cellFilter: 'datetimeFilter' },
+                { name: 'CC_ORI_DESC'        , displayName: '真實備註', width: 91 },
+                { name: 'CC_CUST_DESC'       , displayName: '行家備註', width: 91 },
+                { name: 'Options'            , displayName: '操作', width: 65, enableCellEdit: false, enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToM'), pinnedRight:true }
             ],
             enableFiltering: true,
             enableSorting: true,
@@ -79,6 +94,114 @@ angular.module('app.selfwork').controller('Job003Ctrl', function ($scope, $state
             }).then(function (res) {
                 // console.log(res);
             });
+        },
+        SyncClearance: function(){
+            RestfulApi.SearchMSSQLData({
+                querymain: 'job003',
+                queryname: 'SyncClearance',
+                params: {
+                    IL_SEQ: $vm.vmData.OL_SEQ
+                }
+            }).then(function (res){
+                var _data = res["returnData"] || [];
+
+                if(_data.length == 0){
+                    toaster.pop('info', '訊息', '無分提單號可同步。', 3000);
+                    return;
+                }
+
+                // var modalInstance = $uibModal.open({
+                //     animation: true,
+                //     ariaLabelledBy: 'modal-title',
+                //     ariaDescribedBy: 'modal-body',
+                //     templateUrl: 'pullGoodsModalContent.html',
+                //     controller: 'PullGoodsModalInstanceCtrl',
+                //     controllerAs: '$ctrl',
+                //     // windowClass: 'my-xl-modal-window',
+                //     backdrop: 'static',
+                //     // size: 'lg',
+                //     // appendTo: parentElem,
+                //     resolve: {
+                //         data: function() {
+                //             return _data;
+                //         }
+                //     }
+                // });
+
+                // modalInstance.result.then(function(selectedItem) {
+                //     // console.log(selectedItem);
+
+                //     if(selectedItem.length > 0){
+                //         var _getSelectedRows = angular.copy(selectedItem);
+
+                //         modalInstance = $uibModal.open({
+                //             animation: true,
+                //             ariaLabelledBy: 'modal-title',
+                //             ariaDescribedBy: 'modal-body',
+                //             templateUrl: 'pullGoodsDescModalContent.html',
+                //             controller: 'PullGoodsDescModalInstanceCtrl',
+                //             controllerAs: '$ctrl',
+                //             backdrop: 'static',
+                //             // size: 'lg',
+                //             // appendTo: parentElem,
+                //             resolve: {
+                //                 vmData: function() {
+                //                     return {};
+                //                 }
+                //             }
+                //         });
+
+                //         modalInstance.result.then(function(selectedItem) {
+                //             // console.log(selectedItem);
+
+                //             var _bagNo = [];
+
+                //             for(var i in _getSelectedRows){
+                //                 if(_getSelectedRows[i].IL_BAGNO.length != 8){
+                //                     toaster.pop('warning', '警告', '序列'+_getSelectedRows[i].Index+'的袋號異常，拉貨中止。', 3000);
+                //                     return;
+                //                 }
+
+                //                 _bagNo.push(_getSelectedRows[i].IL_BAGNO);
+                //             }
+
+                //             var _task = [];
+
+                //             for(var i in _bagNo){
+
+                //                 _task.push({
+                //                     crudType: 'Insert',
+                //                     table: 19,
+                //                     params: {
+                //                         PG_SEQ         : $vm.vmData.OL_SEQ,
+                //                         PG_BAGNO       : _bagNo[i],
+                //                         PG_REASON      : selectedItem.PG_REASON,
+                //                         PG_CR_USER     : $vm.profile.U_ID,
+                //                         PG_CR_DATETIME : $filter('date')(new Date, 'yyyy-MM-dd HH:mm:ss')
+                //                     }
+                //                 });
+
+                //             }
+
+                //             RestfulApi.CRUDMSSQLDataByTask(_task).then(function (res){
+
+                //                 if(res["returnData"].length > 0){
+                //                     LoadItemList();
+                //                 }
+                //             });
+
+                //         }, function() {
+                //             // $log.info('Modal dismissed at: ' + new Date());
+                //         });
+                //     }
+
+                // }, function() {
+                //     // $log.info('Modal dismissed at: ' + new Date());
+                // });
+            })
+        },
+        ProblemClearance: function(){
+            console.log(456);
         },
         Return : function(){
             ReturnToEmployeejobsPage();
@@ -118,21 +241,22 @@ angular.module('app.selfwork').controller('Job003Ctrl', function ($scope, $state
         }
     });
 
-    function LoadFlightItemList(){
+    function LoadItemList(){
         RestfulApi.SearchMSSQLData({
             querymain: 'job003',
-            queryname: 'SelectDeliveryItemList',
+            queryname: 'SelectEhuftzMasterList',
             params: {
-                DIL_SEQ: $vm.vmData.OL_SEQ
+                EML_SEQ: $vm.vmData.OL_SEQ
             }
         }).then(function (res){
             console.log(res["returnData"]);
-            for(var i=0;i<res["returnData"].length;i++){
-                res["returnData"][i]["Index"] = i+1;
-            }
-            $vm.job003Data = res["returnData"];
-        }).finally(function() {
-            HandleWindowResize($vm.job003GridApi);
+
+            var _data = res["returnData"] || [];
+
+            // for(var i=0;i<res["returnData"].length;i++){
+            //     res["returnData"][i]["Index"] = i+1;
+            // }
+            $vm.job003Data = _data;
         }); 
     };
 

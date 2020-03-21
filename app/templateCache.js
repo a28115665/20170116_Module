@@ -157,6 +157,14 @@ angular.module('app')
                             <i class="fa fa-question" title="關貿未匯" ng-if="row.entity.TRADE_EXPORT == 0"> </i> \
                         </div>');
 
+    $templateCache.put('deliveryJobsShowDelivery', '\
+                        <div class="my-ui-grid-cell-contents">\
+                            <a href="javascript:void(0);" class="btn btn-info btn-xs" ng-click="grid.appScope.$vm.gridMethod.showApaccsDetail(row)"> {{row.entity.AML_DELIVERY}}</a>\
+                            <i class="fa fa-question" title="尚未分批作業" ng-if="row.entity.AML_DELIVERY_COMPLETE == 0 || !row.entity.AML_DELIVERY_COMPLETE"> </i> \
+                            <i class="fa fa-check text-success" title="分批作業完成" ng-if="row.entity.AML_DELIVERY_COMPLETE == 1"> </i> \
+                            <i class="fa fa-exclamation text-warning" title="分批作業尚未完成" ng-if="row.entity.AML_DELIVERY_COMPLETE == 2"> </i> \
+                        </div>');
+
     $templateCache.put('accessibilityToOverSixName', '\
                     <div class="ui-grid-cell-contents text-center">\
                         <span class="label bg-color-red" ng-if="row.entity.GETNAME_COUNT == -1">自訂</span>\
