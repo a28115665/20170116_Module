@@ -1559,10 +1559,10 @@ angular.module('app.oselfwork').controller('OJob001Ctrl', function ($scope, $sta
             //     _finalcost = Math.floor(Math.random() * (maxNum - minNum + 1)) + minNum; 
             // }
 
-            // // 當完稅價格超過2000 提醒使用者
-            // if(_finalcost > 2000){
-            //     toaster.pop('warning', '警告', '完稅價格超過2000元，請注意', 3000);
-            // }
+            // 當發票總金額超過2000 提醒使用者
+            if(_invoiceCost > 2000){
+                toaster.pop('warning', '警告', '發票總金額超過2000元，請注意', 3000);
+            }
             
             // 當數量不為空 帶出單價 (會與新單價衝突)
             if(colDef.name == 'O_IL_NEWCOUNT' || colDef.name == 'O_IL_NEWPRICEUNIT' || colDef.name == 'O_IL_INVOICECOST2'){
