@@ -553,9 +553,13 @@ angular.module('app.oselfwork').controller('OJob001Ctrl', function ($scope, $sta
         // 計算毛重
         CalculateCrossWieghtBalance: function(){
 
-            var _totalCrossWeight = 0,
+            var _oriTotalCrossWeight = 0,
+                _totalCrossWeight = 0,
                 _totalNewCrossWeight = 0;
             for(var i in $vm.job001Data){
+
+                _oriTotalCrossWeight += $vm.job001Data[i]["O_IL_CROSSWEIGHT"];
+
                 // 規則如Procedure CrossWeightBalance
                 if(['G1', 'X3', '移倉'].indexOf($vm.job001Data[i]["O_IL_G1"]) == -1 &&
                     $vm.job001Data[i]["O_IL_CROSSWEIGHT"] > 1 &&
@@ -569,6 +573,7 @@ angular.module('app.oselfwork').controller('OJob001Ctrl', function ($scope, $sta
                 }
             }
 
+            $vm.vmData["oriTotalCrossWeight"] = _oriTotalCrossWeight.toFixed(2);
             $vm.vmData["totalCrossWeight"] = _totalCrossWeight.toFixed(2);
             $vm.vmData["totalNewCrossWeight"] = _totalNewCrossWeight.toFixed(2);
 

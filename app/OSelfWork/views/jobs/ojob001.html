@@ -392,9 +392,17 @@
 	    <form class="form-horizontal" name="modifyForm">
 			<fieldset>
                 <div class="form-group">
+                    <label class="col-md-4 control-label">報機單原始總重量(毛重)</label>
+                    <div class="col-md-8">
+                        <input class="form-control" name="oriTotalCrossWeight" ng-model="$ctrl.mdData.oriTotalCrossWeight" type="text" disabled="disabled">
+                        <p class="note">此毛重為原始總重量</p>
+                    </div>
+                </div>
+                <div class="form-group">
                     <label class="col-md-4 control-label">報機單總重量(毛重)</label>
                     <div class="col-md-8">
                         <input class="form-control" name="totalCrossWeight" ng-model="$ctrl.mdData.totalCrossWeight" type="text" disabled="disabled">
+                        <p class="note">此毛重不包含G1、X3、移倉、拉貨與小於1公斤的重量</p>
                         <p class="text-danger" ng-if="$ctrl.mdData.totalCrossWeight == 0">報機單總重量(毛重) 需要大於 0</p>
                     </div>
                 </div>
