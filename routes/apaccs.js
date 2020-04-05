@@ -68,14 +68,31 @@ class Apaccs {
 				}
 				num.success += 1;
 
+				// 先刪除此單的所有ACCS
+				tasks.push(async.apply(dbCommandByTask.DeleteRequestWithTransaction, {
+	                crudType : 'Delete',
+					table : 48,
+	                params : {
+						AML_SEQ : seq
+	                }
+        		}));
+
 				//取得所有行數
 				let elementList = await driver.findElements(By.xpath("/html/body/table[1]/tbody/tr/td/table[3]/tbody/tr"));
 				// console.log('空運業界自動化服務系統('+mawbNo+') : ', (elementList.length-1));
 
 				for(let [index, webElement] of elementList.entries()) {
+					// 表頭跳過
 					if(index==0) continue;
+
 					let no = await webElement.findElement(By.xpath("td[1]")).getText();
-					// let td2 = await webElement.findElement(By.xpath("td[2]")).getText();
+					let mm = await webElement.findElement(By.xpath("td[2]")).getText();
+					let td2Title = await webElement.findElement(By.xpath("td[2]/img")).getAttribute("title"),
+						td2TitleArray = td2Title.split("；"),
+						flightNo   = td2TitleArray[0].split("：")[1],
+						importDate = td2TitleArray[1].split("：")[1],
+						departDate = td2TitleArray[2].split("：")[1];
+						// console.log(no, mm, flightNo, importDate, departDate);
 					let totalNum = await webElement.findElement(By.xpath("td[3]")).getText();
 					let deliveryNum = await webElement.findElement(By.xpath("td[4]")).getText();
 					let cumulativeNum = await webElement.findElement(By.xpath("td[5]")).getText();
@@ -89,14 +106,29 @@ class Apaccs {
 					let desctination = await webElement.findElement(By.xpath("td[13]")).getText();
 					let aml5108 = await webElement.findElement(By.xpath("td[14]")).getText();
 					let fwbMask = await webElement.findElement(By.xpath("td[15]")).getText();
-					// console.log(td1 + ' ' + td2 + ' ' + td3 + ' ' + td4 + ' ' + td5 + ' ' +
-					// 			td6  + ' ' + td7  + ' ' + td8  + ' ' + td9  + ' ' + td10  + ' ' +
-					// 			td11  + ' ' + td12  + ' ' + td13  + ' ' + td14  + ' ' + td15);
 
-			        tasks.push(async.apply(dbCommandByTask.UpsertRequestWithTransaction, {
-		                crudType : 'Upsert',
+					if(no === "1."){
+						// console.log(no, mm, flightNo, importDate, departDate);
+				        tasks.push(async.apply(dbCommandByTask.UpdateRequestWithTransaction, {
+			                crudType : 'Update',
+							table : 18,
+			                params : {
+								OL_FLIGHTNO : flightNo,
+								OL_IMPORTDT : moment(importDate, "YYYYMMDD").isValid() ? moment(importDate, "YYYYMMDD").format('YYYY-MM-DD') : null
+			                },
+		            		condition : {
+		            			OL_SEQ : seq
+		            		}
+	            		}));
+					}
+
+					// console.log(no, mm, flightNo, importDate, departDate);
+			        tasks.push(async.apply(dbCommandByTask.InsertRequestWithTransaction, {
+		                crudType : 'Insert',
 						table : 48,
 		                params : {
+							AML_SEQ : seq,
+							AML_NO  : no,
 		                	AML_TOTAL_NUM      : Number.parseInt(totalNum.replace(/\s/g,'')),
 							AML_DELIVERY_NUM   : Number.parseInt(deliveryNum.replace(/\s/g,'')),
 							AML_CUMULATIVE_NUM : Number.parseInt(cumulativeNum.replace(/\s/g,'')),
@@ -110,12 +142,11 @@ class Apaccs {
 							AML_DESCTINATION   : desctination.replace(/\s/g,''),
 							AML_5108           : aml5108.replace(/\s/g,''),
 							AML_FWB_MASK       : fwbMask.replace(/\s/g,''),
-							AML_UP_DATETIME    : moment(new Date()).format('YYYY-MM-DD HH:mm:ss.SSS')
-		                },
-						condition : {
-							AML_SEQ : seq,
-							AML_NO  : no
-						}
+							AML_UP_DATETIME    : moment(new Date()).format('YYYY-MM-DD HH:mm:ss.SSS'),
+							AML_FLIGHTNO	   : flightNo,
+							AML_IMPORTDT	   : moment(importDate, "YYYYMMDD").isValid() ? moment(importDate, "YYYYMMDD").format('YYYY-MM-DD') : null,
+							AML_DEPARTDATE	   : moment(importDate, "YYYYMMDD").isValid() ? moment(departDate, "YYYYMMDD").format('YYYY-MM-DD') : null,
+		                }
             		}));
 				}
 	        }

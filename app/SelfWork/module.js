@@ -409,7 +409,9 @@ angular.module('app.selfwork').config(function ($stateProvider){
                 controller: 'Job003Ctrl',
                 controllerAs: '$vm',
                 resolve: {
-
+                    clearanceType: function(SysCode){
+                        return SysCode.get('ClearanceType');
+                    }
                 }
             }
         }
@@ -452,7 +454,9 @@ angular.module('app.selfwork').config(function ($stateProvider){
                 controller: 'Job003Ctrl',
                 controllerAs: '$vm',
                 resolve: {
-
+                    clearanceType: function(SysCode){
+                        return SysCode.get('ClearanceType');
+                    }
                 }
             }
         }

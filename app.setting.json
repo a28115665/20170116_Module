@@ -25,7 +25,7 @@
 	},
 	"WebService" : {
 		"changeNature" : {
-			"host" : "10.1.31.61",
+			"host" : "61.216.149.43",
 			"port" : "80",
 			"url" : "/EWSWS/WebServiceChangeNature.asmx/GetNewNature"
 		},
@@ -49,11 +49,16 @@
 		"timer" : 120000
 	},
 	"APACCS" : {
-		"active": 0,
+		"active": 1,
 		"timer" : 3600000
 	},
 	"EHUFTZ" : {
 		"active": 1,
+		"timer" : 3600000
+	},
+	"CPT" : {
+		"active": 1,
+		"delay" : 60000,
 		"timer" : 3600000
 	},
 	"GMail" : {

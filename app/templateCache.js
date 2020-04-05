@@ -157,12 +157,29 @@ angular.module('app')
                             <i class="fa fa-question" title="關貿未匯" ng-if="row.entity.TRADE_EXPORT == 0"> </i> \
                         </div>');
 
+    $templateCache.put('deliveryJobsShowApaccsDetailForTextPrimary', '\
+                        <div class="my-ui-grid-cell-contents">\
+                            <span class="text-primary"><strong>{{row.entity[col.colDef.name]}}</strong></span>\
+                        </div>');
+    $templateCache.put('deliveryJobsShowApaccsDetailForTextDanger', '\
+                        <div class="my-ui-grid-cell-contents">\
+                            <span class="text-danger"><strong>{{row.entity[col.colDef.name]}}</strong></span>\
+                        </div>');
+    $templateCache.put('deliveryJobsShowApaccsDetailForTextDangerWithMultipleRows', '\
+                        <div class="my-ui-grid-cell-contents">\
+                            <span ng-class="{\'text-danger\' : row.entity.AML_DELIVERY_NUM != 0}"><strong>{{row.entity[col.colDef.name]}}</strong></span>\
+                        </div>');
     $templateCache.put('deliveryJobsShowDelivery', '\
                         <div class="my-ui-grid-cell-contents">\
                             <a href="javascript:void(0);" class="btn btn-info btn-xs" ng-click="grid.appScope.$vm.gridMethod.showApaccsDetail(row)"> {{row.entity.AML_DELIVERY}}</a>\
                             <i class="fa fa-question" title="尚未分批作業" ng-if="row.entity.AML_DELIVERY_COMPLETE == 0 || !row.entity.AML_DELIVERY_COMPLETE"> </i> \
                             <i class="fa fa-check text-success" title="分批作業完成" ng-if="row.entity.AML_DELIVERY_COMPLETE == 1"> </i> \
                             <i class="fa fa-exclamation text-warning" title="分批作業尚未完成" ng-if="row.entity.AML_DELIVERY_COMPLETE == 2"> </i> \
+                        </div>');
+    $templateCache.put('deliveryJobsToMC', '\
+                        <div class="ui-grid-cell-contents text-center">\
+                            <button type="button" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethod.modifyData(row)"> 修改</button>\
+                            <button type="button" class="btn btn-primary btn-xs" ng-click="grid.appScope.$vm.gridMethod.closeData(row)" ng-class="grid.appScope.$vm.gridMethod.closeAuth(row)"> 結單</button>\
                         </div>');
 
     $templateCache.put('accessibilityToOverSixName', '\

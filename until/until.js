@@ -70,3 +70,12 @@ exports.extend = function(target) {
     });
     return target;
 }
+
+/**
+ * [sleep Delay毫秒] 
+ * @param  {[type]} ms [description]
+ * @return {[type]}    [description]
+ */
+exports.sleep = function(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}

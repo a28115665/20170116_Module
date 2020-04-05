@@ -28,18 +28,32 @@ module.exports = function(pQueryname, pParams){
 										FROM COMPY_INFO \
 										WHERE OL_CO_CODE = CO_CODE \
 									) AS 'CO_NAME', \
-									FA_SCHEDL_ARRIVALTIME, \
-									FA_ACTL_ARRIVALTIME, \
-									FA_ARRIVAL_REMK, \
+									AML_SCHEDL_ARRIVALTIME, \
+									AML_ACTL_ARRIVALTIME, \
 									( \
 										SELECT ISNULL(COUNT(1), 0) \
 										FROM APACCS_MASTER_LIST \
 										WHERE AML_SEQ = OL_SEQ \
 									) AS 'AML_DELIVERY', \
 									( \
-										SELECT TOP 1 AML_TOTAL_NUM \
-										FROM APACCS_MASTER_LIST \
-										WHERE AML_SEQ = OL_SEQ \
+										SELECT COUNT(A.IL_BAGNO2) \
+										FROM ( \
+											SELECT IL_BAGNO2, COUNT(1) AS COUNT \
+											FROM ( \
+												SELECT * \
+												FROM V_ITEM_LIST_FOR_D \
+												WHERE IL_SEQ = OL_SEQ \
+											) ITEM_LIST \
+											LEFT JOIN (  \
+												SELECT *  \
+												FROM PULL_GOODS  \
+												WHERE PG_SEQ = OL_SEQ  \
+											) PULL_GOODS ON  \
+											IL_SEQ = PG_SEQ AND  \
+											IL_BAGNO = PG_BAGNO \
+											WHERE /*沒被拉貨的*/ PG_SEQ IS NULL  \
+											GROUP BY IL_BAGNO2 \
+										) A \
 									) AS 'AML_TOTAL_NUM', \
 									( \
  										SELECT CASE WHEN AML_TOTAL_NUM2 = 0 THEN 1 \
@@ -53,7 +67,95 @@ module.exports = function(pQueryname, pParams){
 											GROUP BY AML_SEQ, AML_TOTAL_NUM \
 										) APACCS_MASTER_LIST \
 										WHERE AML_SEQ = OL_SEQ \
-									) AS 'AML_DELIVERY_COMPLETE' \
+									) AS 'AML_DELIVERY_COMPLETE', \
+									/* 類型為C1的袋號 */ \
+									( \
+										SELECT COUNT(A.IL_BAGNO2) \
+										FROM ( \
+											SELECT IL_BAGNO2 \
+											FROM ( \
+												SELECT * \
+												FROM V_ITEM_LIST_FOR_D \
+												WHERE IL_SEQ = OL_SEQ \
+											) ITEM_LIST \
+											LEFT JOIN (  \
+												SELECT *  \
+												FROM PULL_GOODS  \
+												WHERE PG_SEQ = OL_SEQ  \
+											) PULL_GOODS ON  \
+											IL_SEQ = PG_SEQ AND  \
+											IL_BAGNO = PG_BAGNO \
+											INNER JOIN EHUFTZ_MASTER_LIST ON EHUFTZ_MASTER_LIST.EML_SEQ = IL_SEQ  \
+											AND EHUFTZ_MASTER_LIST.EML_HWB = IL_BAGNO2  \
+											/* 篩選類型為C3的袋號 */ \
+											AND EHUFTZ_MASTER_LIST.EML_TRUE_CLEARANCE = 'C1' \
+											WHERE /*沒被拉貨的*/ PG_SEQ IS NULL \
+											UNION \
+											SELECT IL_BAGNO2 \
+											FROM ( \
+												SELECT * \
+												FROM V_ITEM_LIST_FOR_D \
+												WHERE IL_SEQ = OL_SEQ \
+											) ITEM_LIST \
+											LEFT JOIN (  \
+												SELECT *  \
+												FROM PULL_GOODS  \
+												WHERE PG_SEQ = OL_SEQ  \
+											) PULL_GOODS ON  \
+											IL_SEQ = PG_SEQ AND  \
+											IL_BAGNO = PG_BAGNO \
+											INNER JOIN EHUFTZ_MASTER_LIST ON EHUFTZ_MASTER_LIST.EML_SEQ = IL_SEQ \
+											AND EHUFTZ_MASTER_LIST.EML_EXP_BAGNO = IL_BAGNO2 \
+											AND EHUFTZ_MASTER_LIST.EML_HWB = IL_SMALLNO2\
+											/* 篩選類型為C3的袋號 */ \
+											AND EHUFTZ_MASTER_LIST.EML_TRUE_CLEARANCE = 'C1' \
+											WHERE /*沒被拉貨的*/ PG_SEQ IS NULL \
+										) A \
+									)  AS 'C1', \
+									/* 類型為C3的袋號 */ \
+									( \
+										SELECT COUNT(A.IL_BAGNO2) \
+										FROM ( \
+											SELECT IL_BAGNO2 \
+											FROM ( \
+												SELECT * \
+												FROM V_ITEM_LIST_FOR_D \
+												WHERE IL_SEQ = OL_SEQ \
+											) ITEM_LIST \
+											LEFT JOIN (  \
+												SELECT *  \
+												FROM PULL_GOODS  \
+												WHERE PG_SEQ = OL_SEQ  \
+											) PULL_GOODS ON  \
+											IL_SEQ = PG_SEQ AND  \
+											IL_BAGNO = PG_BAGNO \
+											INNER JOIN EHUFTZ_MASTER_LIST ON EHUFTZ_MASTER_LIST.EML_SEQ = IL_SEQ  \
+											AND EHUFTZ_MASTER_LIST.EML_HWB = IL_BAGNO2  \
+											/* 篩選類型為C3的袋號 */ \
+											AND EHUFTZ_MASTER_LIST.EML_TRUE_CLEARANCE <> 'C1' \
+											WHERE /*沒被拉貨的*/ PG_SEQ IS NULL \
+											UNION \
+											SELECT IL_BAGNO2 \
+											FROM ( \
+												SELECT * \
+												FROM V_ITEM_LIST_FOR_D \
+												WHERE IL_SEQ = OL_SEQ \
+											) ITEM_LIST \
+											LEFT JOIN (  \
+												SELECT *  \
+												FROM PULL_GOODS  \
+												WHERE PG_SEQ = OL_SEQ  \
+											) PULL_GOODS ON  \
+											IL_SEQ = PG_SEQ AND  \
+											IL_BAGNO = PG_BAGNO \
+											INNER JOIN EHUFTZ_MASTER_LIST ON EHUFTZ_MASTER_LIST.EML_SEQ = IL_SEQ \
+											AND EHUFTZ_MASTER_LIST.EML_EXP_BAGNO = IL_BAGNO2 \
+											AND EHUFTZ_MASTER_LIST.EML_HWB = IL_SMALLNO2 \
+											/* 篩選類型為C3的袋號 */ \
+											AND EHUFTZ_MASTER_LIST.EML_TRUE_CLEARANCE <> 'C1' \
+											WHERE /*沒被拉貨的*/ PG_SEQ IS NULL \
+										) A \
+									)  AS 'OtherC1' \
 							FROM ORDER_LIST \
 							/*報機單*/ \
 							LEFT JOIN V_ORDER_EDITOR_BY_R W2_OE ON W2_OE.OE_SEQ = ORDER_LIST.OL_SEQ \
@@ -62,7 +164,11 @@ module.exports = function(pQueryname, pParams){
 							/*派送單*/ \
 							LEFT JOIN V_ORDER_EDITOR_BY_D W1_OE ON W1_OE.OE_SEQ = ORDER_LIST.OL_SEQ \
 							/*航班資訊*/ \
-							LEFT JOIN FLIGHT_ARRIVAL ON FA_AIR_LINEID + ' ' + REPLICATE('0',4-LEN(FA_FLIGHTNUM)) + RTRIM(CAST(FA_FLIGHTNUM AS CHAR)) = ORDER_LIST.OL_FLIGHTNO AND FA_FLIGHTDATE = ORDER_LIST.OL_IMPORTDT ";
+							LEFT JOIN ( \
+								SELECT * \
+								FROM APACCS_MASTER_LIST \
+								WHERE AML_NO = '1.' \
+							) APACCS_MASTER_LIST ON AML_SEQ = OL_SEQ AND AML_FLIGHTNO = OL_FLIGHTNO ";
 							
 			if(pParams["U_ID"] !== undefined && pParams["U_GRADE"] !== undefined){
 
@@ -81,7 +187,7 @@ module.exports = function(pQueryname, pParams){
 				}
 			}
 
-			_SQLCommand += " WHERE OL_FDATETIME IS NULL \
+			_SQLCommand += " WHERE OL_FDATETIME2 IS NULL \
 							 AND ( SELECT COUNT(1) \
 								FROM ( \
 									SELECT IL_BAGNO \

@@ -166,3 +166,68 @@
 	</section>
 
 </div>
+
+<script type="text/ng-template" id="syncClearanceModalContent.html">
+    <div class="modal-header">
+	    <h3 class="modal-title" id="modal-title">貨態同步</h3>
+	</div>
+	<div class="modal-body no-padding" id="modal-body">
+
+	    <div class="padding-10">將會把「真實貨態」的值複製到「行家貨態」。</div>
+
+        <div id="grid1" ui-grid="$ctrl.dataOption" class="my-ui-grid" ui-grid-pagination ui-grid-resize-columns ui-grid-selection ui-grid-auto-resize></div>
+	</div>
+	<div class="modal-footer">
+	    <button class="btn btn-primary" type="button" ng-click="$ctrl.ok()">{{getWord('OK')}}</button>
+	    <button class="btn btn-default" type="button" ng-click="$ctrl.cancel()">{{getWord('Cancel')}}</button>
+	</div>
+</script>
+
+<script type="text/ng-template" id="problemClearanceModalContent.html">
+    <div class="modal-header">
+	    <h3 class="modal-title" id="modal-title">貨態異常</h3>
+	</div>
+	<div class="modal-body no-padding" id="modal-body">
+        <div id="grid1" ui-grid="$ctrl.dataOption" class="my-ui-grid" ui-grid-pagination ui-grid-resize-columns ui-grid-auto-resize></div>
+	</div>
+	<div class="modal-footer">
+	    <button class="btn btn-primary" type="button" ng-click="$ctrl.ok()">{{getWord('OK')}}</button>
+	    <!-- <button class="btn btn-default" type="button" ng-click="$ctrl.cancel()">{{getWord('Cancel')}}</button> -->
+	</div>
+</script>
+
+<script type="text/ng-template" id="job003ModifyDataModalContent.html">
+    <div class="modal-header" ng-init="$ctrl.Init()">
+	    <h3 class="modal-title" id="modal-title">修改</h3>
+	</div>
+	<div class="modal-body" id="modal-body">
+	    <form class="form-horizontal" name="form">
+			<fieldset>
+				<div class="form-group">
+			        <label class="col-md-2 control-label">行家貨態</label>
+			        <div class="col-md-10">
+						<select class="form-control" name="CC_CUST_CLEARANCE" ng-model="$ctrl.mdData.CC_CUST_CLEARANCE" ng-options="data.value as data.label for data in $ctrl.clearanceType" ng-required="true">
+							<option value="">-- 請選擇 --</option>
+						</select>
+			        </div>
+			    </div>
+				<div class="form-group">
+			        <label class="col-md-2 control-label">真實備註</label>
+			        <div class="col-md-10">
+			            <textarea class="form-control" rows="3" name="PG_REASON" ng-model="$ctrl.mdData.CC_ORI_DESC" maxlength="50" placeholder="輸入真實備註(最多50字)" style="resize: none; "></textarea>
+			        </div>
+			    </div>
+				<div class="form-group">
+			        <label class="col-md-2 control-label">行家備註</label>
+			        <div class="col-md-10">
+			            <textarea class="form-control" rows="3" name="PG_REASON" ng-model="$ctrl.mdData.CC_CUST_DESC" maxlength="50" placeholder="輸入行家備註(最多50字)" style="resize: none; "></textarea>
+			        </div>
+			    </div>
+			</fieldset>
+	    </form>
+	</div>
+	<div class="modal-footer">
+	    <button class="btn btn-warning" type="button" ng-click="$ctrl.ok()" ng-disabled="!form.$valid">{{getWord('Update')}}</button>
+	    <button class="btn btn-default" type="button" ng-click="$ctrl.cancel()">{{getWord('Cancel')}}</button>
+	</div>
+</script>

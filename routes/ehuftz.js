@@ -98,11 +98,20 @@ class Ehuftz {
 				}
 				num.success += 1;
 
+				// 先刪除此單的所有貨態
+				tasks.push(async.apply(dbCommandByTask.DeleteRequestWithTransaction, {
+	                crudType : 'Delete',
+					table : 49,
+	                params : {
+						EML_SEQ : seq
+	                }
+        		}));
+
 				let keepValue = {},
 					keepGroup = 0;
-				pageSource.rows.forEach(function(value, index, fullArray){
 
-					if(value.declNo && !value.declType && value.expBagNo && !value.hwb){
+				let newPageSource = pageSource.rows.map(function(value, index, fullArray){
+			       if(value.declNo && !value.declType && value.expBagNo && !value.hwb){
 						keepValue = value;
 						keepGroup = 1;
 						return;
@@ -121,16 +130,41 @@ class Ehuftz {
 						value.bagWeight = keepValue.bagWeight;
 						value.bagFee = keepValue.bagFee;
 					}
-					// else{
-					// 	console.log('=>', keepValue, value.sortKey);
-					// }
 
-					value.clearanceType = value.clearanceType == '未見貨' ? 'X' : value.clearanceType
+					// 把文字轉成系統代碼
+					value["trueClearance"] = value.clearanceType == '未見貨' ? 'X' : value.clearanceType;
 
-					tasks.push(async.apply(dbCommandByTask.UpsertRequestWithTransaction, {
-		                crudType : 'Upsert',
+					// 判斷貨態
+					// 如果沒有進倉時間
+					if(!value.gciDate1){
+						value["trueClearance"] = 'X';
+					}else{
+						// 如果有出倉時間和放行時間
+						if(value.gcoDate1 && value.releaseTime){
+							value["trueClearance"] = 'C1';
+						}else{
+							value["trueClearance"] = 'C3';
+						}
+					}
+
+					return value;
+			    }).filter(x => x !== undefined);
+
+				// 篩選狀態為C3的袋號
+				let c3Bagno = newPageSource.filter(x => x.trueClearance === 'C3').map((value, index, fullArray) => { return value.expBagNo });
+
+				newPageSource.forEach(function(value, index, fullArray){
+
+					if(c3Bagno.indexOf(value.expBagNo) != -1){
+						value.trueClearance = 'C3';
+					}
+
+					tasks.push(async.apply(dbCommandByTask.InsertRequestWithTransaction, {
+		                crudType : 'Insert',
 						table : 49,
 		                params : {
+							EML_SEQ            : seq,
+							EML_SORT_KEY       : value.sortKey,
 		                	EML_DECL_NO        : value.declNo,
 							EML_DECL_TYPE      : value.declType,
 							EML_EXP_BAGNO      : value.expBagNo,
@@ -149,12 +183,9 @@ class Ehuftz {
 							EML_GCO_DATE1      : moment(value.gcoDate1, "YYYY/MM/DD").isValid() ? moment(value.gcoDate1, "YYYY/MM/DD").format('YYYY-MM-DD') : null,
 							EML_RELEASE_TIME   : moment(value.releaseTime, "YYYY/MM/DD HH:mm:ss.SS").isValid() ? moment(value.releaseTime, "YYYY/MM/DD HH:mm:ss.SS").format('YYYY-MM-DD HH:mm:ss.SSS') : null,
 							EML_ACCOUNT        : eid,
-							EML_UP_DATETIME    : moment(new Date()).format('YYYY-MM-DD HH:mm:ss.SSS')
-		                },
-						condition : {
-							EML_SEQ : seq,
-							EML_SORT_KEY  : value.sortKey
-						}
+							EML_UP_DATETIME    : moment(new Date()).format('YYYY-MM-DD HH:mm:ss.SSS'),
+							EML_TRUE_CLEARANCE : value.trueClearance
+		                }
             		}));
 				})
 

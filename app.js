@@ -54,6 +54,8 @@ const apaccs = require('./routes/apaccs');
 new apaccs.Apaccs().Start();
 const ehuftz = require('./routes/ehuftz');
 new ehuftz.Ehuftz().Start();
+const cpt = require('./routes/cpt');
+new cpt.Cpt().Start();
 var middleware = require('./routes/middleware');
 
 /**
