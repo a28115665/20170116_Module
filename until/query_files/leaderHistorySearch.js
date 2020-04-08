@@ -16,21 +16,24 @@ module.exports = function(pQueryname, pParams){
 									OL_FDATETIME, \
 									OL_FUSER, \
 									( \
-										( \
-											SELECT COUNT(1) \
+										SELECT COUNT(A.IL_BAGNO2) \
+										FROM ( \
+											SELECT IL_BAGNO2, COUNT(1) AS COUNT \
 											FROM ( \
-												SELECT IL_BAGNO \
-												FROM ITEM_LIST \
+												SELECT * \
+												FROM V_ITEM_LIST_FOR_D \
 												WHERE IL_SEQ = OL_SEQ \
-												AND IL_BAGNO IS NOT NULL AND IL_BAGNO != '' \
-												GROUP BY IL_BAGNO \
-											) A \
-										) - \
-										( \
-											SELECT COUNT(1) \
-											FROM PULL_GOODS \
-											WHERE PG_SEQ = OL_SEQ \
-										) \
+											) ITEM_LIST \
+											LEFT JOIN (  \
+												SELECT *  \
+												FROM PULL_GOODS  \
+												WHERE PG_SEQ = OL_SEQ  \
+											) PULL_GOODS ON  \
+											IL_SEQ = PG_SEQ AND  \
+											IL_BAGNO = PG_BAGNO \
+											WHERE /*沒被拉貨的*/ PG_SEQ IS NULL  \
+											GROUP BY IL_BAGNO2 \
+										) A \
 									) AS 'OL_COUNT', \
 									( \
 										SELECT COUNT(1) \
