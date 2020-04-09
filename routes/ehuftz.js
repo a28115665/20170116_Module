@@ -48,18 +48,16 @@ class Ehuftz {
 			    .build();
 		    await driver.manage().setTimeouts( { implicit: TIMEOUT, pageLoad: TIMEOUT, script: TIMEOUT } )
 
-			// 預備寫入資料
-	        let tasks = [],
-	        	num = {
+	        let num = {
 	        		success : 0,
 	        		fail : 0
 	        	};
-	        tasks.push(dbCommandByTask.Connect);
-	        tasks.push(dbCommandByTask.TransactionBegin);
 
 	        for(let data of recordset){
 
-	        	let eid = null,
+				// 預備寫入資料
+	        	let tasks = [],
+	        		eid = null,
 	        		seq = data.OL_SEQ,
 	        		mawbNo = data.OL_MASTER,
 	        		bagno = data.IL_BAGNO;
@@ -96,7 +94,9 @@ class Ehuftz {
 					num.fail += 1;
 					continue;
 				}
-				num.success += 1;
+
+		        tasks.push(dbCommandByTask.Connect);
+		        tasks.push(dbCommandByTask.TransactionBegin);
 
 				// 先刪除此單的所有貨態
 				tasks.push(async.apply(dbCommandByTask.DeleteRequestWithTransaction, {
@@ -189,26 +189,37 @@ class Ehuftz {
             		}));
 				})
 
+	    		tasks.push(dbCommandByTask.TransactionCommit);
+
+	    		let isSuccess = await this.AsyncWaterfall(seq, tasks);
+
+	    		if(isSuccess){
+					num.success += 1;
+				}else{
+					num.fail += 1;
+				}
+
 	        }
 
-			tasks.push(dbCommandByTask.TransactionCommit);
+	        console.log("遠雄快遞更新成功筆數:", num.success, ", 查無資料筆數:", num.fail);
 
-		    async.waterfall(tasks, function (err, args) {
+		    // async.waterfall(tasks, function (err, args) {
 
-		        if (err) {
-		            // 如果連線失敗就不做Rollback
-		            if(Object.keys(args).length !== 0){
-		                dbCommandByTask.TransactionRollback(args, function (err, result){
+		    //     if (err) {
+		    //         // 如果連線失敗就不做Rollback
+		    //         if(Object.keys(args).length !== 0){
+		    //             dbCommandByTask.TransactionRollback(args, function (err, result){
 		                    
-		                });
-		            }
+		    //             });
+		    //         }
 
-		            console.error("遠雄快遞更新失敗訊息:", err);
-		            // process.exit();
-		        }else{
-    				console.log("遠雄快遞更新成功筆數:", num.success, ", 查無資料筆數:", num.fail);
-		        }
-		    });
+	     //    		logger.error(args);
+		    //         console.error("遠雄快遞更新失敗訊息:", err);
+		    //         // process.exit();
+		    //     }else{
+    		// 		console.log("遠雄快遞更新成功筆數:", num.success, ", 查無資料筆數:", num.fail);
+		    //     }
+		    // });
 
 			// await sleep(2000);
 		} finally {
@@ -238,6 +249,30 @@ class Ehuftz {
 	            }
 
 			})
+		})
+
+	}
+
+	async AsyncWaterfall(pk, tasks) {
+
+		return new Promise((resolve, reject) => {
+			async.waterfall(tasks, function (err, args) {
+
+		        if (err) {
+		            // 如果連線失敗就不做Rollback
+		            if(Object.keys(args).length !== 0){
+		                dbCommandByTask.TransactionRollback(args, function (err, result){
+		                    
+		                });
+		            }
+
+	        		logger.error("遠雄快遞更新失敗訊息("+pk+"):", args);
+			        reject("遠雄快遞更新失敗訊息:", err);
+		        }else{
+		        	resolve(true);
+		        }
+
+		    });
 		})
 
 	}

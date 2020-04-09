@@ -61,6 +61,27 @@ log4js.configure({
             maxLogSize: 10*1024*1024, // = 10Mb
             backups: 10,
             category: 'winstonByMssql'
+        }, 
+        apaccs: { 
+            type: 'file', //文件输出
+            filename: 'log/apaccs.log', 
+            maxLogSize: 10*1024*1024, // = 10Mb
+            backups: 10,
+            category: 'apaccs'
+        }, 
+        ehuftz: { 
+            type: 'file', //文件输出
+            filename: 'log/ehuftz.log', 
+            maxLogSize: 10*1024*1024, // = 10Mb
+            backups: 10,
+            category: 'ehuftz'
+        }, 
+        cpt: { 
+            type: 'file', //文件输出
+            filename: 'log/cpt.log', 
+            maxLogSize: 10*1024*1024, // = 10Mb
+            backups: 10,
+            category: 'cpt'
         }
     },
     categories: {
@@ -68,7 +89,10 @@ log4js.configure({
         auth: { appenders: ['auth'], level: 'info'},
         // restful: { appenders: ['restful'], level: 'info'},
         toolbox: { appenders: ['toolbox'], level: 'info' },
-        winstonByMssql: { appenders: ['winstonByMssql'], level: 'error' }
+        winstonByMssql: { appenders: ['winstonByMssql'], level: 'error' },
+        apaccs: { appenders: ['apaccs'], level: 'error' },
+        ehuftz: { appenders: ['ehuftz'], level: 'error' },
+        cpt: { appenders: ['cpt'], level: 'error' }
     }
 });
 

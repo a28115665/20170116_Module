@@ -58,7 +58,6 @@
 	},
 	"CPT" : {
 		"active": 1,
-		"delay" : 60000,
 		"timer" : 3600000
 	},
 	"GMail" : {

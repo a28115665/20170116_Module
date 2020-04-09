@@ -46,18 +46,16 @@ class Apaccs {
 		    await driver.manage().setTimeouts( { implicit: TIMEOUT, pageLoad: TIMEOUT, script: TIMEOUT } )
 			await driver.get('https://accs.tradevan.com.tw/accsw-bin/APACCS/userLoginAction.do?userid=GUEST&password=GUEST');
 
-			// 預備寫入資料
-	        let tasks = [],
-	        	num = {
+	        let num = {
 	        		success : 0,
 	        		fail : 0
 	        	};
-	        tasks.push(dbCommandByTask.Connect);
-	        tasks.push(dbCommandByTask.TransactionBegin);
 
 	        for(let data of recordset){
 	        	// console.log(data);
-	        	let seq = data.OL_SEQ,
+				// 預備寫入資料
+	        	let tasks = [],
+	        		seq = data.OL_SEQ,
 	        		mawbNo = data.OL_MASTER;
 				await driver.get('https://accs.tradevan.com.tw/accsw-bin/APACCS/cImMergeQueryAction.do?mawb_no='+mawbNo+'&voyage_flight_no=&flight_date=&est_arrival_date=&%E6%9F%A5%E8%A9%A2=%E6%9F%A5%E8%A9%A2');
 				
@@ -66,7 +64,9 @@ class Apaccs {
 					num.fail += 1;
 					continue;
 				}
-				num.success += 1;
+
+		        tasks.push(dbCommandByTask.Connect);
+		        tasks.push(dbCommandByTask.TransactionBegin);
 
 				// 先刪除此單的所有ACCS
 				tasks.push(async.apply(dbCommandByTask.DeleteRequestWithTransaction, {
@@ -145,36 +145,51 @@ class Apaccs {
 							AML_UP_DATETIME    : moment(new Date()).format('YYYY-MM-DD HH:mm:ss.SSS'),
 							AML_FLIGHTNO	   : flightNo,
 							AML_IMPORTDT	   : moment(importDate, "YYYYMMDD").isValid() ? moment(importDate, "YYYYMMDD").format('YYYY-MM-DD') : null,
-							AML_DEPARTDATE	   : moment(importDate, "YYYYMMDD").isValid() ? moment(departDate, "YYYYMMDD").format('YYYY-MM-DD') : null,
+							AML_DEPARTDATE	   : moment(departDate, "YYYYMMDD").isValid() ? moment(departDate, "YYYYMMDD").format('YYYY-MM-DD') : null,
 		                }
             		}));
 				}
+
+	    		tasks.push(dbCommandByTask.TransactionCommit);
+
+	    		let isSuccess = await this.AsyncWaterfall(seq, tasks);
+
+	    		if(isSuccess){
+					num.success += 1;
+				}else{
+					num.fail += 1;
+				}
 	        }
+			logger.error("空運業界自動化服務系統更新失敗訊息");
+			console.log("空運業界自動化服務系統更新成功筆數:", num.success, ", 查無資料筆數:", num.fail);
 
-    		tasks.push(dbCommandByTask.TransactionCommit);
+		    // async.waterfall(tasks, function (err, args) {
 
-		    async.waterfall(tasks, function (err, args) {
-
-		        if (err) {
-		            // 如果連線失敗就不做Rollback
-		            if(Object.keys(args).length !== 0){
-		                dbCommandByTask.TransactionRollback(args, function (err, result){
+		    //     if (err) {
+		    //         // 如果連線失敗就不做Rollback
+		    //         if(Object.keys(args).length !== 0){
+		    //             dbCommandByTask.TransactionRollback(args, function (err, result){
 		                    
-		                });
-		            }
+		    //             });
+		    //         }
 
-		            console.error("空運業界自動化服務系統更新失敗訊息:", err);
-		            // process.exit();
-		        }else{
-    				console.log("空運業界自動化服務系統更新成功筆數:", num.success, ", 查無資料筆數:", num.fail);
-		        }
-		    });
+	     //    		logger.error(args);
+		    //         console.error("空運業界自動化服務系統更新失敗訊息:", err);
+		    //         // process.exit();
+		    //     }else{
+    		// 		console.log("空運業界自動化服務系統更新成功筆數:", num.success, ", 查無資料筆數:", num.fail);
+		    //     }
+		    // });
 			
 			// await sleep(2000);
 		} finally {
 			// await driver && driver.quit();
 			await driver.close();
 		}
+
+		// 在Apaccs執行完畢後再執行
+		const cpt = require('../routes/cpt');
+		new cpt.Cpt().Start();
 
 		// 每隔一段時間之後就撈一次
 		setTimeout(async () => {
@@ -199,6 +214,30 @@ class Apaccs {
 	            }
 
 			})
+		})
+
+	}
+
+	async AsyncWaterfall(pk, tasks) {
+
+		return new Promise((resolve, reject) => {
+			async.waterfall(tasks, function (err, args) {
+
+		        if (err) {
+		            // 如果連線失敗就不做Rollback
+		            if(Object.keys(args).length !== 0){
+		                dbCommandByTask.TransactionRollback(args, function (err, result){
+		                    
+		                });
+		            }
+
+	        		logger.error("空運業界自動化服務系統更新失敗訊息("+pk+"):", args);
+			        reject("空運業界自動化服務系統更新失敗訊息:", err);
+		        }else{
+		        	resolve(true);
+		        }
+
+		    });
 		})
 
 	}
