@@ -36,12 +36,12 @@ module.exports = function(pQueryname, pParams){
 										WHERE AML_SEQ = OL_SEQ \
 									) AS 'AML_DELIVERY', \
 									( \
-										SELECT COUNT(A.IL_BAGNO2) \
+										SELECT COUNT(A.IL_BAGNO) \
 										FROM ( \
-											SELECT IL_BAGNO2, COUNT(1) AS COUNT \
+											SELECT IL_BAGNO, COUNT(1) AS COUNT \
 											FROM ( \
 												SELECT * \
-												FROM V_ITEM_LIST_FOR_D \
+												FROM ITEM_LIST \
 												WHERE IL_SEQ = OL_SEQ \
 											) ITEM_LIST \
 											LEFT JOIN (  \
@@ -52,7 +52,7 @@ module.exports = function(pQueryname, pParams){
 											IL_SEQ = PG_SEQ AND  \
 											IL_BAGNO = PG_BAGNO \
 											WHERE /*沒被拉貨的*/ PG_SEQ IS NULL  \
-											GROUP BY IL_BAGNO2 \
+											GROUP BY IL_BAGNO \
 										) A \
 									) AS 'AML_TOTAL_NUM', \
 									( \
@@ -61,20 +61,22 @@ module.exports = function(pQueryname, pParams){
 										WHEN AML_TOTAL_NUM <> AML_TOTAL_NUM2 THEN 2 \
 										ELSE NULL END \
 										FROM ( \
-											SELECT AML_SEQ, AML_TOTAL_NUM, SUM(AML_DELIVERY_NUM) AS 'AML_TOTAL_NUM2' \
+											SELECT AML_SEQ, MAX(AML_TOTAL_NUM) AS 'AML_TOTAL_NUM', SUM(AML_DELIVERY_NUM) AS 'AML_TOTAL_NUM2' \
 											FROM APACCS_MASTER_LIST \
 											WHERE AML_TOTAL_NUM IS NOT NULL \
-											GROUP BY AML_SEQ, AML_TOTAL_NUM \
+											GROUP BY AML_SEQ  \
 										) APACCS_MASTER_LIST \
 										WHERE AML_SEQ = OL_SEQ \
 									) AS 'AML_DELIVERY_COMPLETE', \
 									/* 類型為C1的袋號 */ \
 									( \
-										SELECT COUNT(A.IL_BAGNO2) \
+										SELECT ISNULL(SUM(A.EML_PIECE_NOREPEAT), 0) \
 										FROM ( \
-											SELECT IL_BAGNO2 \
+											SELECT IL_BAGNO2, CASE WHEN IL_BAGNO2Index = 1 THEN EML_PIECE ELSE NULL END AS EML_PIECE_NOREPEAT \
 											FROM ( \
-												SELECT * \
+												SELECT *,\
+													CASE WHEN IL_MERGENO IS NULL THEN IL_BAGNO2 ELSE IL_MERGENO END AS IL_BAGNO2_OR_MERGENO, \
+													ROW_NUMBER() OVER(PARTITION BY CASE WHEN IL_MERGENO IS NULL THEN IL_BAGNO2 ELSE IL_MERGENO END ORDER BY IL_BAGNO2) AS IL_BAGNO2Index \
 												FROM V_ITEM_LIST_FOR_D \
 												WHERE IL_SEQ = OL_SEQ \
 											) ITEM_LIST \
@@ -86,14 +88,16 @@ module.exports = function(pQueryname, pParams){
 											IL_SEQ = PG_SEQ AND  \
 											IL_BAGNO = PG_BAGNO \
 											INNER JOIN EHUFTZ_MASTER_LIST ON EHUFTZ_MASTER_LIST.EML_SEQ = IL_SEQ  \
-											AND EHUFTZ_MASTER_LIST.EML_HWB = IL_BAGNO2  \
+											AND EHUFTZ_MASTER_LIST.EML_HWB = IL_BAGNO2_OR_MERGENO  \
 											/* 篩選類型為C3的袋號 */ \
 											AND EHUFTZ_MASTER_LIST.EML_TRUE_CLEARANCE = 'C1' \
 											WHERE /*沒被拉貨的*/ PG_SEQ IS NULL \
 											UNION \
-											SELECT IL_BAGNO2 \
+											SELECT IL_BAGNO2, CASE WHEN IL_BAGNO2Index = 1 THEN EML_PIECE ELSE NULL END AS EML_PIECE_NOREPEAT \
 											FROM ( \
-												SELECT * \
+												SELECT *, \
+													CASE WHEN IL_MERGENO IS NULL THEN IL_BAGNO2 ELSE IL_MERGENO END AS IL_BAGNO2_OR_MERGENO, \
+													ROW_NUMBER() OVER(PARTITION BY CASE WHEN IL_MERGENO IS NULL THEN IL_BAGNO2 ELSE IL_MERGENO END ORDER BY IL_BAGNO2) AS IL_BAGNO2Index \
 												FROM V_ITEM_LIST_FOR_D \
 												WHERE IL_SEQ = OL_SEQ \
 											) ITEM_LIST \
@@ -105,7 +109,7 @@ module.exports = function(pQueryname, pParams){
 											IL_SEQ = PG_SEQ AND  \
 											IL_BAGNO = PG_BAGNO \
 											INNER JOIN EHUFTZ_MASTER_LIST ON EHUFTZ_MASTER_LIST.EML_SEQ = IL_SEQ \
-											AND EHUFTZ_MASTER_LIST.EML_EXP_BAGNO = IL_BAGNO2 \
+											AND EHUFTZ_MASTER_LIST.EML_EXP_BAGNO = IL_BAGNO2_OR_MERGENO \
 											AND EHUFTZ_MASTER_LIST.EML_HWB = IL_SMALLNO2\
 											/* 篩選類型為C3的袋號 */ \
 											AND EHUFTZ_MASTER_LIST.EML_TRUE_CLEARANCE = 'C1' \
@@ -114,11 +118,13 @@ module.exports = function(pQueryname, pParams){
 									)  AS 'C1', \
 									/* 類型為C3的袋號 */ \
 									( \
-										SELECT COUNT(A.IL_BAGNO2) \
+										SELECT ISNULL(SUM(A.EML_PIECE_NOREPEAT), 0) \
 										FROM ( \
-											SELECT IL_BAGNO2 \
+											SELECT IL_BAGNO2, CASE WHEN IL_BAGNO2Index = 1 THEN EML_PIECE ELSE NULL END AS EML_PIECE_NOREPEAT \
 											FROM ( \
-												SELECT * \
+												SELECT *, \
+													CASE WHEN IL_MERGENO IS NULL THEN IL_BAGNO2 ELSE IL_MERGENO END AS IL_BAGNO2_OR_MERGENO, \
+													ROW_NUMBER() OVER(PARTITION BY CASE WHEN IL_MERGENO IS NULL THEN IL_BAGNO2 ELSE IL_MERGENO END ORDER BY IL_BAGNO2) AS IL_BAGNO2Index \
 												FROM V_ITEM_LIST_FOR_D \
 												WHERE IL_SEQ = OL_SEQ \
 											) ITEM_LIST \
@@ -130,14 +136,16 @@ module.exports = function(pQueryname, pParams){
 											IL_SEQ = PG_SEQ AND  \
 											IL_BAGNO = PG_BAGNO \
 											INNER JOIN EHUFTZ_MASTER_LIST ON EHUFTZ_MASTER_LIST.EML_SEQ = IL_SEQ  \
-											AND EHUFTZ_MASTER_LIST.EML_HWB = IL_BAGNO2  \
+											AND EHUFTZ_MASTER_LIST.EML_HWB = IL_BAGNO2_OR_MERGENO  \
 											/* 篩選類型為C3的袋號 */ \
 											AND EHUFTZ_MASTER_LIST.EML_TRUE_CLEARANCE <> 'C1' \
 											WHERE /*沒被拉貨的*/ PG_SEQ IS NULL \
 											UNION \
-											SELECT IL_BAGNO2 \
+											SELECT IL_BAGNO2, CASE WHEN IL_BAGNO2Index = 1 THEN EML_PIECE ELSE NULL END AS EML_PIECE_NOREPEAT \
 											FROM ( \
-												SELECT * \
+												SELECT *, \
+													CASE WHEN IL_MERGENO IS NULL THEN IL_BAGNO2 ELSE IL_MERGENO END AS IL_BAGNO2_OR_MERGENO, \
+													ROW_NUMBER() OVER(PARTITION BY CASE WHEN IL_MERGENO IS NULL THEN IL_BAGNO2 ELSE IL_MERGENO END ORDER BY IL_BAGNO2) AS IL_BAGNO2Index \
 												FROM V_ITEM_LIST_FOR_D \
 												WHERE IL_SEQ = OL_SEQ \
 											) ITEM_LIST \
@@ -149,8 +157,8 @@ module.exports = function(pQueryname, pParams){
 											IL_SEQ = PG_SEQ AND  \
 											IL_BAGNO = PG_BAGNO \
 											INNER JOIN EHUFTZ_MASTER_LIST ON EHUFTZ_MASTER_LIST.EML_SEQ = IL_SEQ \
-											AND EHUFTZ_MASTER_LIST.EML_EXP_BAGNO = IL_BAGNO2 \
-											AND EHUFTZ_MASTER_LIST.EML_HWB = IL_SMALLNO2 \
+											AND EHUFTZ_MASTER_LIST.EML_EXP_BAGNO = IL_BAGNO2_OR_MERGENO \
+											AND EHUFTZ_MASTER_LIST.EML_HWB = IL_SMALLNO2\
 											/* 篩選類型為C3的袋號 */ \
 											AND EHUFTZ_MASTER_LIST.EML_TRUE_CLEARANCE <> 'C1' \
 											WHERE /*沒被拉貨的*/ PG_SEQ IS NULL \

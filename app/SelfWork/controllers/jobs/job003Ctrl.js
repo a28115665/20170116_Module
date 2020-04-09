@@ -140,10 +140,12 @@ angular.module('app.selfwork').controller('Job003Ctrl', function ($scope, $state
                 { name: 'EML_RELEASE_TIME'   , displayName: '放行時間', width: 145, cellFilter: 'datetimeFilter' },
                 { name: 'CC_ORI_DESC'        , displayName: '真實備註', width: 91 },
                 { name: 'CC_CUST_DESC'       , displayName: '行家備註', width: 91 },
+                { name: 'U_NAME'             , displayName: '編輯者', width: 91 },
+                { name: 'CC_DATETIME'        , displayName: '修改時間', width: 145, cellFilter: 'datetimeFilter' },
                 { name: 'Options'            , displayName: '操作', width: 65, enableCellEdit: false, enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToM'), pinnedRight:true }
             ],
             rowTemplate: '<div> \
-                            <div ng-repeat="(colRenderIndex, col) in colContainer.renderedColumns track by col.colDef.name" class="ui-grid-cell" ng-class="{\'cell-class-ban\' : row.entity.EML_TRUE_CLEARANCE != \'C1\'}" ui-grid-cell></div> \
+                            <div ng-repeat="(colRenderIndex, col) in colContainer.renderedColumns track by col.colDef.name" class="ui-grid-cell" ng-class="{\'cell-class-ban\' : ![\'C1\', null].includes(row.entity.EML_TRUE_CLEARANCE) }" ui-grid-cell></div> \
                           </div>',
             enableFiltering: true,
             enableSorting: true,
@@ -333,6 +335,7 @@ angular.module('app.selfwork').controller('Job003Ctrl', function ($scope, $state
     });
 
     function LoadItemList(){
+
         RestfulApi.SearchMSSQLData({
             querymain: 'job003',
             queryname: 'SelectEhuftzMasterList',

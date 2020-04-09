@@ -104,7 +104,7 @@ angular.module('app')
                     </div>');
     $templateCache.put('accessibilityToOperaForJob003', '\
                     <div class="ui-grid-cell-contents text-center">\
-                        <a href="javascript:void(0);" class="btn btn-success btn-xs" ng-click="grid.appScope.$vm.gridMethod.gridOperation(row, \'派送單\')"> 工作選項</a>\
+                        <a href="javascript:void(0);" class="btn btn-success btn-xs" ng-click="grid.appScope.$vm.gridMethod.gridOperation(row, \'日報明細\')"> 工作選項</a>\
                     </div>');
   
     $templateCache.put('accessibilityToChangeNature', '\
@@ -180,6 +180,11 @@ angular.module('app')
                         <div class="ui-grid-cell-contents text-center">\
                             <button type="button" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethod.modifyData(row)"> 修改</button>\
                             <button type="button" class="btn btn-primary btn-xs" ng-click="grid.appScope.$vm.gridMethod.closeData(row)" ng-class="grid.appScope.$vm.gridMethod.closeAuth(row)"> 結單</button>\
+                        </div>');
+    $templateCache.put('deliveryHistorysearchToMC', '\
+                        <div class="ui-grid-cell-contents text-center">\
+                            <a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethod.modifyData(row)"> 修改</a>\
+                            <a href="javascript:void(0);" class="btn btn-danger btn-xs" ng-click="grid.appScope.$vm.gridMethod.releaseData(row)" ng-if="grid.appScope.$vm.profile.U_GRADE < 10" ng-class="{\'disabled\' : row.entity.OL_FDATETIME2 == null}"> 解單</a>\
                         </div>');
 
     $templateCache.put('accessibilityToOverSixName', '\
@@ -301,12 +306,12 @@ angular.module('app')
     $templateCache.put('accessibilityToMForLeaderSearch', '\
                         <div class="ui-grid-cell-contents text-center">\
                             <a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethod.modifyData(row)"> 修改</a>\
-                            <a href="javascript:void(0);" class="btn btn-danger btn-xs" ng-click="grid.appScope.$vm.gridMethod.releaseData(row)" ng-if="grid.appScope.$vm.profile.U_GRADE < 10" ng-class="{\'disabled\' : row.entity.OL_FDATETIME == null}"> 解案</a>\
+                            <a href="javascript:void(0);" class="btn btn-danger btn-xs" ng-click="grid.appScope.$vm.gridMethod.releaseData(row)" ng-if="grid.appScope.$vm.profile.U_GRADE < 10" ng-class="{\'disabled\' : row.entity.OL_FDATETIME == null}"> 解單</a>\
                         </div>');
     $templateCache.put('accessibilityToMForOLeaderSearch', '\
                         <div class="ui-grid-cell-contents text-center">\
                             <a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethod.modifyData(row)"> 修改</a>\
-                            <a href="javascript:void(0);" class="btn btn-danger btn-xs" ng-click="grid.appScope.$vm.gridMethod.releaseData(row)" ng-if="grid.appScope.$vm.profile.U_GRADE < 10" ng-class="{\'disabled\' : row.entity.O_OL_FDATETIME == null}"> 解案</a>\
+                            <a href="javascript:void(0);" class="btn btn-danger btn-xs" ng-click="grid.appScope.$vm.gridMethod.releaseData(row)" ng-if="grid.appScope.$vm.profile.U_GRADE < 10" ng-class="{\'disabled\' : row.entity.O_OL_FDATETIME == null}"> 解單</a>\
                         </div>');
     $templateCache.put('accessibilityToEdited', '\
                         <div class="ui-grid-cell-contents text-center">\

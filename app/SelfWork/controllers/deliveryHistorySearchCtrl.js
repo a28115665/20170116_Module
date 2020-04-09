@@ -51,6 +51,155 @@ angular.module('app.selfwork').controller('DeliveryHistorySearchCtrl', function 
                 }, function() {
                     // $log.info('Modal dismissed at: ' + new Date());
                 });
+            },
+            // 貨物查看
+            viewOrder : function(row){
+                OrderStatus.Get(row)
+            },
+            // 顯示分批明細
+            showApaccsDetail : function(row){
+
+                if(row.entity.AML_DELIVERY == 0) {
+                    toaster.pop('info', '訊息', '查無資料。', 3000);
+                    return;
+                }
+
+                RestfulApi.SearchMSSQLData({
+                    querymain: 'deliveryJobs',
+                    queryname: 'SelectApaccsDetail',
+                    params: {
+                        AML_SEQ : row.entity.OL_SEQ
+                    }
+                }).then(function (res){
+                    console.log(res["returnData"]);
+
+                    var _vmData = res["returnData"] || [];
+
+                    var modalInstance = $uibModal.open({
+                        animation: true,
+                        ariaLabelledBy: 'modal-title',
+                        ariaDescribedBy: 'modal-body',
+                        templateUrl: 'deliveryJobsShowApaccsDetail.html',
+                        controller: 'deliveryJobsShowApaccsDetailCtrl',
+                        controllerAs: '$ctrl',
+                        windowClass: 'my-xl-modal-window',
+                        // size: 'lg',
+                        // windowClass: 'center-modal',
+                        // appendTo: parentElem,
+                        resolve: {
+                            item: function(){
+                                return row.entity;
+                            },
+                            vmData: function() {
+                                return _vmData;
+                            }
+                        }
+                    });
+
+                    modalInstance.result.then(function(selectedItem) {
+
+                    }, function() {
+                        // $log.info('Modal dismissed at: ' + new Date());
+                    });
+                });
+            },
+            modifyData : function(row){
+                console.log(row);
+                var modalInstance = $uibModal.open({
+                    animation: true,
+                    ariaLabelledBy: 'modal-title',
+                    ariaDescribedBy: 'modal-body',
+                    template: $templateCache.get('modifyOrderList'),
+                    controller: 'ModifyOrderListModalInstanceCtrl',
+                    controllerAs: '$ctrl',
+                    // size: 'sm',
+                    // windowClass: 'center-modal',
+                    // appendTo: parentElem,
+                    resolve: {
+                        vmData: function() {
+                            return row.entity;
+                        },
+                        compy: function() {
+                            return compy;
+                        }
+                    }
+                });
+
+                modalInstance.result.then(function(selectedItem) {
+                    // $ctrl.selected = selectedItem;
+                    console.log(selectedItem);
+
+                    RestfulApi.UpdateMSSQLData({
+                        updatename: 'Update',
+                        table: 18,
+                        params: {
+                            OL_IMPORTDT : selectedItem.OL_IMPORTDT,
+                            OL_REAL_IMPORTDT : selectedItem.OL_REAL_IMPORTDT,
+                            OL_CO_CODE  : selectedItem.OL_CO_CODE,
+                            OL_FLIGHTNO : selectedItem.OL_FLIGHTNO,
+                            OL_MASTER   : selectedItem.OL_MASTER,
+                            OL_COUNTRY  : selectedItem.OL_COUNTRY,
+                            OL_REASON   : selectedItem.OL_REASON
+                        },
+                        condition: {
+                            OL_SEQ : selectedItem.OL_SEQ
+                        }
+                    }).then(function (res) {
+                        LoadDeliveryItem();
+                    });
+
+                }, function() {
+                    // $log.info('Modal dismissed at: ' + new Date());
+                });
+            },
+            releaseData : function(row) {
+
+                var modalInstance = $uibModal.open({
+                    animation: true,
+                    ariaLabelledBy: 'modal-title',
+                    ariaDescribedBy: 'modal-body',
+                    template: $templateCache.get('isChecked'),
+                    controller: 'IsCheckedModalInstanceCtrl',
+                    controllerAs: '$ctrl',
+                    size: 'sm',
+                    windowClass: 'center-modal',
+                    // appendTo: parentElem,
+                    resolve: {
+                        items: function() {
+                            return row.entity;
+                        },
+                        show: function(){
+                            return {
+                                title : "是否解單"
+                            }
+                        }
+                    }
+                });
+
+                modalInstance.result.then(function(selectedItem) {
+                    // $ctrl.selected = selectedItem;
+                    console.log(selectedItem);
+
+                    RestfulApi.UpdateMSSQLData({
+                        updatename: 'Update',
+                        table: 18,
+                        params: {
+                            OL_FDATETIME2 : null,
+                            OL_FUSER2     : null
+                        },
+                        condition: {
+                            OL_SEQ : selectedItem.OL_SEQ
+                        }
+                    }).then(function (res) {
+
+                        toaster.pop('success', '訊息', '解單成功。', 3000);
+                        SearchData();
+                    });
+
+                }, function() {
+                    // $log.info('Modal dismissed at: ' + new Date());
+                });
+
             }
         },
         gridMethodForJob003 : {
@@ -64,23 +213,23 @@ angular.module('app.selfwork').controller('DeliveryHistorySearchCtrl', function 
         resultOptions : {
             data:  '$vm.resultData',
             columnDefs: [
-                { name: 'OL_IMPORTDT' ,  displayName: '進口日期', cellFilter: 'dateFilter' },
-                { name: 'OL_CO_CODE'  ,  displayName: '行家', cellFilter: 'compyFilter', filter: 
+                { name: 'OL_IMPORTDT' ,  displayName: '進口日期', width: 91, cellFilter: 'dateFilter' },
+                { name: 'OL_REAL_IMPORTDT' ,  displayName: '報機日期', width: 91, cellFilter: 'dateFilter', cellTooltip: function (row, col) 
                     {
-                        term: null,
-                        type: uiGridConstants.filter.SELECT,
-                        selectOptions: compy
-                    }
-                },
-                { name: 'OL_FLIGHTNO' ,  displayName: '航班' },
-                { name: 'OL_MASTER'   ,  displayName: '主號' },
-                { name: 'OL_COUNTRY'  ,  displayName: '起運國別' },
-                { name: 'OL_REASON'   ,  displayName: '描述', cellTooltip: function (row, col) 
-                    {
-                        return row.entity.OL_REASON
+                        return '真實報機日期：' + $filter('dateFilter')(row.entity.OL_CR_DATETIME)
                     } 
                 },
-                { name: 'DELIVERY_ITEM_LIST' ,  displayName: '派送單', enableFiltering: false, width: '8%', cellTemplate: $templateCache.get('accessibilityToOperaForJob003') }
+                { name: 'CO_NAME'     ,  displayName: '行家', width: 80 },
+                { name: 'OL_FLIGHTNO' ,  displayName: '航班', width: 80 },
+                { name: 'OL_MASTER'   ,  displayName: '主號', width: 110, cellTemplate: $templateCache.get('accessibilityToMasterForViewOrder') },
+                { name: 'OL_COUNTRY'  ,  displayName: '起運國別', width: 100 },
+                { name: 'OL_REASON'   ,  displayName: '描述', cellTooltip: cellTooltip },
+                { name: 'AML_DELIVERY'   ,  displayName: '分批數', width: 77, cellTemplate: $templateCache.get('deliveryJobsShowDelivery') },
+                { name: 'AML_TOTAL_NUM'   ,  displayName: '總袋數', width: 77 },
+                { name: 'C1'   ,  displayName: '清出', width: 86 },
+                { name: 'OtherC1'   ,  displayName: '非清出', width: 86 },
+                { name: 'ITEM_LIST' ,  displayName: '日報明細', enableFiltering: false, width: 86, cellTemplate: $templateCache.get('accessibilityToOperaForJob003') },
+                { name: 'Options'   , displayName: '操作', width: 92, enableCellEdit: false, enableFiltering: false, cellTemplate: $templateCache.get('deliveryHistorysearchToMC') }
             ],
             enableFiltering: true,
             enableSorting: false,
@@ -136,6 +285,8 @@ angular.module('app.selfwork').controller('DeliveryHistorySearchCtrl', function 
             params: $vm._params
         }).then(function (res){
             console.log(res["returnData"]);
+
+            $vm.resultData = [];
             if(res["returnData"].length > 0){
                 $vm.resultData = res["returnData"];
             }else{
