@@ -14,12 +14,12 @@ module.exports = function(pQueryname, pParams){
 									OL_CR_USER, \
 									OL_CR_DATETIME, \
 									( \
-										SELECT COUNT(A.IL_BAGNO2) \
+										SELECT COUNT(A.IL_BAGNO) \
 										FROM ( \
-											SELECT IL_BAGNO2, COUNT(1) AS COUNT \
+											SELECT IL_BAGNO, COUNT(1) AS COUNT \
 											FROM ( \
 												SELECT * \
-												FROM V_ITEM_LIST_FOR_D \
+												FROM ITEM_LIST \
 												WHERE IL_SEQ = OL_SEQ \
 											) ITEM_LIST \
 											LEFT JOIN (  \
@@ -30,7 +30,7 @@ module.exports = function(pQueryname, pParams){
 											IL_SEQ = PG_SEQ AND  \
 											IL_BAGNO = PG_BAGNO \
 											WHERE /*沒被拉貨的*/ PG_SEQ IS NULL  \
-											GROUP BY IL_BAGNO2 \
+											GROUP BY IL_BAGNO \
 										) A \
 									) AS 'OL_COUNT',  \
 									ISNULL(( \
