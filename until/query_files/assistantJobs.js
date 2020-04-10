@@ -364,7 +364,10 @@ module.exports = function(pQueryname, pParams){
 									IL_GETADDRESS_NEW, \
 									IL_HASUNIVALENT, \
 									IL_SUPPLEMENT_COUNT, \
-									IL_TAXRATE \
+									IL_TAXRATE, \
+									IL_CNS_RESULT1, \
+									IL_CNS_RESULT2, \
+									IL_CNS_RESULT3 \
 							FROM ITEM_LIST \
 						    WHERE 1=1";
 

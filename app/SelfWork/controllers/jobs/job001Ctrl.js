@@ -304,12 +304,14 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
 
                         if(res["returnData"].length > 0){
                             
-                            for(var i in $vm.job001Data){
-                                if($vm.job001Data[i].IL_BAGNO == selectedItem.IL_BAGNO){
-                                    $vm.job001Data[i].PG_PULLGOODS = true;
-                                }
-                            }
-
+                            // for(var i in $vm.job001Data){
+                            //     if($vm.job001Data[i].IL_BAGNO == selectedItem.IL_BAGNO){
+                            //         $vm.job001Data[i].PG_PULLGOODS = true;
+                            //     }
+                            // }
+                            
+                            toaster.pop('success', '訊息', '拉貨完成。', 3000);
+                            LoadItemList();
                         }
                     });
 
@@ -572,6 +574,9 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                 { name: 'IL_GETTEL'     , displayName: '收件電話', width: 100, headerCellClass: 'text-primary' },
                 { name: 'IL_EXTEL'      , displayName: '匯出電話', width: 100, headerCellClass: 'text-primary' },
                 { name: 'IL_TRCOM'      , displayName: '派送公司', width: 100, headerCellClass: 'text-primary' },
+                { name: 'IL_CNS_RESULT1'    , displayName: '戶役政', width: 100, enableCellEdit: false },
+                { name: 'IL_CNS_RESULT2'    , displayName: '是否未申請過實名制', width: 100, enableCellEdit: false },
+                { name: 'IL_CNS_RESULT3'    , displayName: '通過實名制', width: 100, enableCellEdit: false },
                 { name: 'Options'       , displayName: '操作', width: 120, enableCellEdit: false, enableSorting:false, enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToJob001'), pinnedRight:true, cellClass: 'cell-class-no-style' }
             ],
             // rowTemplate: '<div> \

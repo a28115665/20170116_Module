@@ -621,10 +621,10 @@ angular.module('app.selfwork').controller('AssistantJobsCtrl', function ($scope,
                     }
 
                     RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res){
-                        toaster.pop('success', '訊息', '取消成功', 3000);
+                        toaster.pop('success', '訊息', '取消拉貨成功', 3000);
                         LoadPullGoods();
                     }, function (err) {
-                        toaster.pop('error', '錯誤', '取消失敗', 3000);
+                        toaster.pop('error', '錯誤', '取消拉貨失敗', 3000);
                     });  
 
                 }, function() {
