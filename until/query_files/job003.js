@@ -137,6 +137,20 @@ module.exports = function(pQueryname, pParams){
 				
 			break;
 
+		case "SelectOriEhuftzMasterList":
+			_SQLCommand += "SELECT *, \
+								( \
+									SELECT SC_DESC \
+									FROM SYS_CODE \
+									WHERE SC_TYPE = 'ClearanceType' \
+									AND SC_CODE = EML_TRUE_CLEARANCE \
+									AND SC_STS = 0 \
+								) AS EML_TRUE_CLEARANCE_STR \
+							FROM EHUFTZ_MASTER_LIST \
+							WHERE EML_SEQ = @EML_SEQ \
+							ORDER BY EML_EXP_BAGNO";
+			break;
+
 	}
 
 	return _SQLCommand;

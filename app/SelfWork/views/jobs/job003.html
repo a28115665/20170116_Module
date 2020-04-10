@@ -114,7 +114,7 @@
 				        <h2>編輯 </h2>
 				        
 				        <div class="widget-toolbar smart-form" role="menu">
-				            <!-- <a href-void="" class="btn btn-success" href="#" ng-click="$vm.ExportExcel()">匯出Excel</a> -->
+				            <a href-void="" class="btn btn-success" href="#" ng-click="$vm.ExportExcel()">匯出Excel</a>
 				        </div>
 				    </header>
 				    <!-- widget div-->
@@ -158,6 +158,10 @@
 							        	<form class="form-inline" role="form">
 							                <fieldset>
 							                    <div class="form-group">
+										            <button class="btn btn-info"
+										            		ng-click="$vm.EhuftzData()">
+										                遠雄資料
+										            </button>
 										            <button class="btn btn-primary"
 										            		ng-click="$vm.SyncClearance()">
 										                貨態同步
@@ -204,6 +208,40 @@
 	</section>
 
 </div>
+
+<script type="text/ng-template" id="job003ExcelMenu.html">
+    <div class="modal-header bg-color-green">
+        <h3 class="modal-title text-center">
+            <strong class=" txt-color-white">選擇格式</strong>
+        </h3>
+    </div>
+	<div class="modal-body" id="modal-body">
+        <div class="row"> 
+            <button type="button" class="btn btn-info btn-lg btn-block" ng-click="$ctrl.ok('Ehuftz')"> 
+                遠雄資料
+            </button> 
+            <button type="button" class="btn btn-info btn-lg btn-block" ng-click="$ctrl.ok('This')"> 
+                清關日報表
+            </button> 
+        </div> 
+	</div>
+</script>
+
+<script type="text/ng-template" id="ehuftzDataModalContent.html">
+    <div class="modal-header">
+	    <h3 class="modal-title" id="modal-title">遠雄資料</h3>
+	</div>
+	<div class="modal-body no-padding" id="modal-body">
+
+	    <div class="padding-10">此為遠雄真實資料。</div>
+
+        <div id="grid1" ui-grid="$ctrl.dataOption" class="my-ui-grid" ui-grid-pagination ui-grid-resize-columns ui-grid-auto-resize></div>
+	</div>
+	<div class="modal-footer">
+	    <button class="btn btn-primary" type="button" ng-click="$ctrl.ok()">{{getWord('OK')}}</button>
+	    <!-- <button class="btn btn-default" type="button" ng-click="$ctrl.cancel()">{{getWord('Cancel')}}</button> -->
+	</div>
+</script>
 
 <script type="text/ng-template" id="syncClearanceModalContent.html">
     <div class="modal-header">
