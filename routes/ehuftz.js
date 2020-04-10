@@ -65,9 +65,9 @@ class Ehuftz {
 	        	if(!bagno){
 	        		continue;
 	        	}else{
-	        		let subStrBagno = bagno.substr(0, 3);
+	        		// let subStrBagno = bagno.substr(0, 3);
 	        		// 給予袋號所需的帳號
-	        		switch(subStrBagno){
+	        		switch(bagno){
 	        			case "0A4":
 	        				eid = "0233";
 	        				break;
@@ -103,7 +103,8 @@ class Ehuftz {
 	                crudType : 'Delete',
 					table : 49,
 	                params : {
-						EML_SEQ : seq
+						EML_SEQ : seq,
+						EML_ACCOUNT: eid
 	                }
         		}));
 
