@@ -140,8 +140,8 @@ class Ehuftz {
 					if(!value.gciDate1){
 						value["trueClearance"] = 'X';
 					}else{
-						// 如果有出倉時間和放行時間
-						if(value.gcoDate1 && value.releaseTime){
+						// 如果有出倉時間 和 放行時間 和 申報件數等於進倉件數
+						if(value.gcoDate1 && value.releaseTime && (value.piece == value.gciPiece)){
 							value["trueClearance"] = 'C1';
 						}else{
 							value["trueClearance"] = 'C3';
@@ -159,6 +159,8 @@ class Ehuftz {
 					if(c3Bagno.indexOf(value.expBagNo) != -1){
 						value.trueClearance = 'C3';
 					}
+
+					value["diffPiece"] = value.piece - value.gciPiece;
 
 					tasks.push(async.apply(dbCommandByTask.InsertRequestWithTransaction, {
 		                crudType : 'Insert',
@@ -185,7 +187,8 @@ class Ehuftz {
 							EML_RELEASE_TIME   : moment(value.releaseTime, "YYYY/MM/DD HH:mm:ss.SS").isValid() ? moment(value.releaseTime, "YYYY/MM/DD HH:mm:ss.SS").format('YYYY-MM-DD HH:mm:ss.SSS') : null,
 							EML_ACCOUNT        : eid,
 							EML_UP_DATETIME    : moment(new Date()).format('YYYY-MM-DD HH:mm:ss.SSS'),
-							EML_TRUE_CLEARANCE : value.trueClearance
+							EML_TRUE_CLEARANCE : value.trueClearance,
+							EML_DIFF_PIECE     : value.diffPiece
 		                }
             		}));
 				})

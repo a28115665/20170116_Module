@@ -93,9 +93,11 @@ module.exports = function(pQueryname, pParams){
 										) AS 'AML_DELIVERY_COMPLETE', \
 										/* 類型為C1的袋號 */ \
 										( \
-											SELECT ISNULL(SUM(A.EML_PIECE_NOREPEAT), 0) \
-											FROM ( \
-												SELECT IL_BAGNO2, CASE WHEN IL_BAGNO2Index = 1 THEN EML_PIECE ELSE NULL END AS EML_PIECE_NOREPEAT \
+											SELECT ISNULL(SUM(A.EML_GCI_PIECE_NOREPEAT), 0) \
+											FROM (\
+												SELECT IL_SEQ, \
+													IL_BAGNO2, \
+													CASE WHEN IL_BAGNO2Index = 1 THEN EML_GCI_PIECE ELSE NULL END AS EML_GCI_PIECE_NOREPEAT \
 												FROM ( \
 													SELECT *,\
 														CASE WHEN IL_MERGENO IS NULL THEN IL_BAGNO2 ELSE IL_MERGENO END AS IL_BAGNO2_OR_MERGENO, \
@@ -103,20 +105,20 @@ module.exports = function(pQueryname, pParams){
 													FROM V_ITEM_LIST_FOR_D \
 													WHERE IL_SEQ = OL_SEQ \
 												) ITEM_LIST \
-												LEFT JOIN (  \
-													SELECT *  \
-													FROM PULL_GOODS  \
-													WHERE PG_SEQ = OL_SEQ  \
+												LEFT JOIN (\
+													SELECT *\
+													FROM PULL_GOODS\
+													WHERE PG_SEQ = OL_SEQ \
 												) PULL_GOODS ON  \
 												IL_SEQ = PG_SEQ AND  \
 												IL_BAGNO = PG_BAGNO \
 												INNER JOIN EHUFTZ_MASTER_LIST ON EHUFTZ_MASTER_LIST.EML_SEQ = IL_SEQ  \
 												AND EHUFTZ_MASTER_LIST.EML_HWB = IL_BAGNO2_OR_MERGENO  \
-												/* 篩選類型為C3的袋號 */ \
-												AND EHUFTZ_MASTER_LIST.EML_TRUE_CLEARANCE = 'C1' \
 												WHERE /*沒被拉貨的*/ PG_SEQ IS NULL \
 												UNION \
-												SELECT IL_BAGNO2, CASE WHEN IL_BAGNO2Index = 1 THEN EML_PIECE ELSE NULL END AS EML_PIECE_NOREPEAT \
+												SELECT IL_SEQ, \
+													IL_BAGNO2, \
+													CASE WHEN IL_BAGNO2Index = 1 THEN EML_GCI_PIECE ELSE NULL END AS EML_GCI_PIECE_NOREPEAT \
 												FROM ( \
 													SELECT *, \
 														CASE WHEN IL_MERGENO IS NULL THEN IL_BAGNO2 ELSE IL_MERGENO END AS IL_BAGNO2_OR_MERGENO, \
@@ -124,47 +126,47 @@ module.exports = function(pQueryname, pParams){
 													FROM V_ITEM_LIST_FOR_D \
 													WHERE IL_SEQ = OL_SEQ \
 												) ITEM_LIST \
-												LEFT JOIN (  \
-													SELECT *  \
-													FROM PULL_GOODS  \
-													WHERE PG_SEQ = OL_SEQ  \
+												LEFT JOIN (\
+													SELECT *\
+													FROM PULL_GOODS\
+													WHERE PG_SEQ = OL_SEQ \
 												) PULL_GOODS ON  \
 												IL_SEQ = PG_SEQ AND  \
 												IL_BAGNO = PG_BAGNO \
 												INNER JOIN EHUFTZ_MASTER_LIST ON EHUFTZ_MASTER_LIST.EML_SEQ = IL_SEQ \
 												AND EHUFTZ_MASTER_LIST.EML_EXP_BAGNO = IL_BAGNO2_OR_MERGENO \
 												AND EHUFTZ_MASTER_LIST.EML_HWB = IL_SMALLNO2\
-												/* 篩選類型為C3的袋號 */ \
-												AND EHUFTZ_MASTER_LIST.EML_TRUE_CLEARANCE = 'C1' \
 												WHERE /*沒被拉貨的*/ PG_SEQ IS NULL \
-											) A \
+											) A\
 										)  AS 'C1', \
 										/* 類型為C3的袋號 */ \
 										( \
-											SELECT ISNULL(SUM(A.EML_PIECE_NOREPEAT), 0) \
-											FROM ( \
-												SELECT IL_BAGNO2, CASE WHEN IL_BAGNO2Index = 1 THEN EML_PIECE ELSE NULL END AS EML_PIECE_NOREPEAT \
+											SELECT ISNULL(SUM(A.EML_DIFF_PIECE_NOREPEAT), 0) \
+											FROM (\
+												SELECT IL_SEQ, \
+													IL_BAGNO2, \
+													CASE WHEN IL_BAGNO2Index = 1 THEN EML_DIFF_PIECE ELSE NULL END AS EML_DIFF_PIECE_NOREPEAT\
 												FROM ( \
-													SELECT *, \
+													SELECT *,\
 														CASE WHEN IL_MERGENO IS NULL THEN IL_BAGNO2 ELSE IL_MERGENO END AS IL_BAGNO2_OR_MERGENO, \
 														ROW_NUMBER() OVER(PARTITION BY CASE WHEN IL_MERGENO IS NULL THEN IL_BAGNO2 ELSE IL_MERGENO END ORDER BY IL_BAGNO2) AS IL_BAGNO2Index \
 													FROM V_ITEM_LIST_FOR_D \
 													WHERE IL_SEQ = OL_SEQ \
 												) ITEM_LIST \
-												LEFT JOIN (  \
-													SELECT *  \
-													FROM PULL_GOODS  \
-													WHERE PG_SEQ = OL_SEQ  \
+												LEFT JOIN (\
+													SELECT *\
+													FROM PULL_GOODS\
+													WHERE PG_SEQ = OL_SEQ\
 												) PULL_GOODS ON  \
 												IL_SEQ = PG_SEQ AND  \
 												IL_BAGNO = PG_BAGNO \
 												INNER JOIN EHUFTZ_MASTER_LIST ON EHUFTZ_MASTER_LIST.EML_SEQ = IL_SEQ  \
 												AND EHUFTZ_MASTER_LIST.EML_HWB = IL_BAGNO2_OR_MERGENO  \
-												/* 篩選類型為C3的袋號 */ \
-												AND EHUFTZ_MASTER_LIST.EML_TRUE_CLEARANCE <> 'C1' \
 												WHERE /*沒被拉貨的*/ PG_SEQ IS NULL \
 												UNION \
-												SELECT IL_BAGNO2, CASE WHEN IL_BAGNO2Index = 1 THEN EML_PIECE ELSE NULL END AS EML_PIECE_NOREPEAT \
+												SELECT IL_SEQ, \
+													IL_BAGNO2, \
+													CASE WHEN IL_BAGNO2Index = 1 THEN EML_DIFF_PIECE ELSE NULL END AS EML_DIFF_PIECE_NOREPEAT \
 												FROM ( \
 													SELECT *, \
 														CASE WHEN IL_MERGENO IS NULL THEN IL_BAGNO2 ELSE IL_MERGENO END AS IL_BAGNO2_OR_MERGENO, \
@@ -172,21 +174,19 @@ module.exports = function(pQueryname, pParams){
 													FROM V_ITEM_LIST_FOR_D \
 													WHERE IL_SEQ = OL_SEQ \
 												) ITEM_LIST \
-												LEFT JOIN (  \
-													SELECT *  \
-													FROM PULL_GOODS  \
-													WHERE PG_SEQ = OL_SEQ  \
+												LEFT JOIN (\
+													SELECT *\
+													FROM PULL_GOODS\
+													WHERE PG_SEQ = OL_SEQ\
 												) PULL_GOODS ON  \
 												IL_SEQ = PG_SEQ AND  \
 												IL_BAGNO = PG_BAGNO \
 												INNER JOIN EHUFTZ_MASTER_LIST ON EHUFTZ_MASTER_LIST.EML_SEQ = IL_SEQ \
 												AND EHUFTZ_MASTER_LIST.EML_EXP_BAGNO = IL_BAGNO2_OR_MERGENO \
 												AND EHUFTZ_MASTER_LIST.EML_HWB = IL_SMALLNO2\
-												/* 篩選類型為C3的袋號 */ \
-												AND EHUFTZ_MASTER_LIST.EML_TRUE_CLEARANCE <> 'C1' \
 												WHERE /*沒被拉貨的*/ PG_SEQ IS NULL \
 											) A \
-										)  AS 'OtherC1' \
+										)  AS 'OtherC1'  \
 								FROM ( \
 									SELECT * \
 									FROM ORDER_LIST \
