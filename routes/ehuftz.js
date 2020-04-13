@@ -134,17 +134,30 @@ class Ehuftz {
 
 					// 把文字轉成系統代碼
 					value["trueClearance"] = value.clearanceType == '未見貨' ? 'X' : value.clearanceType;
+					value["diffPieceNotC1"] = 0;
+					value["diffPieceC1"] = 0;
 
 					// 判斷貨態
-					// 如果沒有進倉時間
+					// 未進貨 : 如果沒有進倉時間
 					if(!value.gciDate1){
 						value["trueClearance"] = 'X';
+						value["diffPieceNotC1"] = value.piece - value.gciPiece;
 					}else{
-						// 如果有出倉時間 和 放行時間 和 申報件數等於進倉件數
+						// 清出 : 如果有出倉時間 和 放行時間 和 申報件數等於進倉件數
 						if(value.gcoDate1 && value.releaseTime && (value.piece == value.gciPiece)){
 							value["trueClearance"] = 'C1';
-						}else{
+							value["diffPieceC1"] = value.piece;
+						}
+						// 非清出
+						else{
 							value["trueClearance"] = 'C3';
+							// 如果有出倉時間(G1或併X3)
+							if(value.gcoDate1){
+								value["diffPieceNotC1"] = value.piece - value.gciPiece;
+								value["diffPieceC1"] = value.gciPiece;
+							}else{
+								value["diffPieceNotC1"] = value.piece;
+							}
 						}
 					}
 
@@ -159,8 +172,6 @@ class Ehuftz {
 					if(c3Bagno.indexOf(value.expBagNo) != -1){
 						value.trueClearance = 'C3';
 					}
-
-					value["diffPiece"] = value.piece - value.gciPiece;
 
 					tasks.push(async.apply(dbCommandByTask.InsertRequestWithTransaction, {
 		                crudType : 'Insert',
@@ -188,7 +199,8 @@ class Ehuftz {
 							EML_ACCOUNT        : eid,
 							EML_UP_DATETIME    : moment(new Date()).format('YYYY-MM-DD HH:mm:ss.SSS'),
 							EML_TRUE_CLEARANCE : value.trueClearance,
-							EML_DIFF_PIECE     : value.diffPiece
+							EML_DIFF_PIECE_NOTC1 : value.diffPieceNotC1,
+							EML_DIFF_PIECE_C1    : value.diffPieceC1
 		                }
             		}));
 				})
