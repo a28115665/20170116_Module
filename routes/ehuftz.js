@@ -134,6 +134,7 @@ class Ehuftz {
 
 					// 把文字轉成系統代碼
 					value["trueClearance"] = value.clearanceType == '未見貨' ? 'X' : value.clearanceType;
+					value["bagnoClearance"] = value.clearanceType == '未見貨' ? 'X' : value.clearanceType;
 					value["diffPieceNotC1"] = 0;
 					value["diffPieceC1"] = 0;
 
@@ -141,16 +142,19 @@ class Ehuftz {
 					// 未進貨 : 如果沒有進倉時間
 					if(!value.gciDate1){
 						value["trueClearance"] = 'X';
+						value["bagnoClearance"] = 'X';
 						value["diffPieceNotC1"] = value.piece - value.gciPiece;
 					}else{
 						// 清出 : 如果有出倉時間 和 放行時間 和 申報件數等於進倉件數
 						if(value.gcoDate1 && value.releaseTime && (value.piece == value.gciPiece)){
 							value["trueClearance"] = 'C1';
+							value["bagnoClearance"] = 'C1';
 							value["diffPieceC1"] = value.piece;
 						}
 						// 非清出
 						else{
 							value["trueClearance"] = 'C3';
+							value["bagnoClearance"] = 'C3';
 							// 如果有出倉時間(G1或併X3)
 							if(value.gcoDate1){
 								value["diffPieceNotC1"] = value.piece - value.gciPiece;
@@ -165,12 +169,12 @@ class Ehuftz {
 			    }).filter(x => x !== undefined);
 
 				// 篩選狀態為C3的袋號
-				let c3Bagno = newPageSource.filter(x => x.trueClearance === 'C3').map((value, index, fullArray) => { return value.expBagNo });
+				let c3Bagno = newPageSource.filter(x => x.bagnoClearance === 'C3').map((value, index, fullArray) => { return value.expBagNo });
 
 				newPageSource.forEach(function(value, index, fullArray){
 
 					if(c3Bagno.indexOf(value.expBagNo) != -1){
-						value.trueClearance = 'C3';
+						value.bagnoClearance = 'C3';
 					}
 
 					tasks.push(async.apply(dbCommandByTask.InsertRequestWithTransaction, {
@@ -198,6 +202,7 @@ class Ehuftz {
 							EML_RELEASE_TIME   : moment(value.releaseTime, "YYYY/MM/DD HH:mm:ss.SS").isValid() ? moment(value.releaseTime, "YYYY/MM/DD HH:mm:ss.SS").format('YYYY-MM-DD HH:mm:ss.SSS') : null,
 							EML_ACCOUNT        : eid,
 							EML_UP_DATETIME    : moment(new Date()).format('YYYY-MM-DD HH:mm:ss.SSS'),
+							EML_BAGNO_CLEARANCE : value.bagnoClearance,
 							EML_TRUE_CLEARANCE : value.trueClearance,
 							EML_DIFF_PIECE_NOTC1 : value.diffPieceNotC1,
 							EML_DIFF_PIECE_C1    : value.diffPieceC1

@@ -77,6 +77,13 @@
 							        	<form class="form-inline" role="form">
 							                <fieldset>
 							                    <div class="form-group">
+										            <button class="btn btn-primary"
+										            		ng-if="['Admin', 'PUser'].indexOf($vm.profile.U_ROLE) != -1"
+										            		ng-click="$vm.AutoCloseData()">
+										                自動結單設定
+										            </button>
+							                    </div>
+							                    <div class="form-group">
 										            <button class="btn btn-info"
 										            		ng-disabled="$vm.deliveryItemGridApi.selection.getSelectedRows().length == 0"
 										            		ng-click="$vm.CloseData()">
@@ -89,7 +96,7 @@
 							    </div>
 							</div>
 
-							<div id="grid1" ui-grid="$vm.deliveryItemOptions" class="my-ui-grid" ui-grid-pagination ui-grid-selection ui-grid-resize-columns ui-grid-auto-resize></div>
+							<div id="grid1" ui-grid="$vm.deliveryItemOptions" class="my-ui-grid" ui-grid-pagination ui-grid-selection ui-grid-pinning ui-grid-resize-columns ui-grid-auto-resize></div>
 
 						</div>
 						<!-- end widget content -->
@@ -148,5 +155,46 @@
 	<div class="modal-footer">
 	    <button class="btn btn-primary" type="button" ng-click="$ctrl.ok()">{{getWord('OK')}}</button>
 	    <!-- <button class="btn btn-default" type="button" ng-click="$ctrl.cancel()">{{getWord('Cancel')}}</button> -->
+	</div>
+</script>
+
+<script type="text/ng-template" id="deliveryJobsAutoCloseDataModalContent.html">
+    <div class="modal-header">
+	    <h3 class="modal-title" id="modal-title">自動結單設定</h3>
+	</div>
+	<div class="modal-body" id="modal-body">
+	    <form class="form-horizontal" name="form">
+			<fieldset>
+				<div class="form-group">
+			        <label class="col-md-3 control-label">自動結單開關</label>
+			        <div class="col-md-9">
+                    	<div class="onoffswitch-container">
+	                        <!-- <span class="onoffswitch-title">自動結單開關</span>  -->
+							<span class="onoffswitch">
+								<input type="checkbox" class="onoffswitch-checkbox" id="autoopen" ng-model="$ctrl.sysParm['SPA_AUTOCLOSE']">
+								<label class="onoffswitch-label" for="autoopen">
+	                                <span class="onoffswitch-inner" data-swchon-text="開" data-swchoff-text="關"></span>
+	                                <span class="onoffswitch-switch"></span>
+	                            </label> 
+							</span>
+                    	</div>
+                	</div>
+			    </div>
+				<div class="form-group" ng-if="$ctrl.sysParm['SPA_AUTOCLOSE']">
+			        <label class="col-md-3 control-label">結單時間</label>
+			        <div class="col-md-9">
+			            <input class="form-control" name="SPA_AUTOCLOSE_INTRVAL" type="number" ng-model="$ctrl.sysParm['SPA_AUTOCLOSE_INTRVAL']" placeholder="(小時)" min="1" max="99" ng-required="$ctrl.sysParm['SPA_AUTOCLOSE']"/>
+						<p class="note">建立時間{{$ctrl.sysParm['SPA_AUTOCLOSE_INTRVAL']}}小時後自動結單。</p>
+						<p class="note">自動結單條件:</p>
+						<p class="note">1. 總袋數等於清出(袋數)。</p>
+						<p class="note">2. 行家非清出(件/袋數)等於0。</p>
+			        </div>
+			    </div>
+			</fieldset>
+	    </form>
+	</div>
+	<div class="modal-footer">
+	    <button class="btn btn-primary" type="button" ng-click="$ctrl.ok()" ng-disabled="!form.$valid">{{getWord('OK')}}</button>
+	    <button class="btn btn-default" type="button" ng-click="$ctrl.cancel()">{{getWord('Cancel')}}</button>
 	</div>
 </script>

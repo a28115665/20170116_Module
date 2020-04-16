@@ -177,14 +177,14 @@ angular.module('app')
                             <i class="fa fa-exclamation text-warning" title="分批作業尚未完成" ng-if="row.entity.AML_DELIVERY_COMPLETE == 2"> </i> \
                         </div>');
     $templateCache.put('deliveryJobsToMC', '\
-                        <div class="ui-grid-cell-contents text-center">\
+                        <div class="ui-grid-cell-contents">\
                             <button type="button" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethod.modifyData(row)"> 修改</button>\
                             <button type="button" class="btn btn-primary btn-xs" ng-click="grid.appScope.$vm.gridMethod.closeData(row)" ng-class="grid.appScope.$vm.gridMethod.closeAuth(row)"> 結單</button>\
                         </div>');
     $templateCache.put('deliveryHistorysearchToMC', '\
-                        <div class="ui-grid-cell-contents text-center">\
+                        <div class="ui-grid-cell-contents">\
                             <a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethod.modifyData(row)"> 修改</a>\
-                            <a href="javascript:void(0);" class="btn btn-danger btn-xs" ng-click="grid.appScope.$vm.gridMethod.releaseData(row)" ng-if="grid.appScope.$vm.profile.U_GRADE < 10" ng-class="{\'disabled\' : row.entity.OL_FDATETIME2 == null}"> 解單</a>\
+                            <a href="javascript:void(0);" class="btn btn-danger btn-xs" ng-click="grid.appScope.$vm.gridMethod.releaseData(row)" ng-if="[\'Admin\', \'PUser\'].indexOf(grid.appScope.$vm.profile.U_ROLE) != -1" ng-class="{\'disabled\' : row.entity.OL_FDATETIME2 == null}"> 解單</a>\
                         </div>');
 
     $templateCache.put('accessibilityToOverSixName', '\

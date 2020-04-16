@@ -1,6 +1,6 @@
 "use strict";
 
-angular.module('app.selfwork').controller('DeliveryJobsCtrl', function ($scope, $stateParams, $state, RestfulApi, Session, toaster, $uibModal, $templateCache, uiGridConstants, compy, $filter, OrderStatus) {
+angular.module('app.selfwork').controller('DeliveryJobsCtrl', function ($scope, $stateParams, $state, RestfulApi, Session, toaster, $uibModal, $templateCache, uiGridConstants, compy, $filter, OrderStatus, sysParm) {
     
     var $vm = this;
 
@@ -374,12 +374,14 @@ angular.module('app.selfwork').controller('DeliveryJobsCtrl', function ($scope, 
                 { name: 'OL_REASON'   ,  displayName: '描述', cellTooltip: cellTooltip },
                 { name: 'AML_DELIVERY'   ,  displayName: '分批數', width: 77, cellTemplate: $templateCache.get('deliveryJobsShowDelivery') },
                 { name: 'AML_TOTAL_NUM'   ,  displayName: '總袋數', width: 77 },
-                { name: 'C1'   ,  displayName: '清出', width: 86 },
-                { name: 'OtherC1'   ,  displayName: '非清出', width: 86 },
-                { name: 'ITEM_LIST'          ,  displayName: '日報明細', enableFiltering: false, width: 100, cellTemplate: $templateCache.get('accessibilityToOperaForJob003') },
+                { name: 'C1'   ,  displayName: '清出(袋數)', width: 86 },
+                { name: 'OtherC1'   ,  displayName: '非清出(袋數)', width: 86 },
+                { name: 'CCOtherC1ByCount'   ,  displayName: '行家非清出(件數)', width: 86 },
+                { name: 'CCOtherC1ByBagno'   ,  displayName: '行家非清出(袋數)', width: 86 },
+                { name: 'ITEM_LIST'          ,  displayName: '日報明細', enableFiltering: false, width: 100, cellTemplate: $templateCache.get('accessibilityToOperaForJob003'), pinnedRight:true },
                 // { name: 'FLIGHT_ITEM_LIST'   ,  displayName: '銷艙單', enableFiltering: false, width: '8%', cellTemplate: $templateCache.get('accessibilityToOperaForJob002') },
                 // { name: 'DELIVERY_ITEM_LIST' ,  displayName: '派送單', enableFiltering: false, width: 86, cellTemplate: $templateCache.get('accessibilityToOperaForJob003') },
-                { name: 'Options'       , displayName: '操作', width: 92, enableCellEdit: false, enableFiltering: false, cellTemplate: $templateCache.get('deliveryJobsToMC') }
+                { name: 'Options'       , displayName: '操作', width: 107, enableCellEdit: false, enableFiltering: false, cellTemplate: $templateCache.get('deliveryJobsToMC'), pinnedRight:true }
             ],
             enableFiltering: true,
             enableSorting: true,
@@ -391,6 +393,54 @@ angular.module('app.selfwork').controller('DeliveryJobsCtrl', function ($scope, 
                 $vm.deliveryItemGridApi = gridApi;
             }
         },
+        // 自動結單
+        AutoCloseData : function(){
+
+            var modalInstance = $uibModal.open({
+                animation: true,
+                ariaLabelledBy: 'modal-title',
+                ariaDescribedBy: 'modal-body',
+                templateUrl: 'deliveryJobsAutoCloseDataModalContent.html',
+                controller: 'DeliveryJobsAutoCloseDataInstanceCtrl',
+                controllerAs: '$ctrl',
+                // windowClass: 'my-xl-modal-window',
+                backdrop: 'static',
+                // size: 'lg',
+                // appendTo: parentElem,
+                resolve: {
+                    sysParm: function() {
+                        return sysParm;
+                    }
+                }
+            });
+
+            modalInstance.result.then(function(selectedItem) {
+                console.log(selectedItem);
+
+                RestfulApi.UpdateMSSQLData({
+                    updatename: 'Update',
+                    table: 26,
+                    params: {
+                        SPA_AUTOCLOSE : selectedItem['SPA_AUTOCLOSE'],
+                        SPA_AUTOCLOSE_INTRVAL : selectedItem['SPA_AUTOCLOSE_INTRVAL']
+                    },
+                    condition: {
+                        SPA_KEY : 'systemParameter'
+                    }
+                }).then(function (res) {
+                    
+                    if(res['returnData'] == 1){
+                        if(sysParm['SPA_AUTOCLOSE']){
+                            toaster.pop('info', '訊息', '開啟自動結單', 3000);
+                        }else{
+                            toaster.pop('info', '訊息', '關閉自動結單', 3000);
+                        }
+                    }
+
+                });
+            })
+        },
+        // 結單
         CloseData : function(){
             if($vm.deliveryItemGridApi.selection.getSelectedRows().length > 0){
 
@@ -520,6 +570,18 @@ angular.module('app.selfwork').controller('DeliveryJobsCtrl', function ($scope, 
 
     $ctrl.ok = function() {
         $uibModalInstance.close();
+    };
+
+    $ctrl.cancel = function() {
+        $uibModalInstance.dismiss('cancel');
+    };
+})
+.controller('DeliveryJobsAutoCloseDataInstanceCtrl', function ($uibModalInstance, sysParm) {
+    var $ctrl = this;
+    $ctrl.sysParm = sysParm;
+
+    $ctrl.ok = function() {
+        $uibModalInstance.close($ctrl.sysParm);
     };
 
     $ctrl.cancel = function() {

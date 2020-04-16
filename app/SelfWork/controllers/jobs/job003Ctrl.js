@@ -1,6 +1,6 @@
 "use strict";
 
-angular.module('app.selfwork').controller('Job003Ctrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, RestfulApi, uiGridConstants, $filter, $q, ToolboxApi, clearanceType) {
+angular.module('app.selfwork').controller('Job003Ctrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, RestfulApi, uiGridConstants, $filter, $q, ToolboxApi, clearanceType, c3Type, bool) {
     // console.log($stateParams, $state);
 
     var $vm = this;
@@ -49,6 +49,9 @@ angular.module('app.selfwork').controller('Job003Ctrl', function ($scope, $state
                         },
                         clearanceType: function() {
                             return clearanceType;
+                        },
+                        c3Type: function() {
+                            return c3Type;
                         }
                     }
                 });
@@ -56,14 +59,23 @@ angular.module('app.selfwork').controller('Job003Ctrl', function ($scope, $state
                 modalInstance.result.then(function(selectedItem) {
                     console.log(selectedItem);
 
+                    // 自扣貨要補上自扣時間
+                    if(selectedItem.CC_CUST_CLEARANCE == 'B'){
+                        selectedItem["CC_B_DATETIME"] = $filter('date')(new Date(), 'yyyy-MM-dd HH:mm:ss');
+                    }
+
                     if(selectedItem.CC_CR_USER){
                         RestfulApi.UpdateMSSQLData({
                             updatename: 'Update',
                             table: 50,
                             params: {
                                 CC_CUST_CLEARANCE : selectedItem.CC_CUST_CLEARANCE,
+                                CC_C3TYPE         : selectedItem.CC_C3TYPE,
                                 CC_CUST_DESC      : selectedItem.CC_CUST_DESC,
                                 CC_ORI_DESC       : selectedItem.CC_ORI_DESC,
+                                CC_B_DATETIME     : selectedItem.CC_B_DATETIME,
+                                CC_GCO_DATE1      : selectedItem.CC_GCO_DATE1,
+                                CC_RELEASE_TIME   : selectedItem.CC_RELEASE_TIME,
                                 CC_UP_USER        : $vm.profile.U_ID,
                                 CC_UP_DATETIME    : $filter('date')(new Date(), 'yyyy-MM-dd HH:mm:ss')
                             },
@@ -93,8 +105,12 @@ angular.module('app.selfwork').controller('Job003Ctrl', function ($scope, $state
                                 CC_NEWSMALLNO : selectedItem.IL_NEWSMALLNO,
                                 CC_ORDERINDEX : selectedItem.IL_ORDERINDEX,
                                 CC_CUST_CLEARANCE : selectedItem.CC_CUST_CLEARANCE,
+                                CC_C3TYPE         : selectedItem.CC_C3TYPE,
                                 CC_CUST_DESC      : selectedItem.CC_CUST_DESC,
                                 CC_ORI_DESC       : selectedItem.CC_ORI_DESC,
+                                CC_B_DATETIME     : selectedItem.CC_B_DATETIME,
+                                CC_GCO_DATE1      : selectedItem.CC_GCO_DATE1,
+                                CC_RELEASE_TIME   : selectedItem.CC_RELEASE_TIME,
                                 CC_CR_USER        : $vm.profile.U_ID,
                                 CC_CR_DATETIME    : $filter('date')(new Date(), 'yyyy-MM-dd HH:mm:ss')
                             }
@@ -118,7 +134,13 @@ angular.module('app.selfwork').controller('Job003Ctrl', function ($scope, $state
         job003Options : {
             data: '$vm.job003Data',
             columnDefs: [
-                // { name: 'EML_SORT_KEY'       , displayName: '序號', width: 50 },
+                { name: 'isEdited'          , displayName: '已編輯', width: 70, pinnedLeft:true, enableCellEdit: false, cellFilter: 'booleanFilter', filter: 
+                    {
+                        term: null,
+                        type: uiGridConstants.filter.SELECT,
+                        selectOptions: bool
+                    }
+                },
                 { name: 'EML_DECL_NO'        , displayName: '報單號碼', width: 125 },
                 { name: 'EML_DECL_TYPE'      , displayName: '報單類別', width: 91 },
                 { name: 'IL_BAGNO2_NOREPEAT' , displayName: '併袋號碼', width: 91 },
@@ -131,6 +153,7 @@ angular.module('app.selfwork').controller('Job003Ctrl', function ($scope, $state
                 { name: 'EML_GCI_WEIGHT_NOREPEAT'     , displayName: '進倉重量', width: 91 },
                 { name: 'EML_BAG_WEIGHT_NOREPEAT'     , displayName: '袋重', width: 65 },
                 { name: 'EML_TRUE_CLEARANCE_STR' , displayName: '真實貨態', width: 91 },
+                { name: 'EML_BAGNO_CLEARANCE_STR' , displayName: '袋號貨態', width: 91 },
                 { name: 'CC_CUST_CLEARANCE_STR'  , displayName: '行家貨態', width: 91, headerCellClass: 'text-primary' },
                 { name: 'EML_BAG_FEE_NOREPEAT'        , displayName: '倉租費用', width: 91 },
                 { name: 'EML_FLIGHT_NO'      , displayName: '航班', width: 65 },
@@ -140,12 +163,15 @@ angular.module('app.selfwork').controller('Job003Ctrl', function ($scope, $state
                 { name: 'EML_RELEASE_TIME'   , displayName: '放行時間', width: 145, cellFilter: 'datetimeFilter' },
                 { name: 'CC_ORI_DESC'        , displayName: '真實備註', width: 91, headerCellClass: 'text-primary' },
                 { name: 'CC_CUST_DESC'       , displayName: '行家備註', width: 91, headerCellClass: 'text-primary' },
+                { name: 'CC_C3TYPE_STR'      , displayName: '貨態描述', width: 91, headerCellClass: 'text-primary' },
+                { name: 'CC_GCO_DATE1'       , displayName: '行家出倉時間', width: 91, cellFilter: 'dateFilter', headerCellClass: 'text-primary' },
+                { name: 'CC_RELEASE_TIME'    , displayName: '行家放行時間', width: 145, cellFilter: 'datetimeFilter', headerCellClass: 'text-primary' },
                 { name: 'U_NAME'             , displayName: '編輯者', width: 91 },
                 { name: 'CC_DATETIME'        , displayName: '修改時間', width: 145, cellFilter: 'datetimeFilter' },
-                { name: 'Options'            , displayName: '操作', width: 65, enableCellEdit: false, enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToM'), pinnedRight:true }
+                { name: 'Options'            , displayName: '操作', width: 65, enableCellEdit: false, enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToM'), pinnedRight:true, cellClass: 'cell-class-no-style' }
             ],
             rowTemplate: '<div> \
-                            <div ng-repeat="(colRenderIndex, col) in colContainer.renderedColumns track by col.colDef.name" class="ui-grid-cell" ng-class="{\'cell-class-ban\' : ![\'C1\', null].includes(row.entity.EML_TRUE_CLEARANCE) }" ui-grid-cell></div> \
+                            <div ng-repeat="(colRenderIndex, col) in colContainer.renderedColumns track by col.colDef.name" class="ui-grid-cell" ng-class="{\'cell-class-ban\' : ![\'C1\', null].includes(row.entity.EML_BAGNO_CLEARANCE), \'cell-class-pull\' : row.entity.CC_CR_USER }" ui-grid-cell></div> \
                           </div>',
             enableFiltering: true,
             enableSorting: true,
@@ -165,6 +191,16 @@ angular.module('app.selfwork').controller('Job003Ctrl', function ($scope, $state
                 // });
 
                 // gridApi.rowEdit.on.saveRow($scope, $vm.Update);
+
+                // gridApi.selection.on.rowSelectionChanged($scope, function(rowEntity, colDef, newValue, oldValue){
+                //     rowEntity.entity["isEdited"] = rowEntity.isEdited;
+                // });
+
+                // gridApi.selection.on.rowSelectionChangedBatch($scope, function(rowEntity, colDef, newValue, oldValue){
+                //     for(var i in rowEntity){
+                //         rowEntity[i].entity["isEdited"] = rowEntity[i].isEdited;
+                //     }
+                // });
             }
         },
         ExportExcel: function(){
@@ -383,7 +419,7 @@ angular.module('app.selfwork').controller('Job003Ctrl', function ($scope, $state
         },
         ProblemClearance: function(){
 
-            var problemClearance = $filter('filter')($vm.job003Data, { EML_TRUE_CLEARANCE: '!C1' });
+            var problemClearance = $filter('filter')($vm.job003Data, { EML_BAGNO_CLEARANCE: '!C1' });
 
             if(problemClearance.length == 0){
                 toaster.pop('info', '訊息', '無異常的貨態。', 3000);
@@ -508,6 +544,7 @@ angular.module('app.selfwork').controller('Job003Ctrl', function ($scope, $state
             { name: 'EML_GCI_WEIGHT'     , displayName: '進倉重量', width: 91 },
             { name: 'EML_BAG_WEIGHT'     , displayName: '袋重', width: 65 },
             { name: 'EML_TRUE_CLEARANCE_STR' , displayName: '真實貨態', width: 91 },
+            { name: 'EML_BAGNO_CLEARANCE_STR' , displayName: '袋號貨態', width: 91 },
             { name: 'EML_BAG_FEE'        , displayName: '倉租費用', width: 91 },
             { name: 'EML_FLIGHT_NO'      , displayName: '航班', width: 65 },
             { name: 'EML_FLIGHT_DATE'    , displayName: '班機日期', width: 91, cellFilter: 'dateFilter' },
@@ -599,10 +636,11 @@ angular.module('app.selfwork').controller('Job003Ctrl', function ($scope, $state
         $uibModalInstance.dismiss('cancel');
     };
 })
-.controller('Job003ModifyDataInstanceCtrl', function ($uibModalInstance, vmData, clearanceType) {
+.controller('Job003ModifyDataInstanceCtrl', function ($uibModalInstance, vmData, clearanceType, c3Type) {
     var $ctrl = this;
     $ctrl.mdData = vmData;
     $ctrl.clearanceType = clearanceType;
+    $ctrl.c3Type = c3Type;
 
     $ctrl.ok = function() {
         $uibModalInstance.close($ctrl.mdData);

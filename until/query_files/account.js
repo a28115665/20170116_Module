@@ -41,6 +41,8 @@ module.exports = function(pQueryname, pParams){
 			_SQLCommand += "EXEC OpenKeys; \
 							SELECT SPA_AUTOPRIN, \
 								O_SPA_AUTOPRIN, \
+								SPA_AUTOCLOSE, \
+								SPA_AUTOCLOSE_INTRVAL, \
 								dbo.Decrypt(SPA_DEFAULT_PASSWORD) AS 'SPA_DEFAULT_PASSWORD', \
 								SPA_FAVICON, \
 								SPA_HEADER, \

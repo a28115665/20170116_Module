@@ -411,6 +411,12 @@ angular.module('app.selfwork').config(function ($stateProvider){
                 resolve: {
                     clearanceType: function(SysCode){
                         return SysCode.get('ClearanceType');
+                    },
+                    c3Type: function(SysCode){
+                        return SysCode.get('C3Type');
+                    },
+                    bool: function (SysCode){
+                        return SysCode.get('Boolean');
                     }
                 }
             }
@@ -456,6 +462,12 @@ angular.module('app.selfwork').config(function ($stateProvider){
                 resolve: {
                     clearanceType: function(SysCode){
                         return SysCode.get('ClearanceType');
+                    },
+                    c3Type: function(SysCode){
+                        return SysCode.get('C3Type');
+                    },
+                    bool: function (SysCode){
+                        return SysCode.get('Boolean');
                     }
                 }
             }

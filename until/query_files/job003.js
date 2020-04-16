@@ -19,7 +19,14 @@ module.exports = function(pQueryname, pParams){
 										WHERE SC_TYPE = 'ClearanceType' \
 										AND SC_CODE = EML_TRUE_CLEARANCE \
 										AND SC_STS = 0 \
-									) AS EML_TRUE_CLEARANCE_STR \
+									) AS EML_TRUE_CLEARANCE_STR, \
+									( \
+										SELECT SC_DESC \
+										FROM SYS_CODE \
+										WHERE SC_TYPE = 'ClearanceType' \
+										AND SC_CODE = EML_BAGNO_CLEARANCE \
+										AND SC_STS = 0 \
+									) AS EML_BAGNO_CLEARANCE_STR \
 								FROM EHUFTZ_MASTER_LIST \
 								WHERE EML_SEQ = @EML_SEQ \
 							) A ON A.EML_SEQ = IL_SEQ AND A.EML_HWB = IL_BAGNO2_OR_MERGENO \
@@ -39,7 +46,14 @@ module.exports = function(pQueryname, pParams){
 										WHERE SC_TYPE = 'ClearanceType' \
 										AND SC_CODE = EML_TRUE_CLEARANCE \
 										AND SC_STS = 0 \
-									) AS EML_TRUE_CLEARANCE_STR \
+									) AS EML_TRUE_CLEARANCE_STR, \
+									( \
+										SELECT SC_DESC \
+										FROM SYS_CODE \
+										WHERE SC_TYPE = 'ClearanceType' \
+										AND SC_CODE = EML_BAGNO_CLEARANCE \
+										AND SC_STS = 0 \
+									) AS EML_BAGNO_CLEARANCE_STR \
 								FROM EHUFTZ_MASTER_LIST \
 								WHERE EML_SEQ = @EML_SEQ \
 							) B ON B.EML_SEQ = IL_SEQ AND B.EML_EXP_BAGNO = IL_BAGNO2_OR_MERGENO AND B.EML_HWB = IL_SMALLNO2 \
@@ -51,7 +65,14 @@ module.exports = function(pQueryname, pParams){
 									WHERE SC_TYPE = 'ClearanceType' \
 									AND SC_CODE = CC_CUST_CLEARANCE \
 									AND SC_STS = 0 \
-								) AS CC_CUST_CLEARANCE_STR \
+								) AS CC_CUST_CLEARANCE_STR, \
+								( \
+									SELECT SC_DESC \
+									FROM SYS_CODE \
+									WHERE SC_TYPE = 'C3Type' \
+									AND SC_CODE = CC_C3TYPE \
+									AND SC_STS = 0 \
+								) AS CC_C3TYPE_STR \
 							FROM CUSTOMS_CLEARANCE \
 							WHERE CC_SEQ = @EML_SEQ \
 						) \
@@ -62,7 +83,8 @@ module.exports = function(pQueryname, pParams){
 							CASE WHEN IL_BAGNO2Index != 1 AND (IL_G1 = 'G1' OR IL_MERGENO IS NOT NULL) THEN NULL ELSE EML_WEIGHT END AS EML_WEIGHT_NOREPEAT, \
 							CASE WHEN IL_BAGNO2Index != 1 AND (IL_G1 = 'G1' OR IL_MERGENO IS NOT NULL) THEN NULL ELSE EML_GCI_WEIGHT END AS EML_GCI_WEIGHT_NOREPEAT, \
 							CASE WHEN IL_BAGNO2Index != 1 AND (IL_G1 = 'G1' OR IL_MERGENO IS NOT NULL) THEN NULL ELSE EML_BAG_WEIGHT END AS EML_BAG_WEIGHT_NOREPEAT, \
-							CASE WHEN IL_BAGNO2Index != 1 AND (IL_G1 = 'G1' OR IL_MERGENO IS NOT NULL) THEN NULL ELSE EML_BAG_FEE END AS EML_BAG_FEE_NOREPEAT \
+							CASE WHEN IL_BAGNO2Index != 1 AND (IL_G1 = 'G1' OR IL_MERGENO IS NOT NULL) THEN NULL ELSE EML_BAG_FEE END AS EML_BAG_FEE_NOREPEAT, \
+							CASE WHEN CC_DATETIME IS NOT NULL THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT) END AS isEdited \
 						FROM ( \
 							SELECT ITEM_LIST.IL_SEQ, \
 								ITEM_LIST.IL_NEWBAGNO, \
@@ -95,14 +117,21 @@ module.exports = function(pQueryname, pParams){
 								EHUFTZ_MASTER_LIST1.EML_RELEASE_TIME, \
 								EHUFTZ_MASTER_LIST1.EML_ACCOUNT, \
 								EHUFTZ_MASTER_LIST1.EML_UP_DATETIME, \
+								EHUFTZ_MASTER_LIST1.EML_BAGNO_CLEARANCE, \
+								EHUFTZ_MASTER_LIST1.EML_BAGNO_CLEARANCE_STR, \
 								EHUFTZ_MASTER_LIST1.EML_TRUE_CLEARANCE, \
 								EHUFTZ_MASTER_LIST1.EML_TRUE_CLEARANCE_STR, \
 								CASE WHEN IL_BAGNO2Index = 1 \
 								THEN ITEM_LIST.IL_BAGNO2 ELSE NULL END AS 'IL_BAGNO2_NOREPEAT', \
-								CC_CUST_CLEARANCE, \
-								CC_CUST_CLEARANCE_STR, \
+								CASE WHEN CC_CUST_CLEARANCE IS NULL THEN EHUFTZ_MASTER_LIST1.EML_TRUE_CLEARANCE ELSE CC_CUST_CLEARANCE END AS CC_CUST_CLEARANCE, \
+								CASE WHEN CC_CUST_CLEARANCE_STR IS NULL THEN EHUFTZ_MASTER_LIST1.EML_TRUE_CLEARANCE_STR ELSE CC_CUST_CLEARANCE_STR END AS CC_CUST_CLEARANCE_STR, \
 								CC_CUST_DESC, \
 								CC_ORI_DESC, \
+								CC_B_DATETIME, \
+								CC_C3TYPE, \
+								CC_C3TYPE_STR, \
+								CC_GCO_DATE1, \
+								CC_RELEASE_TIME, \
 								CC_CR_USER, \
 								( \
 									SELECT U_NAME \
@@ -145,7 +174,14 @@ module.exports = function(pQueryname, pParams){
 									WHERE SC_TYPE = 'ClearanceType' \
 									AND SC_CODE = EML_TRUE_CLEARANCE \
 									AND SC_STS = 0 \
-								) AS EML_TRUE_CLEARANCE_STR \
+								) AS EML_TRUE_CLEARANCE_STR, \
+								( \
+									SELECT SC_DESC \
+									FROM SYS_CODE \
+									WHERE SC_TYPE = 'ClearanceType' \
+									AND SC_CODE = EML_BAGNO_CLEARANCE \
+									AND SC_STS = 0 \
+								) AS EML_BAGNO_CLEARANCE_STR \
 							FROM EHUFTZ_MASTER_LIST \
 							WHERE EML_SEQ = @EML_SEQ \
 							ORDER BY EML_EXP_BAGNO";
