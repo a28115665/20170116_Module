@@ -72,7 +72,8 @@ module.exports = function(pQueryname, pParams){
 								( \
 									SELECT ISNULL(SUM(EML_DIFF_PIECE_C1), 0) \
 									FROM ( \
-										SELECT IL_BAGNO2_OR_MERGENO, EML_DIFF_PIECE_C1 \
+										/*如果袋子有非清出的則算0*/\
+										SELECT IL_BAGNO2_OR_MERGENO, MIN(EML_DIFF_PIECE_C1) AS EML_DIFF_PIECE_C1 \
 										FROM ( \
 											SELECT *, \
 												CASE WHEN IL_MERGENO IS NULL THEN IL_BAGNO2 ELSE IL_MERGENO END AS IL_BAGNO2_OR_MERGENO, \
@@ -91,14 +92,15 @@ module.exports = function(pQueryname, pParams){
 										AND EHUFTZ_MASTER_LIST.EML_EXP_BAGNO = IL_BAGNO2_OR_MERGENO \
 										WHERE /*沒被拉貨的*/ PG_SEQ IS NULL \
 										AND IL_BAGNO2Index = 1 \
-										GROUP BY IL_BAGNO2_OR_MERGENO, EML_DIFF_PIECE_C1 \
+										GROUP BY IL_BAGNO2_OR_MERGENO \
 									) A \
 								) AS 'C1', \
 								/* 類型為C3的袋號 */ \
 								( \
 									SELECT ISNULL(SUM(EML_DIFF_PIECE_NOTC1), 0) \
 									FROM ( \
-										SELECT IL_BAGNO2_OR_MERGENO, EML_DIFF_PIECE_NOTC1 \
+										/*如果袋子有非清出的則以非清出為主*/\
+										SELECT IL_BAGNO2_OR_MERGENO, MAX(EML_DIFF_PIECE_NOTC1) AS EML_DIFF_PIECE_NOTC1 \
 										FROM ( \
 											SELECT *, \
 												CASE WHEN IL_MERGENO IS NULL THEN IL_BAGNO2 ELSE IL_MERGENO END AS IL_BAGNO2_OR_MERGENO, \
@@ -117,9 +119,9 @@ module.exports = function(pQueryname, pParams){
 										AND EHUFTZ_MASTER_LIST.EML_EXP_BAGNO = IL_BAGNO2_OR_MERGENO \
 										WHERE /*沒被拉貨的*/ PG_SEQ IS NULL \
 										AND IL_BAGNO2Index = 1 \
-										GROUP BY IL_BAGNO2_OR_MERGENO, EML_DIFF_PIECE_NOTC1 \
+										GROUP BY IL_BAGNO2_OR_MERGENO \
 									) A \
-								) AS 'OtherC1', \
+								) AS 'OtherC1',  \
  								/*行家貨態不為清出的件數*/ \
 								( \
 									SELECT COUNT(1) \

@@ -75,6 +75,65 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                     row.entity.loading = false;
                 });
             },
+            // 實名制
+            queryName : function(row){
+                
+                if(angular.isUndefined(row.entity.IL_GETNAME_NEW) || row.entity.IL_GETNAME_NEW == ""){
+                    toaster.pop('info', '訊息', '新收件人公司 需有值', 3000);
+                    return;
+                }
+                
+                if(angular.isUndefined(row.entity.IL_GETNO) || row.entity.IL_GETNO == ""){
+                    toaster.pop('info', '訊息', '收件者統編 需有值', 3000);
+                    return;
+                }
+                
+                if(angular.isUndefined(row.entity.IL_GETTEL) || row.entity.IL_GETTEL == ""){
+                    toaster.pop('info', '訊息', '收件電話 需有值', 3000);
+                    return;
+                }
+
+                row.entity.loading = true;
+                ToolboxApi.QueryName({
+                    ID : $vm.profile.U_ID,
+                    PW : $vm.profile.U_PW,
+                    QUERY_SEQ_LIST : JSON.stringify([
+                        {
+                            HawbNo: row.entity.IL_BAGNO,
+                            SeqNo: row.entity.Index,
+                            Name: row.entity.IL_GETNAME_NEW,
+                            ID: row.entity.IL_GETNO,
+                            Tel: row.entity.IL_GETTEL
+                        }
+                    ])
+                }).then(function (res) {
+                    var _returnData = JSON.parse(res["returnData"]),
+                        needToUpdate = false;
+
+                    if(_returnData.length > 0) _returnData = _returnData[0]
+                    // console.log(_returnData);
+
+                    if(!angular.isUndefined(_returnData["A_result1"]) && _returnData["A_result1"] != ""){
+                        row.entity.IL_CNS_RESULT1 = _returnData["A_result1"];
+                        needToUpdate = true;
+                    }
+                    if(!angular.isUndefined(_returnData["A_result2"]) && _returnData["A_result2"] != ""){
+                        row.entity.IL_CNS_RESULT2 = _returnData["A_result2"];
+                        needToUpdate = true;
+                    }
+                    if(!angular.isUndefined(_returnData["A_result3"]) && _returnData["A_result3"] != ""){
+                        row.entity.IL_CNS_RESULT3 = _returnData["A_result3"];
+                        needToUpdate = true;
+                    }
+
+                    if(needToUpdate){
+                        $vm.job001GridApi.rowEdit.setRowsDirty([row.entity]);
+                    }
+
+                }).finally(function() {
+                    row.entity.loading = false;
+                });
+            },
             // 加入黑名單
             banData : function(){
 
@@ -577,6 +636,7 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                 { name: 'IL_CNS_RESULT1'    , displayName: '戶役政', width: 100, enableCellEdit: false },
                 { name: 'IL_CNS_RESULT2'    , displayName: '是否未申請過實名制', width: 100, enableCellEdit: false },
                 { name: 'IL_CNS_RESULT3'    , displayName: '通過實名制', width: 100, enableCellEdit: false },
+                { name: 'queryName'     , displayName: '實名制', width: 70, enableCellEdit: false, enableSorting:false, cellTemplate: $templateCache.get('accessibilityToQueryName'), cellClass: 'cell-class-no-style' },
                 { name: 'Options'       , displayName: '操作', width: 120, enableCellEdit: false, enableSorting:false, enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToJob001'), pinnedRight:true, cellClass: 'cell-class-no-style' }
             ],
             // rowTemplate: '<div> \
@@ -1279,16 +1339,20 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
          */
         RepeatData : function(pType){
 
-            var _queryname = null;
+            var _queryname = null,
+                _msg = "";
             switch(pType){
                 case "N":
                     _queryname = 'SelectRepeatName';
+                    _msg = '無重複收件者';
                     break;
                 case "A":
                     _queryname = 'SelectRepeatAddress';
+                    _msg = '無重複地址';
                     break;
                 case "N+A":
                     _queryname = 'SelectRepeatNameAndAddress';
+                    _msg = '無重複收件者+地址';
                     break;
             }
 
@@ -1355,7 +1419,7 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                             // $log.info('Modal dismissed at: ' + new Date());
                         });
                     }else{
-                        toaster.pop('info', '訊息', '無重複收件者名稱', 3000);
+                        toaster.pop('info', '訊息', _msg, 3000);
                     }
                 }); 
             }
@@ -1561,6 +1625,9 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                     IL_EXTEL           : entity.IL_EXTEL,
                     IL_EXNO            : entity.IL_EXNO,
                     IL_TAX2            : entity.IL_TAX2,
+                    IL_CNS_RESULT1     : entity.IL_CNS_RESULT1,
+                    IL_CNS_RESULT2     : entity.IL_CNS_RESULT2,
+                    IL_CNS_RESULT3     : entity.IL_CNS_RESULT3,
                     IL_TAXRATE         : angular.isNumber(entity.IL_TAXRATE) ? entity.IL_TAXRATE : null,
                     IL_UP_DATETIME     : $filter('date')(new Date(), 'yyyy-MM-dd HH:mm:ss'),
                     IL_UP_USER         : $vm.profile.U_ID
@@ -1611,18 +1678,15 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
             }
         }
 
-        // try {
-        //     if(newValue.toUpperCase() == "Y"){
-        //         G1ForY(rowEntity)
-        //         // rowEntity.IL_WEIGHT_NEW = rowEntity.IL_WEIGHT;
-        //         // rowEntity.IL_NEWPCS = rowEntity.IL_PCS;
-        //         // rowEntity.IL_UNIVALENT_NEW = rowEntity.IL_UNIVALENT;
-        //         // rowEntity.IL_NEWSENDNAME = rowEntity.IL_SENDNAME;
-        //         // rowEntity.IL_FINALCOST = null;
-        //     }
-        // } catch (e) {
-        //     console.log(e);
-        // }
+        // 實名制檢查
+        if(colDef.name == 'IL_GETNAME_NEW' || colDef.name == 'IL_GETNO' || colDef.name == 'IL_GETTEL'){
+            // 表示異動
+            if(newValue != oldValue){
+                rowEntity.IL_CNS_RESULT1 = null;
+                rowEntity.IL_CNS_RESULT2 = null;
+                rowEntity.IL_CNS_RESULT3 = null;
+            }
+        }
 
         if(colDef.name == 'IL_GETNAME_NEW'){
             var _temp = encodeURI(rowEntity.IL_GETNAME_NEW),

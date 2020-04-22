@@ -112,6 +112,11 @@ angular.module('app')
                         <a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethod.changeNature(row)" ng-hide="row.entity[\'loading\']"> 改單</a>\
                         <a href="javascript:void(0);" class="btn btn-warning btn-xs disabled" ng-show="row.entity[\'loading\']"> <i class="fa fa-refresh fa-spin"></i></a>\
                     </div>');
+    $templateCache.put('accessibilityToQueryName', '\
+                    <div class="ui-grid-cell-contents">\
+                        <a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethod.queryName(row)" ng-hide="row.entity[\'loading\']"> 實名制</a>\
+                        <a href="javascript:void(0);" class="btn btn-warning btn-xs disabled" ng-show="row.entity[\'loading\']"> <i class="fa fa-refresh fa-spin"></i></a>\
+                    </div>');
   
     $templateCache.put('accessibilityToChangeOTax', '\
                     <div class="ui-grid-cell-contents">\

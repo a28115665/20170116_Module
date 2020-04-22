@@ -895,6 +895,83 @@ router.get('/changeOTax', function(req, res) {
 
 });
 
+/**
+ * QueryName 實名制(空運)
+ */
+router.get('/queryName', function(req, res) {
+
+    try{        
+        // console.log(res.statusCode, req.query);
+
+        // Build the post string from an object
+        var post_data = querystring.stringify({
+            'JsonNameList' : JSON.stringify([
+                {
+                    "UserId": req.query.ID,
+                    "UserPW": req.query.PW,
+                    "QuerySource": "EWMS",
+                    "QUERY_SEQ_LIST": req.query.QUERY_SEQ_LIST
+                }
+            ])
+        });
+
+        // An object of options to indicate where to post to
+        var post_options = {
+            host: setting.WebService.queryName.host,
+            port: setting.WebService.queryName.port,
+            path: setting.WebService.queryName.url,
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'Content-Length': Buffer.byteLength(post_data)
+            }
+        };
+
+        // Set up the request
+        var post_req = http.request(post_options, function (post_res) {
+
+            // console.log("statusCode: ", post_res.statusCode);
+            //console.log("headers: ", post_res.headers);
+            if(post_res.statusCode == 200){
+                var content = '';
+
+                post_res.setEncoding('utf8');
+
+                post_res.on('data', function(chunk) {
+                    content += chunk;
+                });
+
+                post_res.on('end', function() {
+                    // console.log(content);
+
+                    res.json({
+                        "returnData": content
+                    });
+                });
+            }else{
+                res.status(post_res.statusCode).send('檢查實名制失敗');
+            }
+        });
+
+        // console.log(post_data);
+        // post the data
+        post_req.write(post_data);
+
+        post_req.on('error', function(err) {
+            console.error(err);
+            // Handle error
+            res.status(403).send('檢查實名制失敗');
+        });
+
+        post_req.end(); 
+
+    } catch(err) {
+        console.error(err);
+        res.status(403).send('檢查實名制失敗');
+    }
+
+});
+
 /*
  * 組成menu
  * 當有U_ID時會產生該ID的menu，如果沒有就產生所有menu

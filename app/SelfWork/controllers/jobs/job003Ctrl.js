@@ -59,9 +59,11 @@ angular.module('app.selfwork').controller('Job003Ctrl', function ($scope, $state
                 modalInstance.result.then(function(selectedItem) {
                     console.log(selectedItem);
 
-                    // 自扣貨要補上自扣時間
+                    // 自扣貨要補上自扣時間 且 出倉時間和放行時間都要清空
                     if(selectedItem.CC_CUST_CLEARANCE == 'B'){
                         selectedItem["CC_B_DATETIME"] = $filter('date')(new Date(), 'yyyy-MM-dd HH:mm:ss');
+                        selectedItem["CC_GCO_DATE1"] = null;
+                        selectedItem["CC_RELEASE_TIME"] = null;
                     }
 
                     if(selectedItem.CC_CR_USER){

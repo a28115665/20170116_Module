@@ -60,36 +60,68 @@
 	        <!-- NEW WIDGET START -->
             <article class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
 
-                <div class="well well-sm bg-color-greenLight txt-color-white text-center">
-                    清出(袋數)
+                <div class="well well-sm bg-color-greenLight text-center">
+                    <span class="txt-color-white">真實清出(袋數)</span>
                     <code>{{$vm.vmData.C1}}</code>
+					<a href-void="javascript:void(0);" 
+					   class="btn btn-default btn-xs"
+					   data-popover-placement="bottom"
+					   data-popover-trigger="mouseenter"
+					   data-popover-title="計算說明"
+					   data-uib-popover="袋號貨態為清出的袋數">
+					   <strong>?</strong>
+					</a>
                 </div>
 
             </article>
 
             <article class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
 
-                <div class="well well-sm bg-color-redLight txt-color-white text-center">
-                    非清出(袋數)
+                <div class="well well-sm bg-color-redLight text-center">
+                    <span class="txt-color-white">真實非清出(袋數)</span>
                     <code>{{$vm.vmData.OtherC1}}</code>
+					<a href-void="javascript:void(0);" 
+					   class="btn btn-default btn-xs"
+					   data-popover-placement="bottom"
+					   data-popover-trigger="mouseenter"
+					   data-popover-title="計算說明"
+					   data-uib-popover="袋號貨態為非清出的袋數">
+					   <strong>?</strong>
+					</a>
                 </div>
 
             </article>
 
             <article class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
 
-                <div class="well well-sm bg-color-redLight txt-color-white text-center">
-                    行家非清出(件數)
+                <div class="well well-sm bg-color-redLight text-center">
+                    <span class="txt-color-white">行家非清出(件數)</span>
                     <code>{{$vm.vmData.CCOtherC1ByCount}}</code>
+					<a href-void="javascript:void(0);" 
+					   class="btn btn-default btn-xs"
+					   data-popover-placement="bottom"
+					   data-popover-trigger="mouseenter"
+					   data-popover-title="計算說明"
+					   data-uib-popover="行家貨態為已編輯且非清出的件數">
+					   <strong>?</strong>
+					</a>
                 </div>
 
             </article>
 
             <article class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
 
-                <div class="well well-sm bg-color-redLight txt-color-white text-center">
-                    行家非清出(袋數)
+                <div class="well well-sm bg-color-redLight text-center">
+                    <span class="txt-color-white">行家非清出(袋數)</span>
                     <code>{{$vm.vmData.CCOtherC1ByBagno}}</code>
+					<a href-void="javascript:void(0);" 
+					   class="btn btn-default btn-xs"
+					   data-popover-placement="bottom"
+					   data-popover-trigger="mouseenter"
+					   data-popover-title="計算說明"
+					   data-uib-popover="行家貨態為已編輯且非清出的袋數">
+					   <strong>?</strong>
+					</a>
                 </div>
 
             </article>
@@ -98,9 +130,17 @@
 	        <!-- NEW WIDGET START -->
             <article class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
 
-                <div class="well well-sm bg-color-orange txt-color-white text-center">
-                    總袋數
+                <div class="well well-sm bg-color-orange text-center">
+                    <span class="txt-color-white">總袋數</span>
                     <code>{{$vm.vmData.AML_TOTAL_NUM}}</code>
+					<a href-void="javascript:void(0);" 
+					   class="btn btn-default btn-xs"
+					   data-popover-placement="bottom"
+					   data-popover-trigger="mouseenter"
+					   data-popover-title="計算說明"
+					   data-uib-popover="中班作業區的袋數">
+					   <strong>?</strong>
+					</a>
                 </div>
 
             </article>
