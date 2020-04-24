@@ -116,6 +116,7 @@ module.exports = function(pQueryname, pParams){
 									OL_COUNTRY, \
 									OL_CR_USER, \
 									OL_CR_DATETIME, \
+									OL_REAL_IMPORTDT, \
 									OL_TEL, \
 									OL_FAX, \
 									OL_REASON, \
@@ -235,6 +236,7 @@ module.exports = function(pQueryname, pParams){
 									OL_REASON, \
 									OL_CR_USER, \
 									OL_CR_DATETIME, \
+									OL_REAL_IMPORTDT, \
 									( \
 										SELECT COUNT(A.IL_BAGNO) \
 										FROM ( \
