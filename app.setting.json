@@ -43,6 +43,11 @@
 			"host" : "61.216.149.43",
 			"port" : "80",
 			"url" : "/EOSWS/WebServiceChangeNature.asmx/GetChangeNatureTAX"
+		},
+		"queryName" : {
+			"host" : "61.216.149.43",
+			"port" : "80",
+			"url" : "/CNSWS/QueryName.asmx/QueryNamesUnZip"
 		}
 	},
 	"MOTC" : {

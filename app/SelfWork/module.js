@@ -473,4 +473,26 @@ angular.module('app.selfwork').config(function ($stateProvider){
             }
         }
     })
+
+    .state('app.selfwork.deliverydetailexport', {
+        url: '/selfwork/deliverydetailexport',
+        data: {
+            title: 'DeliveryDetailExport'
+        },
+        views: {
+            "content@app" : {
+                templateUrl: 'app/SelfWork/views/deliveryDetailExport.html',
+                controller: 'DeliveryDetailExportCtrl',
+                controllerAs: '$vm',
+                resolve: {
+                    compy: function(Compy){
+                        return Compy.get();
+                    },
+                    clearanceType: function(SysCode){
+                        return SysCode.get('ClearanceType');
+                    }
+                }
+            }
+        }
+    })
 });
