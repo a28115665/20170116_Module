@@ -130,7 +130,7 @@ class Cpt {
 
 	        }
 
-			console.log("關港貿單一窗口更新成功筆數:", num.success, ", 查無資料筆數:", num.fail);
+			logger.info("關港貿單一窗口更新成功筆數:", num.success, ", 查無資料筆數:", num.fail);
 
 		    // async.waterfall(tasks, function (err, args) {
 
@@ -151,6 +151,8 @@ class Cpt {
 		    // });
 			
 			// await sleep(2000);
+		} catch(e) {
+    		logger.error("關港貿單一窗口錯誤訊息:", e);
 		} finally {
 			// await driver && driver.quit();
 			await driver.close();
@@ -196,8 +198,8 @@ class Cpt {
 		                });
 		            }
 
-	        		logger.error("關港貿單一窗口更新成功筆數("+pk+"):", args);
-			        reject("關港貿單一窗口更新成功筆數:", err);
+	        		logger.error("關港貿單一窗口更新失敗訊息("+pk+"):", args, " 錯誤訊息:", err);
+			        reject(false);
 		        }else{
 		        	resolve(true);
 		        }

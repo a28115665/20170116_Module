@@ -90,9 +90,9 @@ log4js.configure({
         // restful: { appenders: ['restful'], level: 'info'},
         toolbox: { appenders: ['toolbox'], level: 'info' },
         winstonByMssql: { appenders: ['winstonByMssql'], level: 'error' },
-        apaccs: { appenders: ['apaccs'], level: 'error' },
-        ehuftz: { appenders: ['ehuftz'], level: 'error' },
-        cpt: { appenders: ['cpt'], level: 'error' }
+        apaccs: { appenders: ['apaccs'], level: 'info' },
+        ehuftz: { appenders: ['ehuftz'], level: 'info' },
+        cpt: { appenders: ['cpt'], level: 'info' }
     }
 });
 
