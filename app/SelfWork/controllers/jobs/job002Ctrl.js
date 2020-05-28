@@ -1,6 +1,6 @@
 "use strict";
 
-angular.module('app.selfwork').controller('Job002Ctrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, RestfulApi, uiGridConstants, $filter, $q, ToolboxApi) {
+angular.module('app.selfwork').controller('Job002Ctrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, RestfulApi, uiGridConstants, $filter, $q, ToolboxApi, bool) {
     // console.log($stateParams, $state);
 
     var $vm = this,
@@ -47,8 +47,9 @@ angular.module('app.selfwork').controller('Job002Ctrl', function ($scope, $state
                 { name: 'FLL_BAGNO'       , displayName: '袋號', headerCellClass: 'text-primary' },
                 { name: 'FLL_CTN'         , displayName: '件數', headerCellClass: 'text-primary', aggregationType: uiGridConstants.aggregationTypes.sum },
                 { name: 'FLL_WEIGHT'      , displayName: '重量', headerCellClass: 'text-primary', aggregationType: uiGridConstants.aggregationTypes.sum, footerCellFilter: 'number: 2' },
-                { name: 'FLL_DESCRIPTION' , displayName: '品名', headerCellClass: 'text-primary' },
-                { name: 'FLL_DECLAREDNO'  , displayName: '宣告序號', headerCellClass: 'text-primary' },
+                // { name: 'FLL_DESCRIPTION' , displayName: '品名', headerCellClass: 'text-primary' },
+                // { name: 'FLL_DECLAREDNO'  , displayName: '宣告序號', headerCellClass: 'text-primary' },
+                { name: 'FLL_BAGNOPARTS'  , displayName: '一分多袋', headerCellClass: 'text-primary' },
                 { name: 'FLL_REMARK'      , displayName: '備註', headerCellClass: 'text-primary' }
             ],
             enableFiltering: true,
@@ -225,7 +226,7 @@ angular.module('app.selfwork').controller('Job002Ctrl', function ($scope, $state
         // 匯出Excel
         ExportExcel: function(){
 
-            var _exportName = $filter('date')($vm.vmData.OL_IMPORTDT, 'yyyyMMdd', 'GMT') + ' ' + 
+            var _exportName = $filter('date')($vm.vmData.OL_IMPORTDT, 'MMdd', 'GMT') + ' ' + 
                               $vm.vmData.OL_MASTER + ' ' + 
                               $vm.vmData.OL_FLIGHTNO;
                 // _totalBag = 0,
@@ -371,6 +372,12 @@ angular.module('app.selfwork').controller('Job002Ctrl', function ($scope, $state
 
                 modalInstance.result.then(function(selectedItem) {
                     // console.log(selectedItem);
+
+                    // 如果有預設帶入主號
+                    if(selectedItem[0].FM_DEFAULT_MASTER){
+                        selectedItem[0].FM_TITLE = selectedItem[0].FM_TITLE == null ? $vm.vmData.OL_MASTER : selectedItem[0].FM_TITLE + $vm.vmData.OL_MASTER;
+                    }
+
                     var _flightMail = selectedItem;
 
                     modalInstance = $uibModal.open({
@@ -401,6 +408,41 @@ angular.module('app.selfwork').controller('Job002Ctrl', function ($scope, $state
                             },
                             profile: function(){
                                 return $vm.profile
+                            },
+                            bool: function(){
+                                return bool;
+                            },
+                            defaultAttch: function(){
+                                return [
+                                    {
+                                        templates      : 21,
+                                        filename       : $filter('date')($vm.vmData.OL_IMPORTDT, 'MMdd', 'GMT') + ' ' + $vm.vmData.OL_MASTER + ' ' + $vm.vmData.OL_FLIGHTNO,
+                                        OL_MASTER      : $vm.vmData.OL_MASTER,
+                                        OL_IMPORTDT    : $filter('date')($vm.vmData.OL_IMPORTDT, 'yyyyMMdd', 'GMT'),
+                                        OL_FLIGHTNO    : $vm.vmData.OL_FLIGHTNO,
+                                        OL_COUNTRY     : $vm.vmData.OL_COUNTRY, 
+                                        OL_TEL         : $vm.vmData.OL_TEL, 
+                                        OL_FAX         : $vm.vmData.OL_FAX, 
+                                        OL_TOTALBAG    : $vm.job002GridApi.grid.columns[4].getAggregationValue(), 
+                                        OL_TOTALWEIGHT : $vm.job002GridApi.grid.columns[5].getAggregationValue().toFixed(2)
+                                    },
+                                    {
+                                        crudType: 'Select',
+                                        querymain: 'job002',
+                                        queryname: 'SelectFlightItemList',
+                                        params: {               
+                                            FLL_SEQ: $vm.vmData.OL_SEQ
+                                        }
+                                    },
+                                    {
+                                        crudType: 'Select',
+                                        querymain: 'job002',
+                                        queryname: 'SelectTop1Remark',
+                                        params: {               
+                                            FLL_SEQ: $vm.vmData.OL_SEQ
+                                        }
+                                    }
+                                ];
                             }
                         }
                     });
@@ -458,6 +500,7 @@ angular.module('app.selfwork').controller('Job002Ctrl', function ($scope, $state
                     FLL_WEIGHT       : entity.FLL_WEIGHT,
                     FLL_DESCRIPTION  : entity.FLL_DESCRIPTION,
                     FLL_DECLAREDNO   : entity.FLL_DECLAREDNO,
+                    FLL_BAGNOPARTS   : entity.FLL_BAGNOPARTS,
                     FLL_REMARK       : entity.FLL_REMARK
                 },
                 condition: {
@@ -526,6 +569,7 @@ angular.module('app.selfwork').controller('Job002Ctrl', function ($scope, $state
                 FLL_IL_NEWBAGNO : _temp.FLL_SEQ + padLeft("0" + parseInt(_temp.FLL_ITEM), 3),
                 FLL_DESCRIPTION : "CHANDLERY",
                 FLL_DECLAREDNO : "",
+                FLL_BAGNOPARTS : "",
                 FLL_REMARK : "請進遠雄快遞倉"
             };
         }
@@ -598,7 +642,7 @@ angular.module('app.selfwork').controller('Job002Ctrl', function ($scope, $state
         $uibModalInstance.dismiss('cancel');
     };
 })
-.controller('SendMailModalInstanceCtrl', function ($uibModalInstance, RestfulApi, ToolboxApi, SUMMERNOT_CONFIG, $filter, FileUploader, items, data, profile) {
+.controller('SendMailModalInstanceCtrl', function ($uibModalInstance, RestfulApi, ToolboxApi, SUMMERNOT_CONFIG, $filter, FileUploader, items, data, profile, bool, defaultAttch) {
     var $ctrl = this,
         _d = new Date(),
         _filepath = _d.getFullYear() + '\\' + ("0" + (_d.getMonth()+1)).slice(-2) + '\\' + ("0" + _d.getDate()).slice(-2) + '\\';
@@ -612,7 +656,9 @@ angular.module('app.selfwork').controller('Job002Ctrl', function ($scope, $state
             });
         }
 
+        $ctrl.boolData = bool;
         $ctrl.mdData = angular.copy(items[0]);
+        $ctrl.mdData.FM_DEFAULTATTCH = true;
         $ctrl.snOptions = SUMMERNOT_CONFIG;
 
         LoadFMAF();
@@ -777,10 +823,16 @@ angular.module('app.selfwork').controller('Job002Ctrl', function ($scope, $state
     }; 
     
     function SendMail(){
-        ToolboxApi.SendMail({
+
+        var _query = {
             mailContent : $ctrl.mdData
-            // queryContent : data
-        }).then(function (res) {
+        }
+
+        if($ctrl.mdData.FM_DEFAULTATTCH){
+            _query.mailContent["defaultAttch"] = defaultAttch;
+        }
+
+        ToolboxApi.SendMail(_query).then(function (res) {
             // console.log(res["returnData"]);
             $uibModalInstance.close(res["returnData"]);
         }).finally(function(){

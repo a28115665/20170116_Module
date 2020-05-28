@@ -8,26 +8,30 @@ module.exports = function(pQueryname, pParams){
 									OL_MASTER, \
 									OL_FLIGHTNO, \
 									OL_IMPORTDT, \
+									OL_REAL_IMPORTDT, \
 									OL_COUNTRY, \
 									OL_REASON, \
 									OL_CR_USER, \
 									OL_CR_DATETIME, \
 									( \
-										( \
-											SELECT COUNT(1) \
+										SELECT COUNT(A.IL_BAGNO) \
+										FROM ( \
+											SELECT IL_BAGNO, COUNT(1) AS COUNT \
 											FROM ( \
-												SELECT IL_BAGNO \
+												SELECT * \
 												FROM ITEM_LIST \
 												WHERE IL_SEQ = OL_SEQ \
-												AND IL_BAGNO IS NOT NULL AND IL_BAGNO != '' \
-												GROUP BY IL_BAGNO \
-											) A \
-										) - \
-										( \
-											SELECT COUNT(1) \
-											FROM PULL_GOODS \
-											WHERE PG_SEQ = OL_SEQ \
-										) \
+											) ITEM_LIST \
+											LEFT JOIN (  \
+												SELECT *  \
+												FROM PULL_GOODS  \
+												WHERE PG_SEQ = OL_SEQ  \
+											) PULL_GOODS ON  \
+											IL_SEQ = PG_SEQ AND  \
+											IL_BAGNO = PG_BAGNO \
+											WHERE /*沒被拉貨的*/ PG_SEQ IS NULL  \
+											GROUP BY IL_BAGNO \
+										) A \
 									) AS 'OL_COUNT',  \
 									ISNULL(( \
 										SELECT COUNT \
@@ -128,6 +132,7 @@ module.exports = function(pQueryname, pParams){
 										SELECT * \
 										FROM ORDER_PRINPL \
 										WHERE OP_PRINCIPAL = @U_ID \
+										AND OP_TYPE = 'R' \
 									) ORDER_PRINPL ON OP_SEQ = ORDER_LIST.OL_SEQ ";
 				}
 			}

@@ -184,6 +184,8 @@ angular.module('app.selfwork').controller('EmployeeHistorySearchCtrl', function 
             params: $vm._params
         }).then(function (res){
             console.log(res["returnData"]);
+            
+            $vm.resultData = [];
             if(res["returnData"].length > 0){
                 $vm.resultData = res["returnData"];
             }else{

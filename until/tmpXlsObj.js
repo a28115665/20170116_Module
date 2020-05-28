@@ -65,7 +65,11 @@ var GetXls = function (pXlsObj, callback){
                     
             //2. JsonStr convert to JsonObj
             var setValues = pXlsObj.JsonXls;
-            
+            // 保留如果需要處理特殊字元
+            // for(var i in setValues.data){
+            //    setValues.data[i].O_IL_NEWSENDENAMEEX_NOREPEAT = setValues.data[i].O_IL_NEWSENDENAMEEX_NOREPEAT.replace(/\/g, "")
+            // }
+
             //3. Perform substitution
             xlsTmpl.substitute(pXlsObj.SheetNumber, setValues);
      

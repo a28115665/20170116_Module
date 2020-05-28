@@ -25,7 +25,7 @@
 	},
 	"WebService" : {
 		"changeNature" : {
-			"host" : "10.1.31.61",
+			"host" : "61.216.149.43",
 			"port" : "80",
 			"url" : "/EWSWS/WebServiceChangeNature.asmx/GetNewNature"
 		},
@@ -38,10 +38,32 @@
 			"host" : "61.216.149.43",
 			"port" : "80",
 			"url" : "/EOSWS/WebServiceChangeNature.asmx/GetNewNature"
+		},
+		"changeOTax" : {
+			"host" : "61.216.149.43",
+			"port" : "80",
+			"url" : "/EOSWS/WebServiceChangeNature.asmx/GetChangeNatureTAX"
+		},
+		"queryName" : {
+			"host" : "61.216.149.43",
+			"port" : "80",
+			"url" : "/CNSWS/QueryName.asmx/QueryNamesUnZip"
 		}
 	},
 	"MOTC" : {
 		"timer" : 120000
+	},
+	"APACCS" : {
+		"active": 1,
+		"timer" : 3600000
+	},
+	"EHUFTZ" : {
+		"active": 1,
+		"timer" : 3600000
+	},
+	"CPT" : {
+		"active": 1,
+		"timer" : 3600000
 	},
 	"GMail" : {
 		"account" : "a28115665@gmail.com"

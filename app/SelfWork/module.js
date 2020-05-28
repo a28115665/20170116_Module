@@ -161,7 +161,9 @@ angular.module('app.selfwork').config(function ($stateProvider){
                         return lazyScript.register([
                             'build/vendor.ui.js'
                         ])
-
+                    },
+                    bool: function (SysCode){
+                        return SysCode.get('Boolean');
                     }
                 }
             }
@@ -205,7 +207,9 @@ angular.module('app.selfwork').config(function ($stateProvider){
                 controller: 'Job002Ctrl',
                 controllerAs: '$vm',
                 resolve: {
-
+                    bool: function (SysCode){
+                        return SysCode.get('Boolean');
+                    }
                 }
             }
         }
@@ -271,7 +275,9 @@ angular.module('app.selfwork').config(function ($stateProvider){
                 controller: 'Job002Ctrl',
                 controllerAs: '$vm',
                 resolve: {
-
+                    bool: function (SysCode){
+                        return SysCode.get('Boolean');
+                    }
                 }
             }
         }
@@ -361,7 +367,9 @@ angular.module('app.selfwork').config(function ($stateProvider){
                 controller: 'Job002Ctrl',
                 controllerAs: '$vm',
                 resolve: {
-
+                    bool: function (SysCode){
+                        return SysCode.get('Boolean');
+                    }
                 }
             }
         }
@@ -401,7 +409,15 @@ angular.module('app.selfwork').config(function ($stateProvider){
                 controller: 'Job003Ctrl',
                 controllerAs: '$vm',
                 resolve: {
-
+                    clearanceType: function(SysCode){
+                        return SysCode.get('ClearanceType');
+                    },
+                    c3Type: function(SysCode){
+                        return SysCode.get('C3Type');
+                    },
+                    bool: function (SysCode){
+                        return SysCode.get('Boolean');
+                    }
                 }
             }
         }
@@ -444,7 +460,37 @@ angular.module('app.selfwork').config(function ($stateProvider){
                 controller: 'Job003Ctrl',
                 controllerAs: '$vm',
                 resolve: {
+                    clearanceType: function(SysCode){
+                        return SysCode.get('ClearanceType');
+                    },
+                    c3Type: function(SysCode){
+                        return SysCode.get('C3Type');
+                    },
+                    bool: function (SysCode){
+                        return SysCode.get('Boolean');
+                    }
+                }
+            }
+        }
+    })
 
+    .state('app.selfwork.deliverydetailexport', {
+        url: '/selfwork/deliverydetailexport',
+        data: {
+            title: 'DeliveryDetailExport'
+        },
+        views: {
+            "content@app" : {
+                templateUrl: 'app/SelfWork/views/deliveryDetailExport.html',
+                controller: 'DeliveryDetailExportCtrl',
+                controllerAs: '$vm',
+                resolve: {
+                    compy: function(Compy){
+                        return Compy.get();
+                    },
+                    clearanceType: function(SysCode){
+                        return SysCode.get('ClearanceType');
+                    }
                 }
             }
         }

@@ -16,21 +16,24 @@ module.exports = function(pQueryname, pParams){
 									OL_FLLSTATUS, \
 									OL_DILSTATUS, \
 									( \
-										( \
-											SELECT COUNT(1) \
+										SELECT COUNT(A.IL_BAGNO) \
+										FROM ( \
+											SELECT IL_BAGNO, COUNT(1) AS COUNT \
 											FROM ( \
-												SELECT IL_BAGNO \
+												SELECT * \
 												FROM ITEM_LIST \
 												WHERE IL_SEQ = OL_SEQ \
-												AND IL_BAGNO IS NOT NULL AND IL_BAGNO != '' \
-												GROUP BY IL_BAGNO \
-											) A \
-										) - \
-										( \
-											SELECT COUNT(1) \
-											FROM PULL_GOODS \
-											WHERE PG_SEQ = OL_SEQ \
-										) \
+											) ITEM_LIST \
+											LEFT JOIN (  \
+												SELECT *  \
+												FROM PULL_GOODS  \
+												WHERE PG_SEQ = OL_SEQ  \
+											) PULL_GOODS ON  \
+											IL_SEQ = PG_SEQ AND  \
+											IL_BAGNO = PG_BAGNO \
+											WHERE /*沒被拉貨的*/ PG_SEQ IS NULL  \
+											GROUP BY IL_BAGNO \
+										) A \
 									) AS 'OL_COUNT', \
 									( \
 										SELECT COUNT(1) \
@@ -399,21 +402,24 @@ module.exports = function(pQueryname, pParams){
 									CONVERT(varchar, OL_REAL_IMPORTDT, 23 ) AS 'OL_REAL_IMPORTDT_EX', \
 									CO_NAME, \
 									( \
-										( \
-											SELECT COUNT(1) \
+										SELECT COUNT(A.IL_BAGNO) \
+										FROM ( \
+											SELECT IL_BAGNO, COUNT(1) AS COUNT \
 											FROM ( \
-												SELECT IL_BAGNO \
+												SELECT * \
 												FROM ITEM_LIST \
 												WHERE IL_SEQ = OL_SEQ \
-												AND IL_BAGNO IS NOT NULL AND IL_BAGNO != '' \
-												GROUP BY IL_BAGNO \
-											) A \
-										) - \
-										( \
-											SELECT COUNT(1) \
-											FROM PULL_GOODS \
-											WHERE PG_SEQ = OL_SEQ \
-										) \
+											) ITEM_LIST \
+											LEFT JOIN (  \
+												SELECT *  \
+												FROM PULL_GOODS  \
+												WHERE PG_SEQ = OL_SEQ  \
+											) PULL_GOODS ON  \
+											IL_SEQ = PG_SEQ AND  \
+											IL_BAGNO = PG_BAGNO \
+											WHERE /*沒被拉貨的*/ PG_SEQ IS NULL  \
+											GROUP BY IL_BAGNO \
+										) A \
 									) AS 'OL_COUNT', \
 									( \
 										SELECT COUNT(1) \

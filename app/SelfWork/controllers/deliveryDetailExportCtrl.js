@@ -1,25 +1,26 @@
 "use strict";
 
-angular.module('app.selfwork').controller('DeliveryHistorySearchCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, RestfulApi, $filter, compy, bool, uiGridConstants, localStorageService, ToolboxApi) {
+angular.module('app.selfwork').controller('DeliveryDetailExportCtrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, RestfulApi, $filter, compy, clearanceType, uiGridConstants, localStorageService, ToolboxApi) {
     
     var $vm = this;
 
 	angular.extend(this, {
         Init : function(){
-            // console.log(localStorageService.get("DeliveryHistorySearch"));
+            // console.log(localStorageService.get("DeliveryDetailExport"));
             
             // 帶入LocalStorage資料
-            if(localStorageService.get("DeliveryHistorySearch") == null){
+            if(localStorageService.get("DeliveryDetailExport") == null){
                 $vm.vmData = {};
             }else{
-                $vm.vmData = localStorageService.get("DeliveryHistorySearch");
-
-                SearchData();
+                $vm.vmData = localStorageService.get("DeliveryDetailExport");
             }
         },
         profile : Session.Get(),
-        boolData : bool,
         compyData : compy,
+        clearanceTypeData : clearanceType,
+        loading : {
+            exportExcel : false
+        },
         gridMethod : {
             // 各單的工作選項
             gridOperation : function(row, name){
@@ -246,54 +247,62 @@ angular.module('app.selfwork').controller('DeliveryHistorySearchCtrl', function 
         Cancel : function(){
             ClearSearchCondition();
         },
-        Search : function(){
-            // console.log($vm.vmData);
-            $vm.resultData = [];
+        // Search : function(){
+        //     // console.log($vm.vmData);
+        //     $vm.resultData = [];
 
-            if(IsConditionsHaveValue($vm.vmData)){
-                SearchData();
-            }else{
-                toaster.pop('info', '訊息', '請輸入查詢條件', 3000);
-            }
-        },
+        //     if(IsConditionsHaveValue($vm.vmData)){
+        //         if(IsValidOfConditions($vm.vmData)){
+        //             SearchData();
+        //         }
+        //     }else{
+        //         toaster.pop('info', '訊息', '請輸入匯出條件', 3000);
+        //     }
+        // },
         ExportExcel : function(){
 
-            var _exportName = $filter('date')(new Date(), 'yyyyMMdd') + ' ' + $scope.getWord($state.current.data.title) + '結果';
-
-            ToolboxApi.ExportExcelBySql({
-                templates : 1,
-                filename : _exportName,
-                querymain: 'deliveryHistorySearch',
-                queryname: 'SelectSearch',
-                params: $vm._params
-            }).then(function (res) {
-                // console.log(res);
-            });
+            if(IsConditionsHaveValue($vm.vmData)){
+                if(IsValidOfConditions($vm.vmData)){
+                    ExportData();
+                }
+            }else{
+                toaster.pop('info', '訊息', '請輸入匯出條件', 3000);
+            }
         }
     });
 
-    function SearchData () {
+    function ExportData () {
+
+        $vm.loading.exportExcel = true;
+
         $vm._params = {};
 
         $vm._params = CombineConditions($vm.vmData);
         // 紀錄查詢條件
-        localStorageService.set("DeliveryHistorySearch", $vm.vmData);
+        localStorageService.set("DeliveryDetailExport", $vm.vmData);
         
-        // console.log($vm._params);
+        console.log($vm._params);
 
-        RestfulApi.SearchMSSQLData({
-            querymain: 'deliveryHistorySearch',
-            queryname: 'SelectSearch',
-            params: $vm._params
-        }).then(function (res){
-            console.log(res["returnData"]);
-
-            $vm.resultData = [];
-            if(res["returnData"].length > 0){
-                $vm.resultData = res["returnData"];
-            }else{
-                toaster.pop('info', '訊息', '查無資料', 3000);
+        ToolboxApi.ExportExcelBySql({
+            templates : 30,
+            filename : $filter('date')(new Date(), 'yyyyMMdd') + ' ' + $scope.getWord($state.current.data.title),
+            querymain: 'deliveryDetailExport',
+            queryname: 'ExportJob003',
+            params: {
+                EXPORT_DATE : $filter('date')(new Date(), 'M月dd日', 'GMT'),
+                IMPORTDT_FROM  : $vm._params.IMPORTDT_FROM,
+                IMPORTDT_TOXX  : $vm._params.IMPORTDT_TOXX,
+                OL_CO_CODE     : $vm._params.OL_CO_CODE,
+                MASTER_START   : $vm._params.MASTER_START,
+                MASTER_END     : $vm._params.MASTER_END,
+                GCI_DATE1_FROM : $vm._params.GCI_DATE1_FROM,
+                GCI_DATE1_TOXX : $vm._params.GCI_DATE1_TOXX,
+                IL_BAGNO       : $vm._params.IL_BAGNO,
+                EML_TRUE_CLEARANCE : $vm._params.EML_TRUE_CLEARANCE
             }
+        }).then(function (res) {
+            // console.log(res);
+            $vm.loading.exportExcel = false;
         });
     }
 
@@ -327,6 +336,21 @@ angular.module('app.selfwork').controller('DeliveryHistorySearchCtrl', function 
         return _result;
     }
 
+    function IsValidOfConditions(pObject){
+        var _result = true;
+
+        if(moment(pObject["IMPORTDT_TOXX"]).diff(moment(pObject["IMPORTDT_FROM"]), 'days') > 7){
+            _result = false;
+            toaster.pop('warning', '警告', '進口日期不可超過7天', 3000);
+        }
+        if(moment(pObject["GCI_DATE1_TOXX"]).diff(moment(pObject["GCI_DATE1_FROM"]), 'days') > 7){
+            _result = false;
+            toaster.pop('warning', '警告', '進倉時間不可超過7天', 3000);
+        }
+
+        return _result;
+    }
+
     /**
      * CombineConditions 條件組合
      * @param {[type]}
@@ -355,7 +379,7 @@ angular.module('app.selfwork').controller('DeliveryHistorySearchCtrl', function 
      * [ClearSearchCondition description] 清除查詢條件
      */
     function ClearSearchCondition(){
-        localStorageService.remove("DeliveryHistorySearch");
+        localStorageService.remove("DeliveryDetailExport");
         $vm.vmData = {};
     }
 

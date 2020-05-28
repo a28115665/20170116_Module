@@ -338,7 +338,7 @@ router.get('/exportCsvByMultiSql', function(req, res) {
                             res.status(200);
 
                             // 避免中文亂碼，需轉換成有BOM的樣式
-                            var buffer = Buffer.from("\ufeff"+csv, 'utf8');
+                            buffer = Buffer.from("\ufeff"+csv, 'utf8');
 
                             res.end(buffer);
                         } catch(err){
@@ -457,7 +457,7 @@ router.get('/sendMail', function(req, res) {
         }),
         ip = req.ip;
 
-    dbCommand.SelectMethod(querymain, queryname, params, function(err, recordset, sql) {
+    dbCommand.SelectMethod(querymain, queryname, params, async function(err, recordset, sql) {
 
         let log = new dbLogObject(id, querymain, queryname, params, sql, ip, err)
         log.writeLog(action);
@@ -480,6 +480,7 @@ router.get('/sendMail', function(req, res) {
                     // 撈取銷倉單Excel
                     // var _queryContent = typeof req.query["queryContent"] == "string" ? JSON.parse(req.query["queryContent"]) : {};
                     var _mailContent = typeof req.query["mailContent"] == "string" ? JSON.parse(req.query["mailContent"]) : {};
+                    // console.log(_mailContent);
                     
                     /**
                      * 開始寄信
@@ -506,6 +507,24 @@ router.get('/sendMail', function(req, res) {
                             // file on disk as an attachment
                             filename: _mailContent.UploadedData[i].FMAF_O_FILENAME,
                             path: _mailContent.UploadedData[i].FMAF_FILEPATH + _mailContent.UploadedData[i].FMAF_R_FILENAME
+                        });
+                    }
+
+                    // 自動夾帶銷艙單的Excel
+                    if(_mailContent.FM_DEFAULTATTCH){
+                        let _query = []
+                        for(let i in _mailContent.defaultAttch){
+                            _query.push(_mailContent.defaultAttch[i]);
+                        }
+
+                        // 主要的參數
+                        let _params = _query.shift();
+                        let buffer = await doExcelToBuffer(_params, _query);
+
+                        _attchments.push({
+                            // file on disk as an attachment
+                            filename: _params.filename + '.csv',
+                            content: buffer
                         });
                     }
 
@@ -800,6 +819,159 @@ router.get('/changeONature', function(req, res) {
 
 });
 
+/**
+ * ChangeOTax 查稅則(海運)
+ */
+router.get('/changeOTax', function(req, res) {
+
+    try{        
+        // console.log(res.statusCode, req.query);
+
+        // Build the post string from an object
+        var post_data = querystring.stringify({
+            'strJson' : JSON.stringify([
+                {
+                    "UserId": req.query.ID,
+                    "UserPW": req.query.PW,
+                    "NatureName": req.query.NATURE_NEW
+                }
+            ])
+        });
+
+        // An object of options to indicate where to post to
+        var post_options = {
+            host: setting.WebService.changeOTax.host,
+            port: setting.WebService.changeOTax.port,
+            path: setting.WebService.changeOTax.url,
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'Content-Length': Buffer.byteLength(post_data)
+            }
+        };
+
+        // Set up the request
+        var post_req = http.request(post_options, function (post_res) {
+
+            // console.log("statusCode: ", post_res.statusCode);
+            //console.log("headers: ", post_res.headers);
+            if(post_res.statusCode == 200){
+                var content = '';
+
+                post_res.setEncoding('utf8');
+
+                post_res.on('data', function(chunk) {
+                    content += chunk;
+                });
+
+                post_res.on('end', function() {
+                    // console.log(content);
+
+                    res.json({
+                        "returnData": content
+                    });
+                });
+            }else{
+                res.status(post_res.statusCode).send('查稅則失敗');
+            }
+        });
+
+        // console.log(post_data);
+        // post the data
+        post_req.write(post_data);
+
+        post_req.on('error', function(err) {
+            console.error(err);
+            // Handle error
+            res.status(403).send('查稅則失敗');
+        });
+
+        post_req.end(); 
+
+    } catch(err) {
+        console.error(err);
+        res.status(403).send('查稅則失敗');
+    }
+
+});
+
+/**
+ * QueryName 實名制(空運)
+ */
+router.get('/queryName', function(req, res) {
+
+    try{        
+        // console.log(res.statusCode, req.query);
+
+        // Build the post string from an object
+        var post_data = querystring.stringify({
+            'JsonNameList' : JSON.stringify([
+                {
+                    "UserId": req.query.ID,
+                    "UserPW": req.query.PW,
+                    "QuerySource": "EWMS",
+                    "QUERY_SEQ_LIST": req.query.QUERY_SEQ_LIST
+                }
+            ])
+        });
+
+        // An object of options to indicate where to post to
+        var post_options = {
+            host: setting.WebService.queryName.host,
+            port: setting.WebService.queryName.port,
+            path: setting.WebService.queryName.url,
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'Content-Length': Buffer.byteLength(post_data)
+            }
+        };
+
+        // Set up the request
+        var post_req = http.request(post_options, function (post_res) {
+
+            // console.log("statusCode: ", post_res.statusCode);
+            //console.log("headers: ", post_res.headers);
+            if(post_res.statusCode == 200){
+                var content = '';
+
+                post_res.setEncoding('utf8');
+
+                post_res.on('data', function(chunk) {
+                    content += chunk;
+                });
+
+                post_res.on('end', function() {
+                    // console.log(content);
+
+                    res.json({
+                        "returnData": content
+                    });
+                });
+            }else{
+                res.status(post_res.statusCode).send('檢查實名制失敗');
+            }
+        });
+
+        // console.log(post_data);
+        // post the data
+        post_req.write(post_data);
+
+        post_req.on('error', function(err) {
+            console.error(err);
+            // Handle error
+            res.status(403).send('檢查實名制失敗');
+        });
+
+        post_req.end(); 
+
+    } catch(err) {
+        console.error(err);
+        res.status(403).send('檢查實名制失敗');
+    }
+
+});
+
 /*
  * 組成menu
  * 當有U_ID時會產生該ID的menu，如果沒有就產生所有menu
@@ -1022,6 +1194,69 @@ function toArrayBuffer(buf) {
         view[i] = buf[i];
     }
     return ab;
+}
+
+function doExcelToBuffer(params, query) {
+    return new Promise((resolve, reject) => {
+        try{
+            var tasks = [];
+            tasks.push(dbCommandByTask.Connect);
+            tasks.push(dbCommandByTask.TransactionBegin);
+            for(var i in query){
+                tasks.push(async.apply(dbCommandByTask.SelectRequestWithTransaction, query[i]));
+            }
+            tasks.push(dbCommandByTask.TransactionCommit);
+            async.waterfall(tasks, function (err, args) {
+
+                if (err) {
+                    // 如果連線失敗就不做Rollback
+                    if(Object.keys(args).length !== 0){
+                        dbCommandByTask.TransactionRollback(args, function (err, result){
+                            
+                        });
+                    }
+                    reject(err);
+                }else{
+                    for(var i in args.result){
+                        params["data" + i] = args.result[i];
+                    }
+
+                    tmpXlsObj.GetXls({
+                        JsonXls : params,
+                        TmpXlsFilePath : path.join(path.dirname(module.parent.filename), 'templates', templates[params["templates"]]), //template xls 路徑(含檔名)
+                        // OutputXlsPath : path.join(path.dirname(module.parent.filename), 'templates', 'test2.xlsx'),
+                        SheetNumber : 1
+                    }, function (err, result){
+                        if (err) {
+                            reject(err);
+                        } else {
+
+                            try {
+                                var buffer = new Buffer(result, "binary");
+
+                                // 再利用js-xlsx元件轉製成csv檔
+                                var workbook = xlsx.read(buffer);
+                                var csv;
+                                workbook.SheetNames.forEach(function(sheetName) {
+                                    csv = xlsx.utils.sheet_to_csv(workbook.Sheets[sheetName]);
+                                });
+
+                                // 避免中文亂碼，需轉換成有BOM的樣式
+                                var buffer = Buffer.from("\ufeff"+csv, 'utf8');
+
+                                resolve(buffer);
+                            } catch(err){
+                                reject(err);
+                            }
+                        }
+                    });
+                }
+            });
+
+        } catch(err){
+            reject(err);
+        }
+    })
 }
 
 module.exports = router;

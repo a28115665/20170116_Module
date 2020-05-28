@@ -489,6 +489,7 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
         },
         CloseData : function(){
             if($vm.orderListGridApi.selection.getSelectedRows().length > 0){
+
                 var _getSelectedRows = $vm.orderListGridApi.selection.getSelectedRows(),
                     _tasks = [];
 
@@ -516,12 +517,38 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
                     return;
                 }
 
-                RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res) {
-                    LoadOrderList();
-                    toaster.pop('success', '訊息', '結單完成', 3000);
-                }, function (err) {
-
+                var modalInstance = $uibModal.open({
+                    animation: true,
+                    ariaLabelledBy: 'modal-title',
+                    ariaDescribedBy: 'modal-body',
+                    template: $templateCache.get('isChecked'),
+                    controller: 'IsCheckedModalInstanceCtrl',
+                    controllerAs: '$ctrl',
+                    size: 'sm',
+                    windowClass: 'center-modal',
+                    // appendTo: parentElem,
+                    resolve: {
+                        items: function() {
+                            return {};
+                        },
+                        show: function(){
+                            return {
+                                title : "是否結單"
+                            }
+                        }
+                    }
                 });
+
+                modalInstance.result.then(function(selectedItem) {
+
+                    RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res) {
+                        LoadOrderList();
+                        toaster.pop('success', '訊息', '結單完成', 3000);
+                    }, function (err) {
+
+                    });
+
+                })
 
             }
         },

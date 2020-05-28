@@ -104,13 +104,24 @@ angular.module('app')
                     </div>');
     $templateCache.put('accessibilityToOperaForJob003', '\
                     <div class="ui-grid-cell-contents text-center">\
-                        <a href="javascript:void(0);" class="btn btn-success btn-xs" ng-click="grid.appScope.$vm.gridMethod.gridOperation(row, \'派送單\')"> 工作選項</a>\
+                        <a href="javascript:void(0);" class="btn btn-success btn-xs" ng-click="grid.appScope.$vm.gridMethod.gridOperation(row, \'日報明細\')"> 工作選項</a>\
                     </div>');
   
     $templateCache.put('accessibilityToChangeNature', '\
                     <div class="ui-grid-cell-contents">\
                         <a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethod.changeNature(row)" ng-hide="row.entity[\'loading\']"> 改單</a>\
                         <a href="javascript:void(0);" class="btn btn-warning btn-xs disabled" ng-show="row.entity[\'loading\']"> <i class="fa fa-refresh fa-spin"></i></a>\
+                    </div>');
+    $templateCache.put('accessibilityToQueryName', '\
+                    <div class="ui-grid-cell-contents">\
+                        <a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethod.queryName(row)" ng-hide="row.entity[\'loading\']"> 實名制</a>\
+                        <a href="javascript:void(0);" class="btn btn-warning btn-xs disabled" ng-show="row.entity[\'loading\']"> <i class="fa fa-refresh fa-spin"></i></a>\
+                    </div>');
+  
+    $templateCache.put('accessibilityToChangeOTax', '\
+                    <div class="ui-grid-cell-contents">\
+                        <a href="javascript:void(0);" class="btn btn-info btn-xs" ng-click="grid.appScope.$vm.gridMethod.changeOTax(row)" ng-hide="row.entity[\'loading\']"> 查稅則</a>\
+                        <a href="javascript:void(0);" class="btn btn-info btn-xs disabled" ng-show="row.entity[\'loading\']"> <i class="fa fa-refresh fa-spin"></i></a>\
                     </div>');
 
 	$templateCache.put('accessibilityToJob001', '\
@@ -149,6 +160,36 @@ angular.module('app')
                             <i class="fa fa-question" title="銷艙單未匯" ng-if="row.entity.FLIGHT_EXPORT == 0"> </i> \
                             <i class="fa fa-check text-success" title="關貿已匯" ng-if="row.entity.TRADE_EXPORT >= 1"> </i> \
                             <i class="fa fa-question" title="關貿未匯" ng-if="row.entity.TRADE_EXPORT == 0"> </i> \
+                        </div>');
+
+    $templateCache.put('deliveryJobsShowApaccsDetailForTextPrimary', '\
+                        <div class="my-ui-grid-cell-contents">\
+                            <span class="text-primary"><strong>{{row.entity[col.colDef.name]}}</strong></span>\
+                        </div>');
+    $templateCache.put('deliveryJobsShowApaccsDetailForTextDanger', '\
+                        <div class="my-ui-grid-cell-contents">\
+                            <span class="text-danger"><strong>{{row.entity[col.colDef.name]}}</strong></span>\
+                        </div>');
+    $templateCache.put('deliveryJobsShowApaccsDetailForTextDangerWithMultipleRows', '\
+                        <div class="my-ui-grid-cell-contents">\
+                            <span ng-class="{\'text-danger\' : row.entity.AML_DELIVERY_NUM != 0}"><strong>{{row.entity[col.colDef.name]}}</strong></span>\
+                        </div>');
+    $templateCache.put('deliveryJobsShowDelivery', '\
+                        <div class="my-ui-grid-cell-contents">\
+                            <a href="javascript:void(0);" class="btn btn-info btn-xs" ng-click="grid.appScope.$vm.gridMethod.showApaccsDetail(row)"> {{row.entity.AML_DELIVERY}}</a>\
+                            <i class="fa fa-question" title="尚未分批作業" ng-if="row.entity.AML_DELIVERY_COMPLETE == 0 || !row.entity.AML_DELIVERY_COMPLETE"> </i> \
+                            <i class="fa fa-check text-success" title="分批作業完成" ng-if="row.entity.AML_DELIVERY_COMPLETE == 1"> </i> \
+                            <i class="fa fa-exclamation text-warning" title="分批作業尚未完成" ng-if="row.entity.AML_DELIVERY_COMPLETE == 2"> </i> \
+                        </div>');
+    $templateCache.put('deliveryJobsToMC', '\
+                        <div class="ui-grid-cell-contents">\
+                            <button type="button" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethod.modifyData(row)"> 修改</button>\
+                            <button type="button" class="btn btn-primary btn-xs" ng-click="grid.appScope.$vm.gridMethod.closeData(row)" ng-class="grid.appScope.$vm.gridMethod.closeAuth(row)"> 結單</button>\
+                        </div>');
+    $templateCache.put('deliveryHistorysearchToMC', '\
+                        <div class="ui-grid-cell-contents">\
+                            <a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethod.modifyData(row)"> 修改</a>\
+                            <a href="javascript:void(0);" class="btn btn-danger btn-xs" ng-click="grid.appScope.$vm.gridMethod.releaseData(row)" ng-if="[\'Admin\', \'PUser\'].indexOf(grid.appScope.$vm.profile.U_ROLE) != -1" ng-class="{\'disabled\' : row.entity.OL_FDATETIME2 == null}"> 解單</a>\
                         </div>');
 
     $templateCache.put('accessibilityToOverSixName', '\
@@ -270,12 +311,12 @@ angular.module('app')
     $templateCache.put('accessibilityToMForLeaderSearch', '\
                         <div class="ui-grid-cell-contents text-center">\
                             <a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethod.modifyData(row)"> 修改</a>\
-                            <a href="javascript:void(0);" class="btn btn-danger btn-xs" ng-click="grid.appScope.$vm.gridMethod.releaseData(row)" ng-if="grid.appScope.$vm.profile.U_GRADE < 10" ng-class="{\'disabled\' : row.entity.OL_FDATETIME == null}"> 解案</a>\
+                            <a href="javascript:void(0);" class="btn btn-danger btn-xs" ng-click="grid.appScope.$vm.gridMethod.releaseData(row)" ng-if="grid.appScope.$vm.profile.U_GRADE < 10" ng-class="{\'disabled\' : row.entity.OL_FDATETIME == null}"> 解單</a>\
                         </div>');
     $templateCache.put('accessibilityToMForOLeaderSearch', '\
                         <div class="ui-grid-cell-contents text-center">\
                             <a href="javascript:void(0);" class="btn btn-warning btn-xs" ng-click="grid.appScope.$vm.gridMethod.modifyData(row)"> 修改</a>\
-                            <a href="javascript:void(0);" class="btn btn-danger btn-xs" ng-click="grid.appScope.$vm.gridMethod.releaseData(row)" ng-if="grid.appScope.$vm.profile.U_GRADE < 10" ng-class="{\'disabled\' : row.entity.O_OL_FDATETIME == null}"> 解案</a>\
+                            <a href="javascript:void(0);" class="btn btn-danger btn-xs" ng-click="grid.appScope.$vm.gridMethod.releaseData(row)" ng-if="grid.appScope.$vm.profile.U_GRADE < 10" ng-class="{\'disabled\' : row.entity.O_OL_FDATETIME == null}"> 解單</a>\
                         </div>');
     $templateCache.put('accessibilityToEdited', '\
                         <div class="ui-grid-cell-contents text-center">\

@@ -82,6 +82,41 @@ angular.module('app.oselfwork').controller('OJob001Ctrl', function ($scope, $sta
                     row.entity.loading = false;
                 });
             },
+            // 查稅則
+            changeOTax : function(row){
+                console.log(row);
+
+                if(angular.isUndefined(row.entity.O_IL_NATURE_NEW) || row.entity.O_IL_NATURE_NEW == ""){
+                    toaster.pop('warning', '警告', '新貨物名稱需有值', 3000);
+                    return;
+                }
+
+                row.entity.loading = true;
+                ToolboxApi.ChangeOTax({
+                    ID : $vm.profile.U_ID,
+                    PW : $vm.profile.U_PW,
+                    NATURE_NEW : row.entity.O_IL_NATURE_NEW
+                }).then(function (res) {
+                    // console.log(res);
+                    var _returnData = JSON.parse(res["returnData"]),
+                        needToUpdate = false;
+
+                    if(!angular.isUndefined(_returnData["O_CN_TAX"]) && _returnData["O_CN_TAX"] != ""){
+                        row.entity.O_IL_TAX2 = _returnData["O_CN_TAX"];
+                    }else{
+                        toaster.pop('info', '訊息', '此新貨物名稱查無稅則', 3000);
+                        row.entity.O_IL_TAX2 = _returnData["O_CN_TAX"];
+                    }
+                    needToUpdate = true;
+
+                    if(needToUpdate){
+                        $vm.job001GridApi.rowEdit.setRowsDirty([row.entity]);
+                    }
+
+                }).finally(function() {
+                    row.entity.loading = false;
+                });
+            },
             // 刪除
             deleteData : function(){
 
@@ -302,6 +337,7 @@ angular.module('app.oselfwork').controller('OJob001Ctrl', function ($scope, $sta
                 { name: 'O_IL_NATURE'           , displayName: '貨物名稱', width: 110, enableCellEdit: false, cellTooltip: cellTooltip},
                 { name: 'O_IL_NATURE_NEW'       , displayName: '新貨物名稱', width: 110, headerCellClass: 'text-primary', cellTooltip: cellTooltip},
                 { name: 'ChangeNature'          , displayName: '改單', width: 66, enableCellEdit: false, enableSorting:false, cellTemplate: $templateCache.get('accessibilityToChangeNature'), cellClass: 'cell-class-no-style' },
+                { name: 'ChangeOTax'            , displayName: '查稅則', width: 66, enableCellEdit: false, enableSorting:false, cellTemplate: $templateCache.get('accessibilityToChangeOTax'), cellClass: 'cell-class-no-style' },
                 { name: 'O_IL_TAX'              , displayName: '稅則', width: 110, enableCellEdit: false },
                 { name: 'O_IL_TAX2'             , displayName: '新稅則', width: 110, headerCellClass: 'text-primary' },
                 // { name: 'O_IL_TAXRATE'          , displayName: '稅率', width: 110, enableCellEdit: false },
@@ -403,7 +439,7 @@ angular.module('app.oselfwork').controller('OJob001Ctrl', function ($scope, $sta
                 });
             }
         },
-        // 計算淨重
+        // 計算淨重(目前不使用)
         CalculateNetWieghtBalance: function(){
 
             var _totalNetWeight = 0,
@@ -452,7 +488,7 @@ angular.module('app.oselfwork').controller('OJob001Ctrl', function ($scope, $sta
                 }
 
                 var _maxRatio = 1.5,
-                    _minRatio = 0.5,
+                    _minRatio = 0.3,
                     _ratio = (selectedItem.O_OL_FLIGHT_TOTALNETWEIGHT / selectedItem.totalNetWeight).toFixed(2);
                 if(_ratio < _minRatio || _maxRatio < _ratio){
                     toaster.pop('warning', '警告', '請勿輸入對於報機單總重量(淨重)差距過小或過大的數值。', 3000);
@@ -517,9 +553,13 @@ angular.module('app.oselfwork').controller('OJob001Ctrl', function ($scope, $sta
         // 計算毛重
         CalculateCrossWieghtBalance: function(){
 
-            var _totalCrossWeight = 0,
+            var _oriTotalCrossWeight = 0,
+                _totalCrossWeight = 0,
                 _totalNewCrossWeight = 0;
             for(var i in $vm.job001Data){
+
+                _oriTotalCrossWeight += $vm.job001Data[i]["O_IL_CROSSWEIGHT"];
+
                 // 規則如Procedure CrossWeightBalance
                 if(['G1', 'X3', '移倉'].indexOf($vm.job001Data[i]["O_IL_G1"]) == -1 &&
                     $vm.job001Data[i]["O_IL_CROSSWEIGHT"] > 1 &&
@@ -533,6 +573,7 @@ angular.module('app.oselfwork').controller('OJob001Ctrl', function ($scope, $sta
                 }
             }
 
+            $vm.vmData["oriTotalCrossWeight"] = _oriTotalCrossWeight.toFixed(2);
             $vm.vmData["totalCrossWeight"] = _totalCrossWeight.toFixed(2);
             $vm.vmData["totalNewCrossWeight"] = _totalNewCrossWeight.toFixed(2);
 
@@ -562,7 +603,7 @@ angular.module('app.oselfwork').controller('OJob001Ctrl', function ($scope, $sta
                 }
 
                 var _maxRatio = 1.5,
-                    _minRatio = 0.5,
+                    _minRatio = 0.3,
                     _ratio = (selectedItem.O_OL_FLIGHT_TOTALCROSSWEIGHT / selectedItem.totalCrossWeight).toFixed(2);
                 if(_ratio < _minRatio || _maxRatio < _ratio){
                     toaster.pop('warning', '警告', '請勿輸入對於報機單總重量(毛重)差距過小或過大的數值。', 3000);
@@ -1523,10 +1564,10 @@ angular.module('app.oselfwork').controller('OJob001Ctrl', function ($scope, $sta
             //     _finalcost = Math.floor(Math.random() * (maxNum - minNum + 1)) + minNum; 
             // }
 
-            // // 當完稅價格超過2000 提醒使用者
-            // if(_finalcost > 2000){
-            //     toaster.pop('warning', '警告', '完稅價格超過2000元，請注意', 3000);
-            // }
+            // 當發票總金額超過2000 提醒使用者
+            if(_invoiceCost > 2000){
+                toaster.pop('warning', '警告', '發票總金額超過2000元，請注意', 3000);
+            }
             
             // 當數量不為空 帶出單價 (會與新單價衝突)
             if(colDef.name == 'O_IL_NEWCOUNT' || colDef.name == 'O_IL_NEWPRICEUNIT' || colDef.name == 'O_IL_INVOICECOST2'){
@@ -1808,7 +1849,6 @@ angular.module('app.oselfwork').controller('OJob001Ctrl', function ($scope, $sta
     $ctrl.getNoIsTrueOption = {
         data: '$ctrl.mdData',
         columnDefs: [
-            { name: 'O_IL_GETNO'            , displayName: '進口人統一編號', width: 110, headerCellClass: 'text-primary' },
             { name: 'O_IL_G1'               , displayName: '報關種類', width: 80, headerCellClass: 'text-primary' },
             { name: 'O_IL_SMALLNO'          , displayName: '小號', width: 110, enableCellEdit: false },
             { name: 'O_IL_POSTNO'           , displayName: '艙單號碼', width: 110, enableCellEdit: false },
@@ -1849,6 +1889,7 @@ angular.module('app.oselfwork').controller('OJob001Ctrl', function ($scope, $sta
             { name: 'O_IL_SENDADDRESS'      , displayName: '出口人英文地址', width: 110, enableCellEdit: false },
             { name: 'O_IL_NEWSENDADDRESS'   , displayName: '新出口人英文地址', width: 110, headerCellClass: 'text-primary' },
             { name: 'O_IL_GETID'            , displayName: '進口人身分識別碼', width: 110, enableCellEdit: false },
+            { name: 'O_IL_GETNO'            , displayName: '進口人統一編號', width: 110, headerCellClass: 'text-primary' },
             { name: 'O_IL_GETENAME'         , displayName: '進口人英文名稱', width: 110, headerCellClass: 'text-primary' },
             { name: 'O_IL_GETPHONE'         , displayName: '進口人電話', width: 110, headerCellClass: 'text-primary' },
             { name: 'O_IL_GETADDRESS'       , displayName: '進口人英文地址', width: 110, headerCellClass: 'text-primary' },

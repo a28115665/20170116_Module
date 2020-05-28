@@ -21,21 +21,24 @@ module.exports = function(pQueryname, pParams){
 								   CONVERT(varchar, OL_IMPORTDT, 23 ) AS 'OL_IMPORTDT_EX', \
 								   CO_NAME, \
 									( \
-										( \
-											SELECT COUNT(1) \
+										SELECT COUNT(A.IL_BAGNO) \
+										FROM ( \
+											SELECT IL_BAGNO, COUNT(1) AS COUNT \
 											FROM ( \
-												SELECT IL_BAGNO \
+												SELECT * \
 												FROM ITEM_LIST \
 												WHERE IL_SEQ = OL_SEQ \
-												AND IL_BAGNO IS NOT NULL AND IL_BAGNO != '' \
-												GROUP BY IL_BAGNO \
-											) A \
-										) - \
-										( \
-											SELECT COUNT(1) \
-											FROM PULL_GOODS \
-											WHERE PG_SEQ = OL_SEQ \
-										) \
+											) ITEM_LIST \
+											LEFT JOIN (  \
+												SELECT *  \
+												FROM PULL_GOODS  \
+												WHERE PG_SEQ = OL_SEQ  \
+											) PULL_GOODS ON  \
+											IL_SEQ = PG_SEQ AND  \
+											IL_BAGNO = PG_BAGNO \
+											WHERE /*沒被拉貨的*/ PG_SEQ IS NULL  \
+											GROUP BY IL_BAGNO \
+										) A \
 									) AS 'OL_COUNT', \
 									( \
 										CASE WHEN ( \
@@ -113,6 +116,7 @@ module.exports = function(pQueryname, pParams){
 									OL_COUNTRY, \
 									OL_CR_USER, \
 									OL_CR_DATETIME, \
+									OL_REAL_IMPORTDT, \
 									OL_TEL, \
 									OL_FAX, \
 									OL_REASON, \
@@ -204,6 +208,7 @@ module.exports = function(pQueryname, pParams){
 										SELECT * \
 										FROM ORDER_PRINPL \
 										WHERE OP_PRINCIPAL = @U_ID \
+										AND OP_TYPE = 'W' \
 									) ORDER_PRINPL ON OP_SEQ = ORDER_LIST.OL_SEQ ";
 				}
 			}
@@ -231,13 +236,24 @@ module.exports = function(pQueryname, pParams){
 									OL_REASON, \
 									OL_CR_USER, \
 									OL_CR_DATETIME, \
+									OL_REAL_IMPORTDT, \
 									( \
-										SELECT COUNT(1) \
+										SELECT COUNT(A.IL_BAGNO) \
 										FROM ( \
-											SELECT IL_BAGNO \
-											FROM ITEM_LIST \
-											WHERE IL_SEQ = OL_SEQ \
-											AND IL_BAGNO IS NOT NULL AND IL_BAGNO != '' \
+											SELECT IL_BAGNO, COUNT(1) AS COUNT \
+											FROM ( \
+												SELECT * \
+												FROM ITEM_LIST \
+												WHERE IL_SEQ = OL_SEQ \
+											) ITEM_LIST \
+											LEFT JOIN (  \
+												SELECT *  \
+												FROM PULL_GOODS  \
+												WHERE PG_SEQ = OL_SEQ  \
+											) PULL_GOODS ON  \
+											IL_SEQ = PG_SEQ AND  \
+											IL_BAGNO = PG_BAGNO \
+											WHERE /*沒被拉貨的*/ PG_SEQ IS NULL  \
 											GROUP BY IL_BAGNO \
 										) A \
 									) AS 'OL_COUNT', \
@@ -265,6 +281,7 @@ module.exports = function(pQueryname, pParams){
 										SELECT * \
 										FROM ORDER_PRINPL \
 										WHERE OP_PRINCIPAL = @U_ID \
+										AND OP_TYPE = 'R' \
 									) ORDER_PRINPL ON OP_SEQ = ORDER_LIST.OL_SEQ ";
 				}
 			}
@@ -349,7 +366,10 @@ module.exports = function(pQueryname, pParams){
 									IL_GETADDRESS_NEW, \
 									IL_HASUNIVALENT, \
 									IL_SUPPLEMENT_COUNT, \
-									IL_TAXRATE \
+									IL_TAXRATE, \
+									IL_CNS_RESULT1, \
+									IL_CNS_RESULT2, \
+									IL_CNS_RESULT3 \
 							FROM ITEM_LIST \
 						    WHERE 1=1";
 

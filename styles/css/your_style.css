@@ -209,6 +209,14 @@
     margin: 15% auto;
 }
 
+/*
+    Modal size for xl
+ */
+.my-xl-modal-window .modal-dialog {
+    width: 90%;
+    max-width: 1400px;
+}
+
 /**
  * Bootstrap col-5
  */

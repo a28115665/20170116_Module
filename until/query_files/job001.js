@@ -490,6 +490,20 @@ module.exports = function(pQueryname, pParams){
 						    AND IL_SEQ = @IL_SEQ \
 						    ORDER BY IL_BAGNO";
 			break;
+
+		case "PullGoods":
+			_SQLCommand += "SELECT IL_BAGNO, COUNT(1) AS Number \
+							FROM ITEM_LIST \
+							LEFT JOIN PULL_GOODS ON \
+							PG_SEQ = IL_SEQ AND \
+							PG_BAGNO = IL_BAGNO \
+							WHERE PG_SEQ IS NULL \
+							/*袋號長度不為8表示為vip貨*/ \
+							AND LEN(IL_BAGNO) = 8 \
+							AND IL_SEQ = @IL_SEQ \
+							GROUP BY IL_BAGNO";
+
+			break;
 	}
 
 	return _SQLCommand;

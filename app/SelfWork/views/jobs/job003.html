@@ -58,6 +58,104 @@
 	        <!-- End WIDGET START -->
 
 	        <!-- NEW WIDGET START -->
+            <article class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+
+                <div class="well well-sm bg-color-greenLight text-center">
+                    <span class="txt-color-white">真實清出(袋數)</span>
+                    <code>{{$vm.vmData.C1}}</code>
+					<a href-void="javascript:void(0);" 
+					   class="btn btn-default btn-xs"
+					   data-popover-placement="bottom"
+					   data-popover-trigger="mouseenter"
+					   data-popover-title="計算說明"
+					   data-uib-popover="袋號貨態為清出的袋數">
+					   <strong>?</strong>
+					</a>
+                </div>
+
+            </article>
+
+            <article class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+
+                <div class="well well-sm bg-color-redLight text-center">
+                    <span class="txt-color-white">真實非清出(袋數)</span>
+                    <code>{{$vm.vmData.OtherC1}}</code>
+					<a href-void="javascript:void(0);" 
+					   class="btn btn-default btn-xs"
+					   data-popover-placement="bottom"
+					   data-popover-trigger="mouseenter"
+					   data-popover-title="計算說明"
+					   data-uib-popover="袋號貨態為非清出的袋數">
+					   <strong>?</strong>
+					</a>
+                </div>
+
+            </article>
+
+            <article class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+
+                <div class="well well-sm bg-color-redLight text-center">
+                    <span class="txt-color-white">行家非清出(件數)</span>
+                    <code>{{$vm.vmData.CCOtherC1ByCount}}</code>
+					<a href-void="javascript:void(0);" 
+					   class="btn btn-default btn-xs"
+					   data-popover-placement="bottom"
+					   data-popover-trigger="mouseenter"
+					   data-popover-title="計算說明"
+					   data-uib-popover="行家貨態為已編輯且非清出的件數">
+					   <strong>?</strong>
+					</a>
+                </div>
+
+            </article>
+
+            <article class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+
+                <div class="well well-sm bg-color-redLight text-center">
+                    <span class="txt-color-white">行家非清出(袋數)</span>
+                    <code>{{$vm.vmData.CCOtherC1ByBagno}}</code>
+					<a href-void="javascript:void(0);" 
+					   class="btn btn-default btn-xs"
+					   data-popover-placement="bottom"
+					   data-popover-trigger="mouseenter"
+					   data-popover-title="計算說明"
+					   data-uib-popover="行家貨態為已編輯且非清出的袋數">
+					   <strong>?</strong>
+					</a>
+                </div>
+
+            </article>
+	        <!-- End WIDGET START -->
+
+	        <!-- NEW WIDGET START -->
+            <article class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
+
+                <div class="well well-sm bg-color-orange text-center">
+                    <span class="txt-color-white">總袋數</span>
+                    <code>{{$vm.vmData.AML_TOTAL_NUM}}</code>
+					<a href-void="javascript:void(0);" 
+					   class="btn btn-default btn-xs"
+					   data-popover-placement="bottom"
+					   data-popover-trigger="mouseenter"
+					   data-popover-title="計算說明"
+					   data-uib-popover="中班作業區的袋數">
+					   <strong>?</strong>
+					</a>
+                </div>
+
+            </article>
+
+            <article class="col-xs-12 col-sm-12 col-md-8 col-lg-8">
+
+                <div class="well well-sm bg-color-pinkDark txt-color-white text-center">
+                    描述
+                    <code>{{$vm.vmData.OL_REASON}}</code>
+                </div>
+
+            </article>
+	        <!-- End WIDGET START -->
+
+	        <!-- NEW WIDGET START -->
 	        <article class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
 	        	<!-- Widget ID (each widget will need unique ID)-->
 				<div id="job003" data-widget-sortable="false" data-widget-colorbutton="false" data-widget-togglebutton="false" data-widget-editbutton="false" data-widget-fullscreenbutton="false" data-widget-deletebutton="false" data-widget-color="blue" data-jarvis-widget>
@@ -84,9 +182,64 @@
 				        <!-- widget content -->
 						<div class="widget-body no-padding">
 
+							<div class="widget-body-toolbar">
+							    <div class="row">
+							        <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
+							        	<form class="form-inline" role="form">
+							                <fieldset>
+							                    <div class="form-group">
+											        <label class="control-label">標籤說明：</label>
+											        <span>
+														<span class="cell-class-ban"> 非清出</span>
+														<span class="cell-class-pull"> 已編輯</span>
+														<!-- <span class="cell-class-special"> 特貨</span>
+														<span class="text-primary"> 可編輯欄位</span> -->
+											        </span>
+							                    </div>
+							                </fieldset>
+							            </form>
+							        	<!-- <form class="form-inline" role="form">
+							                <fieldset>
+							                    <div class="form-group">
+											        <label class="control-label">班機表已匯：</label>
+											        <span>
+														<i ng-class="$vm.vmData.FLIGHT_EXPORT >= 1 ? 'fa fa-check text-success' : 'fa fa-remove text-danger'"></i>
+											        </span>
+											        <label class="control-label">｜</label>
+											        <label class="control-label">關貿已匯：</label>
+											        <span>
+														<i ng-class="$vm.vmData.TRADE_EXPORT >= 1 ? 'fa fa-check text-success' : 'fa fa-remove text-danger'"></i>
+											        </span>
+							                    </div>
+							                </fieldset>
+							            </form> -->
+							        </div>
+							        <div class="col-xs-12 col-sm-12 col-md-8 col-lg-8 text-right">
+							        	<form class="form-inline" role="form">
+							                <fieldset>
+							                    <div class="form-group">
+										            <button class="btn btn-info"
+										            		ng-click="$vm.EhuftzData()">
+										                遠雄資料
+										            </button>
+										            <!-- <button class="btn btn-primary"
+										            		ng-click="$vm.SyncClearance()">
+										                貨態同步
+										            </button> -->
+										            <button class="btn btn-danger"
+										            		ng-click="$vm.ProblemClearance()">
+										                貨態異常
+										            </button>
+							                    </div>
+							                </fieldset>
+							            </form>
+							        </div>
+							    </div>
+							</div>
+
 							<div class="table-responsive">
 
-								<div id="grid1" ui-grid="$vm.job003Options" class="my-ui-grid" ui-grid-pagination ui-grid-resize-columns></div>
+								<div id="grid1" ui-grid="$vm.job003Options" class="my-ui-grid" ui-grid-pagination ui-grid-resize-columns ui-grid-pinning></div>
 
 							</div>
 
@@ -115,3 +268,125 @@
 	</section>
 
 </div>
+
+<script type="text/ng-template" id="job003ExcelMenu.html">
+    <div class="modal-header bg-color-green">
+        <h3 class="modal-title text-center">
+            <strong class=" txt-color-white">選擇格式</strong>
+        </h3>
+    </div>
+	<div class="modal-body" id="modal-body">
+        <div class="row"> 
+            <button type="button" class="btn btn-info btn-lg btn-block" ng-click="$ctrl.ok('Ehuftz')"> 
+                遠雄資料
+            </button> 
+            <button type="button" class="btn btn-info btn-lg btn-block" ng-click="$ctrl.ok('This')"> 
+                清關日報表
+            </button> 
+        </div> 
+	</div>
+</script>
+
+<script type="text/ng-template" id="ehuftzDataModalContent.html">
+    <div class="modal-header">
+	    <h3 class="modal-title" id="modal-title">遠雄資料</h3>
+	</div>
+	<div class="modal-body no-padding" id="modal-body">
+
+	    <div class="padding-10">此為遠雄真實資料。</div>
+
+        <div id="grid1" ui-grid="$ctrl.dataOption" class="my-ui-grid" ui-grid-pagination ui-grid-resize-columns ui-grid-auto-resize></div>
+	</div>
+	<div class="modal-footer">
+	    <button class="btn btn-primary" type="button" ng-click="$ctrl.ok()">{{getWord('OK')}}</button>
+	    <!-- <button class="btn btn-default" type="button" ng-click="$ctrl.cancel()">{{getWord('Cancel')}}</button> -->
+	</div>
+</script>
+
+<script type="text/ng-template" id="syncClearanceModalContent.html">
+    <div class="modal-header">
+	    <h3 class="modal-title" id="modal-title">貨態同步</h3>
+	</div>
+	<div class="modal-body no-padding" id="modal-body">
+
+	    <div class="padding-10">將會把「真實貨態」的值複製到「行家貨態」。</div>
+
+        <div id="grid1" ui-grid="$ctrl.dataOption" class="my-ui-grid" ui-grid-pagination ui-grid-resize-columns ui-grid-selection ui-grid-auto-resize></div>
+	</div>
+	<div class="modal-footer">
+	    <button class="btn btn-primary" type="button" ng-click="$ctrl.ok()">{{getWord('OK')}}</button>
+	    <button class="btn btn-default" type="button" ng-click="$ctrl.cancel()">{{getWord('Cancel')}}</button>
+	</div>
+</script>
+
+<script type="text/ng-template" id="problemClearanceModalContent.html">
+    <div class="modal-header">
+	    <h3 class="modal-title" id="modal-title">貨態異常</h3>
+	</div>
+	<div class="modal-body no-padding" id="modal-body">
+        <div id="grid1" ui-grid="$ctrl.dataOption" class="my-ui-grid" ui-grid-pagination ui-grid-resize-columns ui-grid-auto-resize></div>
+	</div>
+	<div class="modal-footer">
+	    <button class="btn btn-primary" type="button" ng-click="$ctrl.ok()">{{getWord('OK')}}</button>
+	    <!-- <button class="btn btn-default" type="button" ng-click="$ctrl.cancel()">{{getWord('Cancel')}}</button> -->
+	</div>
+</script>
+
+<script type="text/ng-template" id="job003ModifyDataModalContent.html">
+    <div class="modal-header" ng-init="$ctrl.Init()">
+	    <h3 class="modal-title" id="modal-title">修改</h3>
+	</div>
+	<div class="modal-body" id="modal-body">
+	    <form class="form-horizontal" name="form">
+			<fieldset>
+				<div class="form-group">
+			        <label class="col-md-3 control-label">行家貨態</label>
+			        <div class="col-md-9">
+						<select class="form-control" name="CC_CUST_CLEARANCE" ng-model="$ctrl.mdData.CC_CUST_CLEARANCE" ng-options="data.value as data.label for data in $ctrl.clearanceType" ng-required="true">
+							<option value="">-- 請選擇 --</option>
+						</select>
+			        </div>
+			    </div>
+				<div class="form-group" ng-if="$ctrl.mdData.CC_CUST_CLEARANCE == 'C3'">
+			        <label class="col-md-3 control-label">貨態描述</label>
+			        <div class="col-md-9">
+						<select class="form-control" name="CC_C3TYPE" ng-model="$ctrl.mdData.CC_C3TYPE" ng-options="data.value as data.label for data in $ctrl.c3Type" ng-required="$ctrl.mdData.CC_CUST_CLEARANCE == 'C3'">
+							<option value="">-- 請選擇 --</option>
+						</select>
+						<p class="note">貨態為查驗時，須寫貨態描述。</p>
+			        </div>
+			    </div>
+				<div class="form-group" ng-if="$ctrl.mdData.CC_CUST_CLEARANCE == 'C1'">
+			        <label class="col-md-3 control-label">行家出倉時間</label>
+			        <div class="col-md-9">
+			            <input class="form-control" name="CC_GCO_DATE1" type="text" ng-model="$ctrl.mdData.CC_GCO_DATE1" ui-mask="9999-99-99" ui-mask-placeholder ui-mask-placeholder-char="_" placeholder="(西元 年-月-日)" model-view-value="true" ng-required="$ctrl.mdData.CC_CUST_CLEARANCE == 'C1'"/>
+						<p class="note">貨態為清出時，須寫行家出倉時間。</p>
+			        </div>
+			    </div>
+				<div class="form-group" ng-if="$ctrl.mdData.CC_CUST_CLEARANCE == 'C1'">
+			        <label class="col-md-3 control-label">行家放行時間</label>
+			        <div class="col-md-9">
+			            <input class="form-control" name="CC_RELEASE_TIME" type="text" ng-model="$ctrl.mdData.CC_RELEASE_TIME" ui-mask="9999-99-99 99:99:99" ui-mask-placeholder ui-mask-placeholder-char="_" placeholder="(西元 年-月-日 時:分:秒)" model-view-value="true" ng-required="$ctrl.mdData.CC_CUST_CLEARANCE == 'C1'"/>
+						<p class="note">貨態為清出時，須寫行家放行時間。</p>
+			        </div>
+			    </div>
+				<div class="form-group">
+			        <label class="col-md-3 control-label">真實備註</label>
+			        <div class="col-md-9">
+			            <textarea class="form-control" rows="3" name="PG_REASON" ng-model="$ctrl.mdData.CC_ORI_DESC" maxlength="50" placeholder="輸入真實備註(最多50字)" style="resize: none; "></textarea>
+			        </div>
+			    </div>
+				<div class="form-group">
+			        <label class="col-md-3 control-label">行家備註</label>
+			        <div class="col-md-9">
+			            <textarea class="form-control" rows="3" name="PG_REASON" ng-model="$ctrl.mdData.CC_CUST_DESC" maxlength="50" placeholder="輸入行家備註(最多50字)" style="resize: none; "></textarea>
+			        </div>
+			    </div>
+			</fieldset>
+	    </form>
+	</div>
+	<div class="modal-footer">
+	    <button class="btn btn-warning" type="button" ng-click="$ctrl.ok()" ng-disabled="!form.$valid">{{getWord('Update')}}</button>
+	    <button class="btn btn-default" type="button" ng-click="$ctrl.cancel()">{{getWord('Cancel')}}</button>
+	</div>
+</script>

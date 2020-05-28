@@ -1,0 +1,217 @@
+module.exports = function(pQueryname, pParams){
+	var _SQLCommand = "";
+
+	switch(pQueryname){
+		case "ExportJob003":
+			_SQLCommand += "WITH ORDER_LIST1 AS ( \
+								SELECT OL_SEQ, \
+								    OL_MASTER, \
+									OL_CO_CODE, \
+									OL_IMPORTDT \
+								FROM ORDER_LIST \
+							), ITEM_LIST1 AS ( \
+								SELECT *, \
+									ROW_NUMBER() OVER(PARTITION BY CASE WHEN IL_MERGENO IS NULL THEN IL_BAGNO2 ELSE IL_MERGENO END ORDER BY IL_BAGNO2) AS IL_BAGNO2Index \
+								FROM V_ITEM_LIST_FOR_D \
+								INNER JOIN ORDER_LIST1 ON OL_SEQ = IL_SEQ \
+							), PULL_GOODS1 AS ( \
+								SELECT PG_SEQ, \
+									PG_BAGNO \
+								FROM PULL_GOODS \
+								INNER JOIN ORDER_LIST1 ON OL_SEQ = PG_SEQ \
+							), EHUFTZ_MASTER_LIST1 AS ( \
+								SELECT ITEM_LIST.IL_SEQ, \
+									ITEM_LIST.IL_NEWBAGNO, \
+									ITEM_LIST.IL_NEWSMALLNO, \
+									ITEM_LIST.IL_ORDERINDEX, \
+									A.* \
+								FROM ( \
+									SELECT *, \
+										CASE WHEN IL_MERGENO IS NULL THEN IL_BAGNO2 ELSE IL_MERGENO END AS IL_BAGNO2_OR_MERGENO \
+									FROM V_ITEM_LIST_FOR_D \
+								) ITEM_LIST \
+								INNER JOIN ORDER_LIST1 ON OL_SEQ = IL_SEQ\
+								INNER JOIN ( \
+									SELECT *, \
+										( \
+											SELECT SC_DESC \
+											FROM SYS_CODE \
+											WHERE SC_TYPE = 'ClearanceType' \
+											AND SC_CODE = EML_TRUE_CLEARANCE \
+											AND SC_STS = 0 \
+										) AS EML_TRUE_CLEARANCE_STR, \
+										( \
+											SELECT SC_DESC \
+											FROM SYS_CODE \
+											WHERE SC_TYPE = 'ClearanceType' \
+											AND SC_CODE = EML_BAGNO_CLEARANCE \
+											AND SC_STS = 0 \
+										) AS EML_BAGNO_CLEARANCE_STR \
+									FROM EHUFTZ_MASTER_LIST \
+								) A ON A.EML_SEQ = IL_SEQ AND A.EML_HWB = IL_BAGNO2_OR_MERGENO \
+								UNION \
+								SELECT ITEM_LIST.IL_SEQ, \
+									ITEM_LIST.IL_NEWBAGNO, \
+									ITEM_LIST.IL_NEWSMALLNO,\
+									ITEM_LIST.IL_ORDERINDEX, \
+									B.* \
+								FROM ( \
+									SELECT *, \
+										CASE WHEN IL_MERGENO IS NULL THEN IL_BAGNO2 ELSE IL_MERGENO END AS IL_BAGNO2_OR_MERGENO \
+									FROM V_ITEM_LIST_FOR_D \
+								) ITEM_LIST \
+								INNER JOIN ORDER_LIST1 ON OL_SEQ = IL_SEQ\
+								INNER JOIN ( \
+									SELECT *, \
+										( \
+											SELECT SC_DESC \
+											FROM SYS_CODE \
+											WHERE SC_TYPE = 'ClearanceType' \
+											AND SC_CODE = EML_TRUE_CLEARANCE \
+											AND SC_STS = 0 \
+										) AS EML_TRUE_CLEARANCE_STR, \
+										( \
+											SELECT SC_DESC \
+											FROM SYS_CODE \
+											WHERE SC_TYPE = 'ClearanceType' \
+											AND SC_CODE = EML_BAGNO_CLEARANCE \
+											AND SC_STS = 0 \
+										) AS EML_BAGNO_CLEARANCE_STR \
+									FROM EHUFTZ_MASTER_LIST \
+									WHERE 1=1 \
+								) B ON B.EML_SEQ = IL_SEQ AND B.EML_EXP_BAGNO = IL_BAGNO2_OR_MERGENO AND B.EML_HWB = IL_SMALLNO2 \
+							), CUSTOMS_CLEARANCE1 AS ( \
+								SELECT *, \
+									( \
+										SELECT SC_DESC \
+										FROM SYS_CODE \
+										WHERE SC_TYPE = 'ClearanceType' \
+										AND SC_CODE = CC_CUST_CLEARANCE \
+										AND SC_STS = 0 \
+									) AS CC_CUST_CLEARANCE_STR, \
+									( \
+										SELECT SC_DESC \
+										FROM SYS_CODE \
+										WHERE SC_TYPE = 'C3Type' \
+										AND SC_CODE = CC_C3TYPE \
+										AND SC_STS = 0 \
+									) AS CC_C3TYPE_STR \
+								FROM CUSTOMS_CLEARANCE \
+								INNER JOIN ORDER_LIST1 ON OL_SEQ = CC_SEQ\
+							) \
+							SELECT *, \
+								'' AS SPACE \
+							FROM ( \
+								SELECT ITEM_LIST1.OL_MASTER, \
+									ITEM_LIST1.OL_CO_CODE, \
+									(\
+										SELECT CO_NAME\
+										FROM COMPY_INFO\
+										WHERE CO_CODE = ITEM_LIST1.OL_CO_CODE\
+									) CO_NAME, \
+									ITEM_LIST1.IL_SEQ, \
+									ITEM_LIST1.IL_NEWBAGNO, \
+									ITEM_LIST1.IL_NEWSMALLNO, \
+									ITEM_LIST1.IL_ORDERINDEX, \
+									ITEM_LIST1.IL_BAGNO,\
+									ITEM_LIST1.IL_BAGNO2, \
+									ITEM_LIST1.IL_SMALLNO2, \
+									IL_BAGNO2Index, \
+									ITEM_LIST1.IL_G1, \
+									ITEM_LIST1.IL_MERGENO, \
+									ITEM_LIST1.IL_NATURE, \
+									ITEM_LIST1.IL_NATURE_NEW, \
+									ITEM_LIST1.IL_WEIGHT_NEW, \
+									ITEM_LIST1.IL_NEWPCS, \
+									ITEM_LIST1.IL_GETNO, \
+									EHUFTZ_MASTER_LIST1.EML_SEQ, \
+									EHUFTZ_MASTER_LIST1.EML_SORT_KEY, \
+									EHUFTZ_MASTER_LIST1.EML_DECL_NO, \
+									EHUFTZ_MASTER_LIST1.EML_DECL_TYPE, \
+									EHUFTZ_MASTER_LIST1.EML_EXP_BAGNO, \
+									EHUFTZ_MASTER_LIST1.EML_HWB, \
+									EHUFTZ_MASTER_LIST1.EML_CLEARANCE_TYPE, \
+									EHUFTZ_MASTER_LIST1.EML_PIECE, \
+									EHUFTZ_MASTER_LIST1.EML_GCI_PIECE, \
+									EHUFTZ_MASTER_LIST1.EML_GCO_PIECE, \
+									EHUFTZ_MASTER_LIST1.EML_WEIGHT, \
+									EHUFTZ_MASTER_LIST1.EML_GCI_WEIGHT, \
+									EHUFTZ_MASTER_LIST1.EML_BAG_WEIGHT, \
+									EHUFTZ_MASTER_LIST1.EML_BAG_FEE, \
+									EHUFTZ_MASTER_LIST1.EML_FLIGHT_NO, \
+									EHUFTZ_MASTER_LIST1.EML_FLIGHT_DATE, \
+									EHUFTZ_MASTER_LIST1.EML_GCI_DATE1, \
+									EHUFTZ_MASTER_LIST1.EML_GCO_DATE1, \
+									EHUFTZ_MASTER_LIST1.EML_RELEASE_TIME, \
+									EHUFTZ_MASTER_LIST1.EML_ACCOUNT, \
+									EHUFTZ_MASTER_LIST1.EML_UP_DATETIME, \
+									EHUFTZ_MASTER_LIST1.EML_BAGNO_CLEARANCE, \
+									EHUFTZ_MASTER_LIST1.EML_BAGNO_CLEARANCE_STR, \
+									EHUFTZ_MASTER_LIST1.EML_TRUE_CLEARANCE, \
+									EHUFTZ_MASTER_LIST1.EML_TRUE_CLEARANCE_STR, \
+									CASE WHEN IL_BAGNO2Index = 1 \
+									THEN ITEM_LIST1.IL_BAGNO2 ELSE NULL END AS 'IL_BAGNO2_NOREPEAT', \
+									CASE WHEN CC_CUST_CLEARANCE IS NULL THEN EHUFTZ_MASTER_LIST1.EML_TRUE_CLEARANCE ELSE CC_CUST_CLEARANCE END AS CC_CUST_CLEARANCE, \
+									CASE WHEN CC_CUST_CLEARANCE_STR IS NULL THEN EHUFTZ_MASTER_LIST1.EML_TRUE_CLEARANCE_STR ELSE CC_CUST_CLEARANCE_STR END AS CC_CUST_CLEARANCE_STR, \
+									CC_CUST_DESC, \
+									CC_ORI_DESC, \
+									CC_B_DATETIME, \
+									CC_C3TYPE, \
+									CC_C3TYPE_STR, \
+									CC_GCO_DATE1, \
+									CC_RELEASE_TIME, \
+									CC_CR_USER, \
+									( \
+										SELECT U_NAME \
+										FROM USER_INFO \
+										WHERE U_ID = CASE WHEN CC_CR_USER IS NOT NULL THEN CC_CR_USER ELSE CC_UP_USER END \
+									) AS U_NAME, \
+									CASE WHEN CC_CR_DATETIME IS NOT NULL THEN CC_CR_DATETIME ELSE CC_UP_DATETIME END AS CC_DATETIME \
+								FROM ITEM_LIST1 \
+								LEFT JOIN PULL_GOODS1 ON \
+								IL_SEQ = PG_SEQ AND \
+								IL_BAGNO = PG_BAGNO \
+								LEFT JOIN CUSTOMS_CLEARANCE1 ON CC_SEQ = IL_SEQ \
+								AND CC_NEWBAGNO = IL_NEWBAGNO \
+								AND CC_NEWSMALLNO = IL_NEWSMALLNO \
+								AND CC_ORDERINDEX = IL_ORDERINDEX \
+								LEFT JOIN EHUFTZ_MASTER_LIST1 ON EHUFTZ_MASTER_LIST1.IL_SEQ = ITEM_LIST1.IL_SEQ \
+								AND EHUFTZ_MASTER_LIST1.IL_NEWBAGNO = ITEM_LIST1.IL_NEWBAGNO \
+								AND EHUFTZ_MASTER_LIST1.IL_NEWSMALLNO = ITEM_LIST1.IL_NEWSMALLNO \
+								AND EHUFTZ_MASTER_LIST1.IL_ORDERINDEX = ITEM_LIST1.IL_ORDERINDEX \
+								WHERE /*沒被拉貨的*/ PG_SEQ IS NULL ";
+
+			if(pParams["IMPORTDT_FROM"] !== undefined){
+				_SQLCommand += " AND ITEM_LIST1.OL_IMPORTDT >= '" + pParams["IMPORTDT_FROM"] + "'";
+			}
+			if(pParams["IMPORTDT_TOXX"] !== undefined){
+				_SQLCommand += " AND ITEM_LIST1.OL_IMPORTDT <= '" + pParams["IMPORTDT_TOXX"] + "'";
+			}
+			if(pParams["OL_CO_CODE"] !== undefined){
+				_SQLCommand += " AND ITEM_LIST1.OL_CO_CODE = @OL_CO_CODE";
+			}
+			if(pParams["MASTER_START"] !== undefined && pParams["MASTER_END"] !== undefined){
+				pParams["OL_MASTER"] = pParams["MASTER_START"] + '-' + pParams["MASTER_END"];
+				_SQLCommand += " AND ITEM_LIST1.OL_MASTER = @OL_MASTER";
+			}
+			if(pParams["GCI_DATE1_FROM"] !== undefined){
+				_SQLCommand += " AND EHUFTZ_MASTER_LIST1.EML_GCI_DATE1 >= '" + pParams["GCI_DATE1_FROM"] + "'";
+			}
+			if(pParams["GCI_DATE1_TOXX"] !== undefined){
+				_SQLCommand += " AND EHUFTZ_MASTER_LIST1.EML_GCI_DATE1 <= '" + pParams["GCI_DATE1_TOXX"] + "'";
+			}
+			if(pParams["IL_BAGNO"] !== undefined){
+				_SQLCommand += " AND ITEM_LIST1.IL_BAGNO2 = @IL_BAGNO";
+			}
+			if(pParams["EML_TRUE_CLEARANCE"] !== undefined){
+				_SQLCommand += " AND EHUFTZ_MASTER_LIST1.EML_TRUE_CLEARANCE = @EML_TRUE_CLEARANCE";
+			}
+
+			_SQLCommand += ") A \
+							ORDER BY OL_MASTER ASC, OL_CO_CODE ASC, IL_BAGNO2 ASC ";
+
+			break;
+	}
+
+	return _SQLCommand;
+};
