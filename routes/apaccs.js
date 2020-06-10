@@ -186,17 +186,19 @@ class Apaccs {
     		logger.error("空運業界自動化服務系統錯誤訊息:", e);
 		} finally {
 			// await driver && driver.quit();
-			await driver.close();
+			if(driver){
+				await driver.close();
+			}
 		}
 
 		// 在Apaccs執行完畢後再執行
 		const cpt = require('../routes/cpt');
 		new cpt.Cpt().Start();
 
-		// 每隔一段時間之後就撈一次
-		setTimeout(async () => {
-			await this.Do().then(_ => console.log('Apaccs執行完畢，結束程式'), err => console.error('ERROR: ' + err));
-		}, setting.APACCS.timer);
+		// // 每隔一段時間之後就撈一次
+		// setTimeout(async () => {
+		// 	await this.Do().then(_ => console.log('Apaccs執行完畢，結束程式'), err => console.error('ERROR: ' + err));
+		// }, setting.APACCS.timer);
 
 	}
 

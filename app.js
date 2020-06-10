@@ -48,12 +48,26 @@ var routes = require('./routes/index');
 var auth = require('./routes/auth');
 var restful = require('./routes/restful');
 var toolbox = require('./routes/toolbox');
+// 航班爬蟲
 var cargoaircraft = require('./routes/cargoaircraft');
 cargoaircraft.GetCargoAircraftTime();
+
+// 空運清關日報表排程
 const apaccs = require('./routes/apaccs');
-new apaccs.Apaccs().Start();
 const ehuftz = require('./routes/ehuftz');
-new ehuftz.Ehuftz().Start();
+const schedule = require('node-schedule');
+const moment = require('moment');
+let rule = new schedule.RecurrenceRule();
+// 每小時執行一次
+rule.hour = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23]; 
+rule.minute = moment().minutes() + 1; 
+rule.second = moment().seconds();
+// console.log(rule);
+schedule.scheduleJob(rule, function(){
+    console.log('排程執行時間:' + new Date());
+    new apaccs.Apaccs().Start();
+    new ehuftz.Ehuftz().Start();
+}); 
 var middleware = require('./routes/middleware');
 
 /**

@@ -155,13 +155,15 @@ class Cpt {
     		logger.error("關港貿單一窗口錯誤訊息:", e);
 		} finally {
 			// await driver && driver.quit();
-			await driver.close();
+			if(driver){
+				await driver.close();
+			}
 		}
 
-		// 每隔一段時間之後就撈一次
-		setTimeout(async () => {
-			await this.Do().then(_ => console.log('Cpt執行完畢，結束程式'), err => console.error('ERROR: ' + err));
-		}, setting.CPT.timer);
+		// // 每隔一段時間之後就撈一次
+		// setTimeout(async () => {
+		// 	await this.Do().then(_ => console.log('Cpt執行完畢，結束程式'), err => console.error('ERROR: ' + err));
+		// }, setting.CPT.timer);
 
 	}
 
