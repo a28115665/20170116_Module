@@ -19,24 +19,31 @@ angular.module('app').controller("LanguagesCtrl",  function LanguagesCtrl($scope
 
         Language.getLang(data[languageNumber].key, function(data){
 
-            $rootScope.lang = data;
+            $rootScope.lang = toLowerCaseKeys(data);
         });
 
     });
+
+    function toLowerCaseKeys(obj) {
+        return Object.keys(obj).reduce(function(accum, key) {
+            accum[key.toLowerCase()] = obj[key];
+            return accum;
+        }, {});
+    }
 
     $scope.selectLanguage = function(language){
         $rootScope.currentLanguage = language;
         
         Language.getLang(language.key,function(data){
 
-            $rootScope.lang = data;
+            $rootScope.lang = toLowerCaseKeys(data);
             
         });
     }
 
     $rootScope.getWord = function(key){
-        if(angular.isDefined($rootScope.lang[key])){
-            return $rootScope.lang[key];
+        if(angular.isDefined($rootScope.lang[key.toLowerCase()])){
+            return $rootScope.lang[key.toLowerCase()];
         } 
         else {
             return key;

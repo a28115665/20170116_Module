@@ -19,7 +19,7 @@ angular.module('app.oselfwork').controller('OEmployeeHistorySearchCtrl', functio
         },
         profile : Session.Get(),
         boolData : bool,
-        compyData : ocompy,
+        ocompyData : ocompy,
         gridMethod : {
             // 各單的工作選項
             gridOperation : function(row, name){

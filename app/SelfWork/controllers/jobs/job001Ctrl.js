@@ -1705,7 +1705,7 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
             if(!isNaN(_weight) && !isNaN(_pcs)){
                 // 如果數量不為0
                 if(parseInt(_pcs) != 0){
-                    rowEntity.IL_UNIVALENT_NEW = (_weight * 100) / _pcs;
+                    rowEntity.IL_UNIVALENT_NEW = (_weight * 50) / _pcs;
                 }else{
                     rowEntity.IL_UNIVALENT_NEW = 0;
                 }
