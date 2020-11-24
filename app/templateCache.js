@@ -343,6 +343,15 @@ angular.module('app')
                             <span ng-switch-default>{{row.entity.SDL_LEVEL}}</span>\
                         </div>');
 
+    /**
+     * [class description] StatisticalCns
+     * @type {String}
+     */
+    $templateCache.put('StatisticalCnsDetail', '\
+                        <div class="ui-grid-cell-contents">\
+                            <button type="button" class="btn btn-info btn-xs" ng-click="grid.appScope.$vm.gridMethod.detail(row)"> 明細</button>\
+                        </div>');
+
     $templateCache.put('isChecked', '\
                         <div class="modal-header bg-color-blueLight">\
                             <h3 class="modal-title text-center">\

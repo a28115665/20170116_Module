@@ -37,6 +37,7 @@ class Ehuftz {
         let recordset = await this.SelectUnfinishedMaster();
 
 		let driver,
+			seq,
 			// 0233(0A4),0254(0G5)
 			eid,
 			mawbNo;
@@ -58,9 +59,9 @@ class Ehuftz {
 				// 預備寫入資料
 	        	let tasks = [],
 	        		eid = null,
-	        		seq = data.OL_SEQ,
 	        		mawbNo = data.OL_MASTER,
 	        		bagno = data.IL_BAGNO;
+        		seq = data.OL_SEQ
 
 	        	if(!bagno){
 	        		continue;
@@ -244,7 +245,7 @@ class Ehuftz {
 
 			// await sleep(2000);
 		} catch(e) {
-    		logger.error("遠雄快遞錯誤訊息:", e);
+    		logger.error("遠雄快遞錯誤訊息("+seq+"):", e);
 		} finally {
 			// await driver && driver.quit();
 			if(driver){

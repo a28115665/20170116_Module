@@ -1,0 +1,187 @@
+<!-- MAIN CONTENT -->
+<div id="content" ng-init="$vm.Init()">
+
+	<div class="row">
+		<big-breadcrumbs items="['OSelfWork', 'ODeliveryJobs']" icon="cube" class="col-xs-12 col-sm-7 col-md-7 col-lg-4"></big-breadcrumbs>
+	</div>
+
+	<!-- widget grid -->
+	<section id="widget-grid" data-widget-grid>
+	    <!-- row -->
+	    <div class="row">
+
+	        <!-- NEW WIDGET START -->
+	        <article class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+	        	<!-- Widget ID (each widget will need unique ID)-->
+				<div id="billboard" data-widget-sortable="false" data-widget-colorbutton="false" data-widget-togglebutton="false" data-widget-editbutton="false" data-widget-fullscreenbutton="false" data-widget-deletebutton="false" data-widget-color="blue" data-jarvis-widget>
+				    <!-- widget options:
+				        usage: <div data-jarvis-widget id="wid-id-0" data-widget-editbutton="false">
+				        data-widget-colorbutton="false"
+				        data-widget-editbutton="false"
+				        data-widget-togglebutton="false"
+				        data-widget-deletebutton="false"
+				        data-widget-fullscreenbutton="false"
+				        data-widget-custombutton="false"
+				        data-widget-collapsed="true"
+				        data-widget-sortable="false"
+				    -->
+				    <header>
+				        <h2>作業區 </h2>
+				        
+				        <!-- <div class="widget-toolbar smart-form" role="menu">
+				            <a href-void="" class="btn btn-primary" href="#">重新讀取個人領單</a>
+				        </div> -->
+
+				        <!-- <div class="widget-toolbar smart-form" role="menu">
+				            <label class="input"> 
+				            	<i class="icon-append fa fa-search"></i>
+				                <input type="text" placeholder="篩選內容" ng-enter="$vm.Filter()" ng-model="$vm.filterValue">
+				                <b class="tooltip tooltip-top-right">
+				                    <i class="fa fa-warning txt-color-teal"></i>
+				                    按下確認鍵後篩選
+				                </b>
+				            </label>
+				        </div> -->
+
+				        <!-- <div class="widget-toolbar" role="menu">
+					        <div class="btn-group">
+						        <label class="btn btn-success btn-xs" ng-model="$vm.defaultChoice" uib-btn-radio="'Left'">近七天</label>
+						        <label class="btn btn-success btn-xs" ng-model="$vm.defaultChoice" uib-btn-radio="'Middle'">近一月</label>
+						        <label class="btn btn-success btn-xs" ng-model="$vm.defaultChoice" uib-btn-radio="'Right'">近三月</label>
+				            </div>
+				        </div> -->
+
+				    </header>
+				    <!-- widget div-->
+				    <div>
+				        <!-- widget content -->
+						<div class="widget-body no-padding">
+
+							<div class="widget-body-toolbar">
+							    <div class="row">
+							        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-4">
+							        	<!-- <form class="form-inline" role="form">
+							                <fieldset>
+							                    <div class="form-group">
+											        <label class="control-label">分批說明：</label>
+								                    <div class="form-group">
+														<i class="fa fa-question"> 尚未分批</i>
+														<i class="fa fa-exclamation text-warning"> 分批中</i>
+														<i class="fa fa-check text-success"> 分批完成</i>
+								                    </div>
+							                    </div>
+							                </fieldset>
+							            </form> -->
+							        </div>
+							        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-8 text-right">
+							        	<form class="form-inline" role="form">
+							                <fieldset>
+							                    <!-- <div class="form-group">
+										            <button class="btn btn-primary"
+										            		ng-if="['Admin', 'PUser'].indexOf($vm.profile.U_ROLE) != -1"
+										            		ng-click="$vm.AutoCloseData()">
+										                自動結單設定
+										            </button>
+							                    </div> -->
+							                    <div class="form-group">
+										            <button class="btn btn-info"
+										            		ng-disabled="$vm.deliveryItemGridApi.selection.getSelectedRows().length == 0"
+										            		ng-click="$vm.CloseData()">
+										                結單
+										            </button>
+							                    </div>
+							                </fieldset>
+							            </form>
+							        </div>
+							    </div>
+							</div>
+
+							<div id="grid1" ui-grid="$vm.odeliveryItemOptions" class="my-ui-grid" ui-grid-pagination ui-grid-selection ui-grid-pinning ui-grid-resize-columns ui-grid-auto-resize></div>
+
+						</div>
+						<!-- end widget content -->
+				    </div>
+				    <!-- end widget div -->
+				</div>
+				<!-- end widget -->
+	        </article>
+	        <!-- End WIDGET START -->
+
+	    </div>
+	</section>
+
+</div>
+
+<script type="text/ng-template" id="oopWorkMenu.html">
+    <div class="modal-header bg-color-green">
+        <h3 class="modal-title text-center">
+            <strong class=" txt-color-white">{{$ctrl.row.entity.name}}</strong>
+        </h3>
+    </div>
+    <div class="modal-body text-center"> 
+        <div class="row" ng-if="$ctrl.row.entity.name == '日報明細'"> 
+            <!-- <button type="button" class="btn btn-danger btn-lg btn-block" ng-click="$ctrl.appScope.gridMethodForJob003.rejectData($ctrl.row);$ctrl.cancel()"> 
+                退單 
+            </button> 
+            <button type="button" class="btn btn-warning btn-lg btn-block" ng-click="$ctrl.appScope.gridMethodForJob003.modifyData($ctrl.row);$ctrl.cancel()" ng-disabled="($ctrl.row.entity.W1_EDATETIME != null) && ($ctrl.row.entity.W1_PRINCIPAL != $ctrl.appScope.profile.U_ID || $ctrl.row.entity.W1_FDATETIME != null)"> 
+                編輯 
+            </button> 
+            <button type="button" class="btn btn-primary btn-lg btn-block" ng-click="$ctrl.appScope.gridMethodForJob003.closeData($ctrl.row);$ctrl.cancel()" ng-disabled="($ctrl.row.entity.W1_PRINCIPAL != $ctrl.appScope.profile.U_ID || $ctrl.row.entity.W1_FDATETIME != null)"> 
+                完成 
+            </button> 
+            <button type="button" class="btn btn-warning btn-lg btn-block" ng-click="$ctrl.appScope.gridMethodForJob003.fixData($ctrl.row);$ctrl.cancel()" ng-disabled="$ctrl.row.entity.W1_FDATETIME == null"> 
+                修改 
+            </button> 
+            <button type="button" class="btn btn-danger btn-lg btn-block" ng-click="$ctrl.appScope.gridMethodForJob003.rejectData($ctrl.row);$ctrl.cancel()"> 
+                刪除 
+            </button> -->
+        	<button type="button" class="btn btn-info btn-lg btn-block" ng-click="$ctrl.appScope.gridMethodForJob003.viewData($ctrl.row);$ctrl.cancel()"> 
+                檢視 
+            </button> 
+            <!-- <button type="button" class="btn btn-primary btn-lg btn-block" ng-click="$ctrl.appScope.gridMethodForJob003.closeData($ctrl.row);$ctrl.cancel()" ng-disabled="$ctrl.row.entity.W1_FDATETIME != null"> 
+                完成 
+            </button>  -->
+        </div>
+    </div>
+</script>
+
+<script type="text/ng-template" id="odeliveryJobsAutoCloseDataModalContent.html">
+    <div class="modal-header">
+	    <h3 class="modal-title" id="modal-title">自動結單設定</h3>
+	</div>
+	<div class="modal-body" id="modal-body">
+	    <form class="form-horizontal" name="form">
+			<fieldset>
+				<div class="form-group">
+			        <label class="col-md-3 control-label">自動結單開關</label>
+			        <div class="col-md-9">
+                    	<div class="onoffswitch-container">
+	                        <!-- <span class="onoffswitch-title">自動結單開關</span>  -->
+							<span class="onoffswitch">
+								<input type="checkbox" class="onoffswitch-checkbox" id="autoopen" ng-model="$ctrl.sysParm['O_SPA_AUTOCLOSE']">
+								<label class="onoffswitch-label" for="autoopen">
+	                                <span class="onoffswitch-inner" data-swchon-text="開" data-swchoff-text="關"></span>
+	                                <span class="onoffswitch-switch"></span>
+	                            </label> 
+							</span>
+                    	</div>
+                	</div>
+			    </div>
+				<div class="form-group" ng-if="$ctrl.sysParm['O_SPA_AUTOCLOSE']">
+			        <label class="col-md-3 control-label">結單時間</label>
+			        <div class="col-md-9">
+			            <input class="form-control" name="O_SPA_AUTOCLOSE_INTRVAL" type="number" ng-model="$ctrl.sysParm['O_SPA_AUTOCLOSE_INTRVAL']" placeholder="(小時)" min="1" max="99" ng-required="$ctrl.sysParm['O_SPA_AUTOCLOSE']"/>
+						<p class="note">最後放行時間的{{$ctrl.sysParm['O_SPA_AUTOCLOSE_INTRVAL']}}小時後自動結單。</p>
+						<p class="note">自動結單條件:</p>
+						<p class="note">1. 總袋數等於清出(袋數)。</p>
+						<p class="note">2. 行家非清出(件/袋數)等於0。</p>
+			        </div>
+			    </div>
+			</fieldset>
+	    </form>
+	</div>
+	<div class="modal-footer">
+	    <button class="btn btn-primary" type="button" ng-click="$ctrl.ok()" ng-disabled="!form.$valid">{{getWord('OK')}}</button>
+	    <button class="btn btn-default" type="button" ng-click="$ctrl.cancel()">{{getWord('Cancel')}}</button>
+	</div>
+</script>

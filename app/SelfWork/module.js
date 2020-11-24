@@ -495,4 +495,21 @@ angular.module('app.selfwork').config(function ($stateProvider){
             }
         }
     })
+
+    .state('app.selfwork.statisticalcns', {
+        url: '/selfwork/statisticalcns',
+        data: {
+            title: 'StatisticalCns'
+        },
+        views: {
+            "content@app" : {
+                templateUrl: 'app/SelfWork/views/statisticalCns.html',
+                controller: 'StatisticalCnsCtrl',
+                controllerAs: '$vm',
+                resolve: {
+                    
+                }
+            }
+        }
+    })
 });

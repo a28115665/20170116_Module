@@ -258,5 +258,70 @@ angular.module('app.oselfwork').config(function ($stateProvider){
         }
     })
 
+    .state('app.oselfwork.odeliveryjobs', {
+        url: '/oselfwork/odeliveryjobs',
+        data: {
+            title: 'ODeliveryJobs'
+        },
+        views: {
+            "content@app" : {
+                templateUrl: 'app/OSelfWork/views/odeliveryJobs.html',
+                controller: 'ODeliveryJobsCtrl',
+                controllerAs: '$vm',
+                resolve: {
+                    ocompy : function(OCompy){
+                        return OCompy.get();
+                    }
+                }
+            }
+        }
+    })
+
+    .state('app.oselfwork.odeliveryjobs.ojob003', {
+        url: '/ojob003',
+        data: {
+            title: 'OJob003'
+        },
+        params: { 
+            data: null
+        },
+        parent: 'app.oselfwork.odeliveryjobs',
+        views: {
+            "content@app" : {
+                templateUrl: 'app/OSelfWork/views/jobs/ojob003.html',
+                controller: 'OJob003Ctrl',
+                controllerAs: '$vm',
+                resolve: {
+                    clearanceType: function(SysCode){
+                        return SysCode.get('ClearanceType');
+                    },
+                    c3Type: function(SysCode){
+                        return SysCode.get('C3Type');
+                    },
+                    bool: function (SysCode){
+                        return SysCode.get('Boolean');
+                    }
+                }
+            }
+        }
+    })
+
+    .state('app.oselfwork.ostatisticalcns', {
+        url: '/oselfwork/ostatisticalcns',
+        data: {
+            title: 'OStatisticalCns'
+        },
+        views: {
+            "content@app" : {
+                templateUrl: 'app/OSelfWork/views/ostatisticalCns.html',
+                controller: 'OStatisticalCnsCtrl',
+                controllerAs: '$vm',
+                resolve: {
+                    
+                }
+            }
+        }
+    })
+
 
 });

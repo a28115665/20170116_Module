@@ -1,6 +1,6 @@
 "use strict";
 
-angular.module('app.selfwork').controller('Job003Ctrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, RestfulApi, uiGridConstants, $filter, $q, ToolboxApi, clearanceType, c3Type, bool) {
+angular.module('app.oselfwork').controller('OJob003Ctrl', function ($scope, $stateParams, $state, AuthApi, Session, toaster, $uibModal, $templateCache, RestfulApi, uiGridConstants, $filter, $q, ToolboxApi, clearanceType, c3Type, bool) {
     // console.log($stateParams, $state);
 
     var $vm = this;
@@ -133,47 +133,48 @@ angular.module('app.selfwork').controller('Job003Ctrl', function ($scope, $state
                 });
             }
         },
-        job003Options : {
-            data: '$vm.job003Data',
+        ojob003Options : {
+            data: '$vm.ojob003Data',
             columnDefs: [
-                { name: 'isEdited'          , displayName: '已編輯', width: 70, pinnedLeft:true, enableCellEdit: false, cellFilter: 'booleanFilter', filter: 
-                    {
-                        term: null,
-                        type: uiGridConstants.filter.SELECT,
-                        selectOptions: bool
-                    }
-                },
-                { name: 'EML_DECL_NO'        , displayName: '報單號碼', width: 125 },
-                { name: 'EML_DECL_TYPE'      , displayName: '報單類別', width: 91 },
-                { name: 'IL_BAGNO2_NOREPEAT' , displayName: '併袋號碼', width: 91 },
-                { name: 'IL_SMALLNO2'        , displayName: '分提單號', width: 110 },
-                { name: 'EML_CLEARANCE_TYPE' , displayName: '通關方式', width: 91 },
-                { name: 'EML_PIECE_NOREPEAT'          , displayName: '申報件數', width: 91 },
-                { name: 'EML_GCI_PIECE_NOREPEAT'      , displayName: '進倉件數', width: 91 },
-                { name: 'EML_GCO_PIECE_NOREPEAT'      , displayName: '出倉件數', width: 91 },
-                { name: 'EML_WEIGHT_NOREPEAT'         , displayName: '申報重量', width: 91 },
-                { name: 'EML_GCI_WEIGHT_NOREPEAT'     , displayName: '進倉重量', width: 91 },
-                { name: 'EML_BAG_WEIGHT_NOREPEAT'     , displayName: '袋重', width: 65 },
-                { name: 'EML_TRUE_CLEARANCE_STR' , displayName: '真實貨態', width: 91 },
-                { name: 'CC_ORI_DESC'        , displayName: '真實備註', width: 91, headerCellClass: 'text-primary' },
-                { name: 'EML_BAGNO_CLEARANCE_STR' , displayName: '袋號貨態', width: 91 },
-                { name: 'CC_CUST_CLEARANCE_STR'  , displayName: '行家貨態', width: 91, headerCellClass: 'text-primary' },
-                { name: 'CC_CUST_DESC'       , displayName: '行家備註', width: 91, headerCellClass: 'text-primary' },
-                { name: 'EML_BAG_FEE_NOREPEAT'        , displayName: '倉租費用', width: 91 },
-                { name: 'EML_FLIGHT_NO'      , displayName: '航班', width: 65 },
-                { name: 'EML_FLIGHT_DATE'    , displayName: '班機日期', width: 91, cellFilter: 'dateFilter' },
-                { name: 'EML_GCI_DATE1'      , displayName: '進倉時間', width: 91, cellFilter: 'dateFilter' },
-                { name: 'EML_GCO_DATE1'      , displayName: '出倉時間', width: 91, cellFilter: 'dateFilter' },
-                { name: 'EML_RELEASE_TIME'   , displayName: '放行時間', width: 145, cellFilter: 'datetimeFilter' },
-                { name: 'CC_C3TYPE_STR'      , displayName: '貨態描述', width: 91, headerCellClass: 'text-primary' },
-                { name: 'CC_GCO_DATE1'       , displayName: '行家出倉時間', width: 91, cellFilter: 'dateFilter', headerCellClass: 'text-primary' },
-                { name: 'CC_RELEASE_TIME'    , displayName: '行家放行時間', width: 145, cellFilter: 'datetimeFilter', headerCellClass: 'text-primary' },
-                { name: 'U_NAME'             , displayName: '編輯者', width: 91 },
-                { name: 'CC_DATETIME'        , displayName: '修改時間', width: 145, cellFilter: 'datetimeFilter' },
-                { name: 'Options'            , displayName: '操作', width: 65, enableCellEdit: false, enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToM'), pinnedRight:true, cellClass: 'cell-class-no-style' }
+                // { name: 'isEdited'          , displayName: '已編輯', width: 70, pinnedLeft:true, enableCellEdit: false, cellFilter: 'booleanFilter', filter: 
+                //     {
+                //         term: null,
+                //         type: uiGridConstants.filter.SELECT,
+                //         selectOptions: bool
+                //     }
+                // },
+                { name: 'DeclarationNumber'        , displayName: '報單號碼', width: 125 },
+                { name: 'DeclarationType'          , displayName: '報單類別', width: 91 },
+                { name: 'O_IL_SMALLNO'             , displayName: '分提單號', width: 110 },
+                { name: 'CustomsWay'               , displayName: '通關方式', width: 91 },
+                { name: 'IntoWarehouseTotalWeight' , displayName: '進倉總重', width: 91 },
+                { name: 'WarehouseRental'          , displayName: '倉租', width: 91 },
+                { name: 'DeclarationBoxNum'        , displayName: '報關箱號', width: 91 },
+                { name: 'DeclarationQty'           , displayName: '申報件數', width: 91 },
+                { name: 'DeclarationWeight'        , displayName: '申報重量', width: 91 },
+                { name: 'IntoWareHouseQty'         , displayName: '進倉件數', width: 91 },
+                { name: 'IntoWarehouseWeight'      , displayName: '進倉重量', width: 91 },
+                { name: 'OutOfWareHouseQty'        , displayName: '出倉件數', width: 91 },
+                { name: 'CustomsReleaseDateTime'   , displayName: '放行時間', width: 125 },
+                { name: 'FirstIntoWareHouseTime'   , displayName: '首件進倉時間', width: 125 },
+                { name: 'LastIntoWareHouseTime'    , displayName: '最後進倉時間', width: 125 },
+                { name: 'FirstOutOfWareHouseTime'  , displayName: '首件出倉時間', width: 125 },
+                { name: 'LastOutOfWareHouseTime'   , displayName: '最後出倉時間', width: 125 },
+                { name: 'ImportBoatClassDate'      , displayName: '進口船班日期', width: 91 }
+
+                // { name: 'EML_TRUE_CLEARANCE_STR' , displayName: '真實貨態', width: 91 },
+                // { name: 'CC_ORI_DESC'        , displayName: '真實備註', width: 91, headerCellClass: 'text-primary' },
+                // { name: 'CC_CUST_CLEARANCE_STR'  , displayName: '行家貨態', width: 91, headerCellClass: 'text-primary' },
+                // { name: 'CC_CUST_DESC'       , displayName: '行家備註', width: 91, headerCellClass: 'text-primary' },
+                // { name: 'CC_C3TYPE_STR'      , displayName: '貨態描述', width: 91, headerCellClass: 'text-primary' },
+                // { name: 'CC_GCO_DATE1'       , displayName: '行家出倉時間', width: 91, cellFilter: 'dateFilter', headerCellClass: 'text-primary' },
+                // { name: 'CC_RELEASE_TIME'    , displayName: '行家放行時間', width: 145, cellFilter: 'datetimeFilter', headerCellClass: 'text-primary' },
+                // { name: 'U_NAME'             , displayName: '編輯者', width: 91 },
+                // { name: 'CC_DATETIME'        , displayName: '修改時間', width: 145, cellFilter: 'datetimeFilter' },
+                // { name: 'Options'            , displayName: '操作', width: 65, enableCellEdit: false, enableFiltering: false, cellTemplate: $templateCache.get('accessibilityToM'), pinnedRight:true, cellClass: 'cell-class-no-style' }
             ],
             rowTemplate: '<div> \
-                            <div ng-repeat="(colRenderIndex, col) in colContainer.renderedColumns track by col.colDef.name" class="ui-grid-cell" ng-class="{\'cell-class-ban\' : ![\'C1\', null].includes(row.entity.EML_BAGNO_CLEARANCE), \'cell-class-pull\' : row.entity.CC_CR_USER }" ui-grid-cell></div> \
+                            <div ng-repeat="(colRenderIndex, col) in colContainer.renderedColumns track by col.colDef.name" class="ui-grid-cell" ng-class="{\'cell-class-ban\' : ![\'C1\', null].includes(row.entity.CustomsWay), \'cell-class-pull\' : row.entity.CC_CR_USER }" ui-grid-cell></div> \
                           </div>',
             enableFiltering: true,
             enableSorting: true,
@@ -184,25 +185,7 @@ angular.module('app.selfwork').controller('Job003Ctrl', function ($scope, $state
             paginationPageSizes: [50, 100, 150, 200, 250, 300],
             paginationPageSize: 100,
             onRegisterApi: function(gridApi){
-                $vm.job003GridApi = gridApi;
-
-                console.log($vm.job003GridApi);
-
-                // setTimeout(function(){
-                    // angular.element(document.getElementsByClassName('my-ui-grid')[0]).css('height', (3030 + 57 + 32) + 'px');
-                // });
-
-                // gridApi.rowEdit.on.saveRow($scope, $vm.Update);
-
-                // gridApi.selection.on.rowSelectionChanged($scope, function(rowEntity, colDef, newValue, oldValue){
-                //     rowEntity.entity["isEdited"] = rowEntity.isEdited;
-                // });
-
-                // gridApi.selection.on.rowSelectionChangedBatch($scope, function(rowEntity, colDef, newValue, oldValue){
-                //     for(var i in rowEntity){
-                //         rowEntity[i].entity["isEdited"] = rowEntity[i].isEdited;
-                //     }
-                // });
+                $vm.ojob003GridApi = gridApi;
             }
         },
         ExportExcel: function(){
@@ -285,10 +268,11 @@ angular.module('app.selfwork').controller('Job003Ctrl', function ($scope, $state
         EhuftzData: function() {
 
             RestfulApi.SearchMSSQLData({
-                querymain: 'job003',
-                queryname: 'SelectOriEhuftzMasterList',
+                querymain: 'ojob003',
+                queryname: 'SelectOriImd',
                 params: {
-                    EML_SEQ: $vm.vmData.OL_SEQ
+                    O_OL_SEQ: $vm.vmData.O_OL_SEQ,
+                    O_OL_MASTER: $vm.vmData.O_OL_MASTER
                 }
             }).then(function (res){
                 var _data = res["returnData"] || [];
@@ -302,8 +286,8 @@ angular.module('app.selfwork').controller('Job003Ctrl', function ($scope, $state
                     animation: true,
                     ariaLabelledBy: 'modal-title',
                     ariaDescribedBy: 'modal-body',
-                    templateUrl: 'ehuftzDataModalContent.html',
-                    controller: 'EhuftzDataInstanceCtrl',
+                    templateUrl: 'imdDataModalContent.html',
+                    controller: 'ImdDataInstanceCtrl',
                     controllerAs: '$ctrl',
                     windowClass: 'my-xl-modal-window',
                     backdrop: 'static',
@@ -323,84 +307,9 @@ angular.module('app.selfwork').controller('Job003Ctrl', function ($scope, $state
                 });
             });
         },
-        /**
-         * [SyncClearance description] 貨態同步
-         */
-        SyncClearance: function(){
-
-            var modalInstance = $uibModal.open({
-                animation: true,
-                ariaLabelledBy: 'modal-title',
-                ariaDescribedBy: 'modal-body',
-                templateUrl: 'syncClearanceModalContent.html',
-                controller: 'SyncClearanceInstanceCtrl',
-                controllerAs: '$ctrl',
-                // windowClass: 'my-xl-modal-window',
-                backdrop: 'static',
-                // size: 'lg',
-                // appendTo: parentElem,
-                resolve: {
-                    data: function() {
-                        return $vm.job003Data;
-                    }
-                }
-            });
-
-            modalInstance.result.then(function(selectedItem) {
-                console.log(selectedItem);
-
-                if(selectedItem.length > 0){
-
-                    var _task = [],
-                        _params = {};
-
-                    for(var i in selectedItem){
-
-                        if(selectedItem[i].CC_CR_USER){
-                            _params = {
-                                CC_CUST_CLEARANCE : selectedItem[i].EML_TRUE_CLEARANCE,
-                                CC_UP_USER        : $vm.profile.U_ID,
-                                CC_UP_DATETIME    : $filter('date')(new Date(), 'yyyy-MM-dd HH:mm:ss')
-                            }
-                        }else{
-                            _params = {
-                                CC_CUST_CLEARANCE : selectedItem[i].EML_TRUE_CLEARANCE,
-                                CC_CR_USER        : $vm.profile.U_ID,
-                                CC_CR_DATETIME    : $filter('date')(new Date(), 'yyyy-MM-dd HH:mm:ss')
-                            }
-                        }
-
-                        _task.push({
-                            crudType: 'Upsert',
-                            table: 50,
-                            params: _params,
-                            condition : {
-                                CC_SEQ        : selectedItem[i].IL_SEQ,                                    
-                                CC_NEWBAGNO   : selectedItem[i].IL_NEWBAGNO,
-                                CC_NEWSMALLNO : selectedItem[i].IL_NEWSMALLNO,
-                                CC_ORDERINDEX : selectedItem[i].IL_ORDERINDEX
-                            }
-                        });
-
-                    }
-
-                    RestfulApi.CRUDMSSQLDataByTask(_task).then(function (res){
-
-                        if(res["returnData"].length > 0){
-                            LoadItemList();
-                        }
-                    });
-
-                }
-
-            }, function() {
-                // $log.info('Modal dismissed at: ' + new Date());
-            });
-
-        },
         ProblemClearance: function(){
 
-            var problemClearance = $filter('filter')($vm.job003Data, { EML_BAGNO_CLEARANCE: '!C1' });
+            var problemClearance = $filter('filter')($vm.ojob003Data, { EML_BAGNO_CLEARANCE: '!C1' });
 
             if(problemClearance.length == 0){
                 toaster.pop('info', '訊息', '無異常的貨態。', 3000);
@@ -433,49 +342,17 @@ angular.module('app.selfwork').controller('Job003Ctrl', function ($scope, $state
         },
         Return : function(){
             ReturnToEmployeejobsPage();
-        },
-        Update : function(entity){
-            // create a fake promise - normally you'd use the promise returned by $http or $resource
-            var promise = $q.defer();
-            $vm.job003GridApi.rowEdit.setSavePromise( entity, promise.promise );
-         
-            RestfulApi.UpdateMSSQLData({
-                updatename: 'Update',
-                table: 11,
-                params: {
-                    DIL_DRIVER : entity.DIL_DRIVER,
-                    DIL_BAGNO : entity.DIL_BAGNO,
-                    DIL_ORDERNO : entity.DIL_ORDERNO,
-                    DIL_BARCODE : entity.DIL_BARCODE,
-                    DIL_CTN : entity.DIL_CTN,
-                    DIL_WEIGHT : entity.DIL_WEIGHT,
-                    DIL_GETNAME : entity.DIL_GETNAME,
-                    DIL_GETADDRESS : entity.DIL_GETADDRESS,
-                    DIL_GETTEL : entity.DIL_GETTEL,
-                    DIL_INCOME : entity.DIL_INCOME,
-                    DIL_REMARK : entity.DIL_REMARK
-                },
-                condition: {
-                    DIL_SEQ           : entity.DIL_SEQ,
-                    DIL_IL_NEWBAGNO   : entity.DIL_IL_NEWBAGNO,
-                    DIL_IL_NEWSMALLNO : entity.DIL_IL_NEWSMALLNO
-                }
-            }).then(function (res) {
-                promise.resolve();
-            }, function (err) {
-                toaster.pop('error', '錯誤', '更新失敗', 3000);
-                promise.reject();
-            });
         }
     });
 
     function LoadItemList(){
 
         RestfulApi.SearchMSSQLData({
-            querymain: 'job003',
-            queryname: 'SelectEhuftzMasterList',
+            querymain: 'ojob003',
+            queryname: 'SelectImd',
             params: {
-                EML_SEQ: $vm.vmData.OL_SEQ
+                O_OL_SEQ: $vm.vmData.O_OL_SEQ,
+                O_OL_MASTER: $vm.vmData.O_OL_MASTER
             }
         }).then(function (res){
             console.log(res["returnData"]);
@@ -486,7 +363,7 @@ angular.module('app.selfwork').controller('Job003Ctrl', function ($scope, $state
             //     res["returnData"][i]["Index"] = i+1;
             // }
             
-            $vm.job003Data = _data;
+            $vm.ojob003Data = _data;
         }); 
     };
 
@@ -506,33 +383,31 @@ angular.module('app.selfwork').controller('Job003Ctrl', function ($scope, $state
         $uibModalInstance.dismiss('cancel');
     };
 })
-.controller('EhuftzDataInstanceCtrl', function ($uibModalInstance, data) {
+.controller('ImdDataInstanceCtrl', function ($uibModalInstance, data) {
     var $ctrl = this;
     $ctrl.data = data;
 
     $ctrl.dataOption = {
         data: '$ctrl.data',
         columnDefs: [
-            { name: 'EML_DECL_NO'        , displayName: '報單號碼', width: 125 },
-            { name: 'EML_DECL_TYPE'      , displayName: '報單類別', width: 91 },
-            { name: 'EML_EXP_BAGNO' , displayName: '併袋號碼', width: 91 },
-            { name: 'EML_HWB'        , displayName: '分提單號', width: 110 },
-            { name: 'EML_CLEARANCE_TYPE' , displayName: '通關方式', width: 91 },
-            { name: 'EML_PIECE'          , displayName: '申報件數', width: 91 },
-            { name: 'EML_GCI_PIECE'      , displayName: '進倉件數', width: 91 },
-            { name: 'EML_GCO_PIECE'      , displayName: '出倉件數', width: 91 },
-            { name: 'EML_WEIGHT'         , displayName: '申報重量', width: 91 },
-            { name: 'EML_GCI_WEIGHT'     , displayName: '進倉重量', width: 91 },
-            { name: 'EML_BAG_WEIGHT'     , displayName: '袋重', width: 65 },
-            { name: 'EML_TRUE_CLEARANCE_STR' , displayName: '真實貨態', width: 91 },
-            { name: 'EML_BAGNO_CLEARANCE_STR' , displayName: '袋號貨態', width: 91 },
-            { name: 'EML_BAG_FEE'        , displayName: '倉租費用', width: 91 },
-            { name: 'EML_FLIGHT_NO'      , displayName: '航班', width: 65 },
-            { name: 'EML_FLIGHT_DATE'    , displayName: '班機日期', width: 91, cellFilter: 'dateFilter' },
-            { name: 'EML_GCI_DATE1'      , displayName: '進倉時間', width: 91, cellFilter: 'dateFilter' },
-            { name: 'EML_GCO_DATE1'      , displayName: '出倉時間', width: 91, cellFilter: 'dateFilter' },
-            { name: 'EML_RELEASE_TIME'   , displayName: '放行時間', width: 145, cellFilter: 'datetimeFilter' },
-            { name: 'EML_UP_DATETIME'   , displayName: '爬取時間', width: 145, cellFilter: 'datetimeFilter' }
+            { name: 'DeclarationNumber'        , displayName: '報單號碼', width: 125 },
+            { name: 'DeclarationType'          , displayName: '報單類別', width: 91 },
+            { name: 'SemicolonNumber'          , displayName: '分提單號', width: 110 },
+            { name: 'CustomsWay'               , displayName: '通關方式', width: 91 },
+            { name: 'IntoWarehouseTotalWeight' , displayName: '進倉總重', width: 91 },
+            { name: 'WarehouseRental'          , displayName: '倉租', width: 91 },
+            { name: 'DeclarationBoxNum'        , displayName: '報關箱號', width: 91 },
+            { name: 'DeclarationQty'           , displayName: '申報件數', width: 91 },
+            { name: 'DeclarationWeight'        , displayName: '申報重量', width: 91 },
+            { name: 'IntoWareHouseQty'         , displayName: '進倉件數', width: 91 },
+            { name: 'IntoWarehouseWeight'      , displayName: '進倉重量', width: 91 },
+            { name: 'OutOfWareHouseQty'        , displayName: '出倉件數', width: 91 },
+            { name: 'CustomsReleaseDateTime'   , displayName: '放行時間', width: 125 },
+            { name: 'FirstIntoWareHouseTime'   , displayName: '首件進倉時間', width: 125 },
+            { name: 'LastIntoWareHouseTime'    , displayName: '最後進倉時間', width: 125 },
+            { name: 'FirstOutOfWareHouseTime'  , displayName: '首件出倉時間', width: 125 },
+            { name: 'LastOutOfWareHouseTime'   , displayName: '最後出倉時間', width: 125 },
+            { name: 'ImportBoatClassDate'      , displayName: '進口船班日期', width: 91 }
         ],
         enableFiltering: true,
         enableSorting: true,
@@ -547,39 +422,6 @@ angular.module('app.selfwork').controller('Job003Ctrl', function ($scope, $state
 
     $ctrl.ok = function() {
         $uibModalInstance.close();
-    };
-
-    $ctrl.cancel = function() {
-        $uibModalInstance.dismiss('cancel');
-    };
-})
-.controller('SyncClearanceInstanceCtrl', function ($uibModalInstance, data) {
-    var $ctrl = this;
-    $ctrl.data = data;
-
-    $ctrl.dataOption = {
-        data: '$ctrl.data',
-        columnDefs: [
-            { name: 'IL_BAGNO2_NOREPEAT' , displayName: '併袋號碼' },
-            { name: 'IL_SMALLNO2'        , displayName: '分提單號' },
-            { name: 'EML_TRUE_CLEARANCE_STR' , displayName: '真實貨態', width: 91 },
-            { name: 'CC_CUST_CLEARANCE_STR' , displayName: '行家貨態', width: 91 }
-        ],
-        enableFiltering: true,
-        enableSorting: true,
-        enableColumnMenus: false,
-        // enableVerticalScrollbar: false,
-        enableRowSelection: true,
-        enableSelectAll: true,
-        paginationPageSizes: [50, 100, 150, 200, 250, 300],
-        paginationPageSize: 100,
-        onRegisterApi: function(gridApi){
-            $ctrl.dataGridApi = gridApi;
-        }
-    }
-
-    $ctrl.ok = function() {
-        $uibModalInstance.close($ctrl.dataGridApi.selection.getSelectedRows());
     };
 
     $ctrl.cancel = function() {

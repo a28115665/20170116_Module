@@ -37,7 +37,8 @@ class Apaccs {
         let recordset = await this.SelectUnfinishedMaster();
     	// console.log(recordset);
 
-        let driver;
+        let driver,
+        	seq;
 		try {
 		 	driver = await new Builder()
 			    .forBrowser("chrome")
@@ -55,8 +56,9 @@ class Apaccs {
 	        	// console.log(data);
 				// 預備寫入資料
 	        	let tasks = [],
-	        		seq = data.OL_SEQ,
 	        		mawbNo = data.OL_MASTER;
+        		seq = data.OL_SEQ;
+
 				await driver.get('https://accs.tradevan.com.tw/accsw-bin/APACCS/cImMergeQueryAction.do?mawb_no='+mawbNo+'&voyage_flight_no=&flight_date=&est_arrival_date=&%E6%9F%A5%E8%A9%A2=%E6%9F%A5%E8%A9%A2');
 				
 				if(!await this.IsElementPresent(driver, By.xpath("/html/body/table[1]/tbody/tr/td/table[3]/tbody/tr"))){
@@ -183,7 +185,7 @@ class Apaccs {
 			
 			// await sleep(2000);
 		} catch(e) {
-    		logger.error("空運業界自動化服務系統錯誤訊息:", e);
+    		logger.error("空運業界自動化服務系統錯誤訊息("+seq+"):", e);
 		} finally {
 			// await driver && driver.quit();
 			if(driver){
